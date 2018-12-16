@@ -8,7 +8,7 @@
 #include <folly/Benchmark.h>
 #include "network/NetworkUtils.h"
 
-using namespace vesoft::network;
+using namespace nebula::network;
 
 bool ipToInt(const std::string& ipStr, uint32_t& ip) {
     std::vector<std::string> parts;

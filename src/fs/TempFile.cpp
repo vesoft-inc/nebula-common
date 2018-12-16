@@ -7,7 +7,7 @@
 #include "base/Base.h"
 #include "fs/TempFile.h"
 
-namespace vesoft {
+namespace nebula {
 namespace fs {
 
 TempFile::TempFile(const char *path, bool autoDelete) {
@@ -34,4 +34,4 @@ const char* TempFile::path() const {
 }
 
 }   // namespace fs
-}   // namespace vesoft
+}   // namespace nebula

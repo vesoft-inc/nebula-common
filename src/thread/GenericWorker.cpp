@@ -9,7 +9,7 @@
 #include <sys/eventfd.h>
 #include <event2/event.h>
 
-namespace vesoft {
+namespace nebula {
 namespace thread {
 
 GenericWorker::GenericWorker() {
@@ -119,6 +119,7 @@ void GenericWorker::onNotify() {
             newcomings.swap(pendingTimers_);
         }
         auto cb = [] (int fd, int16_t, void *arg) {
+            UNUSED(fd);
             auto timer = reinterpret_cast<Timer*>(arg);
             auto worker = timer->owner_;
             timer->callback_();
@@ -178,5 +179,5 @@ void GenericWorker::purgeTimerInternal(uint64_t id) {
 }
 
 }   // namespace thread
-}   // namespace vesoft
+}   // namespace nebula
 

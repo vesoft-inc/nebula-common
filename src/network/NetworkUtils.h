@@ -9,7 +9,7 @@
 
 #include "base/Base.h"
 
-namespace vesoft {
+namespace nebula {
 namespace network {
 
 class NetworkUtils final {
@@ -40,7 +40,7 @@ private:
 };
 
 }  // namespace network
-}  // namespace vesoft
+}  // namespace nebula
 
 #endif  // COMMON_NETWORK_NETWORKUTILS_H_
 

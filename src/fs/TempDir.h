@@ -10,7 +10,7 @@
 #include "base/Base.h"
 #include "fs/FileUtils.h"
 
-namespace vesoft {
+namespace nebula {
 namespace fs {
 
 class TempDir final {
@@ -44,7 +44,7 @@ private:
 };
 
 }  // namespace fs
-}  // namespace vesoft
+}  // namespace nebula
 
 #endif  // COMMON_FS_TEMPDIR_H_
 

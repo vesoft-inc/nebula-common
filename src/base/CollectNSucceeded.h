@@ -10,7 +10,7 @@
 #include "base/Base.h"
 #include "folly/futures/Future.h"
 
-namespace vesoft {
+namespace nebula {
 
 /*********************************************************************
  * Here is a future aggregator, along with its variation
@@ -73,7 +73,7 @@ auto collectNSucceeded(Collection&& c,
                              std::forward<ResultEval>(eval));
 }
 
-}  // namespace vesoft
+}  // namespace nebula
 
 #include "base/CollectNSucceeded.inl"
 

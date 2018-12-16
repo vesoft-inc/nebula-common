@@ -9,7 +9,7 @@
 #include "base/Status.h"
 
 
-namespace vesoft {
+namespace nebula {
 
 TEST(Status, Basic) {
     ASSERT_TRUE(Status().ok());
@@ -95,4 +95,4 @@ TEST(Status, Move) {
 }
 
 
-}   // namespace vesoft
+}   // namespace nebula

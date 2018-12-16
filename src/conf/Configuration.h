@@ -14,7 +14,7 @@
  */
 
 
-namespace vesoft {
+namespace nebula {
 
 class Configuration final {
 public:
@@ -85,7 +85,7 @@ private:
     std::unique_ptr<folly::dynamic>             content_;
 };
 
-}   // namespace vesoft
+}   // namespace nebula
 
 
 #endif  // COMMON_BASE_CONFIGURATION_H_

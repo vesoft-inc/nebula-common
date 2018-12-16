@@ -8,7 +8,7 @@
 #include <folly/Benchmark.h>
 #include "time/Duration.h"
 
-using namespace vesoft::time;
+using namespace nebula::time;
 using namespace std::chrono;
 
 decltype(steady_clock::now()) scThen;

@@ -9,7 +9,7 @@
 #include <dirent.h>
 #include <fnmatch.h>
 
-namespace vesoft {
+namespace nebula {
 namespace fs {
 
 static const int32_t kMaxPathLen = 1024;
@@ -435,5 +435,5 @@ std::vector<std::string> FileUtils::listAllDirsInDir(
 }
 
 }  // namespace fs
-}  // namespace vesoft
+}  // namespace nebula
 

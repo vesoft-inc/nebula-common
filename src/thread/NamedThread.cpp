@@ -7,7 +7,7 @@
 #include "base/Base.h"
 #include "thread/NamedThread.h"
 
-namespace vesoft {
+namespace nebula {
 namespace thread {
 
 namespace detail {
@@ -36,4 +36,4 @@ pid_t gettid() {
 }
 
 }   // namespace thread
-}   // namespace vesoft
+}   // namespace nebula

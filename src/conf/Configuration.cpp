@@ -6,7 +6,7 @@
 #include "base/Base.h"
 #include "base/Configuration.h"
 
-namespace vesoft {
+namespace nebula {
 
 using Status = Configuration::Status;
 
@@ -169,4 +169,4 @@ Status Configuration::fetchAsSubConf(const char *key, Configuration &subconf) co
     return Status::OK;
 }
 
-}
+}   // namespace nebula

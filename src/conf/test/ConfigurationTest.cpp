@@ -9,9 +9,9 @@
 #include "base/Configuration.h"
 #include "fs/TempFile.h"
 
-using vesoft::fs::TempFile;
+using nebula::fs::TempFile;
 
-namespace vesoft {
+namespace nebula {
 
 TEST(Configuration, Basic) {
     std::string json = "{"
@@ -143,5 +143,5 @@ TEST(Configuration, ParseFromFile) {
     }
 }
 
-}   // namespace vesoft
+}   // namespace nebula
 

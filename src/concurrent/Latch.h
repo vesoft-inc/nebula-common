@@ -14,10 +14,10 @@
  * See shared/concurrent/test/LatchTest.cpp for use scenarios.
  */
 
-namespace vesoft {
+namespace nebula {
 namespace concurrent {
 
-class Latch final : public vesoft::cpp::NonCopyable, public vesoft::cpp::NonMovable {
+class Latch final : public nebula::cpp::NonCopyable, public nebula::cpp::NonMovable {
 public:
     /**
      * @counter:  initial counter,
@@ -59,6 +59,6 @@ private:
 };
 
 }   // namespace concurrent
-}   // namespace vesoft
+}   // namespace nebula
 
 #endif  // COMMON_CONCURRENT_LATCH_H_

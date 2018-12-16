@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 #include "fs/FileUtils.h"
 
-using namespace vesoft::fs;
+using namespace nebula::fs;
 
 
 TEST(FileUtils, getExePath) {

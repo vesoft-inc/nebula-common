@@ -10,7 +10,7 @@
 #include "base/Base.h"
 #include "base/Status.h"
 
-namespace vesoft {
+namespace nebula {
 
 template <typename T>
 class StatusOr final {
@@ -338,6 +338,6 @@ private:
     uint8_t         state_;
 };
 
-}   // namespace vesoft
+}   // namespace nebula
 
 #endif  // COMMON_BASE_STATUSOR_H_

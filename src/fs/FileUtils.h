@@ -9,7 +9,7 @@
 
 #include "base/Base.h"
 
-namespace vesoft {
+namespace nebula {
 namespace fs {
 
 enum class FileType {
@@ -142,7 +142,7 @@ public:
 };
 
 }  // namespace fs
-}  // namespace vesoft
+}  // namespace nebula
 
 #endif  // COMMON_FS_FILEUTILS_H_
 

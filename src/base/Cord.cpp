@@ -7,7 +7,7 @@
 #include "base/Base.h"
 #include "base/Cord.h"
 
-namespace vesoft {
+namespace nebula {
 
 Cord::Cord(int32_t blockSize)
         : blockSize_(blockSize)
@@ -246,5 +246,5 @@ Cord& Cord::operator<<(const Cord& rhs) {
     return *this;
 }
 
-}  // namespace vesoft
+}  // namespace nebula
 

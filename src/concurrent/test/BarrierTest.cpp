@@ -8,7 +8,7 @@
 #include "concurrent/Barrier.h"
 #include "thread/GenericThreadPool.h"
 
-namespace vesoft {
+namespace nebula {
 namespace concurrent {
 
 TEST(BarrierTest, BasicTest) {
@@ -90,4 +90,4 @@ TEST(BarrierTest, ConsecutiveTest) {
 }
 
 }   // namespace concurrent
-}   // namespace vesoft
+}   // namespace nebula

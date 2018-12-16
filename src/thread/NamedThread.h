@@ -15,7 +15,7 @@
 
 #include <sys/prctl.h>
 
-namespace vesoft {
+namespace nebula {
 namespace thread {
 
 pid_t gettid();
@@ -67,7 +67,7 @@ private:
     static void hook(NamedThread *thread,
                      const std::string &name,
                      const std::function<void()> &f) {
-        thread->tid_ = vesoft::thread::gettid();
+        thread->tid_ = nebula::thread::gettid();
         if (!name.empty()) {
             Nominator::set(name);
         }
@@ -85,6 +85,6 @@ NamedThread::NamedThread(const std::string &name, F &&f, Args&&...args)
 };
 
 }   // namespace thread
-}   // namespace vesoft
+}   // namespace nebula
 
 #endif  // COMMON_THREAD_NAMEDTHREAD_H_

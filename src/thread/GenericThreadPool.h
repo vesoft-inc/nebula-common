@@ -17,11 +17,11 @@
  * but not for the performance critical situation.
  */
 
-namespace vesoft {
+namespace nebula {
 namespace thread {
 
-class GenericThreadPool final : public vesoft::cpp::NonCopyable
-                              , public vesoft::cpp::NonMovable {
+class GenericThreadPool final : public nebula::cpp::NonCopyable
+                              , public nebula::cpp::NonMovable {
 public:
     GenericThreadPool();
     ~GenericThreadPool();
@@ -187,6 +187,6 @@ uint64_t GenericThreadPool::addRepeatTask(size_t ms, F &&f, Args &&...args) {
 }
 
 }   // namespace thread
-}   // namespace vesoft
+}   // namespace nebula
 
 #endif  // COMMON_THREAD_GENERICTHREADPOOL_H_

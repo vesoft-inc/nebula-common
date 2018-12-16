@@ -9,7 +9,7 @@
 #include "thread/GenericWorker.h"
 #include "time/Duration.h"
 
-namespace vesoft {
+namespace nebula {
 namespace thread {
 
 TEST(GenericWorker, StartAndStop) {
@@ -145,4 +145,4 @@ TEST(GenericWorker, purgeRepeatTask) {
 }
 
 }   // namespace thread
-}   // namespace vesoft
+}   // namespace nebula

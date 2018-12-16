@@ -7,7 +7,7 @@
 #ifndef COMMON_BASE_THRIFTTYPES_H_
 #define COMMON_BASE_THRIFTTYPES_H_
 
-namespace vesoft {
+namespace nebula {
 
 using ClusterID = int8_t;
 using GraphSpaceID = int32_t;
@@ -20,6 +20,6 @@ using Port = int32_t;
 // Host address type
 using HostAddr = std::pair<IPv4, Port>;
 
-}  // namespace vesoft
+}  // namespace nebula
 #endif  // COMMON_BASE_THRIFTTYPES_H_
 

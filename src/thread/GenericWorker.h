@@ -26,10 +26,10 @@
 struct event;
 struct event_base;
 
-namespace vesoft {
+namespace nebula {
 namespace thread {
 
-class GenericWorker final : public vesoft::cpp::NonCopyable, public vesoft::cpp::NonMovable {
+class GenericWorker final : public nebula::cpp::NonCopyable, public nebula::cpp::NonMovable {
 public:
     friend class GenericThreadPool;
 
@@ -290,6 +290,6 @@ uint64_t GenericWorker::addTimerTask(size_t delay,
 }
 
 }   // namespace thread
-}   // namespace vesoft
+}   // namespace nebula
 
 #endif  // COMMON_THREAD_GENERICWORKER_H_

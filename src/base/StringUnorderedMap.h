@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <string>
 
-namespace vesoft {
+namespace nebula {
 
 template<typename T>
 class StringUnorderedMap {
@@ -127,12 +127,12 @@ private:
 
 
 template<typename T>
-bool operator==(const StringUnorderedMap<T>& lhs, 
+bool operator==(const StringUnorderedMap<T>& lhs,
                 const StringUnorderedMap<T>& rhs);
 template<typename T>
-bool operator!=(const StringUnorderedMap<T>& lhs, 
+bool operator!=(const StringUnorderedMap<T>& lhs,
                 const StringUnorderedMap<T>& rhs);
 
-}  // namespace vesoft
+}  // namespace nebula
 #endif  // COMMON_BASE_STRINGUNORDEREDMAP_H_
 

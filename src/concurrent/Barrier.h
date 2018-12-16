@@ -17,10 +17,10 @@
  * by the last participating thread who entered `wait', before waking up other blocking threads.
  */
 
-namespace vesoft {
+namespace nebula {
 namespace concurrent {
 
-class Barrier final : public vesoft::cpp::NonCopyable, public vesoft::cpp::NonMovable {
+class Barrier final : public nebula::cpp::NonCopyable, public nebula::cpp::NonMovable {
 public:
     /**
      * @counter     number of participating threads
@@ -48,6 +48,6 @@ private:
 };
 
 }   // namespace concurrent
-}   // namespace vesoft
+}   // namespace nebula
 
 #endif  // COMMON_CONCURRENT_BARRIER_H_
