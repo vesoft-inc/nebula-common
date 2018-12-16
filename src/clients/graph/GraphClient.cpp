@@ -5,7 +5,7 @@
  */
 
 #include "base/Base.h"
-#include "client/cpp/GraphDbClient.h"
+#include "client/cpp/GraphClient.h"
 #include <thrift/lib/cpp/async/TAsyncSocket.h>
 #include <thrift/lib/cpp2/async/HeaderClientChannel.h>
 
@@ -13,22 +13,22 @@ DEFINE_int32(conn_timeout_ms, 1000,
              "Connection timeout in milliseconds");
 
 
-namespace vesoft {
-namespace vgraph {
+namespace nebula {
+namespace graph {
 
-GraphDbClient::GraphDbClient(const std::string& addr, uint16_t port)
+GraphClient::GraphClient(const std::string& addr, uint16_t port)
         : addr_(addr)
         , port_(port)
         , sessionId_(0) {
 }
 
 
-GraphDbClient::~GraphDbClient() {
+GraphClient::~GraphClient() {
     disconnect();
 }
 
 
-cpp2::ErrorCode GraphDbClient::connect(const std::string& username,
+cpp2::ErrorCode GraphClient::connect(const std::string& username,
                                        const std::string& password) {
     using namespace apache::thrift;
 
@@ -38,7 +38,7 @@ cpp2::ErrorCode GraphDbClient::connect(const std::string& username,
         port_,
         FLAGS_conn_timeout_ms);
 
-    client_ = std::make_unique<cpp2::GraphDbServiceAsyncClient>(
+    client_ = std::make_unique<cpp2::GraphServiceAsyncClient>(
         HeaderClientChannel::newChannel(socket));
 
     cpp2::AuthResponse resp;
@@ -59,7 +59,7 @@ cpp2::ErrorCode GraphDbClient::connect(const std::string& username,
 }
 
 
-void GraphDbClient::disconnect() {
+void GraphClient::disconnect() {
     if (!client_) {
         return;
     }
@@ -71,7 +71,7 @@ void GraphDbClient::disconnect() {
 }
 
 
-cpp2::ErrorCode GraphDbClient::execute(folly::StringPiece stmt,
+cpp2::ErrorCode GraphClient::execute(folly::StringPiece stmt,
                                        cpp2::ExecutionResponse& resp) {
     if (!client_) {
         LOG(ERROR) << "Disconnected from the server";
@@ -88,5 +88,5 @@ cpp2::ErrorCode GraphDbClient::execute(folly::StringPiece stmt,
     return resp.get_error_code();
 }
 
-}  // namespace vgraph
-}  // namespace vesoft
+}  // namespace graph
+}  // namespace nebula
