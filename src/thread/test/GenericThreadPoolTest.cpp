@@ -9,7 +9,7 @@
 #include "thread/GenericThreadPool.h"
 #include "time/Duration.h"
 
-namespace vesoft {
+namespace nebula {
 namespace thread {
 
 TEST(GenericThreadPool, StartAndStop) {
@@ -145,4 +145,4 @@ TEST(GenericThreadPool, purgeRepeatTask) {
 }
 
 }   // namespace thread
-}   // namespace vesoft
+}   // namespace nebula

@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 #include "base/MurmurHash2.h"
 
-namespace vesoft {
+namespace nebula {
 
 TEST(MurmurHash2, Basic) {
     MurmurHash2 hash;
@@ -92,4 +92,4 @@ TEST(MurmurHash2, Basic) {
     }
 }
 
-}   // namespace vesoft
+}   // namespace nebula

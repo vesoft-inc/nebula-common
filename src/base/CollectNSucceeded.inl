@@ -6,7 +6,7 @@
 
 #include <folly/ExceptionWrapper.h>
 
-namespace vesoft {
+namespace nebula {
 
 // Not thread-safe, all futures need to be on the same executor
 template <class FutureIter, typename ResultEval>
@@ -70,4 +70,4 @@ folly::Future<SucceededResultList<FutureIter>> collectNSucceeded(
     return ctx->promise.getFuture();
 }
 
-}  // namespace vesoft
+}  // namespace nebula

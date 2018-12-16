@@ -10,7 +10,7 @@
 #include <arpa/inet.h>
 #include "proc/ProcAccessor.h"
 
-namespace vesoft {
+namespace nebula {
 namespace network {
 
 static const int32_t kMaxHostNameLen = 256;
@@ -194,5 +194,5 @@ std::string NetworkUtils::intToIPv4(uint32_t ip) {
 }
 
 }  // namespace network
-}  // namespace vesoft
+}  // namespace nebula
 

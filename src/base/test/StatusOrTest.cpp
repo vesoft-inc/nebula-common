@@ -9,7 +9,7 @@
 #include "base/StatusOr.h"
 
 
-namespace vesoft {
+namespace nebula {
 
 TEST(StatusOr, ConstructFromDefault) {
     StatusOr<std::string> result;
@@ -443,4 +443,4 @@ TEST(StatusOr, ConvertibleButNotConstructible) {
 }
 */
 
-}   // namespace vesoft
+}   // namespace nebula

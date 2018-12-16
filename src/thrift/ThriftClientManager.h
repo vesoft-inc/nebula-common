@@ -10,7 +10,7 @@
 #include "base/Base.h"
 #include <folly/io/async/EventBaseManager.h>
 
-namespace vesoft {
+namespace nebula {
 namespace thrift {
 
 template<class ClientType>
@@ -33,7 +33,7 @@ private:
 };
 
 }  // namespace thrift
-}  // namespace vesoft
+}  // namespace nebula
 
 #include "thrift/ThriftClientManager.inl"
 

@@ -9,7 +9,7 @@
 #include "fs/TempDir.h"
 #include "fs/FileUtils.h"
 
-using namespace vesoft::fs;
+using namespace nebula::fs;
 
 TEST(TempDir, AutoRemoval) {
     std::string dirpath;

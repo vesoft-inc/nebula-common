@@ -12,7 +12,7 @@
 #include <thread>
 #include <type_traits>
 
-namespace vesoft {
+namespace nebula {
 
 /**
  * This is an implementation of MurmurHash2,
@@ -123,6 +123,6 @@ public:
     }
 };
 
-}   // namespace vesoft
+}   // namespace nebula
 
 #endif  // COMMON_BASE_MURMURHASH2_H_

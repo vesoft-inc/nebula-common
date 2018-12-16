@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 #include "proc/ProcAccessor.h"
 
-using namespace vesoft::proc;
+using namespace nebula::proc;
 
 TEST(ProcAccessor, AccessDir) {
     auto stopped = false;

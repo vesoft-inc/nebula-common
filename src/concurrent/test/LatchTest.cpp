@@ -9,7 +9,7 @@
 #include "concurrent/Latch.h"
 #include "thread/GenericThreadPool.h"
 
-namespace vesoft {
+namespace nebula {
 namespace concurrent {
 
 TEST(LatchTest, BasicTest) {
@@ -105,4 +105,4 @@ TEST(LatchTest, SignalTest) {
 }
 
 }   // namespace concurrent
-}   // namespace vesoft
+}   // namespace nebula

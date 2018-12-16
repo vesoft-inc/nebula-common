@@ -9,7 +9,7 @@
 
 #include "base/Base.h"
 
-namespace vesoft {
+namespace nebula {
 
 class Cord {
 public:
@@ -70,6 +70,6 @@ private:
     void allocateBlock();
 };
 
-}  // namespace vesoft
+}  // namespace nebula
 #endif  // COMMON_BASE_CORD_H_
 

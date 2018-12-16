@@ -9,7 +9,7 @@
 
 #include "base/Base.h"
 
-namespace vesoft {
+namespace nebula {
 namespace time {
 
 class Duration final {
@@ -38,7 +38,7 @@ private:
 };
 
 }  // namespace time
-}  // namespace vesoft
+}  // namespace nebula
 
 #endif  // COMMON_TIME_DURATION_H_
 

@@ -95,7 +95,7 @@
 #define FVLOG4(...) VLOG(4) << folly::stringPrintf(__VA_ARGS__)
 
 
-namespace vesoft {
+namespace nebula {
 
 template<typename Key, typename T>
 using UnorderedMap = typename std::conditional<
@@ -128,5 +128,5 @@ static constexpr auto is_constructible_v = std::is_constructible<T, Args...>::va
 template <typename U, typename T>
 static constexpr auto is_convertible_v = std::is_constructible<U, T>::value;
 
-}  // namespace vesoft
+}  // namespace nebula
 #endif  // COMMON_BASE_BASE_H_

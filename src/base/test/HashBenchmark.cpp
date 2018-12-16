@@ -7,7 +7,7 @@
 #include <folly/Benchmark.h>
 #include "base/MurmurHash2.h"
 
-using vesoft::MurmurHash2;
+using nebula::MurmurHash2;
 
 std::string makeString(size_t size) {
     std::string str;
@@ -97,7 +97,7 @@ main(int argc, char **argv) {
 
 /*           Intel(R) Xeon(R) CPU E5-2673 v3 @ 2.40GHz
 ============================================================================
-common/base/test/HashBenchmark.cpp              relative  time/iter  iters/s
+src/common/base/test/HashBenchmark.cpp          relative  time/iter  iters/s
 ============================================================================
 StdHashTest(1Byte)                                           4.53ns  220.75M
 MurmurHash2Test(1Byte)                           293.53%     1.54ns  647.95M

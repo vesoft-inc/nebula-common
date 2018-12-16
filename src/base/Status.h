@@ -17,7 +17,7 @@
  * without any heap memory allocations.
  */
 
-namespace vesoft {
+namespace nebula {
 
 class Status final {
 public:
@@ -155,6 +155,6 @@ inline std::ostream& operator<<(std::ostream &os, const Status &status) {
     return os << status.toString();
 }
 
-}   // namespace vesoft
+}   // namespace nebula
 
 #endif  // COMMON_BASE_STATUS_H_

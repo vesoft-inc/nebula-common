@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 #include "network/NetworkUtils.h"
 
-using namespace vesoft::network;
+using namespace nebula::network;
 
 
 TEST(NetworkUtils, getHostname) {

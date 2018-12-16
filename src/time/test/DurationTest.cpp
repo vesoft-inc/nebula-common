@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 #include "time/Duration.h"
 
-using namespace vesoft::time;
+using namespace nebula::time;
 
 TEST(Duration, elapsedInSeconds) {
     for (int i = 0; i < 5; i++) {

@@ -7,7 +7,7 @@
 #include "base/Base.h"
 #include "base/Status.h"
 
-namespace vesoft {
+namespace nebula {
 
 Status::Status(Code code, folly::StringPiece msg) {
     const uint16_t size = msg.size();
@@ -62,4 +62,4 @@ std::string Status::format(const char *fmt, va_list args) {
     return result;
 }
 
-}   // namespace vesoft
+}   // namespace nebula

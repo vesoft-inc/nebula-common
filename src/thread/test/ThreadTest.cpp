@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 #include "thread/NamedThread.h"
 
-namespace vesoft {
+namespace nebula {
 namespace thread {
 
 TEST(NamedThread, ThreadName) {
@@ -34,4 +34,4 @@ TEST(NamedThread, ThreadID) {
 }
 
 }   // namespace thread
-}   // namespace vesoft
+}   // namespace nebula

@@ -7,7 +7,7 @@
 #include "base/Base.h"
 #include "proc/ProcAccessor.h"
 
-namespace vesoft {
+namespace nebula {
 namespace proc {
 
 ProcAccessor::~ProcAccessor() {
@@ -113,4 +113,4 @@ bool ProcAccessor::dirNext(std::string& entry) {
 }
 
 }   // namespace proc
-}   // namespace vesoft
+}   // namespace nebula

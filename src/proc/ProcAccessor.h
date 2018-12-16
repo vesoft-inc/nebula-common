@@ -10,7 +10,7 @@
 #include "base/Base.h"
 #include <dirent.h>
 
-namespace vesoft {
+namespace nebula {
 namespace proc {
 
 /**
@@ -48,6 +48,6 @@ private:
 };
 
 }   // namespace proc
-}   // namespace vesoft
+}   // namespace nebula
 
 #endif  // COMMON_PROC_PROCACCESSOR_H_

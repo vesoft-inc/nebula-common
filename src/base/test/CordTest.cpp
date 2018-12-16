@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 #include "base/Cord.h"
 
-using namespace vesoft;
+using namespace nebula;
 
 TEST(Cord, write) {
     Cord cord;

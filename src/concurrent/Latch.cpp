@@ -7,7 +7,7 @@
 #include "base/Base.h"
 #include "concurrent/Latch.h"
 
-namespace vesoft {
+namespace nebula {
 namespace concurrent {
 
 Latch::Latch(size_t counter) {
@@ -49,4 +49,4 @@ bool Latch::isReady() {
 }
 
 }   // namespace concurrent
-}   // namespace vesoft
+}   // namespace nebula

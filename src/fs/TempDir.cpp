@@ -7,7 +7,7 @@
 #include "base/Base.h"
 #include "fs/TempDir.h"
 
-namespace vesoft {
+namespace nebula {
 namespace fs {
 
 TempDir::TempDir(const char* pathTemplate, bool deleteOnDestroy)
@@ -38,5 +38,5 @@ TempDir::~TempDir() {
 }
 
 }  // namespace fs
-}  // namespace vesoft
+}  // namespace nebula
 

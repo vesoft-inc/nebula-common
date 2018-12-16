@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 #include "fs/TempFile.h"
 
-namespace vesoft {
+namespace nebula {
 namespace fs {
 
 TEST(TempFile, Basic) {
@@ -71,4 +71,4 @@ TEST(TempFile, Failure) {
 }
 
 }   // namespace fs
-}   // namespace vesoft
+}   // namespace nebula

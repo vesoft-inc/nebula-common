@@ -13,7 +13,7 @@
  * TempFile is only responsible for the creation and optional deletion.
  */
 
-namespace vesoft {
+namespace nebula {
 namespace fs {
 
 class TempFile final {
@@ -37,6 +37,6 @@ private:
 };
 
 }   // namespace fs
-}   // namespace vesoft
+}   // namespace nebula
 
 #endif  // COMMON_FS_TEMPFILE_H_

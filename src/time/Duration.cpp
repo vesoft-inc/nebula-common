@@ -8,7 +8,7 @@
 #include "time/Duration.h"
 #include "thread/NamedThread.h"
 
-namespace vesoft {
+namespace nebula {
 namespace time {
 
 namespace detail {
@@ -107,4 +107,4 @@ uint64_t Duration::elapsedInUSec() const {
 }
 
 }  // namespace time
-}  // namespace vesoft
+}  // namespace nebula

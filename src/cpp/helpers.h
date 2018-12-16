@@ -6,7 +6,7 @@
 #ifndef COMMON_CPP_HELPERS_H_
 #define COMMON_CPP_HELPERS_H_
 
-namespace vesoft {
+namespace nebula {
 namespace cpp {
 
 class NonCopyable {
@@ -24,5 +24,5 @@ public:
 };
 
 }   // namespace cpp
-}   // namespace vesoft
+}   // namespace nebula
 #endif  // COMMON_CPP_HELPERS_H_

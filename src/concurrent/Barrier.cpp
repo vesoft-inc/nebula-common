@@ -8,7 +8,7 @@
 #include "concurrent/Barrier.h"
 
 
-namespace vesoft {
+namespace nebula {
 namespace concurrent {
 
 Barrier::Barrier(size_t counter, std::function<void()> completion) {
@@ -36,4 +36,4 @@ void Barrier::wait() {
 }
 
 }   // namespace concurrent
-}   // namespace vesoft
+}   // namespace nebula

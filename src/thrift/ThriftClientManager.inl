@@ -12,7 +12,7 @@
 
 DECLARE_int32(conn_timeout_ms);
 
-namespace vesoft {
+namespace nebula {
 namespace thrift {
 
 using namespace network;
@@ -56,6 +56,6 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::getClient(
 }
 
 }  // namespace thrift
-}  // namespace vesoft
+}  // namespace nebula
 
 

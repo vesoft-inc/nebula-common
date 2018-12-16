@@ -7,7 +7,7 @@
 #include "base/Base.h"
 #include "thread/GenericThreadPool.h"
 
-namespace vesoft {
+namespace nebula {
 namespace thread {
 
 GenericThreadPool::GenericThreadPool() {
@@ -56,4 +56,4 @@ void GenericThreadPool::purgeTimerTask(uint64_t id) {
 }
 
 }   // namespace thread
-}   // namespace vesoft
+}   // namespace nebula
