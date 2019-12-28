@@ -12,7 +12,6 @@
 #   NEBULA_THIRDPARTY_ROOT         -- Specify the root directory for third-party
 #   NEBULA_OTHER_ROOT              -- Specify the root directory for user build
 #                                  -- Split with ":", exp: DIR:DIR
-#   NEBULA_CLANG_USED_GCC_TOOLCHAIN           -- Set the gcc installation directory used by Clang(libstdc++)
 #
 #   ENABLE_JEMALLOC                -- Link jemalloc into all executables
 #   ENABLE_NATIVE                  -- Build native client
@@ -95,9 +94,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "_build")
 set(NEBULA_HOME ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DNEBULA_HOME=${NEBULA_HOME})
 
-# Let s2 use glog
-add_definitions(-DS2_USE_GLOG)
-
 if (NEBULA_BUILD_VERSION)
     add_definitions(-DNEBULA_BUILD_VERSION=${NEBULA_BUILD_VERSION})
 endif()
@@ -127,10 +123,6 @@ set(CMAKE_MODULE_PATH "${NEBULA_HOME}/cmake" ${CMAKE_MODULE_PATH})
 # When NEBULA_THIRDPARTY_ROOT is null, set default value as /opt/nebula/third-party
 if("${NEBULA_THIRDPARTY_ROOT}" STREQUAL "")
     SET(NEBULA_THIRDPARTY_ROOT "/opt/nebula/third-party")
-endif()
-
-if ("${NEBULA_CLANG_USED_GCC_TOOLCHAIN}" STREQUAL "")
-    SET(NEBULA_CLANG_USED_GCC_TOOLCHAIN "${NEBULA_THIRDPARTY_ROOT}")
 endif()
 
 # third-party
@@ -169,7 +161,6 @@ message(STATUS "CMAKE_PROGRAM_PATH: " ${PROGRAM_PATH_STR})
 
 find_package(Bzip2 REQUIRED)
 find_package(DoubleConversion REQUIRED)
-find_package(Fatal REQUIRED)
 find_package(Fbthrift REQUIRED)
 find_package(Folly REQUIRED)
 find_package(Gflags REQUIRED)
@@ -179,7 +170,6 @@ find_package(Jemalloc REQUIRED)
 find_package(Libevent REQUIRED)
 find_package(Mstch REQUIRED)
 find_package(Proxygen REQUIRED)
-find_package(Rocksdb REQUIRED)
 find_package(Snappy REQUIRED)
 find_package(Wangle REQUIRED)
 find_package(ZLIB REQUIRED)
@@ -189,10 +179,6 @@ find_package(OpenSSL REQUIRED)
 find_package(Krb5 REQUIRED gssapi)
 find_package(GPERF 2.8 REQUIRED)
 find_package(Libunwind REQUIRED)
-find_package(BISON 3.0.5 REQUIRED)
-find_package(FLEX REQUIRED)
-find_package(Readline REQUIRED)
-find_package(NCURSES REQUIRED)
 find_package(LibLZMA MODULE)
 if(NOT ENABLE_ASAN AND NOT ENABLE_NATIVE)
     find_package(PCHSupport)
@@ -210,16 +196,10 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         add_compile_options(-Wsuggest-override)
     endif()
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    MESSAGE(STATUS "NEBULA_CLANG_USED_GCC_TOOLCHAIN: ${NEBULA_CLANG_USED_GCC_TOOLCHAIN}")
-    # Here we need to specify the path of libstdc++ used by Clang
-    if(NOT ${NEBULA_CLANG_USED_GCC_TOOLCHAIN} STREQUAL "")
-        add_compile_options("--gcc-toolchain=${NEBULA_CLANG_USED_GCC_TOOLCHAIN}")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --gcc-toolchain=${NEBULA_CLANG_USED_GCC_TOOLCHAIN}")
-    endif()
-    add_compile_options(-Wno-overloaded-virtual)
-    add_compile_options(-Wno-self-assign-overloaded)
-    add_compile_options(-Wno-self-move)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -latomic")
+  add_compile_options(-Wno-overloaded-virtual)
+  add_compile_options(-Wno-self-assign-overloaded)
+  add_compile_options(-Wno-self-move)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -latomic")
 endif()
 
 include(CheckCXXCompilerFlag)
@@ -330,19 +310,15 @@ macro(nebula_add_library name type)
         storage_thrift_headers
         meta_thrift_headers
         raftex_thrift_headers
-        hbase_thrift_headers
-        parser_target
+#        hbase_thrift_headers
+#        parser_target
     )
 endmacro()
 
 include_directories(AFTER ${NEBULA_HOME}/src)
-include_directories(AFTER src/common)
 include_directories(AFTER src/interface)
 include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR}/src)
 include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR}/src/interface)
-include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR}/src/kvstore/plugins)
-include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR}/src/kvstore/plugins/hbase)
-include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR}/src/parser)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L ${NEBULA_THIRDPARTY_ROOT}/lib")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L ${NEBULA_THIRDPARTY_ROOT}/lib64")
@@ -360,8 +336,6 @@ set(THRIFT_LIBRARIES
     thriftfrozen2
     thrift-core
 )
-
-set(ROCKSDB_LIBRARIES ${Rocksdb_LIBRARY})
 
 # All compression libraries
 set(COMPRESSION_LIBRARIES bz2 snappy zstd z)
@@ -405,7 +379,6 @@ macro(nebula_link_libraries target)
         event
         double-conversion
         resolv
-        s2
         ${OPENSSL_SSL_LIBRARY}
         ${OPENSSL_CRYPTO_LIBRARY}
         ${KRB5_LIBRARIES}
@@ -425,12 +398,7 @@ function(nebula_add_subdirectory dir_name)
     add_subdirectory(${dir_name})
 endfunction()
 
-set(NEBULA_CLEAN_ALL_DEPS clean-interface clean-pch clean-hbase)
-
-add_subdirectory(src)
-add_subdirectory(etc)
-add_subdirectory(scripts)
-add_subdirectory(share)
+set(NEBULA_CLEAN_ALL_DEPS clean-interface clean-pch)
 
 add_custom_target(
     clean-build
@@ -501,3 +469,6 @@ set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/package/posti
 set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION /usr/local)
 
 include(CPack)
+
+add_subdirectory(src)
+
