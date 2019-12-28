@@ -13,7 +13,7 @@ install_manifest.txt
 .ccls
 compile_commands.json
 
-src/common/base/Base.h.gch
+src/base/Base.h.gch
 gen-*
 
 # cmake
