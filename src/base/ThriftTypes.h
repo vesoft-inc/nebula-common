@@ -8,6 +8,7 @@
 #define COMMON_BASE_THRIFTTYPES_H_
 
 #include <cstdint>
+#include <unordered_map>
 
 namespace nebula {
 
