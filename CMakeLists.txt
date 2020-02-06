@@ -471,4 +471,5 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION /usr/local)
 include(CPack)
 
 add_subdirectory(src)
+add_subdirectory(exports)
 
