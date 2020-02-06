@@ -93,6 +93,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "_build")
 # Set the project home dir
 set(NEBULA_HOME ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DNEBULA_HOME=${NEBULA_HOME})
+set(PACKAGE_NAME "nebula-common")
 
 if (NEBULA_BUILD_VERSION)
     add_definitions(-DNEBULA_BUILD_VERSION=${NEBULA_BUILD_VERSION})
@@ -297,6 +298,12 @@ endmacro()
 # including the precompiled header, a.k.a Base.h.gch, and thrift headers.
 macro(nebula_add_library name type)
     add_library(${name} ${type} ${ARGN})
+    export(
+        TARGETS ${name}
+        NAMESPACE "common_"
+        APPEND
+        FILE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-config.cmake
+    )
     if (PCHSupport_FOUND)
         add_dependencies(
             ${name}
@@ -427,10 +434,7 @@ IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git/")
     # Create the pre-commit hook every time we run cmake
     message(STATUS "Create the pre-commit hook")
     set(PRE_COMMIT_HOOK ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/pre-commit)
-    execute_process(
-        COMMAND
-        "rm" "-f" ${PRE_COMMIT_HOOK}
-    )
+    execute_process(COMMAND "rm" "-f" ${PRE_COMMIT_HOOK})
     execute_process(
         COMMAND
         "ln" "-s" ${CMAKE_CURRENT_SOURCE_DIR}/.linters/cpp/hooks/pre-commit.sh ${PRE_COMMIT_HOOK}
@@ -468,5 +472,9 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION /usr/local)
 
 include(CPack)
 
+# Remove the existing target exporting file
+execute_process(COMMAND "rm" "-f" "${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-config.cmake")
+
 add_subdirectory(src)
 
+export(PACKAGE ${PACKAGE_NAME})
