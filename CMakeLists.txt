@@ -316,9 +316,7 @@ macro(nebula_add_library name type)
 endmacro()
 
 include_directories(AFTER ${NEBULA_HOME}/src)
-include_directories(AFTER src/interface)
 include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR}/src)
-include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR}/src/interface)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L ${NEBULA_THIRDPARTY_ROOT}/lib")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L ${NEBULA_THIRDPARTY_ROOT}/lib64")
