@@ -96,6 +96,13 @@ add_library(
   OBJECT
   ${${file_name}-cpp2-SOURCES}
 )
+export(
+  TARGETS "${file_name}_thrift_obj"
+  NAMESPACE "common_"
+  APPEND
+  FILE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-config.cmake
+)
+
 add_custom_target(${file_name}_thrift_headers DEPENDS ${${file_name}-cpp2-HEADERS})
 if(NOT "${file_name}" STREQUAL "common")
     add_dependencies(

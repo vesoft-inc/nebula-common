@@ -20,6 +20,7 @@ gen-*
 CPackConfig.cmake
 CPackSourceConfig.cmake
 CMakeCache.txt
+nebula-common-config.cmake
 Makefile
 cmake_install.cmake
 CTestTestfile.cmake
