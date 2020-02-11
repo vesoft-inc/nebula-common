@@ -57,9 +57,9 @@ Value::Value(Value&& rhs) : type_(Value::Type::__EMPTY__) {
             value_.dtVal = std::move(rhs.value_.dtVal);
             break;
         }
-        case Type::pVal:
+        case Type::pathVal:
         {
-            value_.pVal = std::move(rhs.value_.pVal);
+            value_.pathVal = std::move(rhs.value_.pathVal);
             break;
         }
         case Type::listVal:
@@ -132,9 +132,9 @@ Value::Value(const Value& rhs) : type_(Value::Type::__EMPTY__) {
             value_.dtVal = rhs.value_.dtVal;
             break;
         }
-        case Type::pVal:
+        case Type::pathVal:
         {
-            value_.pVal = rhs.value_.pVal;
+            value_.pathVal = rhs.value_.pathVal;
             break;
         }
         case Type::listVal:
@@ -198,9 +198,9 @@ bool Value::operator==(const Value& rhs) const {
         {
           return value_.dtVal == rhs.value_.dtVal;
         }
-        case Type::pVal:
+        case Type::pathVal:
         {
-          return value_.pVal == rhs.value_.pVal;
+          return value_.pathVal == rhs.value_.pathVal;
         }
         case Type::listVal:
         {
@@ -265,9 +265,9 @@ void Value::clear() {
             destruct(value_.dtVal);
             break;
         }
-        case Type::pVal:
+        case Type::pathVal:
         {
-            destruct(value_.pVal);
+            destruct(value_.pathVal);
             break;
         }
         case Type::listVal:
@@ -340,9 +340,9 @@ Value& Value::operator=(Value&& rhs) {
             value_.dtVal = std::move(rhs.value_.dtVal);
             break;
         }
-        case Type::pVal:
+        case Type::pathVal:
         {
-            value_.pVal = std::move(rhs.value_.pVal);
+            value_.pathVal = std::move(rhs.value_.pathVal);
             break;
         }
         case Type::listVal:
@@ -417,9 +417,9 @@ Value& Value::operator=(const Value& rhs) {
             value_.dtVal = rhs.value_.dtVal;
             break;
         }
-        case Type::pVal:
+        case Type::pathVal:
         {
-            value_.pVal = rhs.value_.pVal;
+            value_.pathVal = rhs.value_.pathVal;
             break;
         }
         case Type::listVal:

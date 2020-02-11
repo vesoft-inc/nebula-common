@@ -51,7 +51,7 @@ struct Value {
         Timestamp               tVal;
         Date                    dVal;
         DateTime                dtVal;
-        Path                    pVal;
+        Path                    pathVal;
         std::unique_ptr<List>   listVal;
         std::unique_ptr<Map>    mapVal;
 
