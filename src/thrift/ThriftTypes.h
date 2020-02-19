@@ -22,7 +22,14 @@ using Port = int32_t;
 
 using TagIndexID = int32_t;
 using EdgeIndexID = int32_t;
-using VertexID = int64_t;
+// Starting from 2.0, both string and int64 vertex ids will be supported.
+//
+// The string id must be fixed-length (the length of the id will be specified
+// as a Graph Space property). So the int64 id will be treated as 8-byte string
+//
+// If the length of a given id is shorter than the specified length, '\0' will
+// be appended to the end
+using VertexID = std::string;
 using TagID = int32_t;
 using TagVersion = int64_t;
 using EdgeType = int32_t;

@@ -11,7 +11,7 @@
 #include <folly/executors/IOThreadPoolExecutor.h>
 #include <folly/RWSpinLock.h>
 #include <gtest/gtest_prod.h>
-#include "gen-cpp2/MetaServiceAsyncClient.h"
+#include "interface/gen-cpp2/MetaServiceAsyncClient.h"
 #include "base/Status.h"
 #include "base/StatusOr.h"
 #include "meta/Common.h"
@@ -317,7 +317,9 @@ public:
     bool checkSpaceExistInCache(const HostAddr& host,
                                 GraphSpaceID spaceId);
 
-    StatusOr<int32_t> partsNum(GraphSpaceID spaceId);
+    StatusOr<int32_t> partsNum(GraphSpaceID spaceId) const;
+
+    StatusOr<PartitionID> partId(GraphSpaceID spaceId, VertexID id) const;
 
     StatusOr<std::shared_ptr<const SchemaProviderIf>>
     getTagSchemaFromCache(GraphSpaceID spaceId, TagID tagID, SchemaVer ver = -1);
@@ -440,8 +442,8 @@ private:
     SpaceEdgeTypeNameMap  spaceEdgeIndexByType_;
     SpaceNewestTagVerMap  spaceNewestTagVerMap_;
     SpaceNewestEdgeVerMap spaceNewestEdgeVerMap_;
-    SpaceAllEdgeMap      spaceAllEdgeMap_;
-    folly::RWSpinLock     localCacheLock_;
+    SpaceAllEdgeMap       spaceAllEdgeMap_;
+    mutable folly::RWSpinLock     localCacheLock_;
     MetaChangedListener*  listener_{nullptr};
     folly::RWSpinLock     listenerLock_;
     std::atomic<ClusterID> clusterId_{0};

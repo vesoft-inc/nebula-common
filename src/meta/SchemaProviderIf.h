@@ -8,7 +8,7 @@
 #define META_SCHEMAPROVIDERIF_H_
 
 #include "base/Base.h"
-#include "gen-cpp2/meta_types.h"
+#include "interface/gen-cpp2/meta_types.h"
 
 
 namespace nebula {
@@ -21,11 +21,11 @@ public:
     public:
         virtual ~Field() = default;
 
-        virtual const char* getName() const = 0;
-        virtual const cpp2::PropertyType getType() const = 0;
+        virtual const char* name() const = 0;
+        virtual const cpp2::PropertyType type() const = 0;
         virtual bool isValid() const = 0;
         virtual bool hasDefault() const = 0;
-        virtual std::string getDefaultValue() const = 0;
+        virtual const Value& defaultValue() const = 0;
     };
 
     // Inherited classes do not need to implement the Iterator
