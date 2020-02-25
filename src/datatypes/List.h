@@ -24,10 +24,12 @@ struct List {
     }
 
     List& operator=(const List& rhs) {
+        if (this == &rhs) { return *this; }
         values = rhs.values;
         return *this;
     }
     List& operator=(List&& rhs) {
+        if (this == &rhs) { return *this; }
         values = std::move(rhs.values);
         return *this;
     }

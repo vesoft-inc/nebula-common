@@ -20,10 +20,12 @@ struct Map {
     Map(Map&&) = default;
 
     Map& operator=(const Map& rhs) {
+        if (this == &rhs) { return *this; }
         kvs = rhs.kvs;
         return *this;
     }
     Map& operator=(Map&& rhs) {
+        if (this == &rhs) { return *this; }
         kvs = std::move(rhs.kvs);
         return *this;
     }

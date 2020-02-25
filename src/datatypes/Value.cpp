@@ -665,6 +665,7 @@ Value& Value::operator=(Value&& rhs) {
 
 Value& Value::operator=(const Value& rhs) {
     if (this == &rhs) { return *this; }
+    if (this == &rhs) { return *this; }
     clear();
     if (rhs.type_ == Type::__EMPTY__) { return *this; }
     switch (rhs.type_) {
