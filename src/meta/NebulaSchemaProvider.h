@@ -76,7 +76,7 @@ public:
     explicit NebulaSchemaProvider(SchemaVer ver) : ver_(ver) {}
 
     SchemaVer getVersion() const noexcept override;
-    ssize_t getNumFields() const noexcept override;
+    size_t getNumFields() const noexcept override;
 
     size_t size() const noexcept override;
 
@@ -107,7 +107,7 @@ protected:
 
     // fieldname -> index
     std::unordered_map<std::string, int64_t>    fieldNameIndex_;
-    std::vector<SchemaField>   fields_;
+    std::vector<SchemaField>                    fields_;
     cpp2::SchemaProp                            schemaProp_;
 };
 

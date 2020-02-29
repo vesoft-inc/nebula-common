@@ -15,7 +15,7 @@ SchemaVer NebulaSchemaProvider::getVersion() const noexcept {
 }
 
 
-ssize_t NebulaSchemaProvider::getNumFields() const noexcept {
+size_t NebulaSchemaProvider::getNumFields() const noexcept {
     return fields_.size();
 }
 

@@ -96,7 +96,7 @@ public:
     virtual ~SchemaProviderIf() = default;
 
     virtual SchemaVer getVersion() const noexcept = 0;
-    virtual ssize_t getNumFields() const noexcept = 0;
+    virtual size_t getNumFields() const noexcept = 0;
 
     // Return the number of bytes occupied by when each row of data
     // persisted on the disk
