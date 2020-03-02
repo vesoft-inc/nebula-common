@@ -121,9 +121,9 @@ endif()
 # To include customized FindXXX.cmake modules
 set(CMAKE_MODULE_PATH "${NEBULA_HOME}/cmake" ${CMAKE_MODULE_PATH})
 
-# When NEBULA_THIRDPARTY_ROOT is null, set default value as /opt/nebula/third-party
+# When NEBULA_THIRDPARTY_ROOT is null, set default value as /opt/vesoft/third-party
 if("${NEBULA_THIRDPARTY_ROOT}" STREQUAL "")
-    SET(NEBULA_THIRDPARTY_ROOT "/opt/nebula/third-party")
+    SET(NEBULA_THIRDPARTY_ROOT "/opt/vesoft/third-party")
 endif()
 
 # third-party
