@@ -21,6 +21,37 @@ namespace nebula {
 
 class Status final {
 public:
+    // If some kind of error really needs to be distinguished with others using a specific
+    // code, other than a general code and specific msg, you could add a new code below,
+    // e.g. kSomeError, and add the cooresponding STATUS_GENERATOR(SomeError)
+    enum Code : uint16_t {
+        // OK
+        kOk                     = 0,
+        kInserted               = 1,
+        // 1xx, for general errors
+        kError                  = 101,
+        kNoSuchFile             = 102,
+        kNotSupported           = 103,
+        // 2xx, for graph engine errors
+        kSyntaxError            = 201,
+        kStatementEmpty         = 202,
+        // 3xx, for storage engine errors
+        // ...
+        // 4xx, for meta service errors
+        kSpaceNotFound          = 404,
+        kHostNotFound           = 405,
+        kTagNotFound            = 406,
+        kEdgeNotFound           = 407,
+        kUserNotFound           = 408,
+        kLeaderChanged          = 409,
+        kBalanced               = 410,
+        kTagIndexNotFound       = 411,
+        kEdgeIndexNotFound      = 412,
+        kPartNotFound           = 413,
+    };
+
+    Status(Code code, folly::StringPiece msg);
+
     Status() = default;
 
     ~Status() = default;
@@ -123,35 +154,6 @@ public:
 
     friend std::ostream& operator<<(std::ostream &os, const Status &status);
 
-    // If some kind of error really needs to be distinguished with others using a specific
-    // code, other than a general code and specific msg, you could add a new code below,
-    // e.g. kSomeError, and add the cooresponding STATUS_GENERATOR(SomeError)
-    enum Code : uint16_t {
-        // OK
-        kOk                     = 0,
-        kInserted               = 1,
-        // 1xx, for general errors
-        kError                  = 101,
-        kNoSuchFile             = 102,
-        kNotSupported           = 103,
-        // 2xx, for graph engine errors
-        kSyntaxError            = 201,
-        kStatementEmpty         = 202,
-        // 3xx, for storage engine errors
-        // ...
-        // 4xx, for meta service errors
-        kSpaceNotFound          = 404,
-        kHostNotFound           = 405,
-        kTagNotFound            = 406,
-        kEdgeNotFound           = 407,
-        kUserNotFound           = 408,
-        kLeaderChanged          = 409,
-        kBalanced               = 410,
-        kTagIndexNotFound       = 411,
-        kEdgeIndexNotFound      = 412,
-        kPartNotFound           = 413,
-    };
-
     Code code() const {
         if (state_ == nullptr) {
             return kOk;
@@ -164,8 +166,6 @@ private:
     uint16_t size() const {
         return reinterpret_cast<const Header*>(state_.get())->size_;
     }
-
-    Status(Code code, folly::StringPiece msg);
 
     static std::unique_ptr<const char[]> copyState(const char *state);
 
