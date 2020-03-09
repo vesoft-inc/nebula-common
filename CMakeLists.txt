@@ -312,11 +312,11 @@ macro(nebula_add_library name type)
     endif()
     add_dependencies(
         ${name}
-        common_thrift_headers
-        graph_thrift_headers
-        storage_thrift_headers
-        meta_thrift_headers
-        raftex_thrift_headers
+        common_thrift_obj
+        graph_thrift_obj
+        storage_thrift_obj
+        meta_thrift_obj
+        raftex_thrift_obj
 #        hbase_thrift_headers
 #        parser_target
     )
