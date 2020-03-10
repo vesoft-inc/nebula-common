@@ -3,5 +3,7 @@ nebula_add_library(
     GflagsManager.cpp
     SchemaProviderIf.cpp
     NebulaSchemaProvider.cpp
+    SchemaManager.cpp
+    ServerBasedSchemaManager.cpp
 )
 
