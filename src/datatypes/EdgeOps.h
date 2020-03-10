@@ -1,6 +1,6 @@
 /* Copyright (c) 2020 vesoft inc. All rights reserved.
  *
- * This source code is licensed under Apache 2.0 License,
+ * obj source code is licensed under Apache 2.0 License,
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
@@ -35,11 +35,14 @@ struct TccStructTraits<nebula::Edge> {
         } else if (_fname == "type") {
             fid = 3;
             _ftype = apache::thrift::protocol::T_I32;
-        } else if (_fname == "ranking") {
+        } else if (_fname == "name") {
             fid = 4;
+            _ftype = apache::thrift::protocol::T_STRING;
+        } else if (_fname == "ranking") {
+            fid = 5;
             _ftype = apache::thrift::protocol::T_I64;
         } else if (_fname == "props") {
-            fid = 5;
+            fid = 6;
             _ftype = apache::thrift::protocol::T_MAP;
         }
     }
@@ -79,12 +82,16 @@ uint32_t Cpp2Ops<nebula::Edge>::write(Protocol* proto, nebula::Edge const* obj) 
         ::write(*proto, obj->type);
     xfer += proto->writeFieldEnd();
 
-    xfer += proto->writeFieldBegin("ranking", apache::thrift::protocol::T_I64, 4);
+    xfer += proto->writeFieldBegin("name", apache::thrift::protocol::T_STRING, 4);
+    xfer += proto->writeBinary(obj->name);
+    xfer += proto->writeFieldEnd();
+
+    xfer += proto->writeFieldBegin("ranking", apache::thrift::protocol::T_I64, 5);
     xfer += detail::pm::protocol_methods<type_class::integral, nebula::EdgeRanking>
         ::write(*proto, obj->ranking);
     xfer += proto->writeFieldEnd();
 
-    xfer += proto->writeFieldBegin("props", apache::thrift::protocol::T_MAP, 5);
+    xfer += proto->writeFieldBegin("props", apache::thrift::protocol::T_MAP, 6);
     xfer += detail::pm::protocol_methods<
             type_class::map<type_class::binary, type_class::structure>,
             std::unordered_map<std::string, nebula::Value>
@@ -134,7 +141,16 @@ _readField_type:
             ::read(*proto, obj->type);
     }
 
-    if (UNLIKELY(!readState.advanceToNextField(proto, 3, 4, protocol::T_I64))) {
+    if (UNLIKELY(!readState.advanceToNextField(proto, 3, 4, protocol::T_STRING))) {
+        goto _loop;
+    }
+
+_readField_name:
+    {
+        proto->readBinary(obj->name);
+    }
+
+    if (UNLIKELY(!readState.advanceToNextField(proto, 4, 5, protocol::T_I64))) {
         goto _loop;
     }
 
@@ -144,7 +160,7 @@ _readField_ranking:
             ::read(*proto, obj->ranking);
     }
 
-    if (UNLIKELY(!readState.advanceToNextField(proto, 4, 5, protocol::T_MAP))) {
+    if (UNLIKELY(!readState.advanceToNextField(proto, 5, 6, protocol::T_MAP))) {
         goto _loop;
     }
 
@@ -157,7 +173,7 @@ _readField_props:
             >::read(*proto, obj->props);
     }
 
-    if (UNLIKELY(!readState.advanceToNextField(proto, 5, 0, protocol::T_STOP))) {
+    if (UNLIKELY(!readState.advanceToNextField(proto, 6, 0, protocol::T_STOP))) {
         goto _loop;
     }
 
@@ -204,13 +220,21 @@ _loop:
         }
         case 4:
         {
+            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRING)) {
+                goto _readField_name;
+            } else {
+                goto _skip;
+            }
+        }
+        case 5:
+        {
             if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I64)) {
                 goto _readField_ranking;
             } else {
                 goto _skip;
             }
         }
-        case 5:
+        case 6:
         {
             if (LIKELY(readState.fieldType == apache::thrift::protocol::T_MAP)) {
                 goto _readField_props;
@@ -247,11 +271,14 @@ uint32_t Cpp2Ops<nebula::Edge>::serializedSize(Protocol const* proto,
     xfer += detail::pm::protocol_methods<type_class::integral, nebula::EdgeType>
         ::serializedSize<false>(*proto, obj->type);
 
-    xfer += proto->serializedFieldSize("ranking", apache::thrift::protocol::T_I64, 4);
+    xfer += proto->serializedFieldSize("name", apache::thrift::protocol::T_STRING, 4);
+    xfer += proto->serializedSizeBinary(obj->name);
+
+    xfer += proto->serializedFieldSize("ranking", apache::thrift::protocol::T_I64, 5);
     xfer += detail::pm::protocol_methods<type_class::integral, nebula::EdgeRanking>
         ::serializedSize<false>(*proto, obj->ranking);
 
-    xfer += proto->serializedFieldSize("props", apache::thrift::protocol::T_MAP, 5);
+    xfer += proto->serializedFieldSize("props", apache::thrift::protocol::T_MAP, 6);
     xfer += detail::pm::protocol_methods<
             type_class::map<type_class::binary, type_class::structure>,
             std::unordered_map<std::string, nebula::Value>
@@ -268,21 +295,30 @@ uint32_t Cpp2Ops<nebula::Edge>::serializedSizeZC(Protocol const* proto,
                                                  nebula::Edge const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("Edge");
+
     xfer += proto->serializedFieldSize("src", apache::thrift::protocol::T_STRING, 1);
     xfer += proto->serializedSizeZCBinary(obj->src);
+
     xfer += proto->serializedFieldSize("dst", apache::thrift::protocol::T_STRING, 2);
     xfer += proto->serializedSizeZCBinary(obj->dst);
+
     xfer += proto->serializedFieldSize("type", apache::thrift::protocol::T_I32, 3);
     xfer += detail::pm::protocol_methods<type_class::integral, nebula::EdgeType>
         ::serializedSize<false>(*proto, obj->type);
-    xfer += proto->serializedFieldSize("ranking", apache::thrift::protocol::T_I64, 4);
+
+    xfer += proto->serializedFieldSize("name", apache::thrift::protocol::T_STRING, 4);
+    xfer += proto->serializedSizeZCBinary(obj->name);
+
+    xfer += proto->serializedFieldSize("ranking", apache::thrift::protocol::T_I64, 5);
     xfer += detail::pm::protocol_methods<type_class::integral, nebula::EdgeRanking>
         ::serializedSize<false>(*proto, obj->ranking);
-    xfer += proto->serializedFieldSize("props", apache::thrift::protocol::T_MAP, 5);
+
+    xfer += proto->serializedFieldSize("props", apache::thrift::protocol::T_MAP, 6);
     xfer += detail::pm::protocol_methods<
             type_class::map<type_class::binary, type_class::structure>,
             std::unordered_map<std::string, nebula::Value>
         >::serializedSize<false>(*proto, obj->props);
+
     xfer += proto->serializedSizeStop();
     return xfer;
 }

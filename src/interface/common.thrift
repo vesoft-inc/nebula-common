@@ -124,17 +124,19 @@ struct Edge {
     1: VertexID src,
     2: VertexID dst,
     3: EdgeType type,
-    4: EdgeRanking ranking,
+    4: binary name,
+    5: EdgeRanking ranking,
     // List of <prop_name, prop_value>
-    5: map<binary, Value> (cpp.template = "std::unordered_map") props,
+    6: map<binary, Value> (cpp.template = "std::unordered_map") props,
 } (cpp.type = "nebula::Edge")
 
 
 struct Step {
-    1: Vertex dst;
-    2: EdgeType type;
-    3: EdgeRanking ranking;
-    4: map<binary, Value> (cpp.template = "std::unordered_map") props,
+    1: Vertex dst,
+    2: EdgeType type,
+    3: binary name,
+    4: EdgeRanking ranking,
+    5: map<binary, Value> (cpp.template = "std::unordered_map") props,
 } (cpp.type = "nebula::Step")
 
 

@@ -17,22 +17,26 @@ namespace nebula {
 struct Step {
     Vertex dst;
     EdgeType type;
+    std::string name;
     EdgeRanking ranking;
     std::unordered_map<std::string, Value> props;
 
     Step() = default;
     Step(const Step& s) : dst(s.dst)
                         , type(s.type)
+                        , name(s.name)
                         , ranking(s.ranking)
                         , props(s.props) {}
     Step(Step&& s) : dst(std::move(s.dst))
                    , type(std::move(s.type))
+                   , name(std::move(s.name))
                    , ranking(std::move(s.ranking))
                    , props(std::move(s.props)) {}
 
     void clear() {
         dst.clear();
         type = 0;
+        name.clear();
         ranking = 0;
         props.clear();
     }
