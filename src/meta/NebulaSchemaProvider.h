@@ -65,6 +65,7 @@ public:
         }
 
         size_t nullFlagPos() const override {
+            DCHECK(nullable_);
             return nullFlagPos_;
         }
 
