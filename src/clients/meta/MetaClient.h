@@ -69,6 +69,8 @@ using SpaceNewestTagVerMap = std::unordered_map<std::pair<GraphSpaceID, TagID>, 
 using SpaceNewestEdgeVerMap = std::unordered_map<std::pair<GraphSpaceID, EdgeType>, SchemaVer>;
 // get edgeName via spaceId and edgeType
 using SpaceEdgeTypeNameMap = std::unordered_map<std::pair<GraphSpaceID, EdgeType>, std::string>;
+// get tagName via spaceId and tagId
+using SpaceTagIdNameMap = std::unordered_map<std::pair<GraphSpaceID, TagID>, std::string>;
 // get all edgeType edgeName via spaceId
 using SpaceAllEdgeMap = std::unordered_map<GraphSpaceID, std::vector<std::string>>;
 
@@ -413,6 +415,9 @@ public:
     StatusOr<SchemaVer> getLatestEdgeVersionFromCache(const GraphSpaceID& space,
                                                       const EdgeType& edgeType);
 
+    StatusOr<std::string>
+    getTagNameByIdFromCache(const GraphSpaceID& space, const TagID& tagId);
+
     StatusOr<EdgeType> getEdgeTypeByNameFromCache(const GraphSpaceID& space,
                                                   const std::string& name);
 
@@ -583,6 +588,7 @@ private:
     std::unique_ptr<thread::GenericWorker> bgThread_;
     SpaceNameIdMap        spaceIndexByName_;
     SpaceTagNameIdMap     spaceTagIndexByName_;
+    SpaceTagIdNameMap     spaceTagIndexById_;
     SpaceEdgeNameTypeMap  spaceEdgeIndexByName_;
     SpaceEdgeTypeNameMap  spaceEdgeIndexByType_;
     SpaceTagIdNameMap     spaceTagIndexById_;
