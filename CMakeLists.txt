@@ -31,6 +31,8 @@ project("Nebula Graph" C CXX)
 
 # Set the project home dir
 set(NEBULA_HOME ${CMAKE_CURRENT_SOURCE_DIR})
+add_definitions(-DNEBULA_HOME=${NEBULA_HOME})
+set(PACKAGE_NAME "nebula-common")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "(Darwin|FreeBSD|Windows)")
 	MESSAGE(FATAL_ERROR "Only Linux is supported")
@@ -444,6 +446,12 @@ endmacro()
 # including the precompiled header, a.k.a Base.h.gch, and thrift headers.
 macro(nebula_add_library name type)
     add_library(${name} ${type} ${ARGN})
+    export(
+        TARGETS ${name}
+        NAMESPACE "common_"
+        APPEND
+        FILE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-config.cmake
+    )
     if (PCHSupport_FOUND)
         add_dependencies(
             ${name}
