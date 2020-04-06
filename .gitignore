@@ -3,10 +3,11 @@
 *.DS_Store
 
 # build
-build
-_build
+bin/
+build/
+_build/
 _build.log
-_install
+_install/
 install_manifest.txt
 
 # ccls
