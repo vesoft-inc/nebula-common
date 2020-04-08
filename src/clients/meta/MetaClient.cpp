@@ -451,7 +451,7 @@ void MetaClient::getResponse(Request req,
                              bool toLeader,
                              int32_t retry,
                              int32_t retryLimit) {
-    time::Duration duration;
+//    time::Duration duration;
     auto* evb = ioThreadPool_->getEventBase();
     HostAddr host;
     {
@@ -467,7 +467,7 @@ void MetaClient::getResponse(Request req,
                      toLeader,
                      retry,
                      retryLimit,
-                     duration,
+//                     duration,
                      this] () mutable {
         auto client = clientsMan_->client(host, evb, false, FLAGS_meta_client_timeout_ms);
         VLOG(1) << "Send request to meta " << host;
@@ -482,7 +482,7 @@ void MetaClient::getResponse(Request req,
                    retry,
                    retryLimit,
                    evb,
-                   duration,
+//                   duration,
                    this] (folly::Try<RpcResponse>&& t) mutable {
             // exception occurred during RPC
             if (t.hasException()) {

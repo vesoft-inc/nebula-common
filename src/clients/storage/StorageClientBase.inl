@@ -178,7 +178,7 @@ StorageClientBase<ClientType>::collectResponse(
         evb = ioThreadPool_->getEventBase();
     }
 
-    time::Duration duration;
+//    time::Duration duration;
     for (auto& req : requests) {
         auto& host = req.first;
         auto spaceId = req.second.get_space_id();
@@ -191,7 +191,7 @@ StorageClientBase<ClientType>::collectResponse(
                          host,
                          spaceId,
                          res,
-                         duration,
+//                         duration,
                          getPartIDFunc] () mutable {
             auto client = clientsMan_->client(host,
                                               evb,
@@ -207,7 +207,7 @@ StorageClientBase<ClientType>::collectResponse(
                             context,
                             host,
                             spaceId,
-                            duration,
+//                            duration,
                             getPartIDFunc,
                             start] (folly::Try<Response>&& val) {
                 auto& r = context->findRequest(host);
@@ -290,7 +290,7 @@ folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
         folly::EventBase* evb,
         std::pair<HostAddr, Request> request,
         RemoteFunc remoteFunc) {
-    time::Duration duration;
+//  time::Duration duration;
     if (evb == nullptr) {
         DCHECK(!!ioThreadPool_);
         evb = ioThreadPool_->getEventBase();
