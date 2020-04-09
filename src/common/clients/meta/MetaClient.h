@@ -198,72 +198,72 @@ public:
     submitJob(cpp2::AdminJobOp op, cpp2::AdminCmd cmd, std::vector<std::string> paras);
 
     // Operations for parts
-    folly::Future<StatusOr<GraphSpaceID>> createSpace(SpaceDesc spaceDesc,
-                                                      bool ifNotExists = false);
+    folly::Future<StatusOr<cpp2::ExecResp>> createSpace(SpaceDesc spaceDesc,
+                                                        bool ifNotExists);
 
-    folly::Future<StatusOr<std::vector<SpaceIdName>>>
+    folly::Future<StatusOr<cpp2::ListSpacesResp>>
     listSpaces();
 
-    folly::Future<StatusOr<cpp2::SpaceItem>>
+    folly::Future<StatusOr<cpp2::GetSpaceResp>>
     getSpace(std::string name);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     dropSpace(std::string name, bool ifExists = false);
 
     folly::Future<StatusOr<std::vector<cpp2::HostItem>>>
     listHosts(cpp2::ListHostType type = cpp2::ListHostType::ALLOC);
 
-    folly::Future<StatusOr<std::vector<cpp2::PartItem>>>
-    listParts(GraphSpaceID spaceId, std::vector<PartitionID> partIds);
+    folly::Future<StatusOr<cpp2::ListPartsResp>>
+    listParts(GraphSpaceID spaceId);
 
-    folly::Future<StatusOr<PartsAlloc>>
+    folly::Future<StatusOr<cpp2::GetPartsAllocResp>>
     getPartsAlloc(GraphSpaceID spaceId);
 
     // Operations for schema
-    folly::Future<StatusOr<TagID>> createTagSchema(GraphSpaceID spaceId,
-                                                   std::string name,
-                                                   cpp2::Schema schema,
-                                                   bool ifNotExists = false);
+    folly::Future<StatusOr<cpp2::ExecResp>> createTagSchema(GraphSpaceID spaceId,
+                                                            std::string name,
+                                                            cpp2::Schema schema,
+                                                            bool ifNotExists = false);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     alterTagSchema(GraphSpaceID spaceId,
                    std::string name,
                    std::vector<cpp2::AlterSchemaItem> items,
                    cpp2::SchemaProp schemaProp);
 
-    folly::Future<StatusOr<std::vector<cpp2::TagItem>>>
+    folly::Future<StatusOr<cpp2::ListTagsResp>>
     listTagSchemas(GraphSpaceID spaceId);
 
-    folly::Future<StatusOr<bool>>
-    dropTagSchema(int32_t spaceId, std::string name, bool ifExists = false);
+    folly::Future<StatusOr<cpp2::ExecResp>>
+    dropTagSchema(int32_t spaceId, std::string name);
 
     // Return the latest schema when ver = -1
-    folly::Future<StatusOr<cpp2::Schema>>
+    folly::Future<StatusOr<cpp2::GetTagResp>>
     getTagSchema(int32_t spaceId, std::string name, SchemaVer version = -1);
 
-    folly::Future<StatusOr<EdgeType>> createEdgeSchema(GraphSpaceID spaceId,
-                                                       std::string name,
-                                                       cpp2::Schema schema,
-                                                       bool ifNotExists = false);
+    folly::Future<StatusOr<cpp2::ExecResp>> createEdgeSchema(GraphSpaceID spaceId,
+                                                             std::string name,
+                                                             cpp2::Schema schema,
+                                                             bool ifNotExists = false);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     alterEdgeSchema(GraphSpaceID spaceId,
                     std::string name,
                     std::vector<cpp2::AlterSchemaItem> items,
                     cpp2::SchemaProp schemaProp);
 
-    folly::Future<StatusOr<std::vector<cpp2::EdgeItem>>>
+    folly::Future<StatusOr<cpp2::ListEdgesResp>>
     listEdgeSchemas(GraphSpaceID spaceId);
 
     // Return the latest schema when ver = -1
-    folly::Future<StatusOr<cpp2::Schema>>
+    folly::Future<StatusOr<cpp2::GetEdgeResp>>
     getEdgeSchema(GraphSpaceID spaceId, std::string name, SchemaVer version = -1);
 
-    folly::Future<StatusOr<bool>>
-    dropEdgeSchema(GraphSpaceID spaceId, std::string name, bool ifExists = false);
+    folly::Future<StatusOr<cpp2::ExecResp>>
+    dropEdgeSchema(GraphSpaceID spaceId, std::string name);
 
     // Operations for index
-    folly::Future<StatusOr<IndexID>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     createTagIndex(GraphSpaceID spaceID,
                    std::string indexName,
                    std::string tagName,
@@ -271,22 +271,22 @@ public:
                    bool ifNotExists = false);
 
     // Remove the define of tag index
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     dropTagIndex(GraphSpaceID spaceId, std::string name, bool ifExists = false);
 
-    folly::Future<StatusOr<cpp2::IndexItem>>
+    folly::Future<StatusOr<cpp2::GetTagIndexResp>>
     getTagIndex(GraphSpaceID spaceId, std::string name);
 
-    folly::Future<StatusOr<std::vector<cpp2::IndexItem>>>
+    folly::Future<StatusOr<cpp2::ListTagIndexesResp>>
     listTagIndexes(GraphSpaceID spaceId);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     rebuildTagIndex(GraphSpaceID spaceID, std::string name);
 
-    folly::Future<StatusOr<std::vector<cpp2::IndexStatus>>>
+    folly::Future<StatusOr<cpp2::ListIndexStatusResp>>
     listTagIndexStatus(GraphSpaceID spaceId);
 
-    folly::Future<StatusOr<IndexID>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     createEdgeIndex(GraphSpaceID spaceID,
                     std::string indexName,
                     std::string edgeName,
@@ -294,96 +294,96 @@ public:
                     bool ifNotExists = false);
 
     // Remove the definition of edge index
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     dropEdgeIndex(GraphSpaceID spaceId, std::string name, bool ifExists = false);
 
-    folly::Future<StatusOr<cpp2::IndexItem>>
+    folly::Future<StatusOr<cpp2::GetEdgeIndexResp>>
     getEdgeIndex(GraphSpaceID spaceId, std::string name);
 
-    folly::Future<StatusOr<std::vector<cpp2::IndexItem>>>
+    folly::Future<StatusOr<cpp2::ListEdgeIndexesResp>>
     listEdgeIndexes(GraphSpaceID spaceId);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     rebuildEdgeIndex(GraphSpaceID spaceId, std::string name);
 
-    folly::Future<StatusOr<std::vector<cpp2::IndexStatus>>>
+    folly::Future<StatusOr<cpp2::ListIndexStatusResp>>
     listEdgeIndexStatus(GraphSpaceID spaceId);
 
     // Operations for custom kv
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     multiPut(std::string segment,
              std::vector<std::pair<std::string, std::string>> pairs);
 
-    folly::Future<StatusOr<std::string>>
+    folly::Future<StatusOr<cpp2::GetResp>>
     get(std::string segment, std::string key);
 
-    folly::Future<StatusOr<std::vector<std::string>>>
+    folly::Future<StatusOr<cpp2::MultiGetResp>>
     multiGet(std::string segment, std::vector<std::string> keys);
 
-    folly::Future<StatusOr<std::vector<std::string>>>
+    folly::Future<StatusOr<cpp2::ScanResp>>
     scan(std::string segment, std::string start, std::string end);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     remove(std::string segment, std::string key);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     removeRange(std::string segment, std::string start, std::string end);
 
     // Operations for users.
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     createUser(std::string account, std::string password, bool ifNotExists);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     dropUser(std::string account, bool ifExists);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     alterUser(std::string account, std::string password);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     grantToUser(cpp2::RoleItem roleItem);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     revokeFromUser(cpp2::RoleItem roleItem);
 
-    folly::Future<StatusOr<std::unordered_map<std::string, std::string>>>
+    folly::Future<StatusOr<cpp2::ListUsersResp>>
     listUsers();
 
-    folly::Future<StatusOr<std::vector<cpp2::RoleItem>>>
+    folly::Future<StatusOr<cpp2::ListRolesResp>>
     listRoles(GraphSpaceID space);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     changePassword(std::string account, std::string newPwd, std::string oldPwd);
 
-    folly::Future<StatusOr<std::vector<cpp2::RoleItem>>>
+    folly::Future<StatusOr<cpp2::ListRolesResp>>
     getUserRoles(std::string account);
 
     // Operations for admin
-    folly::Future<StatusOr<int64_t>>
+    folly::Future<StatusOr<cpp2::BalanceResp>>
     balance(std::vector<HostAddr> hostDel, bool isStop = false);
 
-    folly::Future<StatusOr<std::vector<cpp2::BalanceTask>>>
+    folly::Future<StatusOr<cpp2::BalanceResp>>
     showBalance(int64_t balanceId);
 
-    folly::Future<StatusOr<bool>> balanceLeader();
+    folly::Future<StatusOr<cpp2::ExecResp>> balanceLeader();
 
     // Operations for config
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     regConfig(const std::vector<cpp2::ConfigItem>& items);
 
-    folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
+    folly::Future<StatusOr<cpp2::GetConfigResp>>
     getConfig(const cpp2::ConfigModule& module, const std::string& name);
 
-    folly::Future<StatusOr<bool>>
+    folly::Future<StatusOr<cpp2::ExecResp>>
     setConfig(const cpp2::ConfigModule& module, const std::string& name, const Value& value);
 
-    folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
+    folly::Future<StatusOr<cpp2::ListConfigsResp>>
     listConfigs(const cpp2::ConfigModule& module);
 
-    folly::Future<StatusOr<bool>> createSnapshot();
+    folly::Future<StatusOr<cpp2::ExecResp>> createSnapshot();
 
-    folly::Future<StatusOr<bool>> dropSnapshot(const std::string& name);
+    folly::Future<StatusOr<cpp2::ExecResp>> dropSnapshot(const std::string& name);
 
-    folly::Future<StatusOr<std::vector<cpp2::Snapshot>>> listSnapshots();
+    folly::Future<StatusOr<cpp2::ListSnapshotsResp>> listSnapshots();
 
     // Opeartions for cache.
     StatusOr<GraphSpaceID> getSpaceIdByNameFromCache(const std::string& name);
@@ -467,13 +467,13 @@ public:
 
     const std::vector<HostAddr>& getAddresses();
 
-    folly::Future<StatusOr<std::string>> getTagDefaultValue(GraphSpaceID spaceId,
-                                                            TagID tagId,
-                                                            const std::string& field);
+    folly::Future<StatusOr<cpp2::GetResp>> getTagDefaultValue(GraphSpaceID spaceId,
+                                                              TagID tagId,
+                                                              const std::string& field);
 
-    folly::Future<StatusOr<std::string>> getEdgeDefaultValue(GraphSpaceID spaceId,
-                                                             EdgeType edgeType,
-                                                             const std::string& field);
+    folly::Future<StatusOr<cpp2::GetResp>> getEdgeDefaultValue(GraphSpaceID spaceId,
+                                                               EdgeType edgeType,
+                                                               const std::string& field);
 
     std::vector<cpp2::RoleItem> getRolesByUserFromCache(const std::string& user) const;
 
@@ -511,7 +511,7 @@ protected:
     bool loadIndexes(GraphSpaceID spaceId,
                      std::shared_ptr<SpaceInfoCache> cache);
 
-    folly::Future<StatusOr<bool>> heartbeat();
+    folly::Future<StatusOr<cpp2::HBResp>> heartbeat();
 
     std::unordered_map<HostAddr, std::vector<PartitionID>> reverse(const PartsAlloc& parts);
 
@@ -531,22 +531,15 @@ protected:
 
     void diff(const LocalCache& oldCache, const LocalCache& newCache);
 
-    template<typename RESP>
-    Status handleResponse(const RESP& resp);
-
     template<class Request,
              class RemoteFunc,
-             class RespGenerator,
-             class RpcResponse =
+             class Response =
                 typename std::result_of<
                     RemoteFunc(std::shared_ptr<meta::cpp2::MetaServiceAsyncClient>, Request)
-                >::type::value_type,
-             class Response =
-                typename std::result_of<RespGenerator(RpcResponse)>::type
-    >
+                >::type::value_type
+            >
     void getResponse(Request req,
                      RemoteFunc remoteFunc,
-                     RespGenerator respGen,
                      folly::Promise<StatusOr<Response>> pro,
                      bool toLeader = false,
                      int32_t retry = 0,
