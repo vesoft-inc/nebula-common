@@ -358,7 +358,7 @@ struct UpdateVertexRequest {
     2: common.PartitionID           part_id,
     3: common.VertexID              vertex_id,
     4: list<UpdatedVertexProp>      updated_props,
-    5: optional bool                insertable = false,
+    5: bool                         insertable = false,
     6: optional list<VertexProp>    return_props,
     // If provided, the update happens only when the condition evaluates true
     7: optional binary              condition,
