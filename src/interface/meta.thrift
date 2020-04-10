@@ -143,13 +143,13 @@ struct ColumnDef {
 }
 
 struct SchemaProp {
-    1: optional i64      ttl_duration,
-    2: optional binary   ttl_col,
+    1: i64      ttl_duration,
+    2: binary   ttl_col,
 }
 
 struct Schema {
-    1: list<ColumnDef> columns,
-    2: SchemaProp schema_prop,
+    1: list<ColumnDef>     columns,
+    2: optional SchemaProp schema_prop,
 }
 
 struct IdName {
