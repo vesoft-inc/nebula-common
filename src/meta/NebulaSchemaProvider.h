@@ -8,6 +8,7 @@
 #define META_NEBULASCHEMAPROVIDER_H_
 
 #include "base/Base.h"
+#include "base/StatusOr.h"
 #include <folly/RWSpinLock.h>
 #include "meta/SchemaProviderIf.h"
 
@@ -97,8 +98,9 @@ public:
     cpp2::PropertyType getFieldType(int64_t index) const override;
     cpp2::PropertyType getFieldType(const folly::StringPiece name) const override;
 
-    const SchemaProviderIf::Field* field(int64_t index) const override;
-    const SchemaProviderIf::Field* field(const folly::StringPiece name) const override;
+    std::shared_ptr<const SchemaProviderIf::Field> field(int64_t index) const override;
+    std::shared_ptr<const SchemaProviderIf::Field> field(
+        const folly::StringPiece name) const override;
 
     void addField(folly::StringPiece name,
                   cpp2::PropertyType type,
@@ -110,6 +112,8 @@ public:
 
     const cpp2::SchemaProp getProp() const;
 
+    StatusOr<std::pair<std::string, int64_t>> getTTLInfo() const;
+
 protected:
     NebulaSchemaProvider() = default;
 
@@ -118,7 +122,7 @@ protected:
 
     // fieldname -> index
     std::unordered_map<std::string, int64_t>    fieldNameIndex_;
-    std::vector<SchemaField>                    fields_;
+    std::vector<std::shared_ptr<SchemaField>>   fields_;
     size_t                                      numNullableFields_;
     cpp2::SchemaProp                            schemaProp_;
 };

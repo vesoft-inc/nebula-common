@@ -58,7 +58,7 @@ public:
         Iterator& operator++() {
             if (field_) {
                 index_++;
-                field_ = schema_->field(index_);
+                field_ = schema_->field(index_).get();
             }
             return *this;
         }
@@ -66,7 +66,7 @@ public:
         Iterator& operator+(uint16_t steps) {
             if (field_) {
                 index_ += steps;
-                field_ = schema_->field(index_);
+                field_ = schema_->field(index_).get();
             }
             return *this;
         }
@@ -92,7 +92,7 @@ public:
                 : schema_(schema)
                 , numFields_(schema_->getNumFields())
                 , index_(idx) {
-            field_ = schema_->field(index_);
+            field_ = schema_->field(index_).get();
         }
     };
 
@@ -111,11 +111,10 @@ public:
     virtual const char* getFieldName(int64_t index) const = 0;
 
     virtual cpp2::PropertyType getFieldType(int64_t index) const = 0;
-    virtual cpp2::PropertyType getFieldType(const folly::StringPiece name)
-        const = 0;
+    virtual cpp2::PropertyType getFieldType(const folly::StringPiece name) const = 0;
 
-    virtual const Field* field(int64_t index) const = 0;
-    virtual const Field* field(const folly::StringPiece name) const = 0;
+    virtual std::shared_ptr<const Field> field(int64_t index) const = 0;
+    virtual std::shared_ptr<const Field> field(const folly::StringPiece name) const = 0;
 
     /******************************************
      *
