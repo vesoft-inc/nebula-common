@@ -68,6 +68,7 @@ macro(nebula_add_library name type)
         storage_thrift_headers
         meta_thrift_headers
         raftex_thrift_headers
+        error_msg_thrift_headers
     )
 endmacro()
 
