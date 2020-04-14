@@ -149,7 +149,7 @@ Status WebService::start() {
                     }
                     cv.notify_all();
                 },
-                [&] (std::exception_ptr eptr) {
+                [&] (const std::exception_ptr &eptr) {
                     CHECK(eptr);
                     try {
                         std::rethrow_exception(eptr);

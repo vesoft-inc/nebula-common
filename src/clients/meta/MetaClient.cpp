@@ -33,7 +33,7 @@ namespace meta {
 MetaClient::MetaClient(std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool,
                        std::vector<HostAddr> addrs,
                        const MetaClientOptions& options)
-        : ioThreadPool_(ioThreadPool)
+        : ioThreadPool_(std::move(ioThreadPool))
         , addrs_(std::move(addrs))
         , options_(options) {
     CHECK(ioThreadPool_ != nullptr) << "IOThreadPool is required";
@@ -191,7 +191,7 @@ bool MetaClient::loadData() {
     decltype(spaceTagIndexById_)        spaceTagIndexById;
     decltype(spaceAllEdgeMap_)          spaceAllEdgeMap;
 
-    for (auto space : ret.value()) {
+    for (const auto &space : ret.value()) {
         auto spaceId = space.first;
         auto r = getPartsAlloc(spaceId).get();
         if (!r.ok()) {
@@ -280,7 +280,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     EdgeSchemas edgeSchemas;
     for (auto& tagIt : tagItemVec) {
         auto schema = std::make_shared<NebulaSchemaProvider>(tagIt.version);
-        for (auto colIt : tagIt.schema.get_columns()) {
+        for (const auto &colIt : tagIt.schema.get_columns()) {
             schema->addField(colIt.name, std::move(colIt.type));
         }
         // handle schema property
@@ -373,7 +373,7 @@ bool MetaClient::loadIndexes(GraphSpaceID spaceId,
     }
 
     Indexes tagIndexes;
-    for (auto tagIndex : tagIndexesRet.value()) {
+    for (const auto &tagIndex : tagIndexesRet.value()) {
         auto indexName = tagIndex.get_index_name();
         auto indexID = tagIndex.get_index_id();
         std::pair<GraphSpaceID, std::string> pair(spaceId, indexName);
@@ -451,7 +451,6 @@ void MetaClient::getResponse(Request req,
                              bool toLeader,
                              int32_t retry,
                              int32_t retryLimit) {
-    time::Duration duration;
     auto* evb = ioThreadPool_->getEventBase();
     HostAddr host;
     {
@@ -467,10 +466,11 @@ void MetaClient::getResponse(Request req,
                      toLeader,
                      retry,
                      retryLimit,
-                     duration,
                      this] () mutable {
         auto client = clientsMan_->client(host, evb, false, FLAGS_meta_client_timeout_ms);
+        // NOLINT
         VLOG(1) << "Send request to meta " << host;
+        // NOLINTNEXTLINE
         remoteFunc(client, req)
             .via(evb)
             .then([host,
@@ -482,7 +482,6 @@ void MetaClient::getResponse(Request req,
                    retry,
                    retryLimit,
                    evb,
-                   duration,
                    this] (folly::Try<RpcResponse>&& t) mutable {
             // exception occurred during RPC
             if (t.hasException()) {
@@ -511,7 +510,6 @@ void MetaClient::getResponse(Request req,
                     return;
                 } else {
                     LOG(ERROR) << "Send request to " << host << ", exceed retry limit";
-//                    stats::Stats::addStatsValue(stats_.get(), false, duration.elapsedInUSec());
                     pro.setValue(
                         Status::Error(folly::stringPrintf("RPC failure in MetaClient: %s",
                                                           t.exception().what().c_str())));
@@ -522,7 +520,6 @@ void MetaClient::getResponse(Request req,
             auto&& resp = t.value();
             if (resp.code == cpp2::ErrorCode::SUCCEEDED) {
                 // succeeded
-//                stats::Stats::addStatsValue(stats_.get(), true, duration.elapsedInUSec());
                 pro.setValue(respGen(std::move(resp)));
 
                 return;
@@ -548,9 +545,6 @@ void MetaClient::getResponse(Request req,
                     return;
                 }
             }
-//            stats::Stats::addStatsValue(stats_.get(),
-//                                        resp.code == cpp2::ErrorCode::SUCCEEDED,
-//                                        duration.elapsedInUSec());
             pro.setValue(this->handleResponse(resp));
         });  // then
     });  // via
@@ -622,9 +616,9 @@ Status MetaClient::handleResponse(const RESP& resp) {
 PartsMap MetaClient::doGetPartsMap(const HostAddr& host,
                                    const LocalCache& localCache) {
     PartsMap partMap;
-    for (auto it = localCache.begin(); it != localCache.end(); it++) {
-        auto spaceId = it->first;
-        auto& cache = it->second;
+    for (const auto& lc : localCache) {
+        auto spaceId = lc.first;
+        auto& cache = lc.second;
         auto partsIt = cache->partsOnHost_.find(host);
         if (partsIt != cache->partsOnHost_.end()) {
             for (auto& partId : partsIt->second) {
@@ -650,30 +644,30 @@ void MetaClient::diff(const LocalCache& oldCache, const LocalCache& newCache) {
     auto newPartsMap = doGetPartsMap(options_.localHost_, newCache);
     auto oldPartsMap = doGetPartsMap(options_.localHost_, oldCache);
     VLOG(1) << "Let's check if any new parts added/updated for " << options_.localHost_;
-    for (auto it = newPartsMap.begin(); it != newPartsMap.end(); it++) {
-        auto spaceId = it->first;
-        const auto& newParts = it->second;
+    for (const auto& part : newPartsMap) {
+        auto spaceId = part.first;
+        const auto& newParts = part.second;
         auto oldIt = oldPartsMap.find(spaceId);
         if (oldIt == oldPartsMap.end()) {
             VLOG(1) << "SpaceId " << spaceId << " was added!";
             listener_->onSpaceAdded(spaceId);
-            for (auto partIt = newParts.begin(); partIt != newParts.end(); partIt++) {
-                listener_->onPartAdded(partIt->second);
+            for (const auto &p : newParts) {
+                listener_->onPartAdded(p.second);
             }
         } else {
             const auto& oldParts = oldIt->second;
-            for (auto partIt = newParts.begin(); partIt != newParts.end(); partIt++) {
-                auto oldPartIt = oldParts.find(partIt->first);
+            for (const auto &p : newParts) {
+                auto oldPartIt = oldParts.find(p.first);
                 if (oldPartIt == oldParts.end()) {
                     VLOG(1) << "SpaceId " << spaceId << ", partId "
-                            << partIt->first << " was added!";
-                    listener_->onPartAdded(partIt->second);
+                            << p.first << " was added!";
+                    listener_->onPartAdded(p.second);
                 } else {
                     const auto& oldPartHosts = oldPartIt->second;
-                    const auto& newPartHosts = partIt->second;
+                    const auto& newPartHosts = p.second;
                     if (oldPartHosts != newPartHosts) {
                         VLOG(1) << "SpaceId " << spaceId
-                                << ", partId " << partIt->first << " was updated!";
+                                << ", partId " << p.first << " was updated!";
                         listener_->onPartUpdated(newPartHosts);
                     }
                 }
@@ -681,24 +675,23 @@ void MetaClient::diff(const LocalCache& oldCache, const LocalCache& newCache) {
         }
     }
     VLOG(1) << "Let's check if any old parts removed....";
-    for (auto it = oldPartsMap.begin(); it != oldPartsMap.end(); it++) {
-        auto spaceId = it->first;
-        const auto& oldParts = it->second;
+    for (const auto &oldPart : oldPartsMap) {
+        auto spaceId = oldPart.first;
+        const auto& oldParts = oldPart.second;
         auto newIt = newPartsMap.find(spaceId);
         if (newIt == newPartsMap.end()) {
             VLOG(1) << "SpaceId " << spaceId << " was removed!";
-            for (auto partIt = oldParts.begin(); partIt != oldParts.end(); partIt++) {
-                listener_->onPartRemoved(spaceId, partIt->first);
+            for (const auto& p : oldParts) {
+                listener_->onPartRemoved(spaceId, p.first);
             }
             listener_->onSpaceRemoved(spaceId);
         } else {
             const auto& newParts = newIt->second;
-            for (auto partIt = oldParts.begin(); partIt != oldParts.end(); partIt++) {
-                auto newPartIt = newParts.find(partIt->first);
+            for (const auto& p : oldParts) {
+                auto newPartIt = newParts.find(p.first);
                 if (newPartIt == newParts.end()) {
-                    VLOG(1) << "SpaceId " << spaceId
-                            << ", partId " << partIt->first << " was removed!";
-                    listener_->onPartRemoved(spaceId, partIt->first);
+                    VLOG(1) << "SpaceId " << spaceId << ", partId " << p.first << " was removed!";
+                    listener_->onPartRemoved(spaceId, p.first);
                 }
             }
         }
@@ -708,7 +701,7 @@ void MetaClient::diff(const LocalCache& oldCache, const LocalCache& newCache) {
 
 /// ================================== public methods =================================
 
-StatusOr<PartitionID> MetaClient::partId(GraphSpaceID spaceId, const VertexID id) const {
+StatusOr<PartitionID> MetaClient::partId(GraphSpaceID spaceId, const VertexID &id) const {
     auto status = partsNum(spaceId);
     if (!status.ok()) {
         return Status::Error("Space not found, spaceid: %d", spaceId);
@@ -869,8 +862,8 @@ MetaClient::getPartsAlloc(GraphSpaceID spaceId) {
                 },
                 [] (cpp2::GetPartsAllocResp&& resp) -> decltype(auto) {
                     std::unordered_map<PartitionID, std::vector<HostAddr>> parts;
-                    for (auto it = resp.parts.begin(); it != resp.parts.end(); it++) {
-                        parts.emplace(it->first, it->second);
+                    for (const auto& p : resp.parts) {
+                        parts.emplace(p.first, p.second);
                     }
                     return parts;
                 },
@@ -979,9 +972,14 @@ MetaClient::multiPut(std::string segment,
 
     cpp2::MultiPutReq req;
     std::vector<nebula::KeyValue> data;
-    for (auto& element : pairs) {
-        data.emplace_back(std::move(element));
-    }
+    data.reserve(pairs.size());
+    using p_iter_t = std::vector<std::pair<std::string, std::string>>::iterator;
+    std::transform(std::move_iterator<p_iter_t>(pairs.begin()),
+                   std::move_iterator<p_iter_t>(pairs.end()),
+                   std::back_inserter(data),
+                   [](auto pair) {
+                       return nebula::KeyValue(std::move(pair));
+                   });
     req.set_segment(std::move(segment));
     req.set_pairs(std::move(data));
     folly::Promise<StatusOr<bool>> promise;
@@ -2396,14 +2394,20 @@ bool MetaClient::loadCfg() {
         // if we load config from meta server successfully, update gflags and set configReady_
         auto tItems = ret.value();
         std::vector<ConfigItem> items;
+        items.reserve(tItems.size());
         for (const auto& tItem : tItems) {
             items.emplace_back(toConfigItem(tItem));
         }
         MetaConfigMap metaConfigMap;
-        for (auto& item : items) {
-            std::pair<cpp2::ConfigModule, std::string> key = {item.module_, item.name_};
-            metaConfigMap.emplace(std::move(key), std::move(item));
-        }
+        using c_iter_t = std::vector<ConfigItem>::iterator;
+        std::transform(
+            std::move_iterator<c_iter_t>(items.begin()),
+            std::move_iterator<c_iter_t>(items.end()),
+            std::inserter(metaConfigMap, metaConfigMap.end()),
+            [](auto item) {
+                std::pair<cpp2::ConfigModule, std::string> key = {item.module_, item.name_};
+                return std::make_pair(key, std::move(item));
+            });
         {
             // For any configurations that is in meta, update in cache to replace previous value
             folly::RWSpinLock::WriteHolder holder(configCacheLock_);

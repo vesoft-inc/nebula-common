@@ -119,14 +119,14 @@ TEST(StatusOr, ReturnFromMoveOnlyValue) {
 
 TEST(StatusOr, CopyConstructFromDefault) {
     StatusOr<std::string> result1;
-    auto result2 = result1;
+    auto result2 = result1; // NOLINT
     ASSERT_FALSE(result2.ok());
 }
 
 
 TEST(StatusOr, CopyConstructFromStatus) {
     StatusOr<std::string> result1(Status::Error("SomeError"));
-    auto result2 = result1;
+    auto result2 = result1; // NOLINT
     ASSERT_FALSE(result1.ok());
     ASSERT_FALSE(result1.status().ok());
     ASSERT_FALSE(result2.ok());
@@ -187,8 +187,8 @@ TEST(StatusOr, MoveConstructFromDefault) {
 
 TEST(StatusOr, MoveConstructFromStatus) {
     StatusOr<std::string> result1(Status::Error("SomeError"));
-    auto result2 = std::move(result1);
     ASSERT_FALSE(result1.ok());
+    auto result2 = std::move(result1);
     ASSERT_FALSE(result2.ok());
     ASSERT_FALSE(result2.status().ok());
     ASSERT_EQ("SomeError", result2.status().toString());
@@ -198,7 +198,6 @@ TEST(StatusOr, MoveConstructFromStatus) {
 TEST(StatusOr, MoveConstructFromValue) {
     StatusOr<std::string> result1("SomeValue");
     auto result2 = std::move(result1);
-    ASSERT_FALSE(result1.ok());
     ASSERT_TRUE(result2.ok());
     ASSERT_EQ("SomeValue", result2.value());
 }
@@ -215,8 +214,8 @@ TEST(StatusOr, MoveAssignFromDefault) {
 TEST(StatusOr, MoveAssignFromStatus) {
     StatusOr<std::string> result1(Status::Error("SomeError"));
     decltype(result1) result2;
-    result2 = std::move(result1);
     ASSERT_FALSE(result1.ok());
+    result2 = std::move(result1);
     ASSERT_FALSE(result2.ok());
     ASSERT_FALSE(result2.status().ok());
     ASSERT_EQ("SomeError", result2.status().toString());
@@ -227,7 +226,6 @@ TEST(StatusOr, MoveAssignFromValue) {
     StatusOr<std::string> result1("SomeValue");
     decltype(result1) result2;
     result2 = std::move(result1);
-    ASSERT_FALSE(result1.ok());
     ASSERT_TRUE(result2.ok());
     ASSERT_EQ("SomeValue", result2.value());
 }
@@ -261,14 +259,13 @@ TEST(StatusOr, AssignFromStatus) {
     {
         StatusOr<std::string> result;
         Status status = Status::OK();
-        result = std::move(status);
         ASSERT_TRUE(status.ok());
+        result = std::move(status);
         ASSERT_FALSE(result.ok());
         ASSERT_TRUE(result.status().ok());
 
         status = Status::Error("SomeError");
         result = std::move(status);
-        ASSERT_TRUE(status.ok());
         ASSERT_FALSE(result.ok());
         ASSERT_FALSE(result.status().ok());
         ASSERT_EQ("SomeError", result.status().toString());
@@ -353,7 +350,6 @@ TEST(StatusOr, MoveConstructFromCompatibleTypes) {
     ASSERT_EQ("SomeValue", *from.value());
 
     StatusOr<std::shared_ptr<std::string>> to(std::move(from));
-    ASSERT_FALSE(from.ok());
     ASSERT_TRUE(to.ok());
     ASSERT_EQ("SomeValue", *to.value());
 }
@@ -369,7 +365,6 @@ TEST(StatusOr, MoveAssignFromCompatibleTypes) {
     ASSERT_EQ("SomeOtherValue", *to.value());
 
     to = std::move(from);
-    ASSERT_FALSE(from.ok());
     ASSERT_TRUE(to.ok());
     ASSERT_EQ("SomeValue", *to.value());
 }
@@ -379,23 +374,19 @@ TEST(StatusOr, MoveOnlyValue) {
     {
         StatusOr<std::unique_ptr<std::string>> result1(std::make_unique<std::string>("SomeValue"));
         auto result2 = std::move(result1);
-        ASSERT_FALSE(result1.ok());
         ASSERT_TRUE(result2.ok());
         auto ptr = std::move(result2).value();
         ASSERT_NE(nullptr, ptr.get());
         ASSERT_EQ("SomeValue", *ptr);
-        ASSERT_FALSE(result2.ok());
     }
     {
         StatusOr<std::unique_ptr<std::string>> result1(std::make_unique<std::string>("SomeValue"));
         decltype(result1) result2;
         result2 = std::move(result1);
-        ASSERT_FALSE(result1.ok());
         ASSERT_TRUE(result2.ok());
         auto ptr = std::move(result2).value();
         ASSERT_NE(nullptr, ptr.get());
         ASSERT_EQ("SomeValue", *ptr);
-        ASSERT_FALSE(result2.ok());
     }
 }
 
@@ -406,7 +397,6 @@ TEST(StatusOr, MoveOutStatus) {
     ASSERT_FALSE(result.status().ok());
     ASSERT_EQ(Status::Error("SomeError"), result.status());
     auto status = std::move(result).status();
-    ASSERT_FALSE(result.ok());
     ASSERT_EQ(Status::Error("SomeError"), status);
 }
 

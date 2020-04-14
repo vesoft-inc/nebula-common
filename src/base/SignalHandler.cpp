@@ -9,10 +9,6 @@
 
 namespace nebula {
 
-SignalHandler::SignalHandler() {
-}
-
-
 Status SignalHandler::init() {
     // Ignore SIGPIPE and SIGHUP
     auto ignored = {SIGPIPE, SIGHUP};
@@ -54,7 +50,7 @@ Status SignalHandler::install(int sig, Handler handler) {
 
 
 // static
-Status SignalHandler::install(std::initializer_list<int> sigs, Handler handler) {
+Status SignalHandler::install(std::initializer_list<int> sigs, const Handler &handler) {
     auto status = Status::OK();
     for (auto sig : sigs) {
         status = install(sig, handler);

@@ -41,21 +41,21 @@ public:
         const std::vector<cpp2::VertexProp>& vertexProps,
         const std::vector<cpp2::EdgeProp>& edgeProps,
         const std::vector<cpp2::StatProp>& statProps,
-        std::string filter,
+        const std::string &filter,
         folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::VertexPropResponse>> getVertexProps(
         GraphSpaceID space,
         std::vector<VertexID> vertices,
-        std::vector<cpp2::VertexProp> props,
-        std::string filter,
+        const std::vector<cpp2::VertexProp> &props,
+        const std::string &filter,
         folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::EdgePropResponse>> getEdgeProps(
         GraphSpaceID space,
         std::vector<cpp2::EdgeKey> edges,
-        std::vector<cpp2::EdgeProp> props,
-        std::string filter,
+        const std::vector<cpp2::EdgeProp> &props,
+        const std::string &filter,
         folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> addVertices(
@@ -82,7 +82,7 @@ public:
 
     folly::Future<StatusOr<storage::cpp2::UpdateResponse>> updateVertex(
         GraphSpaceID space,
-        VertexID vertexId,
+        const VertexID &vertexId,
         std::vector<cpp2::UpdatedVertexProp> updatedProps,
         bool insertable,
         std::vector<cpp2::VertexProp> returnProps,
@@ -91,7 +91,7 @@ public:
 
     folly::Future<StatusOr<storage::cpp2::UpdateResponse>> updateEdge(
         GraphSpaceID space,
-        storage::cpp2::EdgeKey edgeKey,
+        const storage::cpp2::EdgeKey &edgeKey,
         std::vector<cpp2::UpdatedEdgeProp> updatedProps,
         bool insertable,
         std::vector<cpp2::EdgeProp> returnProps,
@@ -107,16 +107,16 @@ public:
     lookUpVertexIndex(
         GraphSpaceID space,
         IndexID indexId,
-        std::string filter,
-        std::vector<std::string> returnCols,
+        const std::string &filter,
+        const std::vector<std::string> &returnCols,
         folly::EventBase *evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::LookUpEdgeIndexResp>>
     lookUpEdgeIndex(
         GraphSpaceID space,
         IndexID indexId,
-        std::string filter,
-        std::vector<std::string> returnCols,
+        const std::string &filter,
+        const std::vector<std::string> &returnCols,
         folly::EventBase *evb = nullptr);
 };
 

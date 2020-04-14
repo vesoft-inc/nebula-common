@@ -62,10 +62,10 @@ public:
     Status MUST_USE_RESULT upsertStringField(const char* key, const std::string& val);
 
     // Iterate through every key in the configuration
-    Status forEachKey(std::function<void(const std::string&)> processor) const;
+    Status forEachKey(const std::function<void(const std::string&)> &processor) const;
     // Iterate through every key/value pair in the configuration
     Status forEachItem(
-        std::function<void(const std::string&, const folly::dynamic&)> processor) const;
+        const std::function<void(const std::string&, const folly::dynamic&)> &processor) const;
 
 private:
     std::unique_ptr<folly::dynamic>             content_;

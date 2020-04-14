@@ -272,7 +272,7 @@ Status Configuration::fetchAsStringArray(
 }
 
 
-Status Configuration::forEachKey(std::function<void(const std::string&)> processor) const {
+Status Configuration::forEachKey(const std::function<void(const std::string&)> &processor) const {
     DCHECK(content_ != nullptr);
     for (auto& key : content_->keys()) {
         try {
@@ -287,7 +287,7 @@ Status Configuration::forEachKey(std::function<void(const std::string&)> process
 
 
 Status Configuration::forEachItem(
-        std::function<void(const std::string&, const folly::dynamic&)> processor) const {
+        const std::function<void(const std::string&, const folly::dynamic&)> &processor) const {
     DCHECK(content_ != nullptr);
     for (auto& item : content_->items()) {
         try {

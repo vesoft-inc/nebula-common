@@ -45,7 +45,7 @@ class ReconnectingRequestChannel::RequestCallback
   }
 
  private:
-  void handleTransportException(apache::thrift::ClientReceiveState& state) {
+  void handleTransportException(const apache::thrift::ClientReceiveState& state) {
     if (!state.isException()) {
       return;
     }

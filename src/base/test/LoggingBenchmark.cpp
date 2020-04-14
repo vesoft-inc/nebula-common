@@ -10,7 +10,7 @@
 #include <iostream>
 
 #define LOG_SOMETHING(iters) \
-    for (int64_t i = 0; i < iters; i++) { \
+    for (int64_t i = 0; i < (iters); i++) { \
         LOG(INFO) << "Hello" << " " << "Wolrd" << "123"; \
     }
 

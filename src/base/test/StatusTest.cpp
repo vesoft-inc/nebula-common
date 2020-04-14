@@ -60,13 +60,13 @@ TEST(Status, StreamOperator) {
 TEST(Status, Copy) {
     {
         Status ok;
-        auto copy = ok;
+        auto copy = ok; // NOLINT
         ASSERT_TRUE(ok.ok());
         ASSERT_TRUE(copy.ok());
     }
     {
         auto error = Status::Error("SomeError");
-        auto copy = error;
+        auto copy = error; // NOLINT
         ASSERT_FALSE(error.ok());
         ASSERT_FALSE(copy.ok());
         ASSERT_EQ("SomeError", error.toString());
@@ -78,8 +78,8 @@ TEST(Status, Copy) {
 TEST(Status, Move) {
     {
         Status ok;
-        auto move = std::move(ok);
         ASSERT_TRUE(ok.ok());
+        auto move = std::move(ok);
         ASSERT_TRUE(move.ok());
     }
     {
@@ -87,8 +87,6 @@ TEST(Status, Move) {
         ASSERT_FALSE(error.ok());
         ASSERT_EQ("SomeError", error.toString());
         auto move = std::move(error);
-        ASSERT_TRUE(error.ok());
-        ASSERT_EQ("OK", error.toString());
         ASSERT_FALSE(move.ok());
         ASSERT_EQ("SomeError", move.toString());
     }

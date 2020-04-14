@@ -285,7 +285,6 @@ private:
     }
 
     void resetValue() {
-        destructValue();
         state_ = kVoid;
     }
 

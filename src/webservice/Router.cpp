@@ -86,7 +86,7 @@ Router::~Router() {
 
 void Route::handler(ReqHandlerGenerator generator) {
     CHECK(!generator_) << "Only allowed to register handler generator once for a route";
-    generator_ = generator;
+    generator_ = std::move(generator);
 }
 
 proxygen::RequestHandler *Route::generateHandler(const std::string &path) const {

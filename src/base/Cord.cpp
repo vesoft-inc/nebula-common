@@ -75,7 +75,7 @@ void Cord::clear() {
 }
 
 
-bool Cord::applyTo(std::function<bool(const char*, int32_t)> visitor) const {
+bool Cord::applyTo(const std::function<bool(const char*, int32_t)> &visitor) const {
     if (empty()) {
         return true;
     }

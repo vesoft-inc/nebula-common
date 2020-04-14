@@ -40,7 +40,7 @@ public:
     class GeneralSignalInfo;
     using Handler = std::function<void(GeneralSignalInfo*)>;
     static Status install(int sig, Handler handler);
-    static Status install(std::initializer_list<int> sigs, Handler handler);
+    static Status install(std::initializer_list<int> sigs, const Handler &handler);
 
     class GeneralSignalInfo {
     public:
@@ -66,7 +66,7 @@ public:
     };
 
 private:
-    SignalHandler();
+    SignalHandler() = default;
     SignalHandler(const SignalHandler&) = delete;
     SignalHandler& operator=(const SignalHandler&) = delete;
     SignalHandler(SignalHandler&&) = delete;

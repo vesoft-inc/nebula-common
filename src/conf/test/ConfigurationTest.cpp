@@ -76,17 +76,17 @@ TEST(Configuration, IllegalFormat) {
         ASSERT_FALSE(status.ok());
     }
     {
-        std::string ill = "\"key\": \"value\"";
+        std::string ill = R"("key": "value")";
         auto status = conf.parseFromString(ill);
         ASSERT_FALSE(status.ok());
     }
     {
-        std::string ill = "{\"key\" \"value\"}";
+        std::string ill = R"("key": "value")";
         auto status = conf.parseFromString(ill);
         ASSERT_FALSE(status.ok());
     }
     {
-        std::string ill = "{\"key\": \"value\"";
+        std::string ill = R"("key": "value")";
         auto status = conf.parseFromString(ill);
         ASSERT_FALSE(status.ok());
     }

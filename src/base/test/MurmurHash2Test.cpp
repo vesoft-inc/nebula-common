@@ -40,19 +40,16 @@ TEST(MurmurHash2, Basic) {
     // pointer
     {
         {
-            auto *ptr = new MurmurHash2();
-            ASSERT_EQ(reinterpret_cast<size_t>(ptr), hash(ptr));
-            delete ptr;
+            auto ptr = std::make_unique<MurmurHash2>();
+            ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr.get()));
         }
         {
-            auto *ptr = new std::string();
-            ASSERT_EQ(reinterpret_cast<size_t>(ptr), hash(ptr));
-            delete ptr;
+            auto ptr = std::make_unique<std::string>();
+            ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr.get()));
         }
         {
-            auto *ptr = new int();
-            ASSERT_EQ(reinterpret_cast<size_t>(ptr), hash(ptr));
-            delete ptr;
+            auto ptr = std::make_unique<int>();
+            ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr.get()));
         }
     }
     // shared_ptr

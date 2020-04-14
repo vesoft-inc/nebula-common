@@ -22,14 +22,14 @@ public:
 
     // return the newest one if ver less 0
     std::shared_ptr<const SchemaProviderIf> getTagSchema(
-        GraphSpaceID space, TagID tag, SchemaVer ver = -1) override;
+        GraphSpaceID space, TagID tag, SchemaVer) override;
 
     // Returns a negative number when the schema does not exist
     StatusOr<SchemaVer> getNewestTagSchemaVer(GraphSpaceID space, TagID tag) override;
 
     // return the newest one if ver less 0
     std::shared_ptr<const SchemaProviderIf> getEdgeSchema(
-        GraphSpaceID space, EdgeType edge, SchemaVer ver = -1) override;
+        GraphSpaceID space, EdgeType edge, SchemaVer ver) override;
 
     // Returns a negative number when the schema does not exist
     StatusOr<SchemaVer> getNewestEdgeSchemaVer(GraphSpaceID space, EdgeType edge) override;

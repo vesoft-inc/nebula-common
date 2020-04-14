@@ -5,7 +5,7 @@
  */
 
 #include "base/Base.h"
-#include <time.h>
+#include <ctime>
 #include "thread/NamedThread.h"
 #include "time/detail/TscHelper.h"
 
@@ -52,7 +52,7 @@ uint64_t TscHelper::readTscImpl() {
     uint32_t eax, edx;
     __asm__ volatile ("rdtsc" : "=a" (eax), "=d" (edx));
 #endif
-    return ((uint64_t)edx) << 32 | (uint64_t)eax;
+    return static_cast<uint64_t>(edx) << 32 | static_cast<uint64_t>(eax);
 }
 
 
@@ -69,12 +69,12 @@ void TscHelper::calibrate() {
 
 
 uint64_t TscHelper::ticksToDurationInSec(uint64_t ticks) {
-    return ticks * get().ticksPerSecFactor_ + 0.5;
+    return std::lround(ticks * get().ticksPerSecFactor_);
 }
 
 
 uint64_t TscHelper::ticksToDurationInMSec(uint64_t ticks) {
-    return ticks * get().ticksPerMSecFactor_ + 0.5;
+    return std::lround(ticks * get().ticksPerMSecFactor_);
 }
 
 
