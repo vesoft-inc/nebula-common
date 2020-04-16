@@ -418,27 +418,27 @@ GraphStorageClient::getUUID(GraphSpaceID space,
     });
 }
 
-folly::SemiFuture<StorageRpcResponse<cpp2::LookupResp>>
-GraphStorageClient::lookup(GraphSpaceID space,
-                           std::vector<storage::cpp2::Hint> hints,
-                           bool isEdge,
-                           int32_t tagOrEdge,
-                           std::vector<std::string> returnCols,
-                           folly::EventBase *evb) {
+folly::SemiFuture<StorageRpcResponse<cpp2::LookupIndexResp>>
+GraphStorageClient::lookupIndex(GraphSpaceID space,
+                                std::vector<storage::cpp2::IndexQueryContext> contexts,
+                                bool isEdge,
+                                int32_t tagOrEdge,
+                                std::vector<std::string> returnCols,
+                                folly::EventBase *evb) {
     auto status = getHostParts(space);
     if (!status.ok()) {
-        return folly::makeFuture<StorageRpcResponse<cpp2::LookupResp>>(
+        return folly::makeFuture<StorageRpcResponse<cpp2::LookupIndexResp>>(
             std::runtime_error(status.status().toString()));
     }
 
     auto& clusters = status.value();
-    std::unordered_map<HostAddr, cpp2::LookupRequest> requests;
+    std::unordered_map<HostAddr, cpp2::LookupIndexRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
         auto& req = requests[host];
         req.set_space_id(space);
         req.set_parts(std::move(c.second));
-        req.set_hints(std::move(hints));
+        req.set_contexts(std::move(contexts));
         req.set_is_edge(isEdge);
         req.set_tag_or_edge_id(tagOrEdge);
         req.set_return_columns(returnCols);
@@ -446,8 +446,8 @@ GraphStorageClient::lookup(GraphSpaceID space,
     return collectResponse(evb,
                            std::move(requests),
                            [] (cpp2::GraphStorageServiceAsyncClient* client,
-                               const cpp2::LookupRequest& r) {
-                               return client->future_lookup(r); },
+                               const cpp2::LookupIndexRequest& r) {
+                               return client->future_lookupIndex(r); },
                            [] (const PartitionID& part) {
                                return part;
                            });

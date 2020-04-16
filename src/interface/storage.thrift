@@ -454,7 +454,7 @@ struct EdgeIndexData {
     2: optional list<common.Value>  props,
 }
 
-struct ColumnHint {
+struct IndexColumnHint {
     1: string                   column_name,
     // If scan_type == PREFIX, using begin_value to handler prefix.
     // Else using begin_value and end_value to handler ranger.
@@ -463,25 +463,21 @@ struct ColumnHint {
     4: common.Value             end_value,
 }
 
-struct Hint {
-    // hint_id is the unique sequence number for scan execution.
-    // It will be used to execution policy of the storage layer。
-    1: i32                      hint_id,
-    // Allowed invalid index_id '-1' , means no matched index hit ,if so a full table scan required.
-    2: common.IndexID           index_id,
+struct IndexQueryContext {
+    1: common.IndexID           index_id,
     // filter is an encoded expression of where clause.
     // Used for secondary filtering from a result set
-    3: binary                   filter,
+    2: binary                   filter,
     // There are three types of scan: 1, range scan; 2, match scan (prefix); 3, full table scan
     // The columns_hint allowed empty when full scan, means no matched index column hit.
-    4: list<ColumnHint>         column_hints,
+    3: list<IndexColumnHint>    column_hints,
  }
 
 struct LookupIndexRequest {
     1: required common.GraphSpaceID       space_id,
     2: required list<common.PartitionID>  parts,
     // For merger-index , multiple index hints are allowed
-    3: required list<Hint>                hints,
+    3: required list<IndexQueryContext>   contexts,
     4: required bool                      is_edge,
     5: required i32                       tag_or_edge_id,
     // We only support specified fields here, not wild card "*"
@@ -513,7 +509,7 @@ service GraphStorageService {
     GetUUIDResp getUUID(1: GetUUIDReq req);
 
     // Interfaces for edge and vertex index scan
-    LookupIndexResp lookup(1: LookupIndexRequest req);
+    LookupIndexResp lookupIndex(1: LookupIndexRequest req);
 }
 
 
