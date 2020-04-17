@@ -34,7 +34,9 @@ public:
 
     folly::SemiFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>> getNeighbors(
         GraphSpaceID space,
-        std::vector<VertexID> vertices,
+        std::vector<std::string> colNames,
+        // The first column has to be the VertexID
+        std::vector<Row> vertices,
         const std::vector<EdgeType>& edgeTypes,
         const std::vector<cpp2::VertexProp>& vertexProps,
         const std::vector<cpp2::EdgeProp>& edgeProps,
@@ -44,14 +46,17 @@ public:
 
     folly::SemiFuture<StorageRpcResponse<cpp2::VertexPropResponse>> getVertexProps(
         GraphSpaceID space,
-        std::vector<VertexID> vertices,
+        std::vector<std::string> colNames,
+        std::vector<Row> vertices,
         std::vector<cpp2::VertexProp> props,
         std::string filter,
         folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::EdgePropResponse>> getEdgeProps(
         GraphSpaceID space,
-        std::vector<cpp2::EdgeKey> edges,
+        std::vector<std::string> colNames,
+        // The first four columns must be "_src", "_type", "_ranking", and "_dst"
+        std::vector<Row> edges,
         std::vector<cpp2::EdgeProp> props,
         std::string filter,
         folly::EventBase* evb = nullptr);

@@ -83,27 +83,27 @@ struct ResponseCommon {
  */
 // Define a vertex property
 struct VertexProp {
-    // This is the ID of the tag which the foloowing property name belongs to.
-    // If the property name is "*", all properties of the tag will be returned.
-    // If the tag ID is 0, the specified property on all tags will be returned
-    // in the same column. If the tag ID is 0 and the property name is "*", then
-    // all properties on all tags will be returned
-    1: common.TagID tag,    // Tag ID
-    // When name is "*", it means to return all properties
-    2: binary       name,   // Property name
+    // This is the ID of the tag which the following property name belongs to.
+    // If the tag ID is 0, the specified properties on all tags will be returned
+    // in the same column. If the tag ID is 0 and the property name  list is empty,
+    // then all properties on all tags will be returned
+    1: common.TagID     tag,
+    // List of property names. When names is empty, it returns all properties
+    // on the tag
+    2: list<binary>     names,
 }
 
 
 // Define an edge property
 struct EdgeProp {
-    // This is the edge type which the foloowing property name belongs to.
-    // If the property name is "*", all properties of the edge will be returned.
-    // If the edge type is 0, the specified property on all edges will be returned
-    // in the same column. If the edge type is 0 and the property name is "*", then
-    // all properties on all edges will be returned
-    1: common.EdgeType  type,   // Edge type
-    // When name is "*", it means to return all properties
-    2: binary           name,   // Property name
+    // This is the edge type which the following property name belongs to.
+    // If the edge type is 0, the specified properties on all edges will be returned
+    // in the same column. If the edge type is 0 and the property name list is empty,
+    // then all properties on all edges will be returned
+    1: common.EdgeType  type,
+    // List of property names. When the list is empty, it returns all properties
+    // on the edge
+    2: list<binary>     names,
 }
 
 
@@ -112,6 +112,8 @@ enum StatType {
     SUM = 1,
     COUNT = 2,
     AVG = 3,
+    MAX = 4,
+    MIN = 5,
 } (cpp.enum_strict)
 
 
@@ -120,6 +122,12 @@ struct StatProp {
     1: common.EdgeType  type,   // Edge type
     2: binary           name,   // Property name
     3: StatType         stat,   // Stats method
+}
+
+
+enum OrderDirection {
+    ASCENDING = 1,
+    DESCENDING = 2,
 }
 
 
@@ -133,18 +141,28 @@ struct StatProp {
  * Start of GetNeighbors section
  */
 struct GetNeighborsRequest {
-    1: common.GraphSpaceID space_id,
-    // partId => ids
-    2: map<common.PartitionID, list<common.VertexID>>(
-        cpp.template = "std::unordered_map") parts,
+    1: common.GraphSpaceID                      space_id,
+    // Column names for input data. The first column name must be "_vid"
+    2: list<binary>                             column_names,
+    // partId => rows
+    3: map<common.PartitionID, list<common.Row>>
+        (cpp.template = "std::unordered_map")   parts,
     // When edge_type > 0, going along the out-edge, otherwise, along the in-edge
     // If the edge type list is empty, all edges will be scaned
-    3: list<common.EdgeType> edge_types,
+    4: list<common.EdgeType>                    edge_types,
     // If there is no property specified, all properties will be returned
-    4: list<VertexProp> vertex_props,
-    5: list<StatProp> stat_props,
-    6: list<EdgeProp> edge_props,
-    7: optional binary filter,
+    5: list<VertexProp>                         vertex_props,
+    6: list<StatProp>                           stat_props,
+    7: list<EdgeProp>                           edge_props,
+    // Whether to do row-level dedup
+    8: bool                                     dedup = false,
+    // A list of expressions used to sort the result
+    9: optional list<binary>                    order_by,
+    10: optional OrderDirection                  order_dir,
+    // Return the top/bottom N rows
+    11: optional i64                            limit,
+    // If provided, only the rows satified the given expression will be returned
+    12: optional binary                         filter,
 }
 
 
@@ -185,13 +203,21 @@ struct ExecResponse {
  */
 struct VertexPropRequest {
     1: common.GraphSpaceID                      space_id,
-    2: map<common.PartitionID, list<common.VertexID>>(
-        cpp.template = "std::unordered_map")    parts,
+    // Column names for the pass-in data. The first column has to be "_vid"
+    2: list<binary>                             column_names,
+    3: map<common.PartitionID, list<common.Row>>
+        (cpp.template = "std::unordered_map")   parts,
     // If the property list is empty, return all properties
-    3: list<VertexProp>                         vertex_props,
+    4: list<VertexProp>                         vertex_props,
+    // Whether to do row-level dedup
+    5: bool                                     dedup = false,
+    // List of expressions used by the order-by clause
+    6: optional list<binary>                    order_by,
+    7: optional OrderDirection                  order_dir,
+    8: optional i64                             limit,
     // If a filter is provided, only vertices that are satisfied the filter
     // will be returned
-    4: optional binary                          filter,
+    9: optional binary                          filter,
 }
 
 
@@ -214,26 +240,25 @@ struct VertexPropResponse {
 /*
  * Start of GetEdgeProp section
  */
-struct EdgeKey {
-    1: common.VertexID      src,
-    // When edge_type > 0, it's an out-edge, otherwise, it's an in-edge
-    // When query edge props, the field could be unset.
-    2: common.EdgeType      edge_type,
-    3: common.EdgeRanking   ranking,
-    4: common.VertexID      dst,
-}
-
-
 struct EdgePropRequest {
     1: common.GraphSpaceID                      space_id,
+    // Column names for the pass-in data. The first four columns have to be "_src",
+    // "_type", "_ranking", and "_dst"
+    2: list<binary>                             column_names,
     // partId => edges
-    2: map<common.PartitionID, list<EdgeKey>>(
-        cpp.template = "std::unordered_map")    parts,
+    3: map<common.PartitionID, list<common.Row>>
+        (cpp.template = "std::unordered_map")   parts,
     // If the property list is empty, return all properties
-    3: list<EdgeProp>                           edge_props,
+    4: list<EdgeProp>                           edge_props,
+    // Whether to do row-level dedup
+    5: bool                                     dedup = false,
+    // List of expressions used by the order-by clause
+    6: optional list<binary>                    order_by,
+    7: optional OrderDirection                  order_dir,
+    8: optional i64                             limit,
     // If a filter is provided, only edges that are satisfied the filter
     // will be returned
-    4: optional binary                          filter,
+    9: optional binary                          filter,
 }
 
 
@@ -245,7 +270,7 @@ struct EdgePropResponse {
     // The name of the first column is "_src", it's the ID of the source vertex
     // The name of the second column is "_type", it's the edge type
     // The name of the third column is "_ranking", it's the edge ranking
-    // The name of the fource column is "_dst", it's the ID of the destination
+    // The name of the fourth column is "_dst", it's the ID of the destination
     //   vertex
     // Starting from the fifth column, it's the edge property, one column per
     //   peoperty. The column name is in the form of "edge_type_name.prop_name".
@@ -272,6 +297,16 @@ struct NewTag {
 struct NewVertex {
     1: common.VertexID id,
     2: list<NewTag> tags,
+}
+
+
+struct EdgeKey {
+    1: common.VertexID      src,
+    // When edge_type > 0, it's an out-edge, otherwise, it's an in-edge
+    // When query edge props, the field could be unset.
+    2: common.EdgeType      edge_type,
+    3: common.EdgeRanking   ranking,
+    4: common.VertexID      dst,
 }
 
 
@@ -347,7 +382,7 @@ struct UpdateResponse {
 struct UpdatedVertexProp {
     1: required common.TagID    tag_id,     // the Tag ID
     2: required binary          name,       // property name
-    3: required common.Value    value,      // new value
+    3: required binary          value,      // new value (encoded expression)
 }
 
 
@@ -371,7 +406,7 @@ struct UpdateVertexRequest {
  */
 struct UpdatedEdgeProp {
     1: required binary          name,       // property name
-    2: required common.Value    value,      // new value
+    2: required binary          value,      // new value (encoded expression)
 }
 
 
