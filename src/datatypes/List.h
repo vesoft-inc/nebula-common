@@ -19,6 +19,30 @@ struct List {
     List(const List&) = default;
     List(List&&) = default;
 
+    // Reuse the vector constructor
+    /*implicit*/ List(const std::vector<Value> &l) : values(l) {}
+    /*implicit*/ List(std::vector<Value> &&l) : values(l) {}
+
+    std::size_t size() {
+        return values.size();
+    }
+
+    bool empty() {
+        return values.empty();
+    }
+
+    void reserve(std::size_t n) {
+        values.reserve(n);
+    }
+
+    void emplace_back(const Value &v) {
+        values.emplace_back(v);
+    }
+
+    void emplace_back(Value &&v) {
+        values.emplace_back(v);
+    }
+
     void clear() {
         values.clear();
     }
