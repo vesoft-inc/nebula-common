@@ -16,20 +16,15 @@ public:
     ArithmeticExpression(Type type,
                          std::unique_ptr<Expression> left,
                          std::unique_ptr<Expression> right)
-        : type_(type)
+        : Expression(type)
         , left_(std::move(left))
         , right_(std::move(right)) {}
 
     Value eval() const override;
 
-    Type type() const override {
-        return type_;
-    }
-
     std::string encode() const override;
 
 private:
-    Type type_;
     std::unique_ptr<Expression> left_;
     std::unique_ptr<Expression> right_;
 };

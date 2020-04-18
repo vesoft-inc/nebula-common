@@ -323,6 +323,8 @@ Value operator+(const Value& left, const Value& right);
 Value operator-(const Value& left, const Value& right);
 Value operator*(const Value& left, const Value& right);
 Value operator/(const Value& left, const Value& right);
+Value operator-(const Value& rhs);
+Value operator!(const Value& rhs);
 
 }  // namespace nebula
 

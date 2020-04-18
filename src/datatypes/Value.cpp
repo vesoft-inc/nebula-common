@@ -1772,6 +1772,34 @@ Value operator/(const Value& left, const Value& right) {
     }
 }
 
+Value operator-(const Value& rhs) {
+    if (rhs.isNull()) {
+        return Value(NullType::NaN);
+    }
+
+    switch (rhs.type()) {
+        case Value::Type::INT: {
+            auto val = -rhs.getInt();
+            return val;
+        }
+        case Value::Type::FLOAT: {
+            auto val = -rhs.getFloat();
+            return val;
+        }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
+    }
+}
+
+Value operator!(const Value& rhs) {
+    if (rhs.isNull() || rhs.type() != Value::Type::BOOL) {
+        return Value(NullType::NaN);
+    }
+
+    auto val = rhs.getBool();
+    return !val;
+}
 }  // namespace nebula
 
 

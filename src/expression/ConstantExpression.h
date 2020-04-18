@@ -14,14 +14,11 @@ namespace nebula {
 
 class ConstantExpression : public Expression {
 public:
-    explicit ConstantExpression(Value v) : val_(std::move(v)) {}
+    explicit ConstantExpression(Value v)
+        : Expression(Expression::Type::EXP_CONSTANT), val_(std::move(v)) {}
 
     Value eval() const override {
         return val_;
-    }
-
-    Type type() const override {
-        return  Expression::Type::EXP_CONSTANT;
     }
 
     std::string encode() const override;

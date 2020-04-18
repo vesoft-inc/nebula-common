@@ -93,6 +93,22 @@ TEST(Value, Arithmetics) {
     v = vStr1 + vDate1;
     EXPECT_EQ(Value::Type::STRING, v.type());
     EXPECT_EQ(std::string("Hello 2020/01/01"), v.getStr());
+
+    v = -vInt1;
+    EXPECT_EQ(Value::Type::INT, v.type());
+    EXPECT_EQ(-1L, v.getInt());
+
+    v = -vFloat1;
+    EXPECT_EQ(Value::Type::FLOAT, v.type());
+    EXPECT_DOUBLE_EQ(-3.14, v.getFloat());
+
+    v = !vBool1;
+    EXPECT_EQ(Value::Type::BOOL, v.type());
+    EXPECT_DOUBLE_EQ(true, v.getBool());
+
+    v = !vBool2;
+    EXPECT_EQ(Value::Type::BOOL, v.type());
+    EXPECT_DOUBLE_EQ(false, v.getBool());
 }
 
 }  // namespace nebula
