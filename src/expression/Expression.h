@@ -25,6 +25,13 @@ public:
         EXP_UNARY_PLUS,
         EXP_UNARY_NEGATE,
         EXP_UNARY_NOT,
+
+        EXP_REL_EQ,
+        EXP_REL_NE,
+        EXP_REL_LT,
+        EXP_REL_LE,
+        EXP_REL_GT,
+        EXP_REL_GE
     };
 
     explicit Expression(Type type) : type_(type) {}
@@ -69,6 +76,24 @@ std::ostream& operator<<(std::ostream& os, Expression::Type type) {
             break;
         case Expression::Type::EXP_UNARY_NOT:
             os << "UnaryNot";
+            break;
+        case Expression::Type::EXP_REL_EQ:
+            os << "Equal";
+            break;
+        case Expression::Type::EXP_REL_NE:
+            os << "NotEuqal";
+            break;
+        case Expression::Type::EXP_REL_LT:
+            os << "LessThan";
+            break;
+        case Expression::Type::EXP_REL_LE:
+            os << "LessEqual";
+            break;
+        case Expression::Type::EXP_REL_GT:
+            os << "GreaterThan";
+            break;
+        case Expression::Type::EXP_REL_GE:
+            os << "GreaterEqual";
             break;
     }
     return os;
