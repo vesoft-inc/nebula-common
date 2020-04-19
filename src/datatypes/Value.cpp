@@ -884,7 +884,7 @@ DataSet Value::moveDataSet() {
     return std::move(ds);
 }
 
-
+/*
 bool Value::operator==(const Value& rhs) const {
     if (type_ != rhs.type_) { return false; }
     switch (type_) {
@@ -950,6 +950,7 @@ bool Value::operator==(const Value& rhs) const {
         }
     }
 }
+*/
 
 
 void Value::clear() {
@@ -1793,12 +1794,172 @@ Value operator-(const Value& rhs) {
 }
 
 Value operator!(const Value& rhs) {
-    if (rhs.isNull() || rhs.type() != Value::Type::BOOL) {
+    if (rhs.isNull()) {
         return Value(NullType::NaN);
+    }
+
+    if (rhs.type() != Value::Type::BOOL) {
+        return Value(NullType::BAD_TYPE);
     }
 
     auto val = rhs.getBool();
     return !val;
+}
+
+bool operator<(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull() || rhs.isNull()) {
+        return false;
+    }
+
+    if (!(lhs.isNumeric() && rhs.isNumeric())
+            && (lhs.type() != rhs.type())) {
+        return false;
+    }
+
+    switch (lhs.type()) {
+        case Value::Type::BOOL: {
+            return lhs.getBool() < rhs.getBool();
+        }
+        case Value::Type::INT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getInt() < rhs.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return lhs.getInt() < rhs.getFloat();
+                }
+                default: {
+                    return false;
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getFloat() < rhs.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return lhs.getFloat() < rhs.getFloat();
+                }
+                default: {
+                    return false;
+                }
+            }
+        }
+        case Value::Type::STRING: {
+            return lhs.getStr() < rhs.getStr();
+        }
+        case Value::Type::DATE: {
+            return lhs.getDate() < rhs.getDate();
+        }
+        case Value::Type::DATETIME:
+        case Value::Type::VERTEX:
+        case Value::Type::EDGE:
+        case Value::Type::PATH:
+        case Value::Type::LIST:
+        case Value::Type::MAP:
+        case Value::Type::SET:
+        case Value::Type::DATASET: {
+            // TODO:
+            return false;
+        }
+        default: {
+            return false;
+        }
+    }
+}
+
+bool operator==(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull() || rhs.isNull()) {
+        return false;
+    }
+
+    if (!(lhs.isNumeric() && rhs.isNumeric())
+            && (lhs.type() != rhs.type())) {
+        return false;
+    }
+
+    constexpr auto EPSILON = 1e-8;
+    switch (lhs.type()) {
+        case Value::Type::BOOL: {
+            return lhs.getBool() == rhs.getBool();
+        }
+        case Value::Type::INT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getInt() == rhs.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return std::abs(lhs.getInt() - rhs.getFloat()) < EPSILON;
+                }
+                default: {
+                    return false;
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return std::abs(lhs.getFloat() - rhs.getInt()) < EPSILON;
+                }
+                case Value::Type::FLOAT: {
+                    return std::abs(lhs.getFloat() - rhs.getFloat()) < EPSILON;
+                }
+                default: {
+                    return false;
+                }
+            }
+        }
+        case Value::Type::STRING: {
+            return lhs.getStr() == rhs.getStr();
+        }
+        case Value::Type::DATE: {
+            return lhs.getDate() == rhs.getDate();
+        }
+        case Value::Type::DATETIME: {
+            return lhs.getDateTime() == rhs.getDateTime();
+        }
+        case Value::Type::VERTEX: {
+            return lhs.getVertex() == rhs.getVertex();
+        }
+        case Value::Type::EDGE: {
+            return lhs.getEdge() == rhs.getEdge();
+        }
+        case Value::Type::PATH: {
+            return lhs.getPath() == rhs.getPath();
+        }
+        case Value::Type::LIST: {
+            return lhs.getList() == rhs.getList();
+        }
+        case Value::Type::MAP: {
+            return lhs.getMap() == rhs.getMap();
+        }
+        case Value::Type::SET: {
+            return lhs.getSet() == rhs.getSet();
+        }
+        case Value::Type::DATASET: {
+            return lhs.getDataSet() == rhs.getDataSet();
+        }
+        default: {
+            return false;
+        }
+    }
+}
+
+bool operator!=(const Value& lhs, const Value& rhs) {
+    return !(lhs == rhs);
+}
+
+bool operator> (const Value& lhs, const Value& rhs) {
+    return rhs < lhs;
+}
+
+bool operator<=(const Value& lhs, const Value& rhs) {
+    return !(rhs < lhs);
+}
+
+bool operator>=(const Value& lhs, const Value& rhs) {
+    return !(lhs < rhs);
 }
 }  // namespace nebula
 

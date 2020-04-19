@@ -117,6 +117,10 @@ struct Value {
         return type_ == Type::NULLVALUE;
     }
 
+    bool isNumeric() const {
+        return type_ == Type::INT || type_ == Type::FLOAT;
+    }
+
     void clear();
 
     Value& operator=(Value&& rhs);
@@ -217,8 +221,6 @@ struct Value {
     Map& mutableMap();
     Set& mutableSet();
     DataSet& mutableDataSet();
-
-    bool operator==(const Value& rhs) const;
 
     static const Value& null() noexcept {
         static const Value kNullValue(NullType::__NULL__);
@@ -323,9 +325,16 @@ Value operator+(const Value& left, const Value& right);
 Value operator-(const Value& left, const Value& right);
 Value operator*(const Value& left, const Value& right);
 Value operator/(const Value& left, const Value& right);
+// Unary operations
 Value operator-(const Value& rhs);
 Value operator!(const Value& rhs);
-
+// Comparison operations
+bool operator< (const Value& lhs, const Value& rhs);
+bool operator==(const Value& lhs, const Value& rhs);
+bool operator!=(const Value& lhs, const Value& rhs);
+bool operator> (const Value& lhs, const Value& rhs);
+bool operator<=(const Value& lhs, const Value& rhs);
+bool operator>=(const Value& lhs, const Value& rhs);
 }  // namespace nebula
 
 
