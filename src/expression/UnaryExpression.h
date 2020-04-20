@@ -18,8 +18,10 @@ public:
     Value eval() const override;
 
     std::string encode() const override {
+        // TODO
         return "";
     }
+
 private:
     std::unique_ptr<Expression>                 operand_;
 };

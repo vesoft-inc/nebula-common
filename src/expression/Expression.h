@@ -31,7 +31,11 @@ public:
         EXP_REL_LT,
         EXP_REL_LE,
         EXP_REL_GT,
-        EXP_REL_GE
+        EXP_REL_GE,
+
+        EXP_LOGICAL_AND,
+        EXP_LOGICAL_OR,
+        EXP_LOGICAL_XOR,
     };
 
     explicit Expression(Type type) : type_(type) {}
@@ -94,6 +98,15 @@ std::ostream& operator<<(std::ostream& os, Expression::Type type) {
             break;
         case Expression::Type::EXP_REL_GE:
             os << "GreaterEqual";
+            break;
+        case Expression::Type::EXP_LOGICAL_AND:
+            os << "LogicalAnd";
+            break;
+        case Expression::Type::EXP_LOGICAL_OR:
+            os << "LogicalOr";
+            break;
+        case Expression::Type::EXP_LOGICAL_XOR:
+            os << "LogicalXor";
             break;
     }
     return os;

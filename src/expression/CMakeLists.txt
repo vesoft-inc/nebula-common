@@ -4,6 +4,7 @@ nebula_add_library(
     ArithmeticExpression.cpp
     UnaryExpression.cpp
     RelationalExpression.cpp
+    LogicalExpression.cpp
 )
 
 #nebula_add_subdirectory(test)

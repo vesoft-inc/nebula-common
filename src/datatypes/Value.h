@@ -1,4 +1,4 @@
-/* Copyright (c) 2020 vesoft inc. All rights reserved.
+/* Copyright (c) 2020 vesoft inc. All rhss reserved.
  *
  * This source code is licensed under Apache 2.0 License,
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
@@ -321,11 +321,11 @@ std::ostream& operator<<(std::ostream& os, const Value::Type& type);
 
 
 // Arithmetic operations
-Value operator+(const Value& left, const Value& right);
-Value operator-(const Value& left, const Value& right);
-Value operator*(const Value& left, const Value& right);
-Value operator/(const Value& left, const Value& right);
-Value operator%(const Value& left, const Value& right);
+Value operator+(const Value& lhs, const Value& rhs);
+Value operator-(const Value& lhs, const Value& rhs);
+Value operator*(const Value& lhs, const Value& rhs);
+Value operator/(const Value& lhs, const Value& rhs);
+Value operator%(const Value& lhs, const Value& rhs);
 // Unary operations
 Value operator-(const Value& rhs);
 Value operator!(const Value& rhs);
@@ -336,6 +336,9 @@ bool operator!=(const Value& lhs, const Value& rhs);
 bool operator> (const Value& lhs, const Value& rhs);
 bool operator<=(const Value& lhs, const Value& rhs);
 bool operator>=(const Value& lhs, const Value& rhs);
+// Logical operations
+Value operator&&(const Value& lhs, const Value& rhs);
+Value operator||(const Value& lhs, const Value& rhs);
 }  // namespace nebula
 
 

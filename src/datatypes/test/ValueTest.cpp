@@ -332,6 +332,48 @@ TEST(Value, Comparison) {
         EXPECT_EQ(false, v.getBool());
     }
 }
+
+TEST(Value, Logical) {
+    Value vZero(0);
+    Value vInt1(1);
+    Value vInt2(2);
+    Value vFloat1(3.14);
+    Value vFloat2(2.67);
+    Value vStr1("Hello ");
+    Value vStr2("World");
+    Value vBool1(false);
+    Value vBool2(true);
+    Value vDate1(Date(2020, 1, 1));
+    Value vDate2(Date(2019, 12, 1));
+
+    {
+        Value v = vBool1 && vBool1;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+
+        v = vBool1 && vBool2;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+
+        v = vBool2 && vBool2;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+    }
+
+    {
+        Value v = vBool1 || vBool1;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+
+        v = vBool1 || vBool2;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+
+        v = vBool2 || vBool2;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+    }
+}
 }  // namespace nebula
 
 
