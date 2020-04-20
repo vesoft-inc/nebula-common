@@ -5,6 +5,7 @@ nebula_add_library(
     UnaryExpression.cpp
     RelationalExpression.cpp
     LogicalExpression.cpp
+    TypeCastingExpression.cpp
 )
 
 #nebula_add_subdirectory(test)

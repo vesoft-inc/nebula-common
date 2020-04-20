@@ -36,6 +36,10 @@ public:
         EXP_LOGICAL_AND,
         EXP_LOGICAL_OR,
         EXP_LOGICAL_XOR,
+
+        EXP_TYPE_CASTING,
+
+        EXP_FUNCTION_CALL,
     };
 
     explicit Expression(Type type) : type_(type) {}
@@ -107,6 +111,12 @@ std::ostream& operator<<(std::ostream& os, Expression::Type type) {
             break;
         case Expression::Type::EXP_LOGICAL_XOR:
             os << "LogicalXor";
+            break;
+        case Expression::Type::EXP_TYPE_CASTING:
+            os << "TypeCasting";
+            break;
+        case Expression::Type::EXP_FUNCTION_CALL:
+            os << "FunctionCall";
             break;
     }
     return os;
