@@ -40,6 +40,16 @@ public:
         EXP_TYPE_CASTING,
 
         EXP_FUNCTION_CALL,
+
+        EXP_ALIAS_PROPERTY,
+        EXP_INPUT_PROPERTY,
+        EXP_VAR_PROPERTY,
+        EXP_DST_PROPERTY,
+        EXP_SRC_PROPERTY,
+        EXP_EDGE_SRC,
+        EXP_EDGE_TYPE,
+        EXP_EDGE_RANK,
+        EXP_EDGE_DST,
     };
 
     explicit Expression(Type type) : type_(type) {}
@@ -117,6 +127,33 @@ std::ostream& operator<<(std::ostream& os, Expression::Type type) {
             break;
         case Expression::Type::EXP_FUNCTION_CALL:
             os << "FunctionCall";
+            break;
+        case Expression::Type::EXP_ALIAS_PROPERTY:
+            os << "AliasProp";
+            break;
+        case Expression::Type::EXP_INPUT_PROPERTY:
+            os << "InputProp";
+            break;
+        case Expression::Type::EXP_VAR_PROPERTY:
+            os << "VarProp";
+            break;
+        case Expression::Type::EXP_DST_PROPERTY:
+            os << "DstProp";
+            break;
+        case Expression::Type::EXP_SRC_PROPERTY:
+            os << "SrcProp";
+            break;
+        case Expression::Type::EXP_EDGE_SRC:
+            os << "EdgeSrc";
+            break;
+        case Expression::Type::EXP_EDGE_TYPE:
+            os << "EdgeType";
+            break;
+        case Expression::Type::EXP_EDGE_RANK:
+            os << "EdgeRank";
+            break;
+        case Expression::Type::EXP_EDGE_DST:
+            os << "EdgeDst";
             break;
     }
     return os;
