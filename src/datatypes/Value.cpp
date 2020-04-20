@@ -1773,6 +1773,64 @@ Value operator/(const Value& left, const Value& right) {
     }
 }
 
+Value operator%(const Value& left, const Value& right) {
+    if (left.isNull() || right.isNull()) {
+        return Value(NullType::NaN);
+    }
+
+    switch (left.type()) {
+        case Value::Type::INT: {
+            switch (right.type()) {
+                case Value::Type::INT: {
+                    int64_t denom = right.getInt();
+                    if (denom != 0) {
+                        return left.getInt() % denom;
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                case Value::Type::FLOAT: {
+                    double denom = right.getFloat();
+                    if (denom != 0.0) {
+                        return std::fmod(left.getInt(), denom);
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (right.type()) {
+                case Value::Type::INT: {
+                    int64_t denom = right.getInt();
+                    if (denom != 0) {
+                        return std::fmod(left.getFloat(), denom);
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                case Value::Type::FLOAT: {
+                    double denom = right.getFloat();
+                    if (denom != 0.0) {
+                        return std::fmod(left.getFloat(), denom);
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
+    }
+}
+
 Value operator-(const Value& rhs) {
     if (rhs.isNull()) {
         return Value(NullType::NaN);
