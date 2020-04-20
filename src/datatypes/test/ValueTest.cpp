@@ -229,7 +229,11 @@ TEST(Value, Comparison) {
     }
 
     {
-        Value v = vFloat1 == vFloat2;
+        Value v = vFloat1 == vFloat1;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+
+        v = vFloat1 == vFloat2;
         EXPECT_EQ(Value::Type::BOOL, v.type());
         EXPECT_EQ(false, v.getBool());
 
