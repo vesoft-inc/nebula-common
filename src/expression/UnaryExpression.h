@@ -12,8 +12,10 @@
 namespace nebula {
 class UnaryExpression final : public Expression {
 public:
-    UnaryExpression(Type type, std::unique_ptr<Expression> operand)
-        : Expression(type), operand_(std::move(operand)) {}
+    UnaryExpression(Type type, Expression* operand)
+        : Expression(type) {
+        operand_.reset(operand);
+    }
 
     Value eval() const override;
 

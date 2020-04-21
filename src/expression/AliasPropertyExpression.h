@@ -20,13 +20,14 @@ constexpr char DST_REF[]    = "$$";
 class AliasPropertyExpression: public Expression {
 public:
     AliasPropertyExpression(Type type = Type::EXP_ALIAS_PROPERTY,
-                            std::unique_ptr<std::string> ref = nullptr,
-                            std::unique_ptr<std::string> alias = nullptr,
-                            std::unique_ptr<std::string> prop = nullptr)
-        : Expression(type),
-          ref_(std::move(ref)),
-          alias_(std::move(alias)),
-          prop_(std::move(prop)) {}
+                            std::string* ref = nullptr,
+                            std::string* alias = nullptr,
+                            std::string* prop = nullptr)
+        : Expression(type) {
+        ref_.reset(ref);
+        alias_.reset(alias);
+        prop_.reset(prop);
+    }
 
     Value eval() const override;
 
@@ -44,11 +45,11 @@ protected:
 // $-.any_prop_name
 class InputPropertyExpression final : public AliasPropertyExpression {
 public:
-    explicit InputPropertyExpression(std::unique_ptr<std::string> prop)
+    explicit InputPropertyExpression(std::string* prop)
         : AliasPropertyExpression(Type::EXP_INPUT_PROPERTY,
-                                  std::make_unique<std::string>(INPUT_REF),
-                                  std::make_unique<std::string>(""),
-                                  std::move(prop)) {}
+                                  new std::string(INPUT_REF),
+                                  new std::string(""),
+                                  prop) {}
 
     Value eval() const override;
 
@@ -61,12 +62,12 @@ public:
 // $VarName.any_prop_name
 class VariablePropertyExpression final : public AliasPropertyExpression {
 public:
-    VariablePropertyExpression(std::unique_ptr<std::string> var,
-                               std::unique_ptr<std::string> prop)
+    VariablePropertyExpression(std::string* var,
+                               std::string* prop)
         : AliasPropertyExpression(Type::EXP_VAR_PROPERTY,
-                                  std::make_unique<std::string>(VAR_REF),
-                                  std::move(var),
-                                  std::move(prop)) {}
+                                  new std::string(VAR_REF),
+                                  var,
+                                  prop) {}
 
     Value eval() const override;
 
@@ -79,12 +80,12 @@ public:
 // $^.TagName.any_prop_name
 class SourcePropertyExpression final : public AliasPropertyExpression {
 public:
-    SourcePropertyExpression(std::unique_ptr<std::string> tag,
-                             std::unique_ptr<std::string> prop)
+    SourcePropertyExpression(std::string* tag,
+                             std::string* prop)
         : AliasPropertyExpression(Type::EXP_SRC_PROPERTY,
-                                  std::make_unique<std::string>(SRC_REF),
-                                  std::move(tag),
-                                  std::move(prop)) {}
+                                  new std::string(SRC_REF),
+                                  tag,
+                                  prop) {}
 
     Value eval() const override;
 
@@ -97,12 +98,12 @@ public:
 // $$.TagName.any_prop_name
 class DestPropertyExpression final : public AliasPropertyExpression {
 public:
-    DestPropertyExpression(std::unique_ptr<std::string> tag,
-                           std::unique_ptr<std::string> prop)
+    DestPropertyExpression(std::string* tag,
+                           std::string* prop)
         : AliasPropertyExpression(Type::EXP_DST_PROPERTY,
-                                  std::make_unique<std::string>(DST_REF),
-                                  std::move(tag),
-                                  std::move(prop)) {}
+                                  new std::string(DST_REF),
+                                  tag,
+                                  prop) {}
 
     Value eval() const override;
 
@@ -115,11 +116,11 @@ public:
 // Alias._src, i.e. EdgeName._src
 class EdgeSrcIdExpression final : public AliasPropertyExpression {
 public:
-    explicit EdgeSrcIdExpression(std::unique_ptr<std::string> alias)
+    explicit EdgeSrcIdExpression(std::string* alias)
         : AliasPropertyExpression(Type::EXP_EDGE_SRC,
-                                  std::make_unique<std::string>(""),
-                                  std::move(alias),
-                                  std::make_unique<std::string>(_SRC)) {}
+                                  new std::string(""),
+                                  alias,
+                                  new std::string(_SRC)) {}
 
     Value eval() const override;
 
@@ -132,11 +133,11 @@ public:
 // Alias._type, i.e. EdgeName._type
 class EdgeTypeExpression final : public AliasPropertyExpression {
 public:
-    explicit EdgeTypeExpression(std::unique_ptr<std::string> alias)
+    explicit EdgeTypeExpression(std::string* alias)
         : AliasPropertyExpression(Type::EXP_EDGE_TYPE,
-                                  std::make_unique<std::string>(""),
-                                  std::move(alias),
-                                  std::make_unique<std::string>(_TYPE)) {}
+                                  new std::string(""),
+                                  alias,
+                                  new std::string(_TYPE)) {}
 
     Value eval() const override;
 
@@ -149,11 +150,11 @@ public:
 // Alias._rank, i.e. EdgeName._rank
 class EdgeRankExpression final : public AliasPropertyExpression {
 public:
-    explicit EdgeRankExpression(std::unique_ptr<std::string> alias)
+    explicit EdgeRankExpression(std::string* alias)
         : AliasPropertyExpression(Type::EXP_EDGE_RANK,
-                                  std::make_unique<std::string>(""),
-                                  std::move(alias),
-                                  std::make_unique<std::string>(_RANK)) {}
+                                  new std::string(""),
+                                  alias,
+                                  new std::string(_RANK)) {}
 
     Value eval() const override;
 
@@ -166,11 +167,11 @@ public:
 // Alias._dst, i.e. EdgeName._dst
 class EdgeDstIdExpression final : public AliasPropertyExpression {
 public:
-    explicit EdgeDstIdExpression(std::unique_ptr<std::string> alias)
+    explicit EdgeDstIdExpression(std::string* alias)
         : AliasPropertyExpression(Type::EXP_EDGE_DST,
-                                  std::make_unique<std::string>(""),
-                                  std::move(alias),
-                                  std::make_unique<std::string>(_DST)) {}
+                                  new std::string(""),
+                                  alias,
+                                  new std::string(_DST)) {}
 
     Value eval() const override;
 

@@ -14,8 +14,10 @@ class TypeCastingExpression final : public Expression {
 public:
     TypeCastingExpression(Type type,
                           Value::Type vType,
-                          std::unique_ptr<Expression> operand)
-        : Expression(type), vType_(vType), operand_(std::move(operand)) {}
+                          Expression* operand)
+        : Expression(type), vType_(vType) {
+        operand_.reset(operand);
+    }
 
     Value eval() const override;
 

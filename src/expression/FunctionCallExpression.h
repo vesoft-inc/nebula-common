@@ -26,10 +26,12 @@ private:
 
 class FunctionCallExpression final : public Expression {
 public:
-    FunctionCallExpression(Type type,
-                           std::unique_ptr<std::string> name,
-                           std::unique_ptr<ArgumentList> args)
-        : Expression(type), name_(std::move(name)), args_(std::move(args)) {}
+    FunctionCallExpression(std::string* name,
+                           ArgumentList* args)
+        : Expression(Type::EXP_FUNCTION_CALL) {
+        name_.reset(name);
+        args_.reset(args);
+    }
 
     Value eval() const override;
 

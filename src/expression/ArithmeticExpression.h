@@ -14,19 +14,20 @@ namespace nebula {
 class ArithmeticExpression : public Expression {
 public:
     ArithmeticExpression(Type type,
-                         std::unique_ptr<Expression> left,
-                         std::unique_ptr<Expression> right)
-        : Expression(type)
-        , left_(std::move(left))
-        , right_(std::move(right)) {}
+                         Expression* lhs,
+                         Expression* rhs)
+        : Expression(type) {
+        lhs_.reset(lhs);
+        rhs_.reset(rhs);
+    }
 
     Value eval() const override;
 
     std::string encode() const override;
 
 private:
-    std::unique_ptr<Expression> left_;
-    std::unique_ptr<Expression> right_;
+    std::unique_ptr<Expression> lhs_;
+    std::unique_ptr<Expression> rhs_;
 };
 
 }  // namespace nebula

@@ -13,9 +13,12 @@ namespace nebula {
 class LogicalExpression final : public Expression {
 public:
     LogicalExpression(Type type,
-                      std::unique_ptr<Expression> lhs,
-                      std::unique_ptr<Expression> rhs)
-        : Expression(type), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
+                      Expression* lhs,
+                      Expression* rhs)
+        : Expression(type) {
+        lhs_.reset(lhs);
+        rhs_.reset(rhs);
+    }
 
     Value eval() const override;
 
