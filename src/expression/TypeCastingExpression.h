@@ -12,10 +12,9 @@
 namespace nebula {
 class TypeCastingExpression final : public Expression {
 public:
-    TypeCastingExpression(Type type,
-                          Value::Type vType,
+    TypeCastingExpression(Value::Type vType,
                           Expression* operand)
-        : Expression(type), vType_(vType) {
+        : Expression(Type::EXP_TYPE_CASTING), vType_(vType) {
         operand_.reset(operand);
     }
 
