@@ -9,6 +9,7 @@ nebula_add_library(
     TypeCastingExpression.cpp
     FunctionCallExpression.cpp
     AliasPropertyExpression.cpp
+    UUIDExpression.cpp
 )
 
 #nebula_add_subdirectory(test)

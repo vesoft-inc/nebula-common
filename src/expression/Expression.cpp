@@ -96,6 +96,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Type type) {
         case Expression::Type::EXP_EDGE_DST:
             os << "EdgeDst";
             break;
+        case Expression::Type::EXP_UUID:
+            os << "UUID";
+            break;
     }
     return os;
 }

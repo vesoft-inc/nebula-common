@@ -51,6 +51,8 @@ public:
         EXP_EDGE_TYPE,
         EXP_EDGE_RANK,
         EXP_EDGE_DST,
+
+        EXP_UUID,
     };
 
     explicit Expression(Type type) : type_(type) {}
