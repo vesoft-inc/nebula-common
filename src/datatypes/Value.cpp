@@ -9,6 +9,7 @@
 #include "datatypes/List.h"
 #include "datatypes/Map.h"
 #include "datatypes/Set.h"
+#include "datatypes/DataSet.h"
 #include "datatypes/Vertex.h"
 #include "datatypes/Edge.h"
 #include "datatypes/Path.h"
@@ -62,6 +63,9 @@ std::size_t hash<nebula::Value>::operator()(const nebula::Value& v) const noexce
         }
         case nebula::Value::Type::SET: {
             LOG(FATAL) << "Hash for SET has not been implemented";
+        }
+        case nebula::Value::Type::DATASET: {
+            LOG(FATAL) << "Hash for DATASET has not been implemented";
         }
         default: {
             LOG(FATAL) << "Unknown type";
@@ -143,6 +147,11 @@ Value::Value(Value&& rhs) : type_(Value::Type::__EMPTY__) {
             setU(std::move(rhs.value_.uVal));
             break;
         }
+        case Type::DATASET:
+        {
+            setG(std::move(rhs.value_.gVal));
+            break;
+        }
         default:
         {
             assert(false);
@@ -220,6 +229,11 @@ Value::Value(const Value& rhs) : type_(Value::Type::__EMPTY__) {
         case Type::SET:
         {
             setU(rhs.value_.uVal);
+            break;
+        }
+        case Type::DATASET:
+        {
+            setG(rhs.value_.gVal);
             break;
         }
         default:
@@ -369,6 +383,15 @@ Value::Value(Set&& v) {
     setU(std::make_unique<Set>(std::move(v)));
 }
 
+Value::Value(const DataSet& v) {
+    auto c = std::make_unique<DataSet>(v);
+    setG(std::move(c));
+}
+
+Value::Value(DataSet&& v) {
+    setG(std::make_unique<DataSet>(std::move(v)));
+}
+
 
 void Value::setNull(const NullType& v) {
     clear();
@@ -490,12 +513,22 @@ void Value::setVertex(Vertex&& v) {
     setV(std::move(v));
 }
 
+void Value::setVertex(std::unique_ptr<Vertex>&& v) {
+    clear();
+    setV(std::move(v));
+}
+
 void Value::setEdge(const Edge& v) {
     clear();
     setE(v);
 }
 
 void Value::setEdge(Edge&& v) {
+    clear();
+    setE(std::move(v));
+}
+
+void Value::setEdge(std::unique_ptr<Edge>&& v) {
     clear();
     setE(std::move(v));
 }
@@ -510,12 +543,22 @@ void Value::setPath(Path&& v) {
     setP(std::move(v));
 }
 
+void Value::setPath(std::unique_ptr<Path>&& v) {
+    clear();
+    setP(std::move(v));
+}
+
 void Value::setList(const List& v) {
     clear();
     setL(v);
 }
 
 void Value::setList(List&& v) {
+    clear();
+    setL(std::move(v));
+}
+
+void Value::setList(std::unique_ptr<List>&& v) {
     clear();
     setL(std::move(v));
 }
@@ -530,6 +573,11 @@ void Value::setMap(Map&& v) {
     setM(std::move(v));
 }
 
+void Value::setMap(std::unique_ptr<Map>&& v) {
+    clear();
+    setM(std::move(v));
+}
+
 void Value::setSet(const Set& v) {
     clear();
     setU(v);
@@ -538,6 +586,26 @@ void Value::setSet(const Set& v) {
 void Value::setSet(Set&& v) {
     clear();
     setU(std::move(v));
+}
+
+void Value::setSet(std::unique_ptr<Set>&& v) {
+    clear();
+    setU(std::move(v));
+}
+
+void Value::setDataSet(const DataSet& v) {
+    clear();
+    setG(v);
+}
+
+void Value::setDataSet(DataSet&& v) {
+    clear();
+    setG(std::move(v));
+}
+
+void Value::setDataSet(std::unique_ptr<DataSet>&& v) {
+    clear();
+    setG(std::move(v));
 }
 
 
@@ -636,6 +704,16 @@ const Set* Value::getSetPtr() const {
     return value_.uVal.get();
 }
 
+const DataSet& Value::getDataSet() const {
+    CHECK_EQ(type_, Type::DATASET);
+    return *(value_.gVal);
+}
+
+const DataSet* Value::getDataSetPtr() const {
+    CHECK_EQ(type_, Type::DATASET);
+    return value_.gVal.get();
+}
+
 
 NullType& Value::mutableNull() {
     CHECK_EQ(type_, Type::NULLVALUE);
@@ -700,6 +778,11 @@ Map& Value::mutableMap() {
 Set& Value::mutableSet() {
     CHECK_EQ(type_, Type::SET);
     return *(value_.uVal);
+}
+
+DataSet& Value::mutableDataSet() {
+    CHECK_EQ(type_, Type::DATASET);
+    return *(value_.gVal);
 }
 
 
@@ -792,6 +875,14 @@ Set Value::moveSet() {
     Set set = std::move(*(value_.uVal));
     clear();
     return set;
+
+}
+
+DataSet Value::moveDataSet() {
+    CHECK_EQ(type_, Type::DATASET);
+    DataSet ds = std::move(*(value_.gVal));
+    clear();
+    return std::move(ds);
 }
 
 
@@ -849,6 +940,10 @@ bool Value::operator==(const Value& rhs) const {
         case Type::SET:
         {
           return *value_.uVal == *rhs.value_.uVal;
+        }
+        case Type::DATASET:
+        {
+          return *value_.gVal == *rhs.value_.gVal;
         }
         default:
         {
@@ -929,6 +1024,11 @@ void Value::clear() {
             destruct(value_.uVal);
             break;
         }
+        case Type::DATASET:
+        {
+            destruct(value_.gVal);
+            break;
+        }
     }
     type_ = Type::__EMPTY__;
 }
@@ -1002,6 +1102,11 @@ Value& Value::operator=(Value&& rhs) {
         case Type::SET:
         {
             setU(std::move(rhs.value_.uVal));
+            break;
+        }
+        case Type::DATASET:
+        {
+            setG(std::move(rhs.value_.gVal));
             break;
         }
         default:
@@ -1083,6 +1188,11 @@ Value& Value::operator=(const Value& rhs) {
         case Type::SET:
         {
             setU(rhs.value_.uVal);
+            break;
+        }
+        case Type::DATASET:
+        {
+            setG(rhs.value_.gVal);
             break;
         }
         default:
@@ -1296,11 +1406,31 @@ void Value::setU(Set&& v) {
     new (std::addressof(value_.vVal)) std::unique_ptr<Set>(new Set(std::move(v)));
 }
 
+void Value::setG(const std::unique_ptr<DataSet>& v) {
+    type_ = Type::DATASET;
+    new (std::addressof(value_.gVal)) std::unique_ptr<DataSet>(new DataSet(*v));
+}
+
+void Value::setG(std::unique_ptr<DataSet>&& v) {
+    type_ = Type::DATASET;
+    new (std::addressof(value_.gVal)) std::unique_ptr<DataSet>(std::move(v));
+}
+
+void Value::setG(const DataSet& v) {
+    type_ = Type::DATASET;
+    new (std::addressof(value_.gVal)) std::unique_ptr<DataSet>(new DataSet(v));
+}
+
+void Value::setG(DataSet&& v) {
+    type_ = Type::DATASET;
+    new (std::addressof(value_.gVal)) std::unique_ptr<DataSet>(new DataSet(std::move(v)));
+}
+
 
 void swap(Value& a, Value& b) {
-  Value temp(std::move(a));
-  a = std::move(b);
-  b = std::move(temp);
+    Value temp(std::move(a));
+    a = std::move(b);
+    b = std::move(temp);
 }
 
 
@@ -1362,6 +1492,10 @@ std::ostream& operator<<(std::ostream& os, const Value::Type& type) {
             os << "SET";
             break;
         }
+        case Value::Type::DATASET: {
+            os << "DATASET";
+            break;
+        }
         default: {
             os << "__UNKNOWN__";
             break;
@@ -1369,6 +1503,274 @@ std::ostream& operator<<(std::ostream& os, const Value::Type& type) {
     }
 
     return os;
+}
+
+
+Value operator+(const Value& left, const Value& right) {
+    if (left.isNull() || right.isNull()) {
+        return Value(NullType::NaN);
+    }
+
+    switch (left.type()) {
+        case Value::Type::BOOL: {
+            switch (right.type()) {
+                case Value::Type::STRING: {
+                    return folly::stringPrintf("%s%s",
+                                               left.getBool() ? "true" : "false",
+                                               right.getStr().c_str());
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::INT: {
+            switch (right.type()) {
+                case Value::Type::INT: {
+                    return left.getInt() + right.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return left.getInt() + right.getFloat();
+                }
+                case Value::Type::STRING: {
+                    return folly::stringPrintf("%ld%s",
+                                               left.getInt(),
+                                               right.getStr().c_str());
+                }
+                case Value::Type::DATE: {
+                    return right.getDate() + left.getInt();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (right.type()) {
+                case Value::Type::INT: {
+                    return left.getFloat() + right.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return left.getFloat() + right.getFloat();
+                }
+                case Value::Type::STRING: {
+                    return folly::stringPrintf("%lf%s",
+                                               left.getFloat(),
+                                               right.getStr().c_str());
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::STRING: {
+            switch (right.type()) {
+                case Value::Type::BOOL: {
+                    return folly::stringPrintf("%s%s",
+                                               left.getStr().c_str(),
+                                               right.getBool() ? "true" : "false");
+                }
+                case Value::Type::INT: {
+                    return folly::stringPrintf("%s%ld",
+                                               left.getStr().c_str(),
+                                               right.getInt());
+                }
+                case Value::Type::FLOAT: {
+                    return folly::stringPrintf("%s%lf",
+                                               left.getStr().c_str(),
+                                               right.getFloat());
+                }
+                case Value::Type::STRING: {
+                    return left.getStr() + right.getStr();
+                }
+                case Value::Type::DATE: {
+                    return left.getStr() + right.getDate().toString();
+                }
+                case Value::Type::DATETIME: {
+                    return left.getStr() + right.getDateTime().toString();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::DATE: {
+            switch (right.type()) {
+                case Value::Type::INT: {
+                    return left.getDate() + right.getInt();
+                }
+                case Value::Type::STRING: {
+                    return left.getDate().toString() + right.getStr();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::DATETIME: {
+            switch (right.type()) {
+                case Value::Type::STRING: {
+                    return left.getDateTime().toString() + right.getStr();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
+    }
+}
+
+
+Value operator-(const Value& left, const Value& right) {
+    if (left.isNull() || right.isNull()) {
+        return Value(NullType::NaN);
+    }
+
+    switch (left.type()) {
+        case Value::Type::INT: {
+            switch (right.type()) {
+                case Value::Type::INT: {
+                    return left.getInt() - right.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return left.getInt() - right.getFloat();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (right.type()) {
+                case Value::Type::INT: {
+                    return left.getFloat() - right.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return left.getFloat() - right.getFloat();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::DATE: {
+            switch (right.type()) {
+                case Value::Type::INT: {
+                    return left.getDate() - right.getInt();
+                }
+                case Value::Type::DATE: {
+                    return left.getDate().toInt() - right.getDate().toInt();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
+    }
+}
+
+
+Value operator*(const Value& left, const Value& right) {
+    if (left.isNull() || right.isNull()) {
+        return Value(NullType::NaN);
+    }
+
+    switch (left.type()) {
+        case Value::Type::INT: {
+            switch (right.type()) {
+                case Value::Type::INT: {
+                    return left.getInt() * right.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return left.getInt() * right.getFloat();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (right.type()) {
+                case Value::Type::INT: {
+                    return left.getFloat() * right.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return left.getFloat() * right.getFloat();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
+    }
+}
+
+
+Value operator/(const Value& left, const Value& right) {
+    if (left.isNull() || right.isNull()) {
+        return Value(NullType::NaN);
+    }
+
+    switch (left.type()) {
+        case Value::Type::INT: {
+            switch (right.type()) {
+                case Value::Type::INT: {
+                    int64_t denom = right.getInt();
+                    if (denom != 0) {
+                        return left.getInt() / denom;
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                case Value::Type::FLOAT: {
+                    double denom = right.getFloat();
+                    if (denom != 0.0) {
+                        return left.getInt() / denom;
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (right.type()) {
+                case Value::Type::INT: {
+                    int64_t denom = right.getInt();
+                    if (denom != 0) {
+                        return left.getFloat() / denom;
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                case Value::Type::FLOAT: {
+                    double denom = right.getFloat();
+                    if (denom != 0.0) {
+                        return left.getFloat() / denom;
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
+    }
 }
 
 }  // namespace nebula
