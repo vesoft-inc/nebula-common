@@ -875,7 +875,6 @@ Set Value::moveSet() {
     Set set = std::move(*(value_.uVal));
     clear();
     return set;
-
 }
 
 DataSet Value::moveDataSet() {
