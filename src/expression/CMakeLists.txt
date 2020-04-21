@@ -1,5 +1,6 @@
 nebula_add_library(
     expression_obj OBJECT
+    Expression.cpp
     ConstantExpression.cpp
     ArithmeticExpression.cpp
     UnaryExpression.cpp
