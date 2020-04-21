@@ -36,6 +36,16 @@ public:
         return "";
     }
 
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
+        // TODO
+        return "";
+    }
+
 protected:
     std::unique_ptr<std::string>    ref_;
     std::unique_ptr<std::string>    alias_;
@@ -57,6 +67,16 @@ public:
         // TODO
         return "";
     }
+
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
+        // TODO
+        return "";
+    }
 };
 
 // $VarName.any_prop_name
@@ -72,6 +92,16 @@ public:
     Value eval() const override;
 
     std::string encode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
         // TODO
         return "";
     }
@@ -93,6 +123,16 @@ public:
         // TODO
         return "";
     }
+
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
+        // TODO
+        return "";
+    }
 };
 
 // $$.TagName.any_prop_name
@@ -108,6 +148,16 @@ public:
     Value eval() const override;
 
     std::string encode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
         // TODO
         return "";
     }
@@ -128,6 +178,16 @@ public:
         // TODO
         return "";
     }
+
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
+        // TODO
+        return "";
+    }
 };
 
 // Alias._type, i.e. EdgeName._type
@@ -142,6 +202,16 @@ public:
     Value eval() const override;
 
     std::string encode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
         // TODO
         return "";
     }
@@ -162,6 +232,16 @@ public:
         // TODO
         return "";
     }
+
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
+        // TODO
+        return "";
+    }
 };
 
 // Alias._dst, i.e. EdgeName._dst
@@ -176,6 +256,16 @@ public:
     Value eval() const override;
 
     std::string encode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
         // TODO
         return "";
     }

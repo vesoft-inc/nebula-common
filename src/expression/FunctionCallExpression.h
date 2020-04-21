@@ -40,6 +40,16 @@ public:
         return "";
     }
 
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
+        // TODO
+        return "";
+    }
+
 private:
     std::unique_ptr<std::string>                name_;
     std::unique_ptr<ArgumentList>               args_;

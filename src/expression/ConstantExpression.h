@@ -23,6 +23,16 @@ public:
 
     std::string encode() const override;
 
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
+        // TODO
+        return "";
+    }
+
 private:
     Value val_;
 };

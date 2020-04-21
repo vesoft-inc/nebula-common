@@ -18,6 +18,8 @@ Value ArithmeticExpression::eval() const {
             return lhs_->eval() * rhs_->eval();
         case Type::EXP_DIVIDE:
             return lhs_->eval() / rhs_->eval();
+        case Type::EXP_MOD:
+            return lhs_->eval() % rhs_->eval();
         default:
             break;
     }

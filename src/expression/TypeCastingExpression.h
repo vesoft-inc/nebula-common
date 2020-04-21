@@ -26,6 +26,16 @@ public:
         return "";
     }
 
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
+        // TODO
+        return "";
+    }
+
 private:
     Value::Type                                 vType_;
     std::unique_ptr<Expression>                 operand_;

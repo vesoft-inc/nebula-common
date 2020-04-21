@@ -21,6 +21,7 @@ public:
         EXP_MINUS,
         EXP_MULTIPLY,
         EXP_DIVIDE,
+        EXP_MOD,
 
         EXP_UNARY_PLUS,
         EXP_UNARY_NEGATE,
@@ -54,15 +55,19 @@ public:
 
     explicit Expression(Type type) : type_(type) {}
 
+    virtual ~Expression() = default;
+
     Type type() const {
         return type_;
     }
 
-    virtual ~Expression() = default;
-
     virtual Value eval() const = 0;
 
+    virtual std::string toString() const = 0;
+
     virtual std::string encode() const = 0;
+
+    virtual std::string decode() const = 0;
 
 protected:
     Type type_;
@@ -85,6 +90,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Type type) {
             break;
         case Expression::Type::EXP_DIVIDE:
             os << "Divide";
+            break;
+        case Expression::Type::EXP_MOD:
+            os << "Mod";
             break;
         case Expression::Type::EXP_UNARY_PLUS:
             os << "UnaryPlus";
