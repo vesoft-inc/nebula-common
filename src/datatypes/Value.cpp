@@ -78,6 +78,8 @@ std::size_t hash<nebula::Value>::operator()(const nebula::Value& v) const noexce
 
 namespace nebula {
 
+constexpr auto EPSILON = 1e-8;
+
 Value::Value(Value&& rhs) : type_(Value::Type::__EMPTY__) {
     if (this == &rhs) { return; }
     if (rhs.type_ == Type::__EMPTY__) { return; }
@@ -884,75 +886,6 @@ DataSet Value::moveDataSet() {
     return std::move(ds);
 }
 
-/*
-bool Value::operator==(const Value& rhs) const {
-    if (type_ != rhs.type_) { return false; }
-    switch (type_) {
-        case Type::NULLVALUE:
-        {
-          return value_.nVal == rhs.value_.nVal;
-        }
-        case Type::BOOL:
-        {
-          return value_.bVal == rhs.value_.bVal;
-        }
-        case Type::INT:
-        {
-          return value_.iVal == rhs.value_.iVal;
-        }
-        case Type::FLOAT:
-        {
-          return value_.fVal == rhs.value_.fVal;
-        }
-        case Type::STRING:
-        {
-          return value_.sVal == rhs.value_.sVal;
-        }
-        case Type::DATE:
-        {
-          return value_.dVal == rhs.value_.dVal;
-        }
-        case Type::DATETIME:
-        {
-          return value_.tVal == rhs.value_.tVal;
-        }
-        case Type::VERTEX:
-        {
-          return *value_.vVal == *rhs.value_.vVal;
-        }
-        case Type::EDGE:
-        {
-          return *value_.eVal == *rhs.value_.eVal;
-        }
-        case Type::PATH:
-        {
-          return *value_.pVal == *rhs.value_.pVal;
-        }
-        case Type::LIST:
-        {
-          return *value_.lVal == *rhs.value_.lVal;
-        }
-        case Type::MAP:
-        {
-          return *value_.mVal == *rhs.value_.mVal;
-        }
-        case Type::SET:
-        {
-          return *value_.uVal == *rhs.value_.uVal;
-        }
-        case Type::DATASET:
-        {
-          return *value_.gVal == *rhs.value_.gVal;
-        }
-        default:
-        {
-          return true;
-        }
-    }
-}
-*/
-
-
 void Value::clear() {
     switch (type_) {
         case Type::__EMPTY__:
@@ -1733,7 +1666,7 @@ Value operator/(const Value& lhs, const Value& rhs) {
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
-                    if (denom != 0.0) {
+                    if (std::abs(denom) > EPSILON) {
                         return lhs.getInt() / denom;
                     } else {
                         return Value(NullType::DIV_BY_ZERO);
@@ -1756,7 +1689,7 @@ Value operator/(const Value& lhs, const Value& rhs) {
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
-                    if (denom != 0.0) {
+                    if (std::abs(denom) > EPSILON) {
                         return lhs.getFloat() / denom;
                     } else {
                         return Value(NullType::DIV_BY_ZERO);
@@ -1791,7 +1724,7 @@ Value operator%(const Value& lhs, const Value& rhs) {
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
-                    if (denom != 0.0) {
+                    if (std::abs(denom) > EPSILON) {
                         return std::fmod(lhs.getInt(), denom);
                     } else {
                         return Value(NullType::DIV_BY_ZERO);
@@ -1814,7 +1747,7 @@ Value operator%(const Value& lhs, const Value& rhs) {
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
-                    if (denom != 0.0) {
+                    if (std::abs(denom) > EPSILON) {
                         return std::fmod(lhs.getFloat(), denom);
                     } else {
                         return Value(NullType::DIV_BY_ZERO);
@@ -1937,7 +1870,6 @@ bool operator==(const Value& lhs, const Value& rhs) {
         return false;
     }
 
-    constexpr auto EPSILON = 1e-8;
     switch (lhs.type()) {
         case Value::Type::BOOL: {
             return lhs.getBool() == rhs.getBool();
