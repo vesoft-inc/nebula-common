@@ -36,29 +36,27 @@ public:
         GraphSpaceID space,
         std::vector<std::string> colNames,
         // The first column has to be the VertexID
-        std::vector<Row> vertices,
+        const std::vector<Row>& vertices,
         const std::vector<EdgeType>& edgeTypes,
-        const std::vector<cpp2::VertexProp>& vertexProps,
-        const std::vector<cpp2::EdgeProp>& edgeProps,
-        const std::vector<cpp2::StatProp>& statProps,
-        std::string filter,
+        cpp2::EdgeDirection edgeDirection,
+        const std::vector<cpp2::StatProp>* statProps,
+        const std::vector<std::string>* vertexProps,
+        const std::vector<std::string>* edgeProps,
+        bool dedup = false,
+        const std::vector<cpp2::OrderBy>& orderBy = std::vector<cpp2::OrderBy>(),
+        int64_t limit = std::numeric_limits<int64_t>::max(),
+        std::string filter = std::string(),
         folly::EventBase* evb = nullptr);
 
-    folly::SemiFuture<StorageRpcResponse<cpp2::VertexPropResponse>> getVertexProps(
+    folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>> getProps(
         GraphSpaceID space,
         std::vector<std::string> colNames,
-        std::vector<Row> vertices,
-        std::vector<cpp2::VertexProp> props,
-        std::string filter,
-        folly::EventBase* evb = nullptr);
-
-    folly::SemiFuture<StorageRpcResponse<cpp2::EdgePropResponse>> getEdgeProps(
-        GraphSpaceID space,
-        std::vector<std::string> colNames,
-        // The first four columns must be "_src", "_type", "_ranking", and "_dst"
-        std::vector<Row> edges,
-        std::vector<cpp2::EdgeProp> props,
-        std::string filter,
+        const std::vector<Row>& input,
+        const std::vector<std::string>& props,
+        bool dedup = false,
+        const std::vector<cpp2::OrderBy>& orderBy = std::vector<cpp2::OrderBy>(),
+        int64_t limit = std::numeric_limits<int64_t>::max(),
+        std::string filter = std::string(),
         folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> addVertices(
@@ -88,7 +86,7 @@ public:
         VertexID vertexId,
         std::vector<cpp2::UpdatedVertexProp> updatedProps,
         bool insertable,
-        std::vector<cpp2::VertexProp> returnProps,
+        std::vector<std::string> returnProps,
         std::string condition,
         folly::EventBase* evb = nullptr);
 
@@ -97,7 +95,7 @@ public:
         storage::cpp2::EdgeKey edgeKey,
         std::vector<cpp2::UpdatedEdgeProp> updatedProps,
         bool insertable,
-        std::vector<cpp2::EdgeProp> returnProps,
+        std::vector<std::string> returnProps,
         std::string condition,
         folly::EventBase* evb = nullptr);
 
