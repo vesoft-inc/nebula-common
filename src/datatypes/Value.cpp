@@ -1440,8 +1440,12 @@ std::ostream& operator<<(std::ostream& os, const Value::Type& type) {
 
 
 Value operator+(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull() || rhs.isNull()) {
-        return Value(NullType::NaN);
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
     }
 
     switch (lhs.type()) {
@@ -1558,8 +1562,12 @@ Value operator+(const Value& lhs, const Value& rhs) {
 
 
 Value operator-(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull() || rhs.isNull()) {
-        return Value(NullType::NaN);
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
     }
 
     switch (lhs.type()) {
@@ -1610,8 +1618,12 @@ Value operator-(const Value& lhs, const Value& rhs) {
 
 
 Value operator*(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull() || rhs.isNull()) {
-        return Value(NullType::NaN);
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
     }
 
     switch (lhs.type()) {
@@ -1649,8 +1661,12 @@ Value operator*(const Value& lhs, const Value& rhs) {
 
 
 Value operator/(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull() || rhs.isNull()) {
-        return Value(NullType::NaN);
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
     }
 
     switch (lhs.type()) {
@@ -1707,8 +1723,12 @@ Value operator/(const Value& lhs, const Value& rhs) {
 }
 
 Value operator%(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull() || rhs.isNull()) {
-        return Value(NullType::NaN);
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
     }
 
     switch (lhs.type()) {
@@ -1766,7 +1786,7 @@ Value operator%(const Value& lhs, const Value& rhs) {
 
 Value operator-(const Value& rhs) {
     if (rhs.isNull()) {
-        return Value(NullType::NaN);
+        return rhs.getNull();
     }
 
     switch (rhs.type()) {
@@ -1786,7 +1806,7 @@ Value operator-(const Value& rhs) {
 
 Value operator!(const Value& rhs) {
     if (rhs.isNull()) {
-        return Value(NullType::NaN);
+        return rhs.getNull();
     }
 
     if (rhs.type() != Value::Type::BOOL) {
@@ -1953,8 +1973,12 @@ bool operator>=(const Value& lhs, const Value& rhs) {
 }
 
 Value operator&&(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull() || rhs.isNull()) {
-        return Value(NullType::NaN);
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
     }
 
     if (lhs.type() == Value::Type::BOOL
@@ -1966,8 +1990,12 @@ Value operator&&(const Value& lhs, const Value& rhs) {
 }
 
 Value operator||(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull() || rhs.isNull()) {
-        return Value(NullType::NaN);
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
     }
 
     if (lhs.type() == Value::Type::BOOL
