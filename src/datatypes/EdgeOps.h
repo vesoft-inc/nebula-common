@@ -14,6 +14,7 @@
 #include <thrift/lib/cpp2/protocol/ProtocolReaderStructReadState.h>
 
 #include "datatypes/Edge.h"
+#include "utils/Macros.h"
 
 namespace apache {
 namespace thrift {
@@ -23,9 +24,9 @@ namespace detail {
 template <>
 struct TccStructTraits<nebula::Edge> {
     static void translateFieldName(
-            FOLLY_MAYBE_UNUSED folly::StringPiece _fname,
-            FOLLY_MAYBE_UNUSED int16_t& fid,
-            FOLLY_MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
+            MAYBE_UNUSED folly::StringPiece _fname,
+            MAYBE_UNUSED int16_t& fid,
+            MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "src") {
             fid = 1;
             _ftype = apache::thrift::protocol::T_STRING;
@@ -326,4 +327,3 @@ uint32_t Cpp2Ops<nebula::Edge>::serializedSizeZC(Protocol const* proto,
 }  // namespace thrift
 }  // namespace apache
 #endif  // DATATYPES_EDGEOPS_H_
-
