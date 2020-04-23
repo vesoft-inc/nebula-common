@@ -14,7 +14,6 @@
 #include <thrift/lib/cpp2/protocol/ProtocolReaderStructReadState.h>
 
 #include "datatypes/Path.h"
-#include "utils/Macros.h"
 
 namespace apache {
 namespace thrift {
