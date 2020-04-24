@@ -245,11 +245,8 @@ struct GetPropResponse {
  * Start of AddVertices section
  */
 struct NewTag {
-    1: common.TagID             tag_id,
-    2: list<common.Value>       props,
-    // If the name list is empty, the order of the properties has to be
-    // exactly same as that the schema defines
-    3: optional list<binary>    names,
+    1: common.TagID         tag_id,
+    2: list<common.Value>   props,
 }
 
 
@@ -270,30 +267,35 @@ struct EdgeKey {
 
 
 struct NewEdge {
-    1: EdgeKey                  key,
-    2: list<common.Value>       props,
-    // If the name list is empty, the order of the properties has to be
-    // exactly same as that the schema defines
-    3: optional list<binary>    names,
+    1: EdgeKey              key,
+    2: list<common.Value>   props,
 }
 
 
 struct AddVerticesRequest {
-    1: common.GraphSpaceID space_id,
+    1: common.GraphSpaceID                      space_id,
     // partId => vertices
-    2: map<common.PartitionID, list<NewVertex>>(
-        cpp.template = "std::unordered_map") parts,
+    2: map<common.PartitionID, list<NewVertex>>
+        (cpp.template = "std::unordered_map")   parts,
+    // A map from TagID -> list of prop_names
+    // The order of the property names should match the data order specified
+    //   in the NewVertex.NewTag.props
+    3: map<common.TagID, list<binary>>
+        (cpp.template = "std::unordered_map")   prop_names,
     // If true, it equals an (up)sert operation.
-    3: bool overwritable = true,
+    4: bool                                     overwritable = true,
 }
 
 struct AddEdgesRequest {
-    1: common.GraphSpaceID space_id,
+    1: common.GraphSpaceID                      space_id,
     // partId => edges
     2: map<common.PartitionID, list<NewEdge>>(
-        cpp.template = "std::unordered_map") parts,
+        cpp.template = "std::unordered_map")    parts,
+    // A list of property names. The order of the property names should match
+    //   the data order specified in the NewEdge.props
+    3: list<binary>                             prop_names,
     // If true, it equals an upsert operation.
-    3: bool overwritable = true,
+    4: bool                                     overwritable = true,
 }
 /*
  * End of AddVertices section
@@ -304,18 +306,18 @@ struct AddEdgesRequest {
  * Start of DeleteVertex section
  */
 struct DeleteVerticesRequest {
-    1: common.GraphSpaceID space_id,
+    1: common.GraphSpaceID                              space_id,
     // partId => vertexId
-    2: map<common.PartitionID, list<common.VertexID>>(
-        cpp.template = "std::unordered_map") parts,
+    2: map<common.PartitionID, list<common.VertexID>>
+        (cpp.template = "std::unordered_map")           parts,
 }
 
 
 struct DeleteEdgesRequest {
-    1: common.GraphSpaceID space_id,
+    1: common.GraphSpaceID                      space_id,
     // partId => edgeKeys
-    2: map<common.PartitionID, list<EdgeKey>>(
-        cpp.template = "std::unordered_map") parts,
+    2: map<common.PartitionID, list<EdgeKey>>
+        (cpp.template = "std::unordered_map")   parts,
 }
 /*
  * End of DeleteVertex section
@@ -324,14 +326,14 @@ struct DeleteEdgesRequest {
 
 // Response for update requests
 struct UpdateResponse {
-    1: required ResponseCommon  result,
+    1: required ResponseCommon      result,
     // The result will be returned in a dataset, which is in the following form
     //
     // The name of the first column is "_inserted". It has a boolean value. It's
     //   TRUE if insertion happens
     // Starting from the second column, it's the all returned properties, one column
     //   per peoperty. If there is no given property, the value will be a NULL
-    2: optional common.DataSet         props,
+    2: optional common.DataSet      props,
 }
 
 
@@ -408,32 +410,30 @@ struct GetUUIDResp {
 /*
  * Start of Index section
  */
-struct LookUpVertexIndexResp {
+struct LookUpIndexResp {
     1: required ResponseCommon          result,
     // The result will be returned in a dataset, which is in the following form
     //
-    // Each row represents one vertex and its properties
-    // The name of the first column is "_vid", it's the ID of the vertex
-    // Starting from the second column, it's the vertex property, one column per
-    //   peoperty. The column name is in the form of "tag_name.prop_name".
-    //   If the vertex does NOT have the given property, the value will be a NULL
-    2: optional common.DataSet     vertices,
-}
-
-struct LookUpEdgeIndexResp {
-    1: required ResponseCommon          result,
-    // The result will be returned in a dataset, which is in the following form
+    // When looking up the vertex index, each row represents one vertex and its
+    //   properties; when looking up the edge index, each row represents one edge
+    //   and its properties.
     //
-    // Each row represents one edge and its properties
-    // The name of the first column is "_src", it's the ID of the source vertex
-    // The name of the second column is "_type", it's the edge type
-    // The name of the third column is "_ranking", it's the edge ranking
-    // The name of the fource column is "_dst", it's the ID of the destination
-    //   vertex
-    // Starting from the fifth column, it's the edge property, one column per
-    //   peoperty. The column name is in the form of "edge_type_name.prop_name".
-    //   If the vertex does NOT have the given property, the value will be a NULL
-    2: optional common.DataSet                 edges,
+    // When returning the data for the vertex index, it follows this convention:
+    // 1. The name of the first column is "_vid", it's the ID of the vertex
+    // 2. Starting from the second column, it's the vertex property, one column
+    //    per peoperty. The column name is in the form of "tag_name.prop_name".
+    //    If the vertex does NOT have the given property, the value will be a NULL
+    //
+    // When returning the data for the edge index, it follows this convention:
+    // 1. The name of the first column is "_src", it's the ID of the source vertex
+    // 2. The name of the second column is "_type", it's the edge type
+    // 3. The name of the third column is "_ranking", it's the edge ranking
+    // 4. The name of the fource column is "_dst", it's the ID of the destination
+    //    vertex
+    // 5. Starting from the fifth column, it's the edge property, one column per
+    //    peoperty. The column name is in the form of "edge_type_name.prop_name".
+    //    If the vertex does NOT have the given property, the value will be a NULL
+    2: optional common.DataSet          data,
 }
 
 struct LookUpIndexRequest {
@@ -469,8 +469,8 @@ service GraphStorageService {
     GetUUIDResp getUUID(1: GetUUIDReq req);
 
     // Interfaces for edge and vertex index scan
-    LookUpVertexIndexResp lookUpVertexIndex(1: LookUpIndexRequest req);
-    LookUpEdgeIndexResp   lookUpEdgeIndex(1: LookUpIndexRequest req);
+    LookUpIndexResp lookUpVertexIndex(1: LookUpIndexRequest req);
+    LookUpIndexResp lookUpEdgeIndex(1: LookUpIndexRequest req);
 }
 
 

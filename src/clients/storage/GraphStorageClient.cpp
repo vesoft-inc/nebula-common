@@ -419,7 +419,7 @@ GraphStorageClient::getUUID(GraphSpaceID space,
 }
 
 
-folly::SemiFuture<StorageRpcResponse<cpp2::LookUpVertexIndexResp>>
+folly::SemiFuture<StorageRpcResponse<cpp2::LookUpIndexResp>>
 GraphStorageClient::lookUpVertexIndex(GraphSpaceID space,
                                       IndexID indexId,
                                       std::string filter,
@@ -427,7 +427,7 @@ GraphStorageClient::lookUpVertexIndex(GraphSpaceID space,
                                       folly::EventBase *evb) {
     auto status = getHostParts(space);
     if (!status.ok()) {
-        return folly::makeFuture<StorageRpcResponse<cpp2::LookUpVertexIndexResp>>(
+        return folly::makeFuture<StorageRpcResponse<cpp2::LookUpIndexResp>>(
             std::runtime_error(status.status().toString()));
     }
 
@@ -453,7 +453,7 @@ GraphStorageClient::lookUpVertexIndex(GraphSpaceID space,
 }
 
 
-folly::SemiFuture<StorageRpcResponse<cpp2::LookUpEdgeIndexResp>>
+folly::SemiFuture<StorageRpcResponse<cpp2::LookUpIndexResp>>
 GraphStorageClient::lookUpEdgeIndex(GraphSpaceID space,
                                     IndexID indexId,
                                     std::string filter,
@@ -461,7 +461,7 @@ GraphStorageClient::lookUpEdgeIndex(GraphSpaceID space,
                                     folly::EventBase *evb) {
     auto status = getHostParts(space);
     if (!status.ok()) {
-        return folly::makeFuture<StorageRpcResponse<cpp2::LookUpEdgeIndexResp>>(
+        return folly::makeFuture<StorageRpcResponse<cpp2::LookUpIndexResp>>(
             std::runtime_error(status.status().toString()));
     }
 
