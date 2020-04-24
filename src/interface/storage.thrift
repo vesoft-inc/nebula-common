@@ -225,7 +225,7 @@ struct GetPropRequest {
 
 
 struct GetPropResponse {
-    1: ResponseCommon       result,
+    1: ResponseCommon           result,
     // The result will be returned in a dataset, which is in the following form
     //
     // Each row represents one vertex's or one edge's properties, one column per
@@ -234,7 +234,7 @@ struct GetPropResponse {
     //   the column name is in the form of "<tag_name>:<prop_name>" or
     //   "<edge_type_name>:<prop_name>". If the vertex does NOT have the given
     //   property, the value will be a NULL
-    2: optional common.DataSet     vertices,
+    2: optional common.DataSet  props,
 }
 /*
  * End of GetProp section
