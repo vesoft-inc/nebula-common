@@ -21,13 +21,13 @@ struct List {
 
     // Reuse the vector constructor
     /*implicit*/ List(const std::vector<Value> &l) : values(l) {}
-    /*implicit*/ List(std::vector<Value> &&l) : values(l) {}
+    /*implicit*/ List(std::vector<Value> &&l) : values(std::move(l)) {}
 
-    std::size_t size() {
+    std::size_t size() const {
         return values.size();
     }
 
-    bool empty() {
+    bool empty() const {
         return values.empty();
     }
 
@@ -40,7 +40,7 @@ struct List {
     }
 
     void emplace_back(Value &&v) {
-        values.emplace_back(v);
+        values.emplace_back(std::move(v));
     }
 
     void clear() {
