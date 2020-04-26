@@ -444,16 +444,6 @@ struct LookupIndexResp {
     RANGE  = 2,
  } (cpp.enum_strict)
 
-struct VertexIndexData {
-    1: common.VertexID              id,
-    2: optional list<common.Value>  props,
-}
-
-struct EdgeIndexData {
-    1: EdgeKey                      edge,
-    2: optional list<common.Value>  props,
-}
-
 struct IndexColumnHint {
     1: string                   column_name,
     // If scan_type == PREFIX, using begin_value to handler prefix.
@@ -468,8 +458,8 @@ struct IndexQueryContext {
     // filter is an encoded expression of where clause.
     // Used for secondary filtering from a result set
     2: binary                   filter,
-    // There are three types of scan: 1, range scan; 2, match scan (prefix); 3, full table scan
-    // The columns_hint allowed empty when full scan, means no matched index column hit.
+    // There are two types of scan: 1, range scan; 2, match scan (prefix);
+    // The columns_hints are not allowed to be empty, At least one index column must be hit.
     3: list<IndexColumnHint>    column_hints,
  }
 
