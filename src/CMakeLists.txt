@@ -1,3 +1,8 @@
+# Copyright (c) 2020 vesoft inc. All rights reserved.
+#
+# This source code is licensed under Apache 2.0 License,
+# attached with Common Clause Condition 1.0, found in the LICENSES directory.
+
 nebula_add_subdirectory(base)
 nebula_add_subdirectory(time)
 nebula_add_subdirectory(network)
@@ -19,4 +24,5 @@ nebula_add_subdirectory(datatypes)
 nebula_add_subdirectory(webservice)
 nebula_add_subdirectory(conf)
 nebula_add_subdirectory(meta)
+nebula_add_subdirectory(expression)
 nebula_add_subdirectory(clients)
