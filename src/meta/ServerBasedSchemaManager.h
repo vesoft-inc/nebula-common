@@ -53,6 +53,7 @@ public:
 
     virtual std::vector<std::pair<EdgeType, std::shared_ptr<const NebulaSchemaProvider>>>
     listLatestEdgeSchema(GraphSpaceID space) override;
+
     void init(MetaClient *client);
 
 private:

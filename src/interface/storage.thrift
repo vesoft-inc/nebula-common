@@ -33,6 +33,7 @@ enum ErrorCode {
     E_PART_NOT_FOUND = -14,
     E_KEY_NOT_FOUND = -15,
     E_CONSENSUS_ERROR = -16,
+    E_DATA_TYPE_MISMATCH = -17,
 
     // meta failures
     E_EDGE_PROP_NOT_FOUND = -21,
@@ -40,6 +41,7 @@ enum ErrorCode {
     E_IMPROPER_DATA_TYPE = -23,
     E_EDGE_NOT_FOUND = -24,
     E_TAG_NOT_FOUND = -25,
+    E_INVALID_SPACEVIDLEN = -26,
 
     // Invalid request
     E_INVALID_FILTER = -31,
@@ -263,23 +265,6 @@ struct NewVertex {
     2: list<NewTag> tags,
 }
 
-
-struct EdgeKey {
-    1: common.VertexID      src,
-    // When edge_type > 0, it's an out-edge, otherwise, it's an in-edge
-    // When query edge props, the field could be unset.
-    2: common.EdgeType      edge_type,
-    3: common.EdgeRanking   ranking,
-    4: common.VertexID      dst,
-}
-
-
-struct NewEdge {
-    1: EdgeKey              key,
-    2: list<common.Value>   props,
-}
-
-
 struct AddVerticesRequest {
     1: common.GraphSpaceID                      space_id,
     // partId => vertices
@@ -292,6 +277,27 @@ struct AddVerticesRequest {
         (cpp.template = "std::unordered_map")   prop_names,
     // If true, it equals an (up)sert operation.
     4: bool                                     overwritable = true,
+}
+/*
+ * End of AddVertices section
+ */
+
+
+/*
+ * Start of AddEdges section
+ */
+struct EdgeKey {
+    1: common.VertexID      src,
+    // When edge_type > 0, it's an out-edge, otherwise, it's an in-edge
+    // When query edge props, the field could be unset.
+    2: common.EdgeType      edge_type,
+    3: common.EdgeRanking   ranking,
+    4: common.VertexID      dst,
+}
+
+struct NewEdge {
+    1: EdgeKey              key,
+    2: list<common.Value>   props,
 }
 
 struct AddEdgesRequest {
@@ -306,12 +312,12 @@ struct AddEdgesRequest {
     4: bool                                     overwritable = true,
 }
 /*
- * End of AddVertices section
+ * End of AddEdges section
  */
 
 
 /*
- * Start of DeleteVertex section
+ * Start of DeleteVertices section
  */
 struct DeleteVerticesRequest {
     1: common.GraphSpaceID                              space_id,
@@ -319,8 +325,14 @@ struct DeleteVerticesRequest {
     2: map<common.PartitionID, list<common.VertexID>>
         (cpp.template = "std::unordered_map")           parts,
 }
+/*
+ * End of DeleteVertices section
+ */
 
 
+/*
+ * Start of DeleteEdges section
+ */
 struct DeleteEdgesRequest {
     1: common.GraphSpaceID                      space_id,
     // partId => edgeKeys
@@ -328,7 +340,7 @@ struct DeleteEdgesRequest {
         (cpp.template = "std::unordered_map")   parts,
 }
 /*
- * End of DeleteVertex section
+ * End of DeleteEdges section
  */
 
 

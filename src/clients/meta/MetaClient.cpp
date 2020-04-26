@@ -2644,5 +2644,23 @@ StatusOr<LeaderMap> MetaClient::loadLeader() {
     return leaderMap;
 }
 
+
+StatusOr<int32_t> MetaClient::getSpaceVidLen(const GraphSpaceID& spaceId) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        LOG(ERROR) << "Space " << spaceId << " not found!";
+        return Status::Error(folly::stringPrintf("Space %d not found", spaceId));
+    }
+    auto vIdLen = spaceIt->second->vertexIdLen_;
+    if (vIdLen <= 0) {
+        return Status::Error(folly::stringPrintf("Space %d vertexId length invalid", spaceId));
+    }
+    return vIdLen;
+}
+
 }  // namespace meta
 }  // namespace nebula

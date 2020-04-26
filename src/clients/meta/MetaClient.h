@@ -406,6 +406,8 @@ public:
     StatusOr<TagID> getTagIDByNameFromCache(const GraphSpaceID& space,
                                             const std::string& name);
 
+    StatusOr<int32_t> getSpaceVidLen(const GraphSpaceID& space);
+
     StatusOr<std::string> getTagNameByIdFromCache(const GraphSpaceID& space,
                                                   const TagID& tagId);
 
