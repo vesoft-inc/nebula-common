@@ -39,28 +39,18 @@ enum ErrorCode {
 } (cpp.enum_strict)
 
 
-struct Row {
-    1: list<common.Value> columns;
-}
-
-
-struct DataSet {
-    1: list<binary>    column_names;   // Column names
-    2: list<Row>       rows;
-}
-
-
 struct ExecutionResponse {
-    1: required ErrorCode       error_code;
-    2: required i32             latency_in_us;  // Execution time on server
-    3: optional list<DataSet>   data;           // Can return multiple dataset
-    4: optional binary          space_name;
+    1: required ErrorCode               error_code;
+    2: required i32                     latency_in_us;  // Execution time on server
+    3: optional list<common.DataSet>    data;           // Can return multiple dataset
+    4: optional binary                  space_name;
 }
 
 
 struct AuthResponse {
     1: required ErrorCode   error_code;
-    2: optional i64         session_id;
+    2: optional binary      error_msg;
+    3: optional i64         session_id;
 }
 
 

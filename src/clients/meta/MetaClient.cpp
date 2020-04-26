@@ -7,7 +7,6 @@
 #include "base/Base.h"
 #include <folly/hash/Hash.h>
 #include "clients/meta/MetaClient.h"
-#include "time/Duration.h"
 #include "network/NetworkUtils.h"
 #include "meta/NebulaSchemaProvider.h"
 #include "conf/Configuration.h"
@@ -451,7 +450,6 @@ void MetaClient::getResponse(Request req,
                              bool toLeader,
                              int32_t retry,
                              int32_t retryLimit) {
-    time::Duration duration;
     auto* evb = ioThreadPool_->getEventBase();
     HostAddr host;
     {
@@ -467,7 +465,6 @@ void MetaClient::getResponse(Request req,
                      toLeader,
                      retry,
                      retryLimit,
-                     duration,
                      this] () mutable {
         auto client = clientsMan_->client(host, evb, false, FLAGS_meta_client_timeout_ms);
         VLOG(1) << "Send request to meta " << host;
@@ -482,7 +479,6 @@ void MetaClient::getResponse(Request req,
                    retry,
                    retryLimit,
                    evb,
-                   duration,
                    this] (folly::Try<RpcResponse>&& t) mutable {
             // exception occurred during RPC
             if (t.hasException()) {
@@ -511,7 +507,6 @@ void MetaClient::getResponse(Request req,
                     return;
                 } else {
                     LOG(ERROR) << "Send request to " << host << ", exceed retry limit";
-//                    stats::Stats::addStatsValue(stats_.get(), false, duration.elapsedInUSec());
                     pro.setValue(
                         Status::Error(folly::stringPrintf("RPC failure in MetaClient: %s",
                                                           t.exception().what().c_str())));
@@ -522,7 +517,6 @@ void MetaClient::getResponse(Request req,
             auto&& resp = t.value();
             if (resp.code == cpp2::ErrorCode::SUCCEEDED) {
                 // succeeded
-//                stats::Stats::addStatsValue(stats_.get(), true, duration.elapsedInUSec());
                 pro.setValue(respGen(std::move(resp)));
 
                 return;
@@ -548,9 +542,6 @@ void MetaClient::getResponse(Request req,
                     return;
                 }
             }
-//            stats::Stats::addStatsValue(stats_.get(),
-//                                        resp.code == cpp2::ErrorCode::SUCCEEDED,
-//                                        duration.elapsedInUSec());
             pro.setValue(this->handleResponse(resp));
         });  // then
     });  // via
@@ -1671,6 +1662,51 @@ MetaClient::listEdgeIndexStatus(GraphSpaceID spaceID) {
                 },
                 std::move(promise));
     return future;
+}
+
+
+
+StatusOr<std::shared_ptr<const SchemaProviderIf>>
+MetaClient::getTagSchemaFromCache(GraphSpaceID spaceId, TagID tagID, SchemaVer ver) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        LOG(ERROR) << "Space " << spaceId << " not found!";
+        return std::shared_ptr<const SchemaProviderIf>();
+    } else {
+        auto tagIt = spaceIt->second->tagSchemas_.find(std::make_pair(tagID, ver));
+        if (tagIt == spaceIt->second->tagSchemas_.end()) {
+            return std::shared_ptr<const SchemaProviderIf>();
+        } else {
+            return tagIt->second;
+        }
+    }
+}
+
+
+StatusOr<std::shared_ptr<const SchemaProviderIf>>
+MetaClient::getEdgeSchemaFromCache(GraphSpaceID spaceId, EdgeType edgeType, SchemaVer ver) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        LOG(ERROR) << "Space " << spaceId << " not found!";
+        return std::shared_ptr<const SchemaProviderIf>();
+    } else {
+        auto edgeIt = spaceIt->second->edgeSchemas_.find(std::make_pair(edgeType, ver));
+        if (edgeIt == spaceIt->second->edgeSchemas_.end()) {
+            LOG(ERROR) << "Space " << spaceId << ", EdgeType " << edgeType << ", version "
+                       << ver << " not found!";
+            return std::shared_ptr<const SchemaProviderIf>();
+        } else {
+            return edgeIt->second;
+        }
+    }
 }
 
 
