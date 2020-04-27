@@ -160,7 +160,9 @@ struct MetaClientOptions {
         , clusterId_(opt.clusterId_.load())
         , inStoraged_(opt.inStoraged_)
         , serviceName_(opt.serviceName_)
-        , skipConfig_(opt.skipConfig_) {}
+        , skipConfig_(opt.skipConfig_)
+        , role_(opt.role_)
+        , gitInfoSHA_(opt.gitInfoSHA_) {}
 
     // Current host address
     HostAddr localHost_{"", 0};
@@ -172,6 +174,10 @@ struct MetaClientOptions {
     std::string serviceName_ = "";
     // Whether to skip the config manager
     bool skipConfig_ = false;
+    // host role(graph/meta/storage) using this client
+    cpp2::HostRole role_ = cpp2::HostRole::STORAGE;
+    // gitInfoSHA of Host using this client
+    std::string gitInfoSHA_{""};
 };
 
 
@@ -193,6 +199,8 @@ public:
     virtual ~MetaClient();
 
     bool isMetadReady();
+
+    bool setupLongTermHeartBeat(cpp2::HostRole role, std::string&& gitInfoSHA);
 
     bool waitForMetadReady(int count = -1, int retryIntervalSecs = 2);
 
