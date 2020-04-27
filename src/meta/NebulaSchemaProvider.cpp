@@ -28,7 +28,7 @@ size_t NebulaSchemaProvider::getNumNullableFields() const noexcept {
 size_t NebulaSchemaProvider::size() const noexcept {
     if (fields_.size() > 0) {
         auto& lastField = fields_.back();
-        return lastField->offset() + lastField->size();
+        return lastField.offset() + lastField.size();
     }
 
     return 0;
@@ -52,7 +52,7 @@ const char* NebulaSchemaProvider::getFieldName(int64_t index) const {
         return nullptr;
     }
 
-    return fields_[index]->name();
+    return fields_[index].name();
 }
 
 
@@ -62,7 +62,7 @@ cpp2::PropertyType NebulaSchemaProvider::getFieldType(int64_t index) const {
         return cpp2::PropertyType::UNKNOWN;
     }
 
-    return fields_[index]->type();
+    return fields_[index].type();
 }
 
 
@@ -74,11 +74,11 @@ cpp2::PropertyType NebulaSchemaProvider::getFieldType(const folly::StringPiece n
         return cpp2::PropertyType::UNKNOWN;
     }
 
-    return fields_[it->second]->type();
+    return fields_[it->second].type();
 }
 
 
-std::shared_ptr<const SchemaProviderIf::Field> NebulaSchemaProvider::field(int64_t index) const {
+const SchemaProviderIf::Field* NebulaSchemaProvider::field(int64_t index) const {
     if (index < 0) {
         VLOG(2) << "Invalid index " << index;
         return nullptr;
@@ -88,11 +88,11 @@ std::shared_ptr<const SchemaProviderIf::Field> NebulaSchemaProvider::field(int64
         return nullptr;
     }
 
-    return fields_[index];
+    return &fields_[index];
 }
 
 
-std::shared_ptr<const SchemaProviderIf::Field> NebulaSchemaProvider::field(
+const SchemaProviderIf::Field* NebulaSchemaProvider::field(
         const folly::StringPiece name) const {
     auto it = fieldNameIndex_.find(name.toString());
     if (it == fieldNameIndex_.end()) {
@@ -100,7 +100,7 @@ std::shared_ptr<const SchemaProviderIf::Field> NebulaSchemaProvider::field(
         return nullptr;
     }
 
-    return fields_[it->second];
+    return &fields_[it->second];
 }
 
 
@@ -169,7 +169,7 @@ void NebulaSchemaProvider::addField(folly::StringPiece name,
     size_t offset = 0;
     if (fields_.size() > 0) {
         auto& lastField = fields_.back();
-        offset = lastField->offset() + lastField->size();
+        offset = lastField.offset() + lastField.size();
     }
 
     size_t nullFlagPos = 0;
@@ -177,14 +177,14 @@ void NebulaSchemaProvider::addField(folly::StringPiece name,
         nullFlagPos = numNullableFields_++;
     }
 
-    fields_.emplace_back(std::make_shared<SchemaField>(name.toString(),
-                                                       type,
-                                                       nullable,
-                                                       !defaultValue.empty(),
-                                                       std::move(defaultValue),
-                                                       size,
-                                                       offset,
-                                                       nullFlagPos));
+    fields_.emplace_back(name.toString(),
+                         type,
+                         nullable,
+                         !defaultValue.empty(),
+                         std::move(defaultValue),
+                         size,
+                         offset,
+                         nullFlagPos);
     fieldNameIndex_.emplace(name.toString(),
                             static_cast<int64_t>(fields_.size() - 1));
 }
