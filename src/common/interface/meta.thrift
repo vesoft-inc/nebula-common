@@ -443,8 +443,15 @@ struct ListEdgesResp {
     3: list<EdgeItem> edges,
 }
 
+enum ListHostType {
+    GRAPH       = 0x00,
+    META        = 0x01,
+    STORAGE     = 0x02,
+    ALLOC       = 0x03
+} (cpp.enum_strict)
+
 struct ListHostsReq {
-    1: HostRole role
+    1: ListHostType type
 }
 
 struct ListHostsResp {
@@ -546,9 +553,7 @@ enum HostRole {
     GRAPH       = 0x00,
     META        = 0x01,
     STORAGE     = 0x02,
-    ALL         = 0x03,
-    ALLOCATION  = 0x04
-    UNKNOWN     = 0x05
+    UNKNOWN     = 0x03
 } (cpp.enum_strict)
 
 struct HBReq {
