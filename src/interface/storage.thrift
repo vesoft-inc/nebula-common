@@ -445,7 +445,7 @@ struct LookupIndexResp {
  } (cpp.enum_strict)
 
 struct IndexColumnHint {
-    1: string                   column_name,
+    1: binary                   column_name,
     // If scan_type == PREFIX, using begin_value to handler prefix.
     // Else using begin_value and end_value to handler ranger.
     2: ScanType                 scan_type,
@@ -473,7 +473,7 @@ struct LookupIndexRequest {
     // We only support specified fields here, not wild card "*"
     // If the list is empty, only the VertexID or the EdgeKey will
     // be returned
-    6: optional list<string>              return_columns,
+    6: optional list<binary>              return_columns,
 }
 
 /*
