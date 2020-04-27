@@ -456,7 +456,7 @@ struct LookUpIndexRequest {
 struct TaskPara {
     1: common.GraphSpaceID                  space_id,
     2: optional list<common.PartitionID>    parts,
-    3: optional common.IndexID              index_id
+    3: optional list<binary>                task_specfic_paras
 }
 
 struct AddAdminTaskRequest {
