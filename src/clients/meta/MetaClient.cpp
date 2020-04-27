@@ -232,7 +232,7 @@ bool MetaClient::loadData() {
             LOG(ERROR) << "Get space properties failed for space " << spaceId;
             return false;
         }
-        auto properties = resp.value().get_properties();
+        const auto& properties = resp.value().get_properties();
         spaceCache->vertexIdLen_ = properties.get_vid_size();
 
         cache.emplace(spaceId, spaceCache);
