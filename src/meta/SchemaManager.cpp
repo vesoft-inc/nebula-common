@@ -5,14 +5,15 @@
  */
 
 #include "base/Base.h"
-#include "meta/SchemaManager.h"
 #include "meta/ServerBasedSchemaManager.h"
 
 namespace nebula {
 namespace meta {
 
-std::unique_ptr<SchemaManager> SchemaManager::create() {
-    return std::make_unique<ServerBasedSchemaManager>();
+std::unique_ptr<SchemaManager> SchemaManager::create(MetaClient *client) {
+    auto mgr = std::make_unique<ServerBasedSchemaManager>();
+    mgr->init(client);
+    return mgr;
 }
 
 }   // namespace meta

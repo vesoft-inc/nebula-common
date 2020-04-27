@@ -883,7 +883,7 @@ DataSet Value::moveDataSet() {
     CHECK_EQ(type_, Type::DATASET);
     DataSet ds = std::move(*(value_.gVal));
     clear();
-    return std::move(ds);
+    return ds;
 }
 
 void Value::clear() {
@@ -1881,7 +1881,9 @@ bool operator<(const Value& lhs, const Value& rhs) {
 }
 
 bool operator==(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull() || rhs.isNull()) {
+    if (lhs.isNull() && rhs.isNull()) {
+        return true;
+    } else if (lhs.isNull() || rhs.isNull()) {
         return false;
     }
 
@@ -2006,5 +2008,3 @@ Value operator||(const Value& lhs, const Value& rhs) {
     }
 }
 }  // namespace nebula
-
-
