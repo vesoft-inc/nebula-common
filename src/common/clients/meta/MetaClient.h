@@ -175,7 +175,7 @@ struct MetaClientOptions {
     // Whether to skip the config manager
     bool skipConfig_ = false;
     // host role(graph/meta/storage) using this client
-    cpp2::HostRole role_ = cpp2::HostRole::STORAGE;
+    cpp2::HostRole role_ = cpp2::HostRole::UNKNOWN;
     // gitInfoSHA of Host using this client
     std::string gitInfoSHA_{""};
 };
