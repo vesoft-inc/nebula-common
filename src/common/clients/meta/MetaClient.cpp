@@ -2001,8 +2001,7 @@ StatusOr<SchemaVer> MetaClient::getLatestEdgeVersionFromCache(const GraphSpaceID
 
 folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
     cpp2::HBReq req;
-    req.set_in_storaged(options_.inStoraged_);
-    if (options_.inStoraged_) {
+    if (options_.role_ == cpp2::HostRole::STORAGE) {
         req.set_host(options_.localHost_);
         if (options_.clusterId_.load() == 0) {
             options_.clusterId_ =
@@ -2033,7 +2032,8 @@ folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
                     return client->future_heartBeat(request);
                 },
                 [this] (cpp2::HBResp&& resp) -> bool {
-                    if (options_.inStoraged_ && options_.clusterId_.load() == 0) {
+                    if (options_.role_ == cpp2::HostRole::STORAGE
+                        && options_.clusterId_.load() == 0) {
                         LOG(INFO) << "Persisit the cluster Id from metad "
                                   << resp.get_cluster_id();
                         if (FileBasedClusterIdMan::persistInFile(resp.get_cluster_id(),

@@ -557,13 +557,12 @@ enum HostRole {
 } (cpp.enum_strict)
 
 struct HBReq {
-    1: bool in_storaged,
+    1: HostRole   role,
     2: common.HostAddr host,
     3: ClusterID cluster_id,
     4: optional map<common.GraphSpaceID, list<common.PartitionID>>
         (cpp.template = "std::unordered_map") leader_partIds;
-    5: HostRole   role
-    6: binary     git_info_sha
+    5: binary     git_info_sha
 }
 
 struct CreateTagIndexReq {
