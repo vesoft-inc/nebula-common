@@ -200,8 +200,6 @@ public:
 
     bool isMetadReady();
 
-    bool setupLongTermHeartBeat(cpp2::HostRole role, std::string&& gitInfoSHA);
-
     bool waitForMetadReady(int count = -1, int retryIntervalSecs = 2);
 
     void stop();

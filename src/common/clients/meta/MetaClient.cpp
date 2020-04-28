@@ -105,6 +105,10 @@ bool MetaClient::waitForMetadReady(int count, int retryIntervalSecs) {
         return false;
     }
 
+    CHECK(bgThread_->start());
+    LOG(INFO) << "Register time task for heartbeat!";
+    size_t delayMS = FLAGS_heartbeat_interval_secs * 1000 + folly::Random::rand32(900);
+    bgThread_->addDelayTask(delayMS, &MetaClient::heartBeatThreadFunc, this);
     return ready_;
 }
 
