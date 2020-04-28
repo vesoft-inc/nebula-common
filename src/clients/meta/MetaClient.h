@@ -406,8 +406,6 @@ public:
     StatusOr<TagID> getTagIDByNameFromCache(const GraphSpaceID& space,
                                             const std::string& name);
 
-    StatusOr<int32_t> getSpaceVidLen(const GraphSpaceID& space);
-
     StatusOr<std::string> getTagNameByIdFromCache(const GraphSpaceID& space,
                                                   const TagID& tagId);
 
@@ -423,9 +421,11 @@ public:
     StatusOr<std::string> getEdgeNameByTypeFromCache(const GraphSpaceID& space,
                                                      const EdgeType edgeType);
 
-    std::vector<std::pair<TagID, SchemaVer>> listLatestTagVersionFromCache(const GraphSpaceID& space);
+    std::vector<std::pair<TagID, SchemaVer>>
+    listLatestTagVersionFromCache(const GraphSpaceID& space);
 
-    std::vector<std::pair<EdgeType, SchemaVer>> listLatestEdgeVersionFromCache(const GraphSpaceID& space);
+    std::vector<std::pair<EdgeType, SchemaVer>>
+    listLatestEdgeVersionFromCache(const GraphSpaceID& space);
 
     // get all lastest version edge
     StatusOr<std::vector<std::string>> getAllEdgeFromCache(const GraphSpaceID& space);
