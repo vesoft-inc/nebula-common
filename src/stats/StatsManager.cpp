@@ -4,10 +4,10 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include "stats/StatsManager.h"
 #include <folly/stats/MultiLevelTimeSeries-defs.h>
 #include <folly/stats/TimeseriesHistogram-defs.h>
+#include "base/Base.h"
 
 namespace nebula {
 namespace stats {
@@ -18,12 +18,10 @@ StatsManager& StatsManager::get() {
     return sm;
 }
 
-
 // static
 void StatsManager::setDomain(folly::StringPiece domain) {
     get().domain_ = domain.toString();
 }
-
 
 // static
 void StatsManager::setReportInfo(HostAddr addr, int32_t interval) {
@@ -32,14 +30,23 @@ void StatsManager::setReportInfo(HostAddr addr, int32_t interval) {
     sm.interval_ = interval;
 }
 
-
 // static
 int32_t StatsManager::registerStats(folly::StringPiece counterName) {
+    auto retName = parseMetricName(counterName);
+    if (!retName.ok()) {
+        return 0;
+    }
+    auto spec = std::move(retName).value();
+    if (spec.method == StatsMethod::PCT) {
+        // Not supported method PCT for stats
+        return 0;
+    }
+    auto name = counterName.toString();
+
     using std::chrono::seconds;
 
     auto& sm = get();
 
-    std::string name = counterName.toString();
     folly::RWSpinLock::WriteHolder wh(sm.nameMapLock_);
     auto it = sm.nameMap_.find(name);
     if (it != sm.nameMap_.end()) {
@@ -48,30 +55,36 @@ int32_t StatsManager::registerStats(folly::StringPiece counterName) {
     }
 
     // Insert the Stats
-    sm.stats_.emplace_back(
-        std::make_pair(
-            std::make_unique<std::mutex>(),
-            std::make_unique<StatsType>(
-                60,
-                std::initializer_list<StatsType::Duration>({seconds(5),
-                                                            seconds(60),
-                                                            seconds(600),
-                                                            seconds(3600)}))));
+    sm.stats_.emplace_back(std::make_pair(
+        std::make_unique<std::mutex>(),
+        std::make_unique<StatsType>(
+            60, std::initializer_list<StatsType::Duration>({seconds(spec.timeRange)}))));
+    sm.statsSpec_.emplace_back(spec);
+    CHECK_EQ(sm.stats_.size(), sm.statsSpec_.size());
     int32_t index = sm.stats_.size();
-    sm.nameMap_[name] = index;
-    return index;
+    auto ret = sm.nameMap_.emplace(std::move(name), index);
+    if (LIKELY(ret.second)) {
+        return index;
+    } else {
+        return 0;
+    }
 }
-
 
 // static
 int32_t StatsManager::registerHisto(folly::StringPiece counterName,
                                     StatsManager::VT bucketSize,
                                     StatsManager::VT min,
                                     StatsManager::VT max) {
+    auto retName = parseMetricName(counterName);
+    if (!retName.ok()) {
+        return 0;
+    }
+    auto spec = std::move(retName).value();
+    auto name = counterName.toString();
+
     using std::chrono::seconds;
 
     auto& sm = get();
-    std::string name = counterName.toString();
     folly::RWSpinLock::WriteHolder wh(sm.nameMapLock_);
     auto it = sm.nameMap_.find(name);
     if (it != sm.nameMap_.end()) {
@@ -81,245 +94,200 @@ int32_t StatsManager::registerHisto(folly::StringPiece counterName,
 
     // Insert the Histogram
     sm.histograms_.emplace_back(
-        std::make_pair(
-            std::make_unique<std::mutex>(),
-            std::make_unique<HistogramType>(
-                bucketSize,
-                min,
-                max,
-                StatsType(60, {seconds(5), seconds(60), seconds(600), seconds(3600)}))));
-    int32_t index = - sm.histograms_.size();
-    sm.nameMap_[name] = index;
-
-    LOG(INFO) << "registerHisto, bucketSize: " << bucketSize
-              << ", min: " << min << ", max: " << max;
-    return index;
+        std::make_pair(std::make_unique<std::mutex>(),
+                       std::make_unique<HistogramType>(
+                           bucketSize, min, max, StatsType(60, {seconds(spec.timeRange)}))));
+    sm.histogramsSpec_.emplace_back(spec);
+    CHECK_EQ(sm.histograms_.size(), sm.histogramsSpec_.size());
+    int32_t index = -sm.histograms_.size();
+    auto ret = sm.nameMap_.emplace(std::move(name), index);
+    if (LIKELY(ret.second)) {
+        VLOG(2) << "registerHisto, bucketSize: " << bucketSize << ", min: " << min
+                << ", max: " << max;
+        return index;
+    } else {
+        return 0;
+    }
 }
-
 
 // static
 void StatsManager::addValue(int32_t index, VT value) {
     using std::chrono::seconds;
-    CHECK_NE(index, 0);
+    CHECK(validIndex(index));
 
     auto& sm = get();
-    if (index > 0) {
+    if (statsIndex(index)) {
         // Stats
-        --index;
-        DCHECK_LT(index, sm.stats_.size());
-        std::lock_guard<std::mutex> g(*(sm.stats_[index].first));
-        sm.stats_[index].second->addValue(seconds(time::WallClock::fastNowInSec()), value);
-    } else {
+        auto rIndex = physicalIndex(index);
+        DCHECK_LT(rIndex, sm.stats_.size());
+        std::lock_guard<std::mutex> g(*(sm.stats_[rIndex].first));
+        sm.stats_[rIndex].second->addValue(seconds(time::WallClock::fastNowInSec()), value);
+    } else if (histogramIndex(index)) {
         // Histogram
-        index = - (index + 1);
-        DCHECK_LT(index, sm.histograms_.size());
-        std::lock_guard<std::mutex> g(*(sm.histograms_[index].first));
-        sm.histograms_[index].second->addValue(seconds(time::WallClock::fastNowInSec()), value);
+        auto rIndex = physicalIndex(index);
+        DCHECK_LT(rIndex, sm.histograms_.size());
+        std::lock_guard<std::mutex> g(*(sm.histograms_[rIndex].first));
+        sm.histograms_[rIndex].second->addValue(seconds(time::WallClock::fastNowInSec()), value);
     }
 }
 
-
 // static
 StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName) {
+    int32_t index = 0;
+    {
+        auto& sm = get();
+        folly::RWSpinLock::ReadHolder r(sm.nameMapLock_);
+        const auto fd = sm.nameMap_.find(metricName.toString());
+        if (fd == sm.nameMap_.end()) {
+            return Status::Error("%s isn't registered", metricName.data());
+        }
+        index = fd->second;
+    }
+
+    const auto& spec = getSpec(index);
+    switch (spec.method) {
+        case StatsMethod::PCT:
+            /* code */
+            return readValue(index, spec.pct);
+        case StatsMethod::SUM:
+            // fallthrough
+        case StatsMethod::AVG:
+            // fallthrough
+        case StatsMethod::RATE:
+            // fallthrough
+        case StatsMethod::COUNT:
+            return readValue(index, spec.method);
+    }
+}
+
+/*static*/ StatusOr<StatsManager::VT> StatsManager::readValue(int32_t index, StatsMethod method) {
+    using std::chrono::seconds;
+    auto& sm = get();
+
+    if (UNLIKELY(!validIndex(index))) {
+        return Status::Error("Invalid index %d", index);
+    } else if (statsIndex(index)) {
+        // stats
+        auto rIndex = physicalIndex(index);
+        DCHECK_LT(rIndex, sm.stats_.size());
+        if (rIndex >= sm.stats_.size()) {
+            return Status::Error("Out of range index %d", index);
+        }
+        std::lock_guard<std::mutex> g(*(sm.stats_[rIndex].first));
+        sm.stats_[rIndex].second->update(seconds(time::WallClock::fastNowInSec()));
+        return readValue(*(sm.stats_[rIndex].second), 0, method);
+    } else if (histogramIndex(index)) {
+        // histograms_
+        auto rIndex = physicalIndex(index);
+        DCHECK_LT(rIndex, sm.histograms_.size());
+        if (rIndex >= sm.histograms_.size()) {
+            return Status::Error("Out of range index %d", index);
+        }
+        std::lock_guard<std::mutex> g(*(sm.histograms_[rIndex].first));
+        sm.histograms_[rIndex].second->update(seconds(time::WallClock::fastNowInSec()));
+        return readValue(*(sm.histograms_[rIndex].second), 0, method);
+    }
+    LOG(FATAL) << "Impossible";
+}
+
+/*static*/ StatusOr<StatsManager::VT> StatsManager::readValue(int32_t index, double pct) {
+    using std::chrono::seconds;
+    auto& sm = get();
+    if (!histogramIndex(index)) {
+        return Status::NotSupported("Not a histogram");
+    }
+    auto rIndex = physicalIndex(index);
+    if (rIndex >= sm.histograms_.size()) {
+        return Status::Error("Out of range");
+    }
+
+    std::lock_guard<std::mutex> g(*(sm.histograms_[rIndex].first));
+    sm.histograms_[rIndex].second->update(seconds(time::WallClock::fastNowInSec()));
+    return sm.histograms_[rIndex].second->getPercentileEstimate(pct, 0);
+}
+
+// static
+folly::dynamic StatsManager::readAllValue() {
+    auto& sm = get();
+    folly::dynamic vals = folly::dynamic::object;
+
+    folly::RWSpinLock::ReadHolder rh(sm.nameMapLock_);
+    for (const auto& statsName : sm.nameMap_) {
+        const auto& spec = getSpec(statsName.second);
+        StatusOr<StatsManager::VT> metricValue;
+        switch (spec.method) {
+            case StatsMethod::PCT:
+                /* code */
+                metricValue = readValue(statsName.second, spec.pct);
+                break;
+            case StatsMethod::SUM:
+                // fallthrough
+            case StatsMethod::AVG:
+                // fallthrough
+            case StatsMethod::RATE:
+                // fallthrough
+            case StatsMethod::COUNT:
+                metricValue = readValue(statsName.second, spec.method);
+                break;
+            default:
+                LOG(FATAL) << "Impossible";
+        }
+        if (metricValue.ok()) {
+            vals[statsName.first] = metricValue.value();
+        } else {
+            vals[statsName.first] = metricValue.status().toString();
+        }
+    }
+    return vals;
+}
+
+/*static*/ StatusOr<StatsManager::MetricSpec> StatsManager::parseMetricName(
+    folly::StringPiece name) {
     std::vector<std::string> parts;
-    folly::split(".", metricName, parts, true);
+    folly::split(".", name, parts, true);
     if (parts.size() != 3) {
-        LOG(ERROR) << "\"" << metricName << "\" is not a valid metric name";
-        return Status::Error("\"%s\" is not a valid metric name", metricName.data());
+        return Status::Error("Invalid metric name format");
     }
 
-    TimeRange range;
-    if (parts[2] == "5") {
-        range = TimeRange::FIVE_SECONDS;
-    } else if (parts[2] == "60") {
-        range = TimeRange::ONE_MINUTE;
-    } else if (parts[2] == "600") {
-        range = TimeRange::TEN_MINUTES;
-    } else if (parts[2] == "3600") {
-        range = TimeRange::ONE_HOUR;
-    } else {
-        // Unsupported time range
-        LOG(ERROR) << "Unsupported time range \"" << parts[2] << "\"";
-        return Status::Error(folly::stringPrintf("Unsupported time range \"%s\"",
-                                                 parts[2].c_str()));
-    }
-
+    StatsMethod method;
+    double pct = 0;
     // Now check the statistic method
     static int32_t dividors[] = {1, 1, 10, 100, 1000, 10000};
     folly::toLowerAscii(parts[1]);
     if (parts[1] == "sum") {
-        return readStats(parts[0], range, StatsMethod::SUM);
+        method = StatsMethod::SUM;
     } else if (parts[1] == "count") {
-        return readStats(parts[0], range, StatsMethod::COUNT);
+        method = StatsMethod::COUNT;
     } else if (parts[1] == "avg") {
-        return readStats(parts[0], range, StatsMethod::AVG);
+        method = StatsMethod::AVG;
     } else if (parts[1] == "rate") {
-        return readStats(parts[0], range, StatsMethod::RATE);
+        method = StatsMethod::RATE;
     } else if (parts[1][0] == 'p') {
+        method = StatsMethod::PCT;
         // Percentile
         try {
-            size_t len = parts[1].size()  - 1;
+            size_t len = parts[1].size() - 1;
             if (len > 0 && len <= 6) {
                 auto digits = folly::StringPiece(&(parts[1][1]), len);
-                auto pct = folly::to<double>(digits) / dividors[len - 1];
-                return readHisto(parts[0], range, pct);
+                pct = folly::to<double>(digits) / dividors[len - 1];
+            } else {
+                return Status::Error("Invalid percentage %s", parts[1].c_str());
             }
         } catch (const std::exception& ex) {
-            LOG(ERROR) << "Failed to convert the digits to a double: " << ex.what();
+            return Status::Error("Invalid percentage %s", parts[1].c_str());
         }
-
-        LOG(ERROR) << "\"" << parts[1] << "\" is not a valid percentile form";
-        return Status::Error(folly::stringPrintf("\"%s\" is not a valid percentile form",
-                                                 parts[1].c_str()));
     } else {
-        LOG(ERROR) << "Unsupported statistic method \"" << parts[1] << "\"";
-        return Status::Error(folly::stringPrintf("Unsupported statistic method \"%s\"",
-                                                 parts[1].c_str()));
+        return Status::Error("Invalid method %s", parts[1].c_str());
     }
+
+    uint32_t timeRange = 0;
+    try {
+        timeRange = folly::to<uint32_t>(parts[2]);
+    } catch (std::exception&) {
+        return Status::Error("Invalid time range %s", parts[2].c_str());
+    }
+    return MetricSpec{method, timeRange, pct};
 }
 
-
-// static
-void StatsManager::readAllValue(folly::dynamic& vals) {
-    auto& sm = get();
-
-    for (auto &statsName : sm.nameMap_) {
-        for (auto method = StatsMethod::SUM; method <= StatsMethod::RATE;
-             method = static_cast<StatsMethod>(static_cast<int>(method) + 1)) {
-            for (auto range = TimeRange::FIVE_SECONDS; range <= TimeRange::ONE_HOUR;
-                 range = static_cast<TimeRange>(static_cast<int>(range) + 1)) {
-                std::string metricName = statsName.first;
-                auto status = readStats(statsName.second, range, method);
-                CHECK(status.ok());
-                int64_t metricValue = status.value();
-                folly::dynamic stat = folly::dynamic::object();
-
-                switch (method) {
-                    case StatsMethod::SUM:
-                        metricName += ".sum";
-                        break;
-                    case StatsMethod::COUNT:
-                        metricName += ".count";
-                        break;
-                    case StatsMethod::AVG:
-                        metricName += ".avg";
-                        break;
-                   case StatsMethod::RATE:
-                        metricName += ".rate";
-                        break;
-                    // intentionally no `default'
-                }
-
-                switch (range) {
-                    case TimeRange::FIVE_SECONDS:
-                        metricName += ".5";
-                        break;
-                    case TimeRange::ONE_MINUTE:
-                        metricName += ".60";
-                        break;
-                    case TimeRange::TEN_MINUTES:
-                        metricName += ".600";
-                        break;
-                    case TimeRange::ONE_HOUR:
-                        metricName += ".3600";
-                        break;
-                    // intentionally no `default'
-                }
-
-                stat["name"] = metricName;
-                stat["value"] = metricValue;
-                vals.push_back(std::move(stat));
-            }
-        }
-    }
-}
-
-
-// static
-StatusOr<StatsManager::VT> StatsManager::readStats(int32_t index,
-                                         StatsManager::TimeRange range,
-                                         StatsManager::StatsMethod method) {
-    using std::chrono::seconds;
-    auto& sm = get();
-
-    if (index == 0) {
-        return Status::Error("Invalid stats");
-    }
-
-    if (index > 0) {
-        // stats
-        --index;
-        DCHECK_LT(index, sm.stats_.size());
-        std::lock_guard<std::mutex> g(*(sm.stats_[index].first));
-        sm.stats_[index].second->update(seconds(time::WallClock::fastNowInSec()));
-        return readValue(*(sm.stats_[index].second), range, method);
-    } else {
-        // histograms_
-        index = - (index + 1);
-        DCHECK_LT(index, sm.histograms_.size());
-        std::lock_guard<std::mutex> g(*(sm.histograms_[index].first));
-        sm.histograms_[index].second->update(seconds(time::WallClock::fastNowInSec()));
-        return readValue(*(sm.histograms_[index].second), range, method);
-    }
-}
-
-
-// static
-StatusOr<StatsManager::VT> StatsManager::readStats(const std::string& counterName,
-                                                   StatsManager::TimeRange range,
-                                                   StatsManager::StatsMethod method) {
-    auto& sm = get();
-
-    // Look up the counter name
-    int32_t index = 0;
-
-    {
-        auto it = sm.nameMap_.find(counterName);
-        if (it == sm.nameMap_.end()) {
-            // Not found
-            return Status::Error("Stats not found \"%s\"", counterName.c_str());
-        }
-
-        index = it->second;
-    }
-
-    return readStats(index, range, method);
-}
-
-
-// static
-StatusOr<StatsManager::VT> StatsManager::readHisto(const std::string& counterName,
-                                                   StatsManager::TimeRange range,
-                                                   double pct) {
-    using std::chrono::seconds;
-    auto& sm = get();
-
-    // Look up the counter name
-    int32_t index = 0;
-    {
-        auto it = sm.nameMap_.find(counterName);
-        if (it == sm.nameMap_.end()) {
-            // Not found
-            return Status::Error("Stats not found \"%s\"", counterName.c_str());
-        }
-
-        index = it->second;
-    }
-
-    if (index >= 0) {
-        return Status::Error("Invalid stats");
-    }
-    index = - (index + 1);
-    if (static_cast<size_t>(index) >= sm.histograms_.size()) {
-        return Status::Error("Invalid stats");
-    }
-
-    std::lock_guard<std::mutex> g(*(sm.histograms_[index].first));
-    sm.histograms_[index].second->update(seconds(time::WallClock::fastNowInSec()));
-    auto level = static_cast<size_t>(range);
-    return sm.histograms_[index].second->getPercentileEstimate(pct, level);
-}
-
-}  // namespace stats
-}  // namespace nebula
-
+}   // namespace stats
+}   // namespace nebula

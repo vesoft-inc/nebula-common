@@ -8,11 +8,10 @@ namespace nebula {
 namespace stats {
 
 // static
-template<class StatsHolder>
+template <class StatsHolder>
 StatsManager::VT StatsManager::readValue(StatsHolder& stats,
-                                         StatsManager::TimeRange range,
+                                         uint32_t level,
                                          StatsManager::StatsMethod method) {
-    size_t level = static_cast<size_t>(range);
     switch (method) {
         case StatsMethod::SUM:
             return stats.sum(level);
@@ -22,11 +21,12 @@ StatsManager::VT StatsManager::readValue(StatsHolder& stats,
             return stats.template avg<VT>(level);
         case StatsMethod::RATE:
             return stats.template rate<VT>(level);
+        case StatsMethod::PCT:
+            break;
     }
 
     LOG(FATAL) << "Unknown statistic method";
 }
 
-}  // namespace stats
-}  // namespace nebula
-
+}   // namespace stats
+}   // namespace nebula

@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "stats/StatsManager.h"
 #include "thread/GenericWorker.h"
 
@@ -13,13 +13,11 @@ namespace nebula {
 namespace stats {
 
 TEST(StatsManager, RateTest) {
-    auto statId = StatsManager::registerStats("ratetest");
+    auto statId = StatsManager::registerStats("ratetest.rate.60");
     auto thread = std::make_unique<thread::GenericWorker>();
     ASSERT_TRUE(thread->start());
 
-    auto task = [=] () {
-        StatsManager::addValue(statId);
-    };
+    auto task = [=]() { StatsManager::addValue(statId); };
     constexpr auto qps = 100L;
     thread->addRepeatTask(1 * 1000 / qps, task);
 
@@ -27,8 +25,8 @@ TEST(StatsManager, RateTest) {
 
     auto actual = StatsManager::readValue("ratetest.rate.60").value();
 
-    ASSERT_LT(std::max(qps, actual) - std::min(qps, actual), 10L) << "expected: " << qps
-                                                                  << ", actual: " << actual;
+    ASSERT_LT(std::max(qps, actual) - std::min(qps, actual), 10L)
+        << "expected: " << qps << ", actual: " << actual;
 
     thread->stop();
     thread->wait();
@@ -38,7 +36,6 @@ TEST(StatsManager, RateTest) {
 }   // namespace stats
 }   // namespace nebula
 
-
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
     folly::init(&argc, &argv, true);
@@ -46,4 +43,3 @@ int main(int argc, char** argv) {
 
     return RUN_ALL_TESTS();
 }
-
