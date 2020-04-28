@@ -31,6 +31,20 @@ TEST(StatsManager, StatsTest) {
 
     // Let's check
     EXPECT_EQ(550, StatsManager::readValue("stat01.sum.5").value());
+    EXPECT_FALSE(StatsManager::readValue("stat01.sum.60").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.SUM.600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.Sum.3600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.Sum.300").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.count.5").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.count.60").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.COUNT.600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.Count.3600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.Count.4600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.avg.5").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.avg.60").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.AVG.600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.Avg.3600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat01.Avg1.3600").ok());
 }
 
 TEST(StatsManager, HistogramTest) {
@@ -52,6 +66,29 @@ TEST(StatsManager, HistogramTest) {
 
     // Let's check
     EXPECT_EQ(550, StatsManager::readValue("stat02.sum.5").value());
+    EXPECT_FALSE(StatsManager::readValue("stat02.sum.60").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.SUM.600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.Sum.3600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.Sum.300").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.count.5").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.count.60").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.COUNT.600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.Count.3600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.Count.4600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.avg.5").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.avg.60").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.AVG.600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.Avg.3600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.Avg1.3600").ok());
+
+    EXPECT_FALSE(StatsManager::readValue("stat02.p99.60").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.P99.600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.p99.3600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.t99.60").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.p9599.60").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.P9599.600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.p9599.3600").ok());
+    EXPECT_FALSE(StatsManager::readValue("stat02.t9599.60").ok());
 }
 
 TEST(StatsManager, Invalid) {
