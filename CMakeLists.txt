@@ -556,9 +556,14 @@ function(nebula_add_subdirectory dir_name)
     add_subdirectory(${dir_name})
 endfunction()
 
-set(NEBULA_CLEAN_ALL_DEPS clean-interface clean-pch)
+set(NEBULA_CLEAN_ALL_DEPS clean-interface clean-pch clean-bin)
 
 add_subdirectory(src)
+
+add_custom_target(
+    clean-bin
+    COMMAND "rm" "-fr" "bin/*"
+)
 
 add_custom_target(
     clean-build
