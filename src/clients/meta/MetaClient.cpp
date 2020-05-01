@@ -2626,7 +2626,6 @@ StatusOr<LeaderMap> MetaClient::loadLeader() {
     LeaderMap leaderMap;
     auto hostItems = std::move(ret).value();
     for (auto& item : hostItems) {
-        auto hostAddr = HostAddr(item.hostAddr.ip, item.hostAddr.port);
         for (auto& spaceEntry : item.get_leader_parts()) {
             auto spaceName = spaceEntry.first;
             auto status = getSpaceIdByNameFromCache(spaceName);
@@ -2635,10 +2634,10 @@ StatusOr<LeaderMap> MetaClient::loadLeader() {
             }
             auto spaceId = status.value();
             for (const auto& partId : spaceEntry.second) {
-                leaderMap[{spaceId, partId}] = hostAddr;
+                leaderMap[{spaceId, partId}] = item.hostAddr;
             }
         }
-        LOG(INFO) << "Load leader of " << hostAddr
+        LOG(INFO) << "Load leader of " << item.hostAddr
                   << " in " << item.get_leader_parts().size() << " space";
     }
     LOG(INFO) << "Load leader ok";
