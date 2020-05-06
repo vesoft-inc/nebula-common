@@ -73,6 +73,9 @@ jobs:
           - ubuntu1804
     container:
       image: vesoft/nebula-dev:${{ matrix.os }}
+      env:
+        ASAN_SYMBOLIZER_PATH: /opt/vesoft/toolset/clang/9.0.0/bin/llvm-symbolizer
+        ASAN_OPTIONS: fast_unwind_on_malloc=0
     steps:
       - uses: actions/checkout@v2
         with:
