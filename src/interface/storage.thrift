@@ -61,7 +61,7 @@ enum ErrorCode {
     E_PARTIAL_RESULT = -61,
 
     // task manager failed
-    E_INVALID_TASK_PARA = 90,
+    E_INVALID_TASK_PARA = -90,
     E_USER_CANCEL = -99,
 
     E_UNKNOWN = -100,
