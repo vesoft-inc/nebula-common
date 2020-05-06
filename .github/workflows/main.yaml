@@ -55,11 +55,7 @@ jobs:
       - name: CTest
         timeout-minutes: 30
         working-directory: build
-        run: |
-          ctest \
-            -j $(nproc) \
-            --timeout 400 \
-            --output-on-failure
+        run: ctest -j $(nproc) --timeout 400 --output-on-failure
 
   clang_build:
     name: Clang Build
@@ -96,8 +92,4 @@ jobs:
       - name: CTest
         timeout-minutes: 30
         working-directory: build
-        run: |
-          ctest \
-            -j $(nproc) \
-            --timeout 400 \
-            --output-on-failure
+        run: ctest -j $(nproc) --timeout 400 --output-on-failure
