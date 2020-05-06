@@ -117,7 +117,13 @@ struct StatProp {
 struct PropExp {
     // Alias of the property
     1: binary           alias,
-    // An eperssion. In most of cases, it is a reference to a specific property
+    // An eperssion. In most of cases, it is a reference to a specific property.
+    //   But it could be any valid expression, or a wild card formation which is
+    //   in the form of
+    //
+    //   "<tag_name>.*" or "<edge_type>.*"
+    //
+    // In that case, all properties for the given tag/edge type will be returned.
     2: binary           prop,
 }
 
@@ -205,7 +211,7 @@ struct GetNeighborsResponse {
     //   | .....                                                               |
     //   =======================================================================
     //
-    // The fisrt column in the dataset stores the source vertex id. The column name
+    // The first column in the dataset stores the source vertex id. The column name
     //   is "_vid". The value should be type of string
     //
     // The second column contains the statistic result for the vertex if stat_props
@@ -225,7 +231,7 @@ struct GetNeighborsResponse {
     //
     // The value of each tag column is a list of Values, which follows the order of the
     //   property names specified in the above column name. If a vertex does not have
-    //   trhe specific tag, the value will be NULL
+    //   the specific tag, the value will be NULL
     //
     // Columns after the tag columns are edge columns. One column per edge type. The
     //   column name is in the following format
