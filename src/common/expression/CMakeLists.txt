@@ -13,7 +13,7 @@ nebula_add_library(
     LogicalExpression.cpp
     TypeCastingExpression.cpp
     FunctionCallExpression.cpp
-    AliasPropertyExpression.cpp
+    SymbolPropertyExpression.cpp
     UUIDExpression.cpp
 )
 

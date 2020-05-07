@@ -4,10 +4,10 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/expression/AliasPropertyExpression.h"
+#include "expression/SymbolPropertyExpression.h"
 
 namespace nebula {
-Value AliasPropertyExpression::eval() const {
+Value SymbolPropertyExpression::eval() const {
     // TODO
     return Value(NullType::NaN);
 }
