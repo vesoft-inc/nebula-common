@@ -8,8 +8,11 @@
 
 namespace nebula {
 Value SymbolPropertyExpression::eval() const {
-    // TODO
     return Value(NullType::NaN);
+}
+
+Value EdgePropertyExpression::eval() const {
+    return expCtxt_->getEdgeProp(*sym_, *prop_);
 }
 
 Value InputPropertyExpression::eval() const {
@@ -18,37 +21,30 @@ Value InputPropertyExpression::eval() const {
 }
 
 Value VariablePropertyExpression::eval() const {
-    // TODO
-    return Value(NullType::NaN);
+    return expCtxt_->getVarProp(*sym_, *prop_);
 }
 
 Value SourcePropertyExpression::eval() const {
-    // TODO
-    return Value(NullType::NaN);
+    return expCtxt_->getSrcProp(*sym_, *prop_);
 }
 
 Value DestPropertyExpression::eval() const {
-    // TODO
-    return Value(NullType::NaN);
+    return expCtxt_->getDstProp(*sym_, *prop_);
 }
 
 Value EdgeSrcIdExpression::eval() const {
-    // TODO
-    return Value(NullType::NaN);
+    return expCtxt_->getEdgeProp(*sym_, *prop_);
 }
 
 Value EdgeTypeExpression::eval() const {
-    // TODO
-    return Value(NullType::NaN);
+    return expCtxt_->getEdgeProp(*sym_, *prop_);
 }
 
 Value EdgeRankExpression::eval() const {
-    // TODO
-    return Value(NullType::NaN);
+    return expCtxt_->getEdgeProp(*sym_, *prop_);
 }
 
 Value EdgeDstIdExpression::eval() const {
-    // TODO
-    return Value(NullType::NaN);
+    return expCtxt_->getEdgeProp(*sym_, *prop_);
 }
 }  // namespace nebula

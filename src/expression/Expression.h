@@ -43,7 +43,8 @@ public:
 
         EXP_FUNCTION_CALL,
 
-        EXP_ALIAS_PROPERTY,
+        EXP_SYMBOL_PROPERTY,
+        EXP_EDGE_PROPERTY,
         EXP_INPUT_PROPERTY,
         EXP_VAR_PROPERTY,
         EXP_DST_PROPERTY,

@@ -69,8 +69,11 @@ std::ostream& operator<<(std::ostream& os, Expression::Type type) {
         case Expression::Type::EXP_FUNCTION_CALL:
             os << "FunctionCall";
             break;
-        case Expression::Type::EXP_ALIAS_PROPERTY:
-            os << "AliasProp";
+        case Expression::Type::EXP_SYMBOL_PROPERTY:
+            os << "SymbolProp";
+            break;
+        case Expression::Type::EXP_EDGE_PROPERTY:
+            os << "EdgeProp";
             break;
         case Expression::Type::EXP_INPUT_PROPERTY:
             os << "InputProp";
