@@ -9,6 +9,7 @@
 
 #include "common/base/Base.h"
 #include "common/datatypes/Value.h"
+#include "context/ExpressionContext.h"
 
 namespace nebula {
 
@@ -63,6 +64,8 @@ public:
         return kind_;
     }
 
+    virtual void setExpCtxt(ExpressionContext* ctxt) = 0;
+
     virtual Value eval() const = 0;
 
     virtual std::string toString() const = 0;
@@ -80,7 +83,8 @@ public:
     }
 
 protected:
-    Kind kind_;
+    Kind                kind_;
+    ExpressionContext*  expCtxt_;
 };
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind);

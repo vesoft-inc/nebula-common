@@ -16,6 +16,10 @@ class ConstantExpression : public Expression {
 public:
     explicit ConstantExpression(Value v) : Expression(Kind::kConstant), val_(std::move(v)) {}
 
+    void setExpCtxt(ExpressionContext* ctxt) override {
+        expCtxt_ = ctxt;
+    }
+
     Value eval() const override {
         return val_;
     }

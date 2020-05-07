@@ -33,6 +33,10 @@ public:
         prop_.reset(prop);
     }
 
+    void setExpCtxt(ExpressionContext* ctxt) override {
+        expCtxt_ = ctxt;
+    }
+
     Value eval() const override;
 
     std::string encode() const override {

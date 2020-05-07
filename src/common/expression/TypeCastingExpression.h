@@ -17,6 +17,11 @@ public:
         operand_.reset(operand);
     }
 
+    void setExpCtxt(ExpressionContext* ctxt) override {
+        expCtxt_ = ctxt;
+        operand_->setExpCtxt(ctxt);
+    }
+
     Value eval() const override;
 
     std::string encode() const override {
