@@ -9,6 +9,7 @@
 #include "datatypes/List.h"
 #include "datatypes/Map.h"
 #include "datatypes/Set.h"
+#include "datatypes/DataSet.h"
 #include "datatypes/Vertex.h"
 #include "datatypes/Edge.h"
 #include "datatypes/Path.h"
@@ -63,6 +64,9 @@ std::size_t hash<nebula::Value>::operator()(const nebula::Value& v) const noexce
         case nebula::Value::Type::SET: {
             LOG(FATAL) << "Hash for SET has not been implemented";
         }
+        case nebula::Value::Type::DATASET: {
+            LOG(FATAL) << "Hash for DATASET has not been implemented";
+        }
         default: {
             LOG(FATAL) << "Unknown type";
         }
@@ -73,6 +77,8 @@ std::size_t hash<nebula::Value>::operator()(const nebula::Value& v) const noexce
 
 
 namespace nebula {
+
+constexpr auto EPSILON = 1e-8;
 
 Value::Value(Value&& rhs) : type_(Value::Type::__EMPTY__) {
     if (this == &rhs) { return; }
@@ -141,6 +147,11 @@ Value::Value(Value&& rhs) : type_(Value::Type::__EMPTY__) {
         case Type::SET:
         {
             setU(std::move(rhs.value_.uVal));
+            break;
+        }
+        case Type::DATASET:
+        {
+            setG(std::move(rhs.value_.gVal));
             break;
         }
         default:
@@ -220,6 +231,11 @@ Value::Value(const Value& rhs) : type_(Value::Type::__EMPTY__) {
         case Type::SET:
         {
             setU(rhs.value_.uVal);
+            break;
+        }
+        case Type::DATASET:
+        {
+            setG(rhs.value_.gVal);
             break;
         }
         default:
@@ -369,6 +385,15 @@ Value::Value(Set&& v) {
     setU(std::make_unique<Set>(std::move(v)));
 }
 
+Value::Value(const DataSet& v) {
+    auto c = std::make_unique<DataSet>(v);
+    setG(std::move(c));
+}
+
+Value::Value(DataSet&& v) {
+    setG(std::make_unique<DataSet>(std::move(v)));
+}
+
 
 void Value::setNull(const NullType& v) {
     clear();
@@ -490,12 +515,22 @@ void Value::setVertex(Vertex&& v) {
     setV(std::move(v));
 }
 
+void Value::setVertex(std::unique_ptr<Vertex>&& v) {
+    clear();
+    setV(std::move(v));
+}
+
 void Value::setEdge(const Edge& v) {
     clear();
     setE(v);
 }
 
 void Value::setEdge(Edge&& v) {
+    clear();
+    setE(std::move(v));
+}
+
+void Value::setEdge(std::unique_ptr<Edge>&& v) {
     clear();
     setE(std::move(v));
 }
@@ -510,12 +545,22 @@ void Value::setPath(Path&& v) {
     setP(std::move(v));
 }
 
+void Value::setPath(std::unique_ptr<Path>&& v) {
+    clear();
+    setP(std::move(v));
+}
+
 void Value::setList(const List& v) {
     clear();
     setL(v);
 }
 
 void Value::setList(List&& v) {
+    clear();
+    setL(std::move(v));
+}
+
+void Value::setList(std::unique_ptr<List>&& v) {
     clear();
     setL(std::move(v));
 }
@@ -530,6 +575,11 @@ void Value::setMap(Map&& v) {
     setM(std::move(v));
 }
 
+void Value::setMap(std::unique_ptr<Map>&& v) {
+    clear();
+    setM(std::move(v));
+}
+
 void Value::setSet(const Set& v) {
     clear();
     setU(v);
@@ -538,6 +588,26 @@ void Value::setSet(const Set& v) {
 void Value::setSet(Set&& v) {
     clear();
     setU(std::move(v));
+}
+
+void Value::setSet(std::unique_ptr<Set>&& v) {
+    clear();
+    setU(std::move(v));
+}
+
+void Value::setDataSet(const DataSet& v) {
+    clear();
+    setG(v);
+}
+
+void Value::setDataSet(DataSet&& v) {
+    clear();
+    setG(std::move(v));
+}
+
+void Value::setDataSet(std::unique_ptr<DataSet>&& v) {
+    clear();
+    setG(std::move(v));
 }
 
 
@@ -636,6 +706,16 @@ const Set* Value::getSetPtr() const {
     return value_.uVal.get();
 }
 
+const DataSet& Value::getDataSet() const {
+    CHECK_EQ(type_, Type::DATASET);
+    return *(value_.gVal);
+}
+
+const DataSet* Value::getDataSetPtr() const {
+    CHECK_EQ(type_, Type::DATASET);
+    return value_.gVal.get();
+}
+
 
 NullType& Value::mutableNull() {
     CHECK_EQ(type_, Type::NULLVALUE);
@@ -700,6 +780,11 @@ Map& Value::mutableMap() {
 Set& Value::mutableSet() {
     CHECK_EQ(type_, Type::SET);
     return *(value_.uVal);
+}
+
+DataSet& Value::mutableDataSet() {
+    CHECK_EQ(type_, Type::DATASET);
+    return *(value_.gVal);
 }
 
 
@@ -794,69 +879,12 @@ Set Value::moveSet() {
     return set;
 }
 
-
-bool Value::operator==(const Value& rhs) const {
-    if (type_ != rhs.type_) { return false; }
-    switch (type_) {
-        case Type::NULLVALUE:
-        {
-          return value_.nVal == rhs.value_.nVal;
-        }
-        case Type::BOOL:
-        {
-          return value_.bVal == rhs.value_.bVal;
-        }
-        case Type::INT:
-        {
-          return value_.iVal == rhs.value_.iVal;
-        }
-        case Type::FLOAT:
-        {
-          return value_.fVal == rhs.value_.fVal;
-        }
-        case Type::STRING:
-        {
-          return value_.sVal == rhs.value_.sVal;
-        }
-        case Type::DATE:
-        {
-          return value_.dVal == rhs.value_.dVal;
-        }
-        case Type::DATETIME:
-        {
-          return value_.tVal == rhs.value_.tVal;
-        }
-        case Type::VERTEX:
-        {
-          return *value_.vVal == *rhs.value_.vVal;
-        }
-        case Type::EDGE:
-        {
-          return *value_.eVal == *rhs.value_.eVal;
-        }
-        case Type::PATH:
-        {
-          return *value_.pVal == *rhs.value_.pVal;
-        }
-        case Type::LIST:
-        {
-          return *value_.lVal == *rhs.value_.lVal;
-        }
-        case Type::MAP:
-        {
-          return *value_.mVal == *rhs.value_.mVal;
-        }
-        case Type::SET:
-        {
-          return *value_.uVal == *rhs.value_.uVal;
-        }
-        default:
-        {
-          return true;
-        }
-    }
+DataSet Value::moveDataSet() {
+    CHECK_EQ(type_, Type::DATASET);
+    DataSet ds = std::move(*(value_.gVal));
+    clear();
+    return ds;
 }
-
 
 void Value::clear() {
     switch (type_) {
@@ -927,6 +955,11 @@ void Value::clear() {
         case Type::SET:
         {
             destruct(value_.uVal);
+            break;
+        }
+        case Type::DATASET:
+        {
+            destruct(value_.gVal);
             break;
         }
     }
@@ -1002,6 +1035,11 @@ Value& Value::operator=(Value&& rhs) {
         case Type::SET:
         {
             setU(std::move(rhs.value_.uVal));
+            break;
+        }
+        case Type::DATASET:
+        {
+            setG(std::move(rhs.value_.gVal));
             break;
         }
         default:
@@ -1083,6 +1121,11 @@ Value& Value::operator=(const Value& rhs) {
         case Type::SET:
         {
             setU(rhs.value_.uVal);
+            break;
+        }
+        case Type::DATASET:
+        {
+            setG(rhs.value_.gVal);
             break;
         }
         default:
@@ -1296,11 +1339,31 @@ void Value::setU(Set&& v) {
     new (std::addressof(value_.vVal)) std::unique_ptr<Set>(new Set(std::move(v)));
 }
 
+void Value::setG(const std::unique_ptr<DataSet>& v) {
+    type_ = Type::DATASET;
+    new (std::addressof(value_.gVal)) std::unique_ptr<DataSet>(new DataSet(*v));
+}
+
+void Value::setG(std::unique_ptr<DataSet>&& v) {
+    type_ = Type::DATASET;
+    new (std::addressof(value_.gVal)) std::unique_ptr<DataSet>(std::move(v));
+}
+
+void Value::setG(const DataSet& v) {
+    type_ = Type::DATASET;
+    new (std::addressof(value_.gVal)) std::unique_ptr<DataSet>(new DataSet(v));
+}
+
+void Value::setG(DataSet&& v) {
+    type_ = Type::DATASET;
+    new (std::addressof(value_.gVal)) std::unique_ptr<DataSet>(new DataSet(std::move(v)));
+}
+
 
 void swap(Value& a, Value& b) {
-  Value temp(std::move(a));
-  a = std::move(b);
-  b = std::move(temp);
+    Value temp(std::move(a));
+    a = std::move(b);
+    b = std::move(temp);
 }
 
 
@@ -1362,6 +1425,10 @@ std::ostream& operator<<(std::ostream& os, const Value::Type& type) {
             os << "SET";
             break;
         }
+        case Value::Type::DATASET: {
+            os << "DATASET";
+            break;
+        }
         default: {
             os << "__UNKNOWN__";
             break;
@@ -1371,6 +1438,573 @@ std::ostream& operator<<(std::ostream& os, const Value::Type& type) {
     return os;
 }
 
+
+Value operator+(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
+    }
+
+    switch (lhs.type()) {
+        case Value::Type::BOOL: {
+            switch (rhs.type()) {
+                case Value::Type::STRING: {
+                    return folly::stringPrintf("%s%s",
+                                               lhs.getBool() ? "true" : "false",
+                                               rhs.getStr().c_str());
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::INT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getInt() + rhs.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return lhs.getInt() + rhs.getFloat();
+                }
+                case Value::Type::STRING: {
+                    return folly::stringPrintf("%ld%s",
+                                               lhs.getInt(),
+                                               rhs.getStr().c_str());
+                }
+                case Value::Type::DATE: {
+                    return rhs.getDate() + lhs.getInt();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getFloat() + rhs.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return lhs.getFloat() + rhs.getFloat();
+                }
+                case Value::Type::STRING: {
+                    return folly::stringPrintf("%lf%s",
+                                               lhs.getFloat(),
+                                               rhs.getStr().c_str());
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::STRING: {
+            switch (rhs.type()) {
+                case Value::Type::BOOL: {
+                    return folly::stringPrintf("%s%s",
+                                               lhs.getStr().c_str(),
+                                               rhs.getBool() ? "true" : "false");
+                }
+                case Value::Type::INT: {
+                    return folly::stringPrintf("%s%ld",
+                                               lhs.getStr().c_str(),
+                                               rhs.getInt());
+                }
+                case Value::Type::FLOAT: {
+                    return folly::stringPrintf("%s%lf",
+                                               lhs.getStr().c_str(),
+                                               rhs.getFloat());
+                }
+                case Value::Type::STRING: {
+                    return lhs.getStr() + rhs.getStr();
+                }
+                case Value::Type::DATE: {
+                    return lhs.getStr() + rhs.getDate().toString();
+                }
+                case Value::Type::DATETIME: {
+                    return lhs.getStr() + rhs.getDateTime().toString();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::DATE: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getDate() + rhs.getInt();
+                }
+                case Value::Type::STRING: {
+                    return lhs.getDate().toString() + rhs.getStr();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::DATETIME: {
+            switch (rhs.type()) {
+                case Value::Type::STRING: {
+                    return lhs.getDateTime().toString() + rhs.getStr();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
+    }
+}
+
+
+Value operator-(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
+    }
+
+    switch (lhs.type()) {
+        case Value::Type::INT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getInt() - rhs.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return lhs.getInt() - rhs.getFloat();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getFloat() - rhs.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return lhs.getFloat() - rhs.getFloat();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::DATE: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getDate() - rhs.getInt();
+                }
+                case Value::Type::DATE: {
+                    return lhs.getDate().toInt() - rhs.getDate().toInt();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
+    }
+}
+
+
+Value operator*(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
+    }
+
+    switch (lhs.type()) {
+        case Value::Type::INT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getInt() * rhs.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return lhs.getInt() * rhs.getFloat();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getFloat() * rhs.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return lhs.getFloat() * rhs.getFloat();
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
+    }
+}
+
+
+Value operator/(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
+    }
+
+    switch (lhs.type()) {
+        case Value::Type::INT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    int64_t denom = rhs.getInt();
+                    if (denom != 0) {
+                        return lhs.getInt() / denom;
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                case Value::Type::FLOAT: {
+                    double denom = rhs.getFloat();
+                    if (std::abs(denom) > EPSILON) {
+                        return lhs.getInt() / denom;
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    int64_t denom = rhs.getInt();
+                    if (denom != 0) {
+                        return lhs.getFloat() / denom;
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                case Value::Type::FLOAT: {
+                    double denom = rhs.getFloat();
+                    if (std::abs(denom) > EPSILON) {
+                        return lhs.getFloat() / denom;
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
+    }
+}
+
+Value operator%(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
+    }
+
+    switch (lhs.type()) {
+        case Value::Type::INT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    int64_t denom = rhs.getInt();
+                    if (denom != 0) {
+                        return lhs.getInt() % denom;
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                case Value::Type::FLOAT: {
+                    double denom = rhs.getFloat();
+                    if (std::abs(denom) > EPSILON) {
+                        return std::fmod(lhs.getInt(), denom);
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    int64_t denom = rhs.getInt();
+                    if (denom != 0) {
+                        return std::fmod(lhs.getFloat(), denom);
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                case Value::Type::FLOAT: {
+                    double denom = rhs.getFloat();
+                    if (std::abs(denom) > EPSILON) {
+                        return std::fmod(lhs.getFloat(), denom);
+                    } else {
+                        return Value(NullType::DIV_BY_ZERO);
+                    }
+                }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+        }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
+    }
+}
+
+Value operator-(const Value& rhs) {
+    if (rhs.isNull()) {
+        return rhs.getNull();
+    }
+
+    switch (rhs.type()) {
+        case Value::Type::INT: {
+            auto val = -rhs.getInt();
+            return val;
+        }
+        case Value::Type::FLOAT: {
+            auto val = -rhs.getFloat();
+            return val;
+        }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
+    }
+}
+
+Value operator!(const Value& rhs) {
+    if (rhs.isNull()) {
+        return rhs.getNull();
+    }
+
+    if (rhs.type() != Value::Type::BOOL) {
+        return Value(NullType::BAD_TYPE);
+    }
+
+    auto val = rhs.getBool();
+    return !val;
+}
+
+bool operator<(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull() || rhs.isNull()) {
+        return false;
+    }
+
+    if (!(lhs.isNumeric() && rhs.isNumeric())
+            && (lhs.type() != rhs.type())) {
+        return false;
+    }
+
+    switch (lhs.type()) {
+        case Value::Type::BOOL: {
+            return lhs.getBool() < rhs.getBool();
+        }
+        case Value::Type::INT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getInt() < rhs.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return lhs.getInt() < rhs.getFloat();
+                }
+                default: {
+                    return false;
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getFloat() < rhs.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return lhs.getFloat() < rhs.getFloat();
+                }
+                default: {
+                    return false;
+                }
+            }
+        }
+        case Value::Type::STRING: {
+            return lhs.getStr() < rhs.getStr();
+        }
+        case Value::Type::DATE: {
+            return lhs.getDate() < rhs.getDate();
+        }
+        case Value::Type::DATETIME:
+        case Value::Type::VERTEX:
+        case Value::Type::EDGE:
+        case Value::Type::PATH:
+        case Value::Type::LIST:
+        case Value::Type::MAP:
+        case Value::Type::SET:
+        case Value::Type::DATASET: {
+            // TODO:
+            return false;
+        }
+        default: {
+            return false;
+        }
+    }
+}
+
+bool operator==(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull() && rhs.isNull()) {
+        return true;
+    } else if (lhs.isNull() || rhs.isNull()) {
+        return false;
+    }
+
+    if (!(lhs.isNumeric() && rhs.isNumeric())
+            && (lhs.type() != rhs.type())) {
+        return false;
+    }
+
+    switch (lhs.type()) {
+        case Value::Type::BOOL: {
+            return lhs.getBool() == rhs.getBool();
+        }
+        case Value::Type::INT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return lhs.getInt() == rhs.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return std::abs(lhs.getInt() - rhs.getFloat()) < EPSILON;
+                }
+                default: {
+                    return false;
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (rhs.type()) {
+                case Value::Type::INT: {
+                    return std::abs(lhs.getFloat() - rhs.getInt()) < EPSILON;
+                }
+                case Value::Type::FLOAT: {
+                    return std::abs(lhs.getFloat() - rhs.getFloat()) < EPSILON;
+                }
+                default: {
+                    return false;
+                }
+            }
+        }
+        case Value::Type::STRING: {
+            return lhs.getStr() == rhs.getStr();
+        }
+        case Value::Type::DATE: {
+            return lhs.getDate() == rhs.getDate();
+        }
+        case Value::Type::DATETIME: {
+            return lhs.getDateTime() == rhs.getDateTime();
+        }
+        case Value::Type::VERTEX: {
+            return lhs.getVertex() == rhs.getVertex();
+        }
+        case Value::Type::EDGE: {
+            return lhs.getEdge() == rhs.getEdge();
+        }
+        case Value::Type::PATH: {
+            return lhs.getPath() == rhs.getPath();
+        }
+        case Value::Type::LIST: {
+            return lhs.getList() == rhs.getList();
+        }
+        case Value::Type::MAP: {
+            return lhs.getMap() == rhs.getMap();
+        }
+        case Value::Type::SET: {
+            return lhs.getSet() == rhs.getSet();
+        }
+        case Value::Type::DATASET: {
+            return lhs.getDataSet() == rhs.getDataSet();
+        }
+        default: {
+            return false;
+        }
+    }
+}
+
+bool operator!=(const Value& lhs, const Value& rhs) {
+    return !(lhs == rhs);
+}
+
+bool operator> (const Value& lhs, const Value& rhs) {
+    return rhs < lhs;
+}
+
+bool operator<=(const Value& lhs, const Value& rhs) {
+    return !(rhs < lhs);
+}
+
+bool operator>=(const Value& lhs, const Value& rhs) {
+    return !(lhs < rhs);
+}
+
+Value operator&&(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
+    }
+
+    if (lhs.type() == Value::Type::BOOL
+            && rhs.type() == Value::Type::BOOL) {
+        return lhs.getBool() && rhs.getBool();
+    } else {
+        return Value(NullType::BAD_TYPE);
+    }
+}
+
+Value operator||(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
+    }
+
+    if (lhs.type() == Value::Type::BOOL
+            && rhs.type() == Value::Type::BOOL) {
+        return lhs.getBool() || rhs.getBool();
+    } else {
+        return Value(NullType::BAD_TYPE);
+    }
+}
 }  // namespace nebula
-
-

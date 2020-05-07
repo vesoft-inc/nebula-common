@@ -8,36 +8,40 @@
 #define META_SCHEMAMANAGER_H_
 
 #include "base/Base.h"
+#include "base/StatusOr.h"
 #include <folly/RWSpinLock.h>
-#include "meta/SchemaProviderIf.h"
-#include "clients/meta/MetaClient.h"
+#include "meta/NebulaSchemaProvider.h"
 
 namespace nebula {
 namespace meta {
+
+class MetaClient;
 
 class SchemaManager {
 public:
     virtual ~SchemaManager() = default;
 
-    static std::unique_ptr<SchemaManager> create();
+    static std::unique_ptr<SchemaManager> create(MetaClient *client);
 
-    virtual std::shared_ptr<const SchemaProviderIf> getTagSchema(GraphSpaceID space,
-                                                                 TagID tag,
-                                                                 SchemaVer ver = -1) = 0;
+    virtual StatusOr<int32_t> getSpaceVidLen(GraphSpaceID space) = 0;
 
-    // Returns a negative number when the schema does not exist
-    virtual StatusOr<SchemaVer> getNewestTagSchemaVer(GraphSpaceID space, TagID tag) = 0;
-
-    virtual std::shared_ptr<const SchemaProviderIf> getEdgeSchema(GraphSpaceID space,
-                                                                  EdgeType edge,
-                                                                  SchemaVer ver = -1) = 0;
+    virtual std::shared_ptr<const NebulaSchemaProvider>
+    getTagSchema(GraphSpaceID space, TagID tag, SchemaVer ver = -1) = 0;
 
     // Returns a negative number when the schema does not exist
-    virtual StatusOr<SchemaVer> getNewestEdgeSchemaVer(GraphSpaceID space, EdgeType edge) = 0;
+    virtual StatusOr<SchemaVer> getLatestTagSchemaVersion(GraphSpaceID space, TagID tag) = 0;
+
+    virtual std::shared_ptr<const NebulaSchemaProvider>
+    getEdgeSchema(GraphSpaceID space, EdgeType edge, SchemaVer ver = -1) = 0;
+
+    // Returns a negative number when the schema does not exist
+    virtual StatusOr<SchemaVer> getLatestEdgeSchemaVersion(GraphSpaceID space, EdgeType edge) = 0;
 
     virtual StatusOr<GraphSpaceID> toGraphSpaceID(folly::StringPiece spaceName) = 0;
 
     virtual StatusOr<TagID> toTagID(GraphSpaceID space, folly::StringPiece tagName) = 0;
+
+    virtual StatusOr<std::string> toTagName(GraphSpaceID space, TagID tagId) = 0;
 
     virtual StatusOr<EdgeType> toEdgeType(GraphSpaceID space, folly::StringPiece typeName) = 0;
 
@@ -45,7 +49,11 @@ public:
 
     virtual StatusOr<std::vector<std::string>> getAllEdge(GraphSpaceID space) = 0;
 
-    virtual void init(MetaClient *client = nullptr) = 0;
+    virtual std::vector<std::pair<TagID, std::shared_ptr<const NebulaSchemaProvider>>>
+    listLatestTagSchema(GraphSpaceID space) = 0;
+
+    virtual std::vector<std::pair<EdgeType, std::shared_ptr<const NebulaSchemaProvider>>>
+    listLatestEdgeSchema(GraphSpaceID space) = 0;
 
 protected:
     SchemaManager() = default;
