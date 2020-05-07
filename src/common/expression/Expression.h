@@ -43,7 +43,8 @@ public:
 
         kFunctionCall,
 
-        kAliasProperty,
+        kSymProperty,
+        kEdgeProperty,
         kInputProperty,
         kVarProperty,
         kDstProperty,

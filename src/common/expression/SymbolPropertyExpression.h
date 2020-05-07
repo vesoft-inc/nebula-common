@@ -21,6 +21,10 @@ constexpr char const kDstRef[] = "$$";
 // 1. reference, e.g. $-, $, $^, $$
 // 2. symbol, a symbol name, e.g. tag_name, edge_name, variable_name,
 // 3. property, property name.
+//
+// The SymbolPropertyExpression will only be used in parser to indicate
+// the form of symbol.prop, it will be transform to a proper expression
+// in a parse rule.
 class SymbolPropertyExpression: public Expression {
 public:
     SymbolPropertyExpression(Kind kind = Kind::kAliasProperty,
@@ -58,6 +62,33 @@ protected:
     std::unique_ptr<std::string>    ref_;
     std::unique_ptr<std::string>    sym_;
     std::unique_ptr<std::string>    prop_;
+};
+
+// edge_name.any_prop_name
+class EdgePropertyExpression final : public SymbolPropertyExpression {
+public:
+    EdgePropertyExpression(std::string* edge, std::string* prop)
+        : SymbolPropertyExpression(Type::EXP_EDGE_PROPERTY,
+                                   new std::string(""),
+                                   edge,
+                                   prop) {}
+
+    Value eval() const override;
+
+    std::string encode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
+        // TODO
+        return "";
+    }
 };
 
 // $-.any_prop_name

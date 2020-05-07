@@ -37,10 +37,12 @@ public:
                                      const std::string& prop) const = 0;
 
     // Get the specified property from the source vertex, such as $^.prop_name
-    virtual const Value& getSrcProp(const std::string& prop) const = 0;
+    virtual const Value& getSrcProp(const std::string& tag,
+                                    const std::string& prop) const = 0;
 
     // Get the specified property from the destination vertex, such as $$.prop_name
-    virtual const Value& getDstProp(const std::string& prop) const = 0;
+    virtual const Value& getDstProp(const std::string& tag,
+                                    const std::string& prop) const = 0;
 
     // Get the specified property from the input, such as $-.prop_name
     virtual const Value& getInputProp(const std::string& prop) const = 0;
