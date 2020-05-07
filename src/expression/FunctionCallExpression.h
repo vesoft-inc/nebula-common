@@ -16,7 +16,7 @@ public:
         args_.emplace_back(arg);
     }
 
-    auto args() {
+    auto&& args() {
         return std::move(args_);
     }
 
@@ -30,7 +30,14 @@ public:
                            ArgumentList* args)
         : Expression(Type::EXP_FUNCTION_CALL) {
         name_.reset(name);
-        args_.reset(args);
+        args_ = std::move(args)->args();
+    }
+
+    void setExpCtxt(ExpressionContext* ctxt) override {
+        expCtxt_ = ctxt;
+        for (auto& arg : args_) {
+            arg->setExpCtxt(ctxt);
+        }
     }
 
     Value eval() const override;
@@ -52,7 +59,7 @@ public:
 
 private:
     std::unique_ptr<std::string>                name_;
-    std::unique_ptr<ArgumentList>               args_;
+    std::vector<std::unique_ptr<Expression>>    args_;
 };
 }  // namespace nebula
 #endif

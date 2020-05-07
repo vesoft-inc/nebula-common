@@ -21,6 +21,12 @@ public:
         rhs_.reset(rhs);
     }
 
+    void setExpCtxt(ExpressionContext* ctxt) override {
+        expCtxt_ = ctxt;
+        lhs_->setExpCtxt(ctxt);
+        rhs_->setExpCtxt(ctxt);
+    }
+
     Value eval() const override;
 
     std::string encode() const override;

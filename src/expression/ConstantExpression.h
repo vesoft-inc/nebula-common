@@ -17,6 +17,10 @@ public:
     explicit ConstantExpression(Value v)
         : Expression(Expression::Type::EXP_CONSTANT), val_(std::move(v)) {}
 
+    void setExpCtxt(ExpressionContext* ctxt) override {
+        expCtxt_ = ctxt;
+    }
+
     Value eval() const override {
         return val_;
     }

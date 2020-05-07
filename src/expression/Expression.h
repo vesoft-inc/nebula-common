@@ -9,6 +9,7 @@
 
 #include "base/Base.h"
 #include "datatypes/Value.h"
+#include "context/ExpressionContext.h"
 
 namespace nebula {
 
@@ -63,6 +64,8 @@ public:
         return type_;
     }
 
+    virtual void setExpCtxt(ExpressionContext* ctxt) = 0;
+
     virtual Value eval() const = 0;
 
     virtual std::string toString() const = 0;
@@ -72,7 +75,8 @@ public:
     virtual std::string decode() const = 0;
 
 protected:
-    Type type_;
+    Type                type_;
+    ExpressionContext*  expCtxt_;
 };
 
 
