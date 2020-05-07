@@ -23,9 +23,9 @@ namespace detail {
 template <>
 struct TccStructTraits<nebula::HostAddr> {
     static void translateFieldName(
-            FOLLY_MAYBE_UNUSED folly::StringPiece _fname,
-            FOLLY_MAYBE_UNUSED int16_t& fid,
-            FOLLY_MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
+            MAYBE_UNUSED folly::StringPiece _fname,
+            MAYBE_UNUSED int16_t& fid,
+            MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "host") {
           fid = 1;
           _ftype = apache::thrift::protocol::T_STRING;
