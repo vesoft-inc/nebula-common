@@ -15,6 +15,7 @@ namespace nebula {
 
 class Expression {
 public:
+<<<<<<< HEAD
     enum class Kind {
         kConstant,
 
@@ -55,6 +56,8 @@ public:
         kEdgeDst,
 
         kUUID,
+
+        kVar,
     };
 
     explicit Expression(Kind kind) : kind_(kind) {}
