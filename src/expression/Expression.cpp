@@ -102,6 +102,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Type type) {
         case Expression::Type::EXP_UUID:
             os << "UUID";
             break;
+        case Expression::Type::EXP_VAR:
+            os << "Variable";
+            break;
     }
     return os;
 }

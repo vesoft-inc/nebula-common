@@ -15,6 +15,7 @@ nebula_add_library(
     FunctionCallExpression.cpp
     SymbolPropertyExpression.cpp
     UUIDExpression.cpp
+    VariableExpression.cpp
 )
 
 #nebula_add_subdirectory(test)
