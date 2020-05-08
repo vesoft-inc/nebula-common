@@ -191,6 +191,8 @@ TEST(Value, Arithmetics) {
 }
 
 TEST(Value, Comparison) {
+    Value vNull(nebula::NullType::__NULL__);
+    Value vEmpty;
     Value vInt1(1);
     Value vInt2(2);
     Value vFloat1(3.14);
@@ -201,7 +203,26 @@ TEST(Value, Comparison) {
     Value vBool2(true);
     Value vDate1(Date(2020, 1, 1));
     Value vDate2(Date(2019, 12, 1));
+    Value vDateTime1(DateTime(2020, 1, 1, 10, 0, 0, 0, 0));
+    Value vDateTime2(DateTime(2019, 12, 10, 10, 0, 0, 0, 0));
 
+    {
+        Value v = vNull == vNull;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+
+        v = vInt1 == vNull;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+
+        v = Value() == vEmpty;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+
+        v = vInt1 == vEmpty;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+    }
     {
         Value v = vInt1 == vInt2;
         EXPECT_EQ(Value::Type::BOOL, v.type());
@@ -332,6 +353,32 @@ TEST(Value, Comparison) {
         EXPECT_EQ(true, v.getBool());
 
         v = vDate1 <= vDate2;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+    }
+
+    {
+        Value v = vDateTime1 == vDateTime2;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+
+        v = vDateTime1 != vDateTime2;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+
+        v = (vDateTime1 > vDateTime2);
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+
+        v = (vDateTime1 < vDateTime2);
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+
+        v = vDateTime1 >= vDateTime2;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+
+        v = vDateTime1 <= vDateTime2;
         EXPECT_EQ(Value::Type::BOOL, v.type());
         EXPECT_EQ(false, v.getBool());
     }

@@ -1863,7 +1863,9 @@ bool operator<(const Value& lhs, const Value& rhs) {
         case Value::Type::DATE: {
             return lhs.getDate() < rhs.getDate();
         }
-        case Value::Type::DATETIME:
+        case Value::Type::DATETIME: {
+            return lhs.getDateTime() < rhs.getDateTime();
+        }
         case Value::Type::VERTEX:
         case Value::Type::EDGE:
         case Value::Type::PATH:
@@ -1884,6 +1886,12 @@ bool operator==(const Value& lhs, const Value& rhs) {
     if (lhs.isNull() && rhs.isNull()) {
         return true;
     } else if (lhs.isNull() || rhs.isNull()) {
+        return false;
+    }
+
+    if (lhs.empty() && rhs.empty()) {
+        return true;
+    } else if (lhs.empty() || rhs.empty()) {
         return false;
     }
 
