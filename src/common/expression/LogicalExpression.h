@@ -23,8 +23,6 @@ public:
         rhs_->setExpCtxt(ctxt);
     }
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -40,9 +38,18 @@ public:
         return "";
     }
 
+protected:
+    const Value& eval() override;
+
 private:
+<<<<<<< HEAD
     std::unique_ptr<Expression> lhs_;
     std::unique_ptr<Expression> rhs_;
+=======
+    std::unique_ptr<Expression>                 lhs_;
+    std::unique_ptr<Expression>                 rhs_;
+    Value                                       result_;
+>>>>>>> Refactor eval().
 };
 }   // namespace nebula
 #endif

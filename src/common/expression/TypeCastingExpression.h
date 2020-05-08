@@ -22,8 +22,6 @@ public:
         operand_->setExpCtxt(ctxt);
     }
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -39,9 +37,13 @@ public:
         return "";
     }
 
+protected:
+    const Value& eval() override;
+
 private:
-    Value::Type vType_;
-    std::unique_ptr<Expression> operand_;
+    Value::Type                                 vType_;
+    std::unique_ptr<Expression>                 operand_;
+    Value                                       result_;
 };
 }   // namespace nebula
 #endif

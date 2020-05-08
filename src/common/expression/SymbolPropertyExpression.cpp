@@ -7,44 +7,41 @@
 #include "expression/SymbolPropertyExpression.h"
 
 namespace nebula {
-Value SymbolPropertyExpression::eval() const {
-    return Value(NullType::NaN);
-}
 
-Value EdgePropertyExpression::eval() const {
+const Value& EdgePropertyExpression::eval() {
     return expCtxt_->getEdgeProp(*sym_, *prop_);
 }
 
-Value InputPropertyExpression::eval() const {
+const Value& InputPropertyExpression::eval() {
     // TODO
-    return Value(NullType::NaN);
+    return expCtxt_->getInputProp(*prop_);
 }
 
-Value VariablePropertyExpression::eval() const {
+const Value& VariablePropertyExpression::eval() {
     return expCtxt_->getVarProp(*sym_, *prop_);
 }
 
-Value SourcePropertyExpression::eval() const {
+const Value& SourcePropertyExpression::eval() {
     return expCtxt_->getSrcProp(*sym_, *prop_);
 }
 
-Value DestPropertyExpression::eval() const {
+const Value& DestPropertyExpression::eval() {
     return expCtxt_->getDstProp(*sym_, *prop_);
 }
 
-Value EdgeSrcIdExpression::eval() const {
+const Value& EdgeSrcIdExpression::eval() {
     return expCtxt_->getEdgeProp(*sym_, *prop_);
 }
 
-Value EdgeTypeExpression::eval() const {
+const Value& EdgeTypeExpression::eval() {
     return expCtxt_->getEdgeProp(*sym_, *prop_);
 }
 
-Value EdgeRankExpression::eval() const {
+const Value& EdgeRankExpression::eval() {
     return expCtxt_->getEdgeProp(*sym_, *prop_);
 }
 
-Value EdgeDstIdExpression::eval() const {
+const Value& EdgeDstIdExpression::eval() {
     return expCtxt_->getEdgeProp(*sym_, *prop_);
 }
 }  // namespace nebula

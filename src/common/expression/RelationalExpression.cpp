@@ -7,26 +7,32 @@
 #include "common/expression/RelationalExpression.h"
 
 namespace nebula {
-Value RelationalExpression::eval() const {
+const Value& RelationalExpression::eval() {
     auto lhs = lhs_->eval();
     auto rhs = rhs_->eval();
 
-    switch (kind_) {
-        case Kind::kRelEQ:
-            return lhs_ == rhs_;
-        case Kind::kRelNE:
-            return lhs_ != rhs_;
-        case Kind::kRelLT:
-            return lhs_ < rhs_;
-        case Kind::kRelLE:
-            return lhs_ <= rhs_;
-        case Kind::kRelGT:
-            return lhs_ > rhs_;
-        case Kind::kRelGE:
-            return lhs_ >= rhs_;
-        default:
+    switch (type_) {
+        case Type::EXP_REL_EQ:
+            result_ = lhs_ == rhs_;
             break;
+        case Type::EXP_REL_NE:
+            result_ = lhs_ != rhs_;
+            break;
+        case Type::EXP_REL_LT:
+            result_ = lhs_ < rhs_;
+            break;
+        case Type::EXP_REL_LE:
+            result_ = lhs_ <= rhs_;
+            break;
+        case Type::EXP_REL_GT:
+            result_ = lhs_ > rhs_;
+            break;
+        case Type::EXP_REL_GE:
+            result_ = lhs_ >= rhs_;
+            break;
+        default:
+            LOG(FATAL) << "Unknown type: " << type_;
     }
-    LOG(FATAL) << "Unknown type: " << kind_;
+    return result_;
 }
 }   // namespace nebula

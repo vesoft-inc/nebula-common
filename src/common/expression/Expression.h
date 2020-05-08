@@ -68,9 +68,11 @@ public:
         return kind_;
     }
 
-    virtual void setExpCtxt(ExpressionContext* ctxt) = 0;
+    static Value eval(Expression* expr) {
+        return expr->eval();
+    }
 
-    virtual Value eval() const = 0;
+    virtual void setExpCtxt(ExpressionContext* ctxt) = 0;
 
     virtual std::string toString() const = 0;
 
@@ -85,6 +87,16 @@ public:
     bool isAliasPropertyExpression() const {
         return kind_ == Kind::kAliasProperty;
     }
+
+protected:
+    friend class ArithmeticExpression;
+    friend class ConstantExpression;
+    friend class FunctionCallExpression;
+    friend class LogicalExpression;
+    friend class RelationalExpression;
+    friend class TypeCastingExpression;
+    friend class UnaryExpression;
+    virtual const Value& eval() = 0;
 
 protected:
     Kind                kind_;
