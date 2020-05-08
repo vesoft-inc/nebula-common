@@ -27,8 +27,6 @@ public:
         rhs_->setExpCtxt(ctxt);
     }
 
-    Value eval() const override;
-
     std::string encode() const override;
 
     std::string decode() const override {
@@ -41,9 +39,13 @@ public:
         return "";
     }
 
+protected:
+    const Value& eval() override;
+
 private:
     std::unique_ptr<Expression> lhs_;
     std::unique_ptr<Expression> rhs_;
+    Value                       result_;
 };
 
 }  // namespace nebula

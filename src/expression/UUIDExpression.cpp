@@ -7,8 +7,8 @@
 #include "expression/UUIDExpression.h"
 
 namespace nebula {
-Value UUIDExpression::eval() const {
+const Value& UUIDExpression::eval() {
     // TODO
-    return Value(NullType::NaN);
+    return result_;
 }
 }  // namespace nebula

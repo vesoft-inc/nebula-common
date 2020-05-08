@@ -7,20 +7,23 @@
 #include "expression/LogicalExpression.h"
 
 namespace nebula {
-Value LogicalExpression::eval() const {
+const Value& LogicalExpression::eval() {
     auto lhs = lhs_->eval();
     auto rhs = rhs_->eval();
 
     switch (type_) {
         case Type::EXP_LOGICAL_AND:
-            return lhs && rhs;
-        case Type::EXP_LOGICAL_OR:
-            return lhs || rhs;
-        case Type::EXP_LOGICAL_XOR:
-            return (lhs && !rhs) || (!lhs && rhs);
-        default:
+            result_ = lhs && rhs;
             break;
+        case Type::EXP_LOGICAL_OR:
+            result_ = lhs || rhs;
+            break;
+        case Type::EXP_LOGICAL_XOR:
+            result_ = (lhs && !rhs) || (!lhs && rhs);
+            break;
+        default:
+            LOG(FATAL) << "Unknown type: " << type_;
     }
-    LOG(FATAL) << "Unknown type: " << type_;
+    return result_;
 }
 }  // namespace nebula

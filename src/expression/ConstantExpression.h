@@ -21,10 +21,6 @@ public:
         expCtxt_ = ctxt;
     }
 
-    Value eval() const override {
-        return val_;
-    }
-
     std::string encode() const override;
 
     std::string decode() const override {
@@ -35,6 +31,11 @@ public:
     std::string toString() const override {
         // TODO
         return "";
+    }
+
+protected:
+    const Value& eval() override {
+        return val_;
     }
 
 private:

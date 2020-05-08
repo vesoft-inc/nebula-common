@@ -7,7 +7,7 @@
 #include "expression/FunctionCallExpression.h"
 
 namespace nebula {
-Value FunctionCallExpression::eval() const {
-    return Value(NullType::NaN);
+const Value& FunctionCallExpression::eval() {
+    return result_;
 }
 }  // namespace nebula

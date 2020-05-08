@@ -40,8 +40,6 @@ public:
         }
     }
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -57,9 +55,13 @@ public:
         return "";
     }
 
+protected:
+    const Value& eval() override;
+
 private:
     std::unique_ptr<std::string>                name_;
     std::vector<std::unique_ptr<Expression>>    args_;
+    Value                                       result_;
 };
 }  // namespace nebula
 #endif

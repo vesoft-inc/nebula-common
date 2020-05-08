@@ -41,8 +41,6 @@ public:
         expCtxt_ = ctxt;
     }
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -56,6 +54,11 @@ public:
     std::string toString() const override {
         // TODO
         return "";
+    }
+
+protected:
+    const Value& eval() override {
+        LOG(FATAL) << "Not supported for calling SymbolPropertyExpression::eval().";
     }
 
 protected:
@@ -73,8 +76,6 @@ public:
                                    edge,
                                    prop) {}
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -89,6 +90,9 @@ public:
         // TODO
         return "";
     }
+
+protected:
+    const Value& eval() override;
 };
 
 // $-.any_prop_name
@@ -100,8 +104,6 @@ public:
                                    new std::string(""),
                                    prop) {}
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -116,6 +118,9 @@ public:
         // TODO
         return "";
     }
+
+protected:
+    const Value& eval() override;
 };
 
 // $VarName.any_prop_name
@@ -128,8 +133,6 @@ public:
                                    var,
                                    prop) {}
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -144,6 +147,9 @@ public:
         // TODO
         return "";
     }
+
+protected:
+    const Value& eval() override;
 };
 
 // $^.TagName.any_prop_name
@@ -156,8 +162,6 @@ public:
                                    tag,
                                    prop) {}
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -172,6 +176,9 @@ public:
         // TODO
         return "";
     }
+
+protected:
+    const Value& eval() override;
 };
 
 // $$.TagName.any_prop_name
@@ -184,8 +191,6 @@ public:
                                    tag,
                                    prop) {}
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -200,6 +205,9 @@ public:
         // TODO
         return "";
     }
+
+protected:
+    const Value& eval() override;
 };
 
 // EdgeName._src
@@ -211,8 +219,6 @@ public:
                                    edge,
                                    new std::string(_SRC)) {}
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -227,6 +233,9 @@ public:
         // TODO
         return "";
     }
+
+protected:
+    const Value& eval() override;
 };
 
 // EdgeName._type
@@ -238,8 +247,6 @@ public:
                                    edge,
                                    new std::string(_TYPE)) {}
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -254,6 +261,9 @@ public:
         // TODO
         return "";
     }
+
+protected:
+    const Value& eval() override;
 };
 
 // EdgeName._rank
@@ -265,8 +275,6 @@ public:
                                    edge,
                                    new std::string(_RANK)) {}
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -281,6 +289,9 @@ public:
         // TODO
         return "";
     }
+
+protected:
+    const Value& eval() override;
 };
 
 // EdgeName._dst
@@ -292,8 +303,6 @@ public:
                                    edge,
                                   new std::string(_DST)) {}
 
-    Value eval() const override;
-
     std::string encode() const override {
         // TODO
         return "";
@@ -308,6 +317,9 @@ public:
         // TODO
         return "";
     }
+
+protected:
+    const Value& eval() override;
 };
 }  // namespace nebula
 #endif

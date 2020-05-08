@@ -8,22 +8,27 @@
 
 namespace nebula {
 
-Value ArithmeticExpression::eval() const {
+const Value& ArithmeticExpression::eval() {
     switch (type_) {
         case Type::EXP_ADD:
-            return lhs_->eval() + rhs_->eval();
-        case Type::EXP_MINUS:
-            return lhs_->eval() - rhs_->eval();
-        case Type::EXP_MULTIPLY:
-            return lhs_->eval() * rhs_->eval();
-        case Type::EXP_DIVIDE:
-            return lhs_->eval() / rhs_->eval();
-        case Type::EXP_MOD:
-            return lhs_->eval() % rhs_->eval();
-        default:
+            result_ = lhs_->eval() + rhs_->eval();
             break;
+        case Type::EXP_MINUS:
+            result_ = lhs_->eval() - rhs_->eval();
+            break;
+        case Type::EXP_MULTIPLY:
+            result_ = lhs_->eval() * rhs_->eval();
+            break;
+        case Type::EXP_DIVIDE:
+            result_ = lhs_->eval() / rhs_->eval();
+            break;
+        case Type::EXP_MOD:
+            result_ = lhs_->eval() % rhs_->eval();
+            break;
+        default:
+            LOG(FATAL) << "Unknown type: " << type_;
     }
-    LOG(FATAL) << "Unknown type: " << type_;
+    return result_;
 }
 
 

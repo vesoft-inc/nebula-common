@@ -7,9 +7,9 @@
 #include "expression/TypeCastingExpression.h"
 
 namespace nebula {
-Value TypeCastingExpression::eval() const {
+const Value& TypeCastingExpression::eval() {
     // TODO:
     UNUSED(vType_);
-    return Value(NullType::NaN);
+    return result_;
 }
 }  // namespace nebula

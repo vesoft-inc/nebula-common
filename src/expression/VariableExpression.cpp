@@ -7,7 +7,7 @@
 #include "expression/VariableExpression.h"
 
 namespace nebula {
-Value VariableExpression::eval() const {
+const Value& VariableExpression::eval() {
     return expCtxt_->getVar(*var_);
 }
 }  // namespace nebula

@@ -63,19 +63,31 @@ public:
 
     virtual ~Expression() = default;
 
+    static Value eval(Expression* expr) {
+        return expr->eval();
+    }
+
     Type type() const {
         return type_;
     }
 
     virtual void setExpCtxt(ExpressionContext* ctxt) = 0;
 
-    virtual Value eval() const = 0;
-
     virtual std::string toString() const = 0;
 
     virtual std::string encode() const = 0;
 
     virtual std::string decode() const = 0;
+
+protected:
+    friend class ArithmeticExpression;
+    friend class ConstantExpression;
+    friend class FunctionCallExpression;
+    friend class LogicalExpression;
+    friend class RelationalExpression;
+    friend class TypeCastingExpression;
+    friend class UnaryExpression;
+    virtual const Value& eval() = 0;
 
 protected:
     Type                type_;

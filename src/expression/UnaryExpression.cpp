@@ -7,17 +7,24 @@
 #include "expression/UnaryExpression.h"
 
 namespace nebula {
-Value UnaryExpression::eval() const {
+const Value& UnaryExpression::eval() {
    switch (type_) {
-       case Type::EXP_UNARY_PLUS:
-           return operand_->eval();
-       case Type::EXP_UNARY_NEGATE:
-           return -(operand_->eval());
-       case Type::EXP_UNARY_NOT:
-           return !(operand_->eval());
-       default:
+       case Type::EXP_UNARY_PLUS: {
+           Value val(operand_->eval());
+           result_ = std::move(val);
            break;
+       }
+       case Type::EXP_UNARY_NEGATE: {
+           result_ = -(operand_->eval());
+           break;
+       }
+       case Type::EXP_UNARY_NOT: {
+           result_ = !(operand_->eval());
+           break;
+       }
+       default:
+           LOG(FATAL) << "Unknown type: " << type_;
    }
-   LOG(FATAL) << "Unknown type: " << type_;
+   return result_;
 }
 }  // namespace nebula
