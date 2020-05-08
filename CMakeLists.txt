@@ -559,7 +559,7 @@ function(nebula_add_subdirectory dir_name)
     add_subdirectory(${dir_name})
 endfunction()
 
-set(NEBULA_CLEAN_ALL_DEPS clean-interface clean-pch clean-hbase)
+set(NEBULA_CLEAN_ALL_DEPS clean-interface)
 
 add_subdirectory(src)
 

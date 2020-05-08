@@ -887,6 +887,7 @@ DataSet Value::moveDataSet() {
 }
 
 void Value::clear() {
+    LOG(INFO) << "~Value()" << type_;
     switch (type_) {
         case Type::__EMPTY__:
         {
