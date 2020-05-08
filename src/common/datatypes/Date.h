@@ -78,6 +78,9 @@ struct DateTime {
     int32_t microsec;
     int32_t timezone;
 
+    DateTime() : year{0}, month{1}, day{1}, hour{0}, minute{0}, sec{1}, microsec{0}, timezone{0}  {}
+    DateTime(int16_t y, int8_t m, int8_t d, int8_t h, int8_t min, int8_t s, int32_t mic, int32_t tz)
+        : year{y}, month{m}, day{d}, hour{h}, minute{min}, sec{s}, microsec{mic}, timezone{tz} {}
     void clear() {
         year = 0;
         month = 0;
@@ -98,6 +101,34 @@ struct DateTime {
                sec == rhs.sec &&
                microsec == rhs.microsec &&
                timezone == rhs.timezone;
+    }
+
+    bool operator<(const DateTime& rhs) const {
+        if (!(year == rhs.year)) {
+            return year < rhs.year;
+        }
+        if (!(month == rhs.month)) {
+            return month < rhs.month;
+        }
+        if (!(day == rhs.day)) {
+            return day < rhs.day;
+        }
+        if (!(hour == rhs.hour)) {
+            return hour < rhs.hour;
+        }
+        if (!(minute == rhs.minute)) {
+            return minute < rhs.minute;
+        }
+        if (!(sec == rhs.sec)) {
+            return sec < rhs.sec;
+        }
+        if (!(microsec == rhs.microsec)) {
+            return microsec < rhs.microsec;
+        }
+        if (!(timezone == rhs.timezone)) {
+            return timezone < rhs.timezone;
+        }
+        return false;
     }
 
     std::string toString() const;
