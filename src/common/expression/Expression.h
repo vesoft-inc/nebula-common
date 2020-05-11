@@ -58,6 +58,7 @@ public:
         kUUID,
 
         kVar,
+        kVersionedVar,
     };
 
     explicit Expression(Kind kind) : kind_(kind) {}
@@ -96,6 +97,7 @@ protected:
     friend class RelationalExpression;
     friend class TypeCastingExpression;
     friend class UnaryExpression;
+    friend class VersionedVariableExpression;
     virtual const Value& eval() = 0;
 
 protected:

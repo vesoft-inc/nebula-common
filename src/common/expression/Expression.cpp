@@ -114,6 +114,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Type::EXP_VAR:
             os << "Variable";
             break;
+        case Expression::Type::EXP_VERSIONED_VAR:
+            os << "VersionedVariable";
+            break;
     }
     return os;
 }
