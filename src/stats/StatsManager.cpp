@@ -34,12 +34,12 @@ void StatsManager::setReportInfo(HostAddr addr, int32_t interval) {
 int32_t StatsManager::registerStats(folly::StringPiece counterName) {
     auto retName = parseMetricName(counterName);
     if (!retName.ok()) {
-        return 0;
+        return kInvalidIndex;
     }
     auto spec = std::move(retName).value();
     if (spec.method == StatsMethod::PCT) {
         // Not supported method PCT for stats
-        return 0;
+        return kInvalidIndex;
     }
     auto name = counterName.toString();
 
@@ -66,7 +66,7 @@ int32_t StatsManager::registerStats(folly::StringPiece counterName) {
     if (LIKELY(ret.second)) {
         return index;
     } else {
-        return 0;
+        return kInvalidIndex;
     }
 }
 
@@ -77,7 +77,7 @@ int32_t StatsManager::registerHisto(folly::StringPiece counterName,
                                     StatsManager::VT max) {
     auto retName = parseMetricName(counterName);
     if (!retName.ok()) {
-        return 0;
+        return kInvalidIndex;
     }
     auto spec = std::move(retName).value();
     auto name = counterName.toString();
@@ -106,7 +106,7 @@ int32_t StatsManager::registerHisto(folly::StringPiece counterName,
                 << ", max: " << max;
         return index;
     } else {
-        return 0;
+        return kInvalidIndex;
     }
 }
 

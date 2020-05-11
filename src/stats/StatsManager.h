@@ -73,6 +73,20 @@ public:
 
     static folly::dynamic readAllValue();
 
+    static constexpr int32_t kInvalidIndex = 0;
+
+    static bool validIndex(int32_t index) {
+        return index != kInvalidIndex;
+    }
+
+    static bool statsIndex(int32_t index) {
+        return index > kInvalidIndex;
+    }
+
+    static bool histogramIndex(int32_t index) {
+        return index < kInvalidIndex;
+    }
+
 private:
     static StatsManager& get();
 
@@ -86,21 +100,9 @@ private:
     template <class StatsHolder>
     static VT readValue(StatsHolder& stats, uint32_t level, StatsMethod method);
 
-    static bool validIndex(int32_t index) {
-        return index != 0;
-    }
-
-    static bool statsIndex(int32_t index) {
-        return index > 0;
-    }
-
-    static bool histogramIndex(int32_t index) {
-        return index < 0;
-    }
-
     static std::size_t physicalIndex(int32_t index) {
         CHECK(validIndex(index));
-        return index > 0 ? index - 1 : -(index + 1);
+        return index > kInvalidIndex ? index - 1 : -(index + 1);
     }
 
     struct MetricSpec {
