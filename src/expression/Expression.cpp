@@ -36,6 +36,12 @@ std::ostream& operator<<(std::ostream& os, Expression::Type type) {
         case Expression::Type::EXP_UNARY_NOT:
             os << "UnaryNot";
             break;
+        case Expression::Type::EXP_UNARY_INCR:
+            os << "AutoIncrement";
+            break;
+        case Expression::Type::EXP_UNARY_DECR:
+            os << "AutoDecrement";
+            break;
         case Expression::Type::EXP_REL_EQ:
             os << "Equal";
             break;

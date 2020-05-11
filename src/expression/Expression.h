@@ -27,6 +27,8 @@ public:
         EXP_UNARY_PLUS,
         EXP_UNARY_NEGATE,
         EXP_UNARY_NOT,
+        EXP_UNARY_INCR,
+        EXP_UNARY_DECR,
 
         EXP_REL_EQ,
         EXP_REL_NE,

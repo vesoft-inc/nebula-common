@@ -46,6 +46,8 @@ public:
 
     // Get the specified property from the input, such as $-.prop_name
     virtual const Value& getInputProp(const std::string& prop) const = 0;
+
+    virtual void setVar(const std::string& var, Value val) = 0;
 };
 
 }  // namespace nebula

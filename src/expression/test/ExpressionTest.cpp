@@ -12,6 +12,8 @@
 #include "expression/ConstantExpression.h"
 #include "expression/SymbolPropertyExpression.h"
 #include "expression/RelationalExpression.h"
+#include "expression/UnaryExpression.h"
+#include "expression/VariableExpression.h"
 
 namespace nebula {
 
@@ -107,6 +109,7 @@ TEST_F(ExpressionTest, Arithmetics) {
         EXPECT_EQ(eval, 4);
     }
     {
+        // e1.string16 + e1.string16
         ArithmeticExpression add(
                 Expression::Type::EXP_ADD,
                 new EdgePropertyExpression(new std::string("e1"), new std::string("string16")),
@@ -120,6 +123,7 @@ TEST_F(ExpressionTest, Arithmetics) {
 
 TEST_F(ExpressionTest, RelationEQ) {
     {
+        // e1.list == NULL
         RelationalExpression expr(
                 Expression::Type::EXP_REL_EQ,
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
@@ -130,6 +134,7 @@ TEST_F(ExpressionTest, RelationEQ) {
         EXPECT_EQ(eval, false);
     }
     {
+        // e1.list_of_list == NULL
         RelationalExpression expr(
                 Expression::Type::EXP_REL_EQ,
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
@@ -140,6 +145,7 @@ TEST_F(ExpressionTest, RelationEQ) {
         EXPECT_EQ(eval, false);
     }
     {
+        // e1.list == e1.list
         RelationalExpression expr(
                 Expression::Type::EXP_REL_EQ,
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
@@ -150,6 +156,7 @@ TEST_F(ExpressionTest, RelationEQ) {
         EXPECT_EQ(eval, true);
     }
     {
+        // e1.list_of_list == e1.list_of_list
         RelationalExpression expr(
                 Expression::Type::EXP_REL_EQ,
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
@@ -163,6 +170,7 @@ TEST_F(ExpressionTest, RelationEQ) {
 
 TEST_F(ExpressionTest, RelationIN) {
     {
+        // 1 IN [1, 2, 3]
         RelationalExpression expr(
                 Expression::Type::EXP_REL_IN,
                 new ConstantExpression(1),
@@ -173,6 +181,7 @@ TEST_F(ExpressionTest, RelationIN) {
         EXPECT_EQ(eval, true);
     }
     {
+        // 5 IN [1, 2, 3]
         RelationalExpression expr(
                 Expression::Type::EXP_REL_IN,
                 new ConstantExpression(5),
@@ -184,5 +193,30 @@ TEST_F(ExpressionTest, RelationIN) {
     }
 }
 
+TEST_F(ExpressionTest, UnaryINCR) {
+    {
+        // ++int
+        UnaryExpression expr(
+                Expression::Type::EXP_UNARY_INCR,
+                new VariableExpression(new std::string("int")));
+        expr.setExpCtxt(expCtxt_.get());
+        auto eval = Expression::eval(&expr);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 2);
+    }
+}
+
+TEST_F(ExpressionTest, UnaryDECR) {
+    {
+        // --int
+        UnaryExpression expr(
+                Expression::Type::EXP_UNARY_DECR,
+                new VariableExpression(new std::string("int")));
+        expr.setExpCtxt(expCtxt_.get());
+        auto eval = Expression::eval(&expr);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 0);
+    }
+}
 // TODO(cpw): more test cases.
 }  // namespace nebula

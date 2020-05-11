@@ -21,6 +21,10 @@ public:
         expCtxt_ = ctxt;
     }
 
+    const std::string& var() const {
+        return *var_.get();
+    }
+
     std::string encode() const override {
         // TODO
         return "";

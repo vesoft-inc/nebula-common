@@ -35,6 +35,7 @@ const Value& ArithmeticExpression::eval() {
 }
 
 
+
 std::string ArithmeticExpression::encode() const {
     return "";
 }
