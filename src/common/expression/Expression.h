@@ -34,6 +34,7 @@ public:
         kRelLE,
         kRelGT,
         kRelGE,
+        kRelIn,
 
         kLogicalAnd,
         kLogicalOr,

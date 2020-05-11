@@ -74,6 +74,11 @@ public:
         }
     }
 
+    void setVar(const std::string& var, Value val) override {
+        UNUSED(var);
+        UNUSED(val);
+    }
+
 private:
     static std::unordered_map<std::string, Value>      vals_;
     Value                                              null_{NullType::NaN};

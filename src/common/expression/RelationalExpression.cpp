@@ -32,8 +32,9 @@ const Value& RelationalExpression::eval() {
             result_ = lhs >= rhs;
             break;
         case Type::EXP_REL_IN: {
-            if (rhs.type() != Value::Type::LIST) {
-                result_ = Value(NullType::NaN);
+            if (UNLIKELY(rhs.type() != Value::Type::LIST)) {
+                result_ = Value(NullType::BAD_TYPE);
+                break;
             }
             auto& list = rhs.getList().values;
             auto found = std::find(list.begin(), list.end(), lhs);
