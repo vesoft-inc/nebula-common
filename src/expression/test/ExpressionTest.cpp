@@ -195,10 +195,10 @@ TEST_F(ExpressionTest, RelationIN) {
 
 TEST_F(ExpressionTest, UnaryINCR) {
     {
-        // ++int
+        // ++var_int
         UnaryExpression expr(
                 Expression::Type::EXP_UNARY_INCR,
-                new VariableExpression(new std::string("int")));
+                new VariableExpression(new std::string("var_int")));
         expr.setExpCtxt(expCtxt_.get());
         auto eval = Expression::eval(&expr);
         EXPECT_EQ(eval.type(), Value::Type::INT);
@@ -208,14 +208,37 @@ TEST_F(ExpressionTest, UnaryINCR) {
 
 TEST_F(ExpressionTest, UnaryDECR) {
     {
-        // --int
+        // --var_int
         UnaryExpression expr(
                 Expression::Type::EXP_UNARY_DECR,
-                new VariableExpression(new std::string("int")));
+                new VariableExpression(new std::string("var_int")));
         expr.setExpCtxt(expCtxt_.get());
         auto eval = Expression::eval(&expr);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 0);
+    }
+}
+
+TEST_F(ExpressionTest, VersionedVar) {
+    {
+        // versioned_var{0}
+        VersionedVariableExpression expr(
+                new std::string("versioned_var"),
+                new ConstantExpression(0));
+        expr.setExpCtxt(expCtxt_.get());
+        auto eval = Expression::eval(&expr);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 1);
+    }
+    {
+        // versioned_var{cnt}
+        VersionedVariableExpression expr(
+                new std::string("versioned_var"),
+                new VariableExpression(new std::string("cnt")));
+        expr.setExpCtxt(expCtxt_.get());
+        auto eval = Expression::eval(&expr);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 2);
     }
 }
 // TODO(cpw): more test cases.

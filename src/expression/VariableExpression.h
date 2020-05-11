@@ -46,5 +46,50 @@ protected:
 private:
     std::unique_ptr<std::string>                 var_;
 };
+
+/*
+ * VersionedVariableExpression is designed for getting the historical results
+ * of a variable.
+ */
+class VersionedVariableExpression final : public Expression {
+public:
+    VersionedVariableExpression(std::string* var, Expression* version)
+        : Expression(Type::EXP_VERSIONED_VAR) {
+        var_.reset(var);
+        version_.reset(version);
+    }
+
+    void setExpCtxt(ExpressionContext* ctxt) override {
+        expCtxt_ = ctxt;
+        version_->setExpCtxt(ctxt);
+    }
+
+    const std::string& var() const {
+        return *var_.get();
+    }
+
+    std::string encode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string decode() const override {
+        // TODO
+        return "";
+    }
+
+    std::string toString() const override {
+        // TODO
+        return "";
+    }
+
+protected:
+    const Value& eval() override;
+
+private:
+    std::unique_ptr<std::string>                 var_;
+    std::unique_ptr<Expression>                  version_;
+    Value                                        null_{NullType::BAD_TYPE};
+};
 }  // namespace nebula
 #endif

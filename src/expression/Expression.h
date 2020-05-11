@@ -60,6 +60,7 @@ public:
         EXP_UUID,
 
         EXP_VAR,
+        EXP_VERSIONED_VAR,
     };
 
     explicit Expression(Type type) : type_(type) {}
@@ -90,6 +91,7 @@ protected:
     friend class RelationalExpression;
     friend class TypeCastingExpression;
     friend class UnaryExpression;
+    friend class VersionedVariableExpression;
     virtual const Value& eval() = 0;
 
 protected:

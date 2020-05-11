@@ -101,5 +101,8 @@ std::unordered_map<std::string, Value>
     {"list", Value(List(std::vector<Value>(16, Value("aaaa"))))},
     {"list_of_list", Value(List(std::vector<Value>(16,
                         Value(List(std::vector<Value>(16, Value("aaaa")))))))},
+    {"var_int", Value(1)},
+    {"versioned_var", Value(List(std::vector<Value>{1, 2, 3, 4, 5, 6, 7, 8}))},
+    {"cnt", Value(1)},
 };
 }  // namespace nebula
