@@ -54,6 +54,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Type type) {
         case Expression::Type::EXP_REL_GE:
             os << "GreaterEqual";
             break;
+        case Expression::Type::EXP_REL_IN:
+            os << "In";
+            break;
         case Expression::Type::EXP_LOGICAL_AND:
             os << "LogicalAnd";
             break;
