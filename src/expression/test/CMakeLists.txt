@@ -15,3 +15,16 @@ nebula_add_test(
         gtest
         gtest_main
 )
+
+nebula_add_test(
+    NAME
+        expression_bm
+    SOURCES
+        ExpressionBenchmark.cpp
+    OBJECTS
+        $<TARGET_OBJECTS:expression_obj>
+        $<TARGET_OBJECTS:datatypes_obj>
+    LIBRARIES
+        follybenchmark
+        boost_regex
+)

@@ -4,6 +4,7 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include "datatypes/List.h"
 #include "expression/RelationalExpression.h"
 
 namespace nebula {
@@ -13,17 +14,30 @@ Value RelationalExpression::eval() const {
 
     switch (type_) {
         case Type::EXP_REL_EQ:
-            return lhs_ == rhs_;
+            return lhs == rhs;
         case Type::EXP_REL_NE:
-            return lhs_ != rhs_;
+            return lhs != rhs;
         case Type::EXP_REL_LT:
-            return lhs_ < rhs_;
+            return lhs < rhs;
         case Type::EXP_REL_LE:
-            return lhs_ <= rhs_;
+            return lhs <= rhs;
         case Type::EXP_REL_GT:
-            return lhs_ > rhs_;
+            return lhs > rhs;
         case Type::EXP_REL_GE:
-            return lhs_ >= rhs_;
+            return lhs >= rhs;
+        case Type::EXP_REL_IN: {
+            if (rhs.type() != Value::Type::LIST) {
+                return Value(NullType::NaN);
+            }
+            auto& list = rhs.getList().values;
+            auto found = std::find(list.begin(), list.end(), lhs);
+            if (found == list.end()) {
+                return false;
+            } else {
+                return true;
+            }
+            break;
+        }
         default:
             break;
     }

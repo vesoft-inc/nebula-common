@@ -6,15 +6,24 @@
 
 
 #include <gtest/gtest.h>
+#include "datatypes/List.h"
+#include "expression/test/ExpressionContextMock.h"
 #include "expression/ArithmeticExpression.h"
 #include "expression/ConstantExpression.h"
+#include "expression/SymbolPropertyExpression.h"
+#include "expression/RelationalExpression.h"
 
 namespace nebula {
 
 class ExpressionTest : public ::testing::Test {
 public:
-    void SetUp() override {}
+    void SetUp() override {
+        expCtxt_ = std::make_unique<ExpressionContextMock>();
+    }
     void TearDown() override {}
+
+protected:
+    std::unique_ptr<ExpressionContext>  expCtxt_;
 };
 
 TEST_F(ExpressionTest, Constant) {
@@ -66,4 +75,29 @@ TEST_F(ExpressionTest, Arithmetics) {
         EXPECT_EQ(add.eval(), 6);
     }
 }
+
+TEST_F(ExpressionTest, RelationIN) {
+    {
+        RelationalExpression expr(
+                Expression::Type::EXP_REL_IN,
+                new ConstantExpression(1),
+                new ConstantExpression(Value(List(std::vector<Value>{1, 2, 3}))));
+        expr.setExpCtxt(expCtxt_.get());
+        auto eval = expr.eval();
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Type::EXP_REL_IN,
+                new ConstantExpression(5),
+                new ConstantExpression(Value(List(std::vector<Value>{1, 2, 3}))));
+        expr.setExpCtxt(expCtxt_.get());
+        auto eval = expr.eval();
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+}
+
+// TODO(cpw): more test cases.
 }  // namespace nebula

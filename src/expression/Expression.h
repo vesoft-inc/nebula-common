@@ -34,6 +34,7 @@ public:
         EXP_REL_LE,
         EXP_REL_GT,
         EXP_REL_GE,
+        EXP_REL_IN,
 
         EXP_LOGICAL_AND,
         EXP_LOGICAL_OR,

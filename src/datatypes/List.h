@@ -18,6 +18,9 @@ struct List {
     List() = default;
     List(const List&) = default;
     List(List&&) = default;
+    explicit List(std::vector<Value>&& vals) {
+        values = std::move(vals);
+    }
 
     void clear() {
         values.clear();
