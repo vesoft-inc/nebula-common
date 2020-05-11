@@ -5,31 +5,45 @@
  */
 
 #include "common/expression/RelationalExpression.h"
+#include "common/datatypes/List.h"
 
 namespace nebula {
 const Value& RelationalExpression::eval() {
-    auto lhs = lhs_->eval();
-    auto rhs = rhs_->eval();
+    auto& lhs = lhs_->eval();
+    auto& rhs = rhs_->eval();
 
     switch (type_) {
         case Type::EXP_REL_EQ:
-            result_ = lhs_ == rhs_;
+            result_ = lhs == rhs;
             break;
         case Type::EXP_REL_NE:
-            result_ = lhs_ != rhs_;
+            result_ = lhs != rhs;
             break;
         case Type::EXP_REL_LT:
-            result_ = lhs_ < rhs_;
+            result_ = lhs < rhs;
             break;
         case Type::EXP_REL_LE:
-            result_ = lhs_ <= rhs_;
+            result_ = lhs <= rhs;
             break;
         case Type::EXP_REL_GT:
-            result_ = lhs_ > rhs_;
+            result_ = lhs > rhs;
             break;
         case Type::EXP_REL_GE:
-            result_ = lhs_ >= rhs_;
+            result_ = lhs >= rhs;
             break;
+        case Type::EXP_REL_IN: {
+            if (rhs.type() != Value::Type::LIST) {
+                result_ = Value(NullType::NaN);
+            }
+            auto& list = rhs.getList().values;
+            auto found = std::find(list.begin(), list.end(), lhs);
+            if (found == list.end()) {
+                result_ = false;
+            } else {
+                result_ = true;
+            }
+            break;
+        }
         default:
             LOG(FATAL) << "Unknown type: " << type_;
     }

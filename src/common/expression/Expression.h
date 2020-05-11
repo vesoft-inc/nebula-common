@@ -15,7 +15,6 @@ namespace nebula {
 
 class Expression {
 public:
-<<<<<<< HEAD
     enum class Kind {
         kConstant,
 

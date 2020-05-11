@@ -54,7 +54,14 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Kind::kRelGE:
             os << "GreaterEqual";
             break;
+<<<<<<< HEAD
         case Expression::Kind::kLogicalAnd:
+=======
+        case Expression::Type::EXP_REL_IN:
+            os << "In";
+            break;
+        case Expression::Type::EXP_LOGICAL_AND:
+>>>>>>> Add benchmark for expression.
             os << "LogicalAnd";
             break;
         case Expression::Kind::kLogicalOr:
