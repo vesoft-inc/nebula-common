@@ -27,11 +27,11 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.body_ = [] (const auto &args) {
             auto& val = args[0];
-            if (UNLIKELY(val.type() != Value::Type::DATASET)) {
+            if (UNLIKELY(val->type() != Value::Type::DATASET)) {
                 return Value(NullType::BAD_TYPE);
             }
 
-            auto& rows = val.getDataSet().rows;
+            auto& rows = val->getDataSet().rows;
             List list;
             list.values.reserve(rows.size());
             for (auto& row : rows) {

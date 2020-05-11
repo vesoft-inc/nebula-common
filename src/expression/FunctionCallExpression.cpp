@@ -8,6 +8,13 @@
 
 namespace nebula {
 const Value& FunctionCallExpression::eval() {
+    std::vector<const Value*> args;
+    args.reserve(args_.size());
+    for (auto& arg : args_) {
+        args.emplace_back(&arg->eval());
+    }
+
+    result_ = func_(args);
     return result_;
 }
 }  // namespace nebula

@@ -1,0 +1,13 @@
+nebula_add_test(
+    NAME
+        function_test
+    SOURCES
+        FunctionTest.cpp
+    OBJECTS
+        $<TARGET_OBJECTS:datatypes_obj>
+        $<TARGET_OBJECTS:function_obj>
+        $<TARGET_OBJECTS:base_obj>
+    LIBRARIES
+        gtest
+        gtest_main
+)

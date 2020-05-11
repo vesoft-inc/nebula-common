@@ -8,6 +8,7 @@
 #define EXPRESSION_FUNCTIONCALLEXPRESSION_H_
 
 #include "expression/Expression.h"
+#include "function/FunctionManager.h"
 
 namespace nebula {
 class ArgumentList final {
@@ -40,6 +41,10 @@ public:
         }
     }
 
+    void setFunc(FunctionManager::Function func) {
+        func_ = func;
+    }
+
     std::string encode() const override {
         // TODO
         return "";
@@ -61,6 +66,7 @@ protected:
 private:
     std::unique_ptr<std::string>                name_;
     std::vector<std::unique_ptr<Expression>>    args_;
+    FunctionManager::Function                   func_;
     Value                                       result_;
 };
 }  // namespace nebula

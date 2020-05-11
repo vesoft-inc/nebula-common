@@ -24,7 +24,7 @@ namespace nebula {
 
 class FunctionManager final {
 public:
-    using Function = std::function<Value(const std::vector<Value>&)>;
+    using Function = std::function<Value(const std::vector<const Value*>&)>;
 
     /**
      * To obtain a function named `func', with the actual arity.
