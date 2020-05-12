@@ -25,8 +25,12 @@ class ExpressionContext {
 public:
     virtual ~ExpressionContext() = default;
 
-    // Get the value for the given variable name, such as $a, $b
+    // Get the latest version value for the given variable name, such as $a, $b
     virtual const Value& getVar(const std::string& var) const = 0;
+
+    // Get the given version value for the given variable name, such as $a, $b
+    virtual const Value& getVersionedVar(const std::string& var,
+                                         size_t version) const = 0;
 
     // Get the specified property from a variable, such as $a.prop_name
     virtual const Value& getVarProp(const std::string& var,

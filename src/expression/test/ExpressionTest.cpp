@@ -240,6 +240,16 @@ TEST_F(ExpressionTest, VersionedVar) {
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 2);
     }
+    {
+        // versioned_var{cnt}
+        VersionedVariableExpression expr(
+                new std::string("versioned_var"),
+                nullptr);
+        expr.setExpCtxt(expCtxt_.get());
+        auto eval = Expression::eval(&expr);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 8);
+    }
 }
 // TODO(cpw): more test cases.
 }  // namespace nebula

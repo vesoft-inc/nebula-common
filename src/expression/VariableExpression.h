@@ -88,6 +88,7 @@ protected:
 
 private:
     std::unique_ptr<std::string>                 var_;
+    // version_ could be given with a null, which means the latest.
     std::unique_ptr<Expression>                  version_;
     Value                                        null_{NullType::BAD_TYPE};
 };

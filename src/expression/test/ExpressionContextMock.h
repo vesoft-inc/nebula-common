@@ -17,7 +17,26 @@ public:
         if (found == vals_.end()) {
             return NULL_VALUE;
         } else {
+            if (var == "versioned_var") {
+                return found->second.getList().values.back();
+            }
             return found->second;
+        }
+    }
+
+    const Value& getVersionedVar(const std::string& var,
+                                 size_t version) const override {
+        auto found = vals_.find(var);
+        if (found == vals_.end()) {
+            return NULL_VALUE;
+        } else {
+            if (found->second.type() != Value::Type::LIST) {
+                return NULL_VALUE;
+            }
+            if (found->second.getList().size() <= version) {
+                return NULL_VALUE;
+            }
+            return found->second.getList()[version];
         }
     }
 

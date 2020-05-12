@@ -13,20 +13,12 @@ const Value& VariableExpression::eval() {
 }
 
 const Value& VersionedVariableExpression::eval() {
-    auto& val = expCtxt_->getVar(*var_);
-    if (UNLIKELY(val.type() != Value::Type::LIST)) {
-        return null_;
+    if (version_ != nullptr) {
+        auto version = version_->eval();
+        auto ver = version.getInt();
+        return expCtxt_->getVersionedVar(*var_, ver);
+    } else {
+        return expCtxt_->getVar(*var_);
     }
-
-    auto version = version_->eval();
-    if (UNLIKELY(version.type() != Value::Type::INT)) {
-        return null_;
-    }
-
-    auto ver = version.getInt();
-    if (UNLIKELY(static_cast<size_t>(ver) >= val.getList().size())) {
-        return null_;
-    }
-    return val.getList()[ver];
 }
 }  // namespace nebula
