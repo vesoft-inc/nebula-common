@@ -32,6 +32,14 @@ struct Row {
         return *this;
     }
 
+    void emplace_back(Value&& v) {
+        columns.emplace_back(std::move(v));
+    }
+
+    void emplace_back(Value& v) {
+        columns.emplace_back(v);
+    }
+
     void clear() {
         columns.clear();
     }
@@ -46,6 +54,7 @@ struct DataSet {
     std::vector<Row> rows;
 
     DataSet() = default;
+    explicit DataSet(std::vector<std::string>&& colNames_) : colNames(std::move(colNames_)) {}
     DataSet(const DataSet& ds) noexcept {
         colNames = ds.colNames;
         rows = ds.rows;
@@ -65,11 +74,12 @@ struct DataSet {
         return *this;
     }
 
-    // merge the DataSet to one
-    bool merge(DataSet&& o) {
+    // append the DataSet to one
+    bool append(DataSet&& o) {
         if (colNames != o.colNames) {
             return false;
         }
+        rows.reserve(o.rows.size());
         rows.insert(rows.end(),
                     std::make_move_iterator(o.rows.begin()),
                     std::make_move_iterator(o.rows.end()));
