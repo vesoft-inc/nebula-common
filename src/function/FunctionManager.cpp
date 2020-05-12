@@ -20,28 +20,6 @@ FunctionManager& FunctionManager::instance() {
 
 
 FunctionManager::FunctionManager() {
-    {
-        // amalgamating multiple records or values into a single list.
-        auto &attr = functions_["collect"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [] (const auto &args) {
-            auto& val = args[0];
-            if (UNLIKELY(val->type() != Value::Type::DATASET)) {
-                return Value(NullType::BAD_TYPE);
-            }
-
-            auto& rows = val->getDataSet().rows;
-            List list;
-            list.values.reserve(rows.size());
-            for (auto& row : rows) {
-                auto cols = row.columns;
-                List tmp(std::move(cols));
-                list.values.emplace_back(std::move(tmp));
-            }
-            return Value(std::move(list));
-        };
-    }
 }
 
 
