@@ -15,7 +15,7 @@ public:
     const Value& getVar(const std::string& var) const override {
         auto found = vals_.find(var);
         if (found == vals_.end()) {
-            return null_;
+            return NULL_VALUE;
         } else {
             return found->second;
         }
@@ -26,7 +26,7 @@ public:
         UNUSED(var);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
-            return null_;
+            return NULL_VALUE;
         } else {
             return found->second;
         }
@@ -37,7 +37,7 @@ public:
         UNUSED(edgeType);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
-            return null_;
+            return NULL_VALUE;
         } else {
             return found->second;
         }
@@ -48,7 +48,7 @@ public:
         UNUSED(tag);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
-            return null_;
+            return NULL_VALUE;
         } else {
             return found->second;
         }
@@ -59,7 +59,7 @@ public:
         UNUSED(tag);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
-            return null_;
+            return NULL_VALUE;
         } else {
             return found->second;
         }
@@ -68,7 +68,7 @@ public:
     const Value& getInputProp(const std::string& prop) const override {
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
-            return null_;
+            return NULL_VALUE;
         } else {
             return found->second;
         }
@@ -81,7 +81,6 @@ public:
 
 private:
     static std::unordered_map<std::string, Value>      vals_;
-    Value                                              null_{NullType::NaN};
 };
 
 std::unordered_map<std::string, Value>

@@ -360,6 +360,8 @@ void swap(Value& a, Value& b);
 
 std::ostream& operator<<(std::ostream& os, const Value::Type& type);
 
+static const Value NULL_VALUE(NullType::__NULL__);
+static const Value EMPTY;
 
 // Arithmetic operations
 Value operator+(const Value& lhs, const Value& rhs);
