@@ -19,6 +19,7 @@ struct HostAddr {
     Port        port;
 
     HostAddr() : host(), port(0) {}
+    HostAddr(int h, int p) = delete;
     HostAddr(std::string&& h, Port p) : host(std::move(h)), port(p) {}
     HostAddr(const std::string& h, Port p) : host(h), port(p) {}
 
@@ -35,6 +36,10 @@ struct HostAddr {
 };
 
 std::ostream& operator<<(std::ostream &, const HostAddr&);
+
+std::string serializeHostAddr(const HostAddr& host);
+
+HostAddr deserializeHostAddr(folly::StringPiece str);
 
 }  // namespace nebula
 
