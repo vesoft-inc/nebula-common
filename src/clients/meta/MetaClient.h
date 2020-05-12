@@ -30,11 +30,11 @@ using SpaceIdName = std::pair<GraphSpaceID, std::string>;
 using HostStatus = std::pair<HostAddr, std::string>;
 
 // struct for in cache
-// the different version of tag schema, from newest to oldest
+// the different version of tag schema, from oldest to newest
 using TagSchemas = std::unordered_map<TagID,
                                       std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
-// the different version of edge schema, from newest to oldest
+// the different version of edge schema, from oldest to newest
 using EdgeSchemas = std::unordered_map<EdgeType,
                                        std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 

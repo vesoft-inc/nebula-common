@@ -287,6 +287,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     auto edgeItemVec = edgeRet.value();
     TagSchemas tagSchemas;
     EdgeSchemas edgeSchemas;
+    TagID lastTagId = -1;
     for (auto& tagIt : tagItemVec) {
         // meta will return the different version from new to old
         auto schema = std::make_shared<NebulaSchemaProvider>(tagIt.version);
@@ -302,7 +303,12 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
         }
         // handle schema property
         schema->setProp(tagIt.schema.get_schema_prop());
-        tagSchemas[tagIt.tag_id].emplace_back(schema);
+        if (tagIt.tag_id != lastTagId) {
+            // init schema vector, since schema version is zero-based, need to add one
+            tagSchemas[tagIt.tag_id].resize(schema->getVersion() + 1);
+            lastTagId = tagIt.tag_id;
+        }
+        tagSchemas[tagIt.tag_id][schema->getVersion()] = std::move(schema);
         tagNameIdMap.emplace(std::make_pair(spaceId, tagIt.tag_name), tagIt.tag_id);
         tagIdNameMap.emplace(std::make_pair(spaceId, tagIt.tag_id), tagIt.tag_name);
         // get the latest tag version
@@ -321,6 +327,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     }
 
     std::unordered_set<std::pair<GraphSpaceID, EdgeType>> edges;
+    EdgeType lastEdgeType = -1;
     for (auto& edgeIt : edgeItemVec) {
         // meta will return the different version from new to old
         auto schema = std::make_shared<NebulaSchemaProvider>(edgeIt.version);
@@ -336,7 +343,12 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
         }
         // handle shcem property
         schema->setProp(edgeIt.schema.get_schema_prop());
-        edgeSchemas[edgeIt.edge_type].emplace_back(schema);
+        if (edgeIt.edge_type != lastEdgeType) {
+            // init schema vector, since schema version is zero-based, need to add one
+            edgeSchemas[edgeIt.edge_type].resize(schema->getVersion() + 1);
+            lastTagId = edgeIt.edge_type;
+        }
+        edgeSchemas[edgeIt.edge_type][schema->getVersion()] = std::move(schema);
         edgeNameTypeMap.emplace(std::make_pair(spaceId, edgeIt.edge_name), edgeIt.edge_type);
         edgeTypeNameMap.emplace(std::make_pair(spaceId, edgeIt.edge_type), edgeIt.edge_name);
         auto it = allEdgeMap.find(spaceId);
@@ -1673,8 +1685,7 @@ MetaClient::getTagSchemaFromCache(GraphSpaceID spaceId, TagID tagID, SchemaVer v
             tagIt->second.size() <= static_cast<size_t>(ver)) {
             return std::shared_ptr<const NebulaSchemaProvider>();
         } else {
-            // the schema is stored from newest to oldest, so need to get in reverse order
-            return tagIt->second[tagIt->second.size() - 1 - ver];
+            return tagIt->second[ver];
         }
     }
 }
@@ -1698,8 +1709,7 @@ MetaClient::getEdgeSchemaFromCache(GraphSpaceID spaceId, EdgeType edgeType, Sche
                        << ver << " not found!";
             return std::shared_ptr<const NebulaSchemaProvider>();
         } else {
-            // the schema is stored from newest to oldest, so need to get in reverse order
-            return edgeIt->second[edgeIt->second.size() - 1 - ver];
+            return edgeIt->second[ver];
         }
     }
 }
