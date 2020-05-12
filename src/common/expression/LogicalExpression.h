@@ -23,6 +23,8 @@ public:
         rhs_->setExpCtxt(ctxt);
     }
 
+    const Value& eval() override;
+
     std::string encode() const override {
         // TODO
         return "";
@@ -37,9 +39,6 @@ public:
         // TODO
         return "";
     }
-
-protected:
-    const Value& eval() override;
 
 private:
 <<<<<<< HEAD

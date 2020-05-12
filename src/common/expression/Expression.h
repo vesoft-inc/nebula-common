@@ -73,6 +73,12 @@ public:
         return expr->eval();
     }
 
+    virtual const Value& eval() = 0;
+
+    Type type() const {
+        return type_;
+    }
+
     virtual void setExpCtxt(ExpressionContext* ctxt) = 0;
 
     virtual std::string toString() const = 0;

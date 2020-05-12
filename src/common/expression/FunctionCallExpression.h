@@ -39,6 +39,8 @@ public:
         }
     }
 
+    const Value& eval() override;
+
     std::string encode() const override {
         // TODO
         return "";
@@ -53,9 +55,6 @@ public:
         // TODO
         return "";
     }
-
-protected:
-    const Value& eval() override;
 
 private:
     std::unique_ptr<std::string>                name_;

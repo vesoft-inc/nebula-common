@@ -24,6 +24,8 @@ public:
         rhs_->setExpCtxt(ctxt);
     }
 
+    const Value& eval() override;
+
     std::string encode() const override;
 
     std::string decode() const override {
@@ -35,9 +37,6 @@ public:
         // TODO
         return "";
     }
-
-protected:
-    const Value& eval() override;
 
 private:
     std::unique_ptr<Expression> lhs_;

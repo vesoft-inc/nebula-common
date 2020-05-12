@@ -37,6 +37,10 @@ public:
         prop_.reset(prop);
     }
 
+    const Value& eval() override {
+        LOG(FATAL) << "Not supported for calling SymbolPropertyExpression::eval().";
+    }
+
     void setExpCtxt(ExpressionContext* ctxt) override {
         expCtxt_ = ctxt;
     }
@@ -57,11 +61,6 @@ public:
     }
 
 protected:
-    const Value& eval() override {
-        LOG(FATAL) << "Not supported for calling SymbolPropertyExpression::eval().";
-    }
-
-protected:
     std::unique_ptr<std::string>    ref_;
     std::unique_ptr<std::string>    sym_;
     std::unique_ptr<std::string>    prop_;
@@ -76,6 +75,8 @@ public:
                                    edge,
                                    prop) {}
 
+    const Value& eval() override;
+
     std::string encode() const override {
         // TODO
         return "";
@@ -90,9 +91,6 @@ public:
         // TODO
         return "";
     }
-
-protected:
-    const Value& eval() override;
 };
 
 // $-.any_prop_name
@@ -104,6 +102,8 @@ public:
                                    new std::string(""),
                                    prop) {}
 
+    const Value& eval() override;
+
     std::string encode() const override {
         // TODO
         return "";
@@ -118,9 +118,6 @@ public:
         // TODO
         return "";
     }
-
-protected:
-    const Value& eval() override;
 };
 
 // $VarName.any_prop_name
@@ -133,6 +130,8 @@ public:
                                    var,
                                    prop) {}
 
+    const Value& eval() override;
+
     std::string encode() const override {
         // TODO
         return "";
@@ -147,9 +146,6 @@ public:
         // TODO
         return "";
     }
-
-protected:
-    const Value& eval() override;
 };
 
 // $^.TagName.any_prop_name
@@ -162,6 +158,8 @@ public:
                                    tag,
                                    prop) {}
 
+    const Value& eval() override;
+
     std::string encode() const override {
         // TODO
         return "";
@@ -176,9 +174,6 @@ public:
         // TODO
         return "";
     }
-
-protected:
-    const Value& eval() override;
 };
 
 // $$.TagName.any_prop_name
@@ -191,6 +186,8 @@ public:
                                    tag,
                                    prop) {}
 
+    const Value& eval() override;
+
     std::string encode() const override {
         // TODO
         return "";
@@ -205,9 +202,6 @@ public:
         // TODO
         return "";
     }
-
-protected:
-    const Value& eval() override;
 };
 
 // EdgeName._src
@@ -219,6 +213,8 @@ public:
                                    edge,
                                    new std::string(_SRC)) {}
 
+    const Value& eval() override;
+
     std::string encode() const override {
         // TODO
         return "";
@@ -233,9 +229,6 @@ public:
         // TODO
         return "";
     }
-
-protected:
-    const Value& eval() override;
 };
 
 // EdgeName._type
@@ -247,6 +240,8 @@ public:
                                    edge,
                                    new std::string(_TYPE)) {}
 
+    const Value& eval() override;
+
     std::string encode() const override {
         // TODO
         return "";
@@ -261,9 +256,6 @@ public:
         // TODO
         return "";
     }
-
-protected:
-    const Value& eval() override;
 };
 
 // EdgeName._rank
@@ -275,6 +267,8 @@ public:
                                    edge,
                                    new std::string(_RANK)) {}
 
+    const Value& eval() override;
+
     std::string encode() const override {
         // TODO
         return "";
@@ -289,9 +283,6 @@ public:
         // TODO
         return "";
     }
-
-protected:
-    const Value& eval() override;
 };
 
 // EdgeName._dst
@@ -303,6 +294,8 @@ public:
                                    edge,
                                    new std::string(_DST)) {}
 
+    const Value& eval() override;
+
     std::string encode() const override {
         // TODO
         return "";
@@ -317,9 +310,6 @@ public:
         // TODO
         return "";
     }
-
-protected:
-    const Value& eval() override;
 };
 }   // namespace nebula
 #endif
