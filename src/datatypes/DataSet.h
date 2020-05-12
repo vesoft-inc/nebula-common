@@ -41,7 +41,6 @@ struct Row {
     }
 };
 
-
 struct DataSet {
     std::vector<std::string> colNames;
     std::vector<Row> rows;
@@ -66,6 +65,17 @@ struct DataSet {
         return *this;
     }
 
+    // merge the DataSet to one
+    bool merge(DataSet&& o) {
+        if (colNames != o.colNames) {
+            return false;
+        }
+        rows.insert(rows.end(),
+                    std::make_move_iterator(o.rows.begin()),
+                    std::make_move_iterator(o.rows.end()));
+        return true;
+    }
+
     void clear() {
         colNames.clear();
         rows.clear();
@@ -76,6 +86,5 @@ struct DataSet {
     }
 };
 
-}  // namespace nebula
-#endif  // DATATYPES_DATASET_H_
-
+}   // namespace nebula
+#endif   // DATATYPES_DATASET_H_
