@@ -29,7 +29,10 @@ public:
     FunctionCallExpression(std::string* name, ArgumentList* args)
         : Expression(Kind::kFunctionCall) {
         name_.reset(name);
-        args_ = std::move(args)->args();
+        if (args != nullptr) {
+            args_ = std::move(args)->args();
+            delete args;
+        }
     }
 
     void setExpCtxt(ExpressionContext* ctxt) override {
