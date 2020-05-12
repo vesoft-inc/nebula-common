@@ -1903,9 +1903,7 @@ bool operator<(const Value& lhs, const Value& rhs) {
         case Value::Type::DATE: {
             return lhs.getDate() < rhs.getDate();
         }
-        case Value::Type::DATETIME: {
-            return lhs.getDateTime() < rhs.getDateTime();
-        }
+        case Value::Type::DATETIME:
         case Value::Type::VERTEX:
         case Value::Type::EDGE:
         case Value::Type::PATH:

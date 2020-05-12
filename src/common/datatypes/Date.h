@@ -103,34 +103,6 @@ struct DateTime {
                timezone == rhs.timezone;
     }
 
-    bool operator<(const DateTime& rhs) const {
-        if (!(year == rhs.year)) {
-            return year < rhs.year;
-        }
-        if (!(month == rhs.month)) {
-            return month < rhs.month;
-        }
-        if (!(day == rhs.day)) {
-            return day < rhs.day;
-        }
-        if (!(hour == rhs.hour)) {
-            return hour < rhs.hour;
-        }
-        if (!(minute == rhs.minute)) {
-            return minute < rhs.minute;
-        }
-        if (!(sec == rhs.sec)) {
-            return sec < rhs.sec;
-        }
-        if (!(microsec == rhs.microsec)) {
-            return microsec < rhs.microsec;
-        }
-        if (!(timezone == rhs.timezone)) {
-            return timezone < rhs.timezone;
-        }
-        return false;
-    }
-
     std::string toString() const;
 };
 
