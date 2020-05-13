@@ -231,24 +231,36 @@ TEST_F(ExpressionTest, VersionedVar) {
         EXPECT_EQ(eval, 1);
     }
     {
-        // versioned_var{cnt}
+        // versioned_var{0}
         VersionedVariableExpression expr(
                 new std::string("versioned_var"),
-                new VariableExpression(new std::string("cnt")));
+                new ConstantExpression(-1));
         expr.setExpCtxt(expCtxt_.get());
         auto eval = Expression::eval(&expr);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 2);
     }
     {
-        // versioned_var{latest}
+        // versioned_var{0}
         VersionedVariableExpression expr(
                 new std::string("versioned_var"),
-                nullptr);
+                new ConstantExpression(1));
         expr.setExpCtxt(expCtxt_.get());
         auto eval = Expression::eval(&expr);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 8);
+    }
+    {
+        // versioned_var{-cnt}
+        VersionedVariableExpression expr(
+                new std::string("versioned_var"),
+                new UnaryExpression(
+                    Expression::Type::EXP_UNARY_NEGATE,
+                    new VariableExpression(new std::string("cnt"))));
+        expr.setExpCtxt(expCtxt_.get());
+        auto eval = Expression::eval(&expr);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 2);
     }
 }
 // TODO(cpw): more test cases.

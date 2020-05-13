@@ -25,7 +25,7 @@ public:
     }
 
     const Value& getVersionedVar(const std::string& var,
-                                 size_t version) const override {
+                                 int64_t version) const override {
         auto found = vals_.find(var);
         if (found == vals_.end()) {
             return kNullValue;
@@ -33,10 +33,15 @@ public:
             if (found->second.type() != Value::Type::LIST) {
                 return kNullValue;
             }
-            if (found->second.getList().size() <= version) {
+            auto size = found->second.getList().size();
+            if (size <= static_cast<size_t>(std::abs(version))) {
                 return kNullValue;
             }
-            return found->second.getList()[version];
+            if (version <= 0) {
+                return found->second.getList()[std::abs(version)];
+            } else {
+                return found->second.getList()[size - version];
+            }
         }
     }
 

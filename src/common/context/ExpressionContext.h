@@ -30,7 +30,7 @@ public:
 
     // Get the given version value for the given variable name, such as $a, $b
     virtual const Value& getVersionedVar(const std::string& var,
-                                         size_t version) const = 0;
+                                         int64_t version) const = 0;
 
     // Get the specified property from a variable, such as $a.prop_name
     virtual const Value& getVarProp(const std::string& var,
