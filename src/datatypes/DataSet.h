@@ -35,7 +35,7 @@ struct Row {
         return *this;
     }
 
-    template <typename T, typename = std::enable_if_t<std::is_same<T, Value>::value, T>>
+    template <typename T, typename = std::enable_if_t<std::is_convertible<T, Value>::value, T>>
     void emplace_back(T&& v) {
         columns.emplace_back(std::forward<T>(v));
     }
@@ -78,7 +78,7 @@ struct DataSet {
         return *this;
     }
 
-    template <typename T, typename = std::enable_if_t<std::is_same<T, Row>::value, T>>
+    template <typename T, typename = std::enable_if_t<std::is_convertible<T, Row>::value, T>>
     bool emplace_back(T&& row) {
         if (row.size() != colNames.size()) {
             return false;
