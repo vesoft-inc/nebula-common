@@ -71,11 +71,14 @@ public:
 
     virtual std::string decode() const = 0;
 
+    bool isAliasPropertyExpression() const {
+        return type_ == Type::EXP_ALIAS_PROPERTY;
+    }
+
 protected:
     Type type_;
 };
 
-
 std::ostream& operator<<(std::ostream& os, Expression::Type type);
-}  // namespace nebula
-#endif  // EXPRESSION_EXPRESSION_H_
+}   // namespace nebula
+#endif   // EXPRESSION_EXPRESSION_H_

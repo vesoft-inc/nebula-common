@@ -11,13 +11,13 @@
 
 namespace nebula {
 
-constexpr char const kInputRef[]  = "$-";
-constexpr char const kVarRef[]    = "$";
-constexpr char const kSrcRef[]    = "$^";
-constexpr char const kDstRef[]    = "$$";
+constexpr char const kInputRef[] = "$-";
+constexpr char const kVarRef[] = "$";
+constexpr char const kSrcRef[] = "$^";
+constexpr char const kDstRef[] = "$$";
 
 // Alias.any_prop_name, i.e. EdgeName.any_prop_name
-class AliasPropertyExpression: public Expression {
+class AliasPropertyExpression : public Expression {
 public:
     AliasPropertyExpression(Type type = Type::EXP_ALIAS_PROPERTY,
                             std::string* ref = nullptr,
@@ -46,10 +46,18 @@ public:
         return "";
     }
 
+    std::string* alias() const {
+        return alias_.get();
+    }
+
+    std::string* prop() const {
+        return prop_.get();
+    }
+
 protected:
-    std::unique_ptr<std::string>    ref_;
-    std::unique_ptr<std::string>    alias_;
-    std::unique_ptr<std::string>    prop_;
+    std::unique_ptr<std::string> ref_;
+    std::unique_ptr<std::string> alias_;
+    std::unique_ptr<std::string> prop_;
 };
 
 // $-.any_prop_name
@@ -82,12 +90,8 @@ public:
 // $VarName.any_prop_name
 class VariablePropertyExpression final : public AliasPropertyExpression {
 public:
-    VariablePropertyExpression(std::string* var,
-                               std::string* prop)
-        : AliasPropertyExpression(Type::EXP_VAR_PROPERTY,
-                                  new std::string(kVarRef),
-                                  var,
-                                  prop) {}
+    VariablePropertyExpression(std::string* var, std::string* prop)
+        : AliasPropertyExpression(Type::EXP_VAR_PROPERTY, new std::string(kVarRef), var, prop) {}
 
     Value eval() const override;
 
@@ -110,12 +114,8 @@ public:
 // $^.TagName.any_prop_name
 class SourcePropertyExpression final : public AliasPropertyExpression {
 public:
-    SourcePropertyExpression(std::string* tag,
-                             std::string* prop)
-        : AliasPropertyExpression(Type::EXP_SRC_PROPERTY,
-                                  new std::string(kSrcRef),
-                                  tag,
-                                  prop) {}
+    SourcePropertyExpression(std::string* tag, std::string* prop)
+        : AliasPropertyExpression(Type::EXP_SRC_PROPERTY, new std::string(kSrcRef), tag, prop) {}
 
     Value eval() const override;
 
@@ -138,12 +138,8 @@ public:
 // $$.TagName.any_prop_name
 class DestPropertyExpression final : public AliasPropertyExpression {
 public:
-    DestPropertyExpression(std::string* tag,
-                           std::string* prop)
-        : AliasPropertyExpression(Type::EXP_DST_PROPERTY,
-                                  new std::string(kDstRef),
-                                  tag,
-                                  prop) {}
+    DestPropertyExpression(std::string* tag, std::string* prop)
+        : AliasPropertyExpression(Type::EXP_DST_PROPERTY, new std::string(kDstRef), tag, prop) {}
 
     Value eval() const override;
 
@@ -270,5 +266,5 @@ public:
         return "";
     }
 };
-}  // namespace nebula
+}   // namespace nebula
 #endif
