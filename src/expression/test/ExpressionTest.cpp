@@ -241,7 +241,7 @@ TEST_F(ExpressionTest, VersionedVar) {
         EXPECT_EQ(eval, 2);
     }
     {
-        // versioned_var{cnt}
+        // versioned_var{latest}
         VersionedVariableExpression expr(
                 new std::string("versioned_var"),
                 nullptr);

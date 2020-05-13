@@ -15,7 +15,7 @@ public:
     const Value& getVar(const std::string& var) const override {
         auto found = vals_.find(var);
         if (found == vals_.end()) {
-            return NULL_VALUE;
+            return kNullValue;
         } else {
             if (var == "versioned_var") {
                 return found->second.getList().values.back();
@@ -28,13 +28,13 @@ public:
                                  size_t version) const override {
         auto found = vals_.find(var);
         if (found == vals_.end()) {
-            return NULL_VALUE;
+            return kNullValue;
         } else {
             if (found->second.type() != Value::Type::LIST) {
-                return NULL_VALUE;
+                return kNullValue;
             }
             if (found->second.getList().size() <= version) {
-                return NULL_VALUE;
+                return kNullValue;
             }
             return found->second.getList()[version];
         }
@@ -45,7 +45,7 @@ public:
         UNUSED(var);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
-            return NULL_VALUE;
+            return kNullValue;
         } else {
             return found->second;
         }
@@ -56,7 +56,7 @@ public:
         UNUSED(edgeType);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
-            return NULL_VALUE;
+            return kNullValue;
         } else {
             return found->second;
         }
@@ -67,7 +67,7 @@ public:
         UNUSED(tag);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
-            return NULL_VALUE;
+            return kNullValue;
         } else {
             return found->second;
         }
@@ -78,7 +78,7 @@ public:
         UNUSED(tag);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
-            return NULL_VALUE;
+            return kNullValue;
         } else {
             return found->second;
         }
@@ -87,7 +87,7 @@ public:
     const Value& getInputProp(const std::string& prop) const override {
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
-            return NULL_VALUE;
+            return kNullValue;
         } else {
             return found->second;
         }
