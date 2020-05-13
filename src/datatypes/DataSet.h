@@ -16,6 +16,9 @@ struct Row {
     std::vector<Value> columns;
 
     Row() = default;
+    // reuse the verctor constructor
+    explicit Row(std::vector<Value>&& vals) : columns(std::move(vals)) {}
+    explicit Row(const std::vector<Value>& vals) : columns(vals) {}
     Row(const Row& r) noexcept {
         columns = r.columns;
     }
@@ -32,16 +35,17 @@ struct Row {
         return *this;
     }
 
-    void emplace_back(Value&& v) {
-        columns.emplace_back(std::move(v));
-    }
-
-    void emplace_back(Value& v) {
-        columns.emplace_back(v);
+    template <typename T, typename = std::enable_if_t<std::is_same<T, Value>::value, T>>
+    void emplace_back(T&& v) {
+        columns.emplace_back(std::forward<T>(v));
     }
 
     void clear() {
         columns.clear();
+    }
+
+    std::size_t size() const {
+        return columns.size();
     }
 
     bool operator==(const Row& rhs) const {
@@ -74,7 +78,16 @@ struct DataSet {
         return *this;
     }
 
-    // append the DataSet to one
+    template <typename T, typename = std::enable_if_t<std::is_same<T, Row>::value, T>>
+    bool emplace_back(T&& row) {
+        if (row.size() != colNames.size()) {
+            return false;
+        }
+        rows.emplace_back(std::forward<T>(row));
+        return true;
+    }
+
+    // append the DataSet to one with same header
     bool append(DataSet&& o) {
         if (colNames != o.colNames) {
             return false;
@@ -86,9 +99,35 @@ struct DataSet {
         return true;
     }
 
+    // merge two DataSet Horizontally with same row count
+    bool merge(DataSet&& o) {
+        if (rowSize() != o.rowSize()) {
+            return false;
+        }
+        colNames.reserve(o.colSize());
+        colNames.insert(colNames.end(),
+                        std::make_move_iterator(o.colNames.begin()),
+                        std::make_move_iterator(o.colNames.end()));
+        for (std::size_t i = 0; i < rowSize(); ++i) {
+            rows[i].columns.reserve(o.rows[i].size());
+            rows[i].columns.insert(rows[i].columns.begin(),
+                                   std::make_move_iterator(o.rows[i].columns.begin()),
+                                   std::make_move_iterator(o.rows[i].columns.end()));
+        }
+        return true;
+    }
+
     void clear() {
         colNames.clear();
         rows.clear();
+    }
+
+    std::size_t rowSize() const {
+        return rows.size();
+    }
+
+    std::size_t colSize() const {
+        return colNames.size();
     }
 
     bool operator==(const DataSet& rhs) const {
