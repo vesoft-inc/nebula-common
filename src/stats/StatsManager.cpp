@@ -12,6 +12,8 @@
 namespace nebula {
 namespace stats {
 
+DEFINE_bool(enable_monitor, true, "Enable collect the metrics");
+
 // static
 StatsManager& StatsManager::get() {
     static StatsManager sm;
@@ -32,6 +34,9 @@ void StatsManager::setReportInfo(HostAddr addr, int32_t interval) {
 
 // static
 int32_t StatsManager::registerStats(folly::StringPiece counterName) {
+    if (!FLAGS_enable_monitor) {
+        return kInvalidIndex;
+    }
     auto retName = parseMetricName(counterName);
     if (!retName.ok()) {
         return kInvalidIndex;
@@ -75,6 +80,9 @@ int32_t StatsManager::registerHisto(folly::StringPiece counterName,
                                     StatsManager::VT bucketSize,
                                     StatsManager::VT min,
                                     StatsManager::VT max) {
+    if (!FLAGS_enable_monitor) {
+        return kInvalidIndex;
+    }
     auto retName = parseMetricName(counterName);
     if (!retName.ok()) {
         return kInvalidIndex;
@@ -112,6 +120,9 @@ int32_t StatsManager::registerHisto(folly::StringPiece counterName,
 
 // static
 void StatsManager::addValue(int32_t index, VT value) {
+    if (!FLAGS_enable_monitor) {
+        return;
+    }
     using std::chrono::seconds;
     CHECK(validIndex(index));
 
@@ -133,6 +144,9 @@ void StatsManager::addValue(int32_t index, VT value) {
 
 // static
 StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName) {
+    if (!FLAGS_enable_monitor) {
+        return Status::NotSupported("Disabled");
+    }
     int32_t index = 0;
     {
         auto& sm = get();
@@ -161,6 +175,9 @@ StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName
 }
 
 /*static*/ StatusOr<StatsManager::VT> StatsManager::readValue(int32_t index, StatsMethod method) {
+    if (!FLAGS_enable_monitor) {
+        return Status::NotSupported("Disabled");
+    }
     using std::chrono::seconds;
     auto& sm = get();
 
@@ -191,6 +208,9 @@ StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName
 }
 
 /*static*/ StatusOr<StatsManager::VT> StatsManager::readValue(int32_t index, double pct) {
+    if (!FLAGS_enable_monitor) {
+        return Status::NotSupported("Disabled");
+    }
     using std::chrono::seconds;
     auto& sm = get();
     if (!histogramIndex(index)) {
@@ -210,6 +230,10 @@ StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName
 folly::dynamic StatsManager::readAllValue() {
     auto& sm = get();
     folly::dynamic vals = folly::dynamic::object;
+    if (!FLAGS_enable_monitor) {
+        vals["metrics"] = "Disabled";
+        return vals;
+    }
 
     folly::RWSpinLock::ReadHolder rh(sm.nameMapLock_);
     for (const auto& statsName : sm.nameMap_) {
