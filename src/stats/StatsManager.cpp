@@ -231,7 +231,6 @@ folly::dynamic StatsManager::readAllValue() {
     auto& sm = get();
     folly::dynamic vals = folly::dynamic::object;
     if (!FLAGS_enable_monitor) {
-        vals["metrics"] = "Disabled";
         return vals;
     }
 
