@@ -45,7 +45,7 @@ namespace std {
 template<>
 struct hash<nebula::HostAddr> {
     std::size_t operator()(const nebula::HostAddr& h) const noexcept {
-        int64_t code = folly::hash::fnv32_buf(&(h.host), h.host.size());
+        int64_t code = folly::hash::fnv32_buf(&(h.host.data()), h.host.size());
         code <<= 32;
         code |= folly::hash::fnv32_buf(&(h.port), sizeof(nebula::Port));
         return code;

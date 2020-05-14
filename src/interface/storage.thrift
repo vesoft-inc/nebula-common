@@ -304,7 +304,7 @@ struct GetPropResponse {
     //
     // Each column represents one peoperty. When all properties are returned, the
     //   column name is in the form of
-    //   "<tag_name>:<prop_name>" or "<edge_type_name>:<prop_name>"
+    //   "<tag_name>:<prop_alias>" or "<edge_type_name>:<prop_alias>"
     //
     // If the vertex or the edge does NOT have the given property, the value will
     //   be a NULL
