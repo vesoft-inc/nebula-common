@@ -119,43 +119,43 @@ struct Value {
     bool isNumeric() const {
         return type_ == Type::INT || type_ == Type::FLOAT;
     }
-    bool isBool() {
+    bool isBool() const {
         return type_ == Type::BOOL;
     }
-    bool isInt() {
+    bool isInt() const {
         return type_ == Type::INT;
     }
-    bool isFloat() {
+    bool isFloat() const {
         return type_ == Type::FLOAT;
     }
-    bool isStr() {
+    bool isStr() const {
         return type_ == Type::STRING;
     }
-    bool isDate() {
+    bool isDate() const {
         return type_ == Type::DATE;
     }
-    bool isDateTime() {
+    bool isDateTime() const {
         return type_ == Type::DATETIME;
     }
-    bool isVertex() {
+    bool isVertex() const {
         return type_ == Type::VERTEX;
     }
-    bool isEdge() {
+    bool isEdge() const {
         return type_ == Type::EDGE;
     }
-    bool isPath() {
+    bool isPath() const {
         return type_ == Type::PATH;
     }
-    bool isList() {
+    bool isList() const {
         return type_ == Type::LIST;
     }
-    bool isMap() {
+    bool isMap() const {
         return type_ == Type::MAP;
     }
-    bool isSet() {
+    bool isSet() const {
         return type_ == Type::SET;
     }
-    bool isDataSet() {
+    bool isDataSet() const {
         return type_ == Type::DATASET;
     }
 
