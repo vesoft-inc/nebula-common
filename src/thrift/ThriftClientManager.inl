@@ -35,13 +35,17 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
     auto channel = apache::thrift::ReconnectingRequestChannel::newChannel(
         *evb, [compatibility, &host, timeout] (folly::EventBase& eb) mutable {
             static thread_local int connectionCount = 0;
-            VLOG(2) << "Connecting to " << host.host << ":" << host.port
-                    << " for " << ++connectionCount << " times";
+            folly::SocketAddress socketAddr(host.host, host.port, true);
+
+            VLOG(2) << folly::sformat("Connecting to {0}({2}):{1} for {3} times",
+                                      host.host, host.port,
+                                      socketAddr.getAddressStr(),
+                                      ++connectionCount);
             std::shared_ptr<apache::thrift::async::TAsyncSocket> socket;
             eb.runImmediatelyOrRunInEventBaseThreadAndWait(
-                [&socket, &eb, &host]() {
+                [&socket, &eb, addr = socketAddr.getAddressStr(), &host]() {
                     socket = apache::thrift::async::TAsyncSocket::newSocket(
-                        &eb, host.host, host.port, FLAGS_conn_timeout_ms);
+                        &eb, addr, host.port, FLAGS_conn_timeout_ms);
                 });
             auto headerClientChannel = apache::thrift::HeaderClientChannel::newChannel(socket);
             if (timeout > 0) {
