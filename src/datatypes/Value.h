@@ -113,13 +113,50 @@ struct Value {
     bool empty() const {
         return type_ == Type::__EMPTY__;
     }
-
     bool isNull() const {
         return type_ == Type::NULLVALUE;
     }
-
     bool isNumeric() const {
         return type_ == Type::INT || type_ == Type::FLOAT;
+    }
+    bool isBool() {
+        return type_ == Type::BOOL;
+    }
+    bool isInt() {
+        return type_ == Type::INT;
+    }
+    bool isFloat() {
+        return type_ == Type::FLOAT;
+    }
+    bool isStr() {
+        return type_ == Type::STRING;
+    }
+    bool isDate() {
+        return type_ == Type::DATE;
+    }
+    bool isDateTime() {
+        return type_ == Type::DATETIME;
+    }
+    bool isVertex() {
+        return type_ == Type::VERTEX;
+    }
+    bool isEdge() {
+        return type_ == Type::EDGE;
+    }
+    bool isPath() {
+        return type_ == Type::PATH;
+    }
+    bool isList() {
+        return type_ == Type::LIST;
+    }
+    bool isMap() {
+        return type_ == Type::MAP;
+    }
+    bool isSet() {
+        return type_ == Type::SET;
+    }
+    bool isDataSet() {
+        return type_ == Type::DATASET;
     }
 
     void clear();
