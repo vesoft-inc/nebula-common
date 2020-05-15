@@ -25,9 +25,9 @@ public:
         return "";
     }
 
-    std::unique_ptr<Expression> decode() const override {
+    std::string decode() const override {
         // TODO
-        return nullptr;
+        return "";
     }
 
     std::string toString() const override {

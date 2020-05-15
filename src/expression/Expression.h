@@ -69,7 +69,7 @@ public:
 
     virtual std::string encode() const = 0;
 
-    virtual std::unique_ptr<Expression> decode() const = 0;
+    virtual std::string decode() const = 0;
 
     bool isAliasPropertyExpression() const {
         return type_ == Type::EXP_ALIAS_PROPERTY;
