@@ -71,6 +71,10 @@ public:
 
     virtual std::string decode() const = 0;
 
+    static std::unique_ptr<Expression> decode(folly::StringPiece) {
+        return nullptr;
+    }
+
     bool isAliasPropertyExpression() const {
         return type_ == Type::EXP_ALIAS_PROPERTY;
     }
