@@ -35,8 +35,12 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
         *evb, [compatibility, &host, timeout] (folly::EventBase& eb) mutable {
             static thread_local int connectionCount = 0;
 
-            bool needResolvHost = !folly::IPAddress::validate(host.host);
-            folly::SocketAddress socketAddr(host.host, host.port, needResolvHost);
+            /*
+             * TODO(liuyu): folly said 'resolve' may take second to finish
+             *              if this really happen, we will add a cache here.
+             * */
+            bool needResolveHost = !folly::IPAddress::validate(host.host);
+            folly::SocketAddress socketAddr(host.host, host.port, needResolveHost);
 
             VLOG(2) << folly::sformat("Connecting to {0}({2}):{1} for {3} times",
                                       host.host, host.port,
