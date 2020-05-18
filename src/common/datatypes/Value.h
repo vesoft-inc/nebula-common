@@ -359,6 +359,7 @@ private:
 void swap(Value& a, Value& b);
 
 std::ostream& operator<<(std::ostream& os, const Value::Type& type);
+std::ostream& operator<<(std::ostream& os, const Value& value);
 
 
 // Arithmetic operations
