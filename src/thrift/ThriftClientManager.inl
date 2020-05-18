@@ -48,7 +48,7 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
                                       ++connectionCount);
             std::shared_ptr<apache::thrift::async::TAsyncSocket> socket;
             eb.runImmediatelyOrRunInEventBaseThreadAndWait(
-                [&socket, &eb, &socketAddr, &host]() {
+                [&socket, &eb, &socketAddr]() {
                     socket = apache::thrift::async::TAsyncSocket::newSocket(
                         &eb, socketAddr, FLAGS_conn_timeout_ms);
                 });
