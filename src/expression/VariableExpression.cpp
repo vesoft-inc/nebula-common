@@ -15,6 +15,9 @@ const Value& VariableExpression::eval() {
 const Value& VersionedVariableExpression::eval() {
     if (version_ != nullptr) {
         auto version = version_->eval();
+        if (UNLIKELY(version.type() != Value::Type::INT)) {
+            return kNullBadType;
+        }
         auto ver = version.getInt();
         return expCtxt_->getVersionedVar(*var_, ver);
     } else {
