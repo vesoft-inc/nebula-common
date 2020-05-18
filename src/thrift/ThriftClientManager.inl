@@ -18,7 +18,7 @@ namespace thrift {
 template<class ClientType>
 std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
         const HostAddr& host, folly::EventBase* evb, bool compatibility, uint32_t timeout) {
-    VLOG(2) << "Getting a client to " << host.host << ":" << host.port;
+    VLOG(2) << "Getting a client to " << host;
 
     if (evb == nullptr) {
         evb = folly::EventBaseManager::get()->getEventBase();
@@ -30,12 +30,13 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
     }
 
     // Need to create a new client
-    VLOG(2) << "There is no existing client to " << host.host << ":" << host.port
-            << ", trying to create one";
+    VLOG(2) << "There is no existing client to " << host << ", trying to create one";
     auto channel = apache::thrift::ReconnectingRequestChannel::newChannel(
         *evb, [compatibility, &host, timeout] (folly::EventBase& eb) mutable {
             static thread_local int connectionCount = 0;
-            folly::SocketAddress socketAddr(host.host, host.port, true);
+
+            bool needResolvHost = !folly::IPAddress::validate(host.host);
+            folly::SocketAddress socketAddr(host.host, host.port, needResolvHost);
 
             VLOG(2) << folly::sformat("Connecting to {0}({2}):{1} for {3} times",
                                       host.host, host.port,
@@ -43,9 +44,9 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
                                       ++connectionCount);
             std::shared_ptr<apache::thrift::async::TAsyncSocket> socket;
             eb.runImmediatelyOrRunInEventBaseThreadAndWait(
-                [&socket, &eb, addr = socketAddr.getAddressStr(), &host]() {
+                [&socket, &eb, &socketAddr, &host]() {
                     socket = apache::thrift::async::TAsyncSocket::newSocket(
-                        &eb, addr, host.port, FLAGS_conn_timeout_ms);
+                        &eb, socketAddr, FLAGS_conn_timeout_ms);
                 });
             auto headerClientChannel = apache::thrift::HeaderClientChannel::newChannel(socket);
             if (timeout > 0) {
