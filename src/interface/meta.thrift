@@ -617,12 +617,6 @@ struct ListEdgeIndexesResp {
     3: list<IndexItem>    	items,
 }
 
-struct RebuildIndexReq {
-    1: common.GraphSpaceID space_id,
-    2: binary              index_name,
-    3: bool                is_offline,
-}
-
 struct CreateUserReq {
     1: binary	account,
     2: binary   encoded_pwd,
@@ -845,13 +839,11 @@ service MetaService {
     ExecResp             dropTagIndex(1: DropTagIndexReq req );
     GetTagIndexResp      getTagIndex(1: GetTagIndexReq req);
     ListTagIndexesResp   listTagIndexes(1:ListTagIndexesReq req);
-    ExecResp             rebuildTagIndex(1: RebuildIndexReq req);
     ListIndexStatusResp  listTagIndexStatus(1: ListIndexStatusReq req);
     ExecResp             createEdgeIndex(1: CreateEdgeIndexReq req);
     ExecResp             dropEdgeIndex(1: DropEdgeIndexReq req );
     GetEdgeIndexResp     getEdgeIndex(1: GetEdgeIndexReq req);
     ListEdgeIndexesResp  listEdgeIndexes(1: ListEdgeIndexesReq req);
-    ExecResp             rebuildEdgeIndex(1: RebuildIndexReq req);
     ListIndexStatusResp  listEdgeIndexStatus(1: ListIndexStatusReq req);
 
     ExecResp createUser(1: CreateUserReq req);

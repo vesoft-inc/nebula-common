@@ -1521,30 +1521,6 @@ MetaClient::listTagIndexes(GraphSpaceID spaceID) {
 }
 
 
-folly::Future<StatusOr<bool>>
-MetaClient::rebuildTagIndex(GraphSpaceID spaceID,
-                            std::string name,
-                            bool isOffline) {
-    cpp2::RebuildIndexReq req;
-    req.set_space_id(spaceID);
-    req.set_index_name(std::move(name));
-    req.set_is_offline(isOffline);
-
-    folly::Promise<StatusOr<bool>> promise;
-    auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_rebuildTagIndex(request);
-                },
-                [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
-                },
-                std::move(promise),
-                true);
-    return future;
-}
-
-
 folly::Future<StatusOr<std::vector<cpp2::IndexStatus>>>
 MetaClient::listTagIndexStatus(GraphSpaceID spaceID) {
     cpp2::ListIndexStatusReq req;
@@ -1738,30 +1714,6 @@ StatusOr<EdgeSchemas> MetaClient::getAllVerEdgeSchema(GraphSpaceID spaceId) {
         return Status::Error(folly::stringPrintf("Space not %d found", spaceId));
     }
     return iter->second->edgeSchemas_;
-}
-
-
-folly::Future<StatusOr<bool>>
-MetaClient::rebuildEdgeIndex(GraphSpaceID spaceID,
-                             std::string name,
-                             bool isOffline) {
-    cpp2::RebuildIndexReq req;
-    req.set_space_id(spaceID);
-    req.set_index_name(std::move(name));
-    req.set_is_offline(isOffline);
-
-    folly::Promise<StatusOr<bool>> promise;
-    auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_rebuildEdgeIndex(request);
-                },
-                [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
-                },
-                std::move(promise),
-                true);
-    return future;
 }
 
 
