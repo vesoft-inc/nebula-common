@@ -2001,13 +2001,13 @@ StatusOr<SchemaVer> MetaClient::getLatestEdgeVersionFromCache(const GraphSpaceID
 
 folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
     cpp2::HBReq req;
+    req.set_host(options_.localHost_);
+    if (options_.clusterId_.load() == 0) {
+        options_.clusterId_ =
+            FileBasedClusterIdMan::getClusterIdFromFile(FLAGS_cluster_id_path);
+    }
+    req.set_cluster_id(options_.clusterId_.load());
     if (options_.role_ == cpp2::HostRole::STORAGE) {
-        req.set_host(options_.localHost_);
-        if (options_.clusterId_.load() == 0) {
-            options_.clusterId_ =
-                FileBasedClusterIdMan::getClusterIdFromFile(FLAGS_cluster_id_path);
-        }
-        req.set_cluster_id(options_.clusterId_.load());
         std::unordered_map<GraphSpaceID, std::vector<PartitionID>> leaderIds;
         if (listener_ != nullptr) {
             listener_->fetchLeaderInfo(leaderIds);
