@@ -12,26 +12,26 @@ const Value& RelationalExpression::eval() {
     auto& lhs = lhs_->eval();
     auto& rhs = rhs_->eval();
 
-    switch (type_) {
-        case Type::EXP_REL_EQ:
+    switch (kind_) {
+        case Kind::kRelEQ:
             result_ = lhs == rhs;
             break;
-        case Type::EXP_REL_NE:
+        case Kind::kRelNE:
             result_ = lhs != rhs;
             break;
-        case Type::EXP_REL_LT:
+        case Kind::kRelLT:
             result_ = lhs < rhs;
             break;
-        case Type::EXP_REL_LE:
+        case Kind::kRelLE:
             result_ = lhs <= rhs;
             break;
-        case Type::EXP_REL_GT:
+        case Kind::kRelGT:
             result_ = lhs > rhs;
             break;
-        case Type::EXP_REL_GE:
+        case Kind::kRelGE:
             result_ = lhs >= rhs;
             break;
-        case Type::EXP_REL_IN: {
+        case Kind::kRelIn: {
             if (UNLIKELY(rhs.type() != Value::Type::LIST)) {
                 result_ = Value(NullType::BAD_TYPE);
                 break;
@@ -46,7 +46,7 @@ const Value& RelationalExpression::eval() {
             break;
         }
         default:
-            LOG(FATAL) << "Unknown type: " << type_;
+            LOG(FATAL) << "Unknown type: " << kind_;
     }
     return result_;
 }

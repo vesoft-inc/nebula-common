@@ -8,21 +8,21 @@
 
 namespace nebula {
 const Value& LogicalExpression::eval() {
-    auto lhs = lhs_->eval();
-    auto rhs = rhs_->eval();
+    auto& lhs = lhs_->eval();
+    auto& rhs = rhs_->eval();
 
-    switch (type_) {
-        case Type::EXP_LOGICAL_AND:
+    switch (kind_) {
+        case Kind::kLogicalAnd:
             result_ = lhs && rhs;
             break;
-        case Type::EXP_LOGICAL_OR:
+        case Kind::kLogicalOr:
             result_ = lhs || rhs;
             break;
-        case Type::EXP_LOGICAL_XOR:
+        case Kind::kLogicalXor:
             result_ = (lhs && !rhs) || (!lhs && rhs);
             break;
         default:
-            LOG(FATAL) << "Unknown type: " << type_;
+            LOG(FATAL) << "Unknown type: " << kind_;
     }
     return result_;
 }

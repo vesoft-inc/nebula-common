@@ -17,10 +17,10 @@ public:
         rhs_.reset(rhs);
     }
 
-    void setExpCtxt(ExpressionContext* ctxt) override {
-        expCtxt_ = ctxt;
-        lhs_->setExpCtxt(ctxt);
-        rhs_->setExpCtxt(ctxt);
+    void setEctx(ExpressionContext* ectx) override {
+        ectx_ = ectx;
+        lhs_->setEctx(ectx);
+        rhs_->setEctx(ectx);
     }
 
     const Value& eval() override;
@@ -41,14 +41,9 @@ public:
     }
 
 private:
-<<<<<<< HEAD
-    std::unique_ptr<Expression> lhs_;
-    std::unique_ptr<Expression> rhs_;
-=======
     std::unique_ptr<Expression>                 lhs_;
     std::unique_ptr<Expression>                 rhs_;
     Value                                       result_;
->>>>>>> Refactor eval().
 };
 }   // namespace nebula
 #endif

@@ -16,8 +16,8 @@ public:
         field_.reset(field);
     }
 
-    void setExpCtxt(ExpressionContext* ctxt) override {
-        expCtxt_ = ctxt;
+    void setEctx(ExpressionContext* ectx) override {
+        ectx_ = ectx;
     }
 
     std::string encode() const override {

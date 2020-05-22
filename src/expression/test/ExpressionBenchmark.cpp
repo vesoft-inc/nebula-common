@@ -19,7 +19,7 @@ size_t add2Constant(size_t iters) {
     Value eval;
     for (size_t i = 0; i < iters * ops; ++i) {
         ArithmeticExpression add(
-                Expression::Type::EXP_ADD, new ConstantExpression(1), new ConstantExpression(2));
+                Expression::Kind::kAdd, new ConstantExpression(1), new ConstantExpression(2));
         eval = Expression::eval(&add);
     }
     folly::doNotOptimizeAway(eval);
@@ -31,9 +31,9 @@ size_t add3Constant(size_t iters) {
     Value eval;
     for (size_t i = 0; i < iters * ops; ++i) {
         ArithmeticExpression add(
-                Expression::Type::EXP_ADD,
+                Expression::Kind::kAdd,
                 new ArithmeticExpression(
-                    Expression::Type::EXP_ADD,
+                    Expression::Kind::kAdd,
                     new ConstantExpression(1), new ConstantExpression(2)),
                 new ConstantExpression(3));
         eval = Expression::eval(&add);
@@ -47,12 +47,12 @@ size_t add2Constant1EdgeProp(size_t iters) {
     Value eval;
     for (size_t i = 0; i < iters * ops; ++i) {
         ArithmeticExpression add(
-                Expression::Type::EXP_ADD,
+                Expression::Kind::kAdd,
                 new ArithmeticExpression(
-                    Expression::Type::EXP_ADD,
+                    Expression::Kind::kAdd,
                     new ConstantExpression(1), new ConstantExpression(2)),
                 new EdgePropertyExpression(new std::string("e1"), new std::string("int")));
-        add.setExpCtxt(&gExpCtxt);
+        add.setEctx(&gExpCtxt);
         eval = Expression::eval(&add);
     }
     folly::doNotOptimizeAway(eval);
@@ -64,10 +64,10 @@ size_t concat2String(size_t iters) {
     Value eval;
     for (size_t i = 0; i < iters * ops; ++i) {
         ArithmeticExpression add(
-                Expression::Type::EXP_ADD,
+                Expression::Kind::kAdd,
                 new EdgePropertyExpression(new std::string("e1"), new std::string("string16")),
                 new EdgePropertyExpression(new std::string("e1"), new std::string("string16")));
-        add.setExpCtxt(&gExpCtxt);
+        add.setEctx(&gExpCtxt);
         eval = Expression::eval(&add);
     }
     folly::doNotOptimizeAway(eval);
@@ -79,10 +79,10 @@ size_t inList(size_t iters) {
     Value eval;
     for (size_t i = 0; i < iters * ops; ++i) {
         RelationalExpression expr(
-                Expression::Type::EXP_REL_IN,
+                Expression::Kind::kRelIn,
                 new ConstantExpression("aaaa"),
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list")));
-        expr.setExpCtxt(&gExpCtxt);
+        expr.setEctx(&gExpCtxt);
         eval = Expression::eval(&expr);
     }
     folly::doNotOptimizeAway(eval);
@@ -94,10 +94,10 @@ size_t isNull(size_t iters, const char* var) {
     Value eval;
     for (size_t i = 0; i < iters * ops; ++i) {
         RelationalExpression expr(
-                Expression::Type::EXP_REL_EQ,
+                Expression::Kind::kRelEQ,
                 new EdgePropertyExpression(new std::string("e1"), new std::string(var)),
                 new ConstantExpression(Value(NullType::NaN)));
-        expr.setExpCtxt(&gExpCtxt);
+        expr.setEctx(&gExpCtxt);
         eval = Expression::eval(&expr);
     }
     folly::doNotOptimizeAway(eval);
@@ -109,10 +109,10 @@ size_t isListEq(size_t iters, const char* var) {
     Value eval;
     for (size_t i = 0; i < iters * ops; ++i) {
         RelationalExpression expr(
-                Expression::Type::EXP_REL_EQ,
+                Expression::Kind::kRelEQ,
                 new EdgePropertyExpression(new std::string("e1"), new std::string(var)),
                 new EdgePropertyExpression(new std::string("e1"), new std::string(var)));
-        expr.setExpCtxt(&gExpCtxt);
+        expr.setEctx(&gExpCtxt);
         eval = Expression::eval(&expr);
     }
     folly::doNotOptimizeAway(eval);

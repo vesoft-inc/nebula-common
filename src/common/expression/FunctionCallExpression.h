@@ -35,10 +35,10 @@ public:
         }
     }
 
-    void setExpCtxt(ExpressionContext* ctxt) override {
-        expCtxt_ = ctxt;
+    void setEctx(ExpressionContext* ectx) override {
+        ectx_ = ectx;
         for (auto& arg : args_) {
-            arg->setExpCtxt(ctxt);
+            arg->setEctx(ectx);
         }
     }
 

@@ -11,6 +11,7 @@ nebula_add_test(
     OBJECTS
         $<TARGET_OBJECTS:expression_obj>
         $<TARGET_OBJECTS:datatypes_obj>
+        $<TARGET_OBJECTS:base_obj>
     LIBRARIES
         gtest
         gtest_main
@@ -24,6 +25,7 @@ nebula_add_test(
     OBJECTS
         $<TARGET_OBJECTS:expression_obj>
         $<TARGET_OBJECTS:datatypes_obj>
+        $<TARGET_OBJECTS:base_obj>
     LIBRARIES
         follybenchmark
         boost_regex

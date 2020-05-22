@@ -27,11 +27,11 @@ constexpr char const kDstRef[] = "$$";
 // in a parse rule.
 class SymbolPropertyExpression: public Expression {
 public:
-    SymbolPropertyExpression(Kind kind = Kind::kAliasProperty,
+    SymbolPropertyExpression(Kind kind = Kind::kSymProperty,
                              std::string* ref = nullptr,
                              std::string* sym = nullptr,
                              std::string* prop = nullptr)
-        : Expression(type) {
+        : Expression(kind) {
         ref_.reset(ref);
         sym_.reset(sym);
         prop_.reset(prop);
@@ -41,8 +41,8 @@ public:
         LOG(FATAL) << "Not supported for calling SymbolPropertyExpression::eval().";
     }
 
-    void setExpCtxt(ExpressionContext* ctxt) override {
-        expCtxt_ = ctxt;
+    void setEctx(ExpressionContext* ectx) override {
+        ectx_ = ectx;
     }
 
     std::string encode() const override {
@@ -70,7 +70,7 @@ protected:
 class EdgePropertyExpression final : public SymbolPropertyExpression {
 public:
     EdgePropertyExpression(std::string* edge, std::string* prop)
-        : SymbolPropertyExpression(Type::EXP_EDGE_PROPERTY,
+        : SymbolPropertyExpression(Kind::kEdgeProperty,
                                    new std::string(""),
                                    edge,
                                    prop) {}

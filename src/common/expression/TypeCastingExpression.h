@@ -17,9 +17,9 @@ public:
         operand_.reset(operand);
     }
 
-    void setExpCtxt(ExpressionContext* ctxt) override {
-        expCtxt_ = ctxt;
-        operand_->setExpCtxt(ctxt);
+    void setEctx(ExpressionContext* ectx) override {
+        ectx_ = ectx;
+        operand_->setEctx(ectx);
     }
 
     std::string encode() const override {

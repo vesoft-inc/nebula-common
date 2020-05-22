@@ -27,6 +27,8 @@ public:
         kUnaryPlus,
         kUnaryNegate,
         kUnaryNot,
+        kUnaryIncr,
+        kUnaryDecr,
 
         kRelEQ,
         kRelNE,
@@ -75,11 +77,7 @@ public:
 
     virtual const Value& eval() = 0;
 
-    Type type() const {
-        return type_;
-    }
-
-    virtual void setExpCtxt(ExpressionContext* ctxt) = 0;
+    virtual void setEctx(ExpressionContext* ectx) = 0;
 
     virtual std::string toString() const = 0;
 
@@ -96,19 +94,8 @@ public:
     }
 
 protected:
-    friend class ArithmeticExpression;
-    friend class ConstantExpression;
-    friend class FunctionCallExpression;
-    friend class LogicalExpression;
-    friend class RelationalExpression;
-    friend class TypeCastingExpression;
-    friend class UnaryExpression;
-    friend class VersionedVariableExpression;
-    virtual const Value& eval() = 0;
-
-protected:
     Kind                kind_;
-    ExpressionContext*  expCtxt_;
+    ExpressionContext*  ectx_;
 };
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind);

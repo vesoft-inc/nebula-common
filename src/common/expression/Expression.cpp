@@ -36,10 +36,10 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Kind::kUnaryNot:
             os << "UnaryNot";
             break;
-        case Expression::Type::kUnaryIncr:
+        case Expression::Kind::kUnaryIncr:
             os << "AutoIncrement";
             break;
-        case Expression::Type::kUnaryDecr:
+        case Expression::Kind::kUnaryDecr:
             os << "AutoDecrement";
             break;
         case Expression::Kind::kRelEQ:
@@ -60,7 +60,7 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Kind::kRelGE:
             os << "GreaterEqual";
             break;
-        case Expression::Type::kRelIn:
+        case Expression::Kind::kRelIn:
             os << "In";
             break;
         case Expression::Kind::kLogicalAnd:
@@ -81,7 +81,7 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Kind::kSymProperty:
             os << "SymbolProp";
             break;
-        case Expression::Type::kEdgeProperty:
+        case Expression::Kind::kEdgeProperty:
             os << "EdgeProp";
             break;
         case Expression::Kind::kInputProperty:
@@ -111,10 +111,10 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Kind::kUUID:
             os << "UUID";
             break;
-        case Expression::Type::EXP_VAR:
+        case Expression::Kind::kVar:
             os << "Variable";
             break;
-        case Expression::Type::EXP_VERSIONED_VAR:
+        case Expression::Kind::kVersionedVar:
             os << "VersionedVariable";
             break;
     }

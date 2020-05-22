@@ -13,12 +13,12 @@ namespace nebula {
 class VariableExpression final : public Expression {
 public:
     explicit VariableExpression(std::string* var)
-        : Expression(Type::EXP_VAR) {
+        : Expression(Kind::kVar) {
         var_.reset(var);
     }
 
-    void setExpCtxt(ExpressionContext* ctxt) override {
-        expCtxt_ = ctxt;
+    void setEctx(ExpressionContext* ectx) override {
+        ectx_ = ectx;
     }
 
     const std::string& var() const {
@@ -54,14 +54,14 @@ private:
 class VersionedVariableExpression final : public Expression {
 public:
     VersionedVariableExpression(std::string* var, Expression* version)
-        : Expression(Type::EXP_VERSIONED_VAR) {
+        : Expression(Kind::kVersionedVar) {
         var_.reset(var);
         version_.reset(version);
     }
 
-    void setExpCtxt(ExpressionContext* ctxt) override {
-        expCtxt_ = ctxt;
-        version_->setExpCtxt(ctxt);
+    void setEctx(ExpressionContext* ectx) override {
+        ectx_ = ectx;
+        version_->setEctx(ectx);
     }
 
     const std::string& var() const {

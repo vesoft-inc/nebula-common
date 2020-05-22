@@ -12,24 +12,24 @@ const Value& ArithmeticExpression::eval() {
     auto& lhs = lhs_->eval();
     auto& rhs = rhs_->eval();
 
-    switch (type_) {
-        case Type::EXP_ADD:
+    switch (kind_) {
+        case Kind::kAdd:
             result_ = lhs + rhs;
             break;
-        case Type::EXP_MINUS:
+        case Kind::kMinus:
             result_ = lhs - rhs;
             break;
-        case Type::EXP_MULTIPLY:
+        case Kind::kMultiply:
             result_ = lhs * rhs;
             break;
-        case Type::EXP_DIVIDE:
+        case Kind::kDivision:
             result_ = lhs / rhs;
             break;
-        case Type::EXP_MOD:
+        case Kind::kMod:
             result_ = lhs % rhs;
             break;
         default:
-            LOG(FATAL) << "Unknown type: " << type_;
+            LOG(FATAL) << "Unknown type: " << kind_;
     }
     return result_;
 }
