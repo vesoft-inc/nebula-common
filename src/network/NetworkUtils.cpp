@@ -17,6 +17,8 @@ namespace network {
 
 static const int32_t kMaxHostNameLen = 256;
 
+
+// TODO(liuyu) this only works in ipv4
 std::string NetworkUtils::getHostname() {
     char hn[kMaxHostNameLen];
 
@@ -233,23 +235,6 @@ StatusOr<std::vector<HostAddr>> NetworkUtils::resolveHost(const std::string& hos
     }
 
     return addrs;
-}
-
-
-StatusOr<std::string> NetworkUtils::getLocalIP(std::string defaultIP) {
-    if (!defaultIP.empty()) {
-        return defaultIP;
-    }
-    auto result = network::NetworkUtils::listDeviceAndIPv4s();
-    if (!result.ok()) {
-        return std::move(result).status();
-    }
-    for (auto& deviceIP : result.value()) {
-        if (deviceIP.second != "127.0.0.1") {
-            return deviceIP.second;
-        }
-    }
-    return Status::Error("No IPv4 address found!");
 }
 
 

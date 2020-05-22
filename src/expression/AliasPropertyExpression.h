@@ -19,11 +19,11 @@ constexpr char const kDstRef[] = "$$";
 // Alias.any_prop_name, i.e. EdgeName.any_prop_name
 class AliasPropertyExpression : public Expression {
 public:
-    AliasPropertyExpression(Type type = Type::EXP_ALIAS_PROPERTY,
+    AliasPropertyExpression(Kind kind = Kind::kAliasProperty,
                             std::string* ref = nullptr,
                             std::string* alias = nullptr,
                             std::string* prop = nullptr)
-        : Expression(type) {
+        : Expression(kind) {
         ref_.reset(ref);
         alias_.reset(alias);
         prop_.reset(prop);
@@ -64,7 +64,7 @@ protected:
 class InputPropertyExpression final : public AliasPropertyExpression {
 public:
     explicit InputPropertyExpression(std::string* prop)
-        : AliasPropertyExpression(Type::EXP_INPUT_PROPERTY,
+        : AliasPropertyExpression(Kind::kInputProperty,
                                   new std::string(kInputRef),
                                   new std::string(""),
                                   prop) {}
@@ -91,7 +91,7 @@ public:
 class VariablePropertyExpression final : public AliasPropertyExpression {
 public:
     VariablePropertyExpression(std::string* var, std::string* prop)
-        : AliasPropertyExpression(Type::EXP_VAR_PROPERTY, new std::string(kVarRef), var, prop) {}
+        : AliasPropertyExpression(Kind::kVarProperty, new std::string(kVarRef), var, prop) {}
 
     Value eval() const override;
 
@@ -115,7 +115,7 @@ public:
 class SourcePropertyExpression final : public AliasPropertyExpression {
 public:
     SourcePropertyExpression(std::string* tag, std::string* prop)
-        : AliasPropertyExpression(Type::EXP_SRC_PROPERTY, new std::string(kSrcRef), tag, prop) {}
+        : AliasPropertyExpression(Kind::kSrcProperty, new std::string(kSrcRef), tag, prop) {}
 
     Value eval() const override;
 
@@ -139,7 +139,7 @@ public:
 class DestPropertyExpression final : public AliasPropertyExpression {
 public:
     DestPropertyExpression(std::string* tag, std::string* prop)
-        : AliasPropertyExpression(Type::EXP_DST_PROPERTY, new std::string(kDstRef), tag, prop) {}
+        : AliasPropertyExpression(Kind::kDstProperty, new std::string(kDstRef), tag, prop) {}
 
     Value eval() const override;
 
@@ -163,7 +163,7 @@ public:
 class EdgeSrcIdExpression final : public AliasPropertyExpression {
 public:
     explicit EdgeSrcIdExpression(std::string* alias)
-        : AliasPropertyExpression(Type::EXP_EDGE_SRC,
+        : AliasPropertyExpression(Kind::kEdgeSrc,
                                   new std::string(""),
                                   alias,
                                   new std::string(_SRC)) {}
@@ -190,7 +190,7 @@ public:
 class EdgeTypeExpression final : public AliasPropertyExpression {
 public:
     explicit EdgeTypeExpression(std::string* alias)
-        : AliasPropertyExpression(Type::EXP_EDGE_TYPE,
+        : AliasPropertyExpression(Kind::kEdgeType,
                                   new std::string(""),
                                   alias,
                                   new std::string(_TYPE)) {}
@@ -217,7 +217,7 @@ public:
 class EdgeRankExpression final : public AliasPropertyExpression {
 public:
     explicit EdgeRankExpression(std::string* alias)
-        : AliasPropertyExpression(Type::EXP_EDGE_RANK,
+        : AliasPropertyExpression(Kind::kEdgeRank,
                                   new std::string(""),
                                   alias,
                                   new std::string(_RANK)) {}
@@ -244,7 +244,7 @@ public:
 class EdgeDstIdExpression final : public AliasPropertyExpression {
 public:
     explicit EdgeDstIdExpression(std::string* alias)
-        : AliasPropertyExpression(Type::EXP_EDGE_DST,
+        : AliasPropertyExpression(Kind::kEdgeDst,
                                   new std::string(""),
                                   alias,
                                   new std::string(_DST)) {}

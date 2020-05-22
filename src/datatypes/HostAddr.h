@@ -19,6 +19,12 @@ struct HostAddr {
     Port        port;
 
     HostAddr() : host(), port(0) {}
+    /*
+     * some one may ctor HostAddr this way : HostAddr host(0, 0)
+     * C++ will compile this successfully even we don't support an (int, int) ctor
+     * so, add an explicit delete ctor
+     * */
+    HostAddr(int h, int p) = delete;
     HostAddr(std::string&& h, Port p) : host(std::move(h)), port(p) {}
     HostAddr(const std::string& h, Port p) : host(h), port(p) {}
 
@@ -35,7 +41,6 @@ struct HostAddr {
 };
 
 std::ostream& operator<<(std::ostream &, const HostAddr&);
-
 }  // namespace nebula
 
 
