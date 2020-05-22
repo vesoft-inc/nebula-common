@@ -15,11 +15,11 @@ namespace nebula {
 namespace meta {
 
 // reserved property names
-constexpr char _ID[] = "_id";
-constexpr char _SRC[] = "_src";
+constexpr char _ID[]   = "_id";
+constexpr char _SRC[]  = "_src";
 constexpr char _TYPE[] = "_type";
 constexpr char _RANK[] = "_rank";
-constexpr char _DST[] = "_dst";
+constexpr char _DST[]  = "_dst";
 
 struct PartHosts {
     GraphSpaceID spaceId_;

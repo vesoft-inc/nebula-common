@@ -10,10 +10,9 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+#include <sys/prctl.h>
 #include <sys/syscall.h>
 #include <unistd.h>
-
-#include <sys/prctl.h>
 
 namespace nebula {
 namespace thread {
@@ -22,12 +21,12 @@ pid_t gettid();
 
 class NamedThread final : public std::thread {
 public:
-    NamedThread() = default;
+    NamedThread()               = default;
     NamedThread(NamedThread &&) = default;
     template <typename F, typename... Args>
     NamedThread(const std::string &name, F &&f, Args &&... args);
     NamedThread &operator=(NamedThread &&) = default;
-    NamedThread(const NamedThread &) = delete;
+    NamedThread(const NamedThread &)       = delete;
     NamedThread &operator=(const NamedThread &) = delete;
 
 public:

@@ -5,10 +5,12 @@
  */
 
 #include "webservice/GetFlagsHandler.h"
+
 #include <folly/String.h>
 #include <folly/json.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
 #include <proxygen/lib/http/ProxygenErrorEnum.h>
+
 #include "base/Base.h"
 #include "webservice/Common.h"
 
@@ -90,7 +92,7 @@ void GetFlagsHandler::addOneFlag(folly::dynamic& vals,
                                  const std::string& flagname,
                                  const gflags::CommandLineFlagInfo* info) {
     folly::dynamic flag = folly::dynamic::object();
-    flag["name"] = flagname;
+    flag["name"]        = flagname;
     if (info != nullptr) {
         auto& type = info->type;
         if (type == "int32") {
@@ -123,10 +125,10 @@ void GetFlagsHandler::addOneFlag(folly::dynamic& vals,
             LOG(ERROR) << "Don't support converting the type [" << flagname << ":" << type << "]!";
         }
         if (verbose_) {
-            flag["type"] = info->type;
+            flag["type"]        = info->type;
             flag["description"] = info->description;
-            flag["file"] = info->filename;
-            flag["is_default"] = info->is_default;
+            flag["file"]        = info->filename;
+            flag["is_default"]  = info->is_default;
         }
     } else {
         flag["value"] = nullptr;

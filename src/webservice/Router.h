@@ -7,12 +7,12 @@
 #ifndef WEBSERVICE_ROUTER_H_
 #define WEBSERVICE_ROUTER_H_
 
+#include <proxygen/lib/http/HTTPMethod.h>
+
 #include <memory>
 #include <regex>
 #include <unordered_map>
 #include <vector>
-
-#include <proxygen/lib/http/HTTPMethod.h>
 
 #include "cpp/helpers.h"
 
@@ -27,7 +27,7 @@ class WebService;
 
 namespace web {
 
-using PathParams = std::unordered_map<std::string, std::string>;
+using PathParams          = std::unordered_map<std::string, std::string>;
 using ReqHandlerGenerator = std::function<proxygen::RequestHandler *(PathParams &&)>;
 
 class Route final {

@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "datatypes/Value.h"
 

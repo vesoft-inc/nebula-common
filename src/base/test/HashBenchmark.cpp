@@ -4,6 +4,7 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 #include <folly/Benchmark.h>
+
 #include "base/Base.h"
 #include "base/MurmurHash2.h"
 
@@ -23,7 +24,7 @@ size_t StdHashTest(size_t iters, size_t size) {
 
     std::hash<std::string> hash;
     auto str = makeString(size);
-    auto i = 0UL;
+    auto i   = 0UL;
     while (i++ < ops * iters) {
         auto hv = hash(str);
         folly::doNotOptimizeAway(hv);
@@ -37,7 +38,7 @@ size_t MurmurHash2Test(size_t iters, size_t size) {
 
     MurmurHash2 hash;
     auto str = makeString(size);
-    auto i = 0UL;
+    auto i   = 0UL;
     while (i++ < ops * iters) {
         auto hv = hash(str);
         folly::doNotOptimizeAway(hv);

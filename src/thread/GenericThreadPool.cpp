@@ -5,6 +5,7 @@
  */
 
 #include "thread/GenericThreadPool.h"
+
 #include "base/Base.h"
 
 namespace nebula {
@@ -22,7 +23,7 @@ bool GenericThreadPool::start(size_t nrThreads, const std::string &name) {
         return false;
     }
     nrThreads_ = nrThreads;
-    auto ok = true;
+    auto ok    = true;
     for (auto i = 0UL; ok && i < nrThreads_; i++) {
         pool_.emplace_back(std::make_unique<GenericWorker>());
         ok = ok && pool_.back()->start(name);
@@ -50,7 +51,7 @@ bool GenericThreadPool::wait() {
 
 void GenericThreadPool::purgeTimerTask(uint64_t id) {
     auto idx = (id >> GenericWorker::TIMER_ID_BITS);
-    id = (id & GenericWorker::TIMER_ID_MASK);
+    id       = (id & GenericWorker::TIMER_ID_MASK);
     pool_[idx]->purgeTimerTask(id);
 }
 

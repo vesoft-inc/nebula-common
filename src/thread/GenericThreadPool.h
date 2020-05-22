@@ -61,7 +61,7 @@ public:
     template <typename F, typename... Args>
     using ReturnType = typename std::result_of<F(Args...)>::type;
     template <typename F, typename... Args>
-    using FutureType = folly::SemiFuture<ReturnType<F, Args...>>;
+    using FutureType     = folly::SemiFuture<ReturnType<F, Args...>>;
     using UnitFutureType = folly::SemiFuture<folly::Unit>;
 
     /**
@@ -150,7 +150,7 @@ auto GenericThreadPool::addDelayTask(size_t ms, F &&f, Args &&... args) ->
 template <typename F, typename... Args>
 uint64_t GenericThreadPool::addRepeatTask(size_t ms, F &&f, Args &&... args) {
     auto idx = nextThread_++ % nrThreads_;
-    auto id = pool_[idx]->addRepeatTask(ms, std::forward<F>(f), std::forward<Args>(args)...);
+    auto id  = pool_[idx]->addRepeatTask(ms, std::forward<F>(f), std::forward<Args>(args)...);
     return ((idx << GenericWorker::TIMER_ID_BITS) | id);
 }
 

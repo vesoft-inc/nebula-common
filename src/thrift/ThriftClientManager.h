@@ -8,6 +8,7 @@
 #define COMMON_THRIFT_THRIFTCLIENTMANAGER_H_
 
 #include <folly/io/async/EventBaseManager.h>
+
 #include "base/Base.h"
 #include "datatypes/HostAddr.h"
 
@@ -19,8 +20,8 @@ class ThriftClientManager final {
 public:
     std::shared_ptr<ClientType> client(const HostAddr& host,
                                        folly::EventBase* evb = nullptr,
-                                       bool compatibility = false,
-                                       uint32_t timeout = 0);
+                                       bool compatibility    = false,
+                                       uint32_t timeout      = 0);
 
     ~ThriftClientManager() {
         VLOG(3) << "~ThriftClientManager";

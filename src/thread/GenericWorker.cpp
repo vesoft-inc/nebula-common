@@ -5,8 +5,10 @@
  */
 
 #include "thread/GenericWorker.h"
+
 #include <event2/event.h>
 #include <sys/eventfd.h>
+
 #include "base/Base.h"
 
 namespace nebula {
@@ -54,7 +56,7 @@ bool GenericWorker::start(std::string name) {
         reinterpret_cast<GenericWorker *>(arg)->onNotify();
     };
     auto events = EV_READ | EV_PERSIST;
-    notifier_ = event_new(evbase_, evfd_, events, cb, this);
+    notifier_   = event_new(evbase_, evfd_, events, cb, this);
     DCHECK(notifier_ != nullptr);
     event_add(notifier_, nullptr);
 
@@ -122,7 +124,7 @@ void GenericWorker::onNotify() {
         }
         auto cb = [](int fd, int16_t, void *arg) {
             UNUSED(fd);
-            auto timer = reinterpret_cast<Timer *>(arg);
+            auto timer  = reinterpret_cast<Timer *>(arg);
             auto worker = timer->owner_;
             timer->callback_();
             if (timer->intervalMSec_ == 0.0) {
@@ -134,11 +136,11 @@ void GenericWorker::onNotify() {
 
             auto delay = timer->delayMSec_;
             struct timeval tv;
-            tv.tv_sec = delay / 1000;
+            tv.tv_sec  = delay / 1000;
             tv.tv_usec = delay % 1000 * 1000;
             evtimer_add(timer->ev_, &tv);
 
-            auto id = timer->id_;
+            auto id           = timer->id_;
             activeTimers_[id] = std::move(timer);
         }
     }

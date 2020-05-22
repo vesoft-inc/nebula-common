@@ -5,6 +5,7 @@
  */
 
 #include "meta/SchemaProviderIf.h"
+
 #include "base/Base.h"
 
 namespace nebula {

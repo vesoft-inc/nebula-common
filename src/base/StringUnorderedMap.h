@@ -15,12 +15,12 @@ namespace nebula {
 template <typename T>
 class StringUnorderedMap {
 public:
-    using key_type = std::string;
-    using mapped_type = T;
-    using value_type = std::pair<std::string, T>;
-    using size_type = size_t;
-    using hasher = folly::SpookyHashV2;
-    using reference = value_type&;
+    using key_type        = std::string;
+    using mapped_type     = T;
+    using value_type      = std::pair<std::string, T>;
+    using size_type       = size_t;
+    using hasher          = folly::SpookyHashV2;
+    using reference       = value_type&;
     using const_reference = const value_type&;
     // using iterator =
     // using const_iterator =

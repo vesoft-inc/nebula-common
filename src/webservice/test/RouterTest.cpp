@@ -4,12 +4,12 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "webservice/Router.h"
-
 #include <folly/init/Init.h>
 #include <gtest/gtest.h>
 #include <proxygen/httpserver/RequestHandler.h>
 #include <proxygen/lib/http/HTTPMessage.h>
+
+#include "webservice/Router.h"
 
 class RouterTest : public ::testing::Test {
 public:

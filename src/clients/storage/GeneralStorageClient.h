@@ -8,6 +8,7 @@
 #define CLIENTS_STORAGE_GENERALSTORAGECLIENT_H_
 
 #include <gtest/gtest_prod.h>
+
 #include "base/Base.h"
 #include "clients/meta/MetaClient.h"
 #include "clients/storage/StorageClientBase.h"
@@ -33,7 +34,7 @@ public:
 
     folly::SemiFuture<StorageRpcResponse<cpp2::KVGetResponse>> get(GraphSpaceID space,
                                                                    std::vector<std::string>&& keys,
-                                                                   bool returnPartly = false,
+                                                                   bool returnPartly     = false,
                                                                    folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> put(GraphSpaceID space,

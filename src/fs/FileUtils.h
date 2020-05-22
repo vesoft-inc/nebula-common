@@ -8,6 +8,7 @@
 #define COMMON_FS_FILEUTILS_H_
 
 #include <dirent.h>
+
 #include "base/Base.h"
 #include "base/StatusOr.h"
 
@@ -132,7 +133,7 @@ public:
      * Internally, it calls listAllTypedEntitiesInDir()
      */
     static std::vector<std::string> listAllFilesInDir(const char* dirpath,
-                                                      bool returnFullPath = false,
+                                                      bool returnFullPath     = false,
                                                       const char* namePattern = nullptr);
     /**
      * List all sub-directories in the given directory
@@ -140,7 +141,7 @@ public:
      * Internally, it calls listAllTypedEntitiesInDir()
      */
     static std::vector<std::string> listAllDirsInDir(const char* dirpath,
-                                                     bool returnFullPath = false,
+                                                     bool returnFullPath     = false,
                                                      const char* namePattern = nullptr);
 
     static bool isReg(struct dirent* dEnt, const char* path);

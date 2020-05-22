@@ -8,6 +8,7 @@
 #define META_SCHEMAMANAGER_H_
 
 #include <folly/RWSpinLock.h>
+
 #include "base/Base.h"
 #include "base/StatusOr.h"
 #include "meta/NebulaSchemaProvider.h"

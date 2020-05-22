@@ -8,6 +8,7 @@
 #define META_NEBULASCHEMAPROVIDER_H_
 
 #include <folly/RWSpinLock.h>
+
 #include "base/Base.h"
 #include "base/StatusOr.h"
 #include "meta/SchemaProviderIf.h"
@@ -103,7 +104,7 @@ public:
     void addField(folly::StringPiece name,
                   cpp2::PropertyType type,
                   size_t fixedStrLen = 0,
-                  bool nullable = false,
+                  bool nullable      = false,
                   Value defaultValue = Value());
 
     void setProp(cpp2::SchemaProp schemaProp);

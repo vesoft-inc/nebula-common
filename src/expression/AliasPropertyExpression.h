@@ -12,17 +12,17 @@
 namespace nebula {
 
 constexpr char const kInputRef[] = "$-";
-constexpr char const kVarRef[] = "$";
-constexpr char const kSrcRef[] = "$^";
-constexpr char const kDstRef[] = "$$";
+constexpr char const kVarRef[]   = "$";
+constexpr char const kSrcRef[]   = "$^";
+constexpr char const kDstRef[]   = "$$";
 
 // Alias.any_prop_name, i.e. EdgeName.any_prop_name
 class AliasPropertyExpression : public Expression {
 public:
-    AliasPropertyExpression(Kind kind = Kind::kAliasProperty,
-                            std::string* ref = nullptr,
+    AliasPropertyExpression(Kind kind          = Kind::kAliasProperty,
+                            std::string* ref   = nullptr,
                             std::string* alias = nullptr,
-                            std::string* prop = nullptr)
+                            std::string* prop  = nullptr)
         : Expression(kind) {
         ref_.reset(ref);
         alias_.reset(alias);

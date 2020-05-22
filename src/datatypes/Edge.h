@@ -69,7 +69,7 @@ template <>
 struct hash<nebula::Edge> {
     std::size_t operator()(const nebula::Edge& h) const noexcept {
         size_t hv = folly::hash::fnv64(h.src);
-        hv = folly::hash::fnv64(h.dst, hv);
+        hv        = folly::hash::fnv64(h.dst, hv);
         hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.type), sizeof(h.type), hv);
         return folly::hash::fnv64_buf(
             reinterpret_cast<const void*>(&h.ranking), sizeof(h.ranking), hv);

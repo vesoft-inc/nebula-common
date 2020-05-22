@@ -43,12 +43,12 @@ public:
     // raw bytes array
     template <typename T, typename = std::enable_if_t<is_char_v<T>>>
     size_t operator()(const T *str, size_t size) const noexcept {
-        uint64_t seed = 0xc70f6907UL;
-        const uint64_t m = 0xc6a4a7935bd1e995;
-        const uint32_t r = 47;
-        uint64_t h = seed ^ (size * m);
+        uint64_t seed        = 0xc70f6907UL;
+        const uint64_t m     = 0xc6a4a7935bd1e995;
+        const uint32_t r     = 47;
+        uint64_t h           = seed ^ (size * m);
         const uint64_t *data = (const uint64_t *)str;
-        const uint64_t *end = data + (size / 8);
+        const uint64_t *end  = data + (size / 8);
         while (data != end) {
             uint64_t k = *data++;
 

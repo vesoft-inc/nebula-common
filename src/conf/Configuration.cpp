@@ -4,6 +4,7 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 #include "conf/Configuration.h"
+
 #include "base/Base.h"
 
 namespace nebula {
@@ -19,7 +20,7 @@ Configuration::Configuration(folly::dynamic content) {
 }
 
 Status Configuration::parseFromFile(const std::string &filename) {
-    auto fd = ::open(filename.c_str(), O_RDONLY);
+    auto fd     = ::open(filename.c_str(), O_RDONLY);
     auto status = Status::OK();
     std::string content;
     do {
@@ -44,7 +45,7 @@ Status Configuration::parseFromFile(const std::string &filename) {
         ::lseek(fd, 0, SEEK_SET);
         // read the whole content
         // TODO(dutor) ::read might be interrupted by signals
-        auto buffer = std::make_unique<char[]>(len + 1);
+        auto buffer    = std::make_unique<char[]>(len + 1);
         auto charsRead = ::read(fd, buffer.get(), len);
         UNUSED(charsRead);
         buffer[len] = '\0';
@@ -67,7 +68,7 @@ Status Configuration::parseFromFile(const std::string &filename) {
 Status Configuration::parseFromString(const std::string &content) {
     try {
         auto json = folly::parseJson(content);
-        content_ = std::make_unique<folly::dynamic>(std::move(json));
+        content_  = std::make_unique<folly::dynamic>(std::move(json));
     } catch (std::exception &e) {
         LOG(ERROR) << e.what();
         return Status::Error("Illegal format (%s)", e.what());

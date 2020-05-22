@@ -5,6 +5,7 @@
  */
 
 #include "fs/TempFile.h"
+
 #include "base/Base.h"
 
 namespace nebula {
@@ -12,8 +13,8 @@ namespace fs {
 
 TempFile::TempFile(const char* path, bool autoDelete) {
     autoDelete_ = autoDelete;
-    auto len = ::strlen(path);
-    path_ = std::make_unique<char[]>(len + 1);
+    auto len    = ::strlen(path);
+    path_       = std::make_unique<char[]>(len + 1);
     ::strcpy(path_.get(), path);   // NOLINT
 
     auto fd = ::mkstemp(path_.get());

@@ -8,20 +8,21 @@
 #define COMMON_BASE_EITHEROR_H_
 
 #include <type_traits>
+
 #include "base/Base.h"
 
 namespace nebula {
 
-using LeftType = std::true_type;
+using LeftType  = std::true_type;
 using RightType = std::false_type;
 
 enum class State : int16_t {
-    VOID = 0,
-    LEFT_TYPE = 1,
+    VOID       = 0,
+    LEFT_TYPE  = 1,
     RIGHT_TYPE = 2,
 };
 
-static constexpr LeftType* kConstructLeft = nullptr;
+static constexpr LeftType* kConstructLeft   = nullptr;
 static constexpr RightType* kConstructRight = nullptr;
 
 /**
@@ -106,7 +107,7 @@ private:
             return State::VOID;
         }
 
-        static constexpr auto* type = sfinae<Args...>();
+        static constexpr auto* type  = sfinae<Args...>();
         static constexpr State state = getState();
     };
 

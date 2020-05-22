@@ -5,6 +5,7 @@
  */
 
 #include <folly/Benchmark.h>
+
 #include "base/Base.h"
 #include "time/Duration.h"
 
@@ -15,8 +16,8 @@ using std::chrono::steady_clock;
 
 BENCHMARK(steady_clock_timer, iters) {
     for (uint32_t i = 0; i < iters; i++) {
-        auto start = steady_clock::now();
-        auto end = steady_clock::now();
+        auto start      = steady_clock::now();
+        auto end        = steady_clock::now();
         auto diffInMSec = (duration_cast<milliseconds>(end - start)).count();
         folly::doNotOptimizeAway(diffInMSec);
     }

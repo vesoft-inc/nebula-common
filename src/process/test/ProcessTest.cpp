@@ -5,7 +5,9 @@
  */
 
 #include <gtest/gtest.h>
+
 #include <fstream>
+
 #include "base/Base.h"
 #include "fs/FileUtils.h"
 #include "process/ProcessUtils.h"
@@ -55,7 +57,7 @@ TEST(ProcessUtils, isPidAvailable) {
     {
         // pid file not exist
         auto pidFile = "/tmp/definitely-not-exist.pid";
-        auto status = ProcessUtils::isPidAvailable(pidFile);
+        auto status  = ProcessUtils::isPidAvailable(pidFile);
         ASSERT_TRUE(status.ok()) << status;
     }
     {

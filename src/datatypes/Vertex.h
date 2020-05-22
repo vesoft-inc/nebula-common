@@ -29,13 +29,13 @@ struct Tag {
     }
 
     Tag& operator=(Tag&& rhs) {
-        name = std::move(rhs.name);
+        name  = std::move(rhs.name);
         props = std::move(rhs.props);
         return *this;
     }
 
     Tag& operator=(const Tag& rhs) {
-        name = rhs.name;
+        name  = rhs.name;
         props = rhs.props;
         return *this;
     }
@@ -60,13 +60,13 @@ struct Vertex {
     }
 
     Vertex& operator=(Vertex&& rhs) {
-        vid = std::move(rhs.vid);
+        vid  = std::move(rhs.vid);
         tags = std::move(rhs.tags);
         return *this;
     }
 
     Vertex& operator=(const Vertex& rhs) {
-        vid = rhs.vid;
+        vid  = rhs.vid;
         tags = rhs.tags;
         return *this;
     }
@@ -78,8 +78,8 @@ struct Vertex {
 
 inline void swap(Vertex& a, Vertex& b) {
     auto temp = std::move(a);
-    a = std::move(b);
-    b = std::move(temp);
+    a         = std::move(b);
+    b         = std::move(temp);
 }
 
 }   // namespace nebula

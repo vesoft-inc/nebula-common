@@ -5,6 +5,7 @@
  */
 
 #include "meta/NebulaSchemaProvider.h"
+
 #include "base/Base.h"
 
 namespace nebula {
@@ -156,7 +157,7 @@ void NebulaSchemaProvider::addField(folly::StringPiece name,
     size_t offset = 0;
     if (fields_.size() > 0) {
         auto& lastField = fields_.back();
-        offset = lastField.offset() + lastField.size();
+        offset          = lastField.offset() + lastField.size();
     }
 
     size_t nullFlagPos = 0;
@@ -187,7 +188,7 @@ StatusOr<std::pair<std::string, int64_t>> NebulaSchemaProvider::getTTLInfo() con
     if (!schemaProp_.__isset.ttl_col) {
         return Status::Error("TTL not set");
     }
-    std::string ttlCol = *schemaProp_.get_ttl_col();
+    std::string ttlCol  = *schemaProp_.get_ttl_col();
     int64_t ttlDuration = schemaProp_.__isset.ttl_duration ? *schemaProp_.get_ttl_duration() : 0;
     // Only support the specified ttl_col mode
     // Not specifying or non-positive ttl_duration behaves like ttl_duration = infinity

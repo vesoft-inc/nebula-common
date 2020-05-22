@@ -7,12 +7,11 @@
 #ifndef DATATYPES_PATHOPS_H_
 #define DATATYPES_PATHOPS_H_
 
-#include "base/Base.h"
-
 #include <thrift/lib/cpp2/GeneratedSerializationCodeHelper.h>
 #include <thrift/lib/cpp2/gen/module_types_tcc.h>
 #include <thrift/lib/cpp2/protocol/ProtocolReaderStructReadState.h>
 
+#include "base/Base.h"
 #include "datatypes/Path.h"
 
 namespace apache {
@@ -31,19 +30,19 @@ struct TccStructTraits<nebula::Step> {
                                    MAYBE_UNUSED int16_t& fid,
                                    MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "dst") {
-            fid = 1;
+            fid    = 1;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "type") {
-            fid = 2;
+            fid    = 2;
             _ftype = apache::thrift::protocol::T_I32;
         } else if (_fname == "name") {
-            fid = 3;
+            fid    = 3;
             _ftype = apache::thrift::protocol::T_STRING;
         } else if (_fname == "ranking") {
-            fid = 4;
+            fid    = 4;
             _ftype = apache::thrift::protocol::T_I64;
         } else if (_fname == "props") {
-            fid = 5;
+            fid    = 5;
             _ftype = apache::thrift::protocol::T_MAP;
         }
     }
@@ -285,10 +284,10 @@ struct TccStructTraits<nebula::Path> {
                                    MAYBE_UNUSED int16_t& fid,
                                    MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "src") {
-            fid = 1;
+            fid    = 1;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "steps") {
-            fid = 2;
+            fid    = 2;
             _ftype = apache::thrift::protocol::T_LIST;
         }
     }

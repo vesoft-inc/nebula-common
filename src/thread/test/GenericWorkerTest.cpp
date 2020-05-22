@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "thread/GenericWorker.h"
 #include "time/Duration.h"
@@ -54,14 +55,14 @@ TEST(GenericWorker, addTask) {
     // task without parameters
     {
         volatile auto flag = false;
-        auto set_flag = [&]() mutable { flag = true; };
+        auto set_flag      = [&]() mutable { flag = true; };
         worker.addTask(set_flag).get();
         ASSERT_TRUE(flag);
     }
     // task with parameter
     {
         volatile auto flag = false;
-        auto set_flag = [&](auto value) { flag = value; };
+        auto set_flag      = [&](auto value) { flag = value; };
         worker.addTask(set_flag, true).get();
         ASSERT_TRUE(flag);
         worker.addTask(set_flag, false).get();
@@ -98,7 +99,7 @@ TEST(GenericWorker, addDelayTask) {
     ASSERT_TRUE(worker.start());
     {
         auto shared = std::make_shared<int>(0);
-        auto cb = [shared]() { return ++(*shared); };
+        auto cb     = [shared]() { return ++(*shared); };
         time::Duration clock;
         ASSERT_EQ(1, worker.addDelayTask(50, cb).get());
         ASSERT_GE(shared.use_count(), 2);
@@ -113,7 +114,7 @@ TEST(GenericWorker, addRepeatTask) {
     ASSERT_TRUE(worker.start());
     {
         auto counter = 0UL;
-        auto cb = [&]() { counter++; };
+        auto cb      = [&]() { counter++; };
         worker.addRepeatTask(50, cb);
         ::usleep(160 * 1000);
         ASSERT_EQ(3, counter);
@@ -125,8 +126,8 @@ TEST(GenericWorker, purgeRepeatTask) {
     ASSERT_TRUE(worker.start());
     {
         auto counter = 0UL;
-        auto cb = [&]() { counter++; };
-        auto id = worker.addRepeatTask(50, cb);
+        auto cb      = [&]() { counter++; };
+        auto id      = worker.addRepeatTask(50, cb);
         // fprintf(stderr, "id: 0x%016lx\n", id);
         ::usleep(110 * 1000);
         worker.purgeTimerTask(id);

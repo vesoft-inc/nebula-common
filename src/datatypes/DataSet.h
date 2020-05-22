@@ -48,20 +48,20 @@ struct DataSet {
     DataSet() = default;
     DataSet(const DataSet& ds) noexcept {
         colNames = ds.colNames;
-        rows = ds.rows;
+        rows     = ds.rows;
     }
     DataSet(DataSet&& ds) noexcept {
         colNames = std::move(ds.colNames);
-        rows = std::move(ds.rows);
+        rows     = std::move(ds.rows);
     }
     DataSet& operator=(const DataSet& ds) noexcept {
         colNames = ds.colNames;
-        rows = ds.rows;
+        rows     = ds.rows;
         return *this;
     }
     DataSet& operator=(DataSet&& ds) noexcept {
         colNames = std::move(ds.colNames);
-        rows = std::move(ds.rows);
+        rows     = std::move(ds.rows);
         return *this;
     }
 

@@ -5,6 +5,7 @@
  */
 
 #include "clients/storage/GraphStorageClient.h"
+
 #include "base/Base.h"
 
 namespace nebula {
@@ -39,7 +40,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>> GraphStorageCl
     std::unordered_map<HostAddr, cpp2::GetNeighborsRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
-        auto& req = requests[host];
+        auto& req  = requests[host];
         req.set_space_id(space);
         req.set_column_names(std::move(colNames));
         req.set_parts(std::move(c.second));
@@ -95,7 +96,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> GraphStorageClient::ad
     std::unordered_map<HostAddr, cpp2::AddVerticesRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
-        auto& req = requests[host];
+        auto& req  = requests[host];
         req.set_space_id(space);
         req.set_overwritable(overwritable);
         req.set_parts(std::move(c.second));
@@ -134,7 +135,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> GraphStorageClient::ad
     std::unordered_map<HostAddr, cpp2::AddEdgesRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
-        auto& req = requests[host];
+        auto& req  = requests[host];
         req.set_space_id(space);
         req.set_overwritable(overwritable);
         req.set_parts(std::move(c.second));
@@ -174,7 +175,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>> GraphStorageClient:
     std::unordered_map<HostAddr, cpp2::GetPropRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
-        auto& req = requests[host];
+        auto& req  = requests[host];
         req.set_space_id(space);
         req.set_column_names(std::move(colNames));
         req.set_parts(std::move(c.second));
@@ -218,7 +219,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> GraphStorageClient::de
     std::unordered_map<HostAddr, cpp2::DeleteEdgesRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
-        auto& req = requests[host];
+        auto& req  = requests[host];
         req.set_space_id(space);
         req.set_parts(std::move(c.second));
     }
@@ -248,7 +249,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> GraphStorageClient::de
     std::unordered_map<HostAddr, cpp2::DeleteVerticesRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
-        auto& req = requests[host];
+        auto& req  = requests[host];
         req.set_space_id(space);
         req.set_parts(std::move(c.second));
     }
@@ -278,7 +279,7 @@ folly::Future<StatusOr<storage::cpp2::UpdateResponse>> GraphStorageClient::updat
         return folly::makeFuture<StatusOr<storage::cpp2::UpdateResponse>>(status.status());
     }
 
-    auto part = status.value();
+    auto part    = status.value();
     auto hStatus = getPartHosts(space, part);
     if (!hStatus.ok()) {
         return folly::makeFuture<StatusOr<storage::cpp2::UpdateResponse>>(hStatus.status());
@@ -287,7 +288,7 @@ folly::Future<StatusOr<storage::cpp2::UpdateResponse>> GraphStorageClient::updat
     auto partHosts = hStatus.value();
     CHECK_GT(partHosts.hosts_.size(), 0U);
     const auto& host = this->getLeader(partHosts);
-    request.first = std::move(host);
+    request.first    = std::move(host);
     cpp2::UpdateVertexRequest req;
     req.set_space_id(space);
     req.set_vertex_id(vertexId);
@@ -324,7 +325,7 @@ folly::Future<StatusOr<storage::cpp2::UpdateResponse>> GraphStorageClient::updat
         return folly::makeFuture<StatusOr<storage::cpp2::UpdateResponse>>(status.status());
     }
 
-    auto part = status.value();
+    auto part    = status.value();
     auto hStatus = getPartHosts(space, part);
     if (!hStatus.ok()) {
         return folly::makeFuture<StatusOr<storage::cpp2::UpdateResponse>>(hStatus.status());
@@ -333,7 +334,7 @@ folly::Future<StatusOr<storage::cpp2::UpdateResponse>> GraphStorageClient::updat
     CHECK_GT(partHosts.hosts_.size(), 0U);
 
     const auto& host = this->getLeader(partHosts);
-    request.first = std::move(host);
+    request.first    = std::move(host);
     cpp2::UpdateEdgeRequest req;
     req.set_space_id(space);
     req.set_edge_key(edgeKey);
@@ -364,7 +365,7 @@ folly::Future<StatusOr<cpp2::GetUUIDResp>> GraphStorageClient::getUUID(GraphSpac
         return folly::makeFuture<StatusOr<cpp2::GetUUIDResp>>(status.status());
     }
 
-    auto part = status.value();
+    auto part    = status.value();
     auto hStatus = getPartHosts(space, part);
     if (!hStatus.ok()) {
         return folly::makeFuture<StatusOr<cpp2::GetUUIDResp>>(hStatus.status());
@@ -373,7 +374,7 @@ folly::Future<StatusOr<cpp2::GetUUIDResp>> GraphStorageClient::getUUID(GraphSpac
     CHECK_GT(partHosts.hosts_.size(), 0U);
 
     const auto& leader = this->getLeader(partHosts);
-    request.first = leader;
+    request.first      = leader;
     cpp2::GetUUIDReq req;
     req.set_space_id(space);
     req.set_part_id(part);
@@ -404,7 +405,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::LookupIndexResp>> GraphStorageClient:
     std::unordered_map<HostAddr, cpp2::LookupIndexRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
-        auto& req = requests[host];
+        auto& req  = requests[host];
         req.set_space_id(space);
         req.set_parts(std::move(c.second));
         req.set_contexts(std::move(contexts));

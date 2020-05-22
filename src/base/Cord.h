@@ -8,6 +8,7 @@
 #define COMMON_BASE_CORD_H_
 
 #include <stdlib.h>
+
 #include <functional>
 #include <string>
 
@@ -59,10 +60,10 @@ public:
     Cord& operator<<(const Cord& rhs);
 
 private:
-    const int32_t blockSize_ = 1024;
+    const int32_t blockSize_        = 1024;
     const int32_t blockContentSize_ = 1024 - sizeof(char*);
-    int32_t blockPt_ = blockContentSize_;
-    size_t len_ = 0;
+    int32_t blockPt_                = blockContentSize_;
+    size_t len_                     = 0;
 
     char* head_ = nullptr;
     char* tail_ = nullptr;

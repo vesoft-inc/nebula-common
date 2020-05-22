@@ -25,7 +25,7 @@ folly::Future<SucceededResultList<FutureIter>> collectNSucceeded(FutureIter firs
         ResultEval eval;
         Result results;
         std::atomic<size_t> numCompleted = {0};
-        std::atomic<size_t> nSucceeded = {0};
+        std::atomic<size_t> nSucceeded   = {0};
         folly::Promise<Result> promise;
         size_t nTotal;
     };

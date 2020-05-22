@@ -32,13 +32,13 @@ struct Set;
 struct DataSet;
 
 enum class NullType {
-    __NULL__ = 0,
-    NaN = 1,
-    BAD_DATA = 2,
-    BAD_TYPE = 3,
+    __NULL__     = 0,
+    NaN          = 1,
+    BAD_DATA     = 2,
+    BAD_TYPE     = 3,
     ERR_OVERFLOW = 4,
     UNKNOWN_PROP = 5,
-    DIV_BY_ZERO = 6,
+    DIV_BY_ZERO  = 6,
 };
 
 struct Value {
@@ -47,19 +47,19 @@ struct Value {
     enum class Type {
         __EMPTY__ = 0,
         NULLVALUE = 1,
-        BOOL = 2,
-        INT = 3,
-        FLOAT = 4,
-        STRING = 5,
-        DATE = 6,
-        DATETIME = 7,
-        VERTEX = 8,
-        EDGE = 9,
-        PATH = 10,
-        LIST = 11,
-        MAP = 12,
-        SET = 13,
-        DATASET = 14,
+        BOOL      = 2,
+        INT       = 3,
+        FLOAT     = 4,
+        STRING    = 5,
+        DATE      = 6,
+        DATETIME  = 7,
+        VERTEX    = 8,
+        EDGE      = 9,
+        PATH      = 10,
+        LIST      = 11,
+        MAP       = 12,
+        SET       = 13,
+        DATASET   = 14,
     };
 
     // Constructors

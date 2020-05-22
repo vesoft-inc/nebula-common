@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "clients/meta/FileBasedClusterIdMan.h"
 #include "fs/TempDir.h"

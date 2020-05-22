@@ -5,8 +5,10 @@
  */
 
 #include "clients/meta/MetaClient.h"
+
 #include <folly/ScopeGuard.h>
 #include <folly/hash/Hash.h>
+
 #include "base/Base.h"
 #include "clients/meta/FileBasedClusterIdMan.h"
 #include "conf/Configuration.h"
@@ -67,7 +69,7 @@ bool MetaClient::waitForMetadReady(int count, int retryIntervalSecs) {
         GflagsManager::getGflagsModule(gflagsModule_);
         gflagsDeclared_ = GflagsManager::declareGflags(gflagsModule_);
     }
-    isRunning_ = true;
+    isRunning_   = true;
     int tryCount = count;
     while (!isMetadReady() && ((count == -1) || (tryCount > 0)) && isRunning_) {
         LOG(INFO) << "Waiting for the metad to be ready!";
@@ -134,12 +136,12 @@ bool MetaClient::loadUsersAndRoles() {
             LOG(ERROR) << "List role by user failed, user : " << user.first;
             return false;
         }
-        userRolesMap[user.first] = rolesRet.value();
+        userRolesMap[user.first]    = rolesRet.value();
         userPasswordMap[user.first] = user.second;
     }
     {
         folly::RWSpinLock::WriteHolder holder(localCacheLock_);
-        userRolesMap_ = std::move(userRolesMap);
+        userRolesMap_    = std::move(userRolesMap);
         userPasswordMap_ = std::move(userPasswordMap);
     }
     return true;
@@ -174,18 +176,18 @@ bool MetaClient::loadData() {
 
     for (auto space : ret.value()) {
         auto spaceId = space.first;
-        auto r = getPartsAlloc(spaceId).get();
+        auto r       = getPartsAlloc(spaceId).get();
         if (!r.ok()) {
             LOG(ERROR) << "Get parts allocation failed for spaceId " << spaceId << ", status "
                        << r.status();
             return false;
         }
 
-        auto spaceCache = std::make_shared<SpaceInfoCache>();
-        auto partsAlloc = r.value();
-        spaceCache->spaceName = space.second;
+        auto spaceCache          = std::make_shared<SpaceInfoCache>();
+        auto partsAlloc          = r.value();
+        spaceCache->spaceName    = space.second;
         spaceCache->partsOnHost_ = reverse(partsAlloc);
-        spaceCache->partsAlloc_ = std::move(partsAlloc);
+        spaceCache->partsAlloc_  = std::move(partsAlloc);
         VLOG(2) << "Load space " << spaceId << ", parts num:" << spaceCache->partsAlloc_.size();
 
         // loadSchemas
@@ -213,7 +215,7 @@ bool MetaClient::loadData() {
             LOG(ERROR) << "Get space properties failed for space " << spaceId;
             return false;
         }
-        const auto& properties = resp.value().get_properties();
+        const auto& properties   = resp.value().get_properties();
         spaceCache->vertexIdLen_ = properties.get_vid_size();
 
         cache.emplace(spaceId, spaceCache);
@@ -223,16 +225,16 @@ bool MetaClient::loadData() {
     decltype(localCache_) oldCache;
     {
         folly::RWSpinLock::WriteHolder holder(localCacheLock_);
-        oldCache = std::move(localCache_);
-        localCache_ = std::move(cache);
-        spaceIndexByName_ = std::move(spaceIndexByName);
-        spaceTagIndexByName_ = std::move(spaceTagIndexByName);
-        spaceEdgeIndexByName_ = std::move(spaceEdgeIndexByName);
-        spaceNewestTagVerMap_ = std::move(spaceNewestTagVerMap);
+        oldCache               = std::move(localCache_);
+        localCache_            = std::move(cache);
+        spaceIndexByName_      = std::move(spaceIndexByName);
+        spaceTagIndexByName_   = std::move(spaceTagIndexByName);
+        spaceEdgeIndexByName_  = std::move(spaceEdgeIndexByName);
+        spaceNewestTagVerMap_  = std::move(spaceNewestTagVerMap);
         spaceNewestEdgeVerMap_ = std::move(spaceNewestEdgeVerMap);
-        spaceEdgeIndexByType_ = std::move(spaceEdgeIndexByType);
-        spaceTagIndexById_ = std::move(spaceTagIndexById);
-        spaceAllEdgeMap_ = std::move(spaceAllEdgeMap);
+        spaceEdgeIndexByType_  = std::move(spaceEdgeIndexByType);
+        spaceTagIndexById_     = std::move(spaceTagIndexById);
+        spaceAllEdgeMap_       = std::move(spaceAllEdgeMap);
     }
 
     diff(oldCache, localCache_);
@@ -261,7 +263,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
         return false;
     }
 
-    auto tagItemVec = tagRet.value();
+    auto tagItemVec  = tagRet.value();
     auto edgeItemVec = edgeRet.value();
     TagSchemas tagSchemas;
     EdgeSchemas edgeSchemas;
@@ -270,8 +272,8 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
         // meta will return the different version from new to old
         auto schema = std::make_shared<NebulaSchemaProvider>(tagIt.version);
         for (auto colIt : tagIt.schema.get_columns()) {
-            bool hasDef = colIt.__isset.default_value;
-            size_t len = colIt.__isset.type_length ? *colIt.get_type_length() : 0;
+            bool hasDef   = colIt.__isset.default_value;
+            size_t len    = colIt.__isset.type_length ? *colIt.get_type_length() : 0;
             bool nullable = colIt.__isset.nullable ? *colIt.get_nullable() : false;
             schema->addField(colIt.get_name(),
                              colIt.get_type(),
@@ -308,8 +310,8 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
         // meta will return the different version from new to old
         auto schema = std::make_shared<NebulaSchemaProvider>(edgeIt.version);
         for (auto col : edgeIt.schema.get_columns()) {
-            bool hasDef = col.__isset.default_value;
-            size_t len = col.__isset.type_length ? *col.get_type_length() : 0;
+            bool hasDef   = col.__isset.default_value;
+            size_t len    = col.__isset.type_length ? *col.get_type_length() : 0;
             bool nullable = col.__isset.nullable ? *col.get_nullable() : false;
             schema->addField(col.get_name(),
                              col.get_type(),
@@ -353,7 +355,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
                 << " Successfully!";
     }
 
-    spaceInfoCache->tagSchemas_ = std::move(tagSchemas);
+    spaceInfoCache->tagSchemas_  = std::move(tagSchemas);
     spaceInfoCache->edgeSchemas_ = std::move(edgeSchemas);
     return true;
 }
@@ -376,7 +378,7 @@ bool MetaClient::loadIndexes(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCach
     Indexes tagIndexes;
     for (auto tagIndex : tagIndexesRet.value()) {
         auto indexName = tagIndex.get_index_name();
-        auto indexID = tagIndex.get_index_id();
+        auto indexID   = tagIndex.get_index_id();
         std::pair<GraphSpaceID, std::string> pair(spaceId, indexName);
         tagNameIndexMap_.emplace(std::move(pair), indexID);
         auto tagIndexPtr = std::make_shared<cpp2::IndexItem>(tagIndex);
@@ -387,7 +389,7 @@ bool MetaClient::loadIndexes(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCach
     Indexes edgeIndexes;
     for (auto& edgeIndex : edgeIndexesRet.value()) {
         auto indexName = edgeIndex.get_index_name();
-        auto indexID = edgeIndex.get_index_id();
+        auto indexID   = edgeIndex.get_index_id();
         std::pair<GraphSpaceID, std::string> pair(spaceId, indexName);
         edgeNameIndexMap_.emplace(std::move(pair), indexID);
         auto edgeIndexPtr = std::make_shared<cpp2::IndexItem>(edgeIndex);
@@ -458,10 +460,10 @@ void MetaClient::getResponse(Request req,
         evb,
         [host,
          evb,
-         req = std::move(req),
+         req        = std::move(req),
          remoteFunc = std::move(remoteFunc),
-         respGen = std::move(respGen),
-         pro = std::move(pro),
+         respGen    = std::move(respGen),
+         pro        = std::move(pro),
          toLeader,
          retry,
          retryLimit,
@@ -471,10 +473,10 @@ void MetaClient::getResponse(Request req,
             remoteFunc(client, req)
                 .via(evb)
                 .then([host,
-                       req = std::move(req),
+                       req        = std::move(req),
                        remoteFunc = std::move(remoteFunc),
-                       respGen = std::move(respGen),
-                       pro = std::move(pro),
+                       respGen    = std::move(respGen),
+                       pro        = std::move(pro),
                        toLeader,
                        retry,
                        retryLimit,
@@ -489,10 +491,10 @@ void MetaClient::getResponse(Request req,
                         }
                         if (retry < retryLimit) {
                             evb->runAfterDelay(
-                                [req = std::move(req),
+                                [req        = std::move(req),
                                  remoteFunc = std::move(remoteFunc),
-                                 respGen = std::move(respGen),
-                                 pro = std::move(pro),
+                                 respGen    = std::move(respGen),
+                                 pro        = std::move(pro),
                                  toLeader,
                                  retry,
                                  retryLimit,
@@ -525,10 +527,10 @@ void MetaClient::getResponse(Request req,
                         updateLeader(resp.get_leader());
                         if (retry < retryLimit) {
                             evb->runAfterDelay(
-                                [req = std::move(req),
+                                [req        = std::move(req),
                                  remoteFunc = std::move(remoteFunc),
-                                 respGen = std::move(respGen),
-                                 pro = std::move(pro),
+                                 respGen    = std::move(respGen),
+                                 pro        = std::move(pro),
                                  toLeader,
                                  retry,
                                  retryLimit,
@@ -613,16 +615,16 @@ PartsMap MetaClient::doGetPartsMap(const HostAddr& host, const LocalCache& local
     PartsMap partMap;
     for (auto it = localCache.begin(); it != localCache.end(); it++) {
         auto spaceId = it->first;
-        auto& cache = it->second;
+        auto& cache  = it->second;
         auto partsIt = cache->partsOnHost_.find(host);
         if (partsIt != cache->partsOnHost_.end()) {
             for (auto& partId : partsIt->second) {
                 auto partAllocIter = cache->partsAlloc_.find(partId);
                 CHECK(partAllocIter != cache->partsAlloc_.end());
-                auto& partM = partMap[spaceId][partId];
+                auto& partM    = partMap[spaceId][partId];
                 partM.spaceId_ = spaceId;
-                partM.partId_ = partId;
-                partM.hosts_ = partAllocIter->second;
+                partM.partId_  = partId;
+                partM.hosts_   = partAllocIter->second;
             }
         }
     }
@@ -639,9 +641,9 @@ void MetaClient::diff(const LocalCache& oldCache, const LocalCache& newCache) {
     auto oldPartsMap = doGetPartsMap(options_.localHost_, oldCache);
     VLOG(1) << "Let's check if any new parts added/updated for " << options_.localHost_;
     for (auto it = newPartsMap.begin(); it != newPartsMap.end(); it++) {
-        auto spaceId = it->first;
+        auto spaceId         = it->first;
         const auto& newParts = it->second;
-        auto oldIt = oldPartsMap.find(spaceId);
+        auto oldIt           = oldPartsMap.find(spaceId);
         if (oldIt == oldPartsMap.end()) {
             VLOG(1) << "SpaceId " << spaceId << " was added!";
             listener_->onSpaceAdded(spaceId);
@@ -670,9 +672,9 @@ void MetaClient::diff(const LocalCache& oldCache, const LocalCache& newCache) {
     }
     VLOG(1) << "Let's check if any old parts removed....";
     for (auto it = oldPartsMap.begin(); it != oldPartsMap.end(); it++) {
-        auto spaceId = it->first;
+        auto spaceId         = it->first;
         const auto& oldParts = it->second;
-        auto newIt = newPartsMap.find(spaceId);
+        auto newIt           = newPartsMap.find(spaceId);
         if (newIt == newPartsMap.end()) {
             VLOG(1) << "SpaceId " << spaceId << " was removed!";
             for (auto partIt = oldParts.begin(); partIt != oldParts.end(); partIt++) {
@@ -723,10 +725,11 @@ folly::Future<StatusOr<cpp2::AdminJobResult>> MetaClient::submitJob(
     req.set_paras(std::move(paras));
     folly::Promise<StatusOr<cpp2::AdminJobResult>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_runAdminJob(request); },
-                [](cpp2::AdminJobResp&& resp) -> decltype(auto) { return resp.get_result(); },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_runAdminJob(request); },
+        [](cpp2::AdminJobResp&& resp) -> decltype(auto) { return resp.get_result(); },
+        std::move(promise));
     return future;
 }
 
@@ -745,11 +748,12 @@ folly::Future<StatusOr<GraphSpaceID>> MetaClient::createSpace(SpaceDesc spaceDes
     req.set_if_not_exists(ifNotExists);
     folly::Promise<StatusOr<GraphSpaceID>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_createSpace(request); },
-                [](cpp2::ExecResp&& resp) -> GraphSpaceID { return resp.get_id().get_space_id(); },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_createSpace(request); },
+        [](cpp2::ExecResp&& resp) -> GraphSpaceID { return resp.get_id().get_space_id(); },
+        std::move(promise),
+        true);
     return future;
 }
 
@@ -757,12 +761,13 @@ folly::Future<StatusOr<std::vector<SpaceIdName>>> MetaClient::listSpaces() {
     cpp2::ListSpacesReq req;
     folly::Promise<StatusOr<std::vector<SpaceIdName>>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_listSpaces(request); },
-                [this](cpp2::ListSpacesResp&& resp) -> decltype(auto) {
-                    return this->toSpaceIdName(resp.get_spaces());
-                },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_listSpaces(request); },
+        [this](cpp2::ListSpacesResp&& resp) -> decltype(auto) {
+            return this->toSpaceIdName(resp.get_spaces());
+        },
+        std::move(promise));
     return future;
 }
 
@@ -798,10 +803,11 @@ folly::Future<StatusOr<std::vector<cpp2::HostItem>>> MetaClient::listHosts() {
     cpp2::ListHostsReq req;
     folly::Promise<StatusOr<std::vector<cpp2::HostItem>>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_listHosts(request); },
-                [](cpp2::ListHostsResp&& resp) -> decltype(auto) { return resp.hosts; },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_listHosts(request); },
+        [](cpp2::ListHostsResp&& resp) -> decltype(auto) { return resp.hosts; },
+        std::move(promise));
     return future;
 }
 
@@ -813,10 +819,11 @@ folly::Future<StatusOr<std::vector<cpp2::PartItem>>> MetaClient::listParts(
     req.set_part_ids(std::move(partIds));
     folly::Promise<StatusOr<std::vector<cpp2::PartItem>>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_listParts(request); },
-                [](cpp2::ListPartsResp&& resp) -> decltype(auto) { return resp.parts; },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_listParts(request); },
+        [](cpp2::ListPartsResp&& resp) -> decltype(auto) { return resp.parts; },
+        std::move(promise));
     return future;
 }
 
@@ -826,16 +833,17 @@ MetaClient::getPartsAlloc(GraphSpaceID spaceId) {
     req.set_space_id(spaceId);
     folly::Promise<StatusOr<std::unordered_map<PartitionID, std::vector<HostAddr>>>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_getPartsAlloc(request); },
-                [](cpp2::GetPartsAllocResp&& resp) -> decltype(auto) {
-                    std::unordered_map<PartitionID, std::vector<HostAddr>> parts;
-                    for (auto it = resp.parts.begin(); it != resp.parts.end(); it++) {
-                        parts.emplace(it->first, it->second);
-                    }
-                    return parts;
-                },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_getPartsAlloc(request); },
+        [](cpp2::GetPartsAllocResp&& resp) -> decltype(auto) {
+            std::unordered_map<PartitionID, std::vector<HostAddr>> parts;
+            for (auto it = resp.parts.begin(); it != resp.parts.end(); it++) {
+                parts.emplace(it->first, it->second);
+            }
+            return parts;
+        },
+        std::move(promise));
     return future;
 }
 
@@ -955,10 +963,11 @@ folly::Future<StatusOr<std::string>> MetaClient::get(std::string segment, std::s
     req.set_key(std::move(key));
     folly::Promise<StatusOr<std::string>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_get(request); },
-                [](cpp2::GetResp&& resp) -> std::string { return resp.get_value(); },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_get(request); },
+        [](cpp2::GetResp&& resp) -> std::string { return resp.get_value(); },
+        std::move(promise));
     return future;
 }
 
@@ -995,10 +1004,11 @@ folly::Future<StatusOr<std::vector<std::string>>> MetaClient::scan(std::string s
     req.set_end(std::move(end));
     folly::Promise<StatusOr<std::vector<std::string>>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_scan(request); },
-                [](cpp2::ScanResp&& resp) -> std::vector<std::string> { return resp.get_values(); },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_scan(request); },
+        [](cpp2::ScanResp&& resp) -> std::vector<std::string> { return resp.get_values(); },
+        std::move(promise));
     return future;
 }
 
@@ -1054,15 +1064,15 @@ StatusOr<PartHosts> MetaClient::getPartHostsFromCache(GraphSpaceID spaceId, Part
     if (it == localCache_.end()) {
         return Status::Error("Space not found, spaceid: %d", spaceId);
     }
-    auto& cache = it->second;
+    auto& cache        = it->second;
     auto partAllocIter = cache->partsAlloc_.find(partId);
     if (partAllocIter == cache->partsAlloc_.end()) {
         return Status::Error("Part not found in cache, spaceid: %d, partid: %d", spaceId, partId);
     }
     PartHosts ph;
     ph.spaceId_ = spaceId;
-    ph.partId_ = partId;
-    ph.hosts_ = partAllocIter->second;
+    ph.partId_  = partId;
+    ph.hosts_   = partAllocIter->second;
     return ph;
 }
 
@@ -1120,11 +1130,12 @@ folly::Future<StatusOr<TagID>> MetaClient::createTagSchema(GraphSpaceID spaceId,
     req.set_if_not_exists(ifNotExists);
     folly::Promise<StatusOr<TagID>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_createTag(request); },
-                [](cpp2::ExecResp&& resp) -> TagID { return resp.get_id().get_tag_id(); },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_createTag(request); },
+        [](cpp2::ExecResp&& resp) -> TagID { return resp.get_id().get_tag_id(); },
+        std::move(promise),
+        true);
     return future;
 }
 
@@ -1139,11 +1150,12 @@ folly::Future<StatusOr<TagID>> MetaClient::alterTagSchema(GraphSpaceID spaceId,
     req.set_schema_prop(std::move(schemaProp));
     folly::Promise<StatusOr<TagID>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_alterTag(request); },
-                [](cpp2::ExecResp&& resp) -> TagID { return resp.get_id().get_tag_id(); },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_alterTag(request); },
+        [](cpp2::ExecResp&& resp) -> TagID { return resp.get_id().get_tag_id(); },
+        std::move(promise),
+        true);
     return future;
 }
 
@@ -1208,11 +1220,12 @@ folly::Future<StatusOr<EdgeType>> MetaClient::createEdgeSchema(GraphSpaceID spac
 
     folly::Promise<StatusOr<EdgeType>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_createEdge(request); },
-                [](cpp2::ExecResp&& resp) -> EdgeType { return resp.get_id().get_edge_type(); },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_createEdge(request); },
+        [](cpp2::ExecResp&& resp) -> EdgeType { return resp.get_id().get_edge_type(); },
+        std::move(promise),
+        true);
     return future;
 }
 
@@ -1299,11 +1312,12 @@ folly::Future<StatusOr<IndexID>> MetaClient::createTagIndex(GraphSpaceID spaceID
 
     folly::Promise<StatusOr<IndexID>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_createTagIndex(request); },
-                [](cpp2::ExecResp&& resp) -> IndexID { return resp.get_id().get_index_id(); },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_createTagIndex(request); },
+        [](cpp2::ExecResp&& resp) -> IndexID { return resp.get_id().get_index_id(); },
+        std::move(promise),
+        true);
     return future;
 }
 
@@ -1317,11 +1331,12 @@ folly::Future<StatusOr<bool>> MetaClient::dropTagIndex(GraphSpaceID spaceID,
 
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_dropTagIndex(request); },
-                [](cpp2::ExecResp&& resp) -> IndexID { return resp.get_id().get_index_id(); },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_dropTagIndex(request); },
+        [](cpp2::ExecResp&& resp) -> IndexID { return resp.get_id().get_index_id(); },
+        std::move(promise),
+        true);
     return future;
 }
 
@@ -1348,12 +1363,13 @@ folly::Future<StatusOr<std::vector<cpp2::IndexItem>>> MetaClient::listTagIndexes
 
     folly::Promise<StatusOr<std::vector<cpp2::IndexItem>>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_listTagIndexes(request); },
-                [](cpp2::ListTagIndexesResp&& resp) -> decltype(auto) {
-                    return std::move(resp).get_items();
-                },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_listTagIndexes(request); },
+        [](cpp2::ListTagIndexesResp&& resp) -> decltype(auto) {
+            return std::move(resp).get_items();
+        },
+        std::move(promise));
     return future;
 }
 
@@ -1408,11 +1424,12 @@ folly::Future<StatusOr<IndexID>> MetaClient::createEdgeIndex(GraphSpaceID spaceI
     folly::Promise<StatusOr<IndexID>> promise;
     auto future = promise.getFuture();
 
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_createEdgeIndex(request); },
-                [](cpp2::ExecResp&& resp) -> IndexID { return resp.get_id().get_index_id(); },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_createEdgeIndex(request); },
+        [](cpp2::ExecResp&& resp) -> IndexID { return resp.get_id().get_index_id(); },
+        std::move(promise),
+        true);
     return future;
 }
 
@@ -1426,11 +1443,12 @@ folly::Future<StatusOr<bool>> MetaClient::dropEdgeIndex(GraphSpaceID spaceID,
 
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_dropEdgeIndex(request); },
-                [](cpp2::ExecResp&& resp) -> IndexID { return resp.get_id().get_index_id(); },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_dropEdgeIndex(request); },
+        [](cpp2::ExecResp&& resp) -> IndexID { return resp.get_id().get_index_id(); },
+        std::move(promise),
+        true);
     return future;
 }
 
@@ -1457,12 +1475,13 @@ folly::Future<StatusOr<std::vector<cpp2::IndexItem>>> MetaClient::listEdgeIndexe
 
     folly::Promise<StatusOr<std::vector<cpp2::IndexItem>>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_listEdgeIndexes(request); },
-                [](cpp2::ListEdgeIndexesResp&& resp) -> decltype(auto) {
-                    return std::move(resp).get_items();
-                },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_listEdgeIndexes(request); },
+        [](cpp2::ListEdgeIndexesResp&& resp) -> decltype(auto) {
+            return std::move(resp).get_items();
+        },
+        std::move(promise));
     return future;
 }
 
@@ -1598,7 +1617,7 @@ StatusOr<std::shared_ptr<cpp2::IndexItem>> MetaClient::getTagIndexByNameFromCach
     if (iter == tagNameIndexMap_.end()) {
         return Status::IndexNotFound();
     }
-    auto indexID = iter->second;
+    auto indexID    = iter->second;
     auto itemStatus = getTagIndexFromCache(space, indexID);
     if (!itemStatus.ok()) {
         return itemStatus.status();
@@ -1617,7 +1636,7 @@ StatusOr<std::shared_ptr<cpp2::IndexItem>> MetaClient::getEdgeIndexByNameFromCac
     if (iter == edgeNameIndexMap_.end()) {
         return Status::IndexNotFound();
     }
-    auto indexID = iter->second;
+    auto indexID    = iter->second;
     auto itemStatus = getEdgeIndexFromCache(space, indexID);
     if (!itemStatus.ok()) {
         return itemStatus.status();
@@ -1713,7 +1732,7 @@ StatusOr<std::vector<std::shared_ptr<cpp2::IndexItem>>> MetaClient::getTagIndexe
         return Status::SpaceNotFound();
     } else {
         auto tagIndexes = spaceIt->second->tagIndexes_;
-        auto iter = tagIndexes.begin();
+        auto iter       = tagIndexes.begin();
         std::vector<std::shared_ptr<cpp2::IndexItem>> items;
         while (iter != tagIndexes.end()) {
             items.emplace_back(iter->second);
@@ -1736,7 +1755,7 @@ StatusOr<std::vector<std::shared_ptr<cpp2::IndexItem>>> MetaClient::getEdgeIndex
         return Status::SpaceNotFound();
     } else {
         auto edgeIndexes = spaceIt->second->edgeIndexes_;
-        auto iter = edgeIndexes.begin();
+        auto iter        = edgeIndexes.begin();
         std::vector<std::shared_ptr<cpp2::IndexItem>> items;
         while (iter != edgeIndexes.end()) {
             items.emplace_back(iter->second);
@@ -1821,25 +1840,25 @@ folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
     VLOG(1) << "Send heartbeat to " << leader_ << ", clusterId " << req.get_cluster_id();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_heartBeat(request); },
-                [this](cpp2::HBResp&& resp) -> bool {
-                    if (options_.inStoraged_ && options_.clusterId_.load() == 0) {
-                        LOG(INFO) << "Persisit the cluster Id from metad " << resp.get_cluster_id();
-                        if (FileBasedClusterIdMan::persistInFile(resp.get_cluster_id(),
-                                                                 FLAGS_cluster_id_path)) {
-                            options_.clusterId_.store(resp.get_cluster_id());
-                        } else {
-                            LOG(FATAL)
-                                << "Can't persist the clusterId in file " << FLAGS_cluster_id_path;
-                        }
-                    }
-                    metadLastUpdateTime_ = resp.get_last_update_time_in_ms();
-                    VLOG(1) << "Metad last update time: " << metadLastUpdateTime_;
-                    return true;   // resp.code == cpp2::ErrorCode::SUCCEEDED
-                },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_heartBeat(request); },
+        [this](cpp2::HBResp&& resp) -> bool {
+            if (options_.inStoraged_ && options_.clusterId_.load() == 0) {
+                LOG(INFO) << "Persisit the cluster Id from metad " << resp.get_cluster_id();
+                if (FileBasedClusterIdMan::persistInFile(resp.get_cluster_id(),
+                                                         FLAGS_cluster_id_path)) {
+                    options_.clusterId_.store(resp.get_cluster_id());
+                } else {
+                    LOG(FATAL) << "Can't persist the clusterId in file " << FLAGS_cluster_id_path;
+                }
+            }
+            metadLastUpdateTime_ = resp.get_last_update_time_in_ms();
+            VLOG(1) << "Metad last update time: " << metadLastUpdateTime_;
+            return true;   // resp.code == cpp2::ErrorCode::SUCCEEDED
+        },
+        std::move(promise),
+        true);
     return future;
 }
 
@@ -1986,11 +2005,12 @@ folly::Future<StatusOr<int64_t>> MetaClient::balance(std::vector<HostAddr> hostD
 
     folly::Promise<StatusOr<int64_t>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_balance(request); },
-                [](cpp2::BalanceResp&& resp) -> int64_t { return resp.id; },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_balance(request); },
+        [](cpp2::BalanceResp&& resp) -> int64_t { return resp.id; },
+        std::move(promise),
+        true);
     return future;
 }
 
@@ -2035,10 +2055,11 @@ folly::Future<StatusOr<std::string>> MetaClient::getTagDefaultValue(GraphSpaceID
     req.set_key(std::move(key));
     folly::Promise<StatusOr<std::string>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_get(request); },
-                [](cpp2::GetResp&& resp) -> std::string { return resp.get_value(); },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_get(request); },
+        [](cpp2::GetResp&& resp) -> std::string { return resp.get_value(); },
+        std::move(promise));
     return future;
 }
 
@@ -2056,10 +2077,11 @@ folly::Future<StatusOr<std::string>> MetaClient::getEdgeDefaultValue(GraphSpaceI
     req.set_key(std::move(key));
     folly::Promise<StatusOr<std::string>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_get(request); },
-                [](cpp2::GetResp&& resp) -> std::string { return resp.get_value(); },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_get(request); },
+        [](cpp2::GetResp&& resp) -> std::string { return resp.get_value(); },
+        std::move(promise));
     return future;
 }
 
@@ -2068,13 +2090,14 @@ folly::Future<StatusOr<bool>> MetaClient::regConfig(const std::vector<cpp2::Conf
     req.set_items(items);
     folly::Promise<StatusOr<int64_t>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_regConfig(request); },
-                [](cpp2::ExecResp&& resp) -> decltype(auto) {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
-                },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_regConfig(request); },
+        [](cpp2::ExecResp&& resp) -> decltype(auto) {
+            return resp.code == cpp2::ErrorCode::SUCCEEDED;
+        },
+        std::move(promise),
+        true);
     return future;
 }
 
@@ -2113,13 +2136,14 @@ folly::Future<StatusOr<bool>> MetaClient::setConfig(const cpp2::ConfigModule& mo
     req.set_item(item);
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_setConfig(request); },
-                [](cpp2::ExecResp&& resp) -> decltype(auto) {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
-                },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_setConfig(request); },
+        [](cpp2::ExecResp&& resp) -> decltype(auto) {
+            return resp.code == cpp2::ErrorCode::SUCCEEDED;
+        },
+        std::move(promise),
+        true);
     return future;
 }
 
@@ -2168,12 +2192,13 @@ folly::Future<StatusOr<std::vector<cpp2::Snapshot>>> MetaClient::listSnapshots()
     cpp2::ListSnapshotsReq req;
     folly::Promise<StatusOr<std::vector<cpp2::Snapshot>>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [](auto client, auto request) { return client->future_listSnapshots(request); },
-                [](cpp2::ListSnapshotsResp&& resp) -> decltype(auto) {
-                    return std::move(resp).get_snapshots();
-                },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_listSnapshots(request); },
+        [](cpp2::ListSnapshotsResp&& resp) -> decltype(auto) {
+            return std::move(resp).get_snapshots();
+        },
+        std::move(promise));
     return future;
 }
 
@@ -2209,7 +2234,7 @@ bool MetaClient::loadCfg() {
             folly::RWSpinLock::WriteHolder holder(configCacheLock_);
             for (const auto& entry : metaConfigMap) {
                 auto& key = entry.first;
-                auto it = metaConfigMap_.find(key);
+                auto it   = metaConfigMap_.find(key);
                 if (it == metaConfigMap_.end() || metaConfigMap[key].value_ != it->second.value_) {
                     updateGflagsValue(entry.second);
                     metaConfigMap_[key] = entry.second;
@@ -2323,7 +2348,7 @@ StatusOr<LeaderMap> MetaClient::loadLeader() {
     for (auto& item : hostItems) {
         for (auto& spaceEntry : item.get_leader_parts()) {
             auto spaceName = spaceEntry.first;
-            auto status = getSpaceIdByNameFromCache(spaceName);
+            auto status    = getSpaceIdByNameFromCache(spaceName);
             if (!status.ok()) {
                 continue;
             }

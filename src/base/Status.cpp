@@ -5,16 +5,17 @@
  */
 
 #include "base/Status.h"
+
 #include "base/Base.h"
 
 namespace nebula {
 
 Status::Status(Code code, folly::StringPiece msg) {
     const uint16_t size = msg.size();
-    auto state = std::unique_ptr<char[]>(new char[size + kHeaderSize]);
-    auto *header = reinterpret_cast<Header *>(state.get());
-    header->size_ = size;
-    header->code_ = code;
+    auto state          = std::unique_ptr<char[]>(new char[size + kHeaderSize]);
+    auto *header        = reinterpret_cast<Header *>(state.get());
+    header->size_       = size;
+    header->code_       = code;
     ::memcpy(&state[kHeaderSize], msg.data(), size);
     state_ = std::move(state);
 }
@@ -49,9 +50,9 @@ std::string Status::toString() const {
 }
 
 std::unique_ptr<const char[]> Status::copyState(const char *state) {
-    const auto size = *reinterpret_cast<const uint16_t *>(state);
+    const auto size  = *reinterpret_cast<const uint16_t *>(state);
     const auto total = size + kHeaderSize;
-    auto result = std::unique_ptr<char[]>(new char[total]);
+    auto result      = std::unique_ptr<char[]>(new char[total]);
     ::memcpy(&result[0], state, total);
     return result;
 }

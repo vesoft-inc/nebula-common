@@ -5,6 +5,7 @@
  */
 
 #include "thrift/ThriftClientManager.h"
+
 #include "base/Base.h"
 
 DEFINE_int32(conn_timeout_ms, 1000, "Connection timeout in milliseconds");

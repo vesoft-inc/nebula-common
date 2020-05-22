@@ -5,10 +5,12 @@
  */
 
 #include "fs/FileUtils.h"
+
 #include <dirent.h>
 #include <fnmatch.h>
 #include <limits.h>
 #include <stdlib.h>
+
 #include "base/Base.h"
 
 namespace nebula {
@@ -244,7 +246,7 @@ void FileUtils::dividePath(const folly::StringPiece path,
     if (path.empty() || path == "/") {
         // The given string is empty or just "/"
         parent = folly::StringPiece();
-        child = path;
+        child  = path;
         return;
     }
 
@@ -254,7 +256,7 @@ void FileUtils::dividePath(const folly::StringPiece path,
     if (pos == std::string::npos) {
         // Not found
         parent = folly::StringPiece();
-        child = pathToLook;
+        child  = pathToLook;
         return;
     }
 

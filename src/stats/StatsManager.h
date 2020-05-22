@@ -10,6 +10,7 @@
 #include <folly/RWSpinLock.h>
 #include <folly/stats/MultiLevelTimeSeries.h>
 #include <folly/stats/TimeseriesHistogram.h>
+
 #include "base/Base.h"
 #include "base/StatusOr.h"
 #include "datatypes/HostAddr.h"
@@ -42,8 +43,8 @@ namespace stats {
  *   error.count.600    -- Total number of errors in the last ten minutes
  */
 class StatsManager final {
-    using VT = int64_t;
-    using StatsType = folly::MultiLevelTimeSeries<VT>;
+    using VT            = int64_t;
+    using StatsType     = folly::MultiLevelTimeSeries<VT>;
     using HistogramType = folly::TimeseriesHistogram<VT>;
 
 public:
@@ -77,9 +78,9 @@ public:
 private:
     static StatsManager& get();
 
-    StatsManager() = default;
+    StatsManager()                    = default;
     StatsManager(const StatsManager&) = delete;
-    StatsManager(StatsManager&&) = delete;
+    StatsManager(StatsManager&&)      = delete;
 
     template <class StatsHolder>
     static VT readValue(StatsHolder& stats, TimeRange range, StatsMethod method);

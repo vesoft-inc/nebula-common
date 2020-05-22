@@ -134,27 +134,27 @@ public:
     // e.g. kSomeError, and add the cooresponding STATUS_GENERATOR(SomeError)
     enum Code : uint16_t {
         // OK
-        kOk = 0,
+        kOk       = 0,
         kInserted = 1,
         // 1xx, for general errors
-        kError = 101,
-        kNoSuchFile = 102,
+        kError        = 101,
+        kNoSuchFile   = 102,
         kNotSupported = 103,
         // 2xx, for graph engine errors
-        kSyntaxError = 201,
+        kSyntaxError    = 201,
         kStatementEmpty = 202,
         // 3xx, for storage engine errors
         kKeyNotFound = 301,
         // 4xx, for meta service errors
         kSpaceNotFound = 404,
-        kHostNotFound = 405,
-        kTagNotFound = 406,
-        kEdgeNotFound = 407,
-        kUserNotFound = 408,
+        kHostNotFound  = 405,
+        kTagNotFound   = 406,
+        kEdgeNotFound  = 407,
+        kUserNotFound  = 408,
         kLeaderChanged = 409,
-        kBalanced = 410,
+        kBalanced      = 410,
         kIndexNotFound = 411,
-        kPartNotFound = 412,
+        kPartNotFound  = 412,
         // 5xx for user or permission error
         kPermissionError = 501,
     };

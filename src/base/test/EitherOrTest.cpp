@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "base/EitherOr.h"
 
@@ -305,13 +306,13 @@ TEST(EitherOr, AssignFromValue) {
     {
         EitherOr<std::unique_ptr<std::string>, std::string> result;
         auto val = std::make_unique<std::string>("Hello World");
-        result = std::move(val);
+        result   = std::move(val);
         ASSERT_TRUE(!val);
         ASSERT_TRUE(result.isLeftType());
         EXPECT_EQ("Hello World", *result.left());
 
         auto str = std::string("SomeValue");
-        result = std::move(str);
+        result   = std::move(str);
         ASSERT_TRUE(str.empty());
         ASSERT_TRUE(result.isRightType());
         EXPECT_EQ("SomeValue", result.right());

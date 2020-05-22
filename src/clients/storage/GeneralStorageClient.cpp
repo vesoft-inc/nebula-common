@@ -5,6 +5,7 @@
  */
 
 #include "clients/storage/GeneralStorageClient.h"
+
 #include "base/Base.h"
 
 namespace nebula {
@@ -27,7 +28,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::KVGetResponse>> GeneralStorageClient:
     std::unordered_map<HostAddr, cpp2::KVGetRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
-        auto& req = requests[host];
+        auto& req  = requests[host];
         req.set_space_id(space);
         req.set_parts(std::move(c.second));
         req.set_return_partly(returnPartly);
@@ -56,7 +57,7 @@ GeneralStorageClient::put(GraphSpaceID space, std::vector<KeyValue> kvs, folly::
     std::unordered_map<HostAddr, cpp2::KVPutRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
-        auto& req = requests[host];
+        auto& req  = requests[host];
         req.set_space_id(space);
         req.set_parts(std::move(c.second));
     }
@@ -86,7 +87,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> GeneralStorageClient::
     std::unordered_map<HostAddr, cpp2::KVRemoveRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
-        auto& req = requests[host];
+        auto& req  = requests[host];
         req.set_space_id(space);
         req.set_parts(std::move(c.second));
     }

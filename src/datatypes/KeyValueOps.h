@@ -7,12 +7,11 @@
 #ifndef DATATYPES_KEYVALUEOPS_H_
 #define DATATYPES_KEYVALUEOPS_H_
 
-#include "base/Base.h"
-
 #include <thrift/lib/cpp2/GeneratedSerializationCodeHelper.h>
 #include <thrift/lib/cpp2/gen/module_types_tcc.h>
 #include <thrift/lib/cpp2/protocol/ProtocolReaderStructReadState.h>
 
+#include "base/Base.h"
 #include "datatypes/KeyValue.h"
 
 namespace apache {
@@ -26,10 +25,10 @@ struct TccStructTraits<nebula::KeyValue> {
                                    MAYBE_UNUSED int16_t& fid,
                                    MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "key") {
-            fid = 1;
+            fid    = 1;
             _ftype = apache::thrift::protocol::T_STRING;
         } else if (_fname == "value") {
-            fid = 2;
+            fid    = 2;
             _ftype = apache::thrift::protocol::T_STRING;
         }
     }

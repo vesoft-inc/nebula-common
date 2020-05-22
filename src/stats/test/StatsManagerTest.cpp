@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "stats/StatsManager.h"
 #include "thread/GenericWorker.h"

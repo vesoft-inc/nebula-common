@@ -5,6 +5,7 @@
  */
 
 #include <folly/Try.h>
+
 #include "time/WallClock.h"
 
 namespace nebula {
@@ -96,7 +97,7 @@ void StorageClientBase<ClientType>::loadLeader() const {
         auto status = metaClient_->loadLeader();
         if (status.ok()) {
             folly::RWSpinLock::WriteHolder wh(leadersLock_);
-            leaders_ = std::move(status).value();
+            leaders_          = std::move(status).value();
             loadLeaderBefore_ = true;
         }
         isLoadingLeader_ = false;
@@ -122,7 +123,7 @@ const HostAddr StorageClientBase<ClientType>::getLeader(const meta::PartHosts& p
         rh.reset();
         folly::RWSpinLock::WriteHolder wh(std::move(uh));
 
-        auto& random = partHosts.hosts_[folly::Random::rand32(partHosts.hosts_.size())];
+        auto& random   = partHosts.hosts_[folly::Random::rand32(partHosts.hosts_.size())];
         leaders_[part] = random;
         return random;
     }
@@ -164,9 +165,9 @@ folly::SemiFuture<StorageRpcResponse<Response>> StorageClientBase<ClientType>::c
     }
 
     for (auto& req : requests) {
-        auto& host = req.first;
+        auto& host   = req.first;
         auto spaceId = req.second.get_space_id();
-        auto res = context->insertRequest(host, std::move(req.second));
+        auto res     = context->insertRequest(host, std::move(req.second));
         DCHECK(res.second);
         // Invoke the remote method
         folly::via(evb, [this, evb, context, host, spaceId, res, getPartIDFunc]() mutable {
@@ -194,7 +195,7 @@ folly::SemiFuture<StorageRpcResponse<Response>> StorageClientBase<ClientType>::c
                         }
                         context->resp.markFailure();
                     } else {
-                        auto resp = std::move(val.value());
+                        auto resp    = std::move(val.value());
                         auto& result = resp.get_result();
                         bool hasFailure{false};
                         for (auto& code : result.get_failed_parts()) {
@@ -262,14 +263,14 @@ folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
     folly::via(
         evb,
         [evb,
-         request = std::move(request),
+         request    = std::move(request),
          remoteFunc = std::move(remoteFunc),
-         pro = std::move(pro),
+         pro        = std::move(pro),
          this]() mutable {
-            auto host = request.first;
-            auto client = clientsMan_->client(host, evb, false, FLAGS_storage_client_timeout_ms);
+            auto host    = request.first;
+            auto client  = clientsMan_->client(host, evb, false, FLAGS_storage_client_timeout_ms);
             auto spaceId = request.second.get_space_id();
-            auto partId = request.second.get_part_id();
+            auto partId  = request.second.get_part_id();
             LOG(INFO) << "Send request to storage " << host;
             remoteFunc(client.get(), std::move(request.second))
                 .via(evb)
@@ -324,7 +325,7 @@ StorageClientBase<ClientType>::clusterIdsToHosts(GraphSpaceID spaceId,
             return status.status();
         }
 
-        auto part = status.value();
+        auto part       = status.value();
         auto metaStatus = getPartHosts(spaceId, part);
         if (!metaStatus.ok()) {
             return status.status();

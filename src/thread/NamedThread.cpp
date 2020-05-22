@@ -5,6 +5,7 @@
  */
 
 #include "thread/NamedThread.h"
+
 #include "base/Base.h"
 
 namespace nebula {

@@ -327,9 +327,9 @@ private:
         T value_;
     };
 
-    static constexpr uint8_t kVoid = 0;
+    static constexpr uint8_t kVoid   = 0;
     static constexpr uint8_t kStatus = 1;
-    static constexpr uint8_t kValue = 2;
+    static constexpr uint8_t kValue  = 2;
 
     Variant variant_;
     uint8_t state_;

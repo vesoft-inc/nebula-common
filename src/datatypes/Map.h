@@ -15,9 +15,9 @@ namespace nebula {
 struct Map {
     std::unordered_map<std::string, Value> kvs;
 
-    Map() = default;
+    Map()           = default;
     Map(const Map&) = default;
-    Map(Map&&) = default;
+    Map(Map&&)      = default;
 
     Map& operator=(const Map& rhs) {
         if (this == &rhs) {

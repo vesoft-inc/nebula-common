@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "base/MurmurHash2.h"
 
@@ -16,21 +17,21 @@ TEST(MurmurHash2, Basic) {
     {
 #define LITERAL "Another one bites the dust"
         const char *cstr = LITERAL;
-        std::string str = cstr;
-        auto hv1 = hash(LITERAL);
-        auto hv2 = hash(cstr);
-        auto hv3 = hash(str);
+        std::string str  = cstr;
+        auto hv1         = hash(LITERAL);
+        auto hv2         = hash(cstr);
+        auto hv3         = hash(str);
         ASSERT_EQ(hv1, hv2);
         ASSERT_EQ(hv2, hv3);
         ASSERT_EQ(hv3, std::hash<std::string>()(str));
     }
     // integer
     {
-        bool rand8 = folly::Random::rand64();
+        bool rand8            = folly::Random::rand64();
         unsigned char rand8_2 = folly::Random::rand64();
-        int16_t rand16 = folly::Random::rand64();
-        int32_t rand32 = folly::Random::rand64();
-        int64_t rand64 = folly::Random::rand64();
+        int16_t rand16        = folly::Random::rand64();
+        int32_t rand32        = folly::Random::rand64();
+        int64_t rand64        = folly::Random::rand64();
         ASSERT_EQ(static_cast<size_t>(rand8), hash(rand8));
         ASSERT_EQ(static_cast<size_t>(rand8_2), hash(rand8_2));
         ASSERT_EQ(static_cast<size_t>(rand16), hash(rand16));

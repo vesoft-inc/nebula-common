@@ -8,6 +8,7 @@
 
 #include <folly/Unit.h>
 #include <folly/futures/Future.h>
+
 #include "base/Base.h"
 #include "cpp/helpers.h"
 #include "thread/NamedThread.h"
@@ -68,7 +69,7 @@ public:
     template <typename F, typename... Args>
     using ReturnType = typename std::result_of<F(Args...)>::type;
     template <typename F, typename... Args>
-    using FutureType = folly::SemiFuture<ReturnType<F, Args...>>;
+    using FutureType     = folly::SemiFuture<ReturnType<F, Args...>>;
     using UnitFutureType = folly::SemiFuture<folly::Unit>;
 
     /**
@@ -152,8 +153,8 @@ private:
     std::atomic<bool> stopped_{true};
     volatile uint64_t nextTimerId_{0};
     struct event_base *evbase_ = nullptr;
-    int evfd_ = -1;
-    struct event *notifier_ = nullptr;
+    int evfd_                  = -1;
+    struct event *notifier_    = nullptr;
     std::mutex lock_;
     std::vector<std::function<void()>> pendingTasks_;
     using TimerPtr = std::unique_ptr<Timer>;
@@ -167,7 +168,7 @@ template <typename F, typename... Args>
 auto GenericWorker::addTask(F &&f, Args &&... args) ->
     typename std::enable_if<std::is_void<ReturnType<F, Args...>>::value, UnitFutureType>::type {
     auto promise = std::make_shared<folly::Promise<folly::Unit>>();
-    auto task = std::make_shared<std::function<ReturnType<F, Args...>()>>(
+    auto task    = std::make_shared<std::function<ReturnType<F, Args...>()>>(
         std::bind(std::forward<F>(f), std::forward<Args>(args)...));
     auto future = promise->getSemiFuture();
     {
@@ -190,7 +191,7 @@ auto GenericWorker::addTask(F &&f, Args &&... args) ->
     typename std::enable_if<!std::is_void<ReturnType<F, Args...>>::value,
                             FutureType<F, Args...>>::type {
     auto promise = std::make_shared<folly::Promise<ReturnType<F, Args...>>>();
-    auto task = std::make_shared<std::function<ReturnType<F, Args...>()>>(
+    auto task    = std::make_shared<std::function<ReturnType<F, Args...>()>>(
         std::bind(std::forward<F>(f), std::forward<Args>(args)...));
     auto future = promise->getSemiFuture();
     {
@@ -205,7 +206,7 @@ template <typename F, typename... Args>
 auto GenericWorker::addDelayTask(size_t ms, F &&f, Args &&... args) ->
     typename std::enable_if<std::is_void<ReturnType<F, Args...>>::value, UnitFutureType>::type {
     auto promise = std::make_shared<folly::Promise<folly::Unit>>();
-    auto task = std::make_shared<std::function<ReturnType<F, Args...>()>>(
+    auto task    = std::make_shared<std::function<ReturnType<F, Args...>()>>(
         std::bind(std::forward<F>(f), std::forward<Args>(args)...));
     auto future = promise->getSemiFuture();
     addTimerTask(ms, 0, [=] {
@@ -224,7 +225,7 @@ auto GenericWorker::addDelayTask(size_t ms, F &&f, Args &&... args) ->
     typename std::enable_if<!std::is_void<ReturnType<F, Args...>>::value,
                             FutureType<F, Args...>>::type {
     auto promise = std::make_shared<folly::Promise<ReturnType<F, Args...>>>();
-    auto task = std::make_shared<std::function<ReturnType<F, Args...>()>>(
+    auto task    = std::make_shared<std::function<ReturnType<F, Args...>()>>(
         std::bind(std::forward<F>(f), std::forward<Args>(args)...));
     auto future = promise->getSemiFuture();
     addTimerTask(ms, 0, [=] { promise->setWith(*task); });
@@ -240,10 +241,10 @@ template <typename F, typename... Args>
 uint64_t GenericWorker::addTimerTask(size_t delay, size_t interval, F &&f, Args &&... args) {
     auto timer =
         std::make_unique<Timer>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
-    timer->delayMSec_ = delay;
+    timer->delayMSec_    = delay;
     timer->intervalMSec_ = interval;
-    timer->owner_ = this;
-    auto id = 0UL;
+    timer->owner_        = this;
+    auto id              = 0UL;
     {
         std::lock_guard<std::mutex> guard(lock_);
         timer->id_ = (id = nextTimerId());

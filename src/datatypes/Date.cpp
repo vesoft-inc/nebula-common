@@ -8,7 +8,7 @@
 
 namespace nebula {
 
-static const int64_t daysSoFar[] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
+static const int64_t daysSoFar[]     = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
 static const int64_t leapDaysSoFar[] = {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
 
 Date::Date(uint64_t days) {
@@ -18,7 +18,7 @@ Date::Date(uint64_t days) {
 int64_t Date::toInt() const {
     // Year
     int64_t yearsPassed = year + 32768L;
-    int64_t days = yearsPassed * 365L;
+    int64_t days        = yearsPassed * 365L;
     // Add one day per leap year
     if (yearsPassed > 0) {
         days += (yearsPassed - 1) / 4 + 1;
@@ -42,8 +42,8 @@ int64_t Date::toInt() const {
 void Date::fromInt(int64_t days) {
     // year
     int64_t yearsPassed = (days + 1) / 365;
-    year = yearsPassed - 32768;
-    int64_t daysInYear = (days + 1) % 365;
+    year                = yearsPassed - 32768;
+    int64_t daysInYear  = (days + 1) % 365;
 
     // Deduce the number of days for leap years
     if (yearsPassed > 0) {

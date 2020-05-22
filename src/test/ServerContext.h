@@ -7,6 +7,7 @@
 #define COMMON_TEST_SERVERCONTEXT_H_
 
 #include <thrift/lib/cpp2/server/ThriftServer.h>
+
 #include "base/Base.h"
 #include "kvstore/KVStore.h"
 #include "meta/IndexManager.h"

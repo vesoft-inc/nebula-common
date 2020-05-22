@@ -8,6 +8,7 @@
 #define BASE_SIGNALHANDLER_H_
 
 #include <signal.h>
+
 #include "base/Base.h"
 #include "base/Status.h"
 
@@ -75,7 +76,7 @@ private:
     SignalHandler();
     SignalHandler(const SignalHandler &) = delete;
     SignalHandler &operator=(const SignalHandler &) = delete;
-    SignalHandler(SignalHandler &&) = delete;
+    SignalHandler(SignalHandler &&)                 = delete;
     SignalHandler &operator=(SignalHandler &&) = delete;
 
     // Get the singleton

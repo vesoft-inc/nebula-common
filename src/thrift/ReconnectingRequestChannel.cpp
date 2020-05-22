@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <thrift/lib/cpp2/async/ReconnectingRequestChannel.h>
-
-#include <thrift/lib/cpp2/async/ClientChannel.h>
-
 #include <folly/io/async/AsyncSocketException.h>
+#include <thrift/lib/cpp2/async/ClientChannel.h>
+#include <thrift/lib/cpp2/async/ReconnectingRequestChannel.h>
 
 namespace apache {
 namespace thrift {

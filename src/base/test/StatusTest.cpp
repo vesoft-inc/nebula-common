@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "base/Status.h"
 
@@ -62,7 +63,7 @@ TEST(Status, Copy) {
     }
     {
         auto error = Status::Error("SomeError");
-        auto copy = error;
+        auto copy  = error;
         ASSERT_FALSE(error.ok());
         ASSERT_FALSE(copy.ok());
         ASSERT_EQ("SomeError", error.toString());

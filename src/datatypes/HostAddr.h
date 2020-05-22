@@ -8,6 +8,7 @@
 #define DATATYPES_HOSTADDR_H_
 
 #include <folly/hash/Hash.h>
+
 #include "base/Base.h"
 #include "thrift/ThriftTypes.h"
 

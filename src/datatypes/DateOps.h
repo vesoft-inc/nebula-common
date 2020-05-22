@@ -7,12 +7,11 @@
 #ifndef DATATYPES_DATEOPS_H_
 #define DATATYPES_DATEOPS_H_
 
-#include "base/Base.h"
-
 #include <thrift/lib/cpp2/GeneratedSerializationCodeHelper.h>
 #include <thrift/lib/cpp2/gen/module_types_tcc.h>
 #include <thrift/lib/cpp2/protocol/ProtocolReaderStructReadState.h>
 
+#include "base/Base.h"
 #include "datatypes/Date.h"
 
 namespace apache {
@@ -31,13 +30,13 @@ struct TccStructTraits<nebula::Date> {
                                    MAYBE_UNUSED int16_t& fid,
                                    MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "year") {
-            fid = 1;
+            fid    = 1;
             _ftype = apache::thrift::protocol::T_I16;
         } else if (_fname == "month") {
-            fid = 2;
+            fid    = 2;
             _ftype = apache::thrift::protocol::T_BYTE;
         } else if (_fname == "day") {
-            fid = 3;
+            fid    = 3;
             _ftype = apache::thrift::protocol::T_BYTE;
         }
     }
@@ -219,28 +218,28 @@ struct TccStructTraits<nebula::DateTime> {
                                    MAYBE_UNUSED int16_t& fid,
                                    MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "year") {
-            fid = 1;
+            fid    = 1;
             _ftype = apache::thrift::protocol::T_I16;
         } else if (_fname == "month") {
-            fid = 2;
+            fid    = 2;
             _ftype = apache::thrift::protocol::T_BYTE;
         } else if (_fname == "day") {
-            fid = 3;
+            fid    = 3;
             _ftype = apache::thrift::protocol::T_BYTE;
         } else if (_fname == "hour") {
-            fid = 4;
+            fid    = 4;
             _ftype = apache::thrift::protocol::T_BYTE;
         } else if (_fname == "minute") {
-            fid = 5;
+            fid    = 5;
             _ftype = apache::thrift::protocol::T_BYTE;
         } else if (_fname == "sec") {
-            fid = 6;
+            fid    = 6;
             _ftype = apache::thrift::protocol::T_BYTE;
         } else if (_fname == "microsec") {
-            fid = 7;
+            fid    = 7;
             _ftype = apache::thrift::protocol::T_I32;
         } else if (_fname == "timezone") {
-            fid = 8;
+            fid    = 8;
             _ftype = apache::thrift::protocol::T_I32;
         }
     }

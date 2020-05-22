@@ -5,6 +5,7 @@
  */
 
 #include "stats/Stats.h"
+
 #include "stats/StatsManager.h"
 
 DEFINE_int32(histogram_bucketSize, 1000, "The width of each bucket");
@@ -15,9 +16,9 @@ namespace nebula {
 namespace stats {
 
 Stats::Stats(const std::string& serverName, const std::string& moduleName) {
-    qpsStatId_ = StatsManager::registerStats(serverName + "_" + moduleName + "_qps");
+    qpsStatId_      = StatsManager::registerStats(serverName + "_" + moduleName + "_qps");
     errorQpsStatId_ = StatsManager::registerStats(serverName + "_" + moduleName + "_error_qps");
-    latencyStatId_ = StatsManager::registerHisto(serverName + "_" + moduleName + "_latency",
+    latencyStatId_  = StatsManager::registerHisto(serverName + "_" + moduleName + "_latency",
                                                  FLAGS_histogram_bucketSize,
                                                  FLAGS_histogram_min,
                                                  FLAGS_histogram_max);

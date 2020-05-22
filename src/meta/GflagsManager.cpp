@@ -5,6 +5,7 @@
  */
 
 #include "meta/GflagsManager.h"
+
 #include "conf/Configuration.h"
 #include "fs/FileUtils.h"
 
@@ -35,7 +36,7 @@ std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>> GflagsManager
         LOG(ERROR) << "Load gflags json failed";
         return configModeMap;
     }
-    static std::vector<std::string> keys = {"MUTABLE"};
+    static std::vector<std::string> keys       = {"MUTABLE"};
     static std::vector<cpp2::ConfigMode> modes = {cpp2::ConfigMode::MUTABLE};
     for (size_t i = 0; i < keys.size(); i++) {
         std::vector<std::string> values;
@@ -76,8 +77,8 @@ std::vector<cpp2::ConfigItem> GflagsManager::declareGflags(const cpp2::ConfigMod
 
         // We only register mutable configs to meta
         cpp2::ConfigMode mode = cpp2::ConfigMode::MUTABLE;
-        bool isNested = false;
-        auto iter = mutableConfig.find(name);
+        bool isNested         = false;
+        auto iter             = mutableConfig.find(name);
         if (iter != mutableConfig.end()) {
             isNested = iter->second.second;
         } else {
@@ -86,16 +87,16 @@ std::vector<cpp2::ConfigItem> GflagsManager::declareGflags(const cpp2::ConfigMod
 
         // TODO: all int32/uint32/uint64 gflags are converted to int64 for now
         if (type == "uint32" || type == "int32" || type == "int64" || type == "uint64") {
-            cType = cpp2::ConfigType::INT64;
+            cType    = cpp2::ConfigType::INT64;
             valueStr = gflagsValueToThriftValue<int64_t>(flag);
         } else if (type == "double") {
-            cType = cpp2::ConfigType::DOUBLE;
+            cType    = cpp2::ConfigType::DOUBLE;
             valueStr = gflagsValueToThriftValue<double>(flag);
         } else if (type == "bool") {
-            cType = cpp2::ConfigType::BOOL;
+            cType    = cpp2::ConfigType::BOOL;
             valueStr = gflagsValueToThriftValue<bool>(flag);
         } else if (type == "string") {
-            cType = cpp2::ConfigType::STRING;
+            cType    = cpp2::ConfigType::STRING;
             valueStr = gflagsValueToThriftValue<std::string>(flag);
             // only string gflags can be nested
             if (isNested) {

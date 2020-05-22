@@ -5,6 +5,7 @@
  */
 
 #include "concurrent/Barrier.h"
+
 #include "base/Base.h"
 
 namespace nebula {
@@ -15,8 +16,8 @@ Barrier::Barrier(size_t counter, std::function<void()> completion) {
         throw std::invalid_argument("Barrier counter can't be zero");
     }
     completion_ = std::move(completion);
-    counter_ = counter;
-    ages_ = counter_;
+    counter_    = counter;
+    ages_       = counter_;
 }
 
 void Barrier::wait() {

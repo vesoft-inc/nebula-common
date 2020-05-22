@@ -34,7 +34,7 @@ public:
 
 private:
     int64_t startMs_ = 0;
-    int64_t dur_ = 0;
+    int64_t dur_     = 0;
 };
 
 }   // namespace nebula

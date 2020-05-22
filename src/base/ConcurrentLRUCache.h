@@ -8,9 +8,11 @@
 #define COMMON_BASE_CONCURRENTLRUCACHE_H_
 
 #include <gtest/gtest_prod.h>
+
 #include <boost/optional.hpp>
 #include <list>
 #include <utility>
+
 #include "base/Base.h"
 #include "base/StatusOr.h"
 
@@ -28,7 +30,7 @@ public:
         : bucketsNum_(1 << bucketsExp), bucketsExp_(bucketsExp) {
         CHECK(capacity > bucketsNum_ && bucketsNum_ > 0);
         auto capPerBucket = capacity >> bucketsExp;
-        auto left = capacity;
+        auto left         = capacity;
         for (uint32_t i = 0; i < bucketsNum_ - 1; i++) {
             buckets_.emplace_back(capPerBucket);
             left -= capPerBucket;
@@ -222,7 +224,7 @@ public:
 
         // return the value, but first update its place in the most
         // recently used list
-        const value_type& value = std::get<0>(i->second);
+        const value_type& value        = std::get<0>(i->second);
         typename list_type::iterator j = std::get<1>(i->second);
         CHECK(key == *j);
         if (j != list_.begin()) {
@@ -230,7 +232,7 @@ public:
             list_.erase(j);
             list_.push_front(key);
             // update iterator in map
-            j = list_.begin();
+            j                      = list_.begin();
             std::get<1>(i->second) = j;
         }
         hits_++;
@@ -252,8 +254,8 @@ public:
     void clear() {
         map_.clear();
         list_.clear();
-        total_ = 0;
-        hits_ = 0;
+        total_  = 0;
+        hits_   = 0;
         evicts_ = 0;
     }
 

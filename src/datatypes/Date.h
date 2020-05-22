@@ -9,6 +9,7 @@
 
 #include <folly/hash/Hash.h>
 #include <gtest/gtest_prod.h>
+
 #include "base/Base.h"
 
 namespace nebula {
@@ -26,15 +27,15 @@ struct Date {
     explicit Date(uint64_t days);
 
     void clear() {
-        year = 0;
+        year  = 0;
         month = 1;
-        day = 1;
+        day   = 1;
     }
 
     void reset(int16_t y, int8_t m, int8_t d) {
-        year = y;
+        year  = y;
         month = m;
-        day = d;
+        day   = d;
     }
 
     bool operator==(const Date& rhs) const {
@@ -76,12 +77,12 @@ struct DateTime {
     int32_t timezone;
 
     void clear() {
-        year = 0;
-        month = 0;
-        day = 0;
-        hour = 0;
-        minute = 0;
-        sec = 0;
+        year     = 0;
+        month    = 0;
+        day      = 0;
+        hour     = 0;
+        minute   = 0;
+        sec      = 0;
         microsec = 0;
         timezone = 0;
     }

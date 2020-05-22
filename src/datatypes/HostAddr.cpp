@@ -5,6 +5,7 @@
  */
 
 #include "datatypes/HostAddr.h"
+
 #include "base/Base.h"
 
 namespace nebula {

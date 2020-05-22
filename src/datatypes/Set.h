@@ -15,9 +15,9 @@ namespace nebula {
 struct Set {
     std::unordered_set<Value> values;
 
-    Set() = default;
+    Set()           = default;
     Set(const Set&) = default;
-    Set(Set&&) = default;
+    Set(Set&&)      = default;
 
     void clear() {
         values.clear();

@@ -8,6 +8,7 @@
 #define CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_
 
 #include <gtest/gtest_prod.h>
+
 #include "base/Base.h"
 #include "clients/storage/StorageClientBase.h"
 #include "interface/gen-cpp2/GraphStorageServiceAsyncClient.h"
@@ -41,22 +42,22 @@ public:
         const std::vector<cpp2::StatProp>* statProps,
         const std::vector<cpp2::PropExp>* vertexProps,
         const std::vector<cpp2::PropExp>* edgeProps,
-        bool dedup = false,
+        bool dedup                                = false,
         const std::vector<cpp2::OrderBy>& orderBy = std::vector<cpp2::OrderBy>(),
-        int64_t limit = std::numeric_limits<int64_t>::max(),
-        std::string filter = std::string(),
-        folly::EventBase* evb = nullptr);
+        int64_t limit                             = std::numeric_limits<int64_t>::max(),
+        std::string filter                        = std::string(),
+        folly::EventBase* evb                     = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>> getProps(
         GraphSpaceID space,
         std::vector<std::string> colNames,
         const std::vector<Row>& input,
         const std::vector<cpp2::PropExp>& props,
-        bool dedup = false,
+        bool dedup                                = false,
         const std::vector<cpp2::OrderBy>& orderBy = std::vector<cpp2::OrderBy>(),
-        int64_t limit = std::numeric_limits<int64_t>::max(),
-        std::string filter = std::string(),
-        folly::EventBase* evb = nullptr);
+        int64_t limit                             = std::numeric_limits<int64_t>::max(),
+        std::string filter                        = std::string(),
+        folly::EventBase* evb                     = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> addVertices(
         GraphSpaceID space,

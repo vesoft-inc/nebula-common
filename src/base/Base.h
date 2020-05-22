@@ -8,49 +8,6 @@
 #define COMMON_BASE_BASE_H_
 
 #include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#include <atomic>
-#include <chrono>
-#include <condition_variable>
-#include <limits>
-#include <mutex>
-#include <regex>
-#include <thread>
-
-#include <fstream>
-#include <functional>
-#include <iostream>
-#include <memory>
-#include <sstream>
-#include <string>
-
-#include <deque>
-#include <list>
-#include <map>
-#include <queue>
-#include <set>
-#include <tuple>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-#include <cassert>
-#include <cerrno>
-#include <cmath>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <ctime>
-
-#include <gflags/gflags.h>
-
-#include <boost/any.hpp>
-#include <boost/variant.hpp>
-
 #include <folly/Conv.h>
 #include <folly/Hash.h>
 #include <folly/RWSpinLock.h>
@@ -63,6 +20,43 @@
 #include <folly/futures/Future.h>
 #include <folly/init/Init.h>
 #include <folly/json.h>
+#include <gflags/gflags.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <atomic>
+#include <boost/any.hpp>
+#include <boost/variant.hpp>
+#include <cassert>
+#include <cerrno>
+#include <chrono>
+#include <cmath>
+#include <condition_variable>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <deque>
+#include <fstream>
+#include <functional>
+#include <iostream>
+#include <limits>
+#include <list>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <regex>
+#include <set>
+#include <sstream>
+#include <string>
+#include <thread>
+#include <tuple>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 #include "base/Logging.h"
 
@@ -126,11 +120,11 @@ using VariantType = boost::variant<int64_t, double, bool, std::string>;
 #endif
 
 // reserved property names
-constexpr char _ID[] = "_id";
-constexpr char _SRC[] = "_src";
+constexpr char _ID[]   = "_id";
+constexpr char _SRC[]  = "_src";
 constexpr char _TYPE[] = "_type";
 constexpr char _RANK[] = "_rank";
-constexpr char _DST[] = "_dst";
+constexpr char _DST[]  = "_dst";
 
 // Useful type traits
 

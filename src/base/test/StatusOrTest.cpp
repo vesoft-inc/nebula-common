@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "base/StatusOr.h"
 
@@ -59,7 +60,7 @@ TEST(StatusOr, ReturnFromStatus) {
 }
 
 TEST(StatusOr, ReturnFromValue) {
-    auto foo = []() -> StatusOr<std::string> { return "SomeValue"; };
+    auto foo    = []() -> StatusOr<std::string> { return "SomeValue"; };
     auto result = foo();
     ASSERT_TRUE(result.ok());
     ASSERT_EQ("SomeValue", result.value());
@@ -225,7 +226,7 @@ TEST(StatusOr, AssignFromStatus) {
     {
         StatusOr<std::string> result;
         Status status = Status::OK();
-        result = status;
+        result        = status;
         ASSERT_FALSE(result.ok());
         ASSERT_TRUE(result.status().ok());
 
@@ -238,7 +239,7 @@ TEST(StatusOr, AssignFromStatus) {
     {
         StatusOr<std::string> result;
         Status status = Status::OK();
-        result = std::move(status);
+        result        = std::move(status);
         ASSERT_TRUE(status.ok());
         ASSERT_FALSE(result.ok());
         ASSERT_TRUE(result.status().ok());
@@ -266,11 +267,11 @@ TEST(StatusOr, AssignFromValue) {
     {
         StatusOr<std::string> result;
         std::string value = "SomeValue";
-        result = value;
+        result            = value;
         ASSERT_TRUE(result.ok());
         ASSERT_EQ("SomeValue", result.value());
 
-        value = "SomeOtherValue";
+        value  = "SomeOtherValue";
         result = value;
         ASSERT_TRUE(result.ok());
         ASSERT_EQ("SomeOtherValue", result.value());

@@ -9,6 +9,7 @@
 
 #include <folly/executors/IOThreadPoolExecutor.h>
 #include <folly/futures/Future.h>
+
 #include "base/Base.h"
 #include "base/StatusOr.h"
 #include "clients/meta/MetaClient.h"
@@ -25,7 +26,7 @@ template <class Response>
 class StorageRpcResponse final {
 public:
     enum class Result {
-        ALL_SUCCEEDED = 0,
+        ALL_SUCCEEDED     = 0,
         PARTIAL_SUCCEEDED = 1,
     };
 

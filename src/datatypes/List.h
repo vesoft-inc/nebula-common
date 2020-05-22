@@ -15,9 +15,9 @@ namespace nebula {
 struct List {
     std::vector<Value> values;
 
-    List() = default;
+    List()            = default;
     List(const List&) = default;
-    List(List&&) = default;
+    List(List&&)      = default;
 
     void clear() {
         values.clear();

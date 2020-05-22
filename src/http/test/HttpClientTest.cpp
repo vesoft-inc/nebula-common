@@ -4,12 +4,11 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "http/HttpClient.h"
-
 #include <gtest/gtest.h>
 #include <proxygen/httpserver/RequestHandler.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
 
+#include "http/HttpClient.h"
 #include "webservice/Common.h"
 #include "webservice/Router.h"
 #include "webservice/WebService.h"
@@ -47,7 +46,7 @@ class HttpClientTestEnv : public ::testing::Environment {
 public:
     void SetUp() override {
         FLAGS_ws_http_port = 0;
-        FLAGS_ws_h2_port = 0;
+        FLAGS_ws_h2_port   = 0;
         LOG(INFO) << "Starting web service...";
         webSvc_ = std::make_unique<WebService>();
 

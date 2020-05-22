@@ -5,6 +5,7 @@
  */
 
 #include "time/Duration.h"
+
 #include "base/Base.h"
 #include "time/detail/TscHelper.h"
 
@@ -12,7 +13,7 @@ namespace nebula {
 namespace time {
 
 void Duration::reset(bool paused) {
-    isPaused_ = paused;
+    isPaused_    = paused;
     accumulated_ = 0;
     if (isPaused_) {
         startTick_ = 0;
@@ -37,7 +38,7 @@ void Duration::resume() {
     }
 
     startTick_ = TscHelper::readTsc();
-    isPaused_ = false;
+    isPaused_  = false;
 }
 
 uint64_t Duration::elapsedInSec() const {

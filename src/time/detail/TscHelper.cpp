@@ -5,7 +5,9 @@
  */
 
 #include "time/detail/TscHelper.h"
+
 #include <time.h>
+
 #include "base/Base.h"
 #include "thread/NamedThread.h"
 
@@ -16,7 +18,7 @@ TscHelper::TscHelper() {
     auto ret = clock_gettime(CLOCK_REALTIME, &startRealTime_);
     DCHECK_EQ(0, ret);
     startMonoTime_ = std::chrono::steady_clock::now();
-    firstTick_ = readTscImpl();
+    firstTick_     = readTscImpl();
     ::usleep(10000);
     calibrate();
     thread::NamedThread calibrator("tsc-calibrator", [this]() {
@@ -53,12 +55,12 @@ uint64_t TscHelper::readTscImpl() {
 }
 
 void TscHelper::calibrate() {
-    auto dur = std::chrono::steady_clock::now() - startMonoTime_;
+    auto dur          = std::chrono::steady_clock::now() - startMonoTime_;
     uint64_t tickDiff = readTscImpl() - firstTick_;
 
     uint64_t ticksPerUSec =
         tickDiff / std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
-    ticksPerSecFactor_ = 1.0 / ticksPerUSec / 1000000.0;
+    ticksPerSecFactor_  = 1.0 / ticksPerUSec / 1000000.0;
     ticksPerMSecFactor_ = 1.0 / ticksPerUSec / 1000.0;
     ticksPerUSecFactor_ = 1.0 / ticksPerUSec;
 }

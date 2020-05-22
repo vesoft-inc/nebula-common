@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "concurrent/Latch.h"
 #include "thread/GenericThreadPool.h"
@@ -62,7 +63,7 @@ TEST(LatchTest, BasicTest) {
 TEST(LatchTest, JoinLikeTest) {
     // start bunch of tasks, then wait for them all done.
     constexpr auto nthreads = 4UL;
-    constexpr auto ntasks = 16UL;
+    constexpr auto ntasks   = 16UL;
     thread::GenericThreadPool pool;
     Latch latch(ntasks);
     std::atomic<size_t> counter{0};
@@ -82,7 +83,7 @@ TEST(LatchTest, SignalTest) {
     // There are preceding I/O works and subsequent CPU bound works.
     // Do I/O works with single thread, and CPU works concurrently.
     constexpr auto nthreads = 16UL;
-    constexpr auto ntasks = 16UL;
+    constexpr auto ntasks   = 16UL;
     thread::GenericThreadPool pool;
     Latch latch(1);
     pool.start(nthreads);

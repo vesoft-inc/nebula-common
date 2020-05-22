@@ -5,6 +5,7 @@
  */
 
 #include "concurrent/Latch.h"
+
 #include "base/Base.h"
 
 namespace nebula {

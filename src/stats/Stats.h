@@ -14,7 +14,7 @@ namespace stats {
 
 class Stats final {
 public:
-    Stats() = default;
+    Stats()  = default;
     ~Stats() = default;
 
     explicit Stats(const std::string& serverName, const std::string& moduleName);

@@ -5,6 +5,7 @@
  */
 
 #include "meta/ServerBasedIndexManager.h"
+
 #include "base/Base.h"
 
 namespace nebula {

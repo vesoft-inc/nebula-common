@@ -107,8 +107,8 @@ Status WebService::start() {
     CHECK_GT(FLAGS_ws_threads, 0) << "The number of webservice threads must be greater than zero";
 
     HTTPServerOptions options;
-    options.threads = static_cast<size_t>(FLAGS_ws_threads);
-    options.idleTimeout = std::chrono::milliseconds(60000);
+    options.threads                  = static_cast<size_t>(FLAGS_ws_threads);
+    options.idleTimeout              = std::chrono::milliseconds(60000);
     options.enableContentCompression = false;
     options.handlerFactories =
         proxygen::RequestHandlerChain().addThen<WebServiceHandlerFactory>(router_.get()).build();
@@ -119,7 +119,7 @@ Status WebService::start() {
 
     std::condition_variable cv;
     std::mutex mut;
-    auto status = Status::OK();
+    auto status            = Status::OK();
     bool serverStartedDone = false;
 
     // Start HTTPServer mainloop in a separate thread

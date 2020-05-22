@@ -8,6 +8,7 @@
 #define META_SERVERBASEDSCHEMAMANAGER_H_
 
 #include <folly/RWSpinLock.h>
+
 #include "base/Base.h"
 #include "clients/meta/MetaClient.h"
 #include "meta/SchemaManager.h"

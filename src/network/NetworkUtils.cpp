@@ -5,9 +5,11 @@
  */
 
 #include "network/NetworkUtils.h"
+
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 #include <netdb.h>
+
 #include "base/Base.h"
 #include "fs/FileUtils.h"
 
@@ -92,7 +94,7 @@ bool NetworkUtils::getDynamicPortRange(uint16_t& low, uint16_t& high) {
         // Well-known ports: 0 to 1023 (used for system services)
         // Registered/user ports: 1024 to 49151
         // Dynamic/private ports: 49152 to 65535
-        low = 49152;
+        low  = 49152;
         high = 65535;
     }
 
@@ -160,14 +162,14 @@ std::unordered_set<uint16_t> NetworkUtils::getPortsInUse() {
 }
 
 uint16_t NetworkUtils::getAvailablePort() {
-    uint16_t low = 0;
+    uint16_t low  = 0;
     uint16_t high = 0;
 
     CHECK(getDynamicPortRange(low, high)) << "Failed to get the dynamic port range";
     VLOG(1) << "Dynamic port range is [" << low << ", " << high << "]";
 
     std::unordered_set<uint16_t> portsInUse = getPortsInUse();
-    uint16_t port = 0;
+    uint16_t port                           = 0;
     while (true) {
         // NOTE
         // The availablity of port number *outside* the ephemeral port range is
@@ -189,9 +191,9 @@ StatusOr<std::vector<HostAddr>> NetworkUtils::resolveHost(const std::string& hos
     struct addrinfo hints, *res, *rp;
     ::memset(&hints, 0, sizeof(struct addrinfo));
 
-    hints.ai_family = AF_UNSPEC;
+    hints.ai_family   = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_ADDRCONFIG;
+    hints.ai_flags    = AI_ADDRCONFIG;
 
     if (getaddrinfo(host.c_str(), nullptr, &hints, &res) != 0) {
         return Status::Error("host not found:%s", host.c_str());
@@ -275,7 +277,7 @@ StatusOr<std::vector<HostAddr>> NetworkUtils::toHosts(const std::string& peersSt
     hosts.reserve(peers.size());
     for (auto& peerStr : peers) {
         auto addrPort = folly::trimWhitespace(peerStr);
-        auto pos = addrPort.find(':');
+        auto pos      = addrPort.find(':');
         if (pos == folly::StringPiece::npos) {
             return Status::Error("Bad peer format: %s", addrPort.start());
         }

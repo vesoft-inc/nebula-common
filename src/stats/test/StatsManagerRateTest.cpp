@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "stats/StatsManager.h"
 #include "thread/GenericWorker.h"
@@ -17,7 +18,7 @@ TEST(StatsManager, RateTest) {
     auto thread = std::make_unique<thread::GenericWorker>();
     ASSERT_TRUE(thread->start());
 
-    auto task = [=]() { StatsManager::addValue(statId); };
+    auto task          = [=]() { StatsManager::addValue(statId); };
     constexpr auto qps = 100L;
     thread->addRepeatTask(1 * 1000 / qps, task);
 

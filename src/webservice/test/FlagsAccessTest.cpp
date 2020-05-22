@@ -6,6 +6,7 @@
 
 #include <folly/json.h>
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "webservice/WebService.h"
 #include "webservice/test/TestUtils.h"
@@ -23,9 +24,9 @@ class FlagsAccessTestEnv : public ::testing::Environment {
 public:
     void SetUp() override {
         FLAGS_ws_http_port = 0;
-        FLAGS_ws_h2_port = 0;
+        FLAGS_ws_h2_port   = 0;
         VLOG(1) << "Starting web service...";
-        webSvc_ = std::make_unique<WebService>();
+        webSvc_     = std::make_unique<WebService>();
         auto status = webSvc_->start();
         ASSERT_TRUE(status.ok()) << status;
     }

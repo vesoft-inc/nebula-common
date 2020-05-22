@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "conf/Configuration.h"
 #include "fs/TempFile.h"
@@ -76,17 +77,17 @@ TEST(Configuration, IllegalFormat) {
     }
     {
         std::string ill = "\"key\": \"value\"";
-        auto status = conf.parseFromString(ill);
+        auto status     = conf.parseFromString(ill);
         ASSERT_FALSE(status.ok());
     }
     {
         std::string ill = "{\"key\" \"value\"}";
-        auto status = conf.parseFromString(ill);
+        auto status     = conf.parseFromString(ill);
         ASSERT_FALSE(status.ok());
     }
     {
         std::string ill = "{\"key\": \"value\"";
-        auto status = conf.parseFromString(ill);
+        auto status     = conf.parseFromString(ill);
         ASSERT_FALSE(status.ok());
     }
 }

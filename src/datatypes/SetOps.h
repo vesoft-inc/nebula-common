@@ -7,12 +7,11 @@
 #ifndef DATATYPES_SETOPS_H_
 #define DATATYPES_SETOPS_H_
 
-#include "base/Base.h"
-
 #include <thrift/lib/cpp2/GeneratedSerializationCodeHelper.h>
 #include <thrift/lib/cpp2/gen/module_types_tcc.h>
 #include <thrift/lib/cpp2/protocol/ProtocolReaderStructReadState.h>
 
+#include "base/Base.h"
 #include "datatypes/Set.h"
 
 namespace apache {
@@ -26,7 +25,7 @@ struct TccStructTraits<nebula::Set> {
                                    MAYBE_UNUSED int16_t& fid,
                                    MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "values") {
-            fid = 1;
+            fid    = 1;
             _ftype = apache::thrift::protocol::T_STRUCT;
         }
     }

@@ -4,6 +4,7 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 #include <gtest/gtest.h>
+
 #include "base/Base.h"
 #include "concurrent/Barrier.h"
 #include "thread/GenericThreadPool.h"
@@ -63,9 +64,9 @@ TEST(BarrierTest, BasicTest) {
 
 TEST(BarrierTest, ConsecutiveTest) {
     std::atomic<size_t> counter{0};
-    constexpr auto N = 64UL;
+    constexpr auto N     = 64UL;
     constexpr auto iters = 100UL;
-    auto completion = [&]() {
+    auto completion      = [&]() {
         // At the completion phase, `counter' should be multiple to `N'.
         ASSERT_EQ(0UL, counter.load() % N);
     };

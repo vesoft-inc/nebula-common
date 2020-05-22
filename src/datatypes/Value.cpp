@@ -5,7 +5,9 @@
  */
 
 #include "datatypes/Value.h"
+
 #include <folly/hash/Hash.h>
+
 #include "datatypes/DataSet.h"
 #include "datatypes/Edge.h"
 #include "datatypes/List.h"
@@ -67,7 +69,9 @@ std::size_t hash<nebula::Value>::operator()(const nebula::Value& v) const noexce
         case nebula::Value::Type::DATASET: {
             LOG(FATAL) << "Hash for DATASET has not been implemented";
         }
-        default: { LOG(FATAL) << "Unknown type"; }
+        default: {
+            LOG(FATAL) << "Unknown type";
+        }
     }
 }
 
@@ -1319,7 +1323,9 @@ StatusOr<std::string> Value::toString() {
         case Value::Type::DATETIME: {
             return getDateTime().toString();
         }
-        default: { return Status::Error("Value can not convert to string"); }
+        default: {
+            return Status::Error("Value can not convert to string");
+        }
     }
 }
 
@@ -1416,7 +1422,9 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return folly::stringPrintf(
                         "%s%s", lhs.getBool() ? "true" : "false", rhs.getStr().c_str());
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
         case Value::Type::INT: {
@@ -1433,7 +1441,9 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::DATE: {
                     return rhs.getDate() + lhs.getInt();
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
         case Value::Type::FLOAT: {
@@ -1447,7 +1457,9 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::STRING: {
                     return folly::stringPrintf("%lf%s", lhs.getFloat(), rhs.getStr().c_str());
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
         case Value::Type::STRING: {
@@ -1471,7 +1483,9 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::DATETIME: {
                     return lhs.getStr() + rhs.getDateTime().toString();
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
         case Value::Type::DATE: {
@@ -1482,7 +1496,9 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::STRING: {
                     return lhs.getDate().toString() + rhs.getStr();
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
         case Value::Type::DATETIME: {
@@ -1490,10 +1506,14 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::STRING: {
                     return lhs.getDateTime().toString() + rhs.getStr();
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
-        default: { return Value(NullType::BAD_TYPE); }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
     }
 }
 
@@ -1515,7 +1535,9 @@ Value operator-(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return lhs.getInt() - rhs.getFloat();
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
         case Value::Type::FLOAT: {
@@ -1526,7 +1548,9 @@ Value operator-(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return lhs.getFloat() - rhs.getFloat();
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
         case Value::Type::DATE: {
@@ -1537,10 +1561,14 @@ Value operator-(const Value& lhs, const Value& rhs) {
                 case Value::Type::DATE: {
                     return lhs.getDate().toInt() - rhs.getDate().toInt();
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
-        default: { return Value(NullType::BAD_TYPE); }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
     }
 }
 
@@ -1562,7 +1590,9 @@ Value operator*(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return lhs.getInt() * rhs.getFloat();
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
         case Value::Type::FLOAT: {
@@ -1573,10 +1603,14 @@ Value operator*(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return lhs.getFloat() * rhs.getFloat();
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
-        default: { return Value(NullType::BAD_TYPE); }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
     }
 }
 
@@ -1608,7 +1642,9 @@ Value operator/(const Value& lhs, const Value& rhs) {
                         return Value(NullType::DIV_BY_ZERO);
                     }
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
         case Value::Type::FLOAT: {
@@ -1629,10 +1665,14 @@ Value operator/(const Value& lhs, const Value& rhs) {
                         return Value(NullType::DIV_BY_ZERO);
                     }
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
-        default: { return Value(NullType::BAD_TYPE); }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
     }
 }
 
@@ -1664,7 +1704,9 @@ Value operator%(const Value& lhs, const Value& rhs) {
                         return Value(NullType::DIV_BY_ZERO);
                     }
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
         case Value::Type::FLOAT: {
@@ -1685,10 +1727,14 @@ Value operator%(const Value& lhs, const Value& rhs) {
                         return Value(NullType::DIV_BY_ZERO);
                     }
                 }
-                default: { return Value(NullType::BAD_TYPE); }
+                default: {
+                    return Value(NullType::BAD_TYPE);
+                }
             }
         }
-        default: { return Value(NullType::BAD_TYPE); }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
     }
 }
 
@@ -1706,7 +1752,9 @@ Value operator-(const Value& rhs) {
             auto val = -rhs.getFloat();
             return val;
         }
-        default: { return Value(NullType::BAD_TYPE); }
+        default: {
+            return Value(NullType::BAD_TYPE);
+        }
     }
 }
 
@@ -1744,7 +1792,9 @@ bool operator<(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return lhs.getInt() < rhs.getFloat();
                 }
-                default: { return false; }
+                default: {
+                    return false;
+                }
             }
         }
         case Value::Type::FLOAT: {
@@ -1755,7 +1805,9 @@ bool operator<(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return lhs.getFloat() < rhs.getFloat();
                 }
-                default: { return false; }
+                default: {
+                    return false;
+                }
             }
         }
         case Value::Type::STRING: {
@@ -1775,7 +1827,9 @@ bool operator<(const Value& lhs, const Value& rhs) {
             // TODO:
             return false;
         }
-        default: { return false; }
+        default: {
+            return false;
+        }
     }
 }
 
@@ -1802,7 +1856,9 @@ bool operator==(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return std::abs(lhs.getInt() - rhs.getFloat()) < EPSILON;
                 }
-                default: { return false; }
+                default: {
+                    return false;
+                }
             }
         }
         case Value::Type::FLOAT: {
@@ -1813,7 +1869,9 @@ bool operator==(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return std::abs(lhs.getFloat() - rhs.getFloat()) < EPSILON;
                 }
-                default: { return false; }
+                default: {
+                    return false;
+                }
             }
         }
         case Value::Type::STRING: {
@@ -1846,7 +1904,9 @@ bool operator==(const Value& lhs, const Value& rhs) {
         case Value::Type::DATASET: {
             return lhs.getDataSet() == rhs.getDataSet();
         }
-        default: { return false; }
+        default: {
+            return false;
+        }
     }
 }
 

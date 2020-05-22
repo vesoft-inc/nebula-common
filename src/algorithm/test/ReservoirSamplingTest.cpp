@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "algorithm/ReservoirSampling.h"
 
 namespace nebula {

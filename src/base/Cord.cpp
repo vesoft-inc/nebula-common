@@ -5,6 +5,7 @@
  */
 
 #include "base/Cord.h"
+
 #include "base/Logging.h"
 
 namespace nebula {
@@ -27,7 +28,7 @@ void Cord::allocateBlock() {
         // Link the tail to the new block
         memcpy(tail_ + blockPt_, reinterpret_cast<char*>(&blk), sizeof(char*));
     }
-    tail_ = blk;
+    tail_    = blk;
     blockPt_ = 0;
 
     if (!head_) {
@@ -60,7 +61,7 @@ void Cord::clear() {
     }
 
     blockPt_ = blockContentSize_;
-    len_ = 0;
+    len_     = 0;
 
     head_ = nullptr;
     tail_ = nullptr;

@@ -5,8 +5,10 @@
  */
 
 #include "stats/StatsManager.h"
+
 #include <folly/stats/MultiLevelTimeSeries-defs.h>
 #include <folly/stats/TimeseriesHistogram-defs.h>
+
 #include "base/Base.h"
 
 namespace nebula {
@@ -25,9 +27,9 @@ void StatsManager::setDomain(folly::StringPiece domain) {
 
 // static
 void StatsManager::setReportInfo(HostAddr addr, int32_t interval) {
-    auto& sm = get();
+    auto& sm          = get();
     sm.collectorAddr_ = addr;
-    sm.interval_ = interval;
+    sm.interval_      = interval;
 }
 
 // static
@@ -50,7 +52,7 @@ int32_t StatsManager::registerStats(folly::StringPiece counterName) {
         std::make_unique<StatsType>(60,
                                     std::initializer_list<StatsType::Duration>(
                                         {seconds(5), seconds(60), seconds(600), seconds(3600)}))));
-    int32_t index = sm.stats_.size();
+    int32_t index     = sm.stats_.size();
     sm.nameMap_[name] = index;
     return index;
 }
@@ -62,7 +64,7 @@ int32_t StatsManager::registerHisto(folly::StringPiece counterName,
                                     StatsManager::VT max) {
     using std::chrono::seconds;
 
-    auto& sm = get();
+    auto& sm         = get();
     std::string name = counterName.toString();
     folly::RWSpinLock::WriteHolder wh(sm.nameMapLock_);
     auto it = sm.nameMap_.find(name);
@@ -79,7 +81,7 @@ int32_t StatsManager::registerHisto(folly::StringPiece counterName,
                            min,
                            max,
                            StatsType(60, {seconds(5), seconds(60), seconds(600), seconds(3600)}))));
-    int32_t index = -sm.histograms_.size();
+    int32_t index     = -sm.histograms_.size();
     sm.nameMap_[name] = index;
 
     LOG(INFO) << "registerHisto, bucketSize: " << bucketSize << ", min: " << min
@@ -150,7 +152,7 @@ StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName
             size_t len = parts[1].size() - 1;
             if (len > 0 && len <= 6) {
                 auto digits = folly::StringPiece(&(parts[1][1]), len);
-                auto pct = folly::to<double>(digits) / dividors[len - 1];
+                auto pct    = folly::to<double>(digits) / dividors[len - 1];
                 return readHisto(parts[0], range, pct);
             }
         } catch (const std::exception& ex) {
@@ -173,11 +175,11 @@ void StatsManager::readAllValue(folly::dynamic& vals) {
 
     for (auto& statsName : sm.nameMap_) {
         for (auto method = StatsMethod::SUM; method <= StatsMethod::RATE;
-             method = static_cast<StatsMethod>(static_cast<int>(method) + 1)) {
+             method      = static_cast<StatsMethod>(static_cast<int>(method) + 1)) {
             for (auto range = TimeRange::FIVE_SECONDS; range <= TimeRange::ONE_HOUR;
-                 range = static_cast<TimeRange>(static_cast<int>(range) + 1)) {
+                 range      = static_cast<TimeRange>(static_cast<int>(range) + 1)) {
                 std::string metricName = statsName.first;
-                auto status = readStats(statsName.second, range, method);
+                auto status            = readStats(statsName.second, range, method);
                 CHECK(status.ok());
                 int64_t metricValue = status.value();
                 folly::dynamic stat = folly::dynamic::object();
@@ -214,7 +216,7 @@ void StatsManager::readAllValue(folly::dynamic& vals) {
                         // intentionally no `default'
                 }
 
-                stat["name"] = metricName;
+                stat["name"]  = metricName;
                 stat["value"] = metricValue;
                 vals.push_back(std::move(stat));
             }

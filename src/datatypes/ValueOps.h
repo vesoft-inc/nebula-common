@@ -7,12 +7,11 @@
 #ifndef DATATYPES_VALUEOPS_H_
 #define DATATYPES_VALUEOPS_H_
 
-#include "base/Base.h"
-
 #include <thrift/lib/cpp2/GeneratedSerializationCodeHelper.h>
 #include <thrift/lib/cpp2/gen/module_types_tcc.h>
 #include <thrift/lib/cpp2/protocol/ProtocolReaderStructReadState.h>
 
+#include "base/Base.h"
 #include "datatypes/DataSetOps.h"
 #include "datatypes/DateOps.h"
 #include "datatypes/EdgeOps.h"
@@ -34,46 +33,46 @@ struct TccStructTraits<nebula::Value> {
                                    MAYBE_UNUSED int16_t& fid,
                                    MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "nVal") {
-            fid = 1;
+            fid    = 1;
             _ftype = apache::thrift::protocol::T_I32;
         } else if (_fname == "bVal") {
-            fid = 2;
+            fid    = 2;
             _ftype = apache::thrift::protocol::T_BOOL;
         } else if (_fname == "iVal") {
-            fid = 3;
+            fid    = 3;
             _ftype = apache::thrift::protocol::T_I64;
         } else if (_fname == "fVal") {
-            fid = 4;
+            fid    = 4;
             _ftype = apache::thrift::protocol::T_DOUBLE;
         } else if (_fname == "sVal") {
-            fid = 5;
+            fid    = 5;
             _ftype = apache::thrift::protocol::T_STRING;
         } else if (_fname == "dVal") {
-            fid = 6;
+            fid    = 6;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "tVal") {
-            fid = 7;
+            fid    = 7;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "vVal") {
-            fid = 8;
+            fid    = 8;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "eVal") {
-            fid = 9;
+            fid    = 9;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "pVal") {
-            fid = 10;
+            fid    = 10;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "lVal") {
-            fid = 11;
+            fid    = 11;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "mVal") {
-            fid = 12;
+            fid    = 12;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "uVal") {
-            fid = 13;
+            fid    = 13;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "gVal") {
-            fid = 14;
+            fid    = 14;
             _ftype = apache::thrift::protocol::T_STRUCT;
         }
     }

@@ -5,10 +5,12 @@
  */
 
 #include "webservice/GetStatsHandler.h"
+
 #include <folly/String.h>
 #include <folly/json.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
 #include <proxygen/lib/http/ProxygenErrorEnum.h>
+
 #include "base/Base.h"
 #include "stats/StatsManager.h"
 #include "webservice/Common.h"
@@ -89,8 +91,8 @@ void GetStatsHandler::addOneStat(folly::dynamic& vals,
                                  const std::string& statName,
                                  int64_t statValue) const {
     folly::dynamic stat = folly::dynamic::object();
-    stat["name"] = statName;
-    stat["value"] = statValue;
+    stat["name"]        = statName;
+    stat["value"]       = statValue;
     vals.push_back(std::move(stat));
 }
 
@@ -98,8 +100,8 @@ void GetStatsHandler::addOneStat(folly::dynamic& vals,
                                  const std::string& statName,
                                  const std::string& error) const {
     folly::dynamic stat = folly::dynamic::object();
-    stat["name"] = statName;
-    stat["value"] = error;
+    stat["name"]        = statName;
+    stat["value"]       = error;
     vals.push_back(std::move(stat));
 }
 

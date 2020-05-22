@@ -14,11 +14,11 @@ namespace nebula {
 namespace session {
 
 enum class Role : char {
-    GOD = 1,
-    ADMIN = 2,
-    DBA = 3,
-    USER = 4,
-    GUEST = 5,
+    GOD          = 1,
+    ADMIN        = 2,
+    DBA          = 3,
+    USER         = 4,
+    GUEST        = 5,
     INVALID_ROLE = 6,
 };
 
@@ -40,7 +40,7 @@ public:
 
     void setSpace(const std::string& name, GraphSpaceID space) {
         spaceName_ = name;
-        space_ = space;
+        space_     = space;
     }
 
     const std::string& spaceName() const {

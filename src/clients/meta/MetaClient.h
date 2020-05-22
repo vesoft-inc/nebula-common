@@ -10,6 +10,7 @@
 #include <folly/RWSpinLock.h>
 #include <folly/executors/IOThreadPoolExecutor.h>
 #include <gtest/gtest_prod.h>
+
 #include "base/Base.h"
 #include "base/Status.h"
 #include "base/StatusOr.h"
@@ -25,9 +26,9 @@ DECLARE_int32(meta_client_retry_times);
 namespace nebula {
 namespace meta {
 
-using PartsAlloc = std::unordered_map<PartitionID, std::vector<HostAddr>>;
+using PartsAlloc  = std::unordered_map<PartitionID, std::vector<HostAddr>>;
 using SpaceIdName = std::pair<GraphSpaceID, std::string>;
-using HostStatus = std::pair<HostAddr, std::string>;
+using HostStatus  = std::pair<HostAddr, std::string>;
 
 // struct for in cache
 // the different version of tag schema, from oldest to newest
@@ -108,9 +109,9 @@ struct SpaceDesc {
     SpaceDesc(const std::string& spaceName,
               int32_t partNum,
               int32_t replicaFactor,
-              const std::string& charsetName = "",
+              const std::string& charsetName   = "",
               const std::string& collationName = "",
-              int32_t vidSize = 8)
+              int32_t vidSize                  = 8)
         : spaceName_(spaceName),
           partNum_(partNum),
           replicaFactor_(replicaFactor),
@@ -133,14 +134,14 @@ class MetaChangedListener {
 public:
     virtual ~MetaChangedListener() = default;
 
-    virtual void onSpaceAdded(GraphSpaceID spaceId) = 0;
+    virtual void onSpaceAdded(GraphSpaceID spaceId)   = 0;
     virtual void onSpaceRemoved(GraphSpaceID spaceId) = 0;
     virtual void onSpaceOptionUpdated(
         GraphSpaceID spaceId,
-        const std::unordered_map<std::string, std::string>& options) = 0;
-    virtual void onPartAdded(const PartHosts& partHosts) = 0;
+        const std::unordered_map<std::string, std::string>& options)     = 0;
+    virtual void onPartAdded(const PartHosts& partHosts)                 = 0;
     virtual void onPartRemoved(GraphSpaceID spaceId, PartitionID partId) = 0;
-    virtual void onPartUpdated(const PartHosts& partHosts) = 0;
+    virtual void onPartUpdated(const PartHosts& partHosts)               = 0;
     virtual void fetchLeaderInfo(
         std::unordered_map<GraphSpaceID, std::vector<PartitionID>>& leaderIds) = 0;
 };
@@ -528,8 +529,8 @@ protected:
                      RemoteFunc remoteFunc,
                      RespGenerator respGen,
                      folly::Promise<StatusOr<Response>> pro,
-                     bool toLeader = false,
-                     int32_t retry = 0,
+                     bool toLeader      = false,
+                     int32_t retry      = 0,
                      int32_t retryLimit = FLAGS_meta_client_retry_times);
 
     std::vector<SpaceIdName> toSpaceIdName(const std::vector<cpp2::IdName>& tIdNames);
