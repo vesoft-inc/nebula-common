@@ -38,12 +38,20 @@ enum ErrorCode {
     E_STATEMENT_EMTPY = -9,
 } (cpp.enum_strict)
 
+// the count affected in mutable query
+// insert/delete/update only affect vertices or edges
+// but we need both in some query with multiple DML sentences
+struct Affect {
+    1: i64 vertices,
+    2: i64 edges,
+}
 
 struct ExecutionResponse {
     1: required ErrorCode               error_code;
     2: required i32                     latency_in_us;  // Execution time on server
     3: optional list<common.DataSet>    data;           // Can return multiple dataset
     4: optional binary                  space_name;
+    5: optional Affect                  affect;
 }
 
 

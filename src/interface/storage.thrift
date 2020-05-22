@@ -251,12 +251,18 @@ struct GetNeighborsResponse {
  * End of GetNeighbors section
  */
 
+// The affect count about vertices or edges
+union Affect {
+    1: i64 vertices,
+    2: i64 edges,
+}
 
 //
 // Response for data modification requests
 //
 struct ExecResponse {
     1: required ResponseCommon result,
+    2: optional Affect         affect,
 }
 
 
