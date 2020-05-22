@@ -4,17 +4,17 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include "fs/TempFile.h"
+#include "base/Base.h"
 
 namespace nebula {
 namespace fs {
 
-TempFile::TempFile(const char *path, bool autoDelete) {
+TempFile::TempFile(const char* path, bool autoDelete) {
     autoDelete_ = autoDelete;
     auto len = ::strlen(path);
     path_ = std::make_unique<char[]>(len + 1);
-    ::strcpy(path_.get(), path);    // NOLINT
+    ::strcpy(path_.get(), path);   // NOLINT
 
     auto fd = ::mkstemp(path_.get());
     if (fd == -1) {

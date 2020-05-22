@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "time/WallClock.h"
 
 using nebula::time::WallClock;
@@ -22,7 +22,6 @@ TEST(WallClock, TimePointInSeconds) {
     }
 }
 
-
 TEST(WallClock, TimePointInMilliSeconds) {
     for (int i = 0; i < 100; i++) {
         auto tp1 = WallClock::slowNowInMilliSec();
@@ -35,7 +34,6 @@ TEST(WallClock, TimePointInMilliSeconds) {
     }
 }
 
-
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
     folly::init(&argc, &argv, true);
@@ -43,4 +41,3 @@ int main(int argc, char** argv) {
 
     return RUN_ALL_TESTS();
 }
-

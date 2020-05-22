@@ -24,12 +24,16 @@ struct Set {
     }
 
     Set& operator=(const Set& rhs) {
-        if (this == &rhs) { return *this; }
+        if (this == &rhs) {
+            return *this;
+        }
         values = rhs.values;
         return *this;
     }
     Set& operator=(Set&& rhs) {
-        if (this == &rhs) { return *this; }
+        if (this == &rhs) {
+            return *this;
+        }
         values = std::move(rhs.values);
         return *this;
     }
@@ -39,6 +43,5 @@ struct Set {
     }
 };
 
-}  // namespace nebula
-#endif  // DATATYPES_SET_H_
-
+}   // namespace nebula
+#endif   // DATATYPES_SET_H_

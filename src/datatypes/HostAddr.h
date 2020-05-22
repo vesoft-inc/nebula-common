@@ -7,8 +7,8 @@
 #ifndef DATATYPES_HOSTADDR_H_
 #define DATATYPES_HOSTADDR_H_
 
-#include "base/Base.h"
 #include <folly/hash/Hash.h>
+#include "base/Base.h"
 #include "thrift/ThriftTypes.h"
 
 namespace nebula {
@@ -16,7 +16,7 @@ namespace nebula {
 // Host address type and utility functions
 struct HostAddr {
     std::string host;
-    Port        port;
+    Port port;
 
     HostAddr() : host(), port(0) {}
     /*
@@ -40,14 +40,13 @@ struct HostAddr {
     bool operator<(const HostAddr& rhs) const;
 };
 
-std::ostream& operator<<(std::ostream &, const HostAddr&);
-}  // namespace nebula
-
+std::ostream& operator<<(std::ostream&, const HostAddr&);
+}   // namespace nebula
 
 namespace std {
 
 // Inject a customized hash function
-template<>
+template <>
 struct hash<nebula::HostAddr> {
     std::size_t operator()(const nebula::HostAddr& h) const noexcept {
         int64_t code = folly::hash::fnv32_buf(h.host.data(), h.host.size());
@@ -57,5 +56,5 @@ struct hash<nebula::HostAddr> {
     }
 };
 
-}  // namespace std
-#endif  // DATATYPES_HOSTADDR_H_
+}   // namespace std
+#endif   // DATATYPES_HOSTADDR_H_

@@ -4,10 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "base/StatusOr.h"
-
 
 namespace nebula {
 
@@ -15,7 +14,6 @@ TEST(StatusOr, ConstructFromDefault) {
     StatusOr<std::string> result;
     ASSERT_FALSE(result.ok());
 }
-
 
 TEST(StatusOr, ConstructFromStatus) {
     {
@@ -32,19 +30,15 @@ TEST(StatusOr, ConstructFromStatus) {
     }
 }
 
-
 TEST(StatusOr, ConstructFromValue) {
     StatusOr<std::string> result("SomeValue");
     ASSERT_TRUE(result.ok());
     ASSERT_EQ("SomeValue", result.value());
 }
 
-
 TEST(StatusOr, ReturnFromStatus) {
     {
-        auto foo = [] () -> StatusOr<std::string> {
-            return Status::Error("SomeError");
-        };
+        auto foo = []() -> StatusOr<std::string> { return Status::Error("SomeError"); };
 
         auto result = foo();
         ASSERT_FALSE(result.ok());
@@ -52,7 +46,7 @@ TEST(StatusOr, ReturnFromStatus) {
         ASSERT_EQ("SomeError", result.status().toString());
     }
     {
-        auto foo = [] () -> StatusOr<std::string> {
+        auto foo = []() -> StatusOr<std::string> {
             auto status = Status::Error("SomeError");
             return status;
         };
@@ -64,21 +58,17 @@ TEST(StatusOr, ReturnFromStatus) {
     }
 }
 
-
 TEST(StatusOr, ReturnFromValue) {
-    auto foo = [] () -> StatusOr<std::string> {
-        return "SomeValue";
-    };
+    auto foo = []() -> StatusOr<std::string> { return "SomeValue"; };
     auto result = foo();
     ASSERT_TRUE(result.ok());
     ASSERT_EQ("SomeValue", result.value());
 }
 
-
 TEST(StatusOr, ReturnFromMoveOnlyValue) {
     // return move only from anonymous value
     {
-        auto foo = [] () -> StatusOr<std::unique_ptr<std::string>> {
+        auto foo = []() -> StatusOr<std::unique_ptr<std::string>> {
             return std::make_unique<std::string>("SomeValue");
         };
         auto result = foo();
@@ -87,7 +77,7 @@ TEST(StatusOr, ReturnFromMoveOnlyValue) {
     }
     // return move only from named value
     {
-        auto foo = [] () -> StatusOr<std::unique_ptr<std::string>> {
+        auto foo = []() -> StatusOr<std::unique_ptr<std::string>> {
             // TODO(dutor) It seems that GCC before 8.0 has some issues to compile
             // the following code, in the combination of NVRO and implicit conversion.
             // We use `std::move' explicitly for now
@@ -116,13 +106,11 @@ TEST(StatusOr, ReturnFromMoveOnlyValue) {
     */
 }
 
-
 TEST(StatusOr, CopyConstructFromDefault) {
     StatusOr<std::string> result1;
     auto result2 = result1;
     ASSERT_FALSE(result2.ok());
 }
-
 
 TEST(StatusOr, CopyConstructFromStatus) {
     StatusOr<std::string> result1(Status::Error("SomeError"));
@@ -135,7 +123,6 @@ TEST(StatusOr, CopyConstructFromStatus) {
     ASSERT_EQ("SomeError", result2.status().toString());
 }
 
-
 TEST(StatusOr, CopyConstructFromValue) {
     StatusOr<std::string> result1("SomeValue");
     auto result2 = result1;
@@ -145,14 +132,12 @@ TEST(StatusOr, CopyConstructFromValue) {
     ASSERT_EQ("SomeValue", result2.value());
 }
 
-
 TEST(StatusOr, CopyAssignFromDefault) {
     StatusOr<std::string> result1;
     decltype(result1) result2;
     result2 = result1;
     ASSERT_FALSE(result2.ok());
 }
-
 
 TEST(StatusOr, CopyAssignFromStatus) {
     StatusOr<std::string> result1(Status::Error("SomeError"));
@@ -166,7 +151,6 @@ TEST(StatusOr, CopyAssignFromStatus) {
     ASSERT_EQ("SomeError", result2.status().toString());
 }
 
-
 TEST(StatusOr, CopyAssignFromValue) {
     StatusOr<std::string> result1("SomeValue");
     decltype(result1) result2;
@@ -177,13 +161,11 @@ TEST(StatusOr, CopyAssignFromValue) {
     ASSERT_EQ("SomeValue", result2.value());
 }
 
-
 TEST(StatusOr, MoveConstructFromDefault) {
     StatusOr<std::string> result1;
     auto result2 = std::move(result1);
     ASSERT_FALSE(result2.ok());
 }
-
 
 TEST(StatusOr, MoveConstructFromStatus) {
     StatusOr<std::string> result1(Status::Error("SomeError"));
@@ -194,7 +176,6 @@ TEST(StatusOr, MoveConstructFromStatus) {
     ASSERT_EQ("SomeError", result2.status().toString());
 }
 
-
 TEST(StatusOr, MoveConstructFromValue) {
     StatusOr<std::string> result1("SomeValue");
     auto result2 = std::move(result1);
@@ -203,14 +184,12 @@ TEST(StatusOr, MoveConstructFromValue) {
     ASSERT_EQ("SomeValue", result2.value());
 }
 
-
 TEST(StatusOr, MoveAssignFromDefault) {
     StatusOr<std::string> result1;
     decltype(result1) result2;
     result2 = std::move(result1);
     ASSERT_FALSE(result2.ok());
 }
-
 
 TEST(StatusOr, MoveAssignFromStatus) {
     StatusOr<std::string> result1(Status::Error("SomeError"));
@@ -222,7 +201,6 @@ TEST(StatusOr, MoveAssignFromStatus) {
     ASSERT_EQ("SomeError", result2.status().toString());
 }
 
-
 TEST(StatusOr, MoveAssignFromValue) {
     StatusOr<std::string> result1("SomeValue");
     decltype(result1) result2;
@@ -231,7 +209,6 @@ TEST(StatusOr, MoveAssignFromValue) {
     ASSERT_TRUE(result2.ok());
     ASSERT_EQ("SomeValue", result2.value());
 }
-
 
 TEST(StatusOr, AssignFromStatus) {
     {
@@ -275,7 +252,6 @@ TEST(StatusOr, AssignFromStatus) {
     }
 }
 
-
 TEST(StatusOr, AssignFromValue) {
     {
         StatusOr<std::string> result;
@@ -301,7 +277,6 @@ TEST(StatusOr, AssignFromValue) {
     }
 }
 
-
 TEST(StatusOr, CopyConstructFromCompatibleTypes) {
     {
         StatusOr<const char*> from("SomeValue");
@@ -326,7 +301,6 @@ TEST(StatusOr, CopyConstructFromCompatibleTypes) {
     }
 }
 
-
 TEST(StatusOr, CopyAssignFromCompatibleTypes) {
     {
         StatusOr<const char*> from("SomeValue");
@@ -346,7 +320,6 @@ TEST(StatusOr, CopyAssignFromCompatibleTypes) {
     }
 }
 
-
 TEST(StatusOr, MoveConstructFromCompatibleTypes) {
     StatusOr<std::unique_ptr<std::string>> from(std::make_unique<std::string>("SomeValue"));
     ASSERT_TRUE(from.ok());
@@ -357,7 +330,6 @@ TEST(StatusOr, MoveConstructFromCompatibleTypes) {
     ASSERT_TRUE(to.ok());
     ASSERT_EQ("SomeValue", *to.value());
 }
-
 
 TEST(StatusOr, MoveAssignFromCompatibleTypes) {
     StatusOr<std::unique_ptr<std::string>> from(std::make_unique<std::string>("SomeValue"));
@@ -373,7 +345,6 @@ TEST(StatusOr, MoveAssignFromCompatibleTypes) {
     ASSERT_TRUE(to.ok());
     ASSERT_EQ("SomeValue", *to.value());
 }
-
 
 TEST(StatusOr, MoveOnlyValue) {
     {
@@ -399,7 +370,6 @@ TEST(StatusOr, MoveOnlyValue) {
     }
 }
 
-
 TEST(StatusOr, MoveOutStatus) {
     StatusOr<std::string> result(Status::Error("SomeError"));
     ASSERT_FALSE(result.ok());
@@ -409,7 +379,6 @@ TEST(StatusOr, MoveOutStatus) {
     ASSERT_FALSE(result.ok());
     ASSERT_EQ(Status::Error("SomeError"), status);
 }
-
 
 TEST(StatusOr, Destruct) {
     auto ptr = std::make_shared<std::string>("SomeValue");
@@ -424,7 +393,6 @@ TEST(StatusOr, Destruct) {
     }
     ASSERT_EQ(1UL, ptr.use_count());
 }
-
 
 /*
 TEST(StatusOr, ConstructibleButNotConvertible) {

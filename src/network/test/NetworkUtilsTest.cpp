@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "network/NetworkUtils.h"
 
 namespace nebula {
@@ -21,7 +21,6 @@ TEST(NetworkUtils, getHostname) {
     pclose(fp);
     EXPECT_EQ(std::string(buffer), hostname);
 }
-
 
 TEST(NetworkUtils, getIPv4FromDevice) {
     {
@@ -40,20 +39,18 @@ TEST(NetworkUtils, getIPv4FromDevice) {
     }
 }
 
-
 TEST(NetworkUtils, listIPv4s) {
     auto result = NetworkUtils::listIPv4s();
     ASSERT_TRUE(result.ok()) << result.status();
     ASSERT_FALSE(result.value().empty());
     auto found = false;
-    for (auto &ip : result.value()) {
+    for (auto& ip : result.value()) {
         if (ip == "127.0.0.1") {
             found = true;
         }
     }
     ASSERT_TRUE(found);
 }
-
 
 TEST(NetworkUtils, listDeviceAndIPv4s) {
     auto result = NetworkUtils::listDeviceAndIPv4s();
@@ -62,19 +59,16 @@ TEST(NetworkUtils, listDeviceAndIPv4s) {
     ASSERT_NE(result.value().end(), result.value().find("lo"));
 }
 
-
 TEST(NetworkUtils, getDynamicPortRange) {
     uint16_t low, high;
     ASSERT_TRUE(NetworkUtils::getDynamicPortRange(low, high));
     ASSERT_NE(low, high);
 }
 
-
 TEST(NetworkUtils, getAvailablePort) {
     auto port = NetworkUtils::getAvailablePort();
     ASSERT_GT(port, 0);
 }
-
 
 TEST(NetworkUtils, toHosts) {
     auto s = NetworkUtils::toHosts("localhost:1200, 127.0.0.1:1200");
@@ -93,7 +87,6 @@ TEST(NetworkUtils, toHosts) {
 
 }   // namespace network
 }   // namespace nebula
-
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

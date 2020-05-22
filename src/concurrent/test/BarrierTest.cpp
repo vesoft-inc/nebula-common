@@ -3,8 +3,8 @@
  * This source code is licensed under Apache 2.0 License,
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "concurrent/Barrier.h"
 #include "thread/GenericThreadPool.h"
 
@@ -14,7 +14,7 @@ namespace concurrent {
 TEST(BarrierTest, BasicTest) {
     // test for invalid initial counter
     {
-        ASSERT_THROW({Barrier barrier(0UL);}, std::invalid_argument);
+        ASSERT_THROW({ Barrier barrier(0UL); }, std::invalid_argument);
     }
     // test for single-thread normal case
     {
@@ -26,7 +26,7 @@ TEST(BarrierTest, BasicTest) {
     {
         Barrier barrier(2UL);
         std::atomic<size_t> counter{0};
-        auto cb = [&] () {
+        auto cb = [&]() {
             barrier.wait();
             ++counter;
         };
@@ -40,13 +40,13 @@ TEST(BarrierTest, BasicTest) {
     // test for multiple-thread completion
     {
         std::atomic<size_t> counter{0};
-        auto completion = [&] () {
+        auto completion = [&]() {
             ++counter;
             ++counter;
         };
         Barrier barrier(2UL, completion);
 
-        auto cb = [&] () {
+        auto cb = [&]() {
             barrier.wait();
             ++counter;
         };
@@ -65,13 +65,13 @@ TEST(BarrierTest, ConsecutiveTest) {
     std::atomic<size_t> counter{0};
     constexpr auto N = 64UL;
     constexpr auto iters = 100UL;
-    auto completion = [&] () {
+    auto completion = [&]() {
         // At the completion phase, `counter' should be multiple to `N'.
         ASSERT_EQ(0UL, counter.load() % N);
     };
 
     Barrier barrier(N, completion);
-    auto cb = [&] () {
+    auto cb = [&]() {
         auto i = iters;
         while (i-- != 0) {
             ++counter;

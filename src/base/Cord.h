@@ -70,6 +70,5 @@ private:
     void allocateBlock();
 };
 
-}  // namespace nebula
-#endif  // COMMON_BASE_CORD_H_
-
+}   // namespace nebula
+#endif   // COMMON_BASE_CORD_H_

@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "algorithm/ReservoirSampling.h"
 #include <gtest/gtest.h>
+#include "algorithm/ReservoirSampling.h"
 
 namespace nebula {
 namespace algorithm {
@@ -38,5 +38,5 @@ TEST(ReservoirSamplingTest, Sample) {
         EXPECT_EQ(2, result[2]);
     }
 }
-}  // namespace algorithm
-}  // namespace nebula
+}   // namespace algorithm
+}   // namespace nebula

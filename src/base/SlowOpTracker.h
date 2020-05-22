@@ -16,8 +16,7 @@ namespace nebula {
 
 class SlowOpTracker {
 public:
-    SlowOpTracker()
-        : startMs_(time::WallClock::fastNowInMilliSec()) {}
+    SlowOpTracker() : startMs_(time::WallClock::fastNowInMilliSec()) {}
 
     ~SlowOpTracker() = default;
 
@@ -38,6 +37,5 @@ private:
     int64_t dur_ = 0;
 };
 
-}  // namespace nebula
-#endif  // COMMON_BASE_SLOWOPTRACKER_H_
-
+}   // namespace nebula
+#endif   // COMMON_BASE_SLOWOPTRACKER_H_

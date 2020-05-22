@@ -6,9 +6,9 @@
 #ifndef COMMON_BASE_MURMURHASH2_H_
 #define COMMON_BASE_MURMURHASH2_H_
 
-#include <string>
 #include <cstring>
 #include <memory>
+#include <string>
 #include <thread>
 #include <type_traits>
 
@@ -24,9 +24,9 @@ namespace nebula {
  */
 class MurmurHash2 {
     template <typename T>
-    static constexpr bool is_char_v = std::is_same<T, char>::value ||
-                                      std::is_same<T, signed char>::value ||
-                                      std::is_same<T, unsigned char>::value;
+    static constexpr bool is_char_v =
+        std::is_same<T, char>::value || std::is_same<T, signed char>::value ||
+        std::is_same<T, unsigned char>::value;
 
 public:
     // std::string
@@ -60,23 +60,23 @@ public:
             h *= m;
         }
 
-        const unsigned char *data2 = (const unsigned char*)data;
+        const unsigned char *data2 = (const unsigned char *)data;
         switch (size & 7) {
-        case 7:
-            h ^= uint64_t(data2[6]) << 48;  // fallthrough
-        case 6:
-            h ^= uint64_t(data2[5]) << 40;  // fallthrough
-        case 5:
-            h ^= uint64_t(data2[4]) << 32;  // fallthrough
-        case 4:
-            h ^= uint64_t(data2[3]) << 24;  // fallthrough
-        case 3:
-            h ^= uint64_t(data2[2]) << 16;  // fallthrough
-        case 2:
-            h ^= uint64_t(data2[1]) << 8;   // fallthrough
-        case 1:
-            h ^= uint64_t(data2[0]);
-            h *= m;     // fallthrough
+            case 7:
+                h ^= uint64_t(data2[6]) << 48;   // fallthrough
+            case 6:
+                h ^= uint64_t(data2[5]) << 40;   // fallthrough
+            case 5:
+                h ^= uint64_t(data2[4]) << 32;   // fallthrough
+            case 4:
+                h ^= uint64_t(data2[3]) << 24;   // fallthrough
+            case 3:
+                h ^= uint64_t(data2[2]) << 16;   // fallthrough
+            case 2:
+                h ^= uint64_t(data2[1]) << 8;   // fallthrough
+            case 1:
+                h ^= uint64_t(data2[0]);
+                h *= m;   // fallthrough
         }
         h ^= h >> r;
         h *= m;
@@ -98,15 +98,13 @@ public:
 
     // integer
     template <typename T>
-    std::enable_if_t<std::is_integral<T>::value, size_t>
-    operator()(T key) const noexcept {
+    std::enable_if_t<std::is_integral<T>::value, size_t> operator()(T key) const noexcept {
         return static_cast<size_t>(key);
     }
 
     // pointers
     template <typename T>
-    std::enable_if_t<!is_char_v<T>, size_t>
-    operator() (const T *ptr) const noexcept {
+    std::enable_if_t<!is_char_v<T>, size_t> operator()(const T *ptr) const noexcept {
         return reinterpret_cast<size_t>(ptr);
     }
 
@@ -125,4 +123,4 @@ public:
 
 }   // namespace nebula
 
-#endif  // COMMON_BASE_MURMURHASH2_H_
+#endif   // COMMON_BASE_MURMURHASH2_H_

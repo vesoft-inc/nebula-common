@@ -7,12 +7,12 @@
 #ifndef CLIENTS_STORAGE_GENERALSTORAGECLIENT_H_
 #define CLIENTS_STORAGE_GENERALSTORAGECLIENT_H_
 
-#include "base/Base.h"
 #include <gtest/gtest_prod.h>
-#include "interface/gen-cpp2/GeneralStorageServiceAsyncClient.h"
-#include "datatypes/KeyValue.h"
-#include "clients/storage/StorageClientBase.h"
+#include "base/Base.h"
 #include "clients/meta/MetaClient.h"
+#include "clients/storage/StorageClientBase.h"
+#include "datatypes/KeyValue.h"
+#include "interface/gen-cpp2/GeneralStorageServiceAsyncClient.h"
 
 namespace nebula {
 namespace storage {
@@ -22,8 +22,7 @@ namespace storage {
  *
  * The class is NOT reentrant
  */
-class GeneralStorageClient
-        : public StorageClientBase<cpp2::GeneralStorageServiceAsyncClient> {
+class GeneralStorageClient : public StorageClientBase<cpp2::GeneralStorageServiceAsyncClient> {
     using Parent = StorageClientBase<cpp2::GeneralStorageServiceAsyncClient>;
 
 public:
@@ -32,24 +31,19 @@ public:
         : Parent(ioThreadPool, metaClient) {}
     virtual ~GeneralStorageClient() {}
 
-    folly::SemiFuture<StorageRpcResponse<cpp2::KVGetResponse>> get(
-        GraphSpaceID space,
-        std::vector<std::string>&& keys,
-        bool returnPartly = false,
-        folly::EventBase* evb = nullptr);
+    folly::SemiFuture<StorageRpcResponse<cpp2::KVGetResponse>> get(GraphSpaceID space,
+                                                                   std::vector<std::string>&& keys,
+                                                                   bool returnPartly = false,
+                                                                   folly::EventBase* evb = nullptr);
 
-    folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> put(
-        GraphSpaceID space,
-        std::vector<KeyValue> kvs,
-        folly::EventBase* evb = nullptr);
+    folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> put(GraphSpaceID space,
+                                                                  std::vector<KeyValue> kvs,
+                                                                  folly::EventBase* evb = nullptr);
 
-    folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> remove(
-        GraphSpaceID space,
-        std::vector<std::string> keys,
-        folly::EventBase* evb = nullptr);
+    folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>>
+    remove(GraphSpaceID space, std::vector<std::string> keys, folly::EventBase* evb = nullptr);
 };
 
-}  // namespace storage
-}  // namespace nebula
-#endif  // CLIENTS_STORAGE_GENERALSTORAGECLIENT_H_
-
+}   // namespace storage
+}   // namespace nebula
+#endif   // CLIENTS_STORAGE_GENERALSTORAGECLIENT_H_

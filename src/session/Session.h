@@ -7,19 +7,19 @@
 #define COMMON_SESSION_H_
 
 #include "base/Base.h"
-#include "time/Duration.h"
 #include "interface/gen-cpp2/meta_types.h"
+#include "time/Duration.h"
 
 namespace nebula {
 namespace session {
 
 enum class Role : char {
-    GOD           = 1,
-    ADMIN         = 2,
-    DBA           = 3,
-    USER          = 4,
-    GUEST         = 5,
-    INVALID_ROLE  = 6,
+    GOD = 1,
+    ADMIN = 2,
+    DBA = 3,
+    USER = 4,
+    GUEST = 5,
+    INVALID_ROLE = 6,
 };
 
 class Session final {
@@ -38,7 +38,7 @@ public:
         return space_;
     }
 
-    void setSpace(const std::string &name, GraphSpaceID space) {
+    void setSpace(const std::string& name, GraphSpaceID space) {
         spaceName_ = name;
         space_ = space;
     }
@@ -69,19 +69,19 @@ public:
 
     Role toRole(nebula::meta::cpp2::RoleType role) {
         switch (role) {
-            case nebula::meta::cpp2::RoleType::GOD : {
+            case nebula::meta::cpp2::RoleType::GOD: {
                 return Role::GOD;
             }
-            case nebula::meta::cpp2::RoleType::ADMIN : {
+            case nebula::meta::cpp2::RoleType::ADMIN: {
                 return Role::ADMIN;
             }
-            case nebula::meta::cpp2::RoleType::DBA : {
+            case nebula::meta::cpp2::RoleType::DBA: {
                 return Role::DBA;
             }
-            case nebula::meta::cpp2::RoleType::USER : {
+            case nebula::meta::cpp2::RoleType::USER: {
                 return Role::USER;
             }
-            case nebula::meta::cpp2::RoleType::GUEST : {
+            case nebula::meta::cpp2::RoleType::GUEST: {
                 return Role::GUEST;
             }
         }
@@ -107,13 +107,12 @@ private:
     Session() = default;
     explicit Session(int64_t id);
 
-
 private:
-    int64_t           id_{0};
-    GraphSpaceID      space_{-1};
-    std::string       spaceName_;
-    std::string       account_;
-    time::Duration    idleDuration_;
+    int64_t id_{0};
+    GraphSpaceID space_{-1};
+    std::string spaceName_;
+    std::string account_;
+    time::Duration idleDuration_;
     /*
      * map<spaceId, role>
      * One user can have roles in multiple spaces
@@ -122,7 +121,7 @@ private:
     std::unordered_map<GraphSpaceID, Role> roles_;
 };
 
-}  // namespace session
-}  // namespace nebula
+}   // namespace session
+}   // namespace nebula
 
 #endif   // COMMON_SESSION_H_

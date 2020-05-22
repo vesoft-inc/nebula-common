@@ -4,11 +4,11 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
 #include <fstream>
-#include "process/ProcessUtils.h"
+#include "base/Base.h"
 #include "fs/FileUtils.h"
+#include "process/ProcessUtils.h"
 
 namespace nebula {
 
@@ -17,7 +17,6 @@ TEST(ProcessUtils, getExePath) {
     ASSERT_TRUE(result.ok()) << result.status();
     ASSERT_NE(std::string::npos, result.value().find("process_test")) << result.value();
 }
-
 
 TEST(ProcessUtils, getExeCWD) {
     auto result = ProcessUtils::getExeCWD();
@@ -28,18 +27,17 @@ TEST(ProcessUtils, getExeCWD) {
     ASSERT_EQ(buffer, result.value());
 }
 
-
 TEST(ProcessUtils, isPidAvailable) {
     {
         auto status = ProcessUtils::isPidAvailable(::getpid());
         ASSERT_TRUE(status.ok()) << status;
     }
     {
-        auto status = ProcessUtils::isPidAvailable(0);  // idle/swap
+        auto status = ProcessUtils::isPidAvailable(0);   // idle/swap
         ASSERT_FALSE(status.ok());
     }
     {
-        auto status = ProcessUtils::isPidAvailable(1);  // systemd
+        auto status = ProcessUtils::isPidAvailable(1);   // systemd
         ASSERT_FALSE(status.ok());
     }
     {
@@ -62,7 +60,7 @@ TEST(ProcessUtils, isPidAvailable) {
     }
     {
         // choose an available pid
-        auto genPid = [] () {
+        auto genPid = []() {
             auto max = ProcessUtils::maxPid();
             while (true) {
                 uint32_t next = static_cast<uint32_t>(folly::Random::rand64());
@@ -85,19 +83,16 @@ TEST(ProcessUtils, isPidAvailable) {
     }
 }
 
-
 TEST(ProcessUtils, getProcessName) {
     auto result = ProcessUtils::getProcessName();
     ASSERT_TRUE(result.ok()) << result.status();
     ASSERT_NE(std::string::npos, result.value().find("process_test")) << result.value();
 }
 
-
 TEST(ProcessUtils, runCommand) {
     auto status1 = ProcessUtils::runCommand("echo $HOME");
     ASSERT_TRUE(status1.ok()) << status1.status();
-    EXPECT_EQ(std::string(getenv("HOME")),
-              folly::rtrimWhitespace(status1.value()).toString());
+    EXPECT_EQ(std::string(getenv("HOME")), folly::rtrimWhitespace(status1.value()).toString());
 
     // Try large output
     auto status2 = ProcessUtils::runCommand("cat /etc/profile");

@@ -4,9 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include <gtest/gtest.h>
 #include "base/Base.h"
 #include "base/SlowOpTracker.h"
-#include <gtest/gtest.h>
 
 namespace nebula {
 
@@ -17,8 +17,7 @@ TEST(SlowOpTrackerTest, SimpleTest) {
     tracker.output("PREFIX", "This is a prefix msg");
 }
 
-}  // namespace nebula
-
+}   // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
@@ -27,4 +26,3 @@ int main(int argc, char** argv) {
 
     return RUN_ALL_TESTS();
 }
-

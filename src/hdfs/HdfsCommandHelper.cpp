@@ -13,8 +13,8 @@ namespace hdfs {
 StatusOr<std::string> HdfsCommandHelper::ls(const std::string& hdfsHost,
                                             int32_t hdfsPort,
                                             const std::string& hdfsPath) {
-    auto command = folly::stringPrintf("hdfs dfs -ls hdfs://%s:%d%s",
-                                       hdfsHost.c_str(), hdfsPort, hdfsPath.c_str());
+    auto command = folly::stringPrintf(
+        "hdfs dfs -ls hdfs://%s:%d%s", hdfsHost.c_str(), hdfsPort, hdfsPath.c_str());
     LOG(INFO) << "Running HDFS Command: " << command;
     auto result = ProcessUtils::runCommand(command.c_str());
     if (result.ok()) {
@@ -29,7 +29,9 @@ StatusOr<std::string> HdfsCommandHelper::copyToLocal(const std::string& hdfsHost
                                                      const std::string& hdfsPath,
                                                      const std::string& localPath) {
     auto command = folly::stringPrintf("hdfs dfs -copyToLocal hdfs://%s:%d%s %s",
-                                       hdfsHost.c_str(), hdfsPort, hdfsPath.c_str(),
+                                       hdfsHost.c_str(),
+                                       hdfsPort,
+                                       hdfsPath.c_str(),
                                        localPath.c_str());
     LOG(INFO) << "Running HDFS Command: " << command;
     auto result = ProcessUtils::runCommand(command.c_str());

@@ -7,9 +7,9 @@
 #ifndef META_SCHEMAMANAGER_H_
 #define META_SCHEMAMANAGER_H_
 
+#include <folly/RWSpinLock.h>
 #include "base/Base.h"
 #include "base/StatusOr.h"
-#include <folly/RWSpinLock.h>
 #include "meta/NebulaSchemaProvider.h"
 
 namespace nebula {
@@ -31,14 +31,16 @@ public:
 
     virtual StatusOr<int32_t> getSpaceVidLen(GraphSpaceID space) = 0;
 
-    virtual std::shared_ptr<const NebulaSchemaProvider>
-    getTagSchema(GraphSpaceID space, TagID tag, SchemaVer ver = -1) = 0;
+    virtual std::shared_ptr<const NebulaSchemaProvider> getTagSchema(GraphSpaceID space,
+                                                                     TagID tag,
+                                                                     SchemaVer ver = -1) = 0;
 
     // Returns a negative number when the schema does not exist
     virtual StatusOr<SchemaVer> getLatestTagSchemaVersion(GraphSpaceID space, TagID tag) = 0;
 
-    virtual std::shared_ptr<const NebulaSchemaProvider>
-    getEdgeSchema(GraphSpaceID space, EdgeType edge, SchemaVer ver = -1) = 0;
+    virtual std::shared_ptr<const NebulaSchemaProvider> getEdgeSchema(GraphSpaceID space,
+                                                                      EdgeType edge,
+                                                                      SchemaVer ver = -1) = 0;
 
     // Returns a negative number when the schema does not exist
     virtual StatusOr<SchemaVer> getLatestEdgeSchemaVersion(GraphSpaceID space, EdgeType edge) = 0;
@@ -61,11 +63,10 @@ public:
     // get all version of all edge schema
     virtual StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID space) = 0;
 
-
 protected:
     SchemaManager() = default;
 };
 
-}  // namespace meta
-}  // namespace nebula
-#endif  // META_SCHEMAMANAGER_H_
+}   // namespace meta
+}   // namespace nebula
+#endif   // META_SCHEMAMANAGER_H_

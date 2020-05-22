@@ -4,23 +4,23 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include "webservice/GetStatsHandler.h"
-#include "webservice/Common.h"
-#include "stats/StatsManager.h"
 #include <folly/String.h>
 #include <folly/json.h>
-#include <proxygen/lib/http/ProxygenErrorEnum.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
+#include <proxygen/lib/http/ProxygenErrorEnum.h>
+#include "base/Base.h"
+#include "stats/StatsManager.h"
+#include "webservice/Common.h"
 
 namespace nebula {
 
+using nebula::stats::StatsManager;
 using proxygen::HTTPMessage;
 using proxygen::HTTPMethod;
 using proxygen::ProxygenError;
-using proxygen::UpgradeProtocol;
 using proxygen::ResponseBuilder;
-using nebula::stats::StatsManager;
+using proxygen::UpgradeProtocol;
 
 void GetStatsHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
     if (headers->getMethod().value() != HTTPMethod::GET) {
@@ -39,11 +39,9 @@ void GetStatsHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
     }
 }
 
-
 void GetStatsHandler::onBody(std::unique_ptr<folly::IOBuf>) noexcept {
     // Do nothing, we only support GET
 }
-
 
 void GetStatsHandler::onEOM() noexcept {
     switch (err_) {
@@ -74,23 +72,18 @@ void GetStatsHandler::onEOM() noexcept {
     }
 }
 
-
 void GetStatsHandler::onUpgrade(UpgradeProtocol) noexcept {
     // Do nothing
 }
-
 
 void GetStatsHandler::requestComplete() noexcept {
     delete this;
 }
 
-
 void GetStatsHandler::onError(ProxygenError err) noexcept {
-    LOG(ERROR) << "Web service GetStatsHandler got error: "
-               << proxygen::getErrorString(err);
+    LOG(ERROR) << "Web service GetStatsHandler got error: " << proxygen::getErrorString(err);
     delete this;
 }
-
 
 void GetStatsHandler::addOneStat(folly::dynamic& vals,
                                  const std::string& statName,
@@ -101,7 +94,6 @@ void GetStatsHandler::addOneStat(folly::dynamic& vals,
     vals.push_back(std::move(stat));
 }
 
-
 void GetStatsHandler::addOneStat(folly::dynamic& vals,
                                  const std::string& statName,
                                  const std::string& error) const {
@@ -110,7 +102,6 @@ void GetStatsHandler::addOneStat(folly::dynamic& vals,
     stat["value"] = error;
     vals.push_back(std::move(stat));
 }
-
 
 folly::dynamic GetStatsHandler::getStats() const {
     auto stats = folly::dynamic::array();
@@ -132,16 +123,13 @@ folly::dynamic GetStatsHandler::getStats() const {
     return stats;
 }
 
-
 std::string GetStatsHandler::toStr(folly::dynamic& vals) const {
     std::stringstream ss;
     for (auto& counter : vals) {
         auto& val = counter["value"];
-        ss << counter["name"].asString() << "="
-           << val.asString()
-           << "\n";
+        ss << counter["name"].asString() << "=" << val.asString() << "\n";
     }
     return ss.str();
 }
 
-}  // namespace nebula
+}   // namespace nebula

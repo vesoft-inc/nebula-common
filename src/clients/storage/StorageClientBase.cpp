@@ -9,6 +9,5 @@
 DEFINE_int32(storage_client_timeout_ms, 60 * 1000, "storage client timeout");
 
 namespace nebula {
-namespace storage {
-}   // namespace storage
+namespace storage {}   // namespace storage
 }   // namespace nebula

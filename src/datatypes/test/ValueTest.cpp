@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "datatypes/Value.h"
 
 namespace nebula {
@@ -378,8 +378,7 @@ TEST(Value, Logical) {
         EXPECT_EQ(true, v.getBool());
     }
 }
-}  // namespace nebula
-
+}   // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

@@ -37,8 +37,7 @@ private:
     uint64_t startTick_;
 };
 
-}  // namespace time
-}  // namespace nebula
+}   // namespace time
+}   // namespace nebula
 
-#endif  // COMMON_TIME_DURATION_H_
-
+#endif   // COMMON_TIME_DURATION_H_

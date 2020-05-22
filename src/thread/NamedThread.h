@@ -10,8 +10,8 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#include <unistd.h>
 #include <sys/syscall.h>
+#include <unistd.h>
 
 #include <sys/prctl.h>
 
@@ -23,12 +23,12 @@ pid_t gettid();
 class NamedThread final : public std::thread {
 public:
     NamedThread() = default;
-    NamedThread(NamedThread&&) = default;
-    template <typename F, typename...Args>
-    NamedThread(const std::string &name, F &&f, Args&&...args);
-    NamedThread& operator=(NamedThread&&) = default;
-    NamedThread(const NamedThread&) = delete;
-    NamedThread& operator=(const NamedThread&) = delete;
+    NamedThread(NamedThread &&) = default;
+    template <typename F, typename... Args>
+    NamedThread(const std::string &name, F &&f, Args &&... args);
+    NamedThread &operator=(NamedThread &&) = default;
+    NamedThread(const NamedThread &) = delete;
+    NamedThread &operator=(const NamedThread &) = delete;
 
 public:
     class Nominator {
@@ -53,12 +53,11 @@ public:
         }
 
     private:
-        std::string                     prevName_;
+        std::string prevName_;
     };
 
 private:
-    static void hook(const std::string &name,
-                     const std::function<void()> &f) {
+    static void hook(const std::string &name, const std::function<void()> &f) {
         if (!name.empty()) {
             Nominator::set(name);
         }
@@ -66,13 +65,11 @@ private:
     }
 };
 
-template <typename F, typename...Args>
-NamedThread::NamedThread(const std::string &name, F &&f, Args&&...args)
-    : std::thread(hook, name,
-                  std::bind(std::forward<F>(f), std::forward<Args>(args)...)) {
-}
+template <typename F, typename... Args>
+NamedThread::NamedThread(const std::string &name, F &&f, Args &&... args)
+    : std::thread(hook, name, std::bind(std::forward<F>(f), std::forward<Args>(args)...)) {}
 
 }   // namespace thread
 }   // namespace nebula
 
-#endif  // COMMON_THREAD_NAMEDTHREAD_H_
+#endif   // COMMON_THREAD_NAMEDTHREAD_H_

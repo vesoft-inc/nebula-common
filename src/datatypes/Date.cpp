@@ -8,16 +8,12 @@
 
 namespace nebula {
 
-static const int64_t daysSoFar[] =
-    {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
-static const int64_t leapDaysSoFar[] =
-    {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
-
+static const int64_t daysSoFar[] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
+static const int64_t leapDaysSoFar[] = {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
 
 Date::Date(uint64_t days) {
     fromInt(days);
 }
-
 
 int64_t Date::toInt() const {
     // Year
@@ -42,7 +38,6 @@ int64_t Date::toInt() const {
     // Since we start from -32768/1/1, we need to reduce one day
     return days - 1;
 }
-
 
 void Date::fromInt(int64_t days) {
     // year
@@ -85,24 +80,20 @@ void Date::fromInt(int64_t days) {
     }
 }
 
-
 Date Date::operator+(int64_t days) const {
     int64_t daysSince = toInt();
     return Date(daysSince + days);
 }
-
 
 Date Date::operator-(int64_t days) const {
     int64_t daysSince = toInt();
     return Date(daysSince - days);
 }
 
-
 std::string Date::toString() const {
     // TODO(sye) The format should depend on the locale
     return folly::stringPrintf("%d/%02d/%02d", year, month, day);
 }
-
 
 std::string DateTime::toString() const {
     // TODO(sye) The format should depend on the locale
@@ -119,5 +110,4 @@ std::string DateTime::toString() const {
                                (timezone % 3600) / 60);
 }
 
-}  // namespace nebula
-
+}   // namespace nebula

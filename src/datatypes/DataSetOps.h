@@ -25,12 +25,11 @@ namespace thrift {
  *************************************/
 namespace detail {
 
-template<>
+template <>
 struct TccStructTraits<nebula::Row> {
-    static void translateFieldName(
-            MAYBE_UNUSED folly::StringPiece _fname,
-            MAYBE_UNUSED int16_t& fid,
-            MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
+    static void translateFieldName(MAYBE_UNUSED folly::StringPiece _fname,
+                                   MAYBE_UNUSED int16_t& fid,
+                                   MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "columns") {
             fid = 1;
             _ftype = apache::thrift::protocol::T_LIST;
@@ -38,20 +37,17 @@ struct TccStructTraits<nebula::Row> {
     }
 };
 
-}  // namespace detail
-
+}   // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::Row>::clear(nebula::Row* obj) {
     return obj->clear();
 }
 
-
 template <>
 inline constexpr protocol::TType Cpp2Ops<nebula::Row>::thriftType() {
     return apache::thrift::protocol::T_STRUCT;
 }
-
 
 template <>
 template <class Protocol>
@@ -60,17 +56,14 @@ uint32_t Cpp2Ops<nebula::Row>::write(Protocol* proto, nebula::Row const* obj) {
     xfer += proto->writeStructBegin("Row");
 
     xfer += proto->writeFieldBegin("columns", apache::thrift::protocol::T_LIST, 1);
-    xfer += detail::pm::protocol_methods<
-            type_class::list<type_class::structure>,
-            std::vector<nebula::Value>
-        >::write(*proto, obj->columns);
+    xfer += detail::pm::protocol_methods<type_class::list<type_class::structure>,
+                                         std::vector<nebula::Value>>::write(*proto, obj->columns);
     xfer += proto->writeFieldEnd();
 
     xfer += proto->writeFieldStop();
     xfer += proto->writeStructEnd();
     return xfer;
 }
-
 
 template <>
 template <class Protocol>
@@ -85,14 +78,11 @@ void Cpp2Ops<nebula::Row>::read(Protocol* proto, nebula::Row* obj) {
         goto _loop;
     }
 
-_readField_columns:
-    {
-        obj->columns = std::vector<nebula::Value>();
-        detail::pm::protocol_methods<
-                type_class::list<type_class::structure>,
-                std::vector<nebula::Value>
-            >::read(*proto, obj->columns);
-    }
+_readField_columns : {
+    obj->columns = std::vector<nebula::Value>();
+    detail::pm::protocol_methods<type_class::list<type_class::structure>,
+                                 std::vector<nebula::Value>>::read(*proto, obj->columns);
+}
 
     if (UNLIKELY(!readState.advanceToNextField(proto, 1, 0, protocol::T_STOP))) {
         goto _loop;
@@ -109,23 +99,20 @@ _loop:
     }
 
     if (proto->kUsesFieldNames()) {
-        detail::TccStructTraits<nebula::Row>::translateFieldName(readState.fieldName(),
-                                                                 readState.fieldId,
-                                                                 readState.fieldType);
+        detail::TccStructTraits<nebula::Row>::translateFieldName(
+            readState.fieldName(), readState.fieldId, readState.fieldType);
     }
 
     switch (readState.fieldId) {
-        case 1:
-        {
+        case 1: {
             if (LIKELY(readState.fieldType == apache::thrift::protocol::T_LIST)) {
                 goto _readField_columns;
             } else {
                 goto _skip;
             }
         }
-        default:
-        {
-_skip:
+        default: {
+        _skip:
             proto->skip(readState.fieldType);
             readState.readFieldEnd(proto);
             readState.readFieldBeginNoInline(proto);
@@ -134,42 +121,35 @@ _skip:
     }
 }
 
-
 template <>
 template <class Protocol>
-uint32_t Cpp2Ops<nebula::Row>::serializedSize(Protocol const* proto,
-                                              nebula::Row const* obj) {
+uint32_t Cpp2Ops<nebula::Row>::serializedSize(Protocol const* proto, nebula::Row const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("Row");
 
     xfer += proto->serializedFieldSize("columns", protocol::T_LIST, 1);
     xfer += detail::pm::protocol_methods<
-            type_class::list<type_class::structure>,
-            std::vector<nebula::Value>
-        >::serializedSize<false>(*proto, obj->columns);
+        type_class::list<type_class::structure>,
+        std::vector<nebula::Value>>::serializedSize<false>(*proto, obj->columns);
 
     xfer += proto->serializedSizeStop();
     return xfer;
 }
 
-
 template <>
 template <class Protocol>
-uint32_t Cpp2Ops<nebula::Row>::serializedSizeZC(Protocol const* proto,
-                                                nebula::Row const* obj) {
+uint32_t Cpp2Ops<nebula::Row>::serializedSizeZC(Protocol const* proto, nebula::Row const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("Row");
 
     xfer += proto->serializedFieldSize("columns", protocol::T_LIST, 1);
     xfer += detail::pm::protocol_methods<
-            type_class::list<type_class::structure>,
-            std::vector<nebula::Value>
-        >::serializedSize<false>(*proto, obj->columns);
+        type_class::list<type_class::structure>,
+        std::vector<nebula::Value>>::serializedSize<false>(*proto, obj->columns);
 
     xfer += proto->serializedSizeStop();
     return xfer;
 }
-
 
 /**************************************
  *
@@ -178,12 +158,11 @@ uint32_t Cpp2Ops<nebula::Row>::serializedSizeZC(Protocol const* proto,
  *************************************/
 namespace detail {
 
-template<>
+template <>
 struct TccStructTraits<nebula::DataSet> {
-    static void translateFieldName(
-            MAYBE_UNUSED folly::StringPiece _fname,
-            MAYBE_UNUSED int16_t& fid,
-            MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
+    static void translateFieldName(MAYBE_UNUSED folly::StringPiece _fname,
+                                   MAYBE_UNUSED int16_t& fid,
+                                   MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "column_names") {
             fid = 1;
             _ftype = apache::thrift::protocol::T_LIST;
@@ -194,47 +173,38 @@ struct TccStructTraits<nebula::DataSet> {
     }
 };
 
-}  // namespace detail
-
+}   // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::DataSet>::clear(nebula::DataSet* obj) {
     return obj->clear();
 }
 
-
 template <>
 inline constexpr protocol::TType Cpp2Ops<nebula::DataSet>::thriftType() {
     return apache::thrift::protocol::T_STRUCT;
 }
 
-
 template <>
 template <class Protocol>
-uint32_t Cpp2Ops<nebula::DataSet>::write(Protocol* proto,
-                                         nebula::DataSet const* obj) {
+uint32_t Cpp2Ops<nebula::DataSet>::write(Protocol* proto, nebula::DataSet const* obj) {
     uint32_t xfer = 0;
     xfer += proto->writeStructBegin("DataSet");
 
     xfer += proto->writeFieldBegin("column_names", protocol::T_LIST, 1);
-    xfer += detail::pm::protocol_methods<
-            type_class::list<type_class::binary>,
-            std::vector<std::string>
-        >::write(*proto, obj->colNames);
+    xfer += detail::pm::protocol_methods<type_class::list<type_class::binary>,
+                                         std::vector<std::string>>::write(*proto, obj->colNames);
     xfer += proto->writeFieldEnd();
 
     xfer += proto->writeFieldBegin("rows", apache::thrift::protocol::T_LIST, 2);
-    xfer += detail::pm::protocol_methods<
-            type_class::list<type_class::structure>,
-            std::vector<nebula::Row>
-        >::write(*proto, obj->rows);
+    xfer += detail::pm::protocol_methods<type_class::list<type_class::structure>,
+                                         std::vector<nebula::Row>>::write(*proto, obj->rows);
     xfer += proto->writeFieldEnd();
 
     xfer += proto->writeFieldStop();
     xfer += proto->writeStructEnd();
     return xfer;
 }
-
 
 template <>
 template <class Protocol>
@@ -249,27 +219,21 @@ void Cpp2Ops<nebula::DataSet>::read(Protocol* proto, nebula::DataSet* obj) {
         goto _loop;
     }
 
-_readField_column_names:
-    {
-        obj->colNames = std::vector<std::string>();
-        detail::pm::protocol_methods<
-                type_class::list<type_class::binary>,
-                std::vector<std::string>
-            >::read(*proto, obj->colNames);
-    }
+_readField_column_names : {
+    obj->colNames = std::vector<std::string>();
+    detail::pm::protocol_methods<type_class::list<type_class::binary>,
+                                 std::vector<std::string>>::read(*proto, obj->colNames);
+}
 
     if (UNLIKELY(!readState.advanceToNextField(proto, 1, 2, protocol::T_LIST))) {
         goto _loop;
     }
 
-_readField_rows:
-    {
-        obj->rows = std::vector<nebula::Row>();
-        detail::pm::protocol_methods<
-                type_class::list<type_class::structure>,
-                std::vector<nebula::Row>
-            >::read(*proto, obj->rows);
-    }
+_readField_rows : {
+    obj->rows = std::vector<nebula::Row>();
+    detail::pm::protocol_methods<type_class::list<type_class::structure>,
+                                 std::vector<nebula::Row>>::read(*proto, obj->rows);
+}
 
     if (UNLIKELY(!readState.advanceToNextField(proto, 2, 0, protocol::T_STOP))) {
         goto _loop;
@@ -287,31 +251,26 @@ _loop:
 
     if (proto->kUsesFieldNames()) {
         detail::TccStructTraits<nebula::DataSet>::translateFieldName(
-            readState.fieldName(),
-            readState.fieldId,
-            readState.fieldType);
+            readState.fieldName(), readState.fieldId, readState.fieldType);
     }
 
     switch (readState.fieldId) {
-        case 1:
-        {
+        case 1: {
             if (LIKELY(readState.fieldType == apache::thrift::protocol::T_LIST)) {
                 goto _readField_column_names;
             } else {
                 goto _skip;
             }
         }
-        case 2:
-        {
+        case 2: {
             if (LIKELY(readState.fieldType == apache::thrift::protocol::T_LIST)) {
                 goto _readField_rows;
             } else {
                 goto _skip;
             }
         }
-        default:
-        {
-_skip:
+        default: {
+        _skip:
             proto->skip(readState.fieldType);
             readState.readFieldEnd(proto);
             readState.readFieldBeginNoInline(proto);
@@ -319,7 +278,6 @@ _skip:
         }
     }
 }
-
 
 template <>
 template <class Protocol>
@@ -330,20 +288,18 @@ uint32_t Cpp2Ops<nebula::DataSet>::serializedSize(Protocol const* proto,
 
     xfer += proto->serializedFieldSize("column_names", protocol::T_LIST, 1);
     xfer += detail::pm::protocol_methods<
-            type_class::list<type_class::binary>,
-            std::vector<std::string>
-        >::serializedSize<false>(*proto, obj->colNames);
+        type_class::list<type_class::binary>,
+        std::vector<std::string>>::serializedSize<false>(*proto, obj->colNames);
 
     xfer += proto->serializedFieldSize("rows", apache::thrift::protocol::T_LIST, 2);
-    xfer += detail::pm::protocol_methods<
-            type_class::list<type_class::structure>,
-            std::vector<nebula::Row>
-        >::serializedSize<false>(*proto, obj->rows);
+    xfer +=
+        detail::pm::protocol_methods<type_class::list<type_class::structure>,
+                                     std::vector<nebula::Row>>::serializedSize<false>(*proto,
+                                                                                      obj->rows);
 
     xfer += proto->serializedSizeStop();
     return xfer;
 }
-
 
 template <>
 template <class Protocol>
@@ -354,20 +310,19 @@ uint32_t Cpp2Ops<nebula::DataSet>::serializedSizeZC(Protocol const* proto,
 
     xfer += proto->serializedFieldSize("column_names", protocol::T_LIST, 1);
     xfer += detail::pm::protocol_methods<
-            type_class::list<type_class::binary>,
-            std::vector<std::string>
-        >::serializedSize<false>(*proto, obj->colNames);
+        type_class::list<type_class::binary>,
+        std::vector<std::string>>::serializedSize<false>(*proto, obj->colNames);
 
     xfer += proto->serializedFieldSize("rows", protocol::T_LIST, 2);
-    xfer += detail::pm::protocol_methods<
-            type_class::list<type_class::structure>,
-            std::vector<nebula::Row>
-        >::serializedSize<false>(*proto, obj->rows);
+    xfer +=
+        detail::pm::protocol_methods<type_class::list<type_class::structure>,
+                                     std::vector<nebula::Row>>::serializedSize<false>(*proto,
+                                                                                      obj->rows);
 
     xfer += proto->serializedSizeStop();
     return xfer;
 }
 
-}  // namespace thrift
-}  // namespace apache
-#endif  // DATATYPES_DATASETOPS_H_
+}   // namespace thrift
+}   // namespace apache
+#endif   // DATATYPES_DATASETOPS_H_

@@ -7,26 +7,25 @@
 #ifndef COMMON_BASE_CONCURRENTLRUCACHE_H_
 #define COMMON_BASE_CONCURRENTLRUCACHE_H_
 
-#include "base/Base.h"
-#include "base/StatusOr.h"
+#include <gtest/gtest_prod.h>
+#include <boost/optional.hpp>
 #include <list>
 #include <utility>
-#include <boost/optional.hpp>
-#include <gtest/gtest_prod.h>
+#include "base/Base.h"
+#include "base/StatusOr.h"
 
 namespace nebula {
 
-template<class Key, class Value>
+template <class Key, class Value>
 class LRU;
 
-template<typename K, typename V>
+template <typename K, typename V>
 class ConcurrentLRUCache final {
     FRIEND_TEST(ConcurrentLRUCacheTest, SimpleTest);
 
 public:
     explicit ConcurrentLRUCache(size_t capacity, uint32_t bucketsExp = 4)
-        : bucketsNum_(1 << bucketsExp)
-        , bucketsExp_(bucketsExp) {
+        : bucketsNum_(1 << bucketsExp), bucketsExp_(bucketsExp) {
         CHECK(capacity > bucketsNum_ && bucketsNum_ > 0);
         auto capPerBucket = capacity >> bucketsExp;
         auto left = capacity;
@@ -95,11 +94,9 @@ public:
 private:
     class Bucket {
     public:
-        explicit Bucket(size_t capacity)
-            : lru_(std::make_unique<LRU<K, V>>(capacity)) {}
+        explicit Bucket(size_t capacity) : lru_(std::make_unique<LRU<K, V>>(capacity)) {}
 
-        Bucket(Bucket&& b)
-            : lru_(std::move(b.lru_)) {}
+        Bucket(Bucket&& b) : lru_(std::move(b.lru_)) {}
 
         bool contains(const K& key) {
             std::lock_guard<std::mutex> guard(lock_);
@@ -144,7 +141,6 @@ private:
         std::unique_ptr<LRU<K, V>> lru_;
     };
 
-
 private:
     /**
      * If hint is specified, we could use it to cal the bucket index directly without hash key.
@@ -154,13 +150,11 @@ private:
                          : (std::hash<K>()(key) & ((1 << bucketsExp_) - 1));
     }
 
-
 private:
     std::vector<Bucket> buckets_;
     uint32_t bucketsNum_ = 1;
     uint32_t bucketsExp_ = 0;
 };
-
 
 /**
     It is copied from boost::compute::detail::LRU.
@@ -172,20 +166,16 @@ private:
     5. Avoid some extra copies
     6. Support right reference for insert.
 */
-template<class Key, class Value>
+template <class Key, class Value>
 class LRU {
 public:
     typedef Key key_type;
     typedef Value value_type;
     typedef std::list<key_type> list_type;
-    typedef std::unordered_map<
-                key_type,
-                std::tuple<value_type, typename list_type::iterator>
-            > map_type;
+    typedef std::unordered_map<key_type, std::tuple<value_type, typename list_type::iterator>>
+        map_type;
 
-    explicit LRU(size_t capacity)
-        : capacity_(capacity) {
-    }
+    explicit LRU(size_t capacity) : capacity_(capacity) {}
 
     ~LRU() = default;
 
@@ -297,7 +287,6 @@ private:
     std::atomic_uint64_t evicts_{0};
 };
 
-}  // namespace nebula
+}   // namespace nebula
 
-#endif  // COMMON_BASE_CONCURRENTLRUCACHE_H_
-
+#endif   // COMMON_BASE_CONCURRENTLRUCACHE_H_

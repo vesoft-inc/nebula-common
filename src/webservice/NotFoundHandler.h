@@ -7,8 +7,8 @@
 #ifndef WEBSERVICE_NOTFOUNDHANDLER_H_
 #define WEBSERVICE_NOTFOUNDHANDLER_H_
 
-#include "base/Base.h"
 #include <proxygen/httpserver/RequestHandler.h>
+#include "base/Base.h"
 
 namespace nebula {
 
@@ -16,8 +16,7 @@ class NotFoundHandler : public proxygen::RequestHandler {
 public:
     NotFoundHandler() = default;
 
-    void onRequest(std::unique_ptr<proxygen::HTTPMessage> headers)
-        noexcept override;
+    void onRequest(std::unique_ptr<proxygen::HTTPMessage> headers) noexcept override;
 
     void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override;
 
@@ -30,7 +29,5 @@ public:
     void onError(proxygen::ProxygenError err) noexcept override;
 };
 
-}  // namespace nebula
-#endif  // WEBSERVICE_NOTFOUNDHANDLER_H_
-
-
+}   // namespace nebula
+#endif   // WEBSERVICE_NOTFOUNDHANDLER_H_

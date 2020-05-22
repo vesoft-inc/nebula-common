@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "stats/StatsManager.h"
 #include "stats/Stats.h"
+#include "stats/StatsManager.h"
 
 DEFINE_int32(histogram_bucketSize, 1000, "The width of each bucket");
 DEFINE_uint32(histogram_min, 1, "The smallest value for the bucket range");
@@ -18,11 +18,13 @@ Stats::Stats(const std::string& serverName, const std::string& moduleName) {
     qpsStatId_ = StatsManager::registerStats(serverName + "_" + moduleName + "_qps");
     errorQpsStatId_ = StatsManager::registerStats(serverName + "_" + moduleName + "_error_qps");
     latencyStatId_ = StatsManager::registerHisto(serverName + "_" + moduleName + "_latency",
-            FLAGS_histogram_bucketSize, FLAGS_histogram_min, FLAGS_histogram_max);
+                                                 FLAGS_histogram_bucketSize,
+                                                 FLAGS_histogram_min,
+                                                 FLAGS_histogram_max);
 }
 
 // static
-void Stats::addStatsValue(const Stats *stats, bool ok, int64_t latency, uint32_t count) {
+void Stats::addStatsValue(const Stats* stats, bool ok, int64_t latency, uint32_t count) {
     if (stats == nullptr) {
         return;
     }
@@ -38,7 +40,7 @@ void Stats::addStatsValue(const Stats *stats, bool ok, int64_t latency, uint32_t
 }
 
 int32_t Stats::getQpsStatId() const {
-   return qpsStatId_;
+    return qpsStatId_;
 }
 
 int32_t Stats::getErrorQpsStatId() const {
@@ -49,6 +51,5 @@ int32_t Stats::getLatencyStatId() const {
     return latencyStatId_;
 }
 
-}  // namespace stats
-}  // namespace nebula
-
+}   // namespace stats
+}   // namespace nebula

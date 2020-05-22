@@ -16,6 +16,6 @@ public:
     MD5Utils() = delete;
     static std::string md5Encode(const std::string &str);
 };
-}  // namespace encryption
-}  // namespace nebula
-#endif  // COMMON_ENCRYPTION_MD5UTILS_H_
+}   // namespace encryption
+}   // namespace nebula
+#endif   // COMMON_ENCRYPTION_MD5UTILS_H_

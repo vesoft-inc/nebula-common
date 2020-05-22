@@ -4,10 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "base/EitherOr.h"
-
 
 namespace nebula {
 
@@ -25,7 +24,6 @@ TEST(EitherOr, ConstructFromDefault) {
         ASSERT_TRUE(result.isVoid());
     }
 }
-
 
 TEST(EitherOr, ConstructFromValue) {
     {
@@ -53,7 +51,6 @@ TEST(EitherOr, ConstructFromValue) {
     }
 }
 
-
 TEST(EitherOr, ConstructFromTaggedValue) {
     {
         // This will cause compile failure
@@ -69,12 +66,9 @@ TEST(EitherOr, ConstructFromTaggedValue) {
     }
 }
 
-
 TEST(EitherOr, ReturnFromFunctionCall) {
     {
-        auto foo = [] () -> EitherOr<float, std::string> {
-            return "Hello World";
-        };
+        auto foo = []() -> EitherOr<float, std::string> { return "Hello World"; };
 
         auto result = foo();
         ASSERT_FALSE(result.isVoid());
@@ -82,9 +76,7 @@ TEST(EitherOr, ReturnFromFunctionCall) {
         EXPECT_EQ("Hello World", result.right());
     }
     {
-        auto foo = [] () -> EitherOr<int, std::string> {
-            return 101;
-        };
+        auto foo = []() -> EitherOr<int, std::string> { return 101; };
 
         auto result = foo();
         ASSERT_FALSE(result.isVoid());
@@ -92,9 +84,7 @@ TEST(EitherOr, ReturnFromFunctionCall) {
         EXPECT_EQ(101, result.left());
     }
     {
-        auto foo = [] () -> EitherOr<int16_t, int32_t> {
-            return static_cast<int16_t>(101);
-        };
+        auto foo = []() -> EitherOr<int16_t, int32_t> { return static_cast<int16_t>(101); };
 
         auto result = foo();
         ASSERT_TRUE(result.isLeftType());
@@ -102,11 +92,10 @@ TEST(EitherOr, ReturnFromFunctionCall) {
     }
 }
 
-
 TEST(EitherOr, ReturnFromMoveOnlyValue) {
     // return move only from anonymous value
     {
-        auto foo = [] () -> EitherOr<int, std::unique_ptr<std::string>> {
+        auto foo = []() -> EitherOr<int, std::unique_ptr<std::string>> {
             return std::make_unique<std::string>("SomeValue");
         };
         auto result = foo();
@@ -117,7 +106,7 @@ TEST(EitherOr, ReturnFromMoveOnlyValue) {
     }
     // return move only from named value
     {
-        auto foo = [] () -> EitherOr<int, std::unique_ptr<std::string>> {
+        auto foo = []() -> EitherOr<int, std::unique_ptr<std::string>> {
             auto ptr = std::make_unique<std::string>("SomeValue");
             return ptr;
         };
@@ -127,13 +116,11 @@ TEST(EitherOr, ReturnFromMoveOnlyValue) {
     }
 }
 
-
 TEST(EitherOr, CopyConstructFromDefault) {
     EitherOr<int, std::string> result1;
     auto result2 = result1;
     ASSERT_TRUE(result2.isVoid());
 }
-
 
 TEST(EitherOr, CopyConstructFromValue) {
     {
@@ -168,7 +155,6 @@ TEST(EitherOr, CopyConstructFromValue) {
     }
 }
 
-
 TEST(EitherOr, CopyAssignFromDefault) {
     EitherOr<int, std::string> result1;
     decltype(result1) result2;
@@ -176,7 +162,6 @@ TEST(EitherOr, CopyAssignFromDefault) {
     ASSERT_TRUE(result1.isVoid());
     ASSERT_TRUE(result2.isVoid());
 }
-
 
 TEST(EitherOr, CopyAssignFromValue) {
     {
@@ -215,14 +200,12 @@ TEST(EitherOr, CopyAssignFromValue) {
     }
 }
 
-
 TEST(EitherOr, MoveConstructFromDefault) {
     EitherOr<int, std::string> result1;
     auto result2 = std::move(result1);
     ASSERT_TRUE(result1.isVoid());
     ASSERT_TRUE(result2.isVoid());
 }
-
 
 TEST(EitherOr, MoveConstructFromValue) {
     {
@@ -256,7 +239,6 @@ TEST(EitherOr, MoveConstructFromValue) {
     }
 }
 
-
 TEST(EitherOr, MoveAssignFromDefault) {
     EitherOr<int, std::string> result1;
     decltype(result1) result2;
@@ -264,7 +246,6 @@ TEST(EitherOr, MoveAssignFromDefault) {
     ASSERT_TRUE(result1.isVoid());
     ASSERT_TRUE(result2.isVoid());
 }
-
 
 TEST(EitherOr, MoveAssignFromValue) {
     {
@@ -299,7 +280,6 @@ TEST(EitherOr, MoveAssignFromValue) {
         EXPECT_EQ(256, r2.left());
     }
 }
-
 
 TEST(EitherOr, AssignFromValue) {
     {
@@ -348,7 +328,6 @@ TEST(EitherOr, AssignFromValue) {
     }
 }
 
-
 TEST(EitherOr, MoveOutValue) {
     EitherOr<int, std::string> result("SomeValue");
     ASSERT_FALSE(result.isVoid());
@@ -357,7 +336,6 @@ TEST(EitherOr, MoveOutValue) {
     ASSERT_TRUE(result.isVoid());
     EXPECT_EQ("SomeValue", str);
 }
-
 
 TEST(EitherOr, SelfAssignment) {
     {
@@ -373,7 +351,6 @@ TEST(EitherOr, SelfAssignment) {
         EXPECT_EQ("SomeValue", r.right());
     }
 }
-
 
 TEST(EitherOr, Destruct) {
     auto ptr = std::make_shared<std::string>("SomeValue");

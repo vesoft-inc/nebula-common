@@ -32,4 +32,4 @@ public:
 }   // namespace hdfs
 }   // namespace nebula
 
-#endif  // COMMON_HDFSHELPER_H
+#endif   // COMMON_HDFSHELPER_H

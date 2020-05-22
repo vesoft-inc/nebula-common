@@ -8,8 +8,8 @@
 #define COMMON_PERMISSION_PERMISSIONMANAGER_H_
 
 #include "base/Base.h"
-#include "session/Session.h"
 #include "clients/meta/MetaClient.h"
+#include "session/Session.h"
 // #include "parser/Sentence.h"
 // #include "parser/UserSentences.h"
 // #include "parser/AdminSentences.h"
@@ -29,14 +29,13 @@ public:
     static bool canWriteRole(session::Session *session,
                              session::Role targetRole,
                              GraphSpaceID spaceId,
-                             const std::string& targetUser);
+                             const std::string &targetUser);
     static bool canWriteData(session::Session *session);
-//    static bool canShow(session::Session *session,
-//                        ShowSentence::ShowType type,
-//                        GraphSpaceID targetSpace = -1);
+    //    static bool canShow(session::Session *session,
+    //                        ShowSentence::ShowType type,
+    //                        GraphSpaceID targetSpace = -1);
 };
-}  // namespace permission
-}  // namespace nebula
+}   // namespace permission
+}   // namespace nebula
 
 #endif   // COMMON_PERMISSION_PERMISSIONMANAGER_H_
-

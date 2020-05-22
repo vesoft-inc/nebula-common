@@ -4,11 +4,11 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
-#include <gtest/gtest.h>
 #include <folly/json.h>
-#include "webservice/WebService.h"
+#include <gtest/gtest.h>
+#include "base/Base.h"
 #include "stats/StatsManager.h"
+#include "webservice/WebService.h"
 #include "webservice/test/TestUtils.h"
 
 namespace nebula {
@@ -39,14 +39,14 @@ TEST(StatsReaderTest, GetStatsTest) {
     auto statId = StatsManager::registerStats("stat01");
     std::vector<std::thread> threads;
     for (int i = 0; i < 10; i++) {
-        threads.emplace_back([statId, i] () {
+        threads.emplace_back([statId, i]() {
             for (int k = i * 10 + 1; k <= i * 10 + 10; k++) {
                 StatsManager::addValue(statId, k);
-             }
+            }
         });
     }
 
-    for (auto& t : threads)  {
+    for (auto& t : threads) {
         t.join();
     }
 
@@ -103,9 +103,11 @@ TEST(StatsReaderTest, GetStatsTest) {
         // get multi stats, among invalid stat
         std::string resp1;
         ASSERT_TRUE(getUrl("/get_stats?stats=stat01.sum.60,stat01.avg.60,stat01.count.60,"
-                                            "stat01.p99.60", resp1));
+                           "stat01.p99.60",
+                           resp1));
         EXPECT_EQ(std::string("stat01.sum.60=5050\nstat01.avg.60=50\nstat01.count.60=100\n"
-                              "stat01.p99.60=Invalid stats\n"), resp1);
+                              "stat01.p99.60=Invalid stats\n"),
+                  resp1);
     }
 
     {
@@ -148,14 +150,14 @@ TEST(StatsReaderTest, GetHistoTest) {
     auto statId = StatsManager::registerHisto("stat02", 1, 1, 100);
     std::vector<std::thread> threads;
     for (int i = 0; i < 10; i++) {
-        threads.emplace_back([statId, i] () {
+        threads.emplace_back([statId, i]() {
             for (int k = i * 10 + 1; k <= i * 10 + 10; k++) {
                 StatsManager::addValue(statId, k);
             }
         });
     }
 
-    for (auto& t : threads)  {
+    for (auto& t : threads) {
         t.join();
     }
 
@@ -203,8 +205,7 @@ TEST(StatsReaderTest, GetHistoTest) {
     }
 }
 
-}  // namespace nebula
-
+}   // namespace nebula
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
@@ -215,4 +216,3 @@ int main(int argc, char** argv) {
 
     return RUN_ALL_TESTS();
 }
-

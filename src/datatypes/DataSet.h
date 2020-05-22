@@ -41,7 +41,6 @@ struct Row {
     }
 };
 
-
 struct DataSet {
     std::vector<std::string> colNames;
     std::vector<Row> rows;
@@ -76,6 +75,5 @@ struct DataSet {
     }
 };
 
-}  // namespace nebula
-#endif  // DATATYPES_DATASET_H_
-
+}   // namespace nebula
+#endif   // DATATYPES_DATASET_H_

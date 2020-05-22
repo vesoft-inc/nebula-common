@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "stats/StatsManager.h"
 #include "thread/GenericWorker.h"
 
@@ -16,7 +16,7 @@ TEST(StatsManager, CrossLevelTest) {
     auto statId = StatsManager::registerHisto("stat03", 1, 1, 100);
     std::vector<std::thread> threads;
     for (int i = 0; i < 10; i++) {
-        threads.emplace_back([statId, i] () {
+        threads.emplace_back([statId, i]() {
             for (int k = i * 10 + 10; k >= i * 10 + 1; k--) {
                 StatsManager::addValue(statId, k);
                 if (k > i * 10 + 1) {
@@ -44,7 +44,6 @@ TEST(StatsManager, CrossLevelTest) {
 }   // namespace stats
 }   // namespace nebula
 
-
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
     folly::init(&argc, &argv, true);
@@ -52,4 +51,3 @@ int main(int argc, char** argv) {
 
     return RUN_ALL_TESTS();
 }
-

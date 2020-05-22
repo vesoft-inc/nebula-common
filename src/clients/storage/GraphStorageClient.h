@@ -7,11 +7,10 @@
 #ifndef CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_
 #define CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_
 
-#include "base/Base.h"
 #include <gtest/gtest_prod.h>
-#include "interface/gen-cpp2/GraphStorageServiceAsyncClient.h"
+#include "base/Base.h"
 #include "clients/storage/StorageClientBase.h"
-
+#include "interface/gen-cpp2/GraphStorageServiceAsyncClient.h"
 
 namespace nebula {
 namespace storage {
@@ -78,10 +77,8 @@ public:
         std::vector<storage::cpp2::EdgeKey> edges,
         folly::EventBase* evb = nullptr);
 
-    folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> deleteVertices(
-        GraphSpaceID space,
-        std::vector<VertexID> ids,
-        folly::EventBase* evb = nullptr);
+    folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>>
+    deleteVertices(GraphSpaceID space, std::vector<VertexID> ids, folly::EventBase* evb = nullptr);
 
     folly::Future<StatusOr<storage::cpp2::UpdateResponse>> updateVertex(
         GraphSpaceID space,
@@ -101,10 +98,9 @@ public:
         std::string condition,
         folly::EventBase* evb = nullptr);
 
-    folly::Future<StatusOr<cpp2::GetUUIDResp>> getUUID(
-        GraphSpaceID space,
-        const std::string& name,
-        folly::EventBase* evb = nullptr);
+    folly::Future<StatusOr<cpp2::GetUUIDResp>> getUUID(GraphSpaceID space,
+                                                       const std::string& name,
+                                                       folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::LookupIndexResp>> lookupIndex(
         GraphSpaceID space,
@@ -112,10 +108,10 @@ public:
         bool isEdge,
         int32_t tagOrEdge,
         std::vector<std::string> returnCols,
-        folly::EventBase *evb = nullptr);
+        folly::EventBase* evb = nullptr);
 };
 
 }   // namespace storage
 }   // namespace nebula
 
-#endif  // CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_
+#endif   // CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_

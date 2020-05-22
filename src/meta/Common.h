@@ -8,28 +8,26 @@
 #define META_METACOMMON_H_
 
 #include "base/Base.h"
-#include "thrift/ThriftTypes.h"
 #include "datatypes/HostAddr.h"
+#include "thrift/ThriftTypes.h"
 
 namespace nebula {
 namespace meta {
 
 // reserved property names
-constexpr char _ID[]    = "_id";
-constexpr char _SRC[]   = "_src";
-constexpr char _TYPE[]  = "_type";
-constexpr char _RANK[]  = "_rank";
-constexpr char _DST[]   = "_dst";
-
+constexpr char _ID[] = "_id";
+constexpr char _SRC[] = "_src";
+constexpr char _TYPE[] = "_type";
+constexpr char _RANK[] = "_rank";
+constexpr char _DST[] = "_dst";
 
 struct PartHosts {
-    GraphSpaceID           spaceId_;
-    PartitionID            partId_;
-    std::vector<HostAddr>  hosts_;
+    GraphSpaceID spaceId_;
+    PartitionID partId_;
+    std::vector<HostAddr> hosts_;
 
     bool operator==(const PartHosts& rhs) const {
-        return this->spaceId_ == rhs.spaceId_ &&
-               this->partId_ == rhs.partId_ &&
+        return this->spaceId_ == rhs.spaceId_ && this->partId_ == rhs.partId_ &&
                this->hosts_ == rhs.hosts_;
     }
 
@@ -38,8 +36,7 @@ struct PartHosts {
     }
 };
 
-using PartsMap  = std::unordered_map<GraphSpaceID, std::unordered_map<PartitionID, PartHosts>>;
-
+using PartsMap = std::unordered_map<GraphSpaceID, std::unordered_map<PartitionID, PartHosts>>;
 
 inline bool checkSegment(const std::string& segment) {
     static const std::regex pattern("^[0-9a-zA-Z]+$");
@@ -49,7 +46,7 @@ inline bool checkSegment(const std::string& segment) {
     return false;
 }
 
-}  // namespace meta
-}  // namespace nebula
+}   // namespace meta
+}   // namespace nebula
 
-#endif  // META_METACOMMON_H_
+#endif   // META_METACOMMON_H_

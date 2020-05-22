@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include "meta/ServerBasedSchemaManager.h"
+#include "base/Base.h"
 
 namespace nebula {
 namespace meta {
@@ -50,7 +50,7 @@ ServerBasedSchemaManager::getTagSchema(GraphSpaceID space, TagID tag, SchemaVer 
 StatusOr<SchemaVer> ServerBasedSchemaManager::getLatestTagSchemaVersion(GraphSpaceID space,
                                                                         TagID tag) {
     CHECK(metaClient_);
-    return  metaClient_->getLatestTagVersionFromCache(space, tag);
+    return metaClient_->getLatestTagVersionFromCache(space, tag);
 }
 
 std::shared_ptr<const NebulaSchemaProvider>
@@ -78,16 +78,15 @@ ServerBasedSchemaManager::getEdgeSchema(GraphSpaceID space, EdgeType edge, Schem
 StatusOr<SchemaVer> ServerBasedSchemaManager::getLatestEdgeSchemaVersion(GraphSpaceID space,
                                                                          EdgeType edge) {
     CHECK(metaClient_);
-    return  metaClient_->getLatestEdgeVersionFromCache(space, edge);
+    return metaClient_->getLatestEdgeVersionFromCache(space, edge);
 }
 
 StatusOr<GraphSpaceID> ServerBasedSchemaManager::toGraphSpaceID(folly::StringPiece spaceName) {
     CHECK(metaClient_);
-    return  metaClient_->getSpaceIdByNameFromCache(spaceName.str());
+    return metaClient_->getSpaceIdByNameFromCache(spaceName.str());
 }
 
-StatusOr<TagID> ServerBasedSchemaManager::toTagID(GraphSpaceID space,
-                                                  folly::StringPiece tagName) {
+StatusOr<TagID> ServerBasedSchemaManager::toTagID(GraphSpaceID space, folly::StringPiece tagName) {
     CHECK(metaClient_);
     return metaClient_->getTagIDByNameFromCache(space, tagName.str());
 }
@@ -123,5 +122,5 @@ StatusOr<EdgeSchemas> ServerBasedSchemaManager::getAllVerEdgeSchema(GraphSpaceID
     return metaClient_->getAllVerEdgeSchema(space);
 }
 
-}  // namespace meta
-}  // namespace nebula
+}   // namespace meta
+}   // namespace nebula

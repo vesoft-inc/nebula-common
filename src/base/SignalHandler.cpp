@@ -4,14 +4,12 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include "base/SignalHandler.h"
+#include "base/Base.h"
 
 namespace nebula {
 
-SignalHandler::SignalHandler() {
-}
-
+SignalHandler::SignalHandler() {}
 
 Status SignalHandler::init() {
     // Ignore SIGPIPE and SIGHUP
@@ -28,12 +26,10 @@ Status SignalHandler::init() {
     return Status::OK();
 }
 
-
-SignalHandler& SignalHandler::get() {
+SignalHandler &SignalHandler::get() {
     static SignalHandler instance;
     return instance;
 }
-
 
 // static
 Status SignalHandler::install(int sig, Handler handler) {
@@ -52,7 +48,6 @@ Status SignalHandler::install(int sig, Handler handler) {
     return get().installInternal(sig, std::move(handler));
 }
 
-
 // static
 Status SignalHandler::install(std::initializer_list<int> sigs, Handler handler) {
     auto status = Status::OK();
@@ -64,7 +59,6 @@ Status SignalHandler::install(std::initializer_list<int> sigs, Handler handler) 
     }
     return status;
 }
-
 
 Status SignalHandler::installInternal(int sig, Handler handler) {
     struct sigaction act;
@@ -82,12 +76,10 @@ Status SignalHandler::installInternal(int sig, Handler handler) {
     return Status::OK();
 }
 
-
 // static
 void SignalHandler::handlerHook(int sig, siginfo_t *info, void *uctx) {
     get().doHandle(sig, info, uctx);
 }
-
 
 void SignalHandler::doHandle(int sig, siginfo_t *info, void *uctx) {
     switch (sig) {
@@ -107,13 +99,11 @@ void SignalHandler::doHandle(int sig, siginfo_t *info, void *uctx) {
     handleGeneralSignal(sig, info);
 }
 
-
 void SignalHandler::handleGeneralSignal(int sig, siginfo_t *info) {
     auto index = sig - 1;
     GeneralSignalInfo siginfo(info);
     handlers_[index](&siginfo);
 }
-
 
 void SignalHandler::handleFatalSignal(int sig, siginfo_t *info, void *uctx) {
     auto index = sig - 1;
@@ -124,30 +114,30 @@ void SignalHandler::handleFatalSignal(int sig, siginfo_t *info, void *uctx) {
     ::raise(sig);
 }
 
-
 SignalHandler::GeneralSignalInfo::GeneralSignalInfo(const siginfo_t *info) {
     pid_ = info->si_pid;
     uid_ = info->si_uid;
     sig_ = info->si_signo;
 }
 
-
-const char* SignalHandler::GeneralSignalInfo::toString() const {
+const char *SignalHandler::GeneralSignalInfo::toString() const {
     static thread_local char buffer[1024];
-    snprintf(buffer, sizeof(buffer),
-            "sig[%d], name[%s], pid[%d], uid(%d)",
-            sig_, ::strsignal(sig_), pid_, uid_);
+    snprintf(buffer,
+             sizeof(buffer),
+             "sig[%d], name[%s], pid[%d], uid(%d)",
+             sig_,
+             ::strsignal(sig_),
+             pid_,
+             uid_);
     return buffer;
 }
-
 
 SignalHandler::FatalSignalInfo::FatalSignalInfo(const siginfo_t *info, void *uctx)
     : GeneralSignalInfo(info) {
     UNUSED(uctx);
 }
 
-
-const char* SignalHandler::FatalSignalInfo::toString() const {
+const char *SignalHandler::FatalSignalInfo::toString() const {
     return GeneralSignalInfo::toString();
 }
 

@@ -56,5 +56,5 @@ private:
     std::unique_ptr<web::Router> router_;
 };
 
-}  // namespace nebula
-#endif  // WEBSERVICE_WEBSERVICE_H_
+}   // namespace nebula
+#endif   // WEBSERVICE_WEBSERVICE_H_

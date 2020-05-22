@@ -4,16 +4,14 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include "clients/meta/FileBasedClusterIdMan.h"
-
+#include "base/Base.h"
 
 namespace nebula {
 namespace meta {
 
 // static
-bool FileBasedClusterIdMan::persistInFile(ClusterID clusterId,
-                                          const std::string& filename) {
+bool FileBasedClusterIdMan::persistInFile(ClusterID clusterId, const std::string& filename) {
     auto dirname = fs::FileUtils::dirname(filename.c_str());
     if (!fs::FileUtils::makeDir(dirname)) {
         LOG(ERROR) << "Failed mkdir " << dirname;
@@ -38,7 +36,6 @@ bool FileBasedClusterIdMan::persistInFile(ClusterID clusterId,
     return true;
 }
 
-
 // static
 ClusterID FileBasedClusterIdMan::getClusterIdFromFile(const std::string& filename) {
     int fd = ::open(filename.c_str(), O_RDONLY);
@@ -58,6 +55,5 @@ ClusterID FileBasedClusterIdMan::getClusterIdFromFile(const std::string& filenam
     return clusterId;
 }
 
-}  // namespace meta
-}  // namespace nebula
-
+}   // namespace meta
+}   // namespace nebula

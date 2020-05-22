@@ -25,5 +25,4 @@ public:
 }   // namespace http
 }   // namespace nebula
 
-#endif  // COMMON_HTTPCLIENT_H
-
+#endif   // COMMON_HTTPCLIENT_H

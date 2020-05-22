@@ -17,23 +17,17 @@ public:
     ServerBasedIndexManager() = default;
     ~ServerBasedIndexManager();
 
-    StatusOr<std::shared_ptr<IndexItem>>
-    getTagIndex(GraphSpaceID space, IndexID index) override;
+    StatusOr<std::shared_ptr<IndexItem>> getTagIndex(GraphSpaceID space, IndexID index) override;
 
-    StatusOr<std::shared_ptr<IndexItem>>
-    getEdgeIndex(GraphSpaceID space, IndexID index) override;
+    StatusOr<std::shared_ptr<IndexItem>> getEdgeIndex(GraphSpaceID space, IndexID index) override;
 
-    StatusOr<std::vector<std::shared_ptr<IndexItem>>>
-    getTagIndexes(GraphSpaceID space) override;
+    StatusOr<std::vector<std::shared_ptr<IndexItem>>> getTagIndexes(GraphSpaceID space) override;
 
-    StatusOr<std::vector<std::shared_ptr<IndexItem>>>
-    getEdgeIndexes(GraphSpaceID space) override;
+    StatusOr<std::vector<std::shared_ptr<IndexItem>>> getEdgeIndexes(GraphSpaceID space) override;
 
-    StatusOr<IndexID>
-    toTagIndexID(GraphSpaceID space, std::string tagName) override;
+    StatusOr<IndexID> toTagIndexID(GraphSpaceID space, std::string tagName) override;
 
-    StatusOr<IndexID>
-    toEdgeIndexID(GraphSpaceID space, std::string edgeName) override;
+    StatusOr<IndexID> toEdgeIndexID(GraphSpaceID space, std::string edgeName) override;
 
     Status checkTagIndexed(GraphSpaceID space, TagID tagID) override;
 
@@ -42,9 +36,9 @@ public:
     void init(MetaClient *client) override;
 
 private:
-    MetaClient             *metaClient_{nullptr};
+    MetaClient *metaClient_{nullptr};
 };
 
-}  // namespace meta
-}  // namespace nebula
-#endif  // META_SERVERBASEDINDEXMANAGER_H_
+}   // namespace meta
+}   // namespace nebula
+#endif   // META_SERVERBASEDINDEXMANAGER_H_

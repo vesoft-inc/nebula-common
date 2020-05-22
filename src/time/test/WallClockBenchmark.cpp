@@ -4,14 +4,13 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
-#include <sys/time.h>
 #include <folly/Benchmark.h>
+#include <sys/time.h>
 #include <chrono>
+#include "base/Base.h"
 #include "time/WallClock.h"
 
 using nebula::time::WallClock;
-
 
 BENCHMARK(gettimeofday_get_msec, iters) {
     for (uint32_t i = 0; i < iters; i++) {
@@ -64,14 +63,12 @@ BENCHMARK_RELATIVE(wallclock_get_sec_fast, iters) {
     }
 }
 
-
 int main(int argc, char** argv) {
     folly::init(&argc, &argv, true);
 
     folly::runBenchmarks();
     return 0;
 }
-
 
 /*
 

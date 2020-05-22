@@ -4,16 +4,15 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include "datatypes/HostAddr.h"
+#include "base/Base.h"
 
 namespace nebula {
 
-std::ostream& operator <<(std::ostream &os, const HostAddr &addr) {
+std::ostream& operator<<(std::ostream& os, const HostAddr& addr) {
     os << folly::stringPrintf("[%s:%u]", addr.host.c_str(), addr.port);
     return os;
 }
-
 
 bool HostAddr::operator==(const HostAddr& rhs) const {
     return host == rhs.host && port == rhs.port;
@@ -30,5 +29,4 @@ bool HostAddr::operator<(const HostAddr& rhs) const {
     return host < rhs.host;
 }
 
-}  // namespace nebula
-
+}   // namespace nebula

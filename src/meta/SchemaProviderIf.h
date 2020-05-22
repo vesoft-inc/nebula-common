@@ -10,7 +10,6 @@
 #include "base/Base.h"
 #include "interface/gen-cpp2/meta_types.h"
 
-
 namespace nebula {
 namespace meta {
 
@@ -76,8 +75,7 @@ public:
         }
 
         bool operator==(const Iterator& rhs) const {
-            return schema_ == rhs.schema_ &&
-                   (index_ == rhs.index_ || (!field_ && !rhs.field_));
+            return schema_ == rhs.schema_ && (index_ == rhs.index_ || (!field_ && !rhs.field_));
         }
 
     private:
@@ -87,11 +85,8 @@ public:
         const Field* field_;
 
     private:
-        explicit Iterator(const SchemaProviderIf* schema,
-                          int64_t idx = 0)
-                : schema_(schema)
-                , numFields_(schema_->getNumFields())
-                , index_(idx) {
+        explicit Iterator(const SchemaProviderIf* schema, int64_t idx = 0)
+            : schema_(schema), numFields_(schema_->getNumFields()), index_(idx) {
             field_ = schema_->field(index_);
         }
     };
@@ -111,8 +106,7 @@ public:
     virtual const char* getFieldName(int64_t index) const = 0;
 
     virtual cpp2::PropertyType getFieldType(int64_t index) const = 0;
-    virtual cpp2::PropertyType getFieldType(const folly::StringPiece name)
-        const = 0;
+    virtual cpp2::PropertyType getFieldType(const folly::StringPiece name) const = 0;
 
     virtual const Field* field(int64_t index) const = 0;
     virtual const Field* field(const folly::StringPiece name) const = 0;
@@ -126,13 +120,11 @@ public:
         return Iterator(this, 0);
     }
 
-
     Iterator end() const {
         return Iterator(this, getNumFields());
     }
 };
 
-
-}  // namespace meta
-}  // namespace nebula
-#endif  // META_SCHEMAPROVIDERIF_H_
+}   // namespace meta
+}   // namespace nebula
+#endif   // META_SCHEMAPROVIDERIF_H_

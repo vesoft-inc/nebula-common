@@ -4,21 +4,21 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include "webservice/GetFlagsHandler.h"
-#include "webservice/Common.h"
 #include <folly/String.h>
 #include <folly/json.h>
-#include <proxygen/lib/http/ProxygenErrorEnum.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
+#include <proxygen/lib/http/ProxygenErrorEnum.h>
+#include "base/Base.h"
+#include "webservice/Common.h"
 
 namespace nebula {
 
 using proxygen::HTTPMessage;
 using proxygen::HTTPMethod;
 using proxygen::ProxygenError;
-using proxygen::UpgradeProtocol;
 using proxygen::ResponseBuilder;
+using proxygen::UpgradeProtocol;
 
 void GetFlagsHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
     if (headers->getMethod().value() != HTTPMethod::GET) {
@@ -41,11 +41,9 @@ void GetFlagsHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
     }
 }
 
-
 void GetFlagsHandler::onBody(std::unique_ptr<folly::IOBuf>) noexcept {
     // Do nothing, we only support GET
 }
-
 
 void GetFlagsHandler::onEOM() noexcept {
     switch (err_) {
@@ -75,23 +73,18 @@ void GetFlagsHandler::onEOM() noexcept {
     }
 }
 
-
 void GetFlagsHandler::onUpgrade(UpgradeProtocol) noexcept {
     // Do nothing
 }
-
 
 void GetFlagsHandler::requestComplete() noexcept {
     delete this;
 }
 
-
 void GetFlagsHandler::onError(ProxygenError err) noexcept {
-    LOG(ERROR) << "Web service GetFlagsHandler got error: "
-               << proxygen::getErrorString(err);
+    LOG(ERROR) << "Web service GetFlagsHandler got error: " << proxygen::getErrorString(err);
     delete this;
 }
-
 
 void GetFlagsHandler::addOneFlag(folly::dynamic& vals,
                                  const std::string& flagname,
@@ -142,7 +135,6 @@ void GetFlagsHandler::addOneFlag(folly::dynamic& vals,
     vals.push_back(std::move(flag));
 }
 
-
 folly::dynamic GetFlagsHandler::getFlags() {
     auto flags = folly::dynamic::array();
     if (flagnames_.empty()) {
@@ -168,32 +160,21 @@ folly::dynamic GetFlagsHandler::getFlags() {
     return flags;
 }
 
-
 std::string GetFlagsHandler::toStr(folly::dynamic& vals) {
     std::stringstream ss;
     for (auto& fi : vals) {
         if (verbose_) {
             bool isString = fi["type"].asString() == "string";
-            ss << "--" << fi["name"].asString() << ": "
-               << fi["description"].asString() << "\n";
-            ss << "  file: " << fi["file"].asString()
-               << ", type: " << fi["type"].asString()
-               << ", default: "
-               << (isString ? "\"" : "")
-               << fi["default"].asString()
-               << (isString ? "\"" : "")
-               << ", current: "
-               << (isString ? "\"" : "")
-               << fi["value"].asString()
-               << (isString ? "\"" : "")
-               << (fi["is_default"].asBool() ? "(default)" : "")
-               << "\n";
+            ss << "--" << fi["name"].asString() << ": " << fi["description"].asString() << "\n";
+            ss << "  file: " << fi["file"].asString() << ", type: " << fi["type"].asString()
+               << ", default: " << (isString ? "\"" : "") << fi["default"].asString()
+               << (isString ? "\"" : "") << ", current: " << (isString ? "\"" : "")
+               << fi["value"].asString() << (isString ? "\"" : "")
+               << (fi["is_default"].asBool() ? "(default)" : "") << "\n";
         } else {
             auto& val = fi["value"];
             if (val != nullptr) {
-                ss << fi["name"].asString() << "="
-                   << (val.isString() ? "\"" : "")
-                   << val.asString()
+                ss << fi["name"].asString() << "=" << (val.isString() ? "\"" : "") << val.asString()
                    << (val.isString() ? "\"\n" : "\n");
             } else {
                 ss << fi["name"].asString() << "=nullptr\n";
@@ -203,4 +184,4 @@ std::string GetFlagsHandler::toStr(folly::dynamic& vals) {
     return ss.str();
 }
 
-}  // namespace nebula
+}   // namespace nebula

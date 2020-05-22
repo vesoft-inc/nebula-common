@@ -8,8 +8,8 @@
 #define DATATYPES_VERTEX_H_
 
 #include "base/Base.h"
-#include "thrift/ThriftTypes.h"
 #include "datatypes/Value.h"
+#include "thrift/ThriftTypes.h"
 
 namespace nebula {
 
@@ -18,15 +18,10 @@ struct Tag {
     std::unordered_map<std::string, Value> props;
 
     Tag() = default;
-    Tag(Tag&& tag)
-        : name(std::move(tag.name))
-        , props(std::move(tag.props)) {}
-    Tag(const Tag& tag)
-        : name(tag.name)
-        , props(tag.props) {}
+    Tag(Tag&& tag) : name(std::move(tag.name)), props(std::move(tag.props)) {}
+    Tag(const Tag& tag) : name(tag.name), props(tag.props) {}
     Tag(std::string&& tagName, std::unordered_map<std::string, Value>&& tagProps)
-        : name(std::move(tagName))
-        , props(std::move(tagProps)) {}
+        : name(std::move(tagName)), props(std::move(tagProps)) {}
 
     void clear() {
         name.clear();
@@ -50,19 +45,14 @@ struct Tag {
     }
 };
 
-
 struct Vertex {
     VertexID vid;
     std::vector<Tag> tags;
 
     Vertex() = default;
     Vertex(const Vertex& v) : vid(v.vid), tags(v.tags) {}
-    Vertex(Vertex&& v)
-        : vid(std::move(v.vid))
-        , tags(std::move(v.tags)) {}
-    Vertex(VertexID&& id, std::vector<Tag>&& t)
-        : vid(std::move(id))
-        , tags(std::move(t)) {}
+    Vertex(Vertex&& v) : vid(std::move(v.vid)), tags(std::move(v.tags)) {}
+    Vertex(VertexID&& id, std::vector<Tag>&& t) : vid(std::move(id)), tags(std::move(t)) {}
 
     void clear() {
         vid.clear();
@@ -86,28 +76,25 @@ struct Vertex {
     }
 };
 
-
 inline void swap(Vertex& a, Vertex& b) {
     auto temp = std::move(a);
     a = std::move(b);
     b = std::move(temp);
 }
 
-}  // namespace nebula
-
+}   // namespace nebula
 
 namespace std {
 
 // Inject a customized hash function
-template<>
+template <>
 struct hash<nebula::Tag> {
     std::size_t operator()(const nebula::Tag& h) const noexcept {
         return folly::hash::fnv64(h.name);
     }
 };
 
-
-template<>
+template <>
 struct hash<nebula::Vertex> {
     std::size_t operator()(const nebula::Vertex& h) const noexcept {
         size_t hv = folly::hash::fnv64(h.vid);
@@ -120,5 +107,5 @@ struct hash<nebula::Vertex> {
     }
 };
 
-}  // namespace std
-#endif  // DATATYPES_VERTEX_H_
+}   // namespace std
+#endif   // DATATYPES_VERTEX_H_

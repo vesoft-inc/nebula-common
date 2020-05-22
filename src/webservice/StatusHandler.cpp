@@ -6,16 +6,16 @@
 
 #include "webservice/StatusHandler.h"
 #include <proxygen/httpserver/RequestHandler.h>
-#include <proxygen/lib/http/ProxygenErrorEnum.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
+#include <proxygen/lib/http/ProxygenErrorEnum.h>
 
 namespace nebula {
 
 using proxygen::HTTPMessage;
 using proxygen::HTTPMethod;
 using proxygen::ProxygenError;
-using proxygen::UpgradeProtocol;
 using proxygen::ResponseBuilder;
+using proxygen::UpgradeProtocol;
 
 void StatusHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
     if (headers->getMethod().value() != HTTPMethod::GET) {
@@ -49,20 +49,16 @@ void StatusHandler::onEOM() noexcept {
         .sendWithEOM();
 }
 
-
 void StatusHandler::onUpgrade(UpgradeProtocol) noexcept {
     // Do nothing
 }
-
 
 void StatusHandler::requestComplete() noexcept {
     delete this;
 }
 
-
 void StatusHandler::onError(ProxygenError error) noexcept {
-    LOG(ERROR) << "Web service StorageHttpHandler got error: "
-               << proxygen::getErrorString(error);
+    LOG(ERROR) << "Web service StorageHttpHandler got error: " << proxygen::getErrorString(error);
 }
 
 folly::dynamic StatusHandler::getStatus() {
@@ -72,4 +68,4 @@ folly::dynamic StatusHandler::getStatus() {
     return json;
 }
 
-}  // namespace nebula
+}   // namespace nebula

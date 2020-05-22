@@ -7,8 +7,8 @@
 #ifndef COMMON_TIME_WALLCLOCK_H_
 #define COMMON_TIME_WALLCLOCK_H_
 
-#include "base/Base.h"
 #include <time.h>
+#include "base/Base.h"
 
 namespace nebula {
 namespace time {
@@ -34,6 +34,6 @@ public:
     static int64_t fastNowInMicroSec();
 };
 
-}  // namespace time
-}  // namespace nebula
-#endif  // COMMON_TIME_WALLCLOCK_H_
+}   // namespace time
+}   // namespace nebula
+#endif   // COMMON_TIME_WALLCLOCK_H_

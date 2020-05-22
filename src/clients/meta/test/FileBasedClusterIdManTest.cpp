@@ -4,10 +4,10 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
-#include "fs/TempDir.h"
+#include "base/Base.h"
 #include "clients/meta/FileBasedClusterIdMan.h"
+#include "fs/TempDir.h"
 
 namespace nebula {
 namespace meta {
@@ -22,9 +22,8 @@ TEST(FileBasedClusterIdManTest, ReadWriteTest) {
     CHECK_EQ(clusterId, ret);
 }
 
-}  // namespace meta
-}  // namespace nebula
-
+}   // namespace meta
+}   // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
@@ -32,5 +31,3 @@ int main(int argc, char** argv) {
     google::SetStderrLogging(google::INFO);
     return RUN_ALL_TESTS();
 }
-
-

@@ -6,12 +6,12 @@
 #ifndef COMMON_TEST_SERVERCONTEXT_H_
 #define COMMON_TEST_SERVERCONTEXT_H_
 
-#include "base/Base.h"
-#include "thread/NamedThread.h"
-#include "kvstore/KVStore.h"
-#include "meta/SchemaManager.h"
-#include "meta/IndexManager.h"
 #include <thrift/lib/cpp2/server/ThriftServer.h>
+#include "base/Base.h"
+#include "kvstore/KVStore.h"
+#include "meta/IndexManager.h"
+#include "meta/SchemaManager.h"
+#include "thread/NamedThread.h"
 
 namespace nebula {
 namespace test {
@@ -32,7 +32,6 @@ struct ServerContext {
         VLOG(3) << "~ServerContext";
     }
 
-
     void mockCommon(const std::string& name,
                     uint16_t port,
                     std::shared_ptr<apache::thrift::ServerInterface> handler) {
@@ -44,24 +43,21 @@ struct ServerContext {
             LOG(INFO) << "The " << name << " server has been stopped";
         });
 
-        while (!server_->getServeEventBase() ||
-               !server_->getServeEventBase()->isRunning()) {
+        while (!server_->getServeEventBase() || !server_->getServeEventBase()->isRunning()) {
             usleep(10000);
         }
         port_ = server_->getAddress().getPort();
     }
 
-
-    std::unique_ptr<apache::thrift::ThriftServer>      server_{nullptr};
-    std::unique_ptr<thread::NamedThread>               thread_{nullptr};
+    std::unique_ptr<apache::thrift::ThriftServer> server_{nullptr};
+    std::unique_ptr<thread::NamedThread> thread_{nullptr};
     // To keep meta and storage's KVStore
-    std::unique_ptr<kvstore::KVStore>                  kvStore_{nullptr};
-    std::unique_ptr<meta::SchemaManager>               schemaMan_{nullptr};
-    std::unique_ptr<meta::IndexManager>                indexMan_{nullptr};
-    uint16_t                                           port_{0};
+    std::unique_ptr<kvstore::KVStore> kvStore_{nullptr};
+    std::unique_ptr<meta::SchemaManager> schemaMan_{nullptr};
+    std::unique_ptr<meta::IndexManager> indexMan_{nullptr};
+    uint16_t port_{0};
 };
-
 
 }   // namespace test
 }   // namespace nebula
-#endif  // COMMON_TEST_SERVERCONTEXT_H_
+#endif   // COMMON_TEST_SERVERCONTEXT_H_

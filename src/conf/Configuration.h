@@ -14,7 +14,6 @@
  * For a json file, both the C++ and shell style comments are supported.
  */
 
-
 namespace nebula {
 namespace conf {
 
@@ -48,30 +47,25 @@ public:
     Status MUST_USE_RESULT fetchAsBool(const char *key, bool &val) const;
     Status MUST_USE_RESULT fetchAsString(const char *key, std::string &val) const;
 
-    Status MUST_USE_RESULT fetchAsIntArray(const char *key,
-                                           std::vector<int64_t> &val) const;
-    Status MUST_USE_RESULT fetchAsDoubleArray(const char *key,
-                                              std::vector<double> &val) const;
-    Status MUST_USE_RESULT fetchAsBoolArray(const char *key,
-                                            std::vector<bool> &val) const;
-    Status MUST_USE_RESULT fetchAsStringArray(const char *key,
-                                              std::vector<std::string> &val) const;
+    Status MUST_USE_RESULT fetchAsIntArray(const char *key, std::vector<int64_t> &val) const;
+    Status MUST_USE_RESULT fetchAsDoubleArray(const char *key, std::vector<double> &val) const;
+    Status MUST_USE_RESULT fetchAsBoolArray(const char *key, std::vector<bool> &val) const;
+    Status MUST_USE_RESULT fetchAsStringArray(const char *key, std::vector<std::string> &val) const;
 
     Status MUST_USE_RESULT fetchAsSubConf(const char *key, Configuration &val) const;
 
-    Status MUST_USE_RESULT upsertStringField(const char* key, const std::string& val);
+    Status MUST_USE_RESULT upsertStringField(const char *key, const std::string &val);
 
     // Iterate through every key in the configuration
-    Status forEachKey(std::function<void(const std::string&)> processor) const;
+    Status forEachKey(std::function<void(const std::string &)> processor) const;
     // Iterate through every key/value pair in the configuration
     Status forEachItem(
-        std::function<void(const std::string&, const folly::dynamic&)> processor) const;
+        std::function<void(const std::string &, const folly::dynamic &)> processor) const;
 
 private:
-    std::unique_ptr<folly::dynamic>             content_;
+    std::unique_ptr<folly::dynamic> content_;
 };
 
 }   // namespace conf
 }   // namespace nebula
-#endif  // CONF_CONFIGURATION_H_
-
+#endif   // CONF_CONFIGURATION_H_

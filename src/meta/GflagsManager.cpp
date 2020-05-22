@@ -23,12 +23,12 @@ std::string GflagsManager::gflagsValueToThriftValue(const gflags::CommandLineFla
 
 template <>
 std::string GflagsManager::gflagsValueToThriftValue<std::string>(
-        const gflags::CommandLineFlagInfo& flag) {
+    const gflags::CommandLineFlagInfo& flag) {
     return flag.current_value;
 }
 
-std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>>
-GflagsManager::parseConfigJson(const std::string& path) {
+std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>> GflagsManager::parseConfigJson(
+    const std::string& path) {
     std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>> configModeMap;
     conf::Configuration conf;
     if (!conf.parseFromFile(path).ok()) {

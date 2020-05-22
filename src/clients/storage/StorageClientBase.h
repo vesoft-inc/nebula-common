@@ -7,22 +7,21 @@
 #ifndef CLIENTS_STORAGE_STORAGECLIENTBASE_H_
 #define CLIENTS_STORAGE_STORAGECLIENTBASE_H_
 
-#include "base/Base.h"
-#include <folly/futures/Future.h>
 #include <folly/executors/IOThreadPoolExecutor.h>
+#include <folly/futures/Future.h>
+#include "base/Base.h"
 #include "base/StatusOr.h"
-#include "meta/Common.h"
-#include "thrift/ThriftClientManager.h"
 #include "clients/meta/MetaClient.h"
 #include "interface/gen-cpp2/storage_types.h"
+#include "meta/Common.h"
+#include "thrift/ThriftClientManager.h"
 
 DECLARE_int32(storage_client_timeout_ms);
-
 
 namespace nebula {
 namespace storage {
 
-template<class Response>
+template <class Response>
 class StorageRpcResponse final {
 public:
     enum class Result {
@@ -81,11 +80,10 @@ private:
     std::vector<std::tuple<HostAddr, int32_t, int32_t>> hostLatency_;
 };
 
-
 /**
  * A base class for all storage clients
  */
-template<typename ClientType>
+template <typename ClientType>
 class StorageClientBase {
 protected:
     StorageClientBase(std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool,
@@ -97,56 +95,42 @@ protected:
     void updateLeader(GraphSpaceID spaceId, PartitionID partId, const HostAddr& leader);
     void invalidLeader(GraphSpaceID spaceId, PartitionID partId);
 
-    template<class Request,
-             class RemoteFunc,
-             class GetPartIDFunc,
-             class Response =
-                typename std::result_of<
-                    RemoteFunc(ClientType*, const Request&)
-                >::type::value_type
-            >
+    template <class Request,
+              class RemoteFunc,
+              class GetPartIDFunc,
+              class Response = typename std::result_of<
+                  RemoteFunc(ClientType*, const Request&)>::type::value_type>
     folly::SemiFuture<StorageRpcResponse<Response>> collectResponse(
         folly::EventBase* evb,
         std::unordered_map<HostAddr, Request> requests,
         RemoteFunc&& remoteFunc,
         GetPartIDFunc getPartIDFunc);
 
-    template<class Request,
-             class RemoteFunc,
-             class Response =
-                typename std::result_of<
-                    RemoteFunc(ClientType* client, const Request&)
-                >::type::value_type
-            >
-    folly::Future<StatusOr<Response>> getResponse(
-            folly::EventBase* evb,
-            std::pair<HostAddr, Request> request,
-            RemoteFunc remoteFunc);
+    template <class Request,
+              class RemoteFunc,
+              class Response = typename std::result_of<
+                  RemoteFunc(ClientType* client, const Request&)>::type::value_type>
+    folly::Future<StatusOr<Response>> getResponse(folly::EventBase* evb,
+                                                  std::pair<HostAddr, Request> request,
+                                                  RemoteFunc remoteFunc);
 
     // Cluster given ids into the host they belong to
     // The method returns a map
     //  host_addr (A host, but in most case, the leader will be chosen)
     //      => (partition -> [ids that belong to the shard])
-    template<class Container, class GetIdFunc>
-    StatusOr<
-        std::unordered_map<
-            HostAddr,
-            std::unordered_map<
-                PartitionID,
-                std::vector<typename Container::value_type>
-            >
-        >
-    >
+    template <class Container, class GetIdFunc>
+    StatusOr<std::unordered_map<
+        HostAddr,
+        std::unordered_map<PartitionID, std::vector<typename Container::value_type>>>>
     clusterIdsToHosts(GraphSpaceID spaceId, const Container& ids, GetIdFunc f) const;
 
-    virtual StatusOr<meta::PartHosts> getPartHosts(GraphSpaceID spaceId,
-                                                   PartitionID partId) const {
+    virtual StatusOr<meta::PartHosts> getPartHosts(GraphSpaceID spaceId, PartitionID partId) const {
         CHECK(metaClient_ != nullptr);
         return metaClient_->getPartHostsFromCache(spaceId, partId);
     }
 
-    virtual StatusOr<std::unordered_map<HostAddr, std::vector<PartitionID>>>
-    getHostParts(GraphSpaceID spaceId) const;
+    virtual StatusOr<std::unordered_map<HostAddr, std::vector<PartitionID>>> getHostParts(
+        GraphSpaceID spaceId) const;
 
 protected:
     meta::MetaClient* metaClient_{nullptr};
@@ -166,4 +150,4 @@ private:
 
 #include "clients/storage/StorageClientBase.inl"
 
-#endif  // CLIENTS_STORAGE_STORAGECLIENTBASE_H_
+#endif   // CLIENTS_STORAGE_STORAGECLIENTBASE_H_

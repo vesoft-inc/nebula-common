@@ -12,5 +12,4 @@ std::string ConstantExpression::encode() const {
     return "";
 }
 
-}  // namespace nebula
-
+}   // namespace nebula

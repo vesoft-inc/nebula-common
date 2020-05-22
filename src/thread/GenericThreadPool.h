@@ -9,9 +9,11 @@
 #include "thread/GenericWorker.h"
 
 /**
- * Based on GenericWorker, GenericThreadPool implements a thread pool that execute tasks asynchronously.
+ * Based on GenericWorker, GenericThreadPool implements a thread pool that execute tasks
+ * asynchronously.
  *
- * Under the hood, GenericThreadPool distributes tasks around the internal threads in a round-robin way.
+ * Under the hood, GenericThreadPool distributes tasks around the internal threads in a round-robin
+ * way.
  *
  * Please NOTE that, as the name indicates, this a thread pool for the general purpose,
  * but not for the performance critical situation.
@@ -20,8 +22,7 @@
 namespace nebula {
 namespace thread {
 
-class GenericThreadPool final : public nebula::cpp::NonCopyable
-                              , public nebula::cpp::NonMovable {
+class GenericThreadPool final : public nebula::cpp::NonCopyable, public nebula::cpp::NonMovable {
 public:
     GenericThreadPool();
     ~GenericThreadPool();
@@ -57,9 +58,9 @@ public:
      */
     bool wait();
 
-    template <typename F, typename...Args>
+    template <typename F, typename... Args>
     using ReturnType = typename std::result_of<F(Args...)>::type;
-    template <typename F, typename...Args>
+    template <typename F, typename... Args>
     using FutureType = folly::SemiFuture<ReturnType<F, Args...>>;
     using UnitFutureType = folly::SemiFuture<folly::Unit>;
 
@@ -70,18 +71,13 @@ public:
      * @return  an instance of `folly::SemiFuture' you could wait upon
      *          for the result of `task'
      */
-    template <typename F, typename...Args>
-    auto addTask(F&&, Args&&...)
-        -> typename std::enable_if<
-            !std::is_void<ReturnType<F, Args...>>::value,
-            FutureType<F, Args...>
-           >::type;
-    template <typename F, typename...Args>
-    auto addTask(F&&, Args&&...)
-        -> typename std::enable_if<
-            std::is_void<ReturnType<F, Args...>>::value,
-            UnitFutureType
-           >::type;
+    template <typename F, typename... Args>
+    auto addTask(F &&, Args &&...) ->
+        typename std::enable_if<!std::is_void<ReturnType<F, Args...>>::value,
+                                FutureType<F, Args...>>::type;
+    template <typename F, typename... Args>
+    auto addTask(F &&, Args &&...) ->
+        typename std::enable_if<std::is_void<ReturnType<F, Args...>>::value, UnitFutureType>::type;
 
     /**
      * To add a oneshot timer task which will be executed after a while.
@@ -91,18 +87,13 @@ public:
      * @return  an instance of `folly::SemiFuture' you could wait upon
      *          for the result of `task'
      */
-    template <typename F, typename...Args>
-    auto addDelayTask(size_t, F&&, Args&&...)
-        -> typename std::enable_if<
-            !std::is_void<ReturnType<F, Args...>>::value,
-            FutureType<F, Args...>
-           >::type;
-    template <typename F, typename...Args>
-    auto addDelayTask(size_t, F&&, Args&&...)
-        -> typename std::enable_if<
-            std::is_void<ReturnType<F, Args...>>::value,
-            UnitFutureType
-           >::type;
+    template <typename F, typename... Args>
+    auto addDelayTask(size_t, F &&, Args &&...) ->
+        typename std::enable_if<!std::is_void<ReturnType<F, Args...>>::value,
+                                FutureType<F, Args...>>::type;
+    template <typename F, typename... Args>
+    auto addDelayTask(size_t, F &&, Args &&...) ->
+        typename std::enable_if<std::is_void<ReturnType<F, Args...>>::value, UnitFutureType>::type;
 
     /**
      * To add a repeated timer task which will be executed in each period.
@@ -111,8 +102,8 @@ public:
      * @args    variadic arguments
      * @return  ID of the added task, unique for this worker
      */
-    template <typename F, typename...Args>
-    uint64_t addRepeatTask(size_t, F&&, Args&&...);
+    template <typename F, typename... Args>
+    uint64_t addRepeatTask(size_t, F &&, Args &&...);
 
     /**
      * To purge or deactivate a repeated task.
@@ -121,72 +112,49 @@ public:
     void purgeTimerTask(uint64_t id);
 
 private:
-    size_t                                          nrThreads_{0};
-    std::atomic<size_t>                             nextThread_{0};
-    std::vector<std::unique_ptr<GenericWorker>>     pool_;
+    size_t nrThreads_{0};
+    std::atomic<size_t> nextThread_{0};
+    std::vector<std::unique_ptr<GenericWorker>> pool_;
 };
 
-
-template <typename F, typename...Args>
-auto GenericThreadPool::addTask(F &&f, Args &&...args)
-        -> typename std::enable_if<
-            !std::is_void<ReturnType<F, Args...>>::value,
-            FutureType<F, Args...>
-           >::type {
+template <typename F, typename... Args>
+auto GenericThreadPool::addTask(F &&f, Args &&... args) ->
+    typename std::enable_if<!std::is_void<ReturnType<F, Args...>>::value,
+                            FutureType<F, Args...>>::type {
     auto idx = nextThread_++ % nrThreads_;
-    return pool_[idx]->addTask(std::forward<F>(f),
-                               std::forward<Args>(args)...);
+    return pool_[idx]->addTask(std::forward<F>(f), std::forward<Args>(args)...);
 }
 
-
-template <typename F, typename...Args>
-auto GenericThreadPool::addTask(F &&f, Args &&...args)
-        -> typename std::enable_if<
-            std::is_void<ReturnType<F, Args...>>::value,
-            UnitFutureType
-           >::type {
+template <typename F, typename... Args>
+auto GenericThreadPool::addTask(F &&f, Args &&... args) ->
+    typename std::enable_if<std::is_void<ReturnType<F, Args...>>::value, UnitFutureType>::type {
     auto idx = nextThread_++ % nrThreads_;
-    return pool_[idx]->addTask(std::forward<F>(f),
-                               std::forward<Args>(args)...);
+    return pool_[idx]->addTask(std::forward<F>(f), std::forward<Args>(args)...);
 }
 
-
-template <typename F, typename...Args>
-auto GenericThreadPool::addDelayTask(size_t ms, F &&f, Args &&...args)
-        -> typename std::enable_if<
-            !std::is_void<ReturnType<F, Args...>>::value,
-            FutureType<F, Args...>
-           >::type {
+template <typename F, typename... Args>
+auto GenericThreadPool::addDelayTask(size_t ms, F &&f, Args &&... args) ->
+    typename std::enable_if<!std::is_void<ReturnType<F, Args...>>::value,
+                            FutureType<F, Args...>>::type {
     auto idx = nextThread_++ % nrThreads_;
-    return pool_[idx]->addDelayTask(ms,
-                                    std::forward<F>(f),
-                                    std::forward<Args>(args)...);
+    return pool_[idx]->addDelayTask(ms, std::forward<F>(f), std::forward<Args>(args)...);
 }
 
-
-template <typename F, typename...Args>
-auto GenericThreadPool::addDelayTask(size_t ms, F &&f, Args &&...args)
-        -> typename std::enable_if<
-            std::is_void<ReturnType<F, Args...>>::value,
-            UnitFutureType
-           >::type {
+template <typename F, typename... Args>
+auto GenericThreadPool::addDelayTask(size_t ms, F &&f, Args &&... args) ->
+    typename std::enable_if<std::is_void<ReturnType<F, Args...>>::value, UnitFutureType>::type {
     auto idx = nextThread_++ % nrThreads_;
-    return pool_[idx]->addDelayTask(ms,
-                                    std::forward<F>(f),
-                                    std::forward<Args>(args)...);
+    return pool_[idx]->addDelayTask(ms, std::forward<F>(f), std::forward<Args>(args)...);
 }
 
-
-template <typename F, typename...Args>
-uint64_t GenericThreadPool::addRepeatTask(size_t ms, F &&f, Args &&...args) {
+template <typename F, typename... Args>
+uint64_t GenericThreadPool::addRepeatTask(size_t ms, F &&f, Args &&... args) {
     auto idx = nextThread_++ % nrThreads_;
-    auto id = pool_[idx]->addRepeatTask(ms,
-                                        std::forward<F>(f),
-                                        std::forward<Args>(args)...);
+    auto id = pool_[idx]->addRepeatTask(ms, std::forward<F>(f), std::forward<Args>(args)...);
     return ((idx << GenericWorker::TIMER_ID_BITS) | id);
 }
 
 }   // namespace thread
 }   // namespace nebula
 
-#endif  // COMMON_THREAD_GENERICTHREADPOOL_H_
+#endif   // COMMON_THREAD_GENERICTHREADPOOL_H_

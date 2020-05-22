@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "time/Duration.h"
 
 using nebula::time::Duration;
@@ -19,10 +19,10 @@ TEST(Duration, elapsedInSeconds) {
         dur.pause();
 
         ASSERT_EQ(std::chrono::duration_cast<std::chrono::seconds>(diff).count(),
-                  dur.elapsedInSec()) << "Inaccuracy in iteration " << i;
+                  dur.elapsedInSec())
+            << "Inaccuracy in iteration " << i;
     }
 }
-
 
 TEST(Duration, elapsedInMilliSeconds) {
     Duration dur;
@@ -35,12 +35,13 @@ TEST(Duration, elapsedInMilliSeconds) {
 
         // Allow 1ms difference
         ASSERT_LE(std::chrono::duration_cast<std::chrono::milliseconds>(diff).count(),
-                  dur.elapsedInMSec()) << "Inaccuracy in iteration " << i;
+                  dur.elapsedInMSec())
+            << "Inaccuracy in iteration " << i;
         ASSERT_GE(std::chrono::duration_cast<std::chrono::milliseconds>(diff).count() + 1,
-                  dur.elapsedInMSec()) << "Inaccuracy in iteration " << i;
+                  dur.elapsedInMSec())
+            << "Inaccuracy in iteration " << i;
     }
 }
-
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
@@ -49,4 +50,3 @@ int main(int argc, char** argv) {
 
     return RUN_ALL_TESTS();
 }
-

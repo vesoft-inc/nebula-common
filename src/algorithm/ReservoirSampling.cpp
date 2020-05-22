@@ -7,7 +7,5 @@
 #include "algorithm/ReservoirSampling.h"
 
 namespace nebula {
-namespace algorithm {
-
-}  // namespace algorithm
-}  // namespace nebula
+namespace algorithm {}   // namespace algorithm
+}   // namespace nebula

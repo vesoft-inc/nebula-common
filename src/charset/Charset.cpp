@@ -15,14 +15,12 @@ Status CharsetInfo::isSupportCharset(const std::string& charsetName) {
     return Status::OK();
 }
 
-
 Status CharsetInfo::isSupportCollate(const std::string& collateName) {
     if (supportCollations_.find(collateName) == supportCollations_.end()) {
         return Status::Error("Collation `%s' not support", collateName.c_str());
     }
     return Status::OK();
 }
-
 
 Status CharsetInfo::charsetAndCollateMatch(const std::string& charsetName,
                                            const std::string& collateName) {
@@ -34,10 +32,9 @@ Status CharsetInfo::charsetAndCollateMatch(const std::string& charsetName,
             }
         }
     }
-    return  Status::Error("Charset `%s' and Collation `%s' not match",
-                          charsetName.c_str(), collateName.c_str());
+    return Status::Error(
+        "Charset `%s' and Collation `%s' not match", charsetName.c_str(), collateName.c_str());
 }
-
 
 StatusOr<std::string> CharsetInfo::getDefaultCollationbyCharset(const std::string& charsetName) {
     auto iter = charsetDesc_.find(charsetName);
@@ -47,8 +44,7 @@ StatusOr<std::string> CharsetInfo::getDefaultCollationbyCharset(const std::strin
     return Status::Error("Charset `%s' not support", charsetName.c_str());
 }
 
-
-StatusOr<std::string> CharsetInfo::getCharsetbyCollation(const std::string& collationName ) {
+StatusOr<std::string> CharsetInfo::getCharsetbyCollation(const std::string& collationName) {
     for (auto& cset : charsetDesc_) {
         for (auto& coll : cset.second.supportColls_) {
             if (!coll.compare(collationName)) {

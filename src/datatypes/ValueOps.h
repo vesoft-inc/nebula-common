@@ -13,27 +13,26 @@
 #include <thrift/lib/cpp2/gen/module_types_tcc.h>
 #include <thrift/lib/cpp2/protocol/ProtocolReaderStructReadState.h>
 
-#include "datatypes/Value.h"
 #include "datatypes/DataSetOps.h"
 #include "datatypes/DateOps.h"
-#include "datatypes/PathOps.h"
-#include "datatypes/VertexOps.h"
 #include "datatypes/EdgeOps.h"
 #include "datatypes/ListOps.h"
 #include "datatypes/MapOps.h"
+#include "datatypes/PathOps.h"
 #include "datatypes/SetOps.h"
+#include "datatypes/Value.h"
+#include "datatypes/VertexOps.h"
 
 namespace apache {
 namespace thrift {
 
 namespace detail {
 
-template<>
+template <>
 struct TccStructTraits<nebula::Value> {
-    static void translateFieldName(
-            MAYBE_UNUSED folly::StringPiece _fname,
-            MAYBE_UNUSED int16_t& fid,
-            MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
+    static void translateFieldName(MAYBE_UNUSED folly::StringPiece _fname,
+                                   MAYBE_UNUSED int16_t& fid,
+                                   MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "nVal") {
             fid = 1;
             _ftype = apache::thrift::protocol::T_I32;
@@ -56,7 +55,7 @@ struct TccStructTraits<nebula::Value> {
             fid = 7;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "vVal") {
-             fid = 8;
+            fid = 8;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "eVal") {
             fid = 9;
@@ -80,83 +79,70 @@ struct TccStructTraits<nebula::Value> {
     }
 };
 
-}  // namespace detail
+}   // namespace detail
 
-
-template<>
+template <>
 inline void Cpp2Ops<nebula::Value>::clear(nebula::Value* obj) {
     return obj->clear();
 }
 
-
-template<>
+template <>
 inline constexpr apache::thrift::protocol::TType Cpp2Ops<nebula::Value>::thriftType() {
     return apache::thrift::protocol::T_STRUCT;
 }
 
-
-template<>
-template<class Protocol>
+template <>
+template <class Protocol>
 uint32_t Cpp2Ops<nebula::Value>::write(Protocol* proto, nebula::Value const* obj) {
     uint32_t xfer = 0;
     xfer += proto->writeStructBegin("Value");
 
     switch (obj->type()) {
-        case nebula::Value::Type::NULLVALUE:
-        {
+        case nebula::Value::Type::NULLVALUE: {
             xfer += proto->writeFieldBegin("nVal", protocol::T_I32, 1);
-            xfer += detail::pm::protocol_methods<
-                    type_class::enumeration,
-                    nebula::NullType
-                >::write(*proto, obj->getNull());
+            xfer += detail::pm::protocol_methods<type_class::enumeration, nebula::NullType>::write(
+                *proto, obj->getNull());
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::BOOL:
-        {
+        case nebula::Value::Type::BOOL: {
             xfer += proto->writeFieldBegin("bVal", protocol::T_BOOL, 2);
             xfer += proto->writeBool(obj->getBool());
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::INT:
-        {
+        case nebula::Value::Type::INT: {
             xfer += proto->writeFieldBegin("iVal", protocol::T_I64, 3);
-            xfer += detail::pm::protocol_methods<type_class::integral, int64_t>
-                ::write(*proto, obj->getInt());
+            xfer += detail::pm::protocol_methods<type_class::integral, int64_t>::write(
+                *proto, obj->getInt());
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::FLOAT:
-        {
+        case nebula::Value::Type::FLOAT: {
             xfer += proto->writeFieldBegin("fVal", protocol::T_DOUBLE, 4);
             xfer += proto->writeDouble(obj->getFloat());
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::STRING:
-        {
+        case nebula::Value::Type::STRING: {
             xfer += proto->writeFieldBegin("sVal", protocol::T_STRING, 5);
             xfer += proto->writeBinary(obj->getStr());
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::DATE:
-        {
+        case nebula::Value::Type::DATE: {
             xfer += proto->writeFieldBegin("dVal", protocol::T_STRUCT, 6);
             xfer += Cpp2Ops<nebula::Date>::write(proto, &obj->getDate());
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::DATETIME:
-        {
+        case nebula::Value::Type::DATETIME: {
             xfer += proto->writeFieldBegin("tVal", protocol::T_STRUCT, 7);
             xfer += Cpp2Ops<nebula::DateTime>::write(proto, &obj->getDateTime());
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::VERTEX:
-        {
+        case nebula::Value::Type::VERTEX: {
             xfer += proto->writeFieldBegin("vVal", protocol::T_STRUCT, 8);
             if (obj->getVertexPtr()) {
                 xfer += Cpp2Ops<nebula::Vertex>::write(proto, obj->getVertexPtr());
@@ -168,8 +154,7 @@ uint32_t Cpp2Ops<nebula::Value>::write(Protocol* proto, nebula::Value const* obj
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::EDGE:
-        {
+        case nebula::Value::Type::EDGE: {
             xfer += proto->writeFieldBegin("eVal", protocol::T_STRUCT, 9);
             if (obj->getEdgePtr()) {
                 xfer += Cpp2Ops<nebula::Edge>::write(proto, obj->getEdgePtr());
@@ -181,8 +166,7 @@ uint32_t Cpp2Ops<nebula::Value>::write(Protocol* proto, nebula::Value const* obj
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::PATH:
-        {
+        case nebula::Value::Type::PATH: {
             xfer += proto->writeFieldBegin("pVal", protocol::T_STRUCT, 10);
             if (obj->getPathPtr()) {
                 xfer += Cpp2Ops<nebula::Path>::write(proto, obj->getPathPtr());
@@ -194,8 +178,7 @@ uint32_t Cpp2Ops<nebula::Value>::write(Protocol* proto, nebula::Value const* obj
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::LIST:
-        {
+        case nebula::Value::Type::LIST: {
             xfer += proto->writeFieldBegin("lVal", protocol::T_STRUCT, 11);
             if (obj->getListPtr()) {
                 xfer += Cpp2Ops<nebula::List>::write(proto, obj->getListPtr());
@@ -207,8 +190,7 @@ uint32_t Cpp2Ops<nebula::Value>::write(Protocol* proto, nebula::Value const* obj
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::MAP:
-        {
+        case nebula::Value::Type::MAP: {
             xfer += proto->writeFieldBegin("mVal", protocol::T_STRUCT, 12);
             if (obj->getMapPtr()) {
                 xfer += Cpp2Ops<nebula::Map>::write(proto, obj->getMapPtr());
@@ -220,8 +202,7 @@ uint32_t Cpp2Ops<nebula::Value>::write(Protocol* proto, nebula::Value const* obj
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::SET:
-        {
+        case nebula::Value::Type::SET: {
             xfer += proto->writeFieldBegin("uVal", protocol::T_STRUCT, 13);
             if (obj->getSetPtr()) {
                 xfer += Cpp2Ops<nebula::Set>::write(proto, obj->getSetPtr());
@@ -233,8 +214,7 @@ uint32_t Cpp2Ops<nebula::Value>::write(Protocol* proto, nebula::Value const* obj
             xfer += proto->writeFieldEnd();
             break;
         }
-        case nebula::Value::Type::DATASET:
-        {
+        case nebula::Value::Type::DATASET: {
             xfer += proto->writeFieldBegin("gVal", protocol::T_STRUCT, 14);
             if (obj->getDataSetPtr()) {
                 xfer += Cpp2Ops<nebula::DataSet>::write(proto, obj->getDataSetPtr());
@@ -256,9 +236,8 @@ uint32_t Cpp2Ops<nebula::Value>::write(Protocol* proto, nebula::Value const* obj
     return xfer;
 }
 
-
-template<>
-template<class Protocol>
+template <>
+template <class Protocol>
 void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
     apache::thrift::detail::ProtocolReaderStructReadState<Protocol> readState;
     readState.fieldId = 0;
@@ -273,27 +252,21 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
     } else {
         if (proto->kUsesFieldNames()) {
             detail::TccStructTraits<nebula::Value>::translateFieldName(
-                readState.fieldName(),
-                readState.fieldId,
-                readState.fieldType);
+                readState.fieldName(), readState.fieldId, readState.fieldType);
         }
 
         switch (readState.fieldId) {
-            case 1:
-            {
+            case 1: {
                 if (readState.fieldType == apache::thrift::protocol::T_I32) {
                     obj->setNull(nebula::NullType::__NULL__);
-                    detail::pm::protocol_methods<
-                            type_class::enumeration,
-                            nebula::NullType
-                        >::read(*proto, obj->mutableNull());
+                    detail::pm::protocol_methods<type_class::enumeration, nebula::NullType>::read(
+                        *proto, obj->mutableNull());
                 } else {
                     proto->skip(readState.fieldType);
                 }
                 break;
             }
-            case 2:
-            {
+            case 2: {
                 if (readState.fieldType == apache::thrift::protocol::T_BOOL) {
                     obj->setBool(false);
                     proto->readBool(obj->mutableBool());
@@ -302,19 +275,17 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
                 }
                 break;
             }
-            case 3:
-            {
+            case 3: {
                 if (readState.fieldType == apache::thrift::protocol::T_I64) {
                     obj->setInt(0);
-                    detail::pm::protocol_methods<type_class::integral, int64_t>
-                        ::read(*proto, obj->mutableInt());
+                    detail::pm::protocol_methods<type_class::integral, int64_t>::read(
+                        *proto, obj->mutableInt());
                 } else {
                     proto->skip(readState.fieldType);
                 }
                 break;
             }
-            case 4:
-            {
+            case 4: {
                 if (readState.fieldType == apache::thrift::protocol::T_DOUBLE) {
                     obj->setFloat(0.0);
                     proto->readDouble(obj->mutableFloat());
@@ -323,8 +294,7 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
                 }
                 break;
             }
-            case 5:
-            {
+            case 5: {
                 if (readState.fieldType == apache::thrift::protocol::T_STRING) {
                     obj->setStr("");
                     proto->readBinary(obj->mutableStr());
@@ -333,8 +303,7 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
                 }
                 break;
             }
-            case 6:
-            {
+            case 6: {
                 if (readState.fieldType == apache::thrift::protocol::T_STRUCT) {
                     obj->setDate(nebula::Date());
                     Cpp2Ops<nebula::Date>::read(proto, &obj->mutableDate());
@@ -343,8 +312,7 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
                 }
                 break;
             }
-            case 7:
-            {
+            case 7: {
                 if (readState.fieldType == apache::thrift::protocol::T_STRUCT) {
                     obj->setDateTime(nebula::DateTime());
                     Cpp2Ops<nebula::DateTime>::read(proto, &obj->mutableDateTime());
@@ -353,8 +321,7 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
                 }
                 break;
             }
-            case 8:
-            {
+            case 8: {
                 if (readState.fieldType == apache::thrift::protocol::T_STRUCT) {
                     obj->setVertex(nebula::Vertex());
                     auto ptr = std::make_unique<nebula::Vertex>();
@@ -365,8 +332,7 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
                 }
                 break;
             }
-            case 9:
-            {
+            case 9: {
                 if (readState.fieldType == apache::thrift::protocol::T_STRUCT) {
                     obj->setEdge(nebula::Edge());
                     auto ptr = std::make_unique<nebula::Edge>();
@@ -377,8 +343,7 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
                 }
                 break;
             }
-            case 10:
-            {
+            case 10: {
                 if (readState.fieldType == apache::thrift::protocol::T_STRUCT) {
                     obj->setPath(nebula::Path());
                     auto ptr = std::make_unique<nebula::Path>();
@@ -389,8 +354,7 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
                 }
                 break;
             }
-            case 11:
-            {
+            case 11: {
                 if (readState.fieldType == apache::thrift::protocol::T_STRUCT) {
                     obj->setList(nebula::List());
                     auto ptr = std::make_unique<nebula::List>();
@@ -401,8 +365,7 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
                 }
                 break;
             }
-            case 12:
-            {
+            case 12: {
                 if (readState.fieldType == apache::thrift::protocol::T_STRUCT) {
                     obj->setMap(nebula::Map());
                     auto ptr = std::make_unique<nebula::Map>();
@@ -413,8 +376,7 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
                 }
                 break;
             }
-            case 13:
-            {
+            case 13: {
                 if (readState.fieldType == apache::thrift::protocol::T_STRUCT) {
                     obj->setSet(nebula::Set());
                     auto ptr = std::make_unique<nebula::Set>();
@@ -425,8 +387,7 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
                 }
                 break;
             }
-            case 14:
-            {
+            case 14: {
                 if (readState.fieldType == apache::thrift::protocol::T_STRUCT) {
                     obj->setDataSet(nebula::DataSet());
                     auto ptr = std::make_unique<nebula::DataSet>();
@@ -437,8 +398,7 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
                 }
                 break;
             }
-            default:
-            {
+            default: {
                 proto->skip(readState.fieldType);
                 break;
             }
@@ -454,74 +414,61 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
     readState.readStructEnd(proto);
 }
 
-
-template<>
-template<class Protocol>
-uint32_t Cpp2Ops<nebula::Value>::serializedSize(Protocol const* proto,
-                                                nebula::Value const* obj) {
+template <>
+template <class Protocol>
+uint32_t Cpp2Ops<nebula::Value>::serializedSize(Protocol const* proto, nebula::Value const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("Value");
     switch (obj->type()) {
-        case nebula::Value::Type::NULLVALUE:
-        {
+        case nebula::Value::Type::NULLVALUE: {
             xfer += proto->serializedFieldSize("nVal", protocol::T_I32, 1);
-            xfer += detail::pm::protocol_methods<
-                    type_class::enumeration,
-                    nebula::NullType
-                >::serializedSize<false>(*proto, obj->getNull());
+            xfer += detail::pm::protocol_methods<type_class::enumeration, nebula::NullType>::
+                serializedSize<false>(*proto, obj->getNull());
             break;
         }
-        case nebula::Value::Type::BOOL:
-        {
+        case nebula::Value::Type::BOOL: {
             xfer += proto->serializedFieldSize("bVal", protocol::T_BOOL, 2);
             xfer += proto->serializedSizeBool(obj->getBool());
             break;
         }
-        case nebula::Value::Type::INT:
-        {
+        case nebula::Value::Type::INT: {
             xfer += proto->serializedFieldSize("iVal", protocol::T_I64, 3);
-            xfer += detail::pm::protocol_methods<type_class::integral, int64_t>
-                ::serializedSize<false>(*proto, obj->getInt());
+            xfer +=
+                detail::pm::protocol_methods<type_class::integral, int64_t>::serializedSize<false>(
+                    *proto, obj->getInt());
             break;
         }
-        case nebula::Value::Type::FLOAT:
-        {
+        case nebula::Value::Type::FLOAT: {
             xfer += proto->serializedFieldSize("fVal", protocol::T_DOUBLE, 4);
             xfer += proto->serializedSizeDouble(obj->getFloat());
             break;
         }
-        case nebula::Value::Type::STRING:
-        {
+        case nebula::Value::Type::STRING: {
             xfer += proto->serializedFieldSize("sVal", protocol::T_STRING, 5);
             xfer += proto->serializedSizeBinary(obj->getStr());
             break;
         }
-        case nebula::Value::Type::DATE:
-        {
+        case nebula::Value::Type::DATE: {
             xfer += proto->serializedFieldSize("dVal", protocol::T_STRUCT, 6);
             xfer += Cpp2Ops<nebula::Date>::serializedSize(proto, &obj->getDate());
             break;
         }
-        case nebula::Value::Type::DATETIME:
-        {
+        case nebula::Value::Type::DATETIME: {
             xfer += proto->serializedFieldSize("tVal", protocol::T_STRUCT, 7);
             xfer += Cpp2Ops<nebula::DateTime>::serializedSize(proto, &obj->getDateTime());
             break;
         }
-        case nebula::Value::Type::VERTEX:
-        {
+        case nebula::Value::Type::VERTEX: {
             xfer += proto->serializedFieldSize("vVal", protocol::T_STRUCT, 8);
             if (obj->getVertexPtr()) {
-                xfer += Cpp2Ops<nebula::Vertex>::serializedSize(proto,
-                                                                obj->getVertexPtr());
+                xfer += Cpp2Ops<nebula::Vertex>::serializedSize(proto, obj->getVertexPtr());
             } else {
                 xfer += proto->serializedStructSize("Vertex");
                 xfer += proto->serializedSizeStop();
             }
             break;
         }
-        case nebula::Value::Type::EDGE:
-        {
+        case nebula::Value::Type::EDGE: {
             xfer += proto->serializedFieldSize("eVal", protocol::T_STRUCT, 9);
             if (obj->getEdgePtr()) {
                 xfer += Cpp2Ops<nebula::Edge>::serializedSize(proto, obj->getEdgePtr());
@@ -531,8 +478,7 @@ uint32_t Cpp2Ops<nebula::Value>::serializedSize(Protocol const* proto,
             }
             break;
         }
-        case nebula::Value::Type::PATH:
-        {
+        case nebula::Value::Type::PATH: {
             xfer += proto->serializedFieldSize("pVal", protocol::T_STRUCT, 10);
             if (obj->getPathPtr()) {
                 xfer += Cpp2Ops<nebula::Path>::serializedSize(proto, obj->getPathPtr());
@@ -542,8 +488,7 @@ uint32_t Cpp2Ops<nebula::Value>::serializedSize(Protocol const* proto,
             }
             break;
         }
-        case nebula::Value::Type::LIST:
-        {
+        case nebula::Value::Type::LIST: {
             xfer += proto->serializedFieldSize("lVal", protocol::T_STRUCT, 11);
             if (obj->getListPtr()) {
                 xfer += Cpp2Ops<nebula::List>::serializedSize(proto, obj->getListPtr());
@@ -553,8 +498,7 @@ uint32_t Cpp2Ops<nebula::Value>::serializedSize(Protocol const* proto,
             }
             break;
         }
-        case nebula::Value::Type::MAP:
-        {
+        case nebula::Value::Type::MAP: {
             xfer += proto->serializedFieldSize("mVal", protocol::T_STRUCT, 12);
             if (obj->getMapPtr()) {
                 xfer += Cpp2Ops<nebula::Map>::serializedSize(proto, obj->getMapPtr());
@@ -564,8 +508,7 @@ uint32_t Cpp2Ops<nebula::Value>::serializedSize(Protocol const* proto,
             }
             break;
         }
-        case nebula::Value::Type::SET:
-        {
+        case nebula::Value::Type::SET: {
             xfer += proto->serializedFieldSize("uVal", protocol::T_STRUCT, 13);
             if (obj->getSetPtr()) {
                 xfer += Cpp2Ops<nebula::Set>::serializedSize(proto, obj->getSetPtr());
@@ -575,12 +518,10 @@ uint32_t Cpp2Ops<nebula::Value>::serializedSize(Protocol const* proto,
             }
             break;
         }
-        case nebula::Value::Type::DATASET:
-        {
+        case nebula::Value::Type::DATASET: {
             xfer += proto->serializedFieldSize("gVal", protocol::T_STRUCT, 14);
             if (obj->getDataSetPtr()) {
-                xfer += Cpp2Ops<nebula::DataSet>
-                    ::serializedSize(proto, obj->getDataSetPtr());
+                xfer += Cpp2Ops<nebula::DataSet>::serializedSize(proto, obj->getDataSetPtr());
             } else {
                 xfer += proto->serializedStructSize("DataSet");
                 xfer += proto->serializedSizeStop();
@@ -596,112 +537,92 @@ uint32_t Cpp2Ops<nebula::Value>::serializedSize(Protocol const* proto,
     return xfer;
 }
 
-
-template<>
-template<class Protocol>
-uint32_t Cpp2Ops<nebula::Value>::serializedSizeZC(Protocol const* proto,
-                                                  nebula::Value const* obj) {
+template <>
+template <class Protocol>
+uint32_t Cpp2Ops<nebula::Value>::serializedSizeZC(Protocol const* proto, nebula::Value const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("Value");
 
     switch (obj->type()) {
-        case nebula::Value::Type::NULLVALUE:
-        {
+        case nebula::Value::Type::NULLVALUE: {
             xfer += proto->serializedFieldSize("nVal", protocol::T_I32, 1);
-            xfer += detail::pm::protocol_methods<
-                    type_class::enumeration,
-                    nebula::NullType
-                >::serializedSize<false>(*proto, obj->getNull());
+            xfer += detail::pm::protocol_methods<type_class::enumeration, nebula::NullType>::
+                serializedSize<false>(*proto, obj->getNull());
             break;
         }
-        case nebula::Value::Type::BOOL:
-        {
+        case nebula::Value::Type::BOOL: {
             xfer += proto->serializedFieldSize("bVal", protocol::T_BOOL, 2);
             xfer += proto->serializedSizeBool(obj->getBool());
             break;
         }
-        case nebula::Value::Type::INT:
-        {
+        case nebula::Value::Type::INT: {
             xfer += proto->serializedFieldSize("iVal", protocol::T_I64, 3);
-            xfer += detail::pm::protocol_methods<type_class::integral, int64_t>
-                ::serializedSize<false>(*proto, obj->getInt());
+            xfer +=
+                detail::pm::protocol_methods<type_class::integral, int64_t>::serializedSize<false>(
+                    *proto, obj->getInt());
             break;
         }
-        case nebula::Value::Type::FLOAT:
-        {
+        case nebula::Value::Type::FLOAT: {
             xfer += proto->serializedFieldSize("fVal", protocol::T_DOUBLE, 4);
             xfer += proto->serializedSizeDouble(obj->getFloat());
             break;
         }
-        case nebula::Value::Type::STRING:
-        {
+        case nebula::Value::Type::STRING: {
             xfer += proto->serializedFieldSize("sVal", protocol::T_STRING, 5);
             xfer += proto->serializedSizeZCBinary(obj->getStr());
             break;
         }
-        case nebula::Value::Type::DATE:
-        {
+        case nebula::Value::Type::DATE: {
             xfer += proto->serializedFieldSize("dVal", protocol::T_STRUCT, 6);
             xfer += Cpp2Ops<nebula::Date>::serializedSizeZC(proto, &obj->getDate());
             break;
         }
-        case nebula::Value::Type::DATETIME:
-        {
+        case nebula::Value::Type::DATETIME: {
             xfer += proto->serializedFieldSize("tVal", protocol::T_STRUCT, 7);
-            xfer += Cpp2Ops<nebula::DateTime>
-                ::serializedSizeZC(proto, &obj->getDateTime());
+            xfer += Cpp2Ops<nebula::DateTime>::serializedSizeZC(proto, &obj->getDateTime());
             break;
         }
-        case nebula::Value::Type::VERTEX:
-        {
+        case nebula::Value::Type::VERTEX: {
             xfer += proto->serializedFieldSize("vVal", protocol::T_STRUCT, 8);
             if (obj->getVertexPtr()) {
-                xfer += Cpp2Ops<nebula::Vertex>
-                    ::serializedSizeZC(proto, obj->getVertexPtr());
+                xfer += Cpp2Ops<nebula::Vertex>::serializedSizeZC(proto, obj->getVertexPtr());
             } else {
                 xfer += proto->serializedStructSize("Vertex");
                 xfer += proto->serializedSizeStop();
             }
             break;
         }
-        case nebula::Value::Type::EDGE:
-        {
+        case nebula::Value::Type::EDGE: {
             xfer += proto->serializedFieldSize("eVal", protocol::T_STRUCT, 9);
             if (obj->getEdgePtr()) {
-                xfer += Cpp2Ops<nebula::Edge>
-                    ::serializedSizeZC(proto, obj->getEdgePtr());
+                xfer += Cpp2Ops<nebula::Edge>::serializedSizeZC(proto, obj->getEdgePtr());
             } else {
                 xfer += proto->serializedStructSize("Edge");
                 xfer += proto->serializedSizeStop();
             }
             break;
         }
-        case nebula::Value::Type::PATH:
-        {
+        case nebula::Value::Type::PATH: {
             xfer += proto->serializedFieldSize("pVal", protocol::T_STRUCT, 10);
             if (obj->getPathPtr()) {
-                xfer += Cpp2Ops<nebula::Path>
-                    ::serializedSizeZC(proto, obj->getPathPtr());
+                xfer += Cpp2Ops<nebula::Path>::serializedSizeZC(proto, obj->getPathPtr());
             } else {
                 xfer += proto->serializedStructSize("Path");
                 xfer += proto->serializedSizeStop();
             }
             break;
         }
-        case nebula::Value::Type::LIST:
-        {
+        case nebula::Value::Type::LIST: {
             xfer += proto->serializedFieldSize("lVal", protocol::T_STRUCT, 11);
             if (obj->getListPtr()) {
-                xfer += Cpp2Ops<nebula::List>
-                    ::serializedSizeZC(proto, obj->getListPtr());
+                xfer += Cpp2Ops<nebula::List>::serializedSizeZC(proto, obj->getListPtr());
             } else {
                 xfer += proto->serializedStructSize("List");
                 xfer += proto->serializedSizeStop();
             }
             break;
         }
-        case nebula::Value::Type::MAP:
-        {
+        case nebula::Value::Type::MAP: {
             xfer += proto->serializedFieldSize("mVal", protocol::T_STRUCT, 12);
             if (obj->getMapPtr()) {
                 xfer += Cpp2Ops<nebula::Map>::serializedSizeZC(proto, obj->getMapPtr());
@@ -711,8 +632,7 @@ uint32_t Cpp2Ops<nebula::Value>::serializedSizeZC(Protocol const* proto,
             }
             break;
         }
-        case nebula::Value::Type::SET:
-        {
+        case nebula::Value::Type::SET: {
             xfer += proto->serializedFieldSize("uVal", protocol::T_STRUCT, 13);
             if (obj->getSetPtr()) {
                 xfer += Cpp2Ops<nebula::Set>::serializedSizeZC(proto, obj->getSetPtr());
@@ -722,12 +642,10 @@ uint32_t Cpp2Ops<nebula::Value>::serializedSizeZC(Protocol const* proto,
             }
             break;
         }
-        case nebula::Value::Type::DATASET:
-        {
+        case nebula::Value::Type::DATASET: {
             xfer += proto->serializedFieldSize("gVal", protocol::T_STRUCT, 14);
             if (obj->getDataSetPtr()) {
-                xfer += Cpp2Ops<nebula::DataSet>
-                    ::serializedSizeZC(proto, obj->getDataSetPtr());
+                xfer += Cpp2Ops<nebula::DataSet>::serializedSizeZC(proto, obj->getDataSetPtr());
             } else {
                 xfer += proto->serializedStructSize("DataSet");
                 xfer += proto->serializedSizeStop();
@@ -743,6 +661,6 @@ uint32_t Cpp2Ops<nebula::Value>::serializedSizeZC(Protocol const* proto,
     return xfer;
 }
 
-}  // namespace thrift
-}  // namespace apache
-#endif  // DATATYPES_VALUEOPS_H_
+}   // namespace thrift
+}   // namespace apache
+#endif   // DATATYPES_VALUEOPS_H_

@@ -22,10 +22,9 @@ namespace detail {
 
 template <>
 struct TccStructTraits<nebula::KeyValue> {
-    static void translateFieldName(
-            MAYBE_UNUSED folly::StringPiece _fname,
-            MAYBE_UNUSED int16_t& fid,
-            MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
+    static void translateFieldName(MAYBE_UNUSED folly::StringPiece _fname,
+                                   MAYBE_UNUSED int16_t& fid,
+                                   MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "key") {
             fid = 1;
             _ftype = apache::thrift::protocol::T_STRING;
@@ -36,23 +35,20 @@ struct TccStructTraits<nebula::KeyValue> {
     }
 };
 
-}  // namespace detail
+}   // namespace detail
 
-
-template<>
+template <>
 inline void Cpp2Ops<nebula::KeyValue>::clear(nebula::KeyValue* obj) {
     return obj->clear();
 }
 
-
-template<>
+template <>
 inline constexpr protocol::TType Cpp2Ops<nebula::KeyValue>::thriftType() {
     return apache::thrift::protocol::T_STRUCT;
 }
 
-
-template<>
-template<class Protocol>
+template <>
+template <class Protocol>
 uint32_t Cpp2Ops<nebula::KeyValue>::write(Protocol* proto, nebula::KeyValue const* obj) {
     uint32_t xfer = 0;
     xfer += proto->writeStructBegin("KeyValue");
@@ -70,9 +66,8 @@ uint32_t Cpp2Ops<nebula::KeyValue>::write(Protocol* proto, nebula::KeyValue cons
     return xfer;
 }
 
-
-template<>
-template<class Protocol>
+template <>
+template <class Protocol>
 void Cpp2Ops<nebula::KeyValue>::read(Protocol* proto, nebula::KeyValue* obj) {
     detail::ProtocolReaderStructReadState<Protocol> readState;
 
@@ -84,19 +79,13 @@ void Cpp2Ops<nebula::KeyValue>::read(Protocol* proto, nebula::KeyValue* obj) {
         goto _loop;
     }
 
-_readField_key:
-    {
-        proto->readBinary(obj->key);
-    }
+_readField_key : { proto->readBinary(obj->key); }
 
     if (UNLIKELY(!readState.advanceToNextField(proto, 1, 2, protocol::T_STRING))) {
         goto _loop;
     }
 
-_readField_value:
-    {
-        proto->readBinary(obj->value);
-    }
+_readField_value : { proto->readBinary(obj->value); }
 
     if (UNLIKELY(!readState.advanceToNextField(proto, 2, 0, protocol::T_STOP))) {
         goto _loop;
@@ -118,25 +107,22 @@ _loop:
     }
 
     switch (readState.fieldId) {
-        case 1:
-        {
+        case 1: {
             if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRING)) {
                 goto _readField_key;
             } else {
                 goto _skip;
             }
         }
-        case 2:
-        {
+        case 2: {
             if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRING)) {
                 goto _readField_value;
             } else {
                 goto _skip;
             }
         }
-        default:
-        {
-_skip:
+        default: {
+        _skip:
             proto->skip(readState.fieldType);
             readState.readFieldEnd(proto);
             readState.readFieldBeginNoInline(proto);
@@ -145,9 +131,8 @@ _skip:
     }
 }
 
-
-template<>
-template<class Protocol>
+template <>
+template <class Protocol>
 uint32_t Cpp2Ops<nebula::KeyValue>::serializedSize(Protocol const* proto,
                                                    nebula::KeyValue const* obj) {
     uint32_t xfer = 0;
@@ -163,24 +148,23 @@ uint32_t Cpp2Ops<nebula::KeyValue>::serializedSize(Protocol const* proto,
     return xfer;
 }
 
-
-template<>
-template<class Protocol>
+template <>
+template <class Protocol>
 uint32_t Cpp2Ops<nebula::KeyValue>::serializedSizeZC(Protocol const* proto,
                                                      nebula::KeyValue const* obj) {
-  uint32_t xfer = 0;
-  xfer += proto->serializedStructSize("KeyValue");
+    uint32_t xfer = 0;
+    xfer += proto->serializedStructSize("KeyValue");
 
-  xfer += proto->serializedFieldSize("key", apache::thrift::protocol::T_STRING, 1);
-  xfer += proto->serializedSizeZCBinary(obj->key);
+    xfer += proto->serializedFieldSize("key", apache::thrift::protocol::T_STRING, 1);
+    xfer += proto->serializedSizeZCBinary(obj->key);
 
-  xfer += proto->serializedFieldSize("value", apache::thrift::protocol::T_STRING, 2);
-  xfer += proto->serializedSizeZCBinary(obj->value);
+    xfer += proto->serializedFieldSize("value", apache::thrift::protocol::T_STRING, 2);
+    xfer += proto->serializedSizeZCBinary(obj->value);
 
-  xfer += proto->serializedSizeStop();
-  return xfer;
+    xfer += proto->serializedSizeStop();
+    return xfer;
 }
 
-}  // namespace thrift
-}  // namespace apache
-#endif  // DATATYPES_KEYVALUEOPS_H_
+}   // namespace thrift
+}   // namespace apache
+#endif   // DATATYPES_KEYVALUEOPS_H_

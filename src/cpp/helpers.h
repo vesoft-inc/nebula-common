@@ -29,4 +29,4 @@ static_assert(sizeof(NonMovable) == 1UL, "Unexpected sizeof(NonMovable)!");
 
 }   // namespace cpp
 }   // namespace nebula
-#endif  // COMMON_CPP_HELPERS_H_
+#endif   // COMMON_CPP_HELPERS_H_

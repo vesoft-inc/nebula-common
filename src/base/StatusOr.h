@@ -26,9 +26,13 @@ public:
     // Tell if `U' is of type `StatusOr<V>'
     template <typename U>
     struct is_status_or {
-        static auto sfinae(...) -> uint8_t { return 0; }
+        static auto sfinae(...) -> uint8_t {
+            return 0;
+        }
         template <typename V>
-        static auto sfinae(const StatusOr<V>&) -> uint16_t { return 0; }
+        static auto sfinae(const StatusOr<V> &) -> uint16_t {
+            return 0;
+        }
         static constexpr auto value = (sizeof(sfinae(std::declval<U>())) == sizeof(uint16_t));
     };
 
@@ -43,10 +47,9 @@ public:
     // TODO(dutor) we may take other cases into account in future,
     // e.g. convertible but not constructible.
     template <typename U>
-    static constexpr auto is_initializable_v = is_constructible_v<T, U> &&
-                                               std::is_convertible<U, T>::value &&
-                                               !is_status_or_v<U> &&
-                                               !is_status_v<U>;
+    static constexpr auto is_initializable_v =
+        is_constructible_v<T, U> &&std::is_convertible<U, T>::value && !is_status_or_v<U> &&
+        !is_status_v<U>;
 
     // Assert that `T' must be copy/move constructible
     static_assert(is_copy_or_move_constructible_v<T>, "`T' must be copy/move constructible");
@@ -76,7 +79,7 @@ public:
     // Copy/move construct from `Status'
     // Not explicit to allow construct from a `Status', e.g. in the `return' statement
     template <typename U>
-    StatusOr(U &&status, std::enable_if_t<is_status_v<U>>* = nullptr)   // NOLINT
+    StatusOr(U &&status, std::enable_if_t<is_status_v<U>> * = nullptr)   // NOLINT
         : variant_(std::forward<U>(status)) {
         state_ = kStatus;
     }
@@ -84,12 +87,12 @@ public:
     // Copy/move construct with a value of any compatible type
     // Not explicit to allow construct from a value, e.g. in the `return' statement
     template <typename U, typename = std::enable_if_t<is_initializable_v<U>>>
-    StatusOr(U &&value)     // NOLINT
+    StatusOr(U &&value)   // NOLINT
         : variant_(std::forward<U>(value)) {
         state_ = kValue;
     }
 
-    StatusOr(T &&value)     // NOLINT
+    StatusOr(T &&value)   // NOLINT
         : variant_(std::move(value)) {
         state_ = kValue;
     }
@@ -114,7 +117,7 @@ public:
     }
 
     // Copy assignment operator
-    StatusOr& operator=(const StatusOr &rhs) {
+    StatusOr &operator=(const StatusOr &rhs) {
         if (&rhs == this) {
             return *this;
         }
@@ -155,7 +158,7 @@ public:
     }
 
     // Move assignment operator
-    StatusOr& operator=(StatusOr &&rhs) noexcept {
+    StatusOr &operator=(StatusOr &&rhs) noexcept {
         if (&rhs == this) {
             return *this;
         }
@@ -176,7 +179,7 @@ public:
 
     // Move assigment operator from a rvalue of `StatusOr<U>'
     template <typename U, typename = std::enable_if_t<is_initializable_v<U>>>
-    StatusOr& operator=(StatusOr<U> &&rhs) noexcept {
+    StatusOr &operator=(StatusOr<U> &&rhs) noexcept {
         reset();
         if (rhs.hasValue()) {
             new (&variant_) Variant(std::move(rhs.variant_.value_));
@@ -194,7 +197,7 @@ public:
 
     // Move assigment operator from a rvalue of any compatible type with `T'
     template <typename U, typename = std::enable_if_t<is_initializable_v<U>>>
-    StatusOr& operator=(U &&value) noexcept {
+    StatusOr &operator=(U &&value) noexcept {
         destruct();
         new (&variant_) Variant(std::forward<U>(value));
         state_ = kValue;
@@ -202,7 +205,7 @@ public:
     }
 
     // Copy assign from a lvalue of `Status'
-    StatusOr& operator=(const Status &status) {
+    StatusOr &operator=(const Status &status) {
         destruct();
         new (&variant_) Variant(status);
         state_ = kStatus;
@@ -210,7 +213,7 @@ public:
     }
 
     // Move assign from a rvalue of `Status'
-    StatusOr& operator=(Status &&status) noexcept {
+    StatusOr &operator=(Status &&status) noexcept {
         destruct();
         new (&variant_) Variant(std::move(status));
         state_ = kStatus;
@@ -243,13 +246,13 @@ public:
 
     // Return the non-const lvalue reference to the associated value
     // `ok()' is DCHECKed
-    T& value() & {
+    T &value() & {
         DCHECK(ok());
         return variant_.value_;
     }
 
     // Return the const lvalue reference to the associated value
-    const T& value() const & {
+    const T &value() const & {
         DCHECK(ok());
         return variant_.value_;
     }
@@ -320,18 +323,18 @@ private:
         Variant(U &&value) : value_(std::forward<U>(value)) {}
         ~Variant() {}
 
-        Status      status_;
-        T           value_;
+        Status status_;
+        T value_;
     };
 
     static constexpr uint8_t kVoid = 0;
     static constexpr uint8_t kStatus = 1;
     static constexpr uint8_t kValue = 2;
 
-    Variant         variant_;
-    uint8_t         state_;
+    Variant variant_;
+    uint8_t state_;
 };
 
 }   // namespace nebula
 
-#endif  // COMMON_BASE_STATUSOR_H_
+#endif   // COMMON_BASE_STATUSOR_H_

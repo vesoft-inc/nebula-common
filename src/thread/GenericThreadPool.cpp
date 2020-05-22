@@ -4,14 +4,13 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include "thread/GenericThreadPool.h"
+#include "base/Base.h"
 
 namespace nebula {
 namespace thread {
 
-GenericThreadPool::GenericThreadPool() {
-}
+GenericThreadPool::GenericThreadPool() {}
 
 GenericThreadPool::~GenericThreadPool() {
     stop();

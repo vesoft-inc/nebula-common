@@ -4,15 +4,14 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <folly/Benchmark.h>
+#include "base/Base.h"
 #include "time/Duration.h"
 
 using nebula::time::Duration;
-using std::chrono::steady_clock;
 using std::chrono::duration_cast;
 using std::chrono::milliseconds;
-
+using std::chrono::steady_clock;
 
 BENCHMARK(steady_clock_timer, iters) {
     for (uint32_t i = 0; i < iters; i++) {
@@ -30,14 +29,12 @@ BENCHMARK_RELATIVE(duration_timer, iters) {
     }
 }
 
-
 int main(int argc, char** argv) {
     folly::init(&argc, &argv, true);
 
     folly::runBenchmarks();
     return 0;
 }
-
 
 /*
 

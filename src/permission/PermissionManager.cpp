@@ -19,15 +19,15 @@ bool PermissionManager::canReadSpace(session::Session *session, GraphSpaceID spa
     }
     bool havePermission = false;
     switch (session->roleWithSpace(spaceId)) {
-        case session::Role::GOD :
-        case session::Role::ADMIN :
-        case session::Role::DBA :
-        case session::Role::USER :
-        case session::Role::GUEST : {
+        case session::Role::GOD:
+        case session::Role::ADMIN:
+        case session::Role::DBA:
+        case session::Role::USER:
+        case session::Role::GUEST: {
             havePermission = true;
             break;
         }
-        case session::Role::INVALID_ROLE : {
+        case session::Role::INVALID_ROLE: {
             break;
         }
     }
@@ -45,15 +45,15 @@ bool PermissionManager::canReadSchemaOrData(session::Session *session) {
     }
     bool havePermission = false;
     switch (session->roleWithSpace(session->space())) {
-        case session::Role::GOD :
-        case session::Role::ADMIN :
-        case session::Role::DBA :
-        case session::Role::USER :
-        case session::Role::GUEST : {
+        case session::Role::GOD:
+        case session::Role::ADMIN:
+        case session::Role::DBA:
+        case session::Role::USER:
+        case session::Role::GUEST: {
             havePermission = true;
             break;
         }
-        case session::Role::INVALID_ROLE : {
+        case session::Role::INVALID_ROLE: {
             break;
         }
     }
@@ -76,15 +76,15 @@ bool PermissionManager::canWriteSchema(session::Session *session) {
     }
     bool havePermission = false;
     switch (session->roleWithSpace(session->space())) {
-        case session::Role::GOD :
-        case session::Role::ADMIN :
-        case session::Role::DBA : {
+        case session::Role::GOD:
+        case session::Role::ADMIN:
+        case session::Role::DBA: {
             havePermission = true;
             break;
         }
-        case session::Role::USER :
-        case session::Role::GUEST :
-        case session::Role::INVALID_ROLE : {
+        case session::Role::USER:
+        case session::Role::GUEST:
+        case session::Role::INVALID_ROLE: {
             break;
         }
     }
@@ -99,16 +99,16 @@ bool PermissionManager::canWriteUser(session::Session *session) {
 bool PermissionManager::canWriteRole(session::Session *session,
                                      session::Role targetRole,
                                      GraphSpaceID spaceId,
-                                     const std::string& targetUser) {
+                                     const std::string &targetUser) {
     if (!FLAGS_enable_authorize) {
         return true;
     }
     /**
      * Reject grant or revoke to himself.
      */
-     if (session->user() == targetUser) {
-         return false;
-     }
+    if (session->user() == targetUser) {
+        return false;
+    }
     /*
      * Reject any user grant or revoke role to GOD
      */
@@ -142,15 +142,15 @@ bool PermissionManager::canWriteData(session::Session *session) {
     }
     bool havePermission = false;
     switch (session->roleWithSpace(session->space())) {
-        case session::Role::GOD :
-        case session::Role::ADMIN :
-        case session::Role::DBA :
-        case session::Role::USER : {
+        case session::Role::GOD:
+        case session::Role::ADMIN:
+        case session::Role::DBA:
+        case session::Role::USER: {
             havePermission = true;
             break;
         }
-        case session::Role::GUEST :
-        case session::Role::INVALID_ROLE : {
+        case session::Role::GUEST:
+        case session::Role::INVALID_ROLE: {
             break;
         }
     }

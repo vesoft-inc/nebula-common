@@ -11,11 +11,11 @@
 #include <proxygen/httpserver/RequestHandlerFactory.h>
 
 #include "thread/NamedThread.h"
-#include "webservice/NotFoundHandler.h"
 #include "webservice/GetFlagsHandler.h"
-#include "webservice/SetFlagsHandler.h"
 #include "webservice/GetStatsHandler.h"
+#include "webservice/NotFoundHandler.h"
 #include "webservice/Router.h"
+#include "webservice/SetFlagsHandler.h"
 #include "webservice/StatusHandler.h"
 
 DEFINE_int32(ws_http_port, 11000, "Port to listen on with HTTP protocol");
@@ -30,11 +30,9 @@ class WebServiceHandlerFactory : public proxygen::RequestHandlerFactory {
 public:
     explicit WebServiceHandlerFactory(const web::Router* router) : router_(router) {}
 
-    void onServerStart(folly::EventBase*) noexcept override {
-    }
+    void onServerStart(folly::EventBase*) noexcept override {}
 
-    void onServerStop() noexcept override {
-    }
+    void onServerStop() noexcept override {}
 
     proxygen::RequestHandler* onRequest(proxygen::RequestHandler*,
                                         proxygen::HTTPMessage* msg) noexcept override {
@@ -45,12 +43,11 @@ private:
     const web::Router* router_;
 };
 
-}  // anonymous namespace
+}   // anonymous namespace
 
-
+using folly::SocketAddress;
 using proxygen::HTTPServer;
 using proxygen::HTTPServerOptions;
-using folly::SocketAddress;
 
 WebService::WebService(const std::string& name) {
     router_ = std::make_unique<web::Router>(name, this);
@@ -107,8 +104,7 @@ Status WebService::start() {
         {SocketAddress(FLAGS_ws_ip, FLAGS_ws_h2_port, true), HTTPServer::Protocol::HTTP2},
     };
 
-    CHECK_GT(FLAGS_ws_threads, 0)
-        << "The number of webservice threads must be greater than zero";
+    CHECK_GT(FLAGS_ws_threads, 0) << "The number of webservice threads must be greater than zero";
 
     HTTPServerOptions options;
     options.threads = static_cast<size_t>(FLAGS_ws_threads);
@@ -127,48 +123,44 @@ Status WebService::start() {
     bool serverStartedDone = false;
 
     // Start HTTPServer mainloop in a separate thread
-    wsThread_ = std::make_unique<thread::NamedThread>(
-        "webservice-listener",
-        [&] () {
-            server_->start(
-                [&]() {
-                    auto addresses = server_->addresses();
-                    CHECK_EQ(addresses.size(), 2UL);
-                    if (FLAGS_ws_http_port == 0) {
-                        FLAGS_ws_http_port = addresses[0].address.getPort();
-                    }
-                    if (FLAGS_ws_h2_port == 0) {
-                        FLAGS_ws_h2_port = addresses[1].address.getPort();
-                    }
-                    LOG(INFO) << "Web service started on "
-                              << "HTTP[" << FLAGS_ws_http_port << "], "
-                              << "HTTP2[" << FLAGS_ws_h2_port << "]";
-                    {
-                        std::lock_guard<std::mutex> g(mut);
-                        serverStartedDone = true;
-                    }
-                    cv.notify_all();
-                },
-                [&] (std::exception_ptr eptr) {
-                    CHECK(eptr);
-                    try {
-                        std::rethrow_exception(eptr);
-                    } catch (const std::exception &e) {
-                        status = Status::Error("%s", e.what());
-                    }
-                    {
-                        std::lock_guard<std::mutex> g(mut);
-                        serverStartedDone = true;
-                    }
-                    cv.notify_all();
-                });
+    wsThread_ = std::make_unique<thread::NamedThread>("webservice-listener", [&]() {
+        server_->start(
+            [&]() {
+                auto addresses = server_->addresses();
+                CHECK_EQ(addresses.size(), 2UL);
+                if (FLAGS_ws_http_port == 0) {
+                    FLAGS_ws_http_port = addresses[0].address.getPort();
+                }
+                if (FLAGS_ws_h2_port == 0) {
+                    FLAGS_ws_h2_port = addresses[1].address.getPort();
+                }
+                LOG(INFO) << "Web service started on "
+                          << "HTTP[" << FLAGS_ws_http_port << "], "
+                          << "HTTP2[" << FLAGS_ws_h2_port << "]";
+                {
+                    std::lock_guard<std::mutex> g(mut);
+                    serverStartedDone = true;
+                }
+                cv.notify_all();
+            },
+            [&](std::exception_ptr eptr) {
+                CHECK(eptr);
+                try {
+                    std::rethrow_exception(eptr);
+                } catch (const std::exception& e) {
+                    status = Status::Error("%s", e.what());
+                }
+                {
+                    std::lock_guard<std::mutex> g(mut);
+                    serverStartedDone = true;
+                }
+                cv.notify_all();
+            });
     });
 
     {
         std::unique_lock<std::mutex> lck(mut);
-        cv.wait(lck, [&]() {
-            return serverStartedDone;
-        });
+        cv.wait(lck, [&]() { return serverStartedDone; });
 
         if (!status.ok()) {
             LOG(ERROR) << "Failed to start web service: " << status;
@@ -178,4 +170,4 @@ Status WebService::start() {
     return status;
 }
 
-}  // namespace nebula
+}   // namespace nebula

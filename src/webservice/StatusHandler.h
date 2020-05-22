@@ -7,9 +7,9 @@
 #ifndef WEBSERVICE_STATUSHANDLER_H_
 #define WEBSERVICE_STATUSHANDLER_H_
 
+#include <proxygen/httpserver/RequestHandler.h>
 #include "base/Base.h"
 #include "webservice/Common.h"
-#include <proxygen/httpserver/RequestHandler.h>
 
 namespace nebula {
 
@@ -21,7 +21,7 @@ public:
 
     void onRequest(std::unique_ptr<proxygen::HTTPMessage> headers) noexcept override;
 
-    void onBody(std::unique_ptr<folly::IOBuf> body)  noexcept override;
+    void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override;
 
     void onEOM() noexcept override;
 
@@ -40,6 +40,6 @@ private:
     std::vector<std::string> statusAllNames_{"status"};
 };
 
-}  // namespace nebula
+}   // namespace nebula
 
-#endif  // WEBSERVICE_STATUSHANDLER_H_
+#endif   // WEBSERVICE_STATUSHANDLER_H_

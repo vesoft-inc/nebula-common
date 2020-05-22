@@ -4,27 +4,25 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
-#include "webservice/Common.h"
 #include "webservice/NotFoundHandler.h"
 #include <proxygen/httpserver/ResponseBuilder.h>
+#include "base/Base.h"
+#include "webservice/Common.h"
 
 namespace nebula {
 
 using proxygen::HTTPMessage;
 using proxygen::ProxygenError;
-using proxygen::UpgradeProtocol;
 using proxygen::ResponseBuilder;
+using proxygen::UpgradeProtocol;
 
 void NotFoundHandler::onRequest(std::unique_ptr<HTTPMessage>) noexcept {
     // Do nothing
 }
 
-
 void NotFoundHandler::onBody(std::unique_ptr<folly::IOBuf>) noexcept {
     // Do nothing, we only support GET
 }
-
 
 void NotFoundHandler::onEOM() noexcept {
     ResponseBuilder(downstream_)
@@ -34,21 +32,17 @@ void NotFoundHandler::onEOM() noexcept {
     return;
 }
 
-
 void NotFoundHandler::onUpgrade(UpgradeProtocol) noexcept {
     // Do nothing
 }
-
 
 void NotFoundHandler::requestComplete() noexcept {
     delete this;
 }
 
-
 void NotFoundHandler::onError(ProxygenError err) noexcept {
-    LOG(ERROR) << "Web service NotFoundHandler got error: "
-               << proxygen::getErrorString(err);
+    LOG(ERROR) << "Web service NotFoundHandler got error: " << proxygen::getErrorString(err);
     delete this;
 }
 
-}  // namespace nebula
+}   // namespace nebula

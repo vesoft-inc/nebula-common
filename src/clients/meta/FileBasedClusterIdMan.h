@@ -11,7 +11,6 @@
 #include "fs/FileUtils.h"
 #include "meta/ClusterIdManBase.h"
 
-
 namespace nebula {
 namespace meta {
 
@@ -25,7 +24,6 @@ public:
     static ClusterID getClusterIdFromFile(const std::string& filename);
 };
 
-}  // namespace meta
-}  // namespace nebula
-#endif  // CLIENTS_META_FILEBASEDCLUSTERIDMAN_H_
-
+}   // namespace meta
+}   // namespace nebula
+#endif   // CLIENTS_META_FILEBASEDCLUSTERIDMAN_H_

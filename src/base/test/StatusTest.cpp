@@ -4,10 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "base/Status.h"
-
 
 namespace nebula {
 
@@ -18,7 +17,6 @@ TEST(Status, Basic) {
     ASSERT_EQ(8UL, sizeof(Status));
 }
 
-
 TEST(Status, toString) {
     ASSERT_EQ("OK", Status().toString());
     ASSERT_EQ("OK", Status::OK().toString());
@@ -26,7 +24,6 @@ TEST(Status, toString) {
     ASSERT_EQ("SomeError", Status::Error("SomeError").toString());
     ASSERT_EQ("SomeError(-1)", Status::Error("%s(%d)", "SomeError", -1).toString());
 }
-
 
 TEST(Status, StreamOperator) {
     {
@@ -56,7 +53,6 @@ TEST(Status, StreamOperator) {
     }
 }
 
-
 TEST(Status, Copy) {
     {
         Status ok;
@@ -73,7 +69,6 @@ TEST(Status, Copy) {
         ASSERT_EQ("SomeError", copy.toString());
     }
 }
-
 
 TEST(Status, Move) {
     {
@@ -93,6 +88,5 @@ TEST(Status, Move) {
         ASSERT_EQ("SomeError", move.toString());
     }
 }
-
 
 }   // namespace nebula

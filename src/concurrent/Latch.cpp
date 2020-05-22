@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include "concurrent/Latch.h"
+#include "base/Base.h"
 
 namespace nebula {
 namespace concurrent {
@@ -18,7 +18,7 @@ Latch::Latch(size_t counter) {
 }
 
 void Latch::down() {
-    std::unique_lock<std::mutex>  unique(lock_);
+    std::unique_lock<std::mutex> unique(lock_);
     if (counter_ == 0) {
         throw std::runtime_error("Count down on zero Latch");
     }
@@ -36,12 +36,12 @@ void Latch::downWait() {
         cond_.notify_all();
         return;
     }
-    cond_.wait(unique, [this] () { return counter_ == 0; });
+    cond_.wait(unique, [this]() { return counter_ == 0; });
 }
 
 void Latch::wait() {
     std::unique_lock<std::mutex> unique(lock_);
-    cond_.wait(unique, [this] () { return counter_ == 0; });
+    cond_.wait(unique, [this]() { return counter_ == 0; });
 }
 
 bool Latch::isReady() {

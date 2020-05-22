@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "concurrent/Latch.h"
 #include "thread/GenericThreadPool.h"
 
@@ -15,23 +15,27 @@ namespace concurrent {
 TEST(LatchTest, BasicTest) {
     // test for invalid initial counter
     {
-        ASSERT_THROW({Latch latch(0);}, std::invalid_argument);
+        ASSERT_THROW({ Latch latch(0); }, std::invalid_argument);
     }
     // test for illegal `downWait'
     {
-        ASSERT_THROW({
-            Latch latch(1);
-            latch.down();
-            latch.downWait();
-        }, std::runtime_error);
+        ASSERT_THROW(
+            {
+                Latch latch(1);
+                latch.down();
+                latch.downWait();
+            },
+            std::runtime_error);
     }
     // test for illegal `down'
     {
-        ASSERT_THROW({
-            Latch latch(1);
-            latch.down();
-            latch.down();
-        }, std::runtime_error);
+        ASSERT_THROW(
+            {
+                Latch latch(1);
+                latch.down();
+                latch.down();
+            },
+            std::runtime_error);
     }
     // test for single-thread normal case
     {
@@ -46,9 +50,7 @@ TEST(LatchTest, BasicTest) {
     // test for multiple-thread normal case
     {
         Latch latch(2);
-        auto cb = [&] () {
-            latch.downWait();
-        };
+        auto cb = [&]() { latch.downWait(); };
         std::thread thread(cb);
         ASSERT_FALSE(latch.isReady());
         latch.downWait();
@@ -64,7 +66,7 @@ TEST(LatchTest, JoinLikeTest) {
     thread::GenericThreadPool pool;
     Latch latch(ntasks);
     std::atomic<size_t> counter{0};
-    auto task = [&] () {
+    auto task = [&]() {
         ++counter;
         latch.down();
     };
@@ -85,7 +87,7 @@ TEST(LatchTest, SignalTest) {
     Latch latch(1);
     pool.start(nthreads);
     std::atomic<size_t> counter{0};
-    auto task = [&] () {
+    auto task = [&]() {
         // do some preparing works
         latch.wait();   // wait for the I/O works done
         // do subsequent CPU bound works, where parallelism is more efficient.
@@ -100,8 +102,8 @@ TEST(LatchTest, SignalTest) {
     ASSERT_EQ(0, counter.load());   // no CPU bound work done.
     latch.down();
     pool.stop();
-    pool.wait();    // wait all tasks done
-    ASSERT_EQ(ntasks, counter.load());  // all tasks are done
+    pool.wait();                         // wait all tasks done
+    ASSERT_EQ(ntasks, counter.load());   // all tasks are done
 }
 
 }   // namespace concurrent

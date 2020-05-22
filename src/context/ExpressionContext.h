@@ -8,9 +8,9 @@
 #define CONTEXT_EXPRESSIONCONTEXT_H_
 
 #include "base/Base.h"
-#include "folly/RWSpinLock.h"
-#include "datatypes/Value.h"
 #include "datatypes/DataSet.h"
+#include "datatypes/Value.h"
+#include "folly/RWSpinLock.h"
 
 namespace nebula {
 
@@ -29,8 +29,7 @@ public:
     virtual const Value& getVar(const std::string& var) const = 0;
 
     // Get the specified property from a variable, such as $a.prop_name
-    virtual const Value& getVarProp(const std::string& var,
-                                    const std::string& prop) const = 0;
+    virtual const Value& getVarProp(const std::string& var, const std::string& prop) const = 0;
 
     // Get the specified property from the edge, such as edge_type.prop_name
     virtual const Value& getEdgeProp(const std::string& edgeType,
@@ -46,5 +45,5 @@ public:
     virtual const Value& getInputProp(const std::string& prop) const = 0;
 };
 
-}  // namespace nebula
-#endif  // CONTEXT_EXPRESSIONCONTEXT_H_
+}   // namespace nebula
+#endif   // CONTEXT_EXPRESSIONCONTEXT_H_

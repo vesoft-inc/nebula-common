@@ -16,4 +16,3 @@ std::unique_ptr<IndexManager> IndexManager::create() {
 
 }   // namespace meta
 }   // namespace nebula
-

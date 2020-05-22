@@ -6,13 +6,13 @@
 
 #include "datatypes/Value.h"
 #include <folly/hash/Hash.h>
+#include "datatypes/DataSet.h"
+#include "datatypes/Edge.h"
 #include "datatypes/List.h"
 #include "datatypes/Map.h"
-#include "datatypes/Set.h"
-#include "datatypes/DataSet.h"
-#include "datatypes/Vertex.h"
-#include "datatypes/Edge.h"
 #include "datatypes/Path.h"
+#include "datatypes/Set.h"
+#include "datatypes/Vertex.h"
 
 namespace std {
 
@@ -67,95 +67,81 @@ std::size_t hash<nebula::Value>::operator()(const nebula::Value& v) const noexce
         case nebula::Value::Type::DATASET: {
             LOG(FATAL) << "Hash for DATASET has not been implemented";
         }
-        default: {
-            LOG(FATAL) << "Unknown type";
-        }
+        default: { LOG(FATAL) << "Unknown type"; }
     }
 }
 
-}  // namespace std
-
+}   // namespace std
 
 namespace nebula {
 
 constexpr auto EPSILON = 1e-8;
 
 Value::Value(Value&& rhs) : type_(Value::Type::__EMPTY__) {
-    if (this == &rhs) { return; }
-    if (rhs.type_ == Type::__EMPTY__) { return; }
+    if (this == &rhs) {
+        return;
+    }
+    if (rhs.type_ == Type::__EMPTY__) {
+        return;
+    }
     switch (rhs.type_) {
-        case Type::NULLVALUE:
-        {
+        case Type::NULLVALUE: {
             setN(std::move(rhs.value_.nVal));
             break;
         }
-        case Type::BOOL:
-        {
+        case Type::BOOL: {
             setB(std::move(rhs.value_.bVal));
             break;
         }
-        case Type::INT:
-        {
+        case Type::INT: {
             setI(std::move(rhs.value_.iVal));
             break;
         }
-        case Type::FLOAT:
-        {
+        case Type::FLOAT: {
             setF(std::move(rhs.value_.fVal));
             break;
         }
-        case Type::STRING:
-        {
+        case Type::STRING: {
             setS(std::move(rhs.value_.sVal));
             break;
         }
-        case Type::DATE:
-        {
+        case Type::DATE: {
             setD(std::move(rhs.value_.dVal));
             break;
         }
-        case Type::DATETIME:
-        {
+        case Type::DATETIME: {
             setT(std::move(rhs.value_.tVal));
             break;
         }
-        case Type::VERTEX:
-        {
+        case Type::VERTEX: {
             setV(std::move(rhs.value_.vVal));
             break;
         }
-        case Type::EDGE:
-        {
+        case Type::EDGE: {
             setE(std::move(rhs.value_.eVal));
             break;
         }
-        case Type::PATH:
-        {
+        case Type::PATH: {
             setP(std::move(rhs.value_.pVal));
             break;
         }
-        case Type::LIST:
-        {
+        case Type::LIST: {
             setL(std::move(rhs.value_.lVal));
             break;
         }
-        case Type::MAP:
-        {
+        case Type::MAP: {
             setM(std::move(rhs.value_.mVal));
             break;
         }
-        case Type::SET:
-        {
+        case Type::SET: {
             setU(std::move(rhs.value_.uVal));
             break;
         }
-        case Type::DATASET:
-        {
+        case Type::DATASET: {
             setG(std::move(rhs.value_.gVal));
             break;
         }
-        default:
-        {
+        default: {
             assert(false);
             break;
         }
@@ -163,83 +149,71 @@ Value::Value(Value&& rhs) : type_(Value::Type::__EMPTY__) {
     rhs.clear();
 }
 
-
 Value::Value(const Value& rhs) : type_(Value::Type::__EMPTY__) {
-    if (this == &rhs) { return; }
-    if (rhs.type_ == Type::__EMPTY__) { return; }
+    if (this == &rhs) {
+        return;
+    }
+    if (rhs.type_ == Type::__EMPTY__) {
+        return;
+    }
     switch (rhs.type_) {
-        case Type::NULLVALUE:
-        {
+        case Type::NULLVALUE: {
             setN(rhs.value_.nVal);
             break;
         }
-        case Type::BOOL:
-        {
+        case Type::BOOL: {
             setB(rhs.value_.bVal);
             break;
         }
-        case Type::INT:
-        {
+        case Type::INT: {
             setI(rhs.value_.iVal);
             break;
         }
-        case Type::FLOAT:
-        {
+        case Type::FLOAT: {
             setF(rhs.value_.fVal);
             break;
         }
-        case Type::STRING:
-        {
+        case Type::STRING: {
             setS(rhs.value_.sVal);
             break;
         }
-        case Type::DATE:
-        {
+        case Type::DATE: {
             setD(rhs.value_.dVal);
             break;
         }
-        case Type::DATETIME:
-        {
+        case Type::DATETIME: {
             setT(rhs.value_.tVal);
             break;
         }
-        case Type::VERTEX:
-        {
+        case Type::VERTEX: {
             setV(rhs.value_.vVal);
             break;
         }
-        case Type::EDGE:
-        {
+        case Type::EDGE: {
             setE(rhs.value_.eVal);
             break;
         }
-        case Type::PATH:
-        {
+        case Type::PATH: {
             setP(rhs.value_.pVal);
             break;
         }
-        case Type::LIST:
-        {
+        case Type::LIST: {
             setL(rhs.value_.lVal);
             break;
         }
-        case Type::MAP:
-        {
+        case Type::MAP: {
             setM(rhs.value_.mVal);
             break;
         }
-        case Type::SET:
-        {
+        case Type::SET: {
             setU(rhs.value_.uVal);
             break;
         }
-        case Type::DATASET:
-        {
+        case Type::DATASET: {
             setG(rhs.value_.gVal);
             break;
         }
-        default:
-        {
+        default: {
             assert(false);
             break;
         }
@@ -393,7 +367,6 @@ Value::Value(const DataSet& v) {
 Value::Value(DataSet&& v) {
     setG(std::make_unique<DataSet>(std::move(v)));
 }
-
 
 void Value::setNull(const NullType& v) {
     clear();
@@ -610,7 +583,6 @@ void Value::setDataSet(std::unique_ptr<DataSet>&& v) {
     setG(std::move(v));
 }
 
-
 const NullType& Value::getNull() const {
     CHECK_EQ(type_, Type::NULLVALUE);
     return value_.nVal;
@@ -716,7 +688,6 @@ const DataSet* Value::getDataSetPtr() const {
     return value_.gVal.get();
 }
 
-
 NullType& Value::mutableNull() {
     CHECK_EQ(type_, Type::NULLVALUE);
     return value_.nVal;
@@ -786,7 +757,6 @@ DataSet& Value::mutableDataSet() {
     CHECK_EQ(type_, Type::DATASET);
     return *(value_.gVal);
 }
-
 
 NullType Value::moveNull() {
     CHECK_EQ(type_, Type::NULLVALUE);
@@ -888,77 +858,62 @@ DataSet Value::moveDataSet() {
 
 void Value::clear() {
     switch (type_) {
-        case Type::__EMPTY__:
-        {
+        case Type::__EMPTY__: {
             return;
         }
-        case Type::NULLVALUE:
-        {
+        case Type::NULLVALUE: {
             destruct(value_.nVal);
             break;
         }
-        case Type::BOOL:
-        {
+        case Type::BOOL: {
             destruct(value_.bVal);
             break;
         }
-        case Type::INT:
-        {
+        case Type::INT: {
             destruct(value_.iVal);
             break;
         }
-        case Type::FLOAT:
-        {
+        case Type::FLOAT: {
             destruct(value_.fVal);
             break;
         }
-        case Type::STRING:
-        {
+        case Type::STRING: {
             destruct(value_.sVal);
             break;
         }
-        case Type::DATE:
-        {
+        case Type::DATE: {
             destruct(value_.dVal);
             break;
         }
-        case Type::DATETIME:
-        {
+        case Type::DATETIME: {
             destruct(value_.tVal);
             break;
         }
-        case Type::VERTEX:
-        {
+        case Type::VERTEX: {
             destruct(value_.vVal);
             break;
         }
-        case Type::EDGE:
-        {
+        case Type::EDGE: {
             destruct(value_.eVal);
             break;
         }
-        case Type::PATH:
-        {
+        case Type::PATH: {
             destruct(value_.pVal);
             break;
         }
-        case Type::LIST:
-        {
+        case Type::LIST: {
             destruct(value_.lVal);
             break;
         }
-        case Type::MAP:
-        {
+        case Type::MAP: {
             destruct(value_.mVal);
             break;
         }
-        case Type::SET:
-        {
+        case Type::SET: {
             destruct(value_.uVal);
             break;
         }
-        case Type::DATASET:
-        {
+        case Type::DATASET: {
             destruct(value_.gVal);
             break;
         }
@@ -966,84 +921,72 @@ void Value::clear() {
     type_ = Type::__EMPTY__;
 }
 
-
 Value& Value::operator=(Value&& rhs) {
-    if (this == &rhs) { return *this; }
+    if (this == &rhs) {
+        return *this;
+    }
     clear();
-    if (rhs.type_ == Type::__EMPTY__) { return *this; }
+    if (rhs.type_ == Type::__EMPTY__) {
+        return *this;
+    }
     switch (rhs.type_) {
-        case Type::NULLVALUE:
-        {
+        case Type::NULLVALUE: {
             setN(std::move(rhs.value_.nVal));
             break;
         }
-        case Type::BOOL:
-        {
+        case Type::BOOL: {
             setB(std::move(rhs.value_.bVal));
             break;
         }
-        case Type::INT:
-        {
+        case Type::INT: {
             setI(std::move(rhs.value_.iVal));
             break;
         }
-        case Type::FLOAT:
-        {
+        case Type::FLOAT: {
             setF(std::move(rhs.value_.fVal));
             break;
         }
-        case Type::STRING:
-        {
+        case Type::STRING: {
             setS(std::move(rhs.value_.sVal));
             break;
         }
-        case Type::DATE:
-        {
+        case Type::DATE: {
             setD(std::move(rhs.value_.dVal));
             break;
         }
-        case Type::DATETIME:
-        {
+        case Type::DATETIME: {
             setT(std::move(rhs.value_.tVal));
             break;
         }
-        case Type::VERTEX:
-        {
+        case Type::VERTEX: {
             setV(std::move(rhs.value_.vVal));
             break;
         }
-        case Type::EDGE:
-        {
+        case Type::EDGE: {
             setE(std::move(rhs.value_.eVal));
             break;
         }
-        case Type::PATH:
-        {
+        case Type::PATH: {
             setP(std::move(rhs.value_.pVal));
             break;
         }
-        case Type::LIST:
-        {
+        case Type::LIST: {
             setL(std::move(rhs.value_.lVal));
             break;
         }
-        case Type::MAP:
-        {
+        case Type::MAP: {
             setM(std::move(rhs.value_.mVal));
             break;
         }
-        case Type::SET:
-        {
+        case Type::SET: {
             setU(std::move(rhs.value_.uVal));
             break;
         }
-        case Type::DATASET:
-        {
+        case Type::DATASET: {
             setG(std::move(rhs.value_.gVal));
             break;
         }
-        default:
-        {
+        default: {
             assert(false);
             break;
         }
@@ -1052,84 +995,72 @@ Value& Value::operator=(Value&& rhs) {
     return *this;
 }
 
-
 Value& Value::operator=(const Value& rhs) {
-    if (this == &rhs) { return *this; }
+    if (this == &rhs) {
+        return *this;
+    }
     clear();
-    if (rhs.type_ == Type::__EMPTY__) { return *this; }
+    if (rhs.type_ == Type::__EMPTY__) {
+        return *this;
+    }
     switch (rhs.type_) {
-        case Type::NULLVALUE:
-        {
+        case Type::NULLVALUE: {
             setN(rhs.value_.nVal);
             break;
         }
-        case Type::BOOL:
-        {
+        case Type::BOOL: {
             setB(rhs.value_.bVal);
             break;
         }
-        case Type::INT:
-        {
+        case Type::INT: {
             setI(rhs.value_.iVal);
             break;
         }
-        case Type::FLOAT:
-        {
+        case Type::FLOAT: {
             setF(rhs.value_.fVal);
             break;
         }
-        case Type::STRING:
-        {
+        case Type::STRING: {
             setS(rhs.value_.sVal);
             break;
         }
-        case Type::DATE:
-        {
+        case Type::DATE: {
             setD(rhs.value_.dVal);
             break;
         }
-        case Type::DATETIME:
-        {
+        case Type::DATETIME: {
             setT(rhs.value_.tVal);
             break;
         }
-        case Type::VERTEX:
-        {
+        case Type::VERTEX: {
             setV(rhs.value_.vVal);
             break;
         }
-        case Type::EDGE:
-        {
+        case Type::EDGE: {
             setE(rhs.value_.eVal);
             break;
         }
-        case Type::PATH:
-        {
+        case Type::PATH: {
             setP(rhs.value_.pVal);
             break;
         }
-        case Type::LIST:
-        {
+        case Type::LIST: {
             setL(rhs.value_.lVal);
             break;
         }
-        case Type::MAP:
-        {
+        case Type::MAP: {
             setM(rhs.value_.mVal);
             break;
         }
-        case Type::SET:
-        {
+        case Type::SET: {
             setU(rhs.value_.uVal);
             break;
         }
-        case Type::DATASET:
-        {
+        case Type::DATASET: {
             setG(rhs.value_.gVal);
             break;
         }
-        default:
-        {
+        default: {
             assert(false);
             break;
         }
@@ -1137,7 +1068,6 @@ Value& Value::operator=(const Value& rhs) {
     type_ = rhs.type_;
     return *this;
 }
-
 
 void Value::setN(const NullType& v) {
     type_ = Type::NULLVALUE;
@@ -1151,32 +1081,32 @@ void Value::setN(NullType&& v) {
 
 void Value::setB(const bool& v) {
     type_ = Type::BOOL;
-    new (std::addressof(value_.bVal)) bool(v);                  // NOLINT
+    new (std::addressof(value_.bVal)) bool(v);   // NOLINT
 }
 
 void Value::setB(bool&& v) {
     type_ = Type::BOOL;
-    new (std::addressof(value_.bVal)) bool(std::move(v));       // NOLINT
+    new (std::addressof(value_.bVal)) bool(std::move(v));   // NOLINT
 }
 
 void Value::setI(const int64_t& v) {
     type_ = Type::INT;
-    new (std::addressof(value_.iVal)) int64_t(v);               // NOLINT
+    new (std::addressof(value_.iVal)) int64_t(v);   // NOLINT
 }
 
 void Value::setI(int64_t&& v) {
     type_ = Type::INT;
-    new (std::addressof(value_.iVal)) int64_t(std::move(v));    // NOLINT
+    new (std::addressof(value_.iVal)) int64_t(std::move(v));   // NOLINT
 }
 
 void Value::setF(const double& v) {
     type_ = Type::FLOAT;
-    new (std::addressof(value_.fVal)) double(v);                // NOLINT
+    new (std::addressof(value_.fVal)) double(v);   // NOLINT
 }
 
 void Value::setF(double&& v) {
     type_ = Type::FLOAT;
-    new (std::addressof(value_.fVal)) double(std::move(v));     // NOLINT
+    new (std::addressof(value_.fVal)) double(std::move(v));   // NOLINT
 }
 
 void Value::setS(const std::string& v) {
@@ -1389,9 +1319,7 @@ StatusOr<std::string> Value::toString() {
         case Value::Type::DATETIME: {
             return getDateTime().toString();
         }
-        default: {
-            return Status::Error("Value can not convert to string");
-        }
+        default: { return Status::Error("Value can not convert to string"); }
     }
 }
 
@@ -1472,7 +1400,6 @@ std::ostream& operator<<(std::ostream& os, const Value::Type& type) {
     return os;
 }
 
-
 Value operator+(const Value& lhs, const Value& rhs) {
     if (lhs.isNull()) {
         return lhs.getNull();
@@ -1486,13 +1413,10 @@ Value operator+(const Value& lhs, const Value& rhs) {
         case Value::Type::BOOL: {
             switch (rhs.type()) {
                 case Value::Type::STRING: {
-                    return folly::stringPrintf("%s%s",
-                                               lhs.getBool() ? "true" : "false",
-                                               rhs.getStr().c_str());
+                    return folly::stringPrintf(
+                        "%s%s", lhs.getBool() ? "true" : "false", rhs.getStr().c_str());
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
         case Value::Type::INT: {
@@ -1504,16 +1428,12 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return lhs.getInt() + rhs.getFloat();
                 }
                 case Value::Type::STRING: {
-                    return folly::stringPrintf("%ld%s",
-                                               lhs.getInt(),
-                                               rhs.getStr().c_str());
+                    return folly::stringPrintf("%ld%s", lhs.getInt(), rhs.getStr().c_str());
                 }
                 case Value::Type::DATE: {
                     return rhs.getDate() + lhs.getInt();
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
         case Value::Type::FLOAT: {
@@ -1525,31 +1445,22 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return lhs.getFloat() + rhs.getFloat();
                 }
                 case Value::Type::STRING: {
-                    return folly::stringPrintf("%lf%s",
-                                               lhs.getFloat(),
-                                               rhs.getStr().c_str());
+                    return folly::stringPrintf("%lf%s", lhs.getFloat(), rhs.getStr().c_str());
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
         case Value::Type::STRING: {
             switch (rhs.type()) {
                 case Value::Type::BOOL: {
-                    return folly::stringPrintf("%s%s",
-                                               lhs.getStr().c_str(),
-                                               rhs.getBool() ? "true" : "false");
+                    return folly::stringPrintf(
+                        "%s%s", lhs.getStr().c_str(), rhs.getBool() ? "true" : "false");
                 }
                 case Value::Type::INT: {
-                    return folly::stringPrintf("%s%ld",
-                                               lhs.getStr().c_str(),
-                                               rhs.getInt());
+                    return folly::stringPrintf("%s%ld", lhs.getStr().c_str(), rhs.getInt());
                 }
                 case Value::Type::FLOAT: {
-                    return folly::stringPrintf("%s%lf",
-                                               lhs.getStr().c_str(),
-                                               rhs.getFloat());
+                    return folly::stringPrintf("%s%lf", lhs.getStr().c_str(), rhs.getFloat());
                 }
                 case Value::Type::STRING: {
                     return lhs.getStr() + rhs.getStr();
@@ -1560,9 +1471,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::DATETIME: {
                     return lhs.getStr() + rhs.getDateTime().toString();
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
         case Value::Type::DATE: {
@@ -1573,9 +1482,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::STRING: {
                     return lhs.getDate().toString() + rhs.getStr();
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
         case Value::Type::DATETIME: {
@@ -1583,17 +1490,12 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::STRING: {
                     return lhs.getDateTime().toString() + rhs.getStr();
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
-        default: {
-            return Value(NullType::BAD_TYPE);
-        }
+        default: { return Value(NullType::BAD_TYPE); }
     }
 }
-
 
 Value operator-(const Value& lhs, const Value& rhs) {
     if (lhs.isNull()) {
@@ -1613,9 +1515,7 @@ Value operator-(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return lhs.getInt() - rhs.getFloat();
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
         case Value::Type::FLOAT: {
@@ -1626,9 +1526,7 @@ Value operator-(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return lhs.getFloat() - rhs.getFloat();
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
         case Value::Type::DATE: {
@@ -1639,17 +1537,12 @@ Value operator-(const Value& lhs, const Value& rhs) {
                 case Value::Type::DATE: {
                     return lhs.getDate().toInt() - rhs.getDate().toInt();
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
-        default: {
-            return Value(NullType::BAD_TYPE);
-        }
+        default: { return Value(NullType::BAD_TYPE); }
     }
 }
-
 
 Value operator*(const Value& lhs, const Value& rhs) {
     if (lhs.isNull()) {
@@ -1669,9 +1562,7 @@ Value operator*(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return lhs.getInt() * rhs.getFloat();
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
         case Value::Type::FLOAT: {
@@ -1682,17 +1573,12 @@ Value operator*(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return lhs.getFloat() * rhs.getFloat();
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
-        default: {
-            return Value(NullType::BAD_TYPE);
-        }
+        default: { return Value(NullType::BAD_TYPE); }
     }
 }
-
 
 Value operator/(const Value& lhs, const Value& rhs) {
     if (lhs.isNull()) {
@@ -1722,9 +1608,7 @@ Value operator/(const Value& lhs, const Value& rhs) {
                         return Value(NullType::DIV_BY_ZERO);
                     }
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
         case Value::Type::FLOAT: {
@@ -1745,14 +1629,10 @@ Value operator/(const Value& lhs, const Value& rhs) {
                         return Value(NullType::DIV_BY_ZERO);
                     }
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
-        default: {
-            return Value(NullType::BAD_TYPE);
-        }
+        default: { return Value(NullType::BAD_TYPE); }
     }
 }
 
@@ -1784,9 +1664,7 @@ Value operator%(const Value& lhs, const Value& rhs) {
                         return Value(NullType::DIV_BY_ZERO);
                     }
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
         case Value::Type::FLOAT: {
@@ -1807,14 +1685,10 @@ Value operator%(const Value& lhs, const Value& rhs) {
                         return Value(NullType::DIV_BY_ZERO);
                     }
                 }
-                default: {
-                    return Value(NullType::BAD_TYPE);
-                }
+                default: { return Value(NullType::BAD_TYPE); }
             }
         }
-        default: {
-            return Value(NullType::BAD_TYPE);
-        }
+        default: { return Value(NullType::BAD_TYPE); }
     }
 }
 
@@ -1832,9 +1706,7 @@ Value operator-(const Value& rhs) {
             auto val = -rhs.getFloat();
             return val;
         }
-        default: {
-            return Value(NullType::BAD_TYPE);
-        }
+        default: { return Value(NullType::BAD_TYPE); }
     }
 }
 
@@ -1856,8 +1728,7 @@ bool operator<(const Value& lhs, const Value& rhs) {
         return false;
     }
 
-    if (!(lhs.isNumeric() && rhs.isNumeric())
-            && (lhs.type() != rhs.type())) {
+    if (!(lhs.isNumeric() && rhs.isNumeric()) && (lhs.type() != rhs.type())) {
         return false;
     }
 
@@ -1873,9 +1744,7 @@ bool operator<(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return lhs.getInt() < rhs.getFloat();
                 }
-                default: {
-                    return false;
-                }
+                default: { return false; }
             }
         }
         case Value::Type::FLOAT: {
@@ -1886,9 +1755,7 @@ bool operator<(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return lhs.getFloat() < rhs.getFloat();
                 }
-                default: {
-                    return false;
-                }
+                default: { return false; }
             }
         }
         case Value::Type::STRING: {
@@ -1908,9 +1775,7 @@ bool operator<(const Value& lhs, const Value& rhs) {
             // TODO:
             return false;
         }
-        default: {
-            return false;
-        }
+        default: { return false; }
     }
 }
 
@@ -1921,8 +1786,7 @@ bool operator==(const Value& lhs, const Value& rhs) {
         return false;
     }
 
-    if (!(lhs.isNumeric() && rhs.isNumeric())
-            && (lhs.type() != rhs.type())) {
+    if (!(lhs.isNumeric() && rhs.isNumeric()) && (lhs.type() != rhs.type())) {
         return false;
     }
 
@@ -1938,9 +1802,7 @@ bool operator==(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return std::abs(lhs.getInt() - rhs.getFloat()) < EPSILON;
                 }
-                default: {
-                    return false;
-                }
+                default: { return false; }
             }
         }
         case Value::Type::FLOAT: {
@@ -1951,9 +1813,7 @@ bool operator==(const Value& lhs, const Value& rhs) {
                 case Value::Type::FLOAT: {
                     return std::abs(lhs.getFloat() - rhs.getFloat()) < EPSILON;
                 }
-                default: {
-                    return false;
-                }
+                default: { return false; }
             }
         }
         case Value::Type::STRING: {
@@ -1986,9 +1846,7 @@ bool operator==(const Value& lhs, const Value& rhs) {
         case Value::Type::DATASET: {
             return lhs.getDataSet() == rhs.getDataSet();
         }
-        default: {
-            return false;
-        }
+        default: { return false; }
     }
 }
 
@@ -1996,7 +1854,7 @@ bool operator!=(const Value& lhs, const Value& rhs) {
     return !(lhs == rhs);
 }
 
-bool operator> (const Value& lhs, const Value& rhs) {
+bool operator>(const Value& lhs, const Value& rhs) {
     return rhs < lhs;
 }
 
@@ -2017,8 +1875,7 @@ Value operator&&(const Value& lhs, const Value& rhs) {
         return rhs.getNull();
     }
 
-    if (lhs.type() == Value::Type::BOOL
-            && rhs.type() == Value::Type::BOOL) {
+    if (lhs.type() == Value::Type::BOOL && rhs.type() == Value::Type::BOOL) {
         return lhs.getBool() && rhs.getBool();
     } else {
         return Value(NullType::BAD_TYPE);
@@ -2034,11 +1891,10 @@ Value operator||(const Value& lhs, const Value& rhs) {
         return rhs.getNull();
     }
 
-    if (lhs.type() == Value::Type::BOOL
-            && rhs.type() == Value::Type::BOOL) {
+    if (lhs.type() == Value::Type::BOOL && rhs.type() == Value::Type::BOOL) {
         return lhs.getBool() || rhs.getBool();
     } else {
         return Value(NullType::BAD_TYPE);
     }
 }
-}  // namespace nebula
+}   // namespace nebula

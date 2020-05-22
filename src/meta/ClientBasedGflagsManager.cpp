@@ -9,7 +9,7 @@
 namespace nebula {
 namespace meta {
 
-ClientBasedGflagsManager::ClientBasedGflagsManager(MetaClient *client) {
+ClientBasedGflagsManager::ClientBasedGflagsManager(MetaClient* client) {
     metaClient_ = client;
     CHECK_NOTNULL(metaClient_);
 }
@@ -18,7 +18,7 @@ ClientBasedGflagsManager::~ClientBasedGflagsManager() {
     metaClient_ = nullptr;
 }
 
-template<typename ValueType>
+template <typename ValueType>
 folly::Future<StatusOr<bool>> ClientBasedGflagsManager::set(const cpp2::ConfigModule& module,
                                                             const std::string& name,
                                                             const cpp2::ConfigType& type,
@@ -28,18 +28,19 @@ folly::Future<StatusOr<bool>> ClientBasedGflagsManager::set(const cpp2::ConfigMo
     return metaClient_->setConfig(module, name, type, std::move(valueStr));
 }
 
-template<>
-folly::Future<StatusOr<bool>>
-ClientBasedGflagsManager::set<std::string>(const cpp2::ConfigModule& module,
-                                           const std::string& name,
-                                           const cpp2::ConfigType& type,
-                                           const std::string& value) {
+template <>
+folly::Future<StatusOr<bool>> ClientBasedGflagsManager::set<std::string>(
+    const cpp2::ConfigModule& module,
+    const std::string& name,
+    const cpp2::ConfigType& type,
+    const std::string& value) {
     return metaClient_->setConfig(module, name, type, value);
 }
 
-folly::Future<StatusOr<bool>>
-ClientBasedGflagsManager::setConfig(const cpp2::ConfigModule& module, const std::string& name,
-                                    const cpp2::ConfigType& type, const VariantType &value) {
+folly::Future<StatusOr<bool>> ClientBasedGflagsManager::setConfig(const cpp2::ConfigModule& module,
+                                                                  const std::string& name,
+                                                                  const cpp2::ConfigType& type,
+                                                                  const VariantType& value) {
     switch (type) {
         case cpp2::ConfigType::INT64:
             return set(module, name, type, boost::get<int64_t>(value));
@@ -55,13 +56,14 @@ ClientBasedGflagsManager::setConfig(const cpp2::ConfigModule& module, const std:
     }
 }
 
-folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
-ClientBasedGflagsManager::getConfig(const cpp2::ConfigModule& module, const std::string& name) {
+folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>> ClientBasedGflagsManager::getConfig(
+    const cpp2::ConfigModule& module,
+    const std::string& name) {
     return metaClient_->getConfig(module, name);
 }
 
-folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
-ClientBasedGflagsManager::listConfigs(const cpp2::ConfigModule& module) {
+folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>> ClientBasedGflagsManager::listConfigs(
+    const cpp2::ConfigModule& module) {
     return metaClient_->listConfigs(module);
 }
 
@@ -74,5 +76,5 @@ Status ClientBasedGflagsManager::registerGflags(const std::vector<cpp2::ConfigIt
     return Status::Error("Register gflags failed");
 }
 
-}  // namespace meta
-}  // namespace nebula
+}   // namespace meta
+}   // namespace nebula

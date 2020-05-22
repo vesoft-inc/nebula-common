@@ -7,9 +7,9 @@
 #ifndef DATATYPES_DATE_H_
 #define DATATYPES_DATE_H_
 
-#include "base/Base.h"
 #include <folly/hash/Hash.h>
 #include <gtest/gtest_prod.h>
+#include "base/Base.h"
 
 namespace nebula {
 
@@ -38,9 +38,7 @@ struct Date {
     }
 
     bool operator==(const Date& rhs) const {
-        return year == rhs.year &&
-               month == rhs.month &&
-               day == rhs.day;
+        return year == rhs.year && month == rhs.month && day == rhs.day;
     }
 
     bool operator<(const Date& rhs) const {
@@ -67,7 +65,6 @@ struct Date {
     void fromInt(int64_t days);
 };
 
-
 struct DateTime {
     int16_t year;
     int8_t month;
@@ -90,69 +87,43 @@ struct DateTime {
     }
 
     bool operator==(const DateTime& rhs) const {
-        return year == rhs.year &&
-               month == rhs.month &&
-               day == rhs.day &&
-               hour == rhs.hour &&
-               minute == rhs.minute &&
-               sec == rhs.sec &&
-               microsec == rhs.microsec &&
+        return year == rhs.year && month == rhs.month && day == rhs.day && hour == rhs.hour &&
+               minute == rhs.minute && sec == rhs.sec && microsec == rhs.microsec &&
                timezone == rhs.timezone;
     }
 
     std::string toString() const;
 };
 
-}  // namespace nebula
-
+}   // namespace nebula
 
 namespace std {
 
 // Inject a customized hash function
-template<>
+template <>
 struct hash<nebula::Date> {
     std::size_t operator()(const nebula::Date& h) const noexcept {
-        size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year),
-                                           sizeof(h.year));
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.month),
-                                    sizeof(h.month),
-                                    hv);
-        return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.day),
-                                      sizeof(h.day),
-                                      hv);
+        size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year), sizeof(h.year));
+        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.month), sizeof(h.month), hv);
+        return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.day), sizeof(h.day), hv);
     }
 };
 
-
-template<>
+template <>
 struct hash<nebula::DateTime> {
     std::size_t operator()(const nebula::DateTime& h) const noexcept {
-        size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year),
-                                           sizeof(h.year));
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.month),
-                                    sizeof(h.month),
-                                    hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.day),
-                                    sizeof(h.day),
-                                    hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.hour),
-                                    sizeof(h.hour),
-                                    hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.minute),
-                                    sizeof(h.minute),
-                                    hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.sec),
-                                    sizeof(h.sec),
-                                    hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.microsec),
-                                    sizeof(h.microsec),
-                                    hv);
-        return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.timezone),
-                                      sizeof(h.timezone),
-                                      hv);
+        size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year), sizeof(h.year));
+        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.month), sizeof(h.month), hv);
+        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.day), sizeof(h.day), hv);
+        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.hour), sizeof(h.hour), hv);
+        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.minute), sizeof(h.minute), hv);
+        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.sec), sizeof(h.sec), hv);
+        hv = folly::hash::fnv64_buf(
+            reinterpret_cast<const void*>(&h.microsec), sizeof(h.microsec), hv);
+        return folly::hash::fnv64_buf(
+            reinterpret_cast<const void*>(&h.timezone), sizeof(h.timezone), hv);
     }
 };
 
-}  // namespace std
-#endif  // DATATYPES_DATE_H_
-
+}   // namespace std
+#endif   // DATATYPES_DATE_H_

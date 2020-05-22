@@ -23,11 +23,12 @@ public:
                                                     const cpp2::ConfigType& type,
                                                     const VariantType& value) = 0;
 
-    virtual folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
-    getConfig(const cpp2::ConfigModule& module, const std::string& name) = 0;
+    virtual folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>> getConfig(
+        const cpp2::ConfigModule& module,
+        const std::string& name) = 0;
 
-    virtual folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
-    listConfigs(const cpp2::ConfigModule& module) = 0;
+    virtual folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>> listConfigs(
+        const cpp2::ConfigModule& module) = 0;
 
     static void getGflagsModule(cpp2::ConfigModule& gflagsModule);
 
@@ -36,10 +37,10 @@ public:
 protected:
     virtual ~GflagsManager() = default;
 
-    static std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>>
-           parseConfigJson(const std::string& json);
+    static std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>> parseConfigJson(
+        const std::string& json);
 
-    template<typename ValueType>
+    template <typename ValueType>
     static std::string gflagsValueToThriftValue(const gflags::CommandLineFlagInfo& flag);
 };
 
@@ -47,11 +48,12 @@ std::string toThriftValueStr(const cpp2::ConfigType& type, const VariantType& va
 
 cpp2::ConfigMode toThriftConfigMode(const std::string& key);
 
-cpp2::ConfigItem toThriftConfigItem(const cpp2::ConfigModule& module, const std::string& name,
-                                    const cpp2::ConfigType& type, const cpp2::ConfigMode& mode,
+cpp2::ConfigItem toThriftConfigItem(const cpp2::ConfigModule& module,
+                                    const std::string& name,
+                                    const cpp2::ConfigType& type,
+                                    const cpp2::ConfigMode& mode,
                                     const std::string& value);
 
-
-}  // namespace meta
-}  // namespace nebula
-#endif  // META_GFLAGSMANAGER_H_
+}   // namespace meta
+}   // namespace nebula
+#endif   // META_GFLAGSMANAGER_H_

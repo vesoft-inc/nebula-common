@@ -20,12 +20,11 @@ namespace thrift {
 
 namespace detail {
 
-template<>
+template <>
 struct TccStructTraits<nebula::Map> {
-    static void translateFieldName(
-            MAYBE_UNUSED folly::StringPiece _fname,
-            MAYBE_UNUSED int16_t& fid,
-            MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
+    static void translateFieldName(MAYBE_UNUSED folly::StringPiece _fname,
+                                   MAYBE_UNUSED int16_t& fid,
+                                   MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "kvs") {
             fid = 1;
             _ftype = apache::thrift::protocol::T_MAP;
@@ -33,32 +32,28 @@ struct TccStructTraits<nebula::Map> {
     }
 };
 
-}  // namespace detail
+}   // namespace detail
 
-
-template<>
+template <>
 inline void Cpp2Ops<nebula::Map>::clear(nebula::Map* obj) {
     return obj->clear();
 }
 
-
-template<>
+template <>
 inline constexpr protocol::TType Cpp2Ops<nebula::Map>::thriftType() {
     return apache::thrift::protocol::T_STRUCT;
 }
 
-
-template<>
-template<class Protocol>
+template <>
+template <class Protocol>
 uint32_t Cpp2Ops<nebula::Map>::write(Protocol* proto, nebula::Map const* obj) {
     uint32_t xfer = 0;
     xfer += proto->writeStructBegin("Map");
 
     xfer += proto->writeFieldBegin("kvs", apache::thrift::protocol::T_MAP, 1);
     xfer += detail::pm::protocol_methods<
-            type_class::map<type_class::binary, type_class::structure>,
-            std::unordered_map<std::string, nebula::Value>
-        >::write(*proto, obj->kvs);
+        type_class::map<type_class::binary, type_class::structure>,
+        std::unordered_map<std::string, nebula::Value>>::write(*proto, obj->kvs);
     xfer += proto->writeFieldEnd();
 
     xfer += proto->writeFieldStop();
@@ -66,9 +61,8 @@ uint32_t Cpp2Ops<nebula::Map>::write(Protocol* proto, nebula::Map const* obj) {
     return xfer;
 }
 
-
-template<>
-template<class Protocol>
+template <>
+template <class Protocol>
 void Cpp2Ops<nebula::Map>::read(Protocol* proto, nebula::Map* obj) {
     detail::ProtocolReaderStructReadState<Protocol> readState;
 
@@ -80,14 +74,12 @@ void Cpp2Ops<nebula::Map>::read(Protocol* proto, nebula::Map* obj) {
         goto _loop;
     }
 
-_readField_kvs:
-    {
-        obj->kvs = std::unordered_map<std::string, nebula::Value>();
-        detail::pm::protocol_methods<
-                type_class::map<type_class::binary, type_class::structure>,
-                std::unordered_map<std::string, nebula::Value>
-            >::read(*proto, obj->kvs);
-    }
+_readField_kvs : {
+    obj->kvs = std::unordered_map<std::string, nebula::Value>();
+    detail::pm::protocol_methods<type_class::map<type_class::binary, type_class::structure>,
+                                 std::unordered_map<std::string, nebula::Value>>::read(*proto,
+                                                                                       obj->kvs);
+}
 
     if (UNLIKELY(!readState.advanceToNextField(proto, 1, 0, protocol::T_STOP))) {
         goto _loop;
@@ -109,17 +101,15 @@ _loop:
     }
 
     switch (readState.fieldId) {
-        case 1:
-        {
+        case 1: {
             if (LIKELY(readState.fieldType == apache::thrift::protocol::T_MAP)) {
                 goto _readField_kvs;
             } else {
                 goto _skip;
             }
         }
-        default:
-        {
-_skip:
+        default: {
+        _skip:
             proto->skip(readState.fieldType);
             readState.readFieldEnd(proto);
             readState.readFieldBeginNoInline(proto);
@@ -128,40 +118,34 @@ _skip:
     }
 }
 
-
-template<>
-template<class Protocol>
-uint32_t Cpp2Ops<nebula::Map>::serializedSize(Protocol const* proto,
-                                              nebula::Map const* obj) {
+template <>
+template <class Protocol>
+uint32_t Cpp2Ops<nebula::Map>::serializedSize(Protocol const* proto, nebula::Map const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("Map");
 
     xfer += proto->serializedFieldSize("kvs", apache::thrift::protocol::T_MAP, 1);
     xfer += detail::pm::protocol_methods<
-            type_class::map<type_class::binary, type_class::structure>,
-            std::unordered_map<std::string, nebula::Value>
-        >::serializedSize<false>(*proto, obj->kvs);
+        type_class::map<type_class::binary, type_class::structure>,
+        std::unordered_map<std::string, nebula::Value>>::serializedSize<false>(*proto, obj->kvs);
     xfer += proto->serializedSizeStop();
     return xfer;
 }
 
-
-template<>
-template<class Protocol>
-uint32_t Cpp2Ops<nebula::Map>::serializedSizeZC(Protocol const* proto,
-                                                nebula::Map const* obj) {
+template <>
+template <class Protocol>
+uint32_t Cpp2Ops<nebula::Map>::serializedSizeZC(Protocol const* proto, nebula::Map const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("Map");
 
     xfer += proto->serializedFieldSize("kvs", apache::thrift::protocol::T_MAP, 1);
     xfer += detail::pm::protocol_methods<
-            type_class::map<type_class::binary, type_class::structure>,
-            std::unordered_map<std::string, nebula::Value>
-        >::serializedSize<false>(*proto, obj->kvs);
+        type_class::map<type_class::binary, type_class::structure>,
+        std::unordered_map<std::string, nebula::Value>>::serializedSize<false>(*proto, obj->kvs);
     xfer += proto->serializedSizeStop();
     return xfer;
 }
 
-}  // namespace thrift
-}  // namespace apache
-#endif  // DATATYPES_MAPOPS_H_
+}   // namespace thrift
+}   // namespace apache
+#endif   // DATATYPES_MAPOPS_H_

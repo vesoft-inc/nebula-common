@@ -16,15 +16,10 @@ struct KeyValue {
     std::string value;
 
     KeyValue() {}
-    KeyValue(KeyValue&& rhs)
-        : key(std::move(rhs.key))
-        , value(std::move(rhs.value)) {}
-    KeyValue(const KeyValue& rhs)
-        : key(rhs.key)
-        , value(rhs.value) {}
+    KeyValue(KeyValue&& rhs) : key(std::move(rhs.key)), value(std::move(rhs.value)) {}
+    KeyValue(const KeyValue& rhs) : key(rhs.key), value(rhs.value) {}
     explicit KeyValue(std::pair<std::string, std::string>&& kv)
-        : key(std::move(kv.first))
-        , value(std::move(kv.second)) {}
+        : key(std::move(kv.first)), value(std::move(kv.second)) {}
 
     void clear() {
         key.clear();
@@ -46,5 +41,5 @@ struct KeyValue {
     }
 };
 
-}  // namespace nebula
-#endif  // DATATYPES_KEYVALUE_H_
+}   // namespace nebula
+#endif   // DATATYPES_KEYVALUE_H_

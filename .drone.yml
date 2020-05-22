@@ -7,8 +7,10 @@ steps:
   - name: lint
     image: vesoft/nebula-dev:centos7
     commands:
-      - ln -snf $PWD/.linters/cpp/hooks/pre-commit.sh $PWD/.linters/cpp/pre-commit.sh
-      - .linters/cpp/pre-commit.sh $(git --no-pager diff --diff-filter=d --name-only HEAD^ HEAD)
+      - mkdir -p build && cd build
+      - cmake ..
+      - make format-check
+      - cd .. && rm -rf build
 
   - name: gcc_build
     image: vesoft/nebula-dev:centos7
@@ -29,8 +31,10 @@ steps:
   - name: lint
     image: vesoft/nebula-dev:ubuntu1804
     commands:
-      - ln -snf $PWD/.linters/cpp/hooks/pre-commit.sh $PWD/.linters/cpp/pre-commit.sh
-      - .linters/cpp/pre-commit.sh $(git --no-pager diff --diff-filter=d --name-only HEAD^ HEAD)
+      - mkdir -p build && cd build
+      - cmake ..
+      - make format-check
+      - cd .. && rm -rf build
 
   - name: clang_build
     image: vesoft/nebula-dev:ubuntu1804

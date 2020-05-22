@@ -41,7 +41,6 @@ private:
     std::atomic<double> ticksPerUSecFactor_{0.0};
 };
 
-}  // namespace time
-}  // namespace nebula
-#endif  // COMMON_TIME_DETAIL_TSCHELPER_H_
-
+}   // namespace time
+}   // namespace nebula
+#endif   // COMMON_TIME_DETAIL_TSCHELPER_H_

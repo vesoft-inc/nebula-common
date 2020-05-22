@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "datatypes/Date.h"
 
 namespace nebula {
@@ -48,7 +48,6 @@ TEST(Date, DaysConversion) {
     b.fromInt(a.toInt());
     EXPECT_EQ(a, b);
 }
-
 
 TEST(Date, Arithmetics) {
     Date a(2020, 1, 1);
@@ -136,8 +135,7 @@ TEST(Date, Arithmetics) {
     EXPECT_EQ(Date(-1020, 12, 31), b);
 }
 
-}  // namespace nebula
-
+}   // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

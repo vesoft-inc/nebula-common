@@ -4,12 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include "meta/SchemaProviderIf.h"
+#include "base/Base.h"
 
 namespace nebula {
-namespace meta {
-
-}  // namespace meta
-}  // namespace nebula
-
+namespace meta {}   // namespace meta
+}   // namespace nebula

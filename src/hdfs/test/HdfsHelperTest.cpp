@@ -4,9 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include <gtest/gtest.h>
 #include "base/Base.h"
 #include "hdfs/HdfsCommandHelper.h"
-#include <gtest/gtest.h>
 
 namespace nebula {
 namespace hdfs {
@@ -33,4 +33,3 @@ int main(int argc, char** argv) {
 
     return RUN_ALL_TESTS();
 }
-

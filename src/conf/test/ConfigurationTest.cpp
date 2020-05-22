@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "base/Base.h"
 #include <gtest/gtest.h>
+#include "base/Base.h"
 #include "conf/Configuration.h"
 #include "fs/TempFile.h"
 
@@ -16,10 +16,10 @@ namespace conf {
 
 TEST(Configuration, Basic) {
     std::string json = "{"
-                            "\"int\": 123, "
-                            "\"double\": 3.14, "
-                            "\"bool\": true, "
-                            "\"string\": \"string\""
+                       "\"int\": 123, "
+                       "\"double\": 3.14, "
+                       "\"bool\": true, "
+                       "\"string\": \"string\""
                        "}";
     Configuration conf;
     auto status = conf.parseFromString(json);
@@ -67,7 +67,6 @@ TEST(Configuration, Basic) {
     }
 }
 
-
 TEST(Configuration, IllegalFormat) {
     Configuration conf;
     {
@@ -92,13 +91,12 @@ TEST(Configuration, IllegalFormat) {
     }
 }
 
-
 TEST(Configuration, SubConf) {
     std::string json = "{"
-                            "\"notsub\": 123,"
-                            "\"subconf\": {"
-                                "\"key\": \"value\""
-                            "}"
+                       "\"notsub\": 123,"
+                       "\"subconf\": {"
+                       "\"key\": \"value\""
+                       "}"
                        "}";
     Configuration conf;
     auto status = conf.parseFromString(json);
@@ -117,10 +115,9 @@ TEST(Configuration, SubConf) {
     ASSERT_FALSE(status.ok()) << status.toString();
 }
 
-
 TEST(Configuration, ParseFromFile) {
     TempFile tmpfile("/tmp/configuration_test.json.XXXXXX");
-    FILE *file = ::fopen(tmpfile.path(), "w");
+    FILE* file = ::fopen(tmpfile.path(), "w");
     fprintf(file, "// This a C++ style comment line\n");
     fprintf(file, "# This a shell style comment line\n");
     fprintf(file, "{ \n");
@@ -147,15 +144,13 @@ TEST(Configuration, ParseFromFile) {
     }
 }
 
-
 TEST(Configuration, GetArray) {
-    std::string json =
-        "{"
-        "   \"int_array\" : [1, \"2\", 3, \"4\", 5],"
-        "   \"string_array\" : [\"Hello\", \"World\"],"
-        "   \"bool_array\" : [0, 1],"
-        "   \"double_array\" : [1.2, \"2.3\", 3.4]"
-        "}";
+    std::string json = "{"
+                       "   \"int_array\" : [1, \"2\", 3, \"4\", 5],"
+                       "   \"string_array\" : [\"Hello\", \"World\"],"
+                       "   \"bool_array\" : [0, 1],"
+                       "   \"double_array\" : [1.2, \"2.3\", 3.4]"
+                       "}";
 
     Configuration conf;
     auto status = conf.parseFromString(json);
@@ -164,7 +159,7 @@ TEST(Configuration, GetArray) {
     std::vector<int64_t> intArray;
     ASSERT_TRUE(conf.fetchAsIntArray("int_array", intArray).ok());
     ASSERT_EQ(5L, intArray.size());
-    for (int64_t i = 1; i<= 5; i++) {
+    for (int64_t i = 1; i <= 5; i++) {
         EXPECT_EQ(i, intArray[i - 1]);
     }
 
@@ -188,34 +183,30 @@ TEST(Configuration, GetArray) {
     EXPECT_DOUBLE_EQ(3.4, dblArray[2]);
 }
 
-
 TEST(Configuration, Iterator) {
-    std::string json =
-        "{"
-        "   \"int_array\" : [1, \"2\", 3, \"4\", 5],"
-        "   \"string_array\" : [\"Hello\", \"World\"],"
-        "   \"int_val\" : 100,"
-        "   \"double_val\" : 2.3"
-        "}";
+    std::string json = "{"
+                       "   \"int_array\" : [1, \"2\", 3, \"4\", 5],"
+                       "   \"string_array\" : [\"Hello\", \"World\"],"
+                       "   \"int_val\" : 100,"
+                       "   \"double_val\" : 2.3"
+                       "}";
 
     Configuration conf;
     auto status = conf.parseFromString(json);
     ASSERT_TRUE(status.ok()) << status.toString();
 
-    static std::unordered_set<std::string> keys{"int_array",
-                                                "string_array",
-                                                "int_val",
-                                                "double_val"};
+    static std::unordered_set<std::string> keys{
+        "int_array", "string_array", "int_val", "double_val"};
 
     int32_t idx = 0;
-    conf.forEachKey([&idx] (const std::string& key) {
+    conf.forEachKey([&idx](const std::string& key) {
         EXPECT_TRUE(keys.find(key) != keys.end());
         idx++;
     });
     EXPECT_EQ(keys.size(), idx);
 
     idx = 0;
-    conf.forEachItem([&idx] (const std::string& key, const folly::dynamic& val) {
+    conf.forEachItem([&idx](const std::string& key, const folly::dynamic& val) {
         if (key == "int_array") {
             ASSERT_TRUE(val.isArray());
             EXPECT_EQ(5L, val.size());
@@ -238,4 +229,3 @@ TEST(Configuration, Iterator) {
 
 }   // namespace conf
 }   // namespace nebula
-

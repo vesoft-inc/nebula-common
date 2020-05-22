@@ -8,15 +8,15 @@
 #define META_CLIENTBASEDGFLAGSMANAGER_H_
 
 #include "base/Base.h"
-#include "meta/GflagsManager.h"
 #include "clients/meta/MetaClient.h"
+#include "meta/GflagsManager.h"
 
 namespace nebula {
 namespace meta {
 
 class ClientBasedGflagsManager : public GflagsManager {
 public:
-    explicit ClientBasedGflagsManager(MetaClient *metaClient);
+    explicit ClientBasedGflagsManager(MetaClient* metaClient);
 
     ~ClientBasedGflagsManager();
 
@@ -25,23 +25,25 @@ public:
                                             const cpp2::ConfigType& type,
                                             const VariantType& value) override;
 
-    folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
-    getConfig(const cpp2::ConfigModule& module, const std::string& name) override;
+    folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>> getConfig(
+        const cpp2::ConfigModule& module,
+        const std::string& name) override;
 
-    folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
-    listConfigs(const cpp2::ConfigModule& module) override;
+    folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>> listConfigs(
+        const cpp2::ConfigModule& module) override;
 
     Status registerGflags(const std::vector<cpp2::ConfigItem>& items);
 
 private:
-    template<typename ValueType>
-    folly::Future<StatusOr<bool>> set(const cpp2::ConfigModule& module, const std::string& name,
-                                      const cpp2::ConfigType& type, const ValueType& value);
+    template <typename ValueType>
+    folly::Future<StatusOr<bool>> set(const cpp2::ConfigModule& module,
+                                      const std::string& name,
+                                      const cpp2::ConfigType& type,
+                                      const ValueType& value);
 
-    MetaClient                          *metaClient_{nullptr};
+    MetaClient* metaClient_{nullptr};
 };
 
-}  // namespace meta
-}  // namespace nebula
-#endif  // META_CLIENTBASEDGFLAGSMANAGER_H_
-
+}   // namespace meta
+}   // namespace nebula
+#endif   // META_CLIENTBASEDGFLAGSMANAGER_H_

@@ -5,16 +5,14 @@
  */
 
 #include "base/Base.h"
-#include "webservice/WebService.h"
 #include "http/HttpClient.h"
+#include "webservice/WebService.h"
 
 namespace nebula {
 
 bool getUrl(const std::string& urlPath, std::string& respBody) {
-    auto url = folly::stringPrintf("http://%s:%d%s",
-                                   FLAGS_ws_ip.c_str(),
-                                   FLAGS_ws_http_port,
-                                   urlPath.c_str());
+    auto url = folly::stringPrintf(
+        "http://%s:%d%s", FLAGS_ws_ip.c_str(), FLAGS_ws_http_port, urlPath.c_str());
     VLOG(1) << "Retrieving url: " << url;
 
     auto result = http::HttpClient::get(url.c_str());
@@ -26,5 +24,4 @@ bool getUrl(const std::string& urlPath, std::string& respBody) {
     return true;
 }
 
-}  // namespace nebula
-
+}   // namespace nebula

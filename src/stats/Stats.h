@@ -20,7 +20,7 @@ public:
     explicit Stats(const std::string& serverName, const std::string& moduleName);
 
 public:
-    static void addStatsValue(const Stats *stats, bool ok, int64_t latency = 0, uint32_t count = 1);
+    static void addStatsValue(const Stats* stats, bool ok, int64_t latency = 0, uint32_t count = 1);
 
     int32_t getQpsStatId() const;
 
@@ -33,7 +33,7 @@ private:
     int32_t errorQpsStatId_{0};
     int32_t latencyStatId_{0};
 };
-}  // namespace stats
-}  // namespace nebula
+}   // namespace stats
+}   // namespace nebula
 
-#endif  // COMMON_STATS_STATS_H_
+#endif   // COMMON_STATS_STATS_H_
