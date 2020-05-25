@@ -12,6 +12,7 @@ ENDIF()
 
 # Adding clang-format check and formatter if found
 FIND_PROGRAM(CLANG_FORMAT "clang-format")
+message(STATUS "CLANG_FORMAT: ${CLANG_FORMAT}")
 IF(CLANG_FORMAT)
     ADD_CUSTOM_TARGET(
         format
