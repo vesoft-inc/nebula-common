@@ -9,7 +9,8 @@ steps:
     commands:
       - mkdir -p build && cd build
       - cmake ..
-      - make format-check
+      - make format
+      - git diff --exit-code
       - cd .. && rm -rf build
 
   - name: gcc_build
@@ -33,7 +34,8 @@ steps:
     commands:
       - mkdir -p build && cd build
       - cmake ..
-      - make format-check
+      - make format
+      - git diff --exit-code
       - cd .. && rm -rf build
 
   - name: clang_build
