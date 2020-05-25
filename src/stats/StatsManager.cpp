@@ -185,35 +185,35 @@ void StatsManager::readAllValue(folly::dynamic& vals) {
                 folly::dynamic stat        = folly::dynamic::object();
 
                 switch (method) {
-                    case StatsMethod::SUM:
-                        metricName += ".sum";
-                        break;
-                    case StatsMethod::COUNT:
-                        metricName += ".count";
-                        break;
-                    case StatsMethod::AVG:
-                        metricName += ".avg";
-                        break;
-                    case StatsMethod::RATE:
-                        metricName += ".rate";
-                        break;
-                        // intentionally no `default'
+                case StatsMethod::SUM:
+                    metricName += ".sum";
+                    break;
+                case StatsMethod::COUNT:
+                    metricName += ".count";
+                    break;
+                case StatsMethod::AVG:
+                    metricName += ".avg";
+                    break;
+                case StatsMethod::RATE:
+                    metricName += ".rate";
+                    break;
+                    // intentionally no `default'
                 }
 
                 switch (range) {
-                    case TimeRange::FIVE_SECONDS:
-                        metricName += ".5";
-                        break;
-                    case TimeRange::ONE_MINUTE:
-                        metricName += ".60";
-                        break;
-                    case TimeRange::TEN_MINUTES:
-                        metricName += ".600";
-                        break;
-                    case TimeRange::ONE_HOUR:
-                        metricName += ".3600";
-                        break;
-                        // intentionally no `default'
+                case TimeRange::FIVE_SECONDS:
+                    metricName += ".5";
+                    break;
+                case TimeRange::ONE_MINUTE:
+                    metricName += ".60";
+                    break;
+                case TimeRange::TEN_MINUTES:
+                    metricName += ".600";
+                    break;
+                case TimeRange::ONE_HOUR:
+                    metricName += ".3600";
+                    break;
+                    // intentionally no `default'
                 }
 
                 stat["name"]  = metricName;

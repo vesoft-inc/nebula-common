@@ -135,26 +135,26 @@ void GflagsManager::getGflagsModule(cpp2::ConfigModule& gflagsModule) {
 std::string toThriftValueStr(const cpp2::ConfigType& type, const VariantType& value) {
     std::string valueStr;
     switch (type) {
-        case cpp2::ConfigType::INT64: {
-            int64_t val = boost::get<int64_t>(value);
-            valueStr.append(reinterpret_cast<const char*>(&val), sizeof(val));
-            break;
-        }
-        case cpp2::ConfigType::DOUBLE: {
-            double val = boost::get<double>(value);
-            valueStr.append(reinterpret_cast<const char*>(&val), sizeof(val));
-            break;
-        }
-        case cpp2::ConfigType::BOOL: {
-            bool val = boost::get<bool>(value);
-            valueStr.append(reinterpret_cast<const char*>(&val), sizeof(val));
-            break;
-        }
-        case cpp2::ConfigType::STRING:
-        case cpp2::ConfigType::NESTED: {
-            valueStr = boost::get<std::string>(value);
-            break;
-        }
+    case cpp2::ConfigType::INT64: {
+        int64_t val = boost::get<int64_t>(value);
+        valueStr.append(reinterpret_cast<const char*>(&val), sizeof(val));
+        break;
+    }
+    case cpp2::ConfigType::DOUBLE: {
+        double val = boost::get<double>(value);
+        valueStr.append(reinterpret_cast<const char*>(&val), sizeof(val));
+        break;
+    }
+    case cpp2::ConfigType::BOOL: {
+        bool val = boost::get<bool>(value);
+        valueStr.append(reinterpret_cast<const char*>(&val), sizeof(val));
+        break;
+    }
+    case cpp2::ConfigType::STRING:
+    case cpp2::ConfigType::NESTED: {
+        valueStr = boost::get<std::string>(value);
+        break;
+    }
     }
     return valueStr;
 }

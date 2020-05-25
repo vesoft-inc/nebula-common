@@ -564,50 +564,50 @@ std::vector<SpaceIdName> MetaClient::toSpaceIdName(const std::vector<cpp2::IdNam
 template <typename RESP>
 Status MetaClient::handleResponse(const RESP& resp) {
     switch (resp.get_code()) {
-        case cpp2::ErrorCode::SUCCEEDED:
-            return Status::OK();
-        case cpp2::ErrorCode::E_EXISTED:
-            return Status::Error("existed!");
-        case cpp2::ErrorCode::E_NOT_FOUND:
-            return Status::Error("not existed!");
-        case cpp2::ErrorCode::E_NO_HOSTS:
-            return Status::Error("no hosts!");
-        case cpp2::ErrorCode::E_CONFIG_IMMUTABLE:
-            return Status::Error("Config immutable");
-        case cpp2::ErrorCode::E_CONFLICT:
-            return Status::Error("conflict!");
-        case cpp2::ErrorCode::E_WRONGCLUSTER:
-            return Status::Error("wrong cluster!");
-        case cpp2::ErrorCode::E_LEADER_CHANGED:
-            return Status::LeaderChanged("Leader changed!");
-        case cpp2::ErrorCode::E_BALANCED:
-            return Status::Error("The cluster is balanced!");
-        case cpp2::ErrorCode::E_BALANCER_RUNNING:
-            return Status::Error("The balancer is running!");
-        case cpp2::ErrorCode::E_BAD_BALANCE_PLAN:
-            return Status::Error("Bad balance plan!");
-        case cpp2::ErrorCode::E_NO_RUNNING_BALANCE_PLAN:
-            return Status::Error("No running balance plan!");
-        case cpp2::ErrorCode::E_NO_VALID_HOST:
-            return Status::Error("No valid host hold the partition");
-        case cpp2::ErrorCode::E_CORRUPTTED_BALANCE_PLAN:
-            return Status::Error("No corrupted blance plan");
-        case cpp2::ErrorCode::E_INVALID_PARTITION_NUM:
-            return Status::Error("No valid partition_num");
-        case cpp2::ErrorCode::E_INVALID_REPLICA_FACTOR:
-            return Status::Error("No valid replica_factor");
-        case cpp2::ErrorCode::E_INVALID_CHARSET:
-            return Status::Error("No valid charset");
-        case cpp2::ErrorCode::E_INVALID_COLLATE:
-            return Status::Error("No valid collate");
-        case cpp2::ErrorCode::E_CHARSET_COLLATE_NOT_MATCH:
-            return Status::Error("Charset and collate not match");
-        case cpp2::ErrorCode::E_INVALID_PASSWORD:
-            return Status::Error("Invalid password");
-        case cpp2::ErrorCode::E_IMPROPER_ROLE:
-            return Status::Error("Improper role");
-        default:
-            return Status::Error("Unknown code %d", static_cast<int32_t>(resp.get_code()));
+    case cpp2::ErrorCode::SUCCEEDED:
+        return Status::OK();
+    case cpp2::ErrorCode::E_EXISTED:
+        return Status::Error("existed!");
+    case cpp2::ErrorCode::E_NOT_FOUND:
+        return Status::Error("not existed!");
+    case cpp2::ErrorCode::E_NO_HOSTS:
+        return Status::Error("no hosts!");
+    case cpp2::ErrorCode::E_CONFIG_IMMUTABLE:
+        return Status::Error("Config immutable");
+    case cpp2::ErrorCode::E_CONFLICT:
+        return Status::Error("conflict!");
+    case cpp2::ErrorCode::E_WRONGCLUSTER:
+        return Status::Error("wrong cluster!");
+    case cpp2::ErrorCode::E_LEADER_CHANGED:
+        return Status::LeaderChanged("Leader changed!");
+    case cpp2::ErrorCode::E_BALANCED:
+        return Status::Error("The cluster is balanced!");
+    case cpp2::ErrorCode::E_BALANCER_RUNNING:
+        return Status::Error("The balancer is running!");
+    case cpp2::ErrorCode::E_BAD_BALANCE_PLAN:
+        return Status::Error("Bad balance plan!");
+    case cpp2::ErrorCode::E_NO_RUNNING_BALANCE_PLAN:
+        return Status::Error("No running balance plan!");
+    case cpp2::ErrorCode::E_NO_VALID_HOST:
+        return Status::Error("No valid host hold the partition");
+    case cpp2::ErrorCode::E_CORRUPTTED_BALANCE_PLAN:
+        return Status::Error("No corrupted blance plan");
+    case cpp2::ErrorCode::E_INVALID_PARTITION_NUM:
+        return Status::Error("No valid partition_num");
+    case cpp2::ErrorCode::E_INVALID_REPLICA_FACTOR:
+        return Status::Error("No valid replica_factor");
+    case cpp2::ErrorCode::E_INVALID_CHARSET:
+        return Status::Error("No valid charset");
+    case cpp2::ErrorCode::E_INVALID_COLLATE:
+        return Status::Error("No valid collate");
+    case cpp2::ErrorCode::E_CHARSET_COLLATE_NOT_MATCH:
+        return Status::Error("Charset and collate not match");
+    case cpp2::ErrorCode::E_INVALID_PASSWORD:
+        return Status::Error("Invalid password");
+    case cpp2::ErrorCode::E_IMPROPER_ROLE:
+        return Status::Error("Improper role");
+    default:
+        return Status::Error("Unknown code %d", static_cast<int32_t>(resp.get_code()));
     }
 }
 
@@ -2255,19 +2255,19 @@ void MetaClient::updateGflagsValue(const ConfigItem& item) {
 
     std::string metaValue;
     switch (item.type_) {
-        case cpp2::ConfigType::INT64:
-            metaValue = folly::to<std::string>(boost::get<int64_t>(item.value_));
-            break;
-        case cpp2::ConfigType::DOUBLE:
-            metaValue = folly::to<std::string>(boost::get<double>(item.value_));
-            break;
-        case cpp2::ConfigType::BOOL:
-            metaValue = boost::get<bool>(item.value_) ? "true" : "false";
-            break;
-        case cpp2::ConfigType::STRING:
-        case cpp2::ConfigType::NESTED:
-            metaValue = boost::get<std::string>(item.value_);
-            break;
+    case cpp2::ConfigType::INT64:
+        metaValue = folly::to<std::string>(boost::get<int64_t>(item.value_));
+        break;
+    case cpp2::ConfigType::DOUBLE:
+        metaValue = folly::to<std::string>(boost::get<double>(item.value_));
+        break;
+    case cpp2::ConfigType::BOOL:
+        metaValue = boost::get<bool>(item.value_) ? "true" : "false";
+        break;
+    case cpp2::ConfigType::STRING:
+    case cpp2::ConfigType::NESTED:
+        metaValue = boost::get<std::string>(item.value_);
+        break;
     }
 
     std::string curValue;
@@ -2310,19 +2310,19 @@ void MetaClient::updateNestedGflags(const std::string& name) {
 ConfigItem MetaClient::toConfigItem(const cpp2::ConfigItem& item) {
     VariantType value;
     switch (item.get_type()) {
-        case cpp2::ConfigType::INT64:
-            value = *reinterpret_cast<const int64_t*>(item.get_value().data());
-            break;
-        case cpp2::ConfigType::BOOL:
-            value = *reinterpret_cast<const bool*>(item.get_value().data());
-            break;
-        case cpp2::ConfigType::DOUBLE:
-            value = *reinterpret_cast<const double*>(item.get_value().data());
-            break;
-        case cpp2::ConfigType::STRING:
-        case cpp2::ConfigType::NESTED:
-            value = item.get_value();
-            break;
+    case cpp2::ConfigType::INT64:
+        value = *reinterpret_cast<const int64_t*>(item.get_value().data());
+        break;
+    case cpp2::ConfigType::BOOL:
+        value = *reinterpret_cast<const bool*>(item.get_value().data());
+        break;
+    case cpp2::ConfigType::DOUBLE:
+        value = *reinterpret_cast<const double*>(item.get_value().data());
+        break;
+    case cpp2::ConfigType::STRING:
+    case cpp2::ConfigType::NESTED:
+        value = item.get_value();
+        break;
     }
     return ConfigItem(item.get_module(), item.get_name(), item.get_type(), item.get_mode(), value);
 }

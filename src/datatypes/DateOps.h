@@ -130,34 +130,34 @@ _loop:
     }
 
     switch (readState.fieldId) {
-        case 1: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I16)) {
-                goto _readField_year;
-            } else {
-                goto _skip;
-            }
+    case 1: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I16)) {
+            goto _readField_year;
+        } else {
+            goto _skip;
         }
-        case 2: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
-                goto _readField_month;
-            } else {
-                goto _skip;
-            }
+    }
+    case 2: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
+            goto _readField_month;
+        } else {
+            goto _skip;
         }
-        case 3: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
-                goto _readField_day;
-            } else {
-                goto _skip;
-            }
+    }
+    case 3: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
+            goto _readField_day;
+        } else {
+            goto _skip;
         }
-        default: {
-        _skip:
-            proto->skip(readState.fieldType);
-            readState.readFieldEnd(proto);
-            readState.readFieldBeginNoInline(proto);
-            goto _loop;
-        }
+    }
+    default: {
+    _skip:
+        proto->skip(readState.fieldType);
+        readState.readFieldEnd(proto);
+        readState.readFieldBeginNoInline(proto);
+        goto _loop;
+    }
     }
 }
 
@@ -396,69 +396,69 @@ _loop:
     }
 
     switch (readState.fieldId) {
-        case 1: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I16)) {
-                goto _readField_year;
-            } else {
-                goto _skip;
-            }
+    case 1: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I16)) {
+            goto _readField_year;
+        } else {
+            goto _skip;
         }
-        case 2: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
-                goto _readField_month;
-            } else {
-                goto _skip;
-            }
+    }
+    case 2: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
+            goto _readField_month;
+        } else {
+            goto _skip;
         }
-        case 3: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
-                goto _readField_day;
-            } else {
-                goto _skip;
-            }
+    }
+    case 3: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
+            goto _readField_day;
+        } else {
+            goto _skip;
         }
-        case 4: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
-                goto _readField_hour;
-            } else {
-                goto _skip;
-            }
+    }
+    case 4: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
+            goto _readField_hour;
+        } else {
+            goto _skip;
         }
-        case 5: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
-                goto _readField_minute;
-            } else {
-                goto _skip;
-            }
+    }
+    case 5: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
+            goto _readField_minute;
+        } else {
+            goto _skip;
         }
-        case 6: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
-                goto _readField_sec;
-            } else {
-                goto _skip;
-            }
+    }
+    case 6: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
+            goto _readField_sec;
+        } else {
+            goto _skip;
         }
-        case 7: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I32)) {
-                goto _readField_microsec;
-            } else {
-                goto _skip;
-            }
+    }
+    case 7: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I32)) {
+            goto _readField_microsec;
+        } else {
+            goto _skip;
         }
-        case 8: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I32)) {
-                goto _readField_timezone;
-            } else {
-                goto _skip;
-            }
+    }
+    case 8: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I32)) {
+            goto _readField_timezone;
+        } else {
+            goto _skip;
         }
-        default: {
-        _skip:
-            proto->skip(readState.fieldType);
-            readState.readFieldEnd(proto);
-            readState.readFieldBeginNoInline(proto);
-            goto _loop;
-        }
+    }
+    default: {
+    _skip:
+        proto->skip(readState.fieldType);
+        readState.readFieldEnd(proto);
+        readState.readFieldBeginNoInline(proto);
+        goto _loop;
+    }
     }
 }
 

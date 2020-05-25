@@ -84,17 +84,17 @@ void SignalHandler::handlerHook(int sig, siginfo_t *info, void *uctx) {
 
 void SignalHandler::doHandle(int sig, siginfo_t *info, void *uctx) {
     switch (sig) {
-        case SIGSEGV:  // segment fault
-        case SIGABRT:  // abort
-        case SIGILL:   // ill instruction
-        case SIGFPE:   // floating point error, e.g. divide by zero
-        case SIGBUS:   // I/O error in mmaped memory, mce error, etc.
-            handleFatalSignal(sig, info, uctx);
-            break;
-        case SIGCHLD:
-            // TODO(dutor) Since we rarely use this signal, we regard it as a general one for now.
-            handleGeneralSignal(sig, info);
-            break;
+    case SIGSEGV:  // segment fault
+    case SIGABRT:  // abort
+    case SIGILL:   // ill instruction
+    case SIGFPE:   // floating point error, e.g. divide by zero
+    case SIGBUS:   // I/O error in mmaped memory, mce error, etc.
+        handleFatalSignal(sig, info, uctx);
+        break;
+    case SIGCHLD:
+        // TODO(dutor) Since we rarely use this signal, we regard it as a general one for now.
+        handleGeneralSignal(sig, info);
+        break;
     }
 
     handleGeneralSignal(sig, info);

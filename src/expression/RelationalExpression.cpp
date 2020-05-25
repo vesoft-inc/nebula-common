@@ -12,20 +12,20 @@ Value RelationalExpression::eval() const {
     auto rhs = rhs_->eval();
 
     switch (kind_) {
-        case Kind::kRelEQ:
-            return lhs_ == rhs_;
-        case Kind::kRelNE:
-            return lhs_ != rhs_;
-        case Kind::kRelLT:
-            return lhs_ < rhs_;
-        case Kind::kRelLE:
-            return lhs_ <= rhs_;
-        case Kind::kRelGT:
-            return lhs_ > rhs_;
-        case Kind::kRelGE:
-            return lhs_ >= rhs_;
-        default:
-            break;
+    case Kind::kRelEQ:
+        return lhs_ == rhs_;
+    case Kind::kRelNE:
+        return lhs_ != rhs_;
+    case Kind::kRelLT:
+        return lhs_ < rhs_;
+    case Kind::kRelLE:
+        return lhs_ <= rhs_;
+    case Kind::kRelGT:
+        return lhs_ > rhs_;
+    case Kind::kRelGE:
+        return lhs_ >= rhs_;
+    default:
+        break;
     }
     LOG(FATAL) << "Unknown type: " << kind_;
 }

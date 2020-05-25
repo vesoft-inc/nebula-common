@@ -9,14 +9,14 @@
 namespace nebula {
 Value UnaryExpression::eval() const {
     switch (kind_) {
-        case Kind::kUnaryPlus:
-            return operand_->eval();
-        case Kind::kUnaryNegate:
-            return -(operand_->eval());
-        case Kind::kUnaryNot:
-            return !(operand_->eval());
-        default:
-            break;
+    case Kind::kUnaryPlus:
+        return operand_->eval();
+    case Kind::kUnaryNegate:
+        return -(operand_->eval());
+    case Kind::kUnaryNot:
+        return !(operand_->eval());
+    default:
+        break;
     }
     LOG(FATAL) << "Unknown type: " << kind_;
 }

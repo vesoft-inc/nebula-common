@@ -164,48 +164,48 @@ _loop:
     }
 
     switch (readState.fieldId) {
-        case 1: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRUCT)) {
-                goto _readField_dst;
-            } else {
-                goto _skip;
-            }
+    case 1: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRUCT)) {
+            goto _readField_dst;
+        } else {
+            goto _skip;
         }
-        case 2: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I32)) {
-                goto _readField_type;
-            } else {
-                goto _skip;
-            }
+    }
+    case 2: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I32)) {
+            goto _readField_type;
+        } else {
+            goto _skip;
         }
-        case 3: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRING)) {
-                goto _readField_name;
-            } else {
-                goto _skip;
-            }
+    }
+    case 3: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRING)) {
+            goto _readField_name;
+        } else {
+            goto _skip;
         }
-        case 4: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I64)) {
-                goto _readField_ranking;
-            } else {
-                goto _skip;
-            }
+    }
+    case 4: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I64)) {
+            goto _readField_ranking;
+        } else {
+            goto _skip;
         }
-        case 5: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_MAP)) {
-                goto _readField_props;
-            } else {
-                goto _skip;
-            }
+    }
+    case 5: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_MAP)) {
+            goto _readField_props;
+        } else {
+            goto _skip;
         }
-        default: {
-        _skip:
-            proto->skip(readState.fieldType);
-            readState.readFieldEnd(proto);
-            readState.readFieldBeginNoInline(proto);
-            goto _loop;
-        }
+    }
+    default: {
+    _skip:
+        proto->skip(readState.fieldType);
+        readState.readFieldEnd(proto);
+        readState.readFieldBeginNoInline(proto);
+        goto _loop;
+    }
     }
 }
 
@@ -370,27 +370,27 @@ _loop:
     }
 
     switch (readState.fieldId) {
-        case 1: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRUCT)) {
-                goto _readField_src;
-            } else {
-                goto _skip;
-            }
+    case 1: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRUCT)) {
+            goto _readField_src;
+        } else {
+            goto _skip;
         }
-        case 2: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_LIST)) {
-                goto _readField_steps;
-            } else {
-                goto _skip;
-            }
+    }
+    case 2: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_LIST)) {
+            goto _readField_steps;
+        } else {
+            goto _skip;
         }
-        default: {
-        _skip:
-            proto->skip(readState.fieldType);
-            readState.readFieldEnd(proto);
-            readState.readFieldBeginNoInline(proto);
-            goto _loop;
-        }
+    }
+    default: {
+    _skip:
+        proto->skip(readState.fieldType);
+        readState.readFieldEnd(proto);
+        readState.readFieldBeginNoInline(proto);
+        goto _loop;
+    }
     }
 }
 

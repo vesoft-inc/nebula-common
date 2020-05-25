@@ -201,13 +201,13 @@ StatusOr<std::vector<HostAddr>> NetworkUtils::resolveHost(const std::string& hos
 
     for (rp = res; rp != nullptr; rp = rp->ai_next) {
         switch (rp->ai_family) {
-            case AF_INET:
-                break;
-            case AF_INET6:
-                VLOG(1) << "Currently does not support Ipv6 address";
-                continue;
-            default:
-                continue;
+        case AF_INET:
+            break;
+        case AF_INET6:
+            VLOG(1) << "Currently does not support Ipv6 address";
+            continue;
+        default:
+            continue;
         }
 
         auto address = ((struct sockaddr_in*)rp->ai_addr)->sin_addr.s_addr;

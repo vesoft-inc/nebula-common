@@ -27,22 +27,22 @@ std::string Status::toString() const {
     char        tmp[64];
     const char *str;
     switch (code()) {
-        case kError:
-            str = "";
-            break;
-        case kSyntaxError:
-            str = "SyntaxError: ";
-            break;
-        case kPermissionError:
-            str = "PermissionError: ";
-            break;
-        case kSpaceNotFound:
-            str = "Space not found";
-            break;
-        default:
-            snprintf(tmp, sizeof(tmp), "Unknown error(%hu): ", static_cast<uint16_t>(code()));
-            str = tmp;
-            break;
+    case kError:
+        str = "";
+        break;
+    case kSyntaxError:
+        str = "SyntaxError: ";
+        break;
+    case kPermissionError:
+        str = "PermissionError: ";
+        break;
+    case kSpaceNotFound:
+        str = "Space not found";
+        break;
+    default:
+        snprintf(tmp, sizeof(tmp), "Unknown error(%hu): ", static_cast<uint16_t>(code()));
+        str = tmp;
+        break;
     }
     std::string result(str);
     result.append(&state_[kHeaderSize], size());

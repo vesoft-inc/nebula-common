@@ -69,21 +69,21 @@ public:
 
     Role toRole(nebula::meta::cpp2::RoleType role) {
         switch (role) {
-            case nebula::meta::cpp2::RoleType::GOD: {
-                return Role::GOD;
-            }
-            case nebula::meta::cpp2::RoleType::ADMIN: {
-                return Role::ADMIN;
-            }
-            case nebula::meta::cpp2::RoleType::DBA: {
-                return Role::DBA;
-            }
-            case nebula::meta::cpp2::RoleType::USER: {
-                return Role::USER;
-            }
-            case nebula::meta::cpp2::RoleType::GUEST: {
-                return Role::GUEST;
-            }
+        case nebula::meta::cpp2::RoleType::GOD: {
+            return Role::GOD;
+        }
+        case nebula::meta::cpp2::RoleType::ADMIN: {
+            return Role::ADMIN;
+        }
+        case nebula::meta::cpp2::RoleType::DBA: {
+            return Role::DBA;
+        }
+        case nebula::meta::cpp2::RoleType::USER: {
+            return Role::USER;
+        }
+        case nebula::meta::cpp2::RoleType::GUEST: {
+            return Role::GUEST;
+        }
         }
         return Role::INVALID_ROLE;
     }

@@ -12,14 +12,14 @@ Value LogicalExpression::eval() const {
     auto rhs = rhs_->eval();
 
     switch (kind_) {
-        case Kind::kLogicalAnd:
-            return lhs && rhs;
-        case Kind::kLogicalOr:
-            return lhs || rhs;
-        case Kind::kLogicalXor:
-            return (lhs && !rhs) || (!lhs && rhs);
-        default:
-            break;
+    case Kind::kLogicalAnd:
+        return lhs && rhs;
+    case Kind::kLogicalOr:
+        return lhs || rhs;
+    case Kind::kLogicalXor:
+        return (lhs && !rhs) || (!lhs && rhs);
+    default:
+        break;
     }
     LOG(FATAL) << "Unknown type: " << kind_;
 }

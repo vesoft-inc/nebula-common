@@ -131,31 +131,31 @@ public:
 
     EitherOr(const EitherOr& rhs) noexcept {
         switch (rhs.state_) {
-            case State::VOID:
-                break;
-            case State::LEFT_TYPE:
-                new (&val_) Variant(kConstructLeft, rhs.val_.left_);
-                state_ = State::LEFT_TYPE;
-                break;
-            case State::RIGHT_TYPE:
-                new (&val_) Variant(kConstructRight, rhs.val_.right_);
-                state_ = State::RIGHT_TYPE;
-                break;
+        case State::VOID:
+            break;
+        case State::LEFT_TYPE:
+            new (&val_) Variant(kConstructLeft, rhs.val_.left_);
+            state_ = State::LEFT_TYPE;
+            break;
+        case State::RIGHT_TYPE:
+            new (&val_) Variant(kConstructRight, rhs.val_.right_);
+            state_ = State::RIGHT_TYPE;
+            break;
         }
     }
 
     EitherOr(EitherOr&& rhs) noexcept {
         switch (rhs.state_) {
-            case State::VOID:
-                break;
-            case State::LEFT_TYPE:
-                new (&val_) Variant(kConstructLeft, std::move(rhs).left());
-                state_ = State::LEFT_TYPE;
-                break;
-            case State::RIGHT_TYPE:
-                new (&val_) Variant(kConstructRight, std::move(rhs).right());
-                state_ = State::RIGHT_TYPE;
-                break;
+        case State::VOID:
+            break;
+        case State::LEFT_TYPE:
+            new (&val_) Variant(kConstructLeft, std::move(rhs).left());
+            state_ = State::LEFT_TYPE;
+            break;
+        case State::RIGHT_TYPE:
+            new (&val_) Variant(kConstructRight, std::move(rhs).right());
+            state_ = State::RIGHT_TYPE;
+            break;
         }
     }
 
@@ -165,16 +165,16 @@ public:
                                           std::is_constructible<RIGHT, V>::value>>
     EitherOr(const EitherOr<U, V>& rhs) noexcept {
         switch (rhs.state_) {
-            case State::VOID:
-                break;
-            case State::LEFT_TYPE:
-                new (&val_) Variant(kConstructLeft, rhs.val_.left_);
-                state_ = State::LEFT_TYPE;
-                break;
-            case State::RIGHT_TYPE:
-                new (&val_) Variant(kConstructRight, rhs.val_.right_);
-                state_ = State::RIGHT_TYPE;
-                break;
+        case State::VOID:
+            break;
+        case State::LEFT_TYPE:
+            new (&val_) Variant(kConstructLeft, rhs.val_.left_);
+            state_ = State::LEFT_TYPE;
+            break;
+        case State::RIGHT_TYPE:
+            new (&val_) Variant(kConstructRight, rhs.val_.right_);
+            state_ = State::RIGHT_TYPE;
+            break;
         }
     }
 
@@ -184,16 +184,16 @@ public:
                                           std::is_constructible<RIGHT, V>::value>>
     EitherOr(EitherOr<U, V>&& rhs) noexcept {
         switch (rhs.state_) {
-            case State::VOID:
-                break;
-            case State::LEFT_TYPE:
-                new (&val_) Variant(kConstructLeft, std::move(rhs).left());
-                state_ = State::LEFT_TYPE;
-                break;
-            case State::RIGHT_TYPE:
-                new (&val_) Variant(kConstructRight, std::move(rhs).right());
-                state_ = State::RIGHT_TYPE;
-                break;
+        case State::VOID:
+            break;
+        case State::LEFT_TYPE:
+            new (&val_) Variant(kConstructLeft, std::move(rhs).left());
+            state_ = State::LEFT_TYPE;
+            break;
+        case State::RIGHT_TYPE:
+            new (&val_) Variant(kConstructRight, std::move(rhs).right());
+            state_ = State::RIGHT_TYPE;
+            break;
         }
     }
 
@@ -301,16 +301,16 @@ public:
 
         reset();
         switch (rhs.state_) {
-            case State::VOID:
-                break;
-            case State::LEFT_TYPE:
-                new (&val_) Variant(kConstructLeft, rhs.left());
-                state_ = State::LEFT_TYPE;
-                break;
-            case State::RIGHT_TYPE:
-                new (&val_) Variant(kConstructRight, rhs.right());
-                state_ = State::RIGHT_TYPE;
-                break;
+        case State::VOID:
+            break;
+        case State::LEFT_TYPE:
+            new (&val_) Variant(kConstructLeft, rhs.left());
+            state_ = State::LEFT_TYPE;
+            break;
+        case State::RIGHT_TYPE:
+            new (&val_) Variant(kConstructRight, rhs.right());
+            state_ = State::RIGHT_TYPE;
+            break;
         }
         return *this;
     }
@@ -323,16 +323,16 @@ public:
 
         reset();
         switch (rhs.state_) {
-            case State::VOID:
-                break;
-            case State::LEFT_TYPE:
-                new (&val_) Variant(kConstructLeft, std::move(rhs).left());
-                state_ = State::LEFT_TYPE;
-                break;
-            case State::RIGHT_TYPE:
-                new (&val_) Variant(kConstructRight, std::move(rhs).right());
-                state_ = State::RIGHT_TYPE;
-                break;
+        case State::VOID:
+            break;
+        case State::LEFT_TYPE:
+            new (&val_) Variant(kConstructLeft, std::move(rhs).left());
+            state_ = State::LEFT_TYPE;
+            break;
+        case State::RIGHT_TYPE:
+            new (&val_) Variant(kConstructRight, std::move(rhs).right());
+            state_ = State::RIGHT_TYPE;
+            break;
         }
         return *this;
     }
@@ -344,16 +344,16 @@ public:
     operator=(const EitherOr<U, V>& rhs) noexcept {
         reset();
         switch (rhs.state_) {
-            case State::VOID:
-                break;
-            case State::LEFT_TYPE:
-                new (&val_) Variant(kConstructLeft, rhs.left());
-                state_ = State::LEFT_TYPE;
-                break;
-            case State::RIGHT_TYPE:
-                new (&val_) Variant(kConstructRight, rhs.right());
-                state_ = State::RIGHT_TYPE;
-                break;
+        case State::VOID:
+            break;
+        case State::LEFT_TYPE:
+            new (&val_) Variant(kConstructLeft, rhs.left());
+            state_ = State::LEFT_TYPE;
+            break;
+        case State::RIGHT_TYPE:
+            new (&val_) Variant(kConstructRight, rhs.right());
+            state_ = State::RIGHT_TYPE;
+            break;
         }
         return *this;
     }
@@ -365,16 +365,16 @@ public:
     operator=(EitherOr<U, V>&& rhs) noexcept {
         reset();
         switch (rhs.state_) {
-            case State::VOID:
-                break;
-            case State::LEFT_TYPE:
-                new (&val_) Variant(kConstructLeft, std::move(rhs).left());
-                state_ = State::LEFT_TYPE;
-                break;
-            case State::RIGHT_TYPE:
-                new (&val_) Variant(kConstructRight, std::move(rhs).right());
-                state_ = State::RIGHT_TYPE;
-                break;
+        case State::VOID:
+            break;
+        case State::LEFT_TYPE:
+            new (&val_) Variant(kConstructLeft, std::move(rhs).left());
+            state_ = State::LEFT_TYPE;
+            break;
+        case State::RIGHT_TYPE:
+            new (&val_) Variant(kConstructRight, std::move(rhs).right());
+            state_ = State::RIGHT_TYPE;
+            break;
         }
         return *this;
     }
@@ -440,13 +440,13 @@ public:
 private:
     void destruct() {
         switch (state_) {
-            case State::VOID:
-                return;
-            case State::LEFT_TYPE:
-                val_.left_.~LEFT();
-                return;
-            case State::RIGHT_TYPE:
-                val_.right_.~RIGHT();
+        case State::VOID:
+            return;
+        case State::LEFT_TYPE:
+            val_.left_.~LEFT();
+            return;
+        case State::RIGHT_TYPE:
+            val_.right_.~RIGHT();
         }
     }
 

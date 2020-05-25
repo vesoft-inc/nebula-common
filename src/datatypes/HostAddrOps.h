@@ -109,27 +109,27 @@ _loop:
     }
 
     switch (readState.fieldId) {
-        case 1: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRING)) {
-                goto _readField_host;
-            } else {
-                goto _skip;
-            }
+    case 1: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRING)) {
+            goto _readField_host;
+        } else {
+            goto _skip;
         }
-        case 2: {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I32)) {
-                goto _readField_port;
-            } else {
-                goto _skip;
-            }
+    }
+    case 2: {
+        if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I32)) {
+            goto _readField_port;
+        } else {
+            goto _skip;
         }
-        default: {
-        _skip:
-            proto->skip(readState.fieldType);
-            readState.readFieldEnd(proto);
-            readState.readFieldBeginNoInline(proto);
-            goto _loop;
-        }
+    }
+    default: {
+    _skip:
+        proto->skip(readState.fieldType);
+        readState.readFieldEnd(proto);
+        readState.readFieldBeginNoInline(proto);
+        goto _loop;
+    }
     }
 }
 

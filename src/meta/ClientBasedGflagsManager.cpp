@@ -42,17 +42,17 @@ folly::Future<StatusOr<bool>> ClientBasedGflagsManager::setConfig(const cpp2::Co
                                                                   const cpp2::ConfigType&   type,
                                                                   const VariantType&        value) {
     switch (type) {
-        case cpp2::ConfigType::INT64:
-            return set(module, name, type, boost::get<int64_t>(value));
-        case cpp2::ConfigType::DOUBLE:
-            return set(module, name, type, boost::get<double>(value));
-        case cpp2::ConfigType::BOOL:
-            return set(module, name, type, boost::get<bool>(value));
-        case cpp2::ConfigType::STRING:
-        case cpp2::ConfigType::NESTED:
-            return set(module, name, type, boost::get<std::string>(value));
-        default:
-            return Status::Error("parse value type error");
+    case cpp2::ConfigType::INT64:
+        return set(module, name, type, boost::get<int64_t>(value));
+    case cpp2::ConfigType::DOUBLE:
+        return set(module, name, type, boost::get<double>(value));
+    case cpp2::ConfigType::BOOL:
+        return set(module, name, type, boost::get<bool>(value));
+    case cpp2::ConfigType::STRING:
+    case cpp2::ConfigType::NESTED:
+        return set(module, name, type, boost::get<std::string>(value));
+    default:
+        return Status::Error("parse value type error");
     }
 }
 

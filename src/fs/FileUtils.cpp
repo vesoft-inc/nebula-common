@@ -273,32 +273,32 @@ void FileUtils::dividePath(const folly::StringPiece path,
 bool FileUtils::remove(const char* path, bool recursively) {
     auto type = fileType(path);
     switch (type) {
-        case FileType::REGULAR:
-        case FileType::SYM_LINK:
-            // Regular file or link
-            if (unlink(path)) {
-                // Failed
-                LOG(ERROR) << "Failed to remove the file \"" << path << "\" (" << errno
-                           << "): " << strerror(errno);
-                return false;
-            }
-            return true;
-        case FileType::DIRECTORY:
-            // Directory
-            return detail::removeDir(path, recursively);
-        case FileType::CHAR_DEV:
-        case FileType::BLOCK_DEV:
-        case FileType::FIFO:
-        case FileType::SOCKET:
-            LOG(ERROR) << "Only a directory, a regular file, or a soft link"
-                       << " can be removed. But \"" << path << "\" is a " << getFileTypeName(type);
+    case FileType::REGULAR:
+    case FileType::SYM_LINK:
+        // Regular file or link
+        if (unlink(path)) {
+            // Failed
+            LOG(ERROR) << "Failed to remove the file \"" << path << "\" (" << errno
+                       << "): " << strerror(errno);
             return false;
-        case FileType::NOTEXIST:
-            VLOG(2) << "The path \"" << path << "\" does not exist";
-            return true;
-        default:
-            LOG(ERROR) << "We don't know the type of \"" << path << "\"";
-            return false;
+        }
+        return true;
+    case FileType::DIRECTORY:
+        // Directory
+        return detail::removeDir(path, recursively);
+    case FileType::CHAR_DEV:
+    case FileType::BLOCK_DEV:
+    case FileType::FIFO:
+    case FileType::SOCKET:
+        LOG(ERROR) << "Only a directory, a regular file, or a soft link"
+                   << " can be removed. But \"" << path << "\" is a " << getFileTypeName(type);
+        return false;
+    case FileType::NOTEXIST:
+        VLOG(2) << "The path \"" << path << "\" does not exist";
+        return true;
+    default:
+        LOG(ERROR) << "We don't know the type of \"" << path << "\"";
+        return false;
     }
 }
 

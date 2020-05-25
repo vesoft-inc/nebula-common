@@ -178,4 +178,5 @@ BinPackArguments: false
 BinPackParameters: false
 IndentWidth:     4
 AllowShortFunctionsOnASingleLine: Empty
+IndentCaseLabels: false
 ...

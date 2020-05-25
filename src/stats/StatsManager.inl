@@ -14,14 +14,14 @@ StatsManager::VT StatsManager::readValue(StatsHolder&              stats,
                                          StatsManager::StatsMethod method) {
     size_t level = static_cast<size_t>(range);
     switch (method) {
-        case StatsMethod::SUM:
-            return stats.sum(level);
-        case StatsMethod::COUNT:
-            return stats.count(level);
-        case StatsMethod::AVG:
-            return stats.template avg<VT>(level);
-        case StatsMethod::RATE:
-            return stats.template rate<VT>(level);
+    case StatsMethod::SUM:
+        return stats.sum(level);
+    case StatsMethod::COUNT:
+        return stats.count(level);
+    case StatsMethod::AVG:
+        return stats.template avg<VT>(level);
+    case StatsMethod::RATE:
+        return stats.template rate<VT>(level);
     }
 
     LOG(FATAL) << "Unknown statistic method";

@@ -55,20 +55,20 @@ void SetFlagsHandler::onBody(std::unique_ptr<folly::IOBuf>) noexcept {
 
 void SetFlagsHandler::onEOM() noexcept {
     switch (err_) {
-        case HttpCode::E_UNSUPPORTED_METHOD:
-            ResponseBuilder(downstream_)
-                .status(WebServiceUtils::to(HttpStatusCode::METHOD_NOT_ALLOWED),
-                        WebServiceUtils::toString(HttpStatusCode::METHOD_NOT_ALLOWED))
-                .sendWithEOM();
-            return;
-        case HttpCode::E_UNPROCESSABLE:
-            ResponseBuilder(downstream_)
-                .status(WebServiceUtils::to(HttpStatusCode::BAD_REQUEST),
-                        WebServiceUtils::toString(HttpStatusCode::BAD_REQUEST))
-                .sendWithEOM();
-            return;
-        default:
-            break;
+    case HttpCode::E_UNSUPPORTED_METHOD:
+        ResponseBuilder(downstream_)
+            .status(WebServiceUtils::to(HttpStatusCode::METHOD_NOT_ALLOWED),
+                    WebServiceUtils::toString(HttpStatusCode::METHOD_NOT_ALLOWED))
+            .sendWithEOM();
+        return;
+    case HttpCode::E_UNPROCESSABLE:
+        ResponseBuilder(downstream_)
+            .status(WebServiceUtils::to(HttpStatusCode::BAD_REQUEST),
+                    WebServiceUtils::toString(HttpStatusCode::BAD_REQUEST))
+            .sendWithEOM();
+        return;
+    default:
+        break;
     }
 
     if (gflags::SetCommandLineOption(name_.c_str(), value_.c_str()).empty()) {

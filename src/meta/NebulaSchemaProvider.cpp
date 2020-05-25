@@ -100,58 +100,58 @@ void NebulaSchemaProvider::addField(folly::StringPiece name,
                                     Value              defaultValue) {
     size_t size = 0;
     switch (type) {
-        case cpp2::PropertyType::BOOL:
-            size = 1;
-            break;
-        case cpp2::PropertyType::INT64:
-            size = sizeof(int64_t);
-            break;
-        case cpp2::PropertyType::INT32:
-            size = sizeof(int32_t);
-            break;
-        case cpp2::PropertyType::INT16:
-            size = sizeof(int16_t);
-            break;
-        case cpp2::PropertyType::INT8:
-            size = sizeof(int8_t);
-            break;
-        case cpp2::PropertyType::VID:
-            // VID is deprecated in V2
-            size = sizeof(int64_t);
-            break;
-        case cpp2::PropertyType::FLOAT:
-            size = sizeof(float);
-            break;
-        case cpp2::PropertyType::DOUBLE:
-            size = sizeof(double);
-            break;
-        case cpp2::PropertyType::STRING:
-            size = 8;  // string offset + string length
-            break;
-        case cpp2::PropertyType::FIXED_STRING:
-            CHECK_GT(fixedStrLen, 0) << "Fixed string length must be greater than zero";
-            size = fixedStrLen;
-            break;
-        case cpp2::PropertyType::TIMESTAMP:
-            size = sizeof(int64_t);
-            break;
-        case cpp2::PropertyType::DATE:
-            size = sizeof(int16_t) +  // year
-                   sizeof(int8_t) +   // month
-                   sizeof(int8_t);    // day
-            break;
-        case cpp2::PropertyType::DATETIME:
-            size = sizeof(int16_t) +  // year
-                   sizeof(int8_t) +   // month
-                   sizeof(int8_t) +   // day
-                   sizeof(int8_t) +   // hour
-                   sizeof(int8_t) +   // minute
-                   sizeof(int8_t) +   // sec
-                   sizeof(int32_t) +  // microsec
-                   sizeof(int32_t);   // timezone
-            break;
-        default:
-            LOG(FATAL) << "Incorrect field type";
+    case cpp2::PropertyType::BOOL:
+        size = 1;
+        break;
+    case cpp2::PropertyType::INT64:
+        size = sizeof(int64_t);
+        break;
+    case cpp2::PropertyType::INT32:
+        size = sizeof(int32_t);
+        break;
+    case cpp2::PropertyType::INT16:
+        size = sizeof(int16_t);
+        break;
+    case cpp2::PropertyType::INT8:
+        size = sizeof(int8_t);
+        break;
+    case cpp2::PropertyType::VID:
+        // VID is deprecated in V2
+        size = sizeof(int64_t);
+        break;
+    case cpp2::PropertyType::FLOAT:
+        size = sizeof(float);
+        break;
+    case cpp2::PropertyType::DOUBLE:
+        size = sizeof(double);
+        break;
+    case cpp2::PropertyType::STRING:
+        size = 8;  // string offset + string length
+        break;
+    case cpp2::PropertyType::FIXED_STRING:
+        CHECK_GT(fixedStrLen, 0) << "Fixed string length must be greater than zero";
+        size = fixedStrLen;
+        break;
+    case cpp2::PropertyType::TIMESTAMP:
+        size = sizeof(int64_t);
+        break;
+    case cpp2::PropertyType::DATE:
+        size = sizeof(int16_t) +  // year
+               sizeof(int8_t) +   // month
+               sizeof(int8_t);    // day
+        break;
+    case cpp2::PropertyType::DATETIME:
+        size = sizeof(int16_t) +  // year
+               sizeof(int8_t) +   // month
+               sizeof(int8_t) +   // day
+               sizeof(int8_t) +   // hour
+               sizeof(int8_t) +   // minute
+               sizeof(int8_t) +   // sec
+               sizeof(int32_t) +  // microsec
+               sizeof(int32_t);   // timezone
+        break;
+    default:
+        LOG(FATAL) << "Incorrect field type";
     }
 
     size_t offset = 0;

@@ -10,18 +10,18 @@ namespace nebula {
 
 Value ArithmeticExpression::eval() const {
     switch (kind_) {
-        case Kind::kAdd:
-            return lhs_->eval() + rhs_->eval();
-        case Kind::kMinus:
-            return lhs_->eval() - rhs_->eval();
-        case Kind::kMultiply:
-            return lhs_->eval() * rhs_->eval();
-        case Kind::kDivision:
-            return lhs_->eval() / rhs_->eval();
-        case Kind::kMod:
-            return lhs_->eval() % rhs_->eval();
-        default:
-            break;
+    case Kind::kAdd:
+        return lhs_->eval() + rhs_->eval();
+    case Kind::kMinus:
+        return lhs_->eval() - rhs_->eval();
+    case Kind::kMultiply:
+        return lhs_->eval() * rhs_->eval();
+    case Kind::kDivision:
+        return lhs_->eval() / rhs_->eval();
+    case Kind::kMod:
+        return lhs_->eval() % rhs_->eval();
+    default:
+        break;
     }
     LOG(FATAL) << "Unknown type: " << kind_;
 }
