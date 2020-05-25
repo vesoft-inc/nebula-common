@@ -23,8 +23,8 @@ size_t StdHashTest(size_t iters, size_t size) {
     constexpr size_t ops = 1000000UL;
 
     std::hash<std::string> hash;
-    auto str = makeString(size);
-    auto i   = 0UL;
+    auto                   str = makeString(size);
+    auto                   i   = 0UL;
     while (i++ < ops * iters) {
         auto hv = hash(str);
         folly::doNotOptimizeAway(hv);
@@ -37,8 +37,8 @@ size_t MurmurHash2Test(size_t iters, size_t size) {
     constexpr size_t ops = 1000000UL;
 
     MurmurHash2 hash;
-    auto str = makeString(size);
-    auto i   = 0UL;
+    auto        str = makeString(size);
+    auto        i   = 0UL;
     while (i++ < ops * iters) {
         auto hv = hash(str);
         folly::doNotOptimizeAway(hv);

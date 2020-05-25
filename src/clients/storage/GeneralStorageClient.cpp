@@ -12,10 +12,10 @@ namespace nebula {
 namespace storage {
 
 folly::SemiFuture<StorageRpcResponse<cpp2::KVGetResponse>> GeneralStorageClient::get(
-    GraphSpaceID space,
+    GraphSpaceID               space,
     std::vector<std::string>&& keys,
-    bool returnPartly,
-    folly::EventBase* evb) {
+    bool                       returnPartly,
+    folly::EventBase*          evb) {
     auto status = clusterIdsToHosts(
         space, std::move(keys), [](const std::string& v) -> const std::string& { return v; });
 
@@ -24,7 +24,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::KVGetResponse>> GeneralStorageClient:
             std::runtime_error(status.status().toString()));
     }
 
-    auto& clusters = status.value();
+    auto&                                            clusters = status.value();
     std::unordered_map<HostAddr, cpp2::KVGetRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
@@ -53,7 +53,7 @@ GeneralStorageClient::put(GraphSpaceID space, std::vector<KeyValue> kvs, folly::
             std::runtime_error(status.status().toString()));
     }
 
-    auto& clusters = status.value();
+    auto&                                            clusters = status.value();
     std::unordered_map<HostAddr, cpp2::KVPutRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
@@ -72,9 +72,9 @@ GeneralStorageClient::put(GraphSpaceID space, std::vector<KeyValue> kvs, folly::
 }
 
 folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> GeneralStorageClient::remove(
-    GraphSpaceID space,
+    GraphSpaceID             space,
     std::vector<std::string> keys,
-    folly::EventBase* evb) {
+    folly::EventBase*        evb) {
     auto status = clusterIdsToHosts(
         space, std::move(keys), [](const std::string& v) -> const std::string& { return v; });
 
@@ -83,7 +83,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> GeneralStorageClient::
             std::runtime_error(status.status().toString()));
     }
 
-    auto& clusters = status.value();
+    auto&                                               clusters = status.value();
     std::unordered_map<HostAddr, cpp2::KVRemoveRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;

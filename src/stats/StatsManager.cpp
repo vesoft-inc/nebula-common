@@ -38,9 +38,9 @@ int32_t StatsManager::registerStats(folly::StringPiece counterName) {
 
     auto& sm = get();
 
-    std::string name = counterName.toString();
+    std::string                    name = counterName.toString();
     folly::RWSpinLock::WriteHolder wh(sm.nameMapLock_);
-    auto it = sm.nameMap_.find(name);
+    auto                           it = sm.nameMap_.find(name);
     if (it != sm.nameMap_.end()) {
         VLOG(2) << "The counter \"" << name << "\" already exists";
         return it->second;
@@ -59,15 +59,15 @@ int32_t StatsManager::registerStats(folly::StringPiece counterName) {
 
 // static
 int32_t StatsManager::registerHisto(folly::StringPiece counterName,
-                                    StatsManager::VT bucketSize,
-                                    StatsManager::VT min,
-                                    StatsManager::VT max) {
+                                    StatsManager::VT   bucketSize,
+                                    StatsManager::VT   min,
+                                    StatsManager::VT   max) {
     using std::chrono::seconds;
 
-    auto& sm         = get();
-    std::string name = counterName.toString();
+    auto&                          sm   = get();
+    std::string                    name = counterName.toString();
     folly::RWSpinLock::WriteHolder wh(sm.nameMapLock_);
-    auto it = sm.nameMap_.find(name);
+    auto                           it = sm.nameMap_.find(name);
     if (it != sm.nameMap_.end()) {
         VLOG(2) << "The counter \"" << name << "\" already exists";
         return it->second;
@@ -179,10 +179,10 @@ void StatsManager::readAllValue(folly::dynamic& vals) {
             for (auto range = TimeRange::FIVE_SECONDS; range <= TimeRange::ONE_HOUR;
                  range      = static_cast<TimeRange>(static_cast<int>(range) + 1)) {
                 std::string metricName = statsName.first;
-                auto status            = readStats(statsName.second, range, method);
+                auto        status     = readStats(statsName.second, range, method);
                 CHECK(status.ok());
-                int64_t metricValue = status.value();
-                folly::dynamic stat = folly::dynamic::object();
+                int64_t        metricValue = status.value();
+                folly::dynamic stat        = folly::dynamic::object();
 
                 switch (method) {
                     case StatsMethod::SUM:
@@ -225,8 +225,8 @@ void StatsManager::readAllValue(folly::dynamic& vals) {
 }
 
 // static
-StatusOr<StatsManager::VT> StatsManager::readStats(int32_t index,
-                                                   StatsManager::TimeRange range,
+StatusOr<StatsManager::VT> StatsManager::readStats(int32_t                   index,
+                                                   StatsManager::TimeRange   range,
                                                    StatsManager::StatsMethod method) {
     using std::chrono::seconds;
     auto& sm = get();
@@ -253,8 +253,8 @@ StatusOr<StatsManager::VT> StatsManager::readStats(int32_t index,
 }
 
 // static
-StatusOr<StatsManager::VT> StatsManager::readStats(const std::string& counterName,
-                                                   StatsManager::TimeRange range,
+StatusOr<StatsManager::VT> StatsManager::readStats(const std::string&        counterName,
+                                                   StatsManager::TimeRange   range,
                                                    StatsManager::StatsMethod method) {
     auto& sm = get();
 
@@ -275,9 +275,9 @@ StatusOr<StatsManager::VT> StatsManager::readStats(const std::string& counterNam
 }
 
 // static
-StatusOr<StatsManager::VT> StatsManager::readHisto(const std::string& counterName,
+StatusOr<StatsManager::VT> StatsManager::readHisto(const std::string&      counterName,
                                                    StatsManager::TimeRange range,
-                                                   double pct) {
+                                                   double                  pct) {
     using std::chrono::seconds;
     auto& sm = get();
 

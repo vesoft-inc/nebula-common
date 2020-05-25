@@ -12,7 +12,7 @@
 namespace nebula {
 
 TEST(Cord, empty) {
-    Cord cord;
+    Cord        cord;
     std::string a;
     std::string b;
     EXPECT_TRUE(cord.empty());
@@ -88,7 +88,7 @@ TEST(Cord, byteStream) {
                        0xDD,
                        0xEE,
                        0xFF};
-    Cord cord2;
+    Cord    cord2;
 
     cord2.write(reinterpret_cast<const char*>(&bytes[0]), sizeof(bytes));
     std::string str = cord2.str();
@@ -114,11 +114,11 @@ TEST(Cord, integerStream) {
                   sizeof(int64_t) + sizeof(uint64_t),
               cord.str().size());
 
-    int16_t sVal;
+    int16_t  sVal;
     uint16_t usVal;
-    int32_t iVal;
+    int32_t  iVal;
     uint32_t uiVal;
-    int64_t lVal;
+    int64_t  lVal;
     uint64_t ulVal;
 
     std::string str = cord.str();
@@ -154,7 +154,7 @@ TEST(Cord, floatStream) {
     EXPECT_EQ(sizeof(float) + sizeof(double), cord.size());
     EXPECT_EQ(sizeof(float) + sizeof(double), cord.str().size());
 
-    float fVal;
+    float  fVal;
     double dVal;
 
     std::string str = cord.str();
@@ -167,7 +167,7 @@ TEST(Cord, floatStream) {
 
 TEST(Cord, stringStream) {
     std::string str1("Hello");
-    char str2[] = "Beautiful";
+    char        str2[] = "Beautiful";
     std::string str3("World");
 
     Cord cord;

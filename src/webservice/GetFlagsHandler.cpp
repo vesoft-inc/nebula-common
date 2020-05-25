@@ -88,8 +88,8 @@ void GetFlagsHandler::onError(ProxygenError err) noexcept {
     delete this;
 }
 
-void GetFlagsHandler::addOneFlag(folly::dynamic& vals,
-                                 const std::string& flagname,
+void GetFlagsHandler::addOneFlag(folly::dynamic&                    vals,
+                                 const std::string&                 flagname,
                                  const gflags::CommandLineFlagInfo* info) {
     folly::dynamic flag = folly::dynamic::object();
     flag["name"]        = flagname;

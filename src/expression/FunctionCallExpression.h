@@ -50,7 +50,7 @@ public:
     }
 
 private:
-    std::unique_ptr<std::string> name_;
+    std::unique_ptr<std::string>  name_;
     std::unique_ptr<ArgumentList> args_;
 };
 }  // namespace nebula

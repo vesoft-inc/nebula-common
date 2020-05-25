@@ -14,7 +14,7 @@
 namespace nebula {
 
 struct Tag {
-    std::string name;
+    std::string                            name;
     std::unordered_map<std::string, Value> props;
 
     Tag() = default;
@@ -46,7 +46,7 @@ struct Tag {
 };
 
 struct Vertex {
-    VertexID vid;
+    VertexID         vid;
     std::vector<Tag> tags;
 
     Vertex() = default;

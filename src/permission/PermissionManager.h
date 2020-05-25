@@ -26,9 +26,9 @@ public:
     static bool canWriteSpace(session::Session *session);
     static bool canWriteSchema(session::Session *session);
     static bool canWriteUser(session::Session *session);
-    static bool canWriteRole(session::Session *session,
-                             session::Role targetRole,
-                             GraphSpaceID spaceId,
+    static bool canWriteRole(session::Session * session,
+                             session::Role      targetRole,
+                             GraphSpaceID       spaceId,
                              const std::string &targetUser);
     static bool canWriteData(session::Session *session);
     //    static bool canShow(session::Session *session,

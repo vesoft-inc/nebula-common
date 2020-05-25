@@ -21,7 +21,7 @@ public:
     virtual ~Cord();
 
     size_t size() const noexcept;
-    bool empty() const noexcept;
+    bool   empty() const noexcept;
 
     // Apply each block to the visitor until the end or the visitor
     // returns false
@@ -62,8 +62,8 @@ public:
 private:
     const int32_t blockSize_        = 1024;
     const int32_t blockContentSize_ = 1024 - sizeof(char*);
-    int32_t blockPt_                = blockContentSize_;
-    size_t len_                     = 0;
+    int32_t       blockPt_          = blockContentSize_;
+    size_t        len_              = 0;
 
     char* head_ = nullptr;
     char* tail_ = nullptr;

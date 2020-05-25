@@ -40,7 +40,7 @@ std::unique_ptr<std::regex> Route::reToken_ =
     std::make_unique<std::regex>(":([A-Za-z][A-Za-z_0-9]*)");
 
 void Route::createPattenRegex(const std::string &path) {
-    int pos = 0;
+    int               pos = 0;
     std::stringstream ss;
     for (std::sregex_iterator next(path.begin(), path.end(), *reToken_), end; next != end; next++) {
         std::string str = next->str();

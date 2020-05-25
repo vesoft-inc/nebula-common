@@ -12,7 +12,7 @@ namespace nebula {
 namespace hdfs {
 
 StatusOr<std::string> HdfsCommandHelper::ls(const std::string& hdfsHost,
-                                            int32_t hdfsPort,
+                                            int32_t            hdfsPort,
                                             const std::string& hdfsPath) {
     auto command = folly::stringPrintf(
         "hdfs dfs -ls hdfs://%s:%d%s", hdfsHost.c_str(), hdfsPort, hdfsPath.c_str());
@@ -26,7 +26,7 @@ StatusOr<std::string> HdfsCommandHelper::ls(const std::string& hdfsHost,
 }
 
 StatusOr<std::string> HdfsCommandHelper::copyToLocal(const std::string& hdfsHost,
-                                                     int32_t hdfsPort,
+                                                     int32_t            hdfsPort,
                                                      const std::string& hdfsPath,
                                                      const std::string& localPath) {
     auto command = folly::stringPrintf("hdfs dfs -copyToLocal hdfs://%s:%d%s %s",

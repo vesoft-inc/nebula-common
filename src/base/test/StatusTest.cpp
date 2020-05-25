@@ -57,7 +57,7 @@ TEST(Status, StreamOperator) {
 TEST(Status, Copy) {
     {
         Status ok;
-        auto copy = ok;
+        auto   copy = ok;
         ASSERT_TRUE(ok.ok());
         ASSERT_TRUE(copy.ok());
     }
@@ -74,7 +74,7 @@ TEST(Status, Copy) {
 TEST(Status, Move) {
     {
         Status ok;
-        auto move = std::move(ok);
+        auto   move = std::move(ok);
         ASSERT_TRUE(ok.ok());
         ASSERT_TRUE(move.ok());
     }

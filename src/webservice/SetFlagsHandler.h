@@ -31,7 +31,7 @@ public:
     void onError(proxygen::ProxygenError err) noexcept override;
 
 private:
-    HttpCode err_{HttpCode::SUCCEEDED};
+    HttpCode    err_{HttpCode::SUCCEEDED};
     std::string name_;
     std::string value_;
 };

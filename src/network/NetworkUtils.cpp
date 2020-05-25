@@ -50,7 +50,7 @@ StatusOr<std::vector<std::string>> NetworkUtils::listIPv4s() {
     if (!result.ok()) {
         return std::move(result).status();
     }
-    auto getval = [](const auto& entry) { return entry.second; };
+    auto                     getval = [](const auto& entry) { return entry.second; };
     std::vector<std::string> ipv4s;
     ipv4s.resize(result.value().size());
     std::transform(result.value().begin(), result.value().end(), ipv4s.begin(), getval);
@@ -58,7 +58,7 @@ StatusOr<std::vector<std::string>> NetworkUtils::listIPv4s() {
 }
 
 StatusOr<std::unordered_map<std::string, std::string>> NetworkUtils::listDeviceAndIPv4s() {
-    struct ifaddrs* iflist;
+    struct ifaddrs*                              iflist;
     std::unordered_map<std::string, std::string> dev2ipv4s;
     if (::getifaddrs(&iflist) != 0) {
         return Status::Error("%s", ::strerror(errno));
@@ -107,7 +107,7 @@ bool NetworkUtils::getDynamicPortRange(uint16_t& low, uint16_t& high) {
 }
 
 std::unordered_set<uint16_t> NetworkUtils::getPortsInUse() {
-    static const std::regex regex("[^:]+:[^:]+:([0-9A-F]+).+");
+    static const std::regex      regex("[^:]+:[^:]+:([0-9A-F]+).+");
     std::unordered_set<uint16_t> inUse;
     {
         fs::FileUtils::FileLineIterator iter("/proc/net/tcp", &regex);
@@ -169,7 +169,7 @@ uint16_t NetworkUtils::getAvailablePort() {
     VLOG(1) << "Dynamic port range is [" << low << ", " << high << "]";
 
     std::unordered_set<uint16_t> portsInUse = getPortsInUse();
-    uint16_t port                           = 0;
+    uint16_t                     port       = 0;
     while (true) {
         // NOTE
         // The availablity of port number *outside* the ephemeral port range is
@@ -188,7 +188,7 @@ uint16_t NetworkUtils::getAvailablePort() {
 
 StatusOr<std::vector<HostAddr>> NetworkUtils::resolveHost(const std::string& host, int32_t port) {
     std::vector<HostAddr> addrs;
-    struct addrinfo hints, *res, *rp;
+    struct addrinfo       hints, *res, *rp;
     ::memset(&hints, 0, sizeof(struct addrinfo));
 
     hints.ai_family   = AF_UNSPEC;
@@ -253,7 +253,7 @@ std::string NetworkUtils::intToIPv4(uint32_t ip) {
     auto& f3 = kDict[(ip >> 16) & 0x000000FF];
     auto& f4 = kDict[(ip >> 24) & 0x000000FF];
 
-    char buf[16];
+    char  buf[16];
     char* pt = buf;
     strcpy(pt, f4.c_str());  // NOLINT
     pt += f4.size();
@@ -271,7 +271,7 @@ std::string NetworkUtils::intToIPv4(uint32_t ip) {
 }
 
 StatusOr<std::vector<HostAddr>> NetworkUtils::toHosts(const std::string& peersStr) {
-    std::vector<HostAddr> hosts;
+    std::vector<HostAddr>    hosts;
     std::vector<std::string> peers;
     folly::split(",", peersStr, peers, true);
     hosts.reserve(peers.size());

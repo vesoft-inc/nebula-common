@@ -34,14 +34,14 @@ public:
 private:
     folly::dynamic getStats() const;
     void addOneStat(folly::dynamic& vals, const std::string& statName, int64_t statValue) const;
-    void addOneStat(folly::dynamic& vals,
+    void addOneStat(folly::dynamic&    vals,
                     const std::string& statName,
                     const std::string& error) const;
     std::string toStr(folly::dynamic& vals) const;
 
 private:
-    HttpCode err_{HttpCode::SUCCEEDED};
-    bool returnJson_{false};
+    HttpCode                 err_{HttpCode::SUCCEEDED};
+    bool                     returnJson_{false};
     std::vector<std::string> statNames_;
 };
 

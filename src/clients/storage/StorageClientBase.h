@@ -72,13 +72,13 @@ public:
 
 private:
     const size_t totalReqsSent_;
-    size_t failedReqs_{0};
+    size_t       failedReqs_{0};
 
-    Result result_{Result::ALL_SUCCEEDED};
+    Result                                                    result_{Result::ALL_SUCCEEDED};
     std::unordered_map<PartitionID, storage::cpp2::ErrorCode> failedParts_;
-    int32_t maxLatency_{0};
-    std::vector<Response> responses_;
-    std::vector<std::tuple<HostAddr, int32_t, int32_t>> hostLatency_;
+    int32_t                                                   maxLatency_{0};
+    std::vector<Response>                                     responses_;
+    std::vector<std::tuple<HostAddr, int32_t, int32_t>>       hostLatency_;
 };
 
 /**
@@ -88,13 +88,13 @@ template <typename ClientType>
 class StorageClientBase {
 protected:
     StorageClientBase(std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool,
-                      meta::MetaClient* metaClient);
+                      meta::MetaClient*                            metaClient);
     virtual ~StorageClientBase();
 
-    virtual void loadLeader() const;
+    virtual void   loadLeader() const;
     const HostAddr getLeader(const meta::PartHosts& partHosts) const;
-    void updateLeader(GraphSpaceID spaceId, PartitionID partId, const HostAddr& leader);
-    void invalidLeader(GraphSpaceID spaceId, PartitionID partId);
+    void           updateLeader(GraphSpaceID spaceId, PartitionID partId, const HostAddr& leader);
+    void           invalidLeader(GraphSpaceID spaceId, PartitionID partId);
 
     template <class Request,
               class RemoteFunc,
@@ -102,18 +102,18 @@ protected:
               class Response = typename std::result_of<
                   RemoteFunc(ClientType*, const Request&)>::type::value_type>
     folly::SemiFuture<StorageRpcResponse<Response>> collectResponse(
-        folly::EventBase* evb,
+        folly::EventBase*                     evb,
         std::unordered_map<HostAddr, Request> requests,
-        RemoteFunc&& remoteFunc,
-        GetPartIDFunc getPartIDFunc);
+        RemoteFunc&&                          remoteFunc,
+        GetPartIDFunc                         getPartIDFunc);
 
     template <class Request,
               class RemoteFunc,
               class Response = typename std::result_of<
                   RemoteFunc(ClientType* client, const Request&)>::type::value_type>
-    folly::Future<StatusOr<Response>> getResponse(folly::EventBase* evb,
+    folly::Future<StatusOr<Response>> getResponse(folly::EventBase*            evb,
                                                   std::pair<HostAddr, Request> request,
-                                                  RemoteFunc remoteFunc);
+                                                  RemoteFunc                   remoteFunc);
 
     // Cluster given ids into the host they belong to
     // The method returns a map
@@ -137,10 +137,10 @@ protected:
     meta::MetaClient* metaClient_{nullptr};
 
 private:
-    std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool_;
+    std::shared_ptr<folly::IOThreadPoolExecutor>             ioThreadPool_;
     std::unique_ptr<thrift::ThriftClientManager<ClientType>> clientsMan_;
 
-    mutable folly::RWSpinLock leadersLock_;
+    mutable folly::RWSpinLock                                                  leadersLock_;
     mutable std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr> leaders_;
     mutable std::atomic_bool loadLeaderBefore_{false};
     mutable std::atomic_bool isLoadingLeader_{false};

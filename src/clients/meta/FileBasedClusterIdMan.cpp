@@ -45,7 +45,7 @@ ClusterID FileBasedClusterIdMan::getClusterIdFromFile(const std::string& filenam
         return 0;
     }
     ClusterID clusterId = 0;
-    int len             = ::read(fd, reinterpret_cast<char*>(&clusterId), sizeof(ClusterID));
+    int       len       = ::read(fd, reinterpret_cast<char*>(&clusterId), sizeof(ClusterID));
     if (len != sizeof(ClusterID)) {
         LOG(ERROR) << "Get clusterId failed!";
         ::close(fd);

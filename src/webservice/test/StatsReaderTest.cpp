@@ -37,7 +37,7 @@ private:
 };
 
 TEST(StatsReaderTest, GetStatsTest) {
-    auto statId = StatsManager::registerStats("stat01");
+    auto                     statId = StatsManager::registerStats("stat01");
     std::vector<std::thread> threads;
     for (int i = 0; i < 10; i++) {
         threads.emplace_back([statId, i]() {
@@ -148,7 +148,7 @@ TEST(StatsReaderTest, GetStatsTest) {
 }
 
 TEST(StatsReaderTest, GetHistoTest) {
-    auto statId = StatsManager::registerHisto("stat02", 1, 1, 100);
+    auto                     statId = StatsManager::registerHisto("stat02", 1, 1, 100);
     std::vector<std::thread> threads;
     for (int i = 0; i < 10; i++) {
         threads.emplace_back([statId, i]() {

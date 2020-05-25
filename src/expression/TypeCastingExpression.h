@@ -35,7 +35,7 @@ public:
     }
 
 private:
-    Value::Type vType_;
+    Value::Type                 vType_;
     std::unique_ptr<Expression> operand_;
 };
 }  // namespace nebula

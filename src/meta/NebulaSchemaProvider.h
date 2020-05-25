@@ -22,14 +22,14 @@ class NebulaSchemaProvider : public SchemaProviderIf {
 public:
     class SchemaField final : public SchemaProviderIf::Field {
     public:
-        SchemaField(std::string name,
+        SchemaField(std::string        name,
                     cpp2::PropertyType type,
-                    bool nullable,
-                    bool hasDefault,
-                    Value defaultValue,
-                    size_t size,
-                    size_t offset,
-                    size_t nullFlagPos)
+                    bool               nullable,
+                    bool               hasDefault,
+                    Value              defaultValue,
+                    size_t             size,
+                    size_t             offset,
+                    size_t             nullFlagPos)
             : name_(std::move(name)),
               type_(std::move(type)),
               nullable_(nullable),
@@ -73,26 +73,26 @@ public:
         }
 
     private:
-        std::string name_;
+        std::string        name_;
         cpp2::PropertyType type_;
-        bool nullable_;
-        bool hasDefault_;
-        Value defaultValue_;
-        size_t size_;
-        size_t offset_;
-        size_t nullFlagPos_;
+        bool               nullable_;
+        bool               hasDefault_;
+        Value              defaultValue_;
+        size_t             size_;
+        size_t             offset_;
+        size_t             nullFlagPos_;
     };
 
 public:
     explicit NebulaSchemaProvider(SchemaVer ver) : ver_(ver), numNullableFields_(0) {}
 
     SchemaVer getVersion() const noexcept override;
-    size_t getNumFields() const noexcept override;
-    size_t getNumNullableFields() const noexcept override;
+    size_t    getNumFields() const noexcept override;
+    size_t    getNumNullableFields() const noexcept override;
 
     size_t size() const noexcept override;
 
-    int64_t getFieldIndex(const folly::StringPiece name) const override;
+    int64_t     getFieldIndex(const folly::StringPiece name) const override;
     const char* getFieldName(int64_t index) const override;
 
     cpp2::PropertyType getFieldType(int64_t index) const override;
@@ -103,9 +103,9 @@ public:
 
     void addField(folly::StringPiece name,
                   cpp2::PropertyType type,
-                  size_t fixedStrLen = 0,
-                  bool nullable      = false,
-                  Value defaultValue = Value());
+                  size_t             fixedStrLen  = 0,
+                  bool               nullable     = false,
+                  Value              defaultValue = Value());
 
     void setProp(cpp2::SchemaProp schemaProp);
 
@@ -121,9 +121,9 @@ protected:
 
     // fieldname -> index
     std::unordered_map<std::string, int64_t> fieldNameIndex_;
-    std::vector<SchemaField> fields_;
-    size_t numNullableFields_;
-    cpp2::SchemaProp schemaProp_;
+    std::vector<SchemaField>                 fields_;
+    size_t                                   numNullableFields_;
+    cpp2::SchemaProp                         schemaProp_;
 };
 
 }  // namespace meta

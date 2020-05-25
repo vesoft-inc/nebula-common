@@ -32,7 +32,7 @@ public:
     const char* path() const;
 
 private:
-    bool autoDelete_;
+    bool                    autoDelete_;
     std::unique_ptr<char[]> path_;
 };
 

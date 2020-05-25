@@ -171,6 +171,7 @@ ColumnLimit:     100
 ObjCBlockIndentWidth: 4
 AlignEscapedNewlines: Right
 AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
 AlwaysBreakBeforeMultilineStrings: false
 BinPackArguments: false
 BinPackParameters: false

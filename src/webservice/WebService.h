@@ -50,10 +50,10 @@ public:
     }
 
 private:
-    bool started_{false};
+    bool                                  started_{false};
     std::unique_ptr<proxygen::HTTPServer> server_;
-    std::unique_ptr<thread::NamedThread> wsThread_;
-    std::unique_ptr<web::Router> router_;
+    std::unique_ptr<thread::NamedThread>  wsThread_;
+    std::unique_ptr<web::Router>          router_;
 };
 
 }  // namespace nebula

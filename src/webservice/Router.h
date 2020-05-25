@@ -54,17 +54,17 @@ public:
 
 private:
     static void checkPath(const std::string &path);
-    void setPath(const std::string &path);
-    void createPattenRegex(const std::string &path);
+    void        setPath(const std::string &path);
+    void        createPattenRegex(const std::string &path);
 
     static std::unique_ptr<std::regex> reToken_;
 
-    Route *next_{nullptr};
-    proxygen::HTTPMethod method_;
-    std::string path_;
+    Route *                     next_{nullptr};
+    proxygen::HTTPMethod        method_;
+    std::string                 path_;
     std::unique_ptr<std::regex> pattern_;
-    ReqHandlerGenerator generator_;
-    std::vector<std::string> groups_;
+    ReqHandlerGenerator         generator_;
+    std::vector<std::string>    groups_;
 };
 
 class Router final : public cpp::NonCopyable, public cpp::NonMovable {
@@ -97,9 +97,9 @@ public:
 private:
     void append(Route *route);
 
-    std::string prefix_;
-    Route *head_{nullptr};
-    Route *tail_{nullptr};
+    std::string       prefix_;
+    Route *           head_{nullptr};
+    Route *           tail_{nullptr};
     const WebService *webSvc_;
 };
 

@@ -100,7 +100,7 @@ TEST(ProcessUtils, runCommand) {
     auto status2 = ProcessUtils::runCommand("cat /etc/profile");
     ASSERT_TRUE(status2.ok()) << status2.status();
     std::ifstream is("/etc/profile", std::ios::ate);
-    auto size = is.tellg();
+    auto          size = is.tellg();
     EXPECT_EQ(size, status2.value().size());
     std::string buf(size, '\0');
     is.seekg(0);

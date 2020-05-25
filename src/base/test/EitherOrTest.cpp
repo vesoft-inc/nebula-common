@@ -40,7 +40,7 @@ TEST(EitherOr, ConstructFromValue) {
         EXPECT_EQ("Hello World", result.right());
     }
     {
-        static char str[] = "Hello World";
+        static char                  str[] = "Hello World";
         EitherOr<char*, std::string> result(str);
         ASSERT_TRUE(result.isLeftType());
         EXPECT_EQ(str, result.left());
@@ -119,14 +119,14 @@ TEST(EitherOr, ReturnFromMoveOnlyValue) {
 
 TEST(EitherOr, CopyConstructFromDefault) {
     EitherOr<int, std::string> result1;
-    auto result2 = result1;
+    auto                       result2 = result1;
     ASSERT_TRUE(result2.isVoid());
 }
 
 TEST(EitherOr, CopyConstructFromValue) {
     {
         EitherOr<int, std::string> result1(101);
-        auto result2 = result1;
+        auto                       result2 = result1;
         ASSERT_FALSE(result1.isVoid());
         ASSERT_FALSE(result2.isVoid());
         ASSERT_EQ(101, result1.left());
@@ -134,7 +134,7 @@ TEST(EitherOr, CopyConstructFromValue) {
     }
     {
         EitherOr<int, std::string> result1("Something");
-        auto result2 = result1;
+        auto                       result2 = result1;
         ASSERT_FALSE(result1.isVoid());
         ASSERT_FALSE(result2.isVoid());
         ASSERT_EQ("Something", result1.right());
@@ -158,7 +158,7 @@ TEST(EitherOr, CopyConstructFromValue) {
 
 TEST(EitherOr, CopyAssignFromDefault) {
     EitherOr<int, std::string> result1;
-    decltype(result1) result2;
+    decltype(result1)          result2;
     result2 = result1;
     ASSERT_TRUE(result1.isVoid());
     ASSERT_TRUE(result2.isVoid());
@@ -167,7 +167,7 @@ TEST(EitherOr, CopyAssignFromDefault) {
 TEST(EitherOr, CopyAssignFromValue) {
     {
         EitherOr<int, std::string> result1(101);
-        decltype(result1) result2;
+        decltype(result1)          result2;
         result2 = result1;
         ASSERT_FALSE(result1.isVoid());
         ASSERT_FALSE(result2.isVoid());
@@ -178,7 +178,7 @@ TEST(EitherOr, CopyAssignFromValue) {
     }
     {
         EitherOr<int, std::string> result1("SomeValue");
-        decltype(result1) result2;
+        decltype(result1)          result2;
         result2 = result1;
         ASSERT_TRUE(result1.isRightType());
         ASSERT_TRUE(result2.isRightType());
@@ -203,7 +203,7 @@ TEST(EitherOr, CopyAssignFromValue) {
 
 TEST(EitherOr, MoveConstructFromDefault) {
     EitherOr<int, std::string> result1;
-    auto result2 = std::move(result1);
+    auto                       result2 = std::move(result1);
     ASSERT_TRUE(result1.isVoid());
     ASSERT_TRUE(result2.isVoid());
 }
@@ -211,7 +211,7 @@ TEST(EitherOr, MoveConstructFromDefault) {
 TEST(EitherOr, MoveConstructFromValue) {
     {
         EitherOr<int, std::string> result1(101);
-        auto result2 = std::move(result1);
+        auto                       result2 = std::move(result1);
         ASSERT_TRUE(result1.isVoid());
         ASSERT_FALSE(result2.isVoid());
         ASSERT_TRUE(result2.isLeftType());
@@ -219,7 +219,7 @@ TEST(EitherOr, MoveConstructFromValue) {
     }
     {
         EitherOr<int, std::string> result1("SomeValue");
-        auto result2 = std::move(result1);
+        auto                       result2 = std::move(result1);
         ASSERT_TRUE(result1.isVoid());
         ASSERT_TRUE(result2.isRightType());
         EXPECT_EQ("SomeValue", result2.right());
@@ -242,7 +242,7 @@ TEST(EitherOr, MoveConstructFromValue) {
 
 TEST(EitherOr, MoveAssignFromDefault) {
     EitherOr<int, std::string> result1;
-    decltype(result1) result2;
+    decltype(result1)          result2;
     result2 = std::move(result1);
     ASSERT_TRUE(result1.isVoid());
     ASSERT_TRUE(result2.isVoid());
@@ -251,7 +251,7 @@ TEST(EitherOr, MoveAssignFromDefault) {
 TEST(EitherOr, MoveAssignFromValue) {
     {
         EitherOr<int, std::string> result1(101);
-        decltype(result1) result2;
+        decltype(result1)          result2;
         result2 = std::move(result1);
         ASSERT_TRUE(result1.isVoid());
         ASSERT_FALSE(result2.isVoid());
@@ -260,7 +260,7 @@ TEST(EitherOr, MoveAssignFromValue) {
     }
     {
         EitherOr<int, std::string> result1("SomeValue");
-        decltype(result1) result2;
+        decltype(result1)          result2;
         result2 = std::move(result1);
         ASSERT_TRUE(result1.isVoid());
         ASSERT_TRUE(result2.isRightType());

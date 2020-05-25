@@ -13,7 +13,7 @@ namespace algorithm {
 TEST(ReservoirSamplingTest, Sample) {
     {
         ReservoirSampling<int64_t> sampler(5);
-        std::vector<int64_t> sampleSpace = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        std::vector<int64_t>       sampleSpace = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
         for (auto i : sampleSpace) {
             sampler.sampling(std::move(i));
         }
@@ -27,7 +27,7 @@ TEST(ReservoirSamplingTest, Sample) {
     }
     {
         ReservoirSampling<int64_t> sampler(5);
-        std::vector<int64_t> sampleSpace = {0, 1, 2};
+        std::vector<int64_t>       sampleSpace = {0, 1, 2};
         for (auto i : sampleSpace) {
             sampler.sampling(std::move(i));
         }

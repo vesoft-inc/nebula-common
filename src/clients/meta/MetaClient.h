@@ -48,14 +48,14 @@ using NameIndexMap = std::unordered_map<std::pair<GraphSpaceID, std::string>, In
 using Indexes = std::unordered_map<IndexID, std::shared_ptr<cpp2::IndexItem>>;
 
 struct SpaceInfoCache {
-    std::string spaceName;
-    PartsAlloc partsAlloc_;
+    std::string                                            spaceName;
+    PartsAlloc                                             partsAlloc_;
     std::unordered_map<HostAddr, std::vector<PartitionID>> partsOnHost_;
-    TagSchemas tagSchemas_;
-    EdgeSchemas edgeSchemas_;
-    Indexes tagIndexes_;
-    Indexes edgeIndexes_;
-    int32_t vertexIdLen_ = -1;
+    TagSchemas                                             tagSchemas_;
+    EdgeSchemas                                            edgeSchemas_;
+    Indexes                                                tagIndexes_;
+    Indexes                                                edgeIndexes_;
+    int32_t                                                vertexIdLen_ = -1;
 };
 
 using LocalCache = std::unordered_map<GraphSpaceID, std::shared_ptr<SpaceInfoCache>>;
@@ -90,28 +90,28 @@ struct ConfigItem {
     ConfigItem() {}
 
     ConfigItem(const cpp2::ConfigModule& module,
-               const std::string& name,
-               const cpp2::ConfigType& type,
-               const cpp2::ConfigMode& mode,
-               const VariantType& value)
+               const std::string&        name,
+               const cpp2::ConfigType&   type,
+               const cpp2::ConfigMode&   mode,
+               const VariantType&        value)
         : module_(module), name_(name), type_(type), mode_(mode), value_(value) {}
 
     cpp2::ConfigModule module_;
-    std::string name_;
-    cpp2::ConfigType type_;
-    cpp2::ConfigMode mode_;
-    VariantType value_;
+    std::string        name_;
+    cpp2::ConfigType   type_;
+    cpp2::ConfigMode   mode_;
+    VariantType        value_;
 };
 
 struct SpaceDesc {
     SpaceDesc() {}
 
     SpaceDesc(const std::string& spaceName,
-              int32_t partNum,
-              int32_t replicaFactor,
+              int32_t            partNum,
+              int32_t            replicaFactor,
               const std::string& charsetName   = "",
               const std::string& collationName = "",
-              int32_t vidSize                  = 8)
+              int32_t            vidSize       = 8)
         : spaceName_(spaceName),
           partNum_(partNum),
           replicaFactor_(replicaFactor),
@@ -120,11 +120,11 @@ struct SpaceDesc {
           vidSize_(vidSize) {}
 
     std::string spaceName_;
-    int32_t partNum_{0};
-    int32_t replicaFactor_{0};
+    int32_t     partNum_{0};
+    int32_t     replicaFactor_{0};
     std::string charsetName_;
     std::string collationName_;
-    int32_t vidSize_{8};
+    int32_t     vidSize_{8};
 };
 
 // config cahce, get config via module and name
@@ -137,7 +137,7 @@ public:
     virtual void onSpaceAdded(GraphSpaceID spaceId)   = 0;
     virtual void onSpaceRemoved(GraphSpaceID spaceId) = 0;
     virtual void onSpaceOptionUpdated(
-        GraphSpaceID spaceId,
+        GraphSpaceID                                        spaceId,
         const std::unordered_map<std::string, std::string>& options)     = 0;
     virtual void onPartAdded(const PartHosts& partHosts)                 = 0;
     virtual void onPartRemoved(GraphSpaceID spaceId, PartitionID partId) = 0;
@@ -179,8 +179,8 @@ class MetaClient {
 
 public:
     MetaClient(std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool,
-               std::vector<HostAddr> addrs,
-               const MetaClientOptions& options = MetaClientOptions());
+               std::vector<HostAddr>                        addrs,
+               const MetaClientOptions&                     options = MetaClientOptions());
 
     virtual ~MetaClient();
 
@@ -201,12 +201,12 @@ public:
         listener_ = nullptr;
     }
 
-    folly::Future<StatusOr<cpp2::AdminJobResult>> submitJob(cpp2::AdminJobOp op,
+    folly::Future<StatusOr<cpp2::AdminJobResult>> submitJob(cpp2::AdminJobOp         op,
                                                             std::vector<std::string> paras);
 
     // Operations for parts
     folly::Future<StatusOr<GraphSpaceID>> createSpace(SpaceDesc spaceDesc,
-                                                      bool ifNotExists = false);
+                                                      bool      ifNotExists = false);
 
     folly::Future<StatusOr<std::vector<SpaceIdName>>> listSpaces();
 
@@ -217,106 +217,106 @@ public:
     folly::Future<StatusOr<std::vector<cpp2::HostItem>>> listHosts();
 
     folly::Future<StatusOr<std::vector<cpp2::PartItem>>> listParts(
-        GraphSpaceID spaceId,
+        GraphSpaceID             spaceId,
         std::vector<PartitionID> partIds);
 
     folly::Future<StatusOr<PartsAlloc>> getPartsAlloc(GraphSpaceID spaceId);
 
     // Operations for schema
     folly::Future<StatusOr<TagID>> createTagSchema(GraphSpaceID spaceId,
-                                                   std::string name,
+                                                   std::string  name,
                                                    cpp2::Schema schema,
-                                                   bool ifNotExists = false);
+                                                   bool         ifNotExists = false);
 
-    folly::Future<StatusOr<TagID>> alterTagSchema(GraphSpaceID spaceId,
-                                                  std::string name,
+    folly::Future<StatusOr<TagID>> alterTagSchema(GraphSpaceID                       spaceId,
+                                                  std::string                        name,
                                                   std::vector<cpp2::AlterSchemaItem> items,
-                                                  cpp2::SchemaProp schemaProp);
+                                                  cpp2::SchemaProp                   schemaProp);
 
     folly::Future<StatusOr<std::vector<cpp2::TagItem>>> listTagSchemas(GraphSpaceID spaceId);
 
-    folly::Future<StatusOr<bool>> dropTagSchema(int32_t spaceId,
+    folly::Future<StatusOr<bool>> dropTagSchema(int32_t     spaceId,
                                                 std::string name,
-                                                bool ifExists = false);
+                                                bool        ifExists = false);
 
     // Return the latest schema when ver = -1
-    folly::Future<StatusOr<cpp2::Schema>> getTagSchema(int32_t spaceId,
+    folly::Future<StatusOr<cpp2::Schema>> getTagSchema(int32_t     spaceId,
                                                        std::string name,
-                                                       SchemaVer version = -1);
+                                                       SchemaVer   version = -1);
 
     folly::Future<StatusOr<EdgeType>> createEdgeSchema(GraphSpaceID spaceId,
-                                                       std::string name,
+                                                       std::string  name,
                                                        cpp2::Schema schema,
-                                                       bool ifNotExists = false);
+                                                       bool         ifNotExists = false);
 
-    folly::Future<StatusOr<bool>> alterEdgeSchema(GraphSpaceID spaceId,
-                                                  std::string name,
+    folly::Future<StatusOr<bool>> alterEdgeSchema(GraphSpaceID                       spaceId,
+                                                  std::string                        name,
                                                   std::vector<cpp2::AlterSchemaItem> items,
-                                                  cpp2::SchemaProp schemaProp);
+                                                  cpp2::SchemaProp                   schemaProp);
 
     folly::Future<StatusOr<std::vector<cpp2::EdgeItem>>> listEdgeSchemas(GraphSpaceID spaceId);
 
     // Return the latest schema when ver = -1
     folly::Future<StatusOr<cpp2::Schema>> getEdgeSchema(GraphSpaceID spaceId,
-                                                        std::string name,
-                                                        SchemaVer version = -1);
+                                                        std::string  name,
+                                                        SchemaVer    version = -1);
 
     folly::Future<StatusOr<bool>> dropEdgeSchema(GraphSpaceID spaceId,
-                                                 std::string name,
-                                                 bool ifExists = false);
+                                                 std::string  name,
+                                                 bool         ifExists = false);
 
     // Operations for index
-    folly::Future<StatusOr<IndexID>> createTagIndex(GraphSpaceID spaceID,
-                                                    std::string indexName,
-                                                    std::string tagName,
+    folly::Future<StatusOr<IndexID>> createTagIndex(GraphSpaceID             spaceID,
+                                                    std::string              indexName,
+                                                    std::string              tagName,
                                                     std::vector<std::string> fields,
-                                                    bool ifNotExists = false);
+                                                    bool                     ifNotExists = false);
 
     // Remove the define of tag index
     folly::Future<StatusOr<bool>> dropTagIndex(GraphSpaceID spaceId,
-                                               std::string name,
-                                               bool ifExists = false);
+                                               std::string  name,
+                                               bool         ifExists = false);
 
     folly::Future<StatusOr<cpp2::IndexItem>> getTagIndex(GraphSpaceID spaceId, std::string name);
 
     folly::Future<StatusOr<std::vector<cpp2::IndexItem>>> listTagIndexes(GraphSpaceID spaceId);
 
     folly::Future<StatusOr<bool>> rebuildTagIndex(GraphSpaceID spaceID,
-                                                  std::string name,
-                                                  bool isOffline);
+                                                  std::string  name,
+                                                  bool         isOffline);
 
     folly::Future<StatusOr<std::vector<cpp2::IndexStatus>>> listTagIndexStatus(
         GraphSpaceID spaceId);
 
-    folly::Future<StatusOr<IndexID>> createEdgeIndex(GraphSpaceID spaceID,
-                                                     std::string indexName,
-                                                     std::string edgeName,
+    folly::Future<StatusOr<IndexID>> createEdgeIndex(GraphSpaceID             spaceID,
+                                                     std::string              indexName,
+                                                     std::string              edgeName,
                                                      std::vector<std::string> fields,
-                                                     bool ifNotExists = false);
+                                                     bool                     ifNotExists = false);
 
     // Remove the definition of edge index
     folly::Future<StatusOr<bool>> dropEdgeIndex(GraphSpaceID spaceId,
-                                                std::string name,
-                                                bool ifExists = false);
+                                                std::string  name,
+                                                bool         ifExists = false);
 
     folly::Future<StatusOr<cpp2::IndexItem>> getEdgeIndex(GraphSpaceID spaceId, std::string name);
 
     folly::Future<StatusOr<std::vector<cpp2::IndexItem>>> listEdgeIndexes(GraphSpaceID spaceId);
 
     folly::Future<StatusOr<bool>> rebuildEdgeIndex(GraphSpaceID spaceId,
-                                                   std::string name,
-                                                   bool isOffline);
+                                                   std::string  name,
+                                                   bool         isOffline);
 
     folly::Future<StatusOr<std::vector<cpp2::IndexStatus>>> listEdgeIndexStatus(
         GraphSpaceID spaceId);
 
     // Operations for custom kv
-    folly::Future<StatusOr<bool>> multiPut(std::string segment,
+    folly::Future<StatusOr<bool>> multiPut(std::string                                      segment,
                                            std::vector<std::pair<std::string, std::string>> pairs);
 
     folly::Future<StatusOr<std::string>> get(std::string segment, std::string key);
 
-    folly::Future<StatusOr<std::vector<std::string>>> multiGet(std::string segment,
+    folly::Future<StatusOr<std::vector<std::string>>> multiGet(std::string              segment,
                                                                std::vector<std::string> keys);
 
     folly::Future<StatusOr<std::vector<std::string>>> scan(std::string segment,
@@ -332,7 +332,7 @@ public:
     // Operations for users.
     folly::Future<StatusOr<bool>> createUser(std::string account,
                                              std::string password,
-                                             bool ifNotExists);
+                                             bool        ifNotExists);
 
     folly::Future<StatusOr<bool>> dropUser(std::string account, bool ifExists);
 
@@ -364,12 +364,12 @@ public:
 
     folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>> getConfig(
         const cpp2::ConfigModule& module,
-        const std::string& name);
+        const std::string&        name);
 
     folly::Future<StatusOr<bool>> setConfig(const cpp2::ConfigModule& module,
-                                            const std::string& name,
-                                            const cpp2::ConfigType& type,
-                                            const std::string& value);
+                                            const std::string&        name,
+                                            const cpp2::ConfigType&   type,
+                                            const std::string&        value);
 
     folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>> listConfigs(
         const cpp2::ConfigModule& module);
@@ -392,13 +392,13 @@ public:
     StatusOr<SchemaVer> getLatestTagVersionFromCache(const GraphSpaceID& space, const TagID& tagId);
 
     StatusOr<SchemaVer> getLatestEdgeVersionFromCache(const GraphSpaceID& space,
-                                                      const EdgeType& edgeType);
+                                                      const EdgeType&     edgeType);
 
     StatusOr<EdgeType> getEdgeTypeByNameFromCache(const GraphSpaceID& space,
-                                                  const std::string& name);
+                                                  const std::string&  name);
 
     StatusOr<std::string> getEdgeNameByTypeFromCache(const GraphSpaceID& space,
-                                                     const EdgeType edgeType);
+                                                     const EdgeType      edgeType);
 
     // get all lastest version edge
     StatusOr<std::vector<std::string>> getAllEdgeFromCache(const GraphSpaceID& space);
@@ -432,13 +432,13 @@ public:
                                                                            const std::string& name);
 
     StatusOr<std::shared_ptr<cpp2::IndexItem>> getTagIndexFromCache(GraphSpaceID spaceId,
-                                                                    IndexID indexID);
+                                                                    IndexID      indexID);
 
     StatusOr<TagID> getRelatedTagIDByIndexNameFromCache(const GraphSpaceID space,
                                                         const std::string& indexName);
 
     StatusOr<std::shared_ptr<cpp2::IndexItem>> getEdgeIndexFromCache(GraphSpaceID spaceId,
-                                                                     IndexID indexID);
+                                                                     IndexID      indexID);
 
     StatusOr<EdgeType> getRelatedEdgeTypeByIndexNameFromCache(const GraphSpaceID space,
                                                               const std::string& indexName);
@@ -455,12 +455,12 @@ public:
 
     const std::vector<HostAddr>& getAddresses();
 
-    folly::Future<StatusOr<std::string>> getTagDefaultValue(GraphSpaceID spaceId,
-                                                            TagID tagId,
+    folly::Future<StatusOr<std::string>> getTagDefaultValue(GraphSpaceID       spaceId,
+                                                            TagID              tagId,
                                                             const std::string& field);
 
-    folly::Future<StatusOr<std::string>> getEdgeDefaultValue(GraphSpaceID spaceId,
-                                                             EdgeType edgeType,
+    folly::Future<StatusOr<std::string>> getEdgeDefaultValue(GraphSpaceID       spaceId,
+                                                             EdgeType           edgeType,
                                                              const std::string& field);
 
     std::vector<cpp2::RoleItem> getRolesByUserFromCache(const std::string& user);
@@ -481,15 +481,15 @@ protected:
     void updateGflagsValue(const ConfigItem& item);
     void updateNestedGflags(const std::string& name);
 
-    bool loadSchemas(GraphSpaceID spaceId,
+    bool loadSchemas(GraphSpaceID                    spaceId,
                      std::shared_ptr<SpaceInfoCache> spaceInfoCache,
-                     SpaceTagNameIdMap& tagNameIdMap,
-                     SpaceTagIdNameMap& tagIdNameMap,
-                     SpaceEdgeNameTypeMap& edgeNameTypeMap,
-                     SpaceEdgeTypeNameMap& edgeTypeNamemap,
-                     SpaceNewestTagVerMap& newestTagVerMap,
-                     SpaceNewestEdgeVerMap& newestEdgeVerMap,
-                     SpaceAllEdgeMap& allEdgemap);
+                     SpaceTagNameIdMap&              tagNameIdMap,
+                     SpaceTagIdNameMap&              tagIdNameMap,
+                     SpaceEdgeNameTypeMap&           edgeNameTypeMap,
+                     SpaceEdgeTypeNameMap&           edgeTypeNamemap,
+                     SpaceNewestTagVerMap&           newestTagVerMap,
+                     SpaceNewestEdgeVerMap&          newestEdgeVerMap,
+                     SpaceAllEdgeMap&                allEdgemap);
 
     bool loadUsersAndRoles();
 
@@ -525,13 +525,13 @@ protected:
                   RemoteFunc(std::shared_ptr<meta::cpp2::MetaServiceAsyncClient>,
                              Request)>::type::value_type,
               class Response = typename std::result_of<RespGenerator(RpcResponse)>::type>
-    void getResponse(Request req,
-                     RemoteFunc remoteFunc,
-                     RespGenerator respGen,
+    void getResponse(Request                            req,
+                     RemoteFunc                         remoteFunc,
+                     RespGenerator                      respGen,
                      folly::Promise<StatusOr<Response>> pro,
-                     bool toLeader      = false,
-                     int32_t retry      = 0,
-                     int32_t retryLimit = FLAGS_meta_client_retry_times);
+                     bool                               toLeader   = false,
+                     int32_t                            retry      = 0,
+                     int32_t                            retryLimit = FLAGS_meta_client_retry_times);
 
     std::vector<SpaceIdName> toSpaceIdName(const std::vector<cpp2::IdName>& tIdNames);
 
@@ -540,52 +540,52 @@ protected:
     PartsMap doGetPartsMap(const HostAddr& host, const LocalCache& localCache);
 
 private:
-    std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool_;
+    std::shared_ptr<folly::IOThreadPoolExecutor>                               ioThreadPool_;
     std::shared_ptr<thrift::ThriftClientManager<cpp2::MetaServiceAsyncClient>> clientsMan_;
 
     std::unordered_map<GraphSpaceID, std::vector<PartitionID>> leaderIds_;
-    folly::RWSpinLock leaderIdsLock_;
-    int64_t localLastUpdateTime_{0};
-    int64_t metadLastUpdateTime_{0};
+    folly::RWSpinLock                                          leaderIdsLock_;
+    int64_t                                                    localLastUpdateTime_{0};
+    int64_t                                                    metadLastUpdateTime_{0};
 
-    LocalCache localCache_;
+    LocalCache            localCache_;
     std::vector<HostAddr> addrs_;
     // The lock used to protect active_ and leader_.
     folly::RWSpinLock hostLock_;
-    HostAddr active_;
-    HostAddr leader_;
-    HostAddr localHost_;
+    HostAddr          active_;
+    HostAddr          leader_;
+    HostAddr          localHost_;
 
     std::unique_ptr<thread::GenericWorker> bgThread_;
-    SpaceNameIdMap spaceIndexByName_;
-    SpaceTagNameIdMap spaceTagIndexByName_;
-    SpaceEdgeNameTypeMap spaceEdgeIndexByName_;
-    SpaceEdgeTypeNameMap spaceEdgeIndexByType_;
-    SpaceTagIdNameMap spaceTagIndexById_;
-    SpaceNewestTagVerMap spaceNewestTagVerMap_;
-    SpaceNewestEdgeVerMap spaceNewestEdgeVerMap_;
-    SpaceAllEdgeMap spaceAllEdgeMap_;
+    SpaceNameIdMap                         spaceIndexByName_;
+    SpaceTagNameIdMap                      spaceTagIndexByName_;
+    SpaceEdgeNameTypeMap                   spaceEdgeIndexByName_;
+    SpaceEdgeTypeNameMap                   spaceEdgeIndexByType_;
+    SpaceTagIdNameMap                      spaceTagIndexById_;
+    SpaceNewestTagVerMap                   spaceNewestTagVerMap_;
+    SpaceNewestEdgeVerMap                  spaceNewestEdgeVerMap_;
+    SpaceAllEdgeMap                        spaceAllEdgeMap_;
 
-    UserRolesMap userRolesMap_;
+    UserRolesMap    userRolesMap_;
     UserPasswordMap userPasswordMap_;
 
     NameIndexMap tagNameIndexMap_;
     NameIndexMap edgeNameIndexMap_;
 
-    mutable folly::RWSpinLock localCacheLock_;
-    MetaChangedListener* listener_{nullptr};
-    folly::RWSpinLock listenerLock_;
-    std::atomic<ClusterID> clusterId_{0};
-    bool isRunning_{false};
-    bool sendHeartBeat_{false};
-    std::atomic_bool ready_{false};
-    MetaConfigMap metaConfigMap_;
-    folly::RWSpinLock configCacheLock_;
-    cpp2::ConfigModule gflagsModule_{cpp2::ConfigModule::UNKNOWN};
-    std::atomic_bool configReady_{false};
+    mutable folly::RWSpinLock     localCacheLock_;
+    MetaChangedListener*          listener_{nullptr};
+    folly::RWSpinLock             listenerLock_;
+    std::atomic<ClusterID>        clusterId_{0};
+    bool                          isRunning_{false};
+    bool                          sendHeartBeat_{false};
+    std::atomic_bool              ready_{false};
+    MetaConfigMap                 metaConfigMap_;
+    folly::RWSpinLock             configCacheLock_;
+    cpp2::ConfigModule            gflagsModule_{cpp2::ConfigModule::UNKNOWN};
+    std::atomic_bool              configReady_{false};
     std::vector<cpp2::ConfigItem> gflagsDeclared_;
-    bool skipConfig_ = false;
-    MetaClientOptions options_;
+    bool                          skipConfig_ = false;
+    MetaClientOptions             options_;
 };
 
 }  // namespace meta

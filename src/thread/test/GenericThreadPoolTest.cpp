@@ -54,15 +54,15 @@ TEST(GenericThreadPool, addTask) {
     ASSERT_TRUE(pool.start(1));
     // task without parameters
     {
-        volatile auto flag = false;
-        auto set_flag      = [&]() { flag = true; };
+        volatile auto flag     = false;
+        auto          set_flag = [&]() { flag = true; };
         pool.addTask(set_flag).get();
         ASSERT_TRUE(flag);
     }
     // task with parameter
     {
-        volatile auto flag = false;
-        auto set_flag      = [&](auto value) { flag = value; };
+        volatile auto flag     = false;
+        auto          set_flag = [&](auto value) { flag = value; };
         pool.addTask(set_flag, true).get();
         ASSERT_TRUE(flag);
         pool.addTask(set_flag, false).get();
@@ -98,8 +98,8 @@ TEST(GenericThreadPool, addDelayTask) {
     GenericThreadPool pool;
     ASSERT_TRUE(pool.start(1));
     {
-        auto shared = std::make_shared<int>(0);
-        auto cb     = [shared]() { return ++(*shared); };
+        auto           shared = std::make_shared<int>(0);
+        auto           cb     = [shared]() { return ++(*shared); };
         time::Duration clock;
         ASSERT_EQ(1, pool.addDelayTask(50, cb).get());
         ASSERT_GE(shared.use_count(), 2);

@@ -55,9 +55,9 @@ using SucceededResultList = std::vector<std::pair<size_t, FutureReturnType<Futur
 
 template <class FutureIter, typename ResultEval>
 folly::Future<SucceededResultList<FutureIter>> collectNSucceeded(
-    FutureIter first,
-    FutureIter last,
-    size_t n,  // NUmber of succeeded futures required
+    FutureIter   first,
+    FutureIter   last,
+    size_t       n,  // NUmber of succeeded futures required
     ResultEval&& eval);
 
 // A convenient form of ##collectNSucceeded##

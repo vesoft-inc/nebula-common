@@ -15,7 +15,7 @@ namespace thread {
 TEST(NamedThread, ThreadName) {
     std::string setname("thread");
     std::string getname;
-    auto getter = [&]() { NamedThread::Nominator::get(getname); };
+    auto        getter = [&]() { NamedThread::Nominator::get(getname); };
     NamedThread thread(setname, getter);
     thread.join();
     ASSERT_EQ(setname, getname);

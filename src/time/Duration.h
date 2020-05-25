@@ -32,7 +32,7 @@ public:
     uint64_t elapsedInUSec() const;
 
 private:
-    bool isPaused_;
+    bool     isPaused_;
     uint64_t accumulated_;
     uint64_t startTick_;
 };

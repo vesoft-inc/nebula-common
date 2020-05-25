@@ -10,7 +10,7 @@
 #include <vector>
 
 BENCHMARK(Test1_RangeTestStr) {
-    std::vector<int32_t> from;
+    std::vector<int32_t>     from;
     std::vector<std::string> to;
     BENCHMARK_SUSPEND {
         from.resize(1000, 0);
@@ -23,7 +23,7 @@ BENCHMARK(Test1_RangeTestStr) {
     folly::doNotOptimizeAway(to);
 }
 BENCHMARK_RELATIVE(Test1_TransformStr) {
-    std::vector<int32_t> from;
+    std::vector<int32_t>     from;
     std::vector<std::string> to;
     BENCHMARK_SUSPEND {
         from.resize(1000, 0);

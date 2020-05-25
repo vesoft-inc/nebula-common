@@ -25,9 +25,9 @@ TEST(BarrierTest, BasicTest) {
     }
     // test for multiple-thread normal case
     {
-        Barrier barrier(2UL);
+        Barrier             barrier(2UL);
         std::atomic<size_t> counter{0};
-        auto cb = [&]() {
+        auto                cb = [&]() {
             barrier.wait();
             ++counter;
         };
@@ -41,7 +41,7 @@ TEST(BarrierTest, BasicTest) {
     // test for multiple-thread completion
     {
         std::atomic<size_t> counter{0};
-        auto completion = [&]() {
+        auto                completion = [&]() {
             ++counter;
             ++counter;
         };
@@ -64,15 +64,15 @@ TEST(BarrierTest, BasicTest) {
 
 TEST(BarrierTest, ConsecutiveTest) {
     std::atomic<size_t> counter{0};
-    constexpr auto N     = 64UL;
-    constexpr auto iters = 100UL;
-    auto completion      = [&]() {
+    constexpr auto      N          = 64UL;
+    constexpr auto      iters      = 100UL;
+    auto                completion = [&]() {
         // At the completion phase, `counter' should be multiple to `N'.
         ASSERT_EQ(0UL, counter.load() % N);
     };
 
     Barrier barrier(N, completion);
-    auto cb = [&]() {
+    auto    cb = [&]() {
         auto i = iters;
         while (i-- != 0) {
             ++counter;

@@ -280,7 +280,7 @@ _loop:
 
 template <>
 template <class Protocol>
-uint32_t Cpp2Ops<nebula::DataSet>::serializedSize(Protocol const* proto,
+uint32_t Cpp2Ops<nebula::DataSet>::serializedSize(Protocol const*        proto,
                                                   nebula::DataSet const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("DataSet");
@@ -302,7 +302,7 @@ uint32_t Cpp2Ops<nebula::DataSet>::serializedSize(Protocol const* proto,
 
 template <>
 template <class Protocol>
-uint32_t Cpp2Ops<nebula::DataSet>::serializedSizeZC(Protocol const* proto,
+uint32_t Cpp2Ops<nebula::DataSet>::serializedSizeZC(Protocol const*        proto,
                                                     nebula::DataSet const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("DataSet");

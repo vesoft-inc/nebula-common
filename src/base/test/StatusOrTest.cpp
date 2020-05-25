@@ -109,13 +109,13 @@ TEST(StatusOr, ReturnFromMoveOnlyValue) {
 
 TEST(StatusOr, CopyConstructFromDefault) {
     StatusOr<std::string> result1;
-    auto result2 = result1;
+    auto                  result2 = result1;
     ASSERT_FALSE(result2.ok());
 }
 
 TEST(StatusOr, CopyConstructFromStatus) {
     StatusOr<std::string> result1(Status::Error("SomeError"));
-    auto result2 = result1;
+    auto                  result2 = result1;
     ASSERT_FALSE(result1.ok());
     ASSERT_FALSE(result1.status().ok());
     ASSERT_FALSE(result2.ok());
@@ -126,7 +126,7 @@ TEST(StatusOr, CopyConstructFromStatus) {
 
 TEST(StatusOr, CopyConstructFromValue) {
     StatusOr<std::string> result1("SomeValue");
-    auto result2 = result1;
+    auto                  result2 = result1;
     ASSERT_TRUE(result1.ok());
     ASSERT_TRUE(result2.ok());
     ASSERT_EQ("SomeValue", result1.value());
@@ -135,14 +135,14 @@ TEST(StatusOr, CopyConstructFromValue) {
 
 TEST(StatusOr, CopyAssignFromDefault) {
     StatusOr<std::string> result1;
-    decltype(result1) result2;
+    decltype(result1)     result2;
     result2 = result1;
     ASSERT_FALSE(result2.ok());
 }
 
 TEST(StatusOr, CopyAssignFromStatus) {
     StatusOr<std::string> result1(Status::Error("SomeError"));
-    decltype(result1) result2;
+    decltype(result1)     result2;
     result2 = result1;
     ASSERT_FALSE(result1.ok());
     ASSERT_FALSE(result1.status().ok());
@@ -154,7 +154,7 @@ TEST(StatusOr, CopyAssignFromStatus) {
 
 TEST(StatusOr, CopyAssignFromValue) {
     StatusOr<std::string> result1("SomeValue");
-    decltype(result1) result2;
+    decltype(result1)     result2;
     result2 = result1;
     ASSERT_TRUE(result1.ok());
     ASSERT_TRUE(result2.ok());
@@ -164,13 +164,13 @@ TEST(StatusOr, CopyAssignFromValue) {
 
 TEST(StatusOr, MoveConstructFromDefault) {
     StatusOr<std::string> result1;
-    auto result2 = std::move(result1);
+    auto                  result2 = std::move(result1);
     ASSERT_FALSE(result2.ok());
 }
 
 TEST(StatusOr, MoveConstructFromStatus) {
     StatusOr<std::string> result1(Status::Error("SomeError"));
-    auto result2 = std::move(result1);
+    auto                  result2 = std::move(result1);
     ASSERT_FALSE(result1.ok());
     ASSERT_FALSE(result2.ok());
     ASSERT_FALSE(result2.status().ok());
@@ -179,7 +179,7 @@ TEST(StatusOr, MoveConstructFromStatus) {
 
 TEST(StatusOr, MoveConstructFromValue) {
     StatusOr<std::string> result1("SomeValue");
-    auto result2 = std::move(result1);
+    auto                  result2 = std::move(result1);
     ASSERT_FALSE(result1.ok());
     ASSERT_TRUE(result2.ok());
     ASSERT_EQ("SomeValue", result2.value());
@@ -187,14 +187,14 @@ TEST(StatusOr, MoveConstructFromValue) {
 
 TEST(StatusOr, MoveAssignFromDefault) {
     StatusOr<std::string> result1;
-    decltype(result1) result2;
+    decltype(result1)     result2;
     result2 = std::move(result1);
     ASSERT_FALSE(result2.ok());
 }
 
 TEST(StatusOr, MoveAssignFromStatus) {
     StatusOr<std::string> result1(Status::Error("SomeError"));
-    decltype(result1) result2;
+    decltype(result1)     result2;
     result2 = std::move(result1);
     ASSERT_FALSE(result1.ok());
     ASSERT_FALSE(result2.ok());
@@ -204,7 +204,7 @@ TEST(StatusOr, MoveAssignFromStatus) {
 
 TEST(StatusOr, MoveAssignFromValue) {
     StatusOr<std::string> result1("SomeValue");
-    decltype(result1) result2;
+    decltype(result1)     result2;
     result2 = std::move(result1);
     ASSERT_FALSE(result1.ok());
     ASSERT_TRUE(result2.ok());
@@ -225,8 +225,8 @@ TEST(StatusOr, AssignFromStatus) {
     }
     {
         StatusOr<std::string> result;
-        Status status = Status::OK();
-        result        = status;
+        Status                status = Status::OK();
+        result                       = status;
         ASSERT_FALSE(result.ok());
         ASSERT_TRUE(result.status().ok());
 
@@ -238,8 +238,8 @@ TEST(StatusOr, AssignFromStatus) {
     }
     {
         StatusOr<std::string> result;
-        Status status = Status::OK();
-        result        = std::move(status);
+        Status                status = Status::OK();
+        result                       = std::move(status);
         ASSERT_TRUE(status.ok());
         ASSERT_FALSE(result.ok());
         ASSERT_TRUE(result.status().ok());
@@ -266,8 +266,8 @@ TEST(StatusOr, AssignFromValue) {
     }
     {
         StatusOr<std::string> result;
-        std::string value = "SomeValue";
-        result            = value;
+        std::string           value = "SomeValue";
+        result                      = value;
         ASSERT_TRUE(result.ok());
         ASSERT_EQ("SomeValue", result.value());
 
@@ -294,7 +294,7 @@ TEST(StatusOr, CopyConstructFromCompatibleTypes) {
             ASSERT_FALSE(to.value());
         }
         {
-            StatusOr<int> from(123);
+            StatusOr<int>  from(123);
             StatusOr<bool> to(from);
             ASSERT_TRUE(to.ok());
             ASSERT_TRUE(to.value());
@@ -311,7 +311,7 @@ TEST(StatusOr, CopyAssignFromCompatibleTypes) {
         ASSERT_EQ("SomeValue", to.value());
     }
     {
-        StatusOr<int> from(123);
+        StatusOr<int>  from(123);
         StatusOr<bool> to(false);
         ASSERT_TRUE(to.ok());
         ASSERT_FALSE(to.value());
@@ -350,7 +350,7 @@ TEST(StatusOr, MoveAssignFromCompatibleTypes) {
 TEST(StatusOr, MoveOnlyValue) {
     {
         StatusOr<std::unique_ptr<std::string>> result1(std::make_unique<std::string>("SomeValue"));
-        auto result2 = std::move(result1);
+        auto                                   result2 = std::move(result1);
         ASSERT_FALSE(result1.ok());
         ASSERT_TRUE(result2.ok());
         auto ptr = std::move(result2).value();
@@ -360,7 +360,7 @@ TEST(StatusOr, MoveOnlyValue) {
     }
     {
         StatusOr<std::unique_ptr<std::string>> result1(std::make_unique<std::string>("SomeValue"));
-        decltype(result1) result2;
+        decltype(result1)                      result2;
         result2 = std::move(result1);
         ASSERT_FALSE(result1.ok());
         ASSERT_TRUE(result2.ok());

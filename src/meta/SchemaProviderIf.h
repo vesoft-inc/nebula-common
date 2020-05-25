@@ -20,11 +20,11 @@ public:
     public:
         virtual ~Field() = default;
 
-        virtual const char* name() const          = 0;
-        virtual cpp2::PropertyType type() const   = 0;
-        virtual bool nullable() const             = 0;
-        virtual bool hasDefault() const           = 0;
-        virtual const Value& defaultValue() const = 0;
+        virtual const char*        name() const         = 0;
+        virtual cpp2::PropertyType type() const         = 0;
+        virtual bool               nullable() const     = 0;
+        virtual bool               hasDefault() const   = 0;
+        virtual const Value&       defaultValue() const = 0;
         // This method returns the number of bytes the field will occupy
         // when the field is persisted on the storage medium
         // For the variant length string, the size will return 8
@@ -80,9 +80,9 @@ public:
 
     private:
         const SchemaProviderIf* schema_;
-        size_t numFields_;
-        int64_t index_;
-        const Field* field_;
+        size_t                  numFields_;
+        int64_t                 index_;
+        const Field*            field_;
 
     private:
         explicit Iterator(const SchemaProviderIf* schema, int64_t idx = 0)
@@ -94,16 +94,16 @@ public:
 public:
     virtual ~SchemaProviderIf() = default;
 
-    virtual SchemaVer getVersion() const noexcept        = 0;
-    virtual size_t getNumFields() const noexcept         = 0;
-    virtual size_t getNumNullableFields() const noexcept = 0;
+    virtual SchemaVer getVersion() const noexcept           = 0;
+    virtual size_t    getNumFields() const noexcept         = 0;
+    virtual size_t    getNumNullableFields() const noexcept = 0;
 
     // Return the number of bytes occupied by when each row of data
     // persisted on the disk
     virtual size_t size() const noexcept = 0;
 
-    virtual int64_t getFieldIndex(const folly::StringPiece name) const = 0;
-    virtual const char* getFieldName(int64_t index) const              = 0;
+    virtual int64_t     getFieldIndex(const folly::StringPiece name) const = 0;
+    virtual const char* getFieldName(int64_t index) const                  = 0;
 
     virtual cpp2::PropertyType getFieldType(int64_t index) const                 = 0;
     virtual cpp2::PropertyType getFieldType(const folly::StringPiece name) const = 0;

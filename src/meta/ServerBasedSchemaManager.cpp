@@ -49,7 +49,7 @@ ServerBasedSchemaManager::getTagSchema(GraphSpaceID space, TagID tag, SchemaVer 
 
 // Returns a negative number when the schema does not exist
 StatusOr<SchemaVer> ServerBasedSchemaManager::getLatestTagSchemaVersion(GraphSpaceID space,
-                                                                        TagID tag) {
+                                                                        TagID        tag) {
     CHECK(metaClient_);
     return metaClient_->getLatestTagVersionFromCache(space, tag);
 }
@@ -77,7 +77,7 @@ ServerBasedSchemaManager::getEdgeSchema(GraphSpaceID space, EdgeType edge, Schem
 
 // Returns a negative number when the schema does not exist
 StatusOr<SchemaVer> ServerBasedSchemaManager::getLatestEdgeSchemaVersion(GraphSpaceID space,
-                                                                         EdgeType edge) {
+                                                                         EdgeType     edge) {
     CHECK(metaClient_);
     return metaClient_->getLatestEdgeVersionFromCache(space, edge);
 }
@@ -97,7 +97,7 @@ StatusOr<std::string> ServerBasedSchemaManager::toTagName(GraphSpaceID space, Ta
     return metaClient_->getTagNameByIdFromCache(space, tagId);
 }
 
-StatusOr<EdgeType> ServerBasedSchemaManager::toEdgeType(GraphSpaceID space,
+StatusOr<EdgeType> ServerBasedSchemaManager::toEdgeType(GraphSpaceID       space,
                                                         folly::StringPiece typeName) {
     CHECK(metaClient_);
     return metaClient_->getEdgeTypeByNameFromCache(space, typeName.str());

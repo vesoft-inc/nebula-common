@@ -17,7 +17,7 @@ namespace nebula {
 // Host address type and utility functions
 struct HostAddr {
     std::string host;
-    Port port;
+    Port        port;
 
     HostAddr() : host(), port(0) {}
     /*

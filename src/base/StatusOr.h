@@ -47,7 +47,7 @@ public:
     // TODO(dutor) we may take other cases into account in future,
     // e.g. convertible but not constructible.
     template <typename U>
-    static constexpr auto is_initializable_v =
+    static constexpr auto          is_initializable_v =
         is_constructible_v<T, U> &&std::is_convertible<U, T>::value && !is_status_or_v<U> &&
         !is_status_v<U>;
 
@@ -324,7 +324,7 @@ private:
         ~Variant() {}
 
         Status status_;
-        T value_;
+        T      value_;
     };
 
     static constexpr uint8_t kVoid   = 0;

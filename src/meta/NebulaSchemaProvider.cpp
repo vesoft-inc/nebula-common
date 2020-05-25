@@ -95,9 +95,9 @@ const SchemaProviderIf::Field* NebulaSchemaProvider::field(const folly::StringPi
 
 void NebulaSchemaProvider::addField(folly::StringPiece name,
                                     cpp2::PropertyType type,
-                                    size_t fixedStrLen,
-                                    bool nullable,
-                                    Value defaultValue) {
+                                    size_t             fixedStrLen,
+                                    bool               nullable,
+                                    Value              defaultValue) {
     size_t size = 0;
     switch (type) {
         case cpp2::PropertyType::BOOL:

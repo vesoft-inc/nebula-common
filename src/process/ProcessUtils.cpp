@@ -42,7 +42,7 @@ Status ProcessUtils::isPidAvailable(const std::string &pidFile) {
         }
     }
     // Pidfile is readable
-    static const std::regex pattern("([0-9]+)");
+    static const std::regex         pattern("([0-9]+)");
     fs::FileUtils::FileLineIterator iter(pidFile, &pattern);
     if (!iter.valid()) {
         // Pidfile is readable but has no valid pid
@@ -129,7 +129,7 @@ StatusOr<std::string> ProcessUtils::getProcessName(pid_t pid) {
 }
 
 pid_t ProcessUtils::maxPid() {
-    static const std::regex pattern("([0-9]+)");
+    static const std::regex         pattern("([0-9]+)");
     fs::FileUtils::FileLineIterator iter("/proc/sys/kernel/pid_max", &pattern);
     CHECK(iter.valid());
     return folly::to<uint32_t>(iter.matched()[1].str());
@@ -141,8 +141,8 @@ StatusOr<std::string> ProcessUtils::runCommand(const char *command) {
         return Status::Error("Failed to execute the command \"%s\"", command);
     }
 
-    Cord out;
-    char buf[1024];
+    Cord   out;
+    char   buf[1024];
     size_t len;
     do {
         len = fread(buf, 1, 1024, f);

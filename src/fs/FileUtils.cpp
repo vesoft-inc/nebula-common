@@ -29,7 +29,7 @@ bool removeDir(const char* path, bool recursively) {
         return false;
     }
 
-    bool succeeded = true;
+    bool           succeeded = true;
     struct dirent* dEnt;
     errno = 0;
     while (succeeded && !!(dEnt = readdir(dh))) {
@@ -108,7 +108,7 @@ std::string FileUtils::dirname(const char* path) {
         return "/";
     }
     static const std::regex pattern("(.*)/([^/]+)/?");
-    std::cmatch result;
+    std::cmatch             result;
     if (std::regex_match(path, result, pattern)) {
         if (result[1].first == result[1].second) {  // "/path" or "/path/"
             return "/";
@@ -124,7 +124,7 @@ std::string FileUtils::basename(const char* path) {
         return "";
     }
     static const std::regex pattern("(/*([^/]+/+)*)([^/]+)/?");
-    std::cmatch result;
+    std::cmatch             result;
     std::regex_match(path, result, pattern);
     return result[3].str();
 }
@@ -241,8 +241,8 @@ std::string FileUtils::joinPath(const folly::StringPiece dir, const folly::Strin
 }
 
 void FileUtils::dividePath(const folly::StringPiece path,
-                           folly::StringPiece& parent,
-                           folly::StringPiece& child) {
+                           folly::StringPiece&      parent,
+                           folly::StringPiece&      child) {
     if (path.empty() || path == "/") {
         // The given string is empty or just "/"
         parent = folly::StringPiece();
@@ -350,12 +350,12 @@ bool FileUtils::rename(const std::string& src, const std::string& dst) {
 }
 
 std::vector<std::string> FileUtils::listAllTypedEntitiesInDir(const char* dirpath,
-                                                              FileType type,
-                                                              bool returnFullPath,
+                                                              FileType    type,
+                                                              bool        returnFullPath,
                                                               const char* namePattern) {
     std::vector<std::string> entities;
-    struct dirent* dirInfo;
-    DIR* dir = opendir(dirpath);
+    struct dirent*           dirInfo;
+    DIR*                     dir = opendir(dirpath);
     if (dir == nullptr) {
         LOG(ERROR) << "Failed to read the directory \"" << dirpath << "\" (" << errno
                    << "): " << strerror(errno);
@@ -390,13 +390,13 @@ std::vector<std::string> FileUtils::listAllTypedEntitiesInDir(const char* dirpat
 }
 
 std::vector<std::string> FileUtils::listAllFilesInDir(const char* dirpath,
-                                                      bool returnFullPath,
+                                                      bool        returnFullPath,
                                                       const char* namePattern) {
     return listAllTypedEntitiesInDir(dirpath, FileType::REGULAR, returnFullPath, namePattern);
 }
 
 std::vector<std::string> FileUtils::listAllDirsInDir(const char* dirpath,
-                                                     bool returnFullPath,
+                                                     bool        returnFullPath,
                                                      const char* namePattern) {
     return listAllTypedEntitiesInDir(dirpath, FileType::DIRECTORY, returnFullPath, namePattern);
 }

@@ -13,7 +13,7 @@ namespace fs {
 
 TempDir::TempDir(const char* pathTemplate, bool deleteOnDestroy)
     : deleteOnDestroy_(deleteOnDestroy) {
-    auto len = strlen(pathTemplate);
+    auto                    len = strlen(pathTemplate);
     std::unique_ptr<char[]> name(new char[len + 1]);
     strcpy(name.get(), pathTemplate);  // NOLINT
 

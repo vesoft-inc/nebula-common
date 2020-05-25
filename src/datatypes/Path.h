@@ -15,10 +15,10 @@
 namespace nebula {
 
 struct Step {
-    Vertex dst;
-    EdgeType type;
-    std::string name;
-    EdgeRanking ranking;
+    Vertex                                 dst;
+    EdgeType                               type;
+    std::string                            name;
+    EdgeRanking                            ranking;
     std::unordered_map<std::string, Value> props;
 
     Step() = default;
@@ -45,7 +45,7 @@ struct Step {
 };
 
 struct Path {
-    Vertex src;
+    Vertex            src;
     std::vector<Step> steps;
 
     Path() = default;

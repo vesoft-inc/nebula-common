@@ -91,7 +91,7 @@ TEST(CharsetInfo, getCharsetbyCollation) {
 
 TEST(CharsetInfo, getCharsetDesc) {
     auto* charsetInfo = CharsetInfo::instance();
-    auto result       = charsetInfo->getCharsetDesc();
+    auto  result      = charsetInfo->getCharsetDesc();
     EXPECT_EQ(1, result.size());
 }
 }  // namespace nebula

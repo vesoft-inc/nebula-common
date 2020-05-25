@@ -112,7 +112,7 @@ private:
 
         StatusOr<V> get(const K& key) {
             std::lock_guard<std::mutex> guard(lock_);
-            auto v = lru_->get(key);
+            auto                        v = lru_->get(key);
             if (v == boost::none) {
                 return Status::Error();
             }
@@ -121,7 +121,7 @@ private:
 
         StatusOr<V> putIfAbsent(K&& key, V&& val) {
             std::lock_guard<std::mutex> guard(lock_);
-            auto v = lru_->get(key);
+            auto                        v = lru_->get(key);
             if (v == boost::none) {
                 lru_->insert(std::forward<K>(key), std::forward<V>(val));
                 return Status::Inserted();
@@ -139,7 +139,7 @@ private:
             lru_->clear();
         }
 
-        std::mutex lock_;
+        std::mutex                 lock_;
         std::unique_ptr<LRU<K, V>> lru_;
     };
 
@@ -154,8 +154,8 @@ private:
 
 private:
     std::vector<Bucket> buckets_;
-    uint32_t bucketsNum_ = 1;
-    uint32_t bucketsExp_ = 0;
+    uint32_t            bucketsNum_ = 1;
+    uint32_t            bucketsExp_ = 0;
 };
 
 /**
@@ -171,8 +171,8 @@ private:
 template <class Key, class Value>
 class LRU {
 public:
-    typedef Key key_type;
-    typedef Value value_type;
+    typedef Key                 key_type;
+    typedef Value               value_type;
     typedef std::list<key_type> list_type;
     typedef std::unordered_map<key_type, std::tuple<value_type, typename list_type::iterator>>
         map_type;
@@ -224,8 +224,8 @@ public:
 
         // return the value, but first update its place in the most
         // recently used list
-        const value_type& value        = std::get<0>(i->second);
-        typename list_type::iterator j = std::get<1>(i->second);
+        const value_type&            value = std::get<0>(i->second);
+        typename list_type::iterator j     = std::get<1>(i->second);
         CHECK(key == *j);
         if (j != list_.begin()) {
             // move item to the front of the most recently used list
@@ -281,9 +281,9 @@ private:
     }
 
 private:
-    map_type map_;
-    list_type list_;
-    size_t capacity_;
+    map_type             map_;
+    list_type            list_;
+    size_t               capacity_;
     std::atomic_uint64_t total_{0};
     std::atomic_uint64_t hits_{0};
     std::atomic_uint64_t evicts_{0};

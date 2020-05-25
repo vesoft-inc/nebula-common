@@ -28,13 +28,13 @@ private:
     TscHelper();
     ~TscHelper() = default;
     static TscHelper& get();
-    uint64_t readTscImpl();
-    void calibrate();
+    uint64_t          readTscImpl();
+    void              calibrate();
 
 private:
     std::chrono::steady_clock::time_point startMonoTime_;
-    uint64_t firstTick_{0};
-    struct timespec startRealTime_;
+    uint64_t                              firstTick_{0};
+    struct timespec                       startRealTime_;
 
     std::atomic<double> ticksPerSecFactor_{0.0};
     std::atomic<double> ticksPerMSecFactor_{0.0};

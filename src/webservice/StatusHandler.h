@@ -36,7 +36,7 @@ private:
     folly::dynamic getStatus();
 
 private:
-    HttpCode err_{HttpCode::SUCCEEDED};
+    HttpCode                 err_{HttpCode::SUCCEEDED};
     std::vector<std::string> statusNames_;
     std::vector<std::string> statusAllNames_{"status"};
 };

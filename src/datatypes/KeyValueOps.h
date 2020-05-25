@@ -132,7 +132,7 @@ _loop:
 
 template <>
 template <class Protocol>
-uint32_t Cpp2Ops<nebula::KeyValue>::serializedSize(Protocol const* proto,
+uint32_t Cpp2Ops<nebula::KeyValue>::serializedSize(Protocol const*         proto,
                                                    nebula::KeyValue const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("KeyValue");
@@ -149,7 +149,7 @@ uint32_t Cpp2Ops<nebula::KeyValue>::serializedSize(Protocol const* proto,
 
 template <>
 template <class Protocol>
-uint32_t Cpp2Ops<nebula::KeyValue>::serializedSizeZC(Protocol const* proto,
+uint32_t Cpp2Ops<nebula::KeyValue>::serializedSizeZC(Protocol const*         proto,
                                                      nebula::KeyValue const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("KeyValue");

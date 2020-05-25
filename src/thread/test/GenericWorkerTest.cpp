@@ -54,15 +54,15 @@ TEST(GenericWorker, addTask) {
     ASSERT_TRUE(worker.start());
     // task without parameters
     {
-        volatile auto flag = false;
-        auto set_flag      = [&]() mutable { flag = true; };
+        volatile auto flag     = false;
+        auto          set_flag = [&]() mutable { flag = true; };
         worker.addTask(set_flag).get();
         ASSERT_TRUE(flag);
     }
     // task with parameter
     {
-        volatile auto flag = false;
-        auto set_flag      = [&](auto value) { flag = value; };
+        volatile auto flag     = false;
+        auto          set_flag = [&](auto value) { flag = value; };
         worker.addTask(set_flag, true).get();
         ASSERT_TRUE(flag);
         worker.addTask(set_flag, false).get();
@@ -98,8 +98,8 @@ TEST(GenericWorker, addDelayTask) {
     GenericWorker worker;
     ASSERT_TRUE(worker.start());
     {
-        auto shared = std::make_shared<int>(0);
-        auto cb     = [shared]() { return ++(*shared); };
+        auto           shared = std::make_shared<int>(0);
+        auto           cb     = [shared]() { return ++(*shared); };
         time::Duration clock;
         ASSERT_EQ(1, worker.addDelayTask(50, cb).get());
         ASSERT_GE(shared.use_count(), 2);

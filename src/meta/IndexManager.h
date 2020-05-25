@@ -26,7 +26,7 @@ public:
     virtual StatusOr<std::shared_ptr<IndexItem>> getTagIndex(GraphSpaceID space, IndexID index) = 0;
 
     virtual StatusOr<std::shared_ptr<IndexItem>> getEdgeIndex(GraphSpaceID space,
-                                                              IndexID index) = 0;
+                                                              IndexID      index) = 0;
 
     virtual StatusOr<std::vector<std::shared_ptr<IndexItem>>> getTagIndexes(GraphSpaceID space) = 0;
 

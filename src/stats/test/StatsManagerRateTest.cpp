@@ -18,8 +18,8 @@ TEST(StatsManager, RateTest) {
     auto thread = std::make_unique<thread::GenericWorker>();
     ASSERT_TRUE(thread->start());
 
-    auto task          = [=]() { StatsManager::addValue(statId); };
-    constexpr auto qps = 100L;
+    auto           task = [=]() { StatsManager::addValue(statId); };
+    constexpr auto qps  = 100L;
     thread->addRepeatTask(1 * 1000 / qps, task);
 
     ::usleep(60 * 1000 * 1000);

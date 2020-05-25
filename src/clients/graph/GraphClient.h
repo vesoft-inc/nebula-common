@@ -20,15 +20,15 @@ public:
 
     // Authenticate the user
     cpp2::ErrorCode connect(const std::string& username, const std::string& password);
-    void disconnect();
+    void            disconnect();
 
     cpp2::ErrorCode execute(folly::StringPiece stmt, cpp2::ExecutionResponse& resp);
 
 private:
     std::unique_ptr<cpp2::GraphServiceAsyncClient> client_;
-    const std::string addr_;
-    const uint16_t port_;
-    int64_t sessionId_;
+    const std::string                              addr_;
+    const uint16_t                                 port_;
+    int64_t                                        sessionId_;
 };
 
 }  // namespace graph

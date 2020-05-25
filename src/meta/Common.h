@@ -22,8 +22,8 @@ constexpr char _RANK[] = "_rank";
 constexpr char _DST[]  = "_dst";
 
 struct PartHosts {
-    GraphSpaceID spaceId_;
-    PartitionID partId_;
+    GraphSpaceID          spaceId_;
+    PartitionID           partId_;
     std::vector<HostAddr> hosts_;
 
     bool operator==(const PartHosts& rhs) const {

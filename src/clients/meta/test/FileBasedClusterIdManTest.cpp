@@ -15,7 +15,7 @@ namespace meta {
 
 TEST(FileBasedClusterIdManTest, ReadWriteTest) {
     fs::TempDir rootPath("/tmp/FileBasedClusterIdManTest.XXXXXX");
-    auto clusterId = FileBasedClusterIdMan::create("127.0.0.1:44500");
+    auto        clusterId = FileBasedClusterIdMan::create("127.0.0.1:44500");
     CHECK_NE(0, clusterId);
     auto file = folly::stringPrintf("%s/cluster.id", rootPath.path());
     CHECK(FileBasedClusterIdMan::persistInFile(clusterId, file));

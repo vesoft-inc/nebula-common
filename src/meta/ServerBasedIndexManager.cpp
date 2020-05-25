@@ -23,12 +23,12 @@ void ServerBasedIndexManager::init(MetaClient *client) {
 }
 
 StatusOr<std::shared_ptr<IndexItem>> ServerBasedIndexManager::getTagIndex(GraphSpaceID space,
-                                                                          IndexID index) {
+                                                                          IndexID      index) {
     return metaClient_->getTagIndexFromCache(space, index);
 }
 
 StatusOr<std::shared_ptr<IndexItem>> ServerBasedIndexManager::getEdgeIndex(GraphSpaceID space,
-                                                                           IndexID index) {
+                                                                           IndexID      index) {
     return metaClient_->getEdgeIndexFromCache(space, index);
 }
 

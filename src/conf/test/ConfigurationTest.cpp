@@ -23,7 +23,7 @@ TEST(Configuration, Basic) {
                        "\"string\": \"string\""
                        "}";
     Configuration conf;
-    auto status = conf.parseFromString(json);
+    auto          status = conf.parseFromString(json);
     ASSERT_TRUE(status.ok()) << status.toString();
 
     {
@@ -72,22 +72,22 @@ TEST(Configuration, IllegalFormat) {
     Configuration conf;
     {
         std::string empty;
-        auto status = conf.parseFromString(empty);
+        auto        status = conf.parseFromString(empty);
         ASSERT_FALSE(status.ok());
     }
     {
-        std::string ill = "\"key\": \"value\"";
-        auto status     = conf.parseFromString(ill);
+        std::string ill    = "\"key\": \"value\"";
+        auto        status = conf.parseFromString(ill);
         ASSERT_FALSE(status.ok());
     }
     {
-        std::string ill = "{\"key\" \"value\"}";
-        auto status     = conf.parseFromString(ill);
+        std::string ill    = "{\"key\" \"value\"}";
+        auto        status = conf.parseFromString(ill);
         ASSERT_FALSE(status.ok());
     }
     {
-        std::string ill = "{\"key\": \"value\"";
-        auto status     = conf.parseFromString(ill);
+        std::string ill    = "{\"key\": \"value\"";
+        auto        status = conf.parseFromString(ill);
         ASSERT_FALSE(status.ok());
     }
 }
@@ -100,7 +100,7 @@ TEST(Configuration, SubConf) {
                        "}"
                        "}";
     Configuration conf;
-    auto status = conf.parseFromString(json);
+    auto          status = conf.parseFromString(json);
     ASSERT_TRUE(status.ok()) << status.toString();
 
     Configuration subconf;
@@ -118,7 +118,7 @@ TEST(Configuration, SubConf) {
 
 TEST(Configuration, ParseFromFile) {
     TempFile tmpfile("/tmp/configuration_test.json.XXXXXX");
-    FILE* file = ::fopen(tmpfile.path(), "w");
+    FILE*    file = ::fopen(tmpfile.path(), "w");
     fprintf(file, "// This a C++ style comment line\n");
     fprintf(file, "# This a shell style comment line\n");
     fprintf(file, "{ \n");
@@ -129,7 +129,7 @@ TEST(Configuration, ParseFromFile) {
     ::fclose(file);
 
     Configuration conf;
-    auto status = conf.parseFromFile(tmpfile.path());
+    auto          status = conf.parseFromFile(tmpfile.path());
     ASSERT_TRUE(status.ok()) << status.toString();
     {
         int64_t val;
@@ -154,7 +154,7 @@ TEST(Configuration, GetArray) {
                        "}";
 
     Configuration conf;
-    auto status = conf.parseFromString(json);
+    auto          status = conf.parseFromString(json);
     ASSERT_TRUE(status.ok()) << status.toString();
 
     std::vector<int64_t> intArray;
@@ -193,7 +193,7 @@ TEST(Configuration, Iterator) {
                        "}";
 
     Configuration conf;
-    auto status = conf.parseFromString(json);
+    auto          status = conf.parseFromString(json);
     ASSERT_TRUE(status.ok()) << status.toString();
 
     static std::unordered_set<std::string> keys{

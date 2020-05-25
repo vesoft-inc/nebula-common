@@ -118,7 +118,7 @@ TEST(ConcurrentLRUCacheTest, EvictKeyTest) {
 
 TEST(ConcurrentLRUCacheTest, MultiThreadsTest) {
     ConcurrentLRUCache<int32_t, std::string> cache(1024 * 1024);
-    std::vector<std::thread> threads;
+    std::vector<std::thread>                 threads;
     for (auto i = 0; i < 10; i++) {
         threads.emplace_back([&cache, i]() {
             for (auto j = i * 1000; j < (i + 1) * 1000; j++) {

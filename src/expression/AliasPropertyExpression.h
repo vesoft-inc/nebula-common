@@ -19,7 +19,7 @@ constexpr char const kDstRef[]   = "$$";
 // Alias.any_prop_name, i.e. EdgeName.any_prop_name
 class AliasPropertyExpression : public Expression {
 public:
-    AliasPropertyExpression(Kind kind          = Kind::kAliasProperty,
+    AliasPropertyExpression(Kind         kind  = Kind::kAliasProperty,
                             std::string* ref   = nullptr,
                             std::string* alias = nullptr,
                             std::string* prop  = nullptr)

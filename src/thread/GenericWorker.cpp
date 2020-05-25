@@ -134,7 +134,7 @@ void GenericWorker::onNotify() {
         for (auto &timer : newcomings) {
             timer->ev_ = event_new(evbase_, -1, EV_PERSIST, cb, timer.get());
 
-            auto delay = timer->delayMSec_;
+            auto           delay = timer->delayMSec_;
             struct timeval tv;
             tv.tv_sec  = delay / 1000;
             tv.tv_usec = delay % 1000 * 1000;

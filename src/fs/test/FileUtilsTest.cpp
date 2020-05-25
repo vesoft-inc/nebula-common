@@ -87,7 +87,7 @@ TEST(FileUtils, fileType) {
 TEST(FileUtils, removeFile) {
     // Create a temporary file
     char fileTemp[] = "/tmp/FileUtilsTest-TempFile.XXXXXX";
-    int fd          = mkstemp(fileTemp);
+    int  fd         = mkstemp(fileTemp);
     ASSERT_GT(fd, 0);
     ASSERT_EQ(close(fd), 0);
 
@@ -234,14 +234,14 @@ TEST(FileUtils, listContentInDir) {
 
     // Create two regular files
     std::string fn1 = FileUtils::joinPath(dirTemp, "file1");
-    FILE* f1        = fopen(fn1.c_str(), "w");
+    FILE*       f1  = fopen(fn1.c_str(), "w");
     ASSERT_NE(nullptr, f1);
     auto r = fwrite("file1", 5, 1, f1);
     ASSERT_EQ(r, 1);
     ASSERT_EQ(0, fclose(f1));
 
     std::string fn2 = FileUtils::joinPath(dirTemp, "file2");
-    FILE* f2        = fopen(fn2.c_str(), "w");
+    FILE*       f2  = fopen(fn2.c_str(), "w");
     ASSERT_NE(nullptr, f2);
     r = fwrite("file2", 5, 1, f2);
     ASSERT_EQ(r, 1);
@@ -276,7 +276,7 @@ TEST(FileUtils, listContentInDir) {
 }
 
 TEST(FileUtilsIterator, Directory) {
-    auto stopped = false;
+    auto        stopped = false;
     std::thread t([&]() {
         while (!stopped) {
             usleep(1000);
@@ -285,7 +285,7 @@ TEST(FileUtilsIterator, Directory) {
 
     FileUtils::DirEntryIterator iter("/proc/self/task");
     EXPECT_TRUE(iter.valid()) << iter.status();
-    size_t nTh = 0;
+    size_t      nTh = 0;
     std::string tid;
     while (iter.valid()) {
         nTh++;
@@ -298,7 +298,7 @@ TEST(FileUtilsIterator, Directory) {
 }
 
 TEST(FileUtilsIterator, File) {
-    std::regex regex("([0-9]+\\.[0-9]{2})[ \\t]+"
+    std::regex                  regex("([0-9]+\\.[0-9]{2})[ \\t]+"
                      "([0-9]+\\.[0-9]{2})[ \\t]+"
                      "([0-9]+\\.[0-9]{2})[ \\t]+"
                      "([0-9]+)/[0-9]+");
@@ -307,10 +307,10 @@ TEST(FileUtilsIterator, File) {
     ASSERT_TRUE(iter.valid());
     auto& sm = iter.matched();
 
-    double load1  = atof(sm[1].str().c_str());
-    double load5  = atof(sm[2].str().c_str());
-    double load15 = atof(sm[3].str().c_str());
-    int running   = atoi(sm[4].str().c_str());
+    double load1   = atof(sm[1].str().c_str());
+    double load5   = atof(sm[2].str().c_str());
+    double load15  = atof(sm[3].str().c_str());
+    int    running = atoi(sm[4].str().c_str());
 
     EXPECT_GE(load1, 0.0);
     EXPECT_GE(load5, 0.0);

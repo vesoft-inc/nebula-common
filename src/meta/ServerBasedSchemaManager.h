@@ -25,16 +25,16 @@ public:
 
     // return the newest one if ver less 0
     std::shared_ptr<const NebulaSchemaProvider> getTagSchema(GraphSpaceID space,
-                                                             TagID tag,
-                                                             SchemaVer ver = -1) override;
+                                                             TagID        tag,
+                                                             SchemaVer    ver = -1) override;
 
     // Returns a negative number when the schema does not exist
     StatusOr<SchemaVer> getLatestTagSchemaVersion(GraphSpaceID space, TagID tag) override;
 
     // return the newest one if ver less 0
     std::shared_ptr<const NebulaSchemaProvider> getEdgeSchema(GraphSpaceID space,
-                                                              EdgeType edge,
-                                                              SchemaVer ver = -1) override;
+                                                              EdgeType     edge,
+                                                              SchemaVer    ver = -1) override;
 
     // Returns a negative number when the schema does not exist
     StatusOr<SchemaVer> getLatestEdgeSchemaVersion(GraphSpaceID space, EdgeType edge) override;

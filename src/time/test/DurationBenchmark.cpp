@@ -25,7 +25,7 @@ BENCHMARK(steady_clock_timer, iters) {
 BENCHMARK_RELATIVE(duration_timer, iters) {
     for (uint32_t i = 0; i < iters; i++) {
         Duration d;
-        auto diffInMSec = d.elapsedInMSec();
+        auto     diffInMSec = d.elapsedInMSec();
         folly::doNotOptimizeAway(diffInMSec);
     }
 }

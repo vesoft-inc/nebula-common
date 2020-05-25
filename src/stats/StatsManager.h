@@ -70,10 +70,10 @@ public:
     static StatusOr<VT> readValue(folly::StringPiece counter);
     static StatusOr<VT> readStats(int32_t index, TimeRange range, StatsMethod method);
     static StatusOr<VT> readStats(const std::string& counterName,
-                                  TimeRange range,
-                                  StatsMethod method);
+                                  TimeRange          range,
+                                  StatsMethod        method);
     static StatusOr<VT> readHisto(const std::string& counterName, TimeRange range, double pct);
-    static void readAllValue(folly::dynamic& vals);
+    static void         readAllValue(folly::dynamic& vals);
 
 private:
     static StatsManager& get();
@@ -87,13 +87,13 @@ private:
 
 private:
     std::string domain_;
-    HostAddr collectorAddr_{"", 0};
-    int32_t interval_{0};
+    HostAddr    collectorAddr_{"", 0};
+    int32_t     interval_{0};
 
     // <counter_name> => index
     // when index > 0, (index - 1) is the index of stats_ list
     // when index < 0, [- (index + 1)] is the index of histograms_ list
-    folly::RWSpinLock nameMapLock_;
+    folly::RWSpinLock                        nameMapLock_;
     std::unordered_map<std::string, int32_t> nameMap_;
 
     // All time series stats

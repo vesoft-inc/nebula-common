@@ -17,9 +17,9 @@ namespace nebula {
 struct Date {
     FRIEND_TEST(Date, DaysConversion);
 
-    int16_t year;  // Any integer
-    int8_t month;  // 1 - 12
-    int8_t day;    // 1 - 31
+    int16_t year;   // Any integer
+    int8_t  month;  // 1 - 12
+    int8_t  day;    // 1 - 31
 
     Date() : year{0}, month{1}, day{1} {}
     Date(int16_t y, int8_t m, int8_t d) : year{y}, month{m}, day{d} {}
@@ -68,11 +68,11 @@ struct Date {
 
 struct DateTime {
     int16_t year;
-    int8_t month;
-    int8_t day;
-    int8_t hour;
-    int8_t minute;
-    int8_t sec;
+    int8_t  month;
+    int8_t  day;
+    int8_t  hour;
+    int8_t  minute;
+    int8_t  sec;
     int32_t microsec;
     int32_t timezone;
 

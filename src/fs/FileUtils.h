@@ -89,8 +89,8 @@ public:
     //             child -- return the filename or the child directory
     //                      name
     static void dividePath(const folly::StringPiece path,
-                           folly::StringPiece& parent,
-                           folly::StringPiece& child);
+                           folly::StringPiece&      parent,
+                           folly::StringPiece&      child);
 
     // Remove the given file or directory (with its content)
     //
@@ -124,8 +124,8 @@ public:
      * to only return entities whose names match the pattern
      */
     static std::vector<std::string> listAllTypedEntitiesInDir(const char* dirpath,
-                                                              FileType type,
-                                                              bool returnFullPath,
+                                                              FileType    type,
+                                                              bool        returnFullPath,
                                                               const char* namePattern);
     /**
      * List all files in the given directory
@@ -133,16 +133,16 @@ public:
      * Internally, it calls listAllTypedEntitiesInDir()
      */
     static std::vector<std::string> listAllFilesInDir(const char* dirpath,
-                                                      bool returnFullPath     = false,
-                                                      const char* namePattern = nullptr);
+                                                      bool        returnFullPath = false,
+                                                      const char* namePattern    = nullptr);
     /**
      * List all sub-directories in the given directory
      *
      * Internally, it calls listAllTypedEntitiesInDir()
      */
     static std::vector<std::string> listAllDirsInDir(const char* dirpath,
-                                                     bool returnFullPath     = false,
-                                                     const char* namePattern = nullptr);
+                                                     bool        returnFullPath = false,
+                                                     const char* namePattern    = nullptr);
 
     static bool isReg(struct dirent* dEnt, const char* path);
     static bool isDir(struct dirent* dEnt, const char* path);
@@ -230,14 +230,14 @@ public:
         void fileNext();
 
     private:
-        std::string path_;
-        FileType type_{FileType::UNKNOWN};
+        std::string                    path_;
+        FileType                       type_{FileType::UNKNOWN};
         std::unique_ptr<std::ifstream> fstream_;
-        DIR* dir_{nullptr};
-        const std::regex* pattern_{nullptr};
-        std::string entry_;
-        std::smatch matched_;
-        Status status_;
+        DIR*                           dir_{nullptr};
+        const std::regex*              pattern_{nullptr};
+        std::string                    entry_;
+        std::smatch                    matched_;
+        Status                         status_;
     };
 };
 

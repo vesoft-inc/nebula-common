@@ -43,7 +43,7 @@ struct Row {
 
 struct DataSet {
     std::vector<std::string> colNames;
-    std::vector<Row> rows;
+    std::vector<Row>         rows;
 
     DataSet() = default;
     DataSet(const DataSet& ds) noexcept {

@@ -22,7 +22,7 @@ enum class State : int16_t {
     RIGHT_TYPE = 2,
 };
 
-static constexpr LeftType* kConstructLeft   = nullptr;
+static constexpr LeftType*  kConstructLeft  = nullptr;
 static constexpr RightType* kConstructRight = nullptr;
 
 /**
@@ -467,12 +467,12 @@ private:
 
         ~Variant() {}
 
-        LEFT left_;
+        LEFT  left_;
         RIGHT right_;
     };
 
     Variant val_;
-    State state_{State::VOID};
+    State   state_{State::VOID};
 };
 
 }  // namespace nebula

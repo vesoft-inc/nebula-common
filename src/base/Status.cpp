@@ -11,11 +11,11 @@
 namespace nebula {
 
 Status::Status(Code code, folly::StringPiece msg) {
-    const uint16_t size = msg.size();
-    auto state          = std::unique_ptr<char[]>(new char[size + kHeaderSize]);
-    auto *header        = reinterpret_cast<Header *>(state.get());
-    header->size_       = size;
-    header->code_       = code;
+    const uint16_t size   = msg.size();
+    auto           state  = std::unique_ptr<char[]>(new char[size + kHeaderSize]);
+    auto *         header = reinterpret_cast<Header *>(state.get());
+    header->size_         = size;
+    header->code_         = code;
     ::memcpy(&state[kHeaderSize], msg.data(), size);
     state_ = std::move(state);
 }
@@ -24,7 +24,7 @@ std::string Status::toString() const {
     if (code() == kOk) {
         return "OK";
     }
-    char tmp[64];
+    char        tmp[64];
     const char *str;
     switch (code()) {
         case kError:
@@ -50,9 +50,9 @@ std::string Status::toString() const {
 }
 
 std::unique_ptr<const char[]> Status::copyState(const char *state) {
-    const auto size  = *reinterpret_cast<const uint16_t *>(state);
-    const auto total = size + kHeaderSize;
-    auto result      = std::unique_ptr<char[]>(new char[total]);
+    const auto size   = *reinterpret_cast<const uint16_t *>(state);
+    const auto total  = size + kHeaderSize;
+    auto       result = std::unique_ptr<char[]>(new char[total]);
     ::memcpy(&result[0], state, total);
     return result;
 }

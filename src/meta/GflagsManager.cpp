@@ -17,7 +17,7 @@ namespace meta {
 template <typename ValueType>
 std::string GflagsManager::gflagsValueToThriftValue(const gflags::CommandLineFlagInfo& flag) {
     std::string ret;
-    auto value = folly::to<ValueType>(flag.current_value);
+    auto        value = folly::to<ValueType>(flag.current_value);
     ret.append(reinterpret_cast<const char*>(&value), sizeof(ValueType));
     return ret;
 }
@@ -31,12 +31,12 @@ std::string GflagsManager::gflagsValueToThriftValue<std::string>(
 std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>> GflagsManager::parseConfigJson(
     const std::string& path) {
     std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>> configModeMap;
-    conf::Configuration conf;
+    conf::Configuration                                                conf;
     if (!conf.parseFromFile(path).ok()) {
         LOG(ERROR) << "Load gflags json failed";
         return configModeMap;
     }
-    static std::vector<std::string> keys       = {"MUTABLE"};
+    static std::vector<std::string>      keys  = {"MUTABLE"};
     static std::vector<cpp2::ConfigMode> modes = {cpp2::ConfigMode::MUTABLE};
     for (size_t i = 0; i < keys.size(); i++) {
         std::vector<std::string> values;
@@ -48,7 +48,7 @@ std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>> GflagsManager
             configModeMap[name] = {mode, false};
         }
     }
-    static std::string nested = "NESTED";
+    static std::string       nested = "NESTED";
     std::vector<std::string> values;
     if (conf.fetchAsStringArray(nested.c_str(), values).ok()) {
         for (const auto& name : values) {
@@ -70,15 +70,15 @@ std::vector<cpp2::ConfigItem> GflagsManager::declareGflags(const cpp2::ConfigMod
     std::vector<gflags::CommandLineFlagInfo> flags;
     gflags::GetAllFlags(&flags);
     for (auto& flag : flags) {
-        auto& name = flag.name;
-        auto& type = flag.type;
+        auto&            name = flag.name;
+        auto&            type = flag.type;
         cpp2::ConfigType cType;
-        std::string valueStr;
+        std::string      valueStr;
 
         // We only register mutable configs to meta
-        cpp2::ConfigMode mode = cpp2::ConfigMode::MUTABLE;
-        bool isNested         = false;
-        auto iter             = mutableConfig.find(name);
+        cpp2::ConfigMode mode     = cpp2::ConfigMode::MUTABLE;
+        bool             isNested = false;
+        auto             iter     = mutableConfig.find(name);
         if (iter != mutableConfig.end()) {
             isNested = iter->second.second;
         } else {
@@ -160,10 +160,10 @@ std::string toThriftValueStr(const cpp2::ConfigType& type, const VariantType& va
 }
 
 cpp2::ConfigItem toThriftConfigItem(const cpp2::ConfigModule& module,
-                                    const std::string& name,
-                                    const cpp2::ConfigType& type,
-                                    const cpp2::ConfigMode& mode,
-                                    const std::string& value) {
+                                    const std::string&        name,
+                                    const cpp2::ConfigType&   type,
+                                    const cpp2::ConfigMode&   mode,
+                                    const std::string&        value) {
     cpp2::ConfigItem item;
     item.set_module(module);
     item.set_name(name);

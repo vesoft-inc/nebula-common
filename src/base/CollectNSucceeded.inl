@@ -10,9 +10,9 @@ namespace nebula {
 
 // Not thread-safe, all futures need to be on the same executor
 template <class FutureIter, typename ResultEval>
-folly::Future<SucceededResultList<FutureIter>> collectNSucceeded(FutureIter first,
-                                                                 FutureIter last,
-                                                                 size_t n,
+folly::Future<SucceededResultList<FutureIter>> collectNSucceeded(FutureIter   first,
+                                                                 FutureIter   last,
+                                                                 size_t       n,
                                                                  ResultEval&& eval) {
     using Result = SucceededResultList<FutureIter>;
     if (n == 0) {
@@ -22,12 +22,12 @@ folly::Future<SucceededResultList<FutureIter>> collectNSucceeded(FutureIter firs
     struct Context {
         Context(size_t total, ResultEval&& e) : eval(std::forward<ResultEval>(e)), nTotal(total) {}
 
-        ResultEval eval;
-        Result results;
-        std::atomic<size_t> numCompleted = {0};
-        std::atomic<size_t> nSucceeded   = {0};
+        ResultEval             eval;
+        Result                 results;
+        std::atomic<size_t>    numCompleted = {0};
+        std::atomic<size_t>    nSucceeded   = {0};
         folly::Promise<Result> promise;
-        size_t nTotal;
+        size_t                 nTotal;
     };
 
     size_t total = size_t(std::distance(first, last));

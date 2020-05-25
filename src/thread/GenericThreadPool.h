@@ -112,8 +112,8 @@ public:
     void purgeTimerTask(uint64_t id);
 
 private:
-    size_t nrThreads_{0};
-    std::atomic<size_t> nextThread_{0};
+    size_t                                      nrThreads_{0};
+    std::atomic<size_t>                         nextThread_{0};
     std::vector<std::unique_ptr<GenericWorker>> pool_;
 };
 

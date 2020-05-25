@@ -316,7 +316,7 @@ uint32_t Cpp2Ops<nebula::Vertex>::serializedSize(Protocol const* proto, nebula::
 
 template <>
 template <class Protocol>
-uint32_t Cpp2Ops<nebula::Vertex>::serializedSizeZC(Protocol const* proto,
+uint32_t Cpp2Ops<nebula::Vertex>::serializedSizeZC(Protocol const*       proto,
                                                    nebula::Vertex const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("Vertex");

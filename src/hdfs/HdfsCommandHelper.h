@@ -15,11 +15,11 @@ namespace hdfs {
 class HdfsCommandHelper : public HdfsHelper {
 public:
     StatusOr<std::string> ls(const std::string& hdfsHost,
-                             int32_t hdfsPort,
+                             int32_t            hdfsPort,
                              const std::string& hdfsPath) override;
 
     StatusOr<std::string> copyToLocal(const std::string& hdfsHost,
-                                      int32_t hdfsPort,
+                                      int32_t            hdfsPort,
                                       const std::string& hdfsPath,
                                       const std::string& localPath) override;
 

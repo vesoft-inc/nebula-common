@@ -14,7 +14,7 @@ using nebula::time::Duration;
 TEST(Duration, elapsedInSeconds) {
     for (int i = 0; i < 5; i++) {
         Duration dur;
-        auto start = std::chrono::steady_clock::now();
+        auto     start = std::chrono::steady_clock::now();
         sleep(2);
         auto diff = std::chrono::steady_clock::now() - start;
         dur.pause();

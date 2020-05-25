@@ -464,7 +464,7 @@ _loop:
 
 template <>
 template <class Protocol>
-uint32_t Cpp2Ops<nebula::DateTime>::serializedSize(Protocol const* proto,
+uint32_t Cpp2Ops<nebula::DateTime>::serializedSize(Protocol const*         proto,
                                                    nebula::DateTime const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("DateTime");
@@ -507,7 +507,7 @@ uint32_t Cpp2Ops<nebula::DateTime>::serializedSize(Protocol const* proto,
 
 template <>
 template <class Protocol>
-uint32_t Cpp2Ops<nebula::DateTime>::serializedSizeZC(Protocol const* proto,
+uint32_t Cpp2Ops<nebula::DateTime>::serializedSizeZC(Protocol const*         proto,
                                                      nebula::DateTime const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("DateTime");

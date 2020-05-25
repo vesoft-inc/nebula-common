@@ -33,8 +33,8 @@ struct ServerContext {
         VLOG(3) << "~ServerContext";
     }
 
-    void mockCommon(const std::string& name,
-                    uint16_t port,
+    void mockCommon(const std::string&                               name,
+                    uint16_t                                         port,
                     std::shared_ptr<apache::thrift::ServerInterface> handler) {
         server_ = std::make_unique<apache::thrift::ThriftServer>();
         server_->setInterface(std::move(handler));
@@ -51,12 +51,12 @@ struct ServerContext {
     }
 
     std::unique_ptr<apache::thrift::ThriftServer> server_{nullptr};
-    std::unique_ptr<thread::NamedThread> thread_{nullptr};
+    std::unique_ptr<thread::NamedThread>          thread_{nullptr};
     // To keep meta and storage's KVStore
-    std::unique_ptr<kvstore::KVStore> kvStore_{nullptr};
+    std::unique_ptr<kvstore::KVStore>    kvStore_{nullptr};
     std::unique_ptr<meta::SchemaManager> schemaMan_{nullptr};
-    std::unique_ptr<meta::IndexManager> indexMan_{nullptr};
-    uint16_t port_{0};
+    std::unique_ptr<meta::IndexManager>  indexMan_{nullptr};
+    uint16_t                             port_{0};
 };
 
 }  // namespace test

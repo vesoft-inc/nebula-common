@@ -96,9 +96,9 @@ bool PermissionManager::canWriteUser(session::Session *session) {
     return session->isGod();
 }
 
-bool PermissionManager::canWriteRole(session::Session *session,
-                                     session::Role targetRole,
-                                     GraphSpaceID spaceId,
+bool PermissionManager::canWriteRole(session::Session * session,
+                                     session::Role      targetRole,
+                                     GraphSpaceID       spaceId,
                                      const std::string &targetUser) {
     if (!FLAGS_enable_authorize) {
         return true;

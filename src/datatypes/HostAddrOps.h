@@ -135,7 +135,7 @@ _loop:
 
 template <>
 template <class Protocol>
-uint32_t Cpp2Ops<nebula::HostAddr>::serializedSize(Protocol const* proto,
+uint32_t Cpp2Ops<nebula::HostAddr>::serializedSize(Protocol const*         proto,
                                                    nebula::HostAddr const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("HostAddr");
@@ -153,7 +153,7 @@ uint32_t Cpp2Ops<nebula::HostAddr>::serializedSize(Protocol const* proto,
 
 template <>
 template <class Protocol>
-uint32_t Cpp2Ops<nebula::HostAddr>::serializedSizeZC(Protocol const* proto,
+uint32_t Cpp2Ops<nebula::HostAddr>::serializedSizeZC(Protocol const*         proto,
                                                      nebula::HostAddr const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("HostAddr");

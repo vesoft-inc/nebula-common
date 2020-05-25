@@ -28,16 +28,16 @@ class GeneralStorageClient : public StorageClientBase<cpp2::GeneralStorageServic
 
 public:
     GeneralStorageClient(std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool,
-                         meta::MetaClient* metaClient)
+                         meta::MetaClient*                            metaClient)
         : Parent(ioThreadPool, metaClient) {}
     virtual ~GeneralStorageClient() {}
 
-    folly::SemiFuture<StorageRpcResponse<cpp2::KVGetResponse>> get(GraphSpaceID space,
+    folly::SemiFuture<StorageRpcResponse<cpp2::KVGetResponse>> get(GraphSpaceID               space,
                                                                    std::vector<std::string>&& keys,
                                                                    bool returnPartly     = false,
                                                                    folly::EventBase* evb = nullptr);
 
-    folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> put(GraphSpaceID space,
+    folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> put(GraphSpaceID          space,
                                                                   std::vector<KeyValue> kvs,
                                                                   folly::EventBase* evb = nullptr);
 

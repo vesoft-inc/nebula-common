@@ -108,10 +108,10 @@ private:
     explicit Session(int64_t id);
 
 private:
-    int64_t id_{0};
-    GraphSpaceID space_{-1};
-    std::string spaceName_;
-    std::string account_;
+    int64_t        id_{0};
+    GraphSpaceID   space_{-1};
+    std::string    spaceName_;
+    std::string    account_;
     time::Duration idleDuration_;
     /*
      * map<spaceId, role>

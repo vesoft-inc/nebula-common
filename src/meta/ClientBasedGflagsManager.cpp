@@ -20,9 +20,9 @@ ClientBasedGflagsManager::~ClientBasedGflagsManager() {
 
 template <typename ValueType>
 folly::Future<StatusOr<bool>> ClientBasedGflagsManager::set(const cpp2::ConfigModule& module,
-                                                            const std::string& name,
-                                                            const cpp2::ConfigType& type,
-                                                            const ValueType& value) {
+                                                            const std::string&        name,
+                                                            const cpp2::ConfigType&   type,
+                                                            const ValueType&          value) {
     std::string valueStr;
     valueStr.append(reinterpret_cast<const char*>(&value), sizeof(value));
     return metaClient_->setConfig(module, name, type, std::move(valueStr));
@@ -31,16 +31,16 @@ folly::Future<StatusOr<bool>> ClientBasedGflagsManager::set(const cpp2::ConfigMo
 template <>
 folly::Future<StatusOr<bool>> ClientBasedGflagsManager::set<std::string>(
     const cpp2::ConfigModule& module,
-    const std::string& name,
-    const cpp2::ConfigType& type,
-    const std::string& value) {
+    const std::string&        name,
+    const cpp2::ConfigType&   type,
+    const std::string&        value) {
     return metaClient_->setConfig(module, name, type, value);
 }
 
 folly::Future<StatusOr<bool>> ClientBasedGflagsManager::setConfig(const cpp2::ConfigModule& module,
-                                                                  const std::string& name,
-                                                                  const cpp2::ConfigType& type,
-                                                                  const VariantType& value) {
+                                                                  const std::string&        name,
+                                                                  const cpp2::ConfigType&   type,
+                                                                  const VariantType&        value) {
     switch (type) {
         case cpp2::ConfigType::INT64:
             return set(module, name, type, boost::get<int64_t>(value));
@@ -58,7 +58,7 @@ folly::Future<StatusOr<bool>> ClientBasedGflagsManager::setConfig(const cpp2::Co
 
 folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>> ClientBasedGflagsManager::getConfig(
     const cpp2::ConfigModule& module,
-    const std::string& name) {
+    const std::string&        name) {
     return metaClient_->getConfig(module, name);
 }
 

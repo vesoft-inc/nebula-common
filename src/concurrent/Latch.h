@@ -53,8 +53,8 @@ public:
     bool isReady();
 
 private:
-    volatile size_t counter_{0};
-    std::mutex lock_;
+    volatile size_t         counter_{0};
+    std::mutex              lock_;
     std::condition_variable cond_;
 };
 

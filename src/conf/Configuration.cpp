@@ -20,8 +20,8 @@ Configuration::Configuration(folly::dynamic content) {
 }
 
 Status Configuration::parseFromFile(const std::string &filename) {
-    auto fd     = ::open(filename.c_str(), O_RDONLY);
-    auto status = Status::OK();
+    auto        fd     = ::open(filename.c_str(), O_RDONLY);
+    auto        status = Status::OK();
     std::string content;
     do {
         if (fd == -1) {

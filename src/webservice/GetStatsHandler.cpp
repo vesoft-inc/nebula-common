@@ -87,16 +87,16 @@ void GetStatsHandler::onError(ProxygenError err) noexcept {
     delete this;
 }
 
-void GetStatsHandler::addOneStat(folly::dynamic& vals,
+void GetStatsHandler::addOneStat(folly::dynamic&    vals,
                                  const std::string& statName,
-                                 int64_t statValue) const {
+                                 int64_t            statValue) const {
     folly::dynamic stat = folly::dynamic::object();
     stat["name"]        = statName;
     stat["value"]       = statValue;
     vals.push_back(std::move(stat));
 }
 
-void GetStatsHandler::addOneStat(folly::dynamic& vals,
+void GetStatsHandler::addOneStat(folly::dynamic&    vals,
                                  const std::string& statName,
                                  const std::string& error) const {
     folly::dynamic stat = folly::dynamic::object();

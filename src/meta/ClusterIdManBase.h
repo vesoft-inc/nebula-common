@@ -23,8 +23,8 @@ public:
 
     static ClusterID create(const std::string& metaAddrs) {
         std::hash<std::string> hash_fn;
-        auto clusterId = hash_fn(metaAddrs);
-        uint64_t mask  = 0x7FFFFFFFFFFFFFFF;
+        auto                   clusterId = hash_fn(metaAddrs);
+        uint64_t               mask      = 0x7FFFFFFFFFFFFFFF;
         clusterId &= mask;
         LOG(INFO) << "Create ClusterId " << clusterId;
         return clusterId;

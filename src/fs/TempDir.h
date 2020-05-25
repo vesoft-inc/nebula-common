@@ -37,7 +37,7 @@ public:
 
 private:
     std::unique_ptr<char[]> dirPath_;
-    bool deleteOnDestroy_;
+    bool                    deleteOnDestroy_;
 };
 
 }  // namespace fs

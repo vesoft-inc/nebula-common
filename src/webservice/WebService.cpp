@@ -118,9 +118,9 @@ Status WebService::start() {
     server_->bind(ips);
 
     std::condition_variable cv;
-    std::mutex mut;
-    auto status            = Status::OK();
-    bool serverStartedDone = false;
+    std::mutex              mut;
+    auto                    status            = Status::OK();
+    bool                    serverStartedDone = false;
 
     // Start HTTPServer mainloop in a separate thread
     wsThread_ = std::make_unique<thread::NamedThread>("webservice-listener", [&]() {

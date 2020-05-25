@@ -55,7 +55,7 @@ uint64_t TscHelper::readTscImpl() {
 }
 
 void TscHelper::calibrate() {
-    auto dur          = std::chrono::steady_clock::now() - startMonoTime_;
+    auto     dur      = std::chrono::steady_clock::now() - startMonoTime_;
     uint64_t tickDiff = readTscImpl() - firstTick_;
 
     uint64_t ticksPerUSec =

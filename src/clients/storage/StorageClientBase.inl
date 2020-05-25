@@ -33,13 +33,13 @@ public:
 
     std::pair<const Request*, bool> insertRequest(HostAddr host, Request&& req) {
         std::lock_guard<std::mutex> g(lock_);
-        auto res = ongoingRequests_.emplace(host, std::move(req));
+        auto                        res = ongoingRequests_.emplace(host, std::move(req));
         return std::make_pair(&res.first->second, res.second);
     }
 
     const Request& findRequest(HostAddr host) {
         std::lock_guard<std::mutex> g(lock_);
-        auto it = ongoingRequests_.find(host);
+        auto                        it = ongoingRequests_.find(host);
         DCHECK(it != ongoingRequests_.end());
         return it->second;
     }
@@ -58,14 +58,14 @@ public:
 
 public:
     folly::Promise<StorageRpcResponse<Response>> promise;
-    StorageRpcResponse<Response> resp;
-    RemoteFunc serverMethod;
+    StorageRpcResponse<Response>                 resp;
+    RemoteFunc                                   serverMethod;
 
 private:
-    std::mutex lock_;
+    std::mutex                            lock_;
     std::unordered_map<HostAddr, Request> ongoingRequests_;
-    bool finishSending_{false};
-    bool fulfilled_{false};
+    bool                                  finishSending_{false};
+    bool                                  fulfilled_{false};
 };
 
 }  // Anonymous namespace
@@ -73,7 +73,7 @@ private:
 template <typename ClientType>
 StorageClientBase<ClientType>::StorageClientBase(
     std::shared_ptr<folly::IOThreadPoolExecutor> threadPool,
-    meta::MetaClient* metaClient)
+    meta::MetaClient*                            metaClient)
     : metaClient_(metaClient), ioThreadPool_(threadPool) {
     clientsMan_ = std::make_unique<thrift::ThriftClientManager<ClientType>>();
 }
@@ -130,8 +130,8 @@ const HostAddr StorageClientBase<ClientType>::getLeader(const meta::PartHosts& p
 }
 
 template <typename ClientType>
-void StorageClientBase<ClientType>::updateLeader(GraphSpaceID spaceId,
-                                                 PartitionID partId,
+void StorageClientBase<ClientType>::updateLeader(GraphSpaceID    spaceId,
+                                                 PartitionID     partId,
                                                  const HostAddr& leader) {
     LOG(INFO) << "Update the leader for [" << spaceId << ", " << partId << "] to " << leader;
 
@@ -143,7 +143,7 @@ template <typename ClientType>
 void StorageClientBase<ClientType>::invalidLeader(GraphSpaceID spaceId, PartitionID partId) {
     LOG(INFO) << "Invalidate the leader for [" << spaceId << ", " << partId << "]";
     folly::RWSpinLock::WriteHolder wh(leadersLock_);
-    auto it = leaders_.find(std::make_pair(spaceId, partId));
+    auto                           it = leaders_.find(std::make_pair(spaceId, partId));
     if (it != leaders_.end()) {
         leaders_.erase(it);
     }
@@ -152,10 +152,10 @@ void StorageClientBase<ClientType>::invalidLeader(GraphSpaceID spaceId, Partitio
 template <typename ClientType>
 template <class Request, class RemoteFunc, class GetPartIDFunc, class Response>
 folly::SemiFuture<StorageRpcResponse<Response>> StorageClientBase<ClientType>::collectResponse(
-    folly::EventBase* evb,
+    folly::EventBase*                     evb,
     std::unordered_map<HostAddr, Request> requests,
-    RemoteFunc&& remoteFunc,
-    GetPartIDFunc getPartIDFunc) {
+    RemoteFunc&&                          remoteFunc,
+    GetPartIDFunc                         getPartIDFunc) {
     auto context = std::make_shared<ResponseContext<Request, RemoteFunc, Response>>(
         requests.size(), std::move(remoteFunc));
 
@@ -165,9 +165,9 @@ folly::SemiFuture<StorageRpcResponse<Response>> StorageClientBase<ClientType>::c
     }
 
     for (auto& req : requests) {
-        auto& host   = req.first;
-        auto spaceId = req.second.get_space_id();
-        auto res     = context->insertRequest(host, std::move(req.second));
+        auto& host    = req.first;
+        auto  spaceId = req.second.get_space_id();
+        auto  res     = context->insertRequest(host, std::move(req.second));
         DCHECK(res.second);
         // Invoke the remote method
         folly::via(evb, [this, evb, context, host, spaceId, res, getPartIDFunc]() mutable {
@@ -195,9 +195,9 @@ folly::SemiFuture<StorageRpcResponse<Response>> StorageClientBase<ClientType>::c
                         }
                         context->resp.markFailure();
                     } else {
-                        auto resp    = std::move(val.value());
+                        auto  resp   = std::move(val.value());
                         auto& result = resp.get_result();
-                        bool hasFailure{false};
+                        bool  hasFailure{false};
                         for (auto& code : result.get_failed_parts()) {
                             VLOG(3) << "Failure! Failed part " << code.get_part_id()
                                     << ", failed code " << static_cast<int32_t>(code.get_code());
@@ -251,15 +251,15 @@ folly::SemiFuture<StorageRpcResponse<Response>> StorageClientBase<ClientType>::c
 template <typename ClientType>
 template <class Request, class RemoteFunc, class Response>
 folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
-    folly::EventBase* evb,
+    folly::EventBase*            evb,
     std::pair<HostAddr, Request> request,
-    RemoteFunc remoteFunc) {
+    RemoteFunc                   remoteFunc) {
     if (evb == nullptr) {
         DCHECK(!!ioThreadPool_);
         evb = ioThreadPool_->getEventBase();
     }
     folly::Promise<StatusOr<Response>> pro;
-    auto f = pro.getFuture();
+    auto                               f = pro.getFuture();
     folly::via(
         evb,
         [evb,
@@ -312,9 +312,9 @@ template <class Container, class GetIdFunc>
 StatusOr<std::unordered_map<
     HostAddr,
     std::unordered_map<PartitionID, std::vector<typename Container::value_type>>>>
-StorageClientBase<ClientType>::clusterIdsToHosts(GraphSpaceID spaceId,
+StorageClientBase<ClientType>::clusterIdsToHosts(GraphSpaceID     spaceId,
                                                  const Container& ids,
-                                                 GetIdFunc f) const {
+                                                 GetIdFunc        f) const {
     std::unordered_map<HostAddr,
                        std::unordered_map<PartitionID, std::vector<typename Container::value_type>>>
         clusters;
@@ -343,7 +343,7 @@ template <typename ClientType>
 StatusOr<std::unordered_map<HostAddr, std::vector<PartitionID>>>
 StorageClientBase<ClientType>::getHostParts(GraphSpaceID spaceId) const {
     std::unordered_map<HostAddr, std::vector<PartitionID>> hostParts;
-    auto status = metaClient_->partsNum(spaceId);
+    auto                                                   status = metaClient_->partsNum(spaceId);
     if (!status.ok()) {
         return Status::Error("Space not found, spaceid: %d", spaceId);
     }

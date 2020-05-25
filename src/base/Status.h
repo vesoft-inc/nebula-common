@@ -181,7 +181,7 @@ private:
 private:
     struct Header {
         uint16_t size_;
-        Code code_;
+        Code     code_;
     };
     static constexpr auto kHeaderSize = sizeof(Header);
     // state_ == nullptr indicates OK

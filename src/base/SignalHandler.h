@@ -48,7 +48,7 @@ public:
         explicit GeneralSignalInfo(const siginfo_t *info);
         virtual ~GeneralSignalInfo() = default;
         virtual const char *toString() const;
-        int sig() const {
+        int                 sig() const {
             return sig_;
         }
         pid_t pid() const {
@@ -59,7 +59,7 @@ public:
         }
 
     protected:
-        int sig_{0};
+        int   sig_{0};
         pid_t pid_{0};
         uid_t uid_{0};
     };

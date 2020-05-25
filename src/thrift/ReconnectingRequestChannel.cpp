@@ -22,7 +22,7 @@ namespace thrift {
 
 class ReconnectingRequestChannel::RequestCallback : public apache::thrift::RequestCallback {
 public:
-    RequestCallback(ReconnectingRequestChannel& channel,
+    RequestCallback(ReconnectingRequestChannel&                      channel,
                     std::unique_ptr<apache::thrift::RequestCallback> cob)
         : channel_(channel), impl_(channel_.impl_), cob_(std::move(cob)) {}
 
@@ -55,16 +55,16 @@ private:
         channel_.impl_.reset();
     }
 
-    ReconnectingRequestChannel& channel_;
-    ReconnectingRequestChannel::ImplPtr impl_;
+    ReconnectingRequestChannel&                      channel_;
+    ReconnectingRequestChannel::ImplPtr              impl_;
     std::unique_ptr<apache::thrift::RequestCallback> cob_;
 };
 
 uint32_t ReconnectingRequestChannel::sendRequest(
-    apache::thrift::RpcOptions& options,
-    std::unique_ptr<apache::thrift::RequestCallback> cob,
-    std::unique_ptr<apache::thrift::ContextStack> ctx,
-    std::unique_ptr<folly::IOBuf> buf,
+    apache::thrift::RpcOptions&                         options,
+    std::unique_ptr<apache::thrift::RequestCallback>    cob,
+    std::unique_ptr<apache::thrift::ContextStack>       ctx,
+    std::unique_ptr<folly::IOBuf>                       buf,
     std::shared_ptr<apache::thrift::transport::THeader> header) {
     cob = std::make_unique<RequestCallback>(*this, std::move(cob));
 

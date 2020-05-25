@@ -39,11 +39,11 @@ public:
     void wait();
 
 private:
-    std::function<void()> completion_{nullptr};
-    size_t counter_{0};
-    size_t ages_{0};
-    size_t generation_{0};
-    std::mutex lock_;
+    std::function<void()>   completion_{nullptr};
+    size_t                  counter_{0};
+    size_t                  ages_{0};
+    size_t                  generation_{0};
+    std::mutex              lock_;
     std::condition_variable cond_;
 };
 

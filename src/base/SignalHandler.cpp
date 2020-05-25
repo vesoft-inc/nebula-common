@@ -101,13 +101,13 @@ void SignalHandler::doHandle(int sig, siginfo_t *info, void *uctx) {
 }
 
 void SignalHandler::handleGeneralSignal(int sig, siginfo_t *info) {
-    auto index = sig - 1;
+    auto              index = sig - 1;
     GeneralSignalInfo siginfo(info);
     handlers_[index](&siginfo);
 }
 
 void SignalHandler::handleFatalSignal(int sig, siginfo_t *info, void *uctx) {
-    auto index = sig - 1;
+    auto            index = sig - 1;
     FatalSignalInfo siginfo(info, uctx);
     handlers_[index](&siginfo);
     // Restore the signal handler to its default to make the program crash

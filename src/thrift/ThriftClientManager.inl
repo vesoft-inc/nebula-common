@@ -17,10 +17,10 @@ namespace nebula {
 namespace thrift {
 
 template <class ClientType>
-std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(const HostAddr& host,
+std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(const HostAddr&   host,
                                                                     folly::EventBase* evb,
-                                                                    bool compatibility,
-                                                                    uint32_t timeout) {
+                                                                    bool              compatibility,
+                                                                    uint32_t          timeout) {
     VLOG(2) << "Getting a client to " << host;
 
     if (evb == nullptr) {
@@ -42,7 +42,7 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(const HostAd
              * TODO(liuyu): folly said 'resolve' may take second to finish
              *              if this really happen, we will add a cache here.
              * */
-            bool needResolveHost = !folly::IPAddress::validate(host.host);
+            bool                 needResolveHost = !folly::IPAddress::validate(host.host);
             folly::SocketAddress socketAddr(host.host, host.port, needResolveHost);
 
             VLOG(2) << folly::sformat("Connecting to {0}({2}):{1} for {3} times",

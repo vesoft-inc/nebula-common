@@ -16,8 +16,8 @@ TEST(NetworkUtils, getHostname) {
     std::string hostname = NetworkUtils::getHostname();
 
     FILE* fp = popen("LD_PRELOAD= hostname | tr -d ['\n']", "r");
-    char buffer[256];
-    auto numChars = fgets(buffer, sizeof(buffer), fp);
+    char  buffer[256];
+    auto  numChars = fgets(buffer, sizeof(buffer), fp);
     UNUSED(numChars);
     pclose(fp);
     EXPECT_EQ(std::string(buffer), hostname);

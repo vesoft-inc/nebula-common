@@ -33,15 +33,15 @@ public:
 
 private:
     folly::dynamic getFlags();
-    void addOneFlag(folly::dynamic& vals,
-                    const std::string& flagname,
-                    const gflags::CommandLineFlagInfo* info);
-    std::string toStr(folly::dynamic& vals);
+    void           addOneFlag(folly::dynamic&                    vals,
+                              const std::string&                 flagname,
+                              const gflags::CommandLineFlagInfo* info);
+    std::string    toStr(folly::dynamic& vals);
 
 private:
-    HttpCode err_{HttpCode::SUCCEEDED};
-    bool verbose_{false};
-    bool returnJson_{false};
+    HttpCode                 err_{HttpCode::SUCCEEDED};
+    bool                     verbose_{false};
+    bool                     returnJson_{false};
     std::vector<std::string> flagnames_;
 };
 
