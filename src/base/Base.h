@@ -61,15 +61,15 @@
 #include "base/Logging.h"
 
 #define MUST_USE_RESULT __attribute__((warn_unused_result))
-#define DONT_OPTIMIZE __attribute__((optimize("O0")))
+#define DONT_OPTIMIZE   __attribute__((optimize("O0")))
 
-#define ALWAYS_INLINE __attribute__((always_inline))
+#define ALWAYS_INLINE    __attribute__((always_inline))
 #define ALWAYS_NO_INLINE __attribute__((noinline))
 
 #define BEGIN_NO_OPTIMIZATION _Pragma("GCC push_options") _Pragma("GCC optimize(\"O0\")")
-#define END_NO_OPTIMIZATION _Pragma("GCC pop_options")
+#define END_NO_OPTIMIZATION   _Pragma("GCC pop_options")
 
-#define NEBULA_STRINGIFY(STR) NEBULA_STRINGIFY_X(STR)
+#define NEBULA_STRINGIFY(STR)   NEBULA_STRINGIFY_X(STR)
 #define NEBULA_STRINGIFY_X(STR) #STR
 
 #ifndef UNUSED
@@ -92,12 +92,12 @@
 // Formated logging
 #define FLOG_FATAL(...) LOG(FATAL) << folly::stringPrintf(__VA_ARGS__)
 #define FLOG_ERROR(...) LOG(ERROR) << folly::stringPrintf(__VA_ARGS__)
-#define FLOG_WARN(...) LOG(WARNING) << folly::stringPrintf(__VA_ARGS__)
-#define FLOG_INFO(...) LOG(INFO) << folly::stringPrintf(__VA_ARGS__)
-#define FVLOG1(...) VLOG(1) << folly::stringPrintf(__VA_ARGS__)
-#define FVLOG2(...) VLOG(2) << folly::stringPrintf(__VA_ARGS__)
-#define FVLOG3(...) VLOG(3) << folly::stringPrintf(__VA_ARGS__)
-#define FVLOG4(...) VLOG(4) << folly::stringPrintf(__VA_ARGS__)
+#define FLOG_WARN(...)  LOG(WARNING) << folly::stringPrintf(__VA_ARGS__)
+#define FLOG_INFO(...)  LOG(INFO) << folly::stringPrintf(__VA_ARGS__)
+#define FVLOG1(...)     VLOG(1) << folly::stringPrintf(__VA_ARGS__)
+#define FVLOG2(...)     VLOG(2) << folly::stringPrintf(__VA_ARGS__)
+#define FVLOG3(...)     VLOG(3) << folly::stringPrintf(__VA_ARGS__)
+#define FVLOG4(...)     VLOG(4) << folly::stringPrintf(__VA_ARGS__)
 
 namespace nebula {
 

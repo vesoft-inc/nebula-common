@@ -172,6 +172,7 @@ ObjCBlockIndentWidth: 4
 AlignEscapedNewlines: Right
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
+AlignConsecutiveMacros: true
 AlwaysBreakBeforeMultilineStrings: false
 BinPackArguments: false
 BinPackParameters: false
