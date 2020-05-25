@@ -90,8 +90,8 @@ TEST(StatsManager, HistogramTest) {
     EXPECT_FALSE(StatsManager::readValue("stat02.t9599.60").ok());
 }
 
-}   // namespace stats
-}   // namespace nebula
+}  // namespace stats
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

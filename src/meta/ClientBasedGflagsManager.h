@@ -44,6 +44,6 @@ private:
     MetaClient* metaClient_{nullptr};
 };
 
-}   // namespace meta
-}   // namespace nebula
-#endif   // META_CLIENTBASEDGFLAGSMANAGER_H_
+}  // namespace meta
+}  // namespace nebula
+#endif  // META_CLIENTBASEDGFLAGSMANAGER_H_

@@ -321,8 +321,8 @@ TEST(FileUtilsIterator, File) {
     ASSERT_FALSE(iter.valid());
 }
 
-}   // namespace fs
-}   // namespace nebula
+}  // namespace fs
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

@@ -26,7 +26,7 @@ public:
     bool checkHadoopPath() override;
 };
 
-}   // namespace hdfs
-}   // namespace nebula
+}  // namespace hdfs
+}  // namespace nebula
 
-#endif   // COMMON_HDFSCOMMANDHELPER_H
+#endif  // COMMON_HDFSCOMMANDHELPER_H

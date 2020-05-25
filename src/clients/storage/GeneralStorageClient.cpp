@@ -101,5 +101,5 @@ folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> GeneralStorageClient::
         [](const std::pair<const PartitionID, std::vector<std::string>>& p) { return p.first; });
 }
 
-}   // namespace storage
-}   // namespace nebula
+}  // namespace storage
+}  // namespace nebula

@@ -8,4 +8,4 @@
 
 #include "base/Base.h"
 
-namespace nebula {}   // namespace nebula
+namespace nebula {}  // namespace nebula

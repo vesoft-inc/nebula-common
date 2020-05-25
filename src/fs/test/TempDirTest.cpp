@@ -65,8 +65,8 @@ TEST(TempDir, CreateFiles) {
     EXPECT_EQ(FileType::NOTEXIST, FileUtils::fileType(dirpath.c_str()));
 }
 
-}   // namespace fs
-}   // namespace nebula
+}  // namespace fs
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

@@ -79,7 +79,7 @@ public:
     // Copy/move construct from `Status'
     // Not explicit to allow construct from a `Status', e.g. in the `return' statement
     template <typename U>
-    StatusOr(U &&status, std::enable_if_t<is_status_v<U>> * = nullptr)   // NOLINT
+    StatusOr(U &&status, std::enable_if_t<is_status_v<U>> * = nullptr)  // NOLINT
         : variant_(std::forward<U>(status)) {
         state_ = kStatus;
     }
@@ -87,12 +87,12 @@ public:
     // Copy/move construct with a value of any compatible type
     // Not explicit to allow construct from a value, e.g. in the `return' statement
     template <typename U, typename = std::enable_if_t<is_initializable_v<U>>>
-    StatusOr(U &&value)   // NOLINT
+    StatusOr(U &&value)  // NOLINT
         : variant_(std::forward<U>(value)) {
         state_ = kValue;
     }
 
-    StatusOr(T &&value)   // NOLINT
+    StatusOr(T &&value)  // NOLINT
         : variant_(std::move(value)) {
         state_ = kValue;
     }
@@ -335,6 +335,6 @@ private:
     uint8_t state_;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
-#endif   // COMMON_BASE_STATUSOR_H_
+#endif  // COMMON_BASE_STATUSOR_H_

@@ -110,4 +110,4 @@ std::string DateTime::toString() const {
                                (timezone % 3600) / 60);
 }
 
-}   // namespace nebula
+}  // namespace nebula

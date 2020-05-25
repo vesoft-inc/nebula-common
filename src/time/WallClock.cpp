@@ -42,5 +42,5 @@ int64_t WallClock::fastNowInMicroSec() {
     return TscHelper::tickToTimePointInUSec(TscHelper::readTsc());
 }
 
-}   // namespace time
-}   // namespace nebula
+}  // namespace time
+}  // namespace nebula

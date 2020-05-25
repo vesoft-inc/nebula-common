@@ -112,7 +112,7 @@ public:
         folly::EventBase* evb = nullptr);
 };
 
-}   // namespace storage
-}   // namespace nebula
+}  // namespace storage
+}  // namespace nebula
 
-#endif   // CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_
+#endif  // CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_

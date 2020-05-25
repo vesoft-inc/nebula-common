@@ -208,4 +208,4 @@ Cord& Cord::operator<<(const Cord& rhs) {
     return *this;
 }
 
-}   // namespace nebula
+}  // namespace nebula

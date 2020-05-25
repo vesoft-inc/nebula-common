@@ -75,5 +75,5 @@ struct DataSet {
     }
 };
 
-}   // namespace nebula
-#endif   // DATATYPES_DATASET_H_
+}  // namespace nebula
+#endif  // DATATYPES_DATASET_H_

@@ -22,7 +22,7 @@ public:
     static StatusOr<std::string> get(const std::string& path, const std::string& options = "-G");
 };
 
-}   // namespace http
-}   // namespace nebula
+}  // namespace http
+}  // namespace nebula
 
-#endif   // COMMON_HTTPCLIENT_H
+#endif  // COMMON_HTTPCLIENT_H

@@ -90,7 +90,7 @@ TEST(LatchTest, SignalTest) {
     std::atomic<size_t> counter{0};
     auto task = [&]() {
         // do some preparing works
-        latch.wait();   // wait for the I/O works done
+        latch.wait();  // wait for the I/O works done
         // do subsequent CPU bound works, where parallelism is more efficient.
         ++counter;
     };
@@ -100,12 +100,12 @@ TEST(LatchTest, SignalTest) {
     // sleep to simulate I/O bound task, which single threading suffices
     usleep(100000);
     // I/O works done
-    ASSERT_EQ(0, counter.load());   // no CPU bound work done.
+    ASSERT_EQ(0, counter.load());  // no CPU bound work done.
     latch.down();
     pool.stop();
-    pool.wait();                         // wait all tasks done
-    ASSERT_EQ(ntasks, counter.load());   // all tasks are done
+    pool.wait();                        // wait all tasks done
+    ASSERT_EQ(ntasks, counter.load());  // all tasks are done
 }
 
-}   // namespace concurrent
-}   // namespace nebula
+}  // namespace concurrent
+}  // namespace nebula

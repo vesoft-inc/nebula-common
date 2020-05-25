@@ -46,7 +46,7 @@ struct TccStructTraits<nebula::Edge> {
     }
 };
 
-}   // namespace detail
+}  // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::Edge>::clear(nebula::Edge* obj) {
@@ -292,6 +292,6 @@ uint32_t Cpp2Ops<nebula::Edge>::serializedSizeZC(Protocol const* proto, nebula::
     return xfer;
 }
 
-}   // namespace thrift
-}   // namespace apache
-#endif   // DATATYPES_EDGEOPS_H_
+}  // namespace thrift
+}  // namespace apache
+#endif  // DATATYPES_EDGEOPS_H_

@@ -51,4 +51,4 @@ Value EdgeDstIdExpression::eval() const {
     // TODO
     return Value(NullType::NaN);
 }
-}   // namespace nebula
+}  // namespace nebula

@@ -35,7 +35,7 @@ public:
     //                        ShowSentence::ShowType type,
     //                        GraphSpaceID targetSpace = -1);
 };
-}   // namespace permission
-}   // namespace nebula
+}  // namespace permission
+}  // namespace nebula
 
-#endif   // COMMON_PERMISSION_PERMISSIONMANAGER_H_
+#endif  // COMMON_PERMISSION_PERMISSIONMANAGER_H_

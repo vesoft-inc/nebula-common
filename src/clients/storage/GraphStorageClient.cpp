@@ -422,5 +422,5 @@ folly::SemiFuture<StorageRpcResponse<cpp2::LookupIndexResp>> GraphStorageClient:
         [](const PartitionID& part) { return part; });
 }
 
-}   // namespace storage
-}   // namespace nebula
+}  // namespace storage
+}  // namespace nebula

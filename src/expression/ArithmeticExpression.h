@@ -37,5 +37,5 @@ private:
     std::unique_ptr<Expression> rhs_;
 };
 
-}   // namespace nebula
-#endif   // EXPRESSION_EXPRESSION_H_
+}  // namespace nebula
+#endif  // EXPRESSION_EXPRESSION_H_

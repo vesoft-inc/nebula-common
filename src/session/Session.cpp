@@ -24,5 +24,5 @@ void Session::charge() {
 uint64_t Session::idleSeconds() const {
     return idleDuration_.elapsedInSec();
 }
-}   // namespace session
-}   // namespace nebula
+}  // namespace session
+}  // namespace nebula

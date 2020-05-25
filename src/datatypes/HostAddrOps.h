@@ -34,7 +34,7 @@ struct TccStructTraits<nebula::HostAddr> {
     }
 };
 
-}   // namespace detail
+}  // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::HostAddr>::clear(nebula::HostAddr* obj) {
@@ -169,6 +169,6 @@ uint32_t Cpp2Ops<nebula::HostAddr>::serializedSizeZC(Protocol const* proto,
     return xfer;
 }
 
-}   // namespace thrift
-}   // namespace apache
-#endif   // DATATYPES_HOSTADDROPS_H_
+}  // namespace thrift
+}  // namespace apache
+#endif  // DATATYPES_HOSTADDROPS_H_

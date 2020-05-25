@@ -45,6 +45,6 @@ public:
     remove(GraphSpaceID space, std::vector<std::string> keys, folly::EventBase* evb = nullptr);
 };
 
-}   // namespace storage
-}   // namespace nebula
-#endif   // CLIENTS_STORAGE_GENERALSTORAGECLIENT_H_
+}  // namespace storage
+}  // namespace nebula
+#endif  // CLIENTS_STORAGE_GENERALSTORAGECLIENT_H_

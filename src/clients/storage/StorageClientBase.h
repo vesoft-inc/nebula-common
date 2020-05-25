@@ -146,9 +146,9 @@ private:
     mutable std::atomic_bool isLoadingLeader_{false};
 };
 
-}   // namespace storage
-}   // namespace nebula
+}  // namespace storage
+}  // namespace nebula
 
 #include "clients/storage/StorageClientBase.inl"
 
-#endif   // CLIENTS_STORAGE_STORAGECLIENTBASE_H_
+#endif  // CLIENTS_STORAGE_STORAGECLIENTBASE_H_

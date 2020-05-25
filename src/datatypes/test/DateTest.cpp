@@ -136,7 +136,7 @@ TEST(Date, Arithmetics) {
     EXPECT_EQ(Date(-1020, 12, 31), b);
 }
 
-}   // namespace nebula
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

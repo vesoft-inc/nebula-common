@@ -42,8 +42,8 @@ TEST(StatsManager, CrossLevelTest) {
     EXPECT_EQ(100, StatsManager::readValue("stat03.P99.600").value());
 }
 
-}   // namespace stats
-}   // namespace nebula
+}  // namespace stats
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

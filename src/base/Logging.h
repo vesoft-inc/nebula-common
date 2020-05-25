@@ -200,4 +200,4 @@
     true ? (void)0 : google::LogMessageVoidify() & COMPACT_GOOGLE_LOG_##severity.stream()
 #endif
 
-#endif   // COMMON_BASE_LOGGING_H_
+#endif  // COMMON_BASE_LOGGING_H_

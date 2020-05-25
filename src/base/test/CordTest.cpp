@@ -194,7 +194,7 @@ TEST(Cord, cordStream) {
     EXPECT_EQ(str1 + str2, c1.str());
 }
 
-}   // namespace nebula
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

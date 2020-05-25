@@ -30,4 +30,4 @@ bool HostAddr::operator<(const HostAddr& rhs) const {
     return host < rhs.host;
 }
 
-}   // namespace nebula
+}  // namespace nebula

@@ -102,4 +102,4 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
     }
     return os;
 }
-}   // namespace nebula
+}  // namespace nebula

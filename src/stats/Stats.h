@@ -33,7 +33,7 @@ private:
     int32_t errorQpsStatId_{0};
     int32_t latencyStatId_{0};
 };
-}   // namespace stats
-}   // namespace nebula
+}  // namespace stats
+}  // namespace nebula
 
-#endif   // COMMON_STATS_STATS_H_
+#endif  // COMMON_STATS_STATS_H_

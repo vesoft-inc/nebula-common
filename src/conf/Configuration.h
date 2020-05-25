@@ -66,6 +66,6 @@ private:
     std::unique_ptr<folly::dynamic> content_;
 };
 
-}   // namespace conf
-}   // namespace nebula
-#endif   // CONF_CONFIGURATION_H_
+}  // namespace conf
+}  // namespace nebula
+#endif  // CONF_CONFIGURATION_H_

@@ -40,7 +40,7 @@ private:
     bool deleteOnDestroy_;
 };
 
-}   // namespace fs
-}   // namespace nebula
+}  // namespace fs
+}  // namespace nebula
 
-#endif   // COMMON_FS_TEMPDIR_H_
+#endif  // COMMON_FS_TEMPDIR_H_

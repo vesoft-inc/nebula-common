@@ -19,7 +19,7 @@
 namespace proxygen {
 class RequestHandler;
 class HTTPMessage;
-}   // namespace proxygen
+}  // namespace proxygen
 
 namespace nebula {
 
@@ -103,7 +103,7 @@ private:
     const WebService *webSvc_;
 };
 
-}   // namespace web
-}   // namespace nebula
+}  // namespace web
+}  // namespace nebula
 
-#endif   // WEBSERVICE_ROUTER_H_
+#endif  // WEBSERVICE_ROUTER_H_

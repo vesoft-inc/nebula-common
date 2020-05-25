@@ -68,7 +68,7 @@ template <typename F, typename... Args>
 NamedThread::NamedThread(const std::string &name, F &&f, Args &&... args)
     : std::thread(hook, name, std::bind(std::forward<F>(f), std::forward<Args>(args)...)) {}
 
-}   // namespace thread
-}   // namespace nebula
+}  // namespace thread
+}  // namespace nebula
 
-#endif   // COMMON_THREAD_NAMEDTHREAD_H_
+#endif  // COMMON_THREAD_NAMEDTHREAD_H_

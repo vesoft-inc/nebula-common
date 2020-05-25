@@ -255,16 +255,16 @@ std::string NetworkUtils::intToIPv4(uint32_t ip) {
 
     char buf[16];
     char* pt = buf;
-    strcpy(pt, f4.c_str());   // NOLINT
+    strcpy(pt, f4.c_str());  // NOLINT
     pt += f4.size();
     *pt++ = '.';
-    strcpy(pt, f3.c_str());   // NOLINT
+    strcpy(pt, f3.c_str());  // NOLINT
     pt += f3.size();
     *pt++ = '.';
-    strcpy(pt, f2.c_str());   // NOLINT
+    strcpy(pt, f2.c_str());  // NOLINT
     pt += f2.size();
     *pt++ = '.';
-    strcpy(pt, f1.c_str());   // NOLINT
+    strcpy(pt, f1.c_str());  // NOLINT
     pt += f1.size();
 
     return buf;
@@ -306,5 +306,5 @@ std::string NetworkUtils::toHostsStr(const std::vector<HostAddr>& hosts) {
     return hostsString;
 }
 
-}   // namespace network
-}   // namespace nebula
+}  // namespace network
+}  // namespace nebula

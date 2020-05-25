@@ -43,5 +43,5 @@ struct Set {
     }
 };
 
-}   // namespace nebula
-#endif   // DATATYPES_SET_H_
+}  // namespace nebula
+#endif  // DATATYPES_SET_H_

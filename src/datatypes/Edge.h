@@ -60,7 +60,7 @@ struct Edge {
     }
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
 namespace std {
 
@@ -76,5 +76,5 @@ struct hash<nebula::Edge> {
     }
 };
 
-}   // namespace std
-#endif   // DATATYPES_EDGE_H_
+}  // namespace std
+#endif  // DATATYPES_EDGE_H_

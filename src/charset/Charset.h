@@ -85,6 +85,6 @@ private:
     std::unordered_map<std::string, CharsetDesc> charsetDesc_;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
-#endif   // COMMON_CHARSET_CHARSET_H_
+#endif  // COMMON_CHARSET_CHARSET_H_

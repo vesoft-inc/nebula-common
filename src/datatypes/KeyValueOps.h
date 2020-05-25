@@ -34,7 +34,7 @@ struct TccStructTraits<nebula::KeyValue> {
     }
 };
 
-}   // namespace detail
+}  // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::KeyValue>::clear(nebula::KeyValue* obj) {
@@ -164,6 +164,6 @@ uint32_t Cpp2Ops<nebula::KeyValue>::serializedSizeZC(Protocol const* proto,
     return xfer;
 }
 
-}   // namespace thrift
-}   // namespace apache
-#endif   // DATATYPES_KEYVALUEOPS_H_
+}  // namespace thrift
+}  // namespace apache
+#endif  // DATATYPES_KEYVALUEOPS_H_

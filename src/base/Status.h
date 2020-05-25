@@ -202,6 +202,6 @@ inline std::ostream &operator<<(std::ostream &os, const Status &status) {
         if (UNLIKELY(!_status.ok())) return _status;                                               \
     } while (0)
 
-}   // namespace nebula
+}  // namespace nebula
 
-#endif   // COMMON_BASE_STATUS_H_
+#endif  // COMMON_BASE_STATUS_H_

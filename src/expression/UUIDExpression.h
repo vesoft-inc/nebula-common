@@ -36,5 +36,5 @@ public:
 private:
     std::unique_ptr<std::string> field_;
 };
-}   // namespace nebula
+}  // namespace nebula
 #endif

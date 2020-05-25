@@ -25,5 +25,5 @@ TEST(NamedThread, ThreadID) {
     ASSERT_EQ(::getpid(), nebula::thread::gettid());
 }
 
-}   // namespace thread
-}   // namespace nebula
+}  // namespace thread
+}  // namespace nebula

@@ -37,5 +37,5 @@ using SchemaVer   = int64_t;
 using IndexID     = int32_t;
 using Timestamp   = int64_t;
 
-}   // namespace nebula
-#endif   // COMMON_BASE_THRIFTTYPES_H_
+}  // namespace nebula
+#endif  // COMMON_BASE_THRIFTTYPES_H_

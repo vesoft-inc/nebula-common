@@ -23,4 +23,4 @@ std::string versionString() {
     return version;
 }
 
-}   // namespace nebula
+}  // namespace nebula

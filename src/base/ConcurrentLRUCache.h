@@ -289,6 +289,6 @@ private:
     std::atomic_uint64_t evicts_{0};
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
-#endif   // COMMON_BASE_CONCURRENTLRUCACHE_H_
+#endif  // COMMON_BASE_CONCURRENTLRUCACHE_H_

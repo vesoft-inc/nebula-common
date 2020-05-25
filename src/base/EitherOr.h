@@ -197,22 +197,22 @@ public:
         }
     }
 
-    EitherOr(const LEFT& v) noexcept {   // NOLINT
+    EitherOr(const LEFT& v) noexcept {  // NOLINT
         new (&val_) Variant(kConstructLeft, v);
         state_ = State::LEFT_TYPE;
     }
 
-    EitherOr(LEFT&& v) noexcept {   // NOLINT
+    EitherOr(LEFT&& v) noexcept {  // NOLINT
         new (&val_) Variant(kConstructLeft, std::move(v));
         state_ = State::LEFT_TYPE;
     }
 
-    EitherOr(const RIGHT& v) noexcept {   // NOLINT
+    EitherOr(const RIGHT& v) noexcept {  // NOLINT
         new (&val_) Variant(kConstructRight, v);
         state_ = State::RIGHT_TYPE;
     }
 
-    EitherOr(RIGHT&& v) noexcept {   // NOLINT
+    EitherOr(RIGHT&& v) noexcept {  // NOLINT
         new (&val_) Variant(kConstructRight, std::move(v));
         state_ = State::RIGHT_TYPE;
     }
@@ -222,7 +222,7 @@ public:
     template <class... Args,
               typename = std::enable_if_t<std::is_constructible<LEFT, Args...>::value ||
                                           std::is_constructible<RIGHT, Args...>::value>>
-    EitherOr(Args&&... v) noexcept {   // NOLINT
+    EitherOr(Args&&... v) noexcept {  // NOLINT
         new (&val_) Variant(convert_to_t<Args...>, std::forward<Args>(v)...);
         state_ = convert_to_s<Args...>;
     }
@@ -475,5 +475,5 @@ private:
     State state_{State::VOID};
 };
 
-}   // namespace nebula
-#endif   // COMMON_BASE_EITHEROR_H_
+}  // namespace nebula
+#endif  // COMMON_BASE_EITHEROR_H_

@@ -241,8 +241,8 @@ public:
     };
 };
 
-}   // namespace fs
-}   // namespace nebula
+}  // namespace fs
+}  // namespace nebula
 
 #define CHECK_TYPE(NAME, FTYPE, DTYPE)                                                             \
     bool FileUtils::is##NAME(struct dirent* dEnt, const char* path) {                              \
@@ -254,4 +254,4 @@ public:
         }                                                                                          \
     }
 
-#endif   // COMMON_FS_FILEUTILS_H_
+#endif  // COMMON_FS_FILEUTILS_H_

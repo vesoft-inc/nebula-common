@@ -36,5 +36,5 @@ private:
     Value val_;
 };
 
-}   // namespace nebula
-#endif   // EXPRESSION_CONSTANTEXPRESSION_H_
+}  // namespace nebula
+#endif  // EXPRESSION_CONSTANTEXPRESSION_H_

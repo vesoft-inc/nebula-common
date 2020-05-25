@@ -86,8 +86,8 @@ TEST(NetworkUtils, toHosts) {
     ASSERT_FALSE(s.ok());
 }
 
-}   // namespace network
-}   // namespace nebula
+}  // namespace network
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

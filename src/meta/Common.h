@@ -46,7 +46,7 @@ inline bool checkSegment(const std::string& segment) {
     return false;
 }
 
-}   // namespace meta
-}   // namespace nebula
+}  // namespace meta
+}  // namespace nebula
 
-#endif   // META_METACOMMON_H_
+#endif  // META_METACOMMON_H_

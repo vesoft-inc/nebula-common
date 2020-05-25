@@ -67,5 +67,5 @@ R value(ErrorOr<E, R>&& err) {
     return std::move(err).right();
 }
 
-}   // namespace nebula
-#endif   // COMMON_BASE_ERROROR_H_
+}  // namespace nebula
+#endif  // COMMON_BASE_ERROROR_H_

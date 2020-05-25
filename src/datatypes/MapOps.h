@@ -31,7 +31,7 @@ struct TccStructTraits<nebula::Map> {
     }
 };
 
-}   // namespace detail
+}  // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::Map>::clear(nebula::Map* obj) {
@@ -145,6 +145,6 @@ uint32_t Cpp2Ops<nebula::Map>::serializedSizeZC(Protocol const* proto, nebula::M
     return xfer;
 }
 
-}   // namespace thrift
-}   // namespace apache
-#endif   // DATATYPES_MAPOPS_H_
+}  // namespace thrift
+}  // namespace apache
+#endif  // DATATYPES_MAPOPS_H_

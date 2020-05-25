@@ -54,6 +54,6 @@ cpp2::ConfigItem toThriftConfigItem(const cpp2::ConfigModule& module,
                                     const cpp2::ConfigMode& mode,
                                     const std::string& value);
 
-}   // namespace meta
-}   // namespace nebula
-#endif   // META_GFLAGSMANAGER_H_
+}  // namespace meta
+}  // namespace nebula
+#endif  // META_GFLAGSMANAGER_H_

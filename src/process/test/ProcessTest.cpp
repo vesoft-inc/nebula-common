@@ -35,11 +35,11 @@ TEST(ProcessUtils, isPidAvailable) {
         ASSERT_TRUE(status.ok()) << status;
     }
     {
-        auto status = ProcessUtils::isPidAvailable(0);   // idle/swap
+        auto status = ProcessUtils::isPidAvailable(0);  // idle/swap
         ASSERT_FALSE(status.ok());
     }
     {
-        auto status = ProcessUtils::isPidAvailable(1);   // systemd
+        auto status = ProcessUtils::isPidAvailable(1);  // systemd
         ASSERT_FALSE(status.ok());
     }
     {
@@ -108,4 +108,4 @@ TEST(ProcessUtils, runCommand) {
     EXPECT_EQ(buf, status2.value());
 }
 
-}   // namespace nebula
+}  // namespace nebula

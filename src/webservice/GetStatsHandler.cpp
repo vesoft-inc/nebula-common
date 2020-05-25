@@ -134,4 +134,4 @@ std::string GetStatsHandler::toStr(folly::dynamic& vals) const {
     return ss.str();
 }
 
-}   // namespace nebula
+}  // namespace nebula

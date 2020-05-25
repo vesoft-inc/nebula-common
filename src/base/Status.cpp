@@ -63,4 +63,4 @@ std::string Status::format(const char *fmt, va_list args) {
     return result;
 }
 
-}   // namespace nebula
+}  // namespace nebula

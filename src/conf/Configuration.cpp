@@ -278,5 +278,5 @@ Status Configuration::forEachItem(
     return Status::OK();
 }
 
-}   // namespace conf
-}   // namespace nebula
+}  // namespace conf
+}  // namespace nebula

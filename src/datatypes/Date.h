@@ -17,9 +17,9 @@ namespace nebula {
 struct Date {
     FRIEND_TEST(Date, DaysConversion);
 
-    int16_t year;   // Any integer
-    int8_t month;   // 1 - 12
-    int8_t day;     // 1 - 31
+    int16_t year;  // Any integer
+    int8_t month;  // 1 - 12
+    int8_t day;    // 1 - 31
 
     Date() : year{0}, month{1}, day{1} {}
     Date(int16_t y, int8_t m, int8_t d) : year{y}, month{m}, day{d} {}
@@ -96,7 +96,7 @@ struct DateTime {
     std::string toString() const;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
 namespace std {
 
@@ -126,5 +126,5 @@ struct hash<nebula::DateTime> {
     }
 };
 
-}   // namespace std
-#endif   // DATATYPES_DATE_H_
+}  // namespace std
+#endif  // DATATYPES_DATE_H_

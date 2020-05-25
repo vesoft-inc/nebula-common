@@ -27,5 +27,5 @@ StatsManager::VT StatsManager::readValue(StatsHolder& stats,
     LOG(FATAL) << "Unknown statistic method";
 }
 
-}   // namespace stats
-}   // namespace nebula
+}  // namespace stats
+}  // namespace nebula

@@ -94,4 +94,4 @@ TEST(CharsetInfo, getCharsetDesc) {
     auto result       = charsetInfo->getCharsetDesc();
     EXPECT_EQ(1, result.size());
 }
-}   // namespace nebula
+}  // namespace nebula

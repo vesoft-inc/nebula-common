@@ -54,7 +54,7 @@ public:
 private:
 };
 
-}   // namespace network
-}   // namespace nebula
+}  // namespace network
+}  // namespace nebula
 
-#endif   // COMMON_NETWORK_NETWORKUTILS_H_
+#endif  // COMMON_NETWORK_NETWORKUTILS_H_

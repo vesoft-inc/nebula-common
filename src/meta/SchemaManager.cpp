@@ -16,5 +16,5 @@ std::unique_ptr<SchemaManager> SchemaManager::create(MetaClient *client) {
     return mgr;
 }
 
-}   // namespace meta
-}   // namespace nebula
+}  // namespace meta
+}  // namespace nebula

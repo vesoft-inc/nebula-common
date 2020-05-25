@@ -228,5 +228,5 @@ TEST(Configuration, Iterator) {
     EXPECT_EQ(keys.size(), idx);
 }
 
-}   // namespace conf
-}   // namespace nebula
+}  // namespace conf
+}  // namespace nebula

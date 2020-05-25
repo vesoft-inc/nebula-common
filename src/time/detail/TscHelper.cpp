@@ -94,5 +94,5 @@ uint64_t TscHelper::tickToTimePointInUSec(uint64_t tick) {
     return st + get().ticksToDurationInUSec(tick - get().firstTick_);
 }
 
-}   // namespace time
-}   // namespace nebula
+}  // namespace time
+}  // namespace nebula

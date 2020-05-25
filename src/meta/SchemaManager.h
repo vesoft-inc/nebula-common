@@ -68,6 +68,6 @@ protected:
     SchemaManager() = default;
 };
 
-}   // namespace meta
-}   // namespace nebula
-#endif   // META_SCHEMAMANAGER_H_
+}  // namespace meta
+}  // namespace nebula
+#endif  // META_SCHEMAMANAGER_H_

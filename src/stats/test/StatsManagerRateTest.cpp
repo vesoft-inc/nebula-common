@@ -34,8 +34,8 @@ TEST(StatsManager, RateTest) {
     thread.reset();
 }
 
-}   // namespace stats
-}   // namespace nebula
+}  // namespace stats
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

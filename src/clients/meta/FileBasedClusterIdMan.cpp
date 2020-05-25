@@ -56,5 +56,5 @@ ClusterID FileBasedClusterIdMan::getClusterIdFromFile(const std::string& filenam
     return clusterId;
 }
 
-}   // namespace meta
-}   // namespace nebula
+}  // namespace meta
+}  // namespace nebula

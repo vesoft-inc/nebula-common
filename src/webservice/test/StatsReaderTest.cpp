@@ -206,7 +206,7 @@ TEST(StatsReaderTest, GetHistoTest) {
     }
 }
 
-}   // namespace nebula
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

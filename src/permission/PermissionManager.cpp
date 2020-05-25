@@ -219,5 +219,5 @@ bool PermissionManager::canWriteData(session::Session *session) {
 //    return havePermission;
 //}
 
-}   // namespace permission
-}   // namespace nebula
+}  // namespace permission
+}  // namespace nebula

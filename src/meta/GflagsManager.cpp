@@ -173,5 +173,5 @@ cpp2::ConfigItem toThriftConfigItem(const cpp2::ConfigModule& module,
     return item;
 }
 
-}   // namespace meta
-}   // namespace nebula
+}  // namespace meta
+}  // namespace nebula

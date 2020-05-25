@@ -258,5 +258,5 @@ public:
         return "";
     }
 };
-}   // namespace nebula
+}  // namespace nebula
 #endif

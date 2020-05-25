@@ -413,4 +413,4 @@ TEST(StatusOr, ConvertibleButNotConstructible) {
 }
 */
 
-}   // namespace nebula
+}  // namespace nebula

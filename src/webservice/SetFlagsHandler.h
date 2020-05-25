@@ -36,5 +36,5 @@ private:
     std::string value_;
 };
 
-}   // namespace nebula
-#endif   // WEBSERVICE_SETFLAGSHANDLER_H_
+}  // namespace nebula
+#endif  // WEBSERVICE_SETFLAGSHANDLER_H_

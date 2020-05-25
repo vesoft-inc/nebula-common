@@ -55,4 +55,4 @@ StatusOr<std::string> CharsetInfo::getCharsetbyCollation(const std::string& coll
     return Status::Error("Collation `%s' not support", collationName.c_str());
 }
 
-}   // namespace nebula
+}  // namespace nebula

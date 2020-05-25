@@ -35,5 +35,5 @@ void Barrier::wait() {
     }
 }
 
-}   // namespace concurrent
-}   // namespace nebula
+}  // namespace concurrent
+}  // namespace nebula

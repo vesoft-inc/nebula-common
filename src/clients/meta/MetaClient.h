@@ -588,6 +588,6 @@ private:
     MetaClientOptions options_;
 };
 
-}   // namespace meta
-}   // namespace nebula
-#endif   // CLIENTS_META_METACLIENT_H_
+}  // namespace meta
+}  // namespace nebula
+#endif  // CLIENTS_META_METACLIENT_H_

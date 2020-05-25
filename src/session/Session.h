@@ -121,7 +121,7 @@ private:
     std::unordered_map<GraphSpaceID, Role> roles_;
 };
 
-}   // namespace session
-}   // namespace nebula
+}  // namespace session
+}  // namespace nebula
 
-#endif   // COMMON_SESSION_H_
+#endif  // COMMON_SESSION_H_

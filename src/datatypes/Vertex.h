@@ -82,7 +82,7 @@ inline void swap(Vertex& a, Vertex& b) {
     b         = std::move(temp);
 }
 
-}   // namespace nebula
+}  // namespace nebula
 
 namespace std {
 
@@ -107,5 +107,5 @@ struct hash<nebula::Vertex> {
     }
 };
 
-}   // namespace std
-#endif   // DATATYPES_VERTEX_H_
+}  // namespace std
+#endif  // DATATYPES_VERTEX_H_

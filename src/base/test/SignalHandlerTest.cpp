@@ -37,4 +37,4 @@ TEST(SignalHandler, Overwrite) {
     ::raise(SIGHUP);
 }
 
-}   // namespace nebula
+}  // namespace nebula

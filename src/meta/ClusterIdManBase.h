@@ -31,6 +31,6 @@ public:
     }
 };
 
-}   // namespace meta
-}   // namespace nebula
-#endif   // META_CLUSTERIDMANBASE_H_
+}  // namespace meta
+}  // namespace nebula
+#endif  // META_CLUSTERIDMANBASE_H_

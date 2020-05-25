@@ -45,5 +45,5 @@ private:
     std::vector<std::string> flagnames_;
 };
 
-}   // namespace nebula
-#endif   // WEBSERVICE_GETFLAGSHANDLER_H_
+}  // namespace nebula
+#endif  // WEBSERVICE_GETFLAGSHANDLER_H_

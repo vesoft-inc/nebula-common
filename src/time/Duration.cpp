@@ -56,5 +56,5 @@ uint64_t Duration::elapsedInUSec() const {
     return TscHelper::ticksToDurationInUSec(ticks);
 }
 
-}   // namespace time
-}   // namespace nebula
+}  // namespace time
+}  // namespace nebula

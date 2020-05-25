@@ -48,7 +48,7 @@ struct TccStructTraits<nebula::Step> {
     }
 };
 
-}   // namespace detail
+}  // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::Step>::clear(nebula::Step* obj) {
@@ -293,7 +293,7 @@ struct TccStructTraits<nebula::Path> {
     }
 };
 
-}   // namespace detail
+}  // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::Path>::clear(nebula::Path* obj) {
@@ -432,6 +432,6 @@ uint32_t Cpp2Ops<nebula::Path>::serializedSizeZC(Protocol const* proto, nebula::
     return xfer;
 }
 
-}   // namespace thrift
-}   // namespace apache
-#endif   // DATATYPES_PATHOPS_H_
+}  // namespace thrift
+}  // namespace apache
+#endif  // DATATYPES_PATHOPS_H_

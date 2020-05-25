@@ -9,5 +9,5 @@
 #include "base/Base.h"
 
 namespace nebula {
-namespace meta {}   // namespace meta
-}   // namespace nebula
+namespace meta {}  // namespace meta
+}  // namespace nebula

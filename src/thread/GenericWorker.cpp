@@ -182,5 +182,5 @@ void GenericWorker::purgeTimerInternal(uint64_t id) {
     }
 }
 
-}   // namespace thread
-}   // namespace nebula
+}  // namespace thread
+}  // namespace nebula

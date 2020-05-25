@@ -154,7 +154,7 @@ uint64_t GenericThreadPool::addRepeatTask(size_t ms, F &&f, Args &&... args) {
     return ((idx << GenericWorker::TIMER_ID_BITS) | id);
 }
 
-}   // namespace thread
-}   // namespace nebula
+}  // namespace thread
+}  // namespace nebula
 
-#endif   // COMMON_THREAD_GENERICTHREADPOOL_H_
+#endif  // COMMON_THREAD_GENERICTHREADPOOL_H_

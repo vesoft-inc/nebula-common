@@ -74,10 +74,10 @@
 
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)
-#endif   // UNUSED
+#endif  // UNUSED
 
 #ifndef MAYBE_UNUSED
-#if (__cplusplus == 201703L)   // c++17
+#if (__cplusplus == 201703L)  // c++17
 #include <folly/CppAttributes.h>
 #define MAYBE_UNUSED FOLLY_MAYBE_UNUSED
 #else
@@ -87,7 +87,7 @@
 
 #ifndef COMPILER_BARRIER
 #define COMPILER_BARRIER() asm volatile("" ::: "memory")
-#endif   // COMPILER_BARRIER
+#endif  // COMPILER_BARRIER
 
 // Formated logging
 #define FLOG_FATAL(...) LOG(FATAL) << folly::stringPrintf(__VA_ARGS__)
@@ -151,6 +151,6 @@ static constexpr auto is_convertible_v = std::is_constructible<U, T>::value;
 
 std::string versionString();
 
-}   // namespace nebula
+}  // namespace nebula
 
-#endif   // COMMON_BASE_BASE_H_
+#endif  // COMMON_BASE_BASE_H_

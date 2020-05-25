@@ -39,7 +39,7 @@ struct TccStructTraits<nebula::Tag> {
     }
 };
 
-}   // namespace detail
+}  // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::Tag>::clear(nebula::Tag* obj) {
@@ -200,7 +200,7 @@ struct TccStructTraits<nebula::Vertex> {
     }
 };
 
-}   // namespace detail
+}  // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::Vertex>::clear(nebula::Vertex* obj) {
@@ -331,6 +331,6 @@ uint32_t Cpp2Ops<nebula::Vertex>::serializedSizeZC(Protocol const* proto,
     return xfer;
 }
 
-}   // namespace thrift
-}   // namespace apache
-#endif   // DATATYPES_VERTEXOPS_H_
+}  // namespace thrift
+}  // namespace apache
+#endif  // DATATYPES_VERTEXOPS_H_

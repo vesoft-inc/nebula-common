@@ -75,7 +75,7 @@ std::size_t hash<nebula::Value>::operator()(const nebula::Value& v) const noexce
     }
 }
 
-}   // namespace std
+}  // namespace std
 
 namespace nebula {
 
@@ -1085,32 +1085,32 @@ void Value::setN(NullType&& v) {
 
 void Value::setB(const bool& v) {
     type_ = Type::BOOL;
-    new (std::addressof(value_.bVal)) bool(v);   // NOLINT
+    new (std::addressof(value_.bVal)) bool(v);  // NOLINT
 }
 
 void Value::setB(bool&& v) {
     type_ = Type::BOOL;
-    new (std::addressof(value_.bVal)) bool(std::move(v));   // NOLINT
+    new (std::addressof(value_.bVal)) bool(std::move(v));  // NOLINT
 }
 
 void Value::setI(const int64_t& v) {
     type_ = Type::INT;
-    new (std::addressof(value_.iVal)) int64_t(v);   // NOLINT
+    new (std::addressof(value_.iVal)) int64_t(v);  // NOLINT
 }
 
 void Value::setI(int64_t&& v) {
     type_ = Type::INT;
-    new (std::addressof(value_.iVal)) int64_t(std::move(v));   // NOLINT
+    new (std::addressof(value_.iVal)) int64_t(std::move(v));  // NOLINT
 }
 
 void Value::setF(const double& v) {
     type_ = Type::FLOAT;
-    new (std::addressof(value_.fVal)) double(v);   // NOLINT
+    new (std::addressof(value_.fVal)) double(v);  // NOLINT
 }
 
 void Value::setF(double&& v) {
     type_ = Type::FLOAT;
-    new (std::addressof(value_.fVal)) double(std::move(v));   // NOLINT
+    new (std::addressof(value_.fVal)) double(std::move(v));  // NOLINT
 }
 
 void Value::setS(const std::string& v) {
@@ -1957,4 +1957,4 @@ Value operator||(const Value& lhs, const Value& rhs) {
         return Value(NullType::BAD_TYPE);
     }
 }
-}   // namespace nebula
+}  // namespace nebula

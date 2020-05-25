@@ -81,7 +81,7 @@ bool removeDir(const char* path, bool recursively) {
     return true;
 }
 
-}   // namespace detail
+}  // namespace detail
 
 StatusOr<std::string> FileUtils::readLink(const char* path) {
     char buffer[kMaxPathLen];
@@ -104,16 +104,16 @@ StatusOr<std::string> FileUtils::realPath(const char* path) {
 
 std::string FileUtils::dirname(const char* path) {
     DCHECK(path != nullptr && *path != '\0');
-    if (::strcmp("/", path) == 0) {   // root only
+    if (::strcmp("/", path) == 0) {  // root only
         return "/";
     }
     static const std::regex pattern("(.*)/([^/]+)/?");
     std::cmatch result;
     if (std::regex_match(path, result, pattern)) {
-        if (result[1].first == result[1].second) {   // "/path" or "/path/"
+        if (result[1].first == result[1].second) {  // "/path" or "/path/"
             return "/";
         }
-        return result[1].str();   // "/path/to", "path/to", or "path/to/"
+        return result[1].str();  // "/path/to", "path/to", or "path/to/"
     }
     return ".";
 }
@@ -221,7 +221,7 @@ std::string FileUtils::joinPath(const folly::StringPiece dir, const folly::Strin
     std::size_t len = dir.size();
     if (len == 0) {
         buf.resize(filename.size() + 2);
-        strcpy(&(buf[0]), "./");   // NOLINT
+        strcpy(&(buf[0]), "./");  // NOLINT
         strncpy(&(buf[2]), filename.begin(), filename.size());
         return buf;
     }
@@ -503,5 +503,5 @@ CHECK_TYPE(Chr, CHAR_DEV, CHR)
 CHECK_TYPE(Blk, BLOCK_DEV, BLK)
 CHECK_TYPE(Fifo, FIFO, FIFO)
 CHECK_TYPE(Sock, SOCKET, SOCK)
-}   // namespace fs
-}   // namespace nebula
+}  // namespace fs
+}  // namespace nebula

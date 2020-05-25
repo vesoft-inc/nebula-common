@@ -103,9 +103,9 @@ private:
     std::vector<std::pair<std::unique_ptr<std::mutex>, std::unique_ptr<HistogramType>>> histograms_;
 };
 
-}   // namespace stats
-}   // namespace nebula
+}  // namespace stats
+}  // namespace nebula
 
 #include "stats/StatsManager.inl"
 
-#endif   // COMMON_STATS_STATSMANAGER_H_
+#endif  // COMMON_STATS_STATSMANAGER_H_

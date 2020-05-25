@@ -49,5 +49,5 @@ bool Latch::isReady() {
     return counter_ == 0;
 }
 
-}   // namespace concurrent
-}   // namespace nebula
+}  // namespace concurrent
+}  // namespace nebula

@@ -30,4 +30,4 @@ std::string ArithmeticExpression::encode() const {
     return "";
 }
 
-}   // namespace nebula
+}  // namespace nebula

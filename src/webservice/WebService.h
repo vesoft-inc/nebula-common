@@ -17,16 +17,16 @@ DECLARE_int32(ws_threads);
 namespace proxygen {
 class HTTPServer;
 class RequestHandler;
-}   // namespace proxygen
+}  // namespace proxygen
 
 namespace nebula {
 namespace thread {
 class NamedThread;
-}   // namespace thread
+}  // namespace thread
 
 namespace web {
 class Router;
-}   // namespace web
+}  // namespace web
 
 class WebService final {
 public:
@@ -56,5 +56,5 @@ private:
     std::unique_ptr<web::Router> router_;
 };
 
-}   // namespace nebula
-#endif   // WEBSERVICE_WEBSERVICE_H_
+}  // namespace nebula
+#endif  // WEBSERVICE_WEBSERVICE_H_

@@ -68,7 +68,7 @@ private:
     bool fulfilled_{false};
 };
 
-}   // Anonymous namespace
+}  // Anonymous namespace
 
 template <typename ClientType>
 StorageClientBase<ClientType>::StorageClientBase(
@@ -237,8 +237,8 @@ folly::SemiFuture<StorageRpcResponse<Response>> StorageClientBase<ClientType>::c
                         context->promise.setValue(std::move(context->resp));
                     }
                 });
-        });   // via
-    }         // for
+        });  // via
+    }        // for
 
     if (context->finishSending()) {
         // Received all responses, most likely, all rpc failed
@@ -303,7 +303,7 @@ folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
                     }
                     p.setValue(std::move(resp));
                 });
-        });   // via
+        });  // via
     return f;
 }
 
@@ -362,5 +362,5 @@ StorageClientBase<ClientType>::getHostParts(GraphSpaceID spaceId) const {
     return hostParts;
 }
 
-}   // namespace storage
-}   // namespace nebula
+}  // namespace storage
+}  // namespace nebula

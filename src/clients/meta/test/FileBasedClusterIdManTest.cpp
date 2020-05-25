@@ -23,8 +23,8 @@ TEST(FileBasedClusterIdManTest, ReadWriteTest) {
     CHECK_EQ(clusterId, ret);
 }
 
-}   // namespace meta
-}   // namespace nebula
+}  // namespace meta
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

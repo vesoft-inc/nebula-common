@@ -122,7 +122,7 @@ TEST(FlagsAccessTest, ErrorTest) {
     EXPECT_TRUE(resp.empty());
 }
 
-}   // namespace nebula
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

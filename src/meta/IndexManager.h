@@ -45,6 +45,6 @@ protected:
     IndexManager() = default;
 };
 
-}   // namespace meta
-}   // namespace nebula
-#endif   // META_INDEXMANAGER_H_
+}  // namespace meta
+}  // namespace nebula
+#endif  // META_INDEXMANAGER_H_

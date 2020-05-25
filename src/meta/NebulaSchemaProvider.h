@@ -126,6 +126,6 @@ protected:
     cpp2::SchemaProp schemaProp_;
 };
 
-}   // namespace meta
-}   // namespace nebula
-#endif   // META_NEBULASCHEMAPROVIDER_H_
+}  // namespace meta
+}  // namespace nebula
+#endif  // META_NEBULASCHEMAPROVIDER_H_

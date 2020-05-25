@@ -31,6 +31,6 @@ private:
     int64_t sessionId_;
 };
 
-}   // namespace graph
-}   // namespace nebula
-#endif   // CLIENTS_GRAPH_GRAPHCLIENT_H_
+}  // namespace graph
+}  // namespace nebula
+#endif  // CLIENTS_GRAPH_GRAPHCLIENT_H_

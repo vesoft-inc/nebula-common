@@ -42,7 +42,7 @@ struct HostAddr {
 };
 
 std::ostream& operator<<(std::ostream&, const HostAddr&);
-}   // namespace nebula
+}  // namespace nebula
 
 namespace std {
 
@@ -57,5 +57,5 @@ struct hash<nebula::HostAddr> {
     }
 };
 
-}   // namespace std
-#endif   // DATATYPES_HOSTADDR_H_
+}  // namespace std
+#endif  // DATATYPES_HOSTADDR_H_

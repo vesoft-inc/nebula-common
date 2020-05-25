@@ -20,4 +20,4 @@ Value UnaryExpression::eval() const {
     }
     LOG(FATAL) << "Unknown type: " << kind_;
 }
-}   // namespace nebula
+}  // namespace nebula

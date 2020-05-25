@@ -140,7 +140,7 @@ TEST(ConcurrentLRUCacheTest, MultiThreadsTest) {
     EXPECT_EQ(10000, cache.total());
 }
 
-}   // namespace nebula
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

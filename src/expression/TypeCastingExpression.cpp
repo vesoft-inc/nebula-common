@@ -12,4 +12,4 @@ Value TypeCastingExpression::eval() const {
     UNUSED(vType_);
     return Value(NullType::NaN);
 }
-}   // namespace nebula
+}  // namespace nebula

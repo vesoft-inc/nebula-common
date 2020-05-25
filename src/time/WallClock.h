@@ -35,6 +35,6 @@ public:
     static int64_t fastNowInMicroSec();
 };
 
-}   // namespace time
-}   // namespace nebula
-#endif   // COMMON_TIME_WALLCLOCK_H_
+}  // namespace time
+}  // namespace nebula
+#endif  // COMMON_TIME_WALLCLOCK_H_

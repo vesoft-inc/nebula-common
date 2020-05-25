@@ -24,8 +24,8 @@ TEST(HdfsHelper, copyToLocal) {
     ASSERT_TRUE(result.ok()) << result.status();
 }
 
-}   // namespace hdfs
-}   // namespace nebula
+}  // namespace hdfs
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

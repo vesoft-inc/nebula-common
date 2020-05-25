@@ -62,7 +62,7 @@ struct Path {
     }
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
 namespace std {
 
@@ -89,5 +89,5 @@ struct hash<nebula::Path> {
     }
 };
 
-}   // namespace std
-#endif   // DATATYPES_PATH_H_
+}  // namespace std
+#endif  // DATATYPES_PATH_H_

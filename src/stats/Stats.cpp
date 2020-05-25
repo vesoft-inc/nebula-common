@@ -52,5 +52,5 @@ int32_t Stats::getLatencyStatId() const {
     return latencyStatId_;
 }
 
-}   // namespace stats
-}   // namespace nebula
+}  // namespace stats
+}  // namespace nebula

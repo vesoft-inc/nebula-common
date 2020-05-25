@@ -46,6 +46,6 @@ private:
     uint64_t cnt_{0};
     uint64_t num_{0};
 };
-}   // namespace algorithm
-}   // namespace nebula
+}  // namespace algorithm
+}  // namespace nebula
 #endif

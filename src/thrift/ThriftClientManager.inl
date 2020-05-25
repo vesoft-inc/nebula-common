@@ -72,5 +72,5 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(const HostAd
     return client;
 }
 
-}   // namespace thrift
-}   // namespace nebula
+}  // namespace thrift
+}  // namespace nebula

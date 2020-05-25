@@ -66,5 +66,5 @@ Status ServerBasedIndexManager::checkEdgeIndexed(GraphSpaceID space, EdgeType ed
     return metaClient_->checkEdgeIndexed(space, edgeType);
 }
 
-}   // namespace meta
-}   // namespace nebula
+}  // namespace meta
+}  // namespace nebula

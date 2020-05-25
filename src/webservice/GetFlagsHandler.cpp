@@ -186,4 +186,4 @@ std::string GetFlagsHandler::toStr(folly::dynamic& vals) {
     return ss.str();
 }
 
-}   // namespace nebula
+}  // namespace nebula

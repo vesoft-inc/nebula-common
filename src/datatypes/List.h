@@ -43,5 +43,5 @@ struct List {
     }
 };
 
-}   // namespace nebula
-#endif   // DATATYPES_LIST_H_
+}  // namespace nebula
+#endif  // DATATYPES_LIST_H_

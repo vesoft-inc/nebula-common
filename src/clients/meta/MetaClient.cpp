@@ -75,7 +75,7 @@ bool MetaClient::waitForMetadReady(int count, int retryIntervalSecs) {
         LOG(INFO) << "Waiting for the metad to be ready!";
         --tryCount;
         ::sleep(retryIntervalSecs);
-    }   // end while
+    }  // end while
 
     if (!isRunning_) {
         LOG(ERROR) << "Connect to the MetaServer Failed";
@@ -548,8 +548,8 @@ void MetaClient::getResponse(Request req,
                         }
                     }
                     pro.setValue(this->handleResponse(resp));
-                });   // then
-        });           // via
+                });  // then
+        });          // via
 }
 
 std::vector<SpaceIdName> MetaClient::toSpaceIdName(const std::vector<cpp2::IdName>& tIdNames) {
@@ -1855,7 +1855,7 @@ folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
             }
             metadLastUpdateTime_ = resp.get_last_update_time_in_ms();
             VLOG(1) << "Metad last update time: " << metadLastUpdateTime_;
-            return true;   // resp.code == cpp2::ErrorCode::SUCCEEDED
+            return true;  // resp.code == cpp2::ErrorCode::SUCCEEDED
         },
         std::move(promise),
         true);
@@ -2364,5 +2364,5 @@ StatusOr<LeaderMap> MetaClient::loadLeader() {
     return leaderMap;
 }
 
-}   // namespace meta
-}   // namespace nebula
+}  // namespace meta
+}  // namespace nebula

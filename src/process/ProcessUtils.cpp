@@ -83,7 +83,7 @@ Status ProcessUtils::daemonize(const std::string &pidFile) {
     if (pid == -1) {
         return Status::Error("fork: %s", ::strerror(errno));
     }
-    if (pid > 0) {   // parent process
+    if (pid > 0) {  // parent process
         ::exit(0);
     }
 
@@ -161,4 +161,4 @@ StatusOr<std::string> ProcessUtils::runCommand(const char *command) {
     return out.str();
 }
 
-}   // namespace nebula
+}  // namespace nebula

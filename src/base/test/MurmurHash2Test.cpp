@@ -53,7 +53,7 @@ TEST(MurmurHash2, Basic) {
     ASSERT_EQ(reinterpret_cast<size_t>(ptr), hash(ptr));
     delete ptr;
 }
-}   // namespace nebula
+}  // namespace nebula
 // shared_ptr
 {{auto ptr = std::make_shared<MurmurHash2>();
 ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
@@ -87,4 +87,4 @@ ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
 }
 }
 
-}   // namespace nebula
+}  // namespace nebula

@@ -76,5 +76,5 @@ Status ClientBasedGflagsManager::registerGflags(const std::vector<cpp2::ConfigIt
     return Status::Error("Register gflags failed");
 }
 
-}   // namespace meta
-}   // namespace nebula
+}  // namespace meta
+}  // namespace nebula

@@ -78,7 +78,7 @@ struct TccStructTraits<nebula::Value> {
     }
 };
 
-}   // namespace detail
+}  // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::Value>::clear(nebula::Value* obj) {
@@ -660,6 +660,6 @@ uint32_t Cpp2Ops<nebula::Value>::serializedSizeZC(Protocol const* proto, nebula:
     return xfer;
 }
 
-}   // namespace thrift
-}   // namespace apache
-#endif   // DATATYPES_VALUEOPS_H_
+}  // namespace thrift
+}  // namespace apache
+#endif  // DATATYPES_VALUEOPS_H_

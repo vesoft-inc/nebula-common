@@ -22,5 +22,5 @@ StatusOr<std::string> HttpClient::get(const std::string& path, const std::string
     }
 }
 
-}   // namespace http
-}   // namespace nebula
+}  // namespace http
+}  // namespace nebula

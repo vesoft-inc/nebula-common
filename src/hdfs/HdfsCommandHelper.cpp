@@ -47,5 +47,5 @@ bool HdfsCommandHelper::checkHadoopPath() {
     return std::getenv("HADOOP_HOME") != nullptr;
 }
 
-}   // namespace hdfs
-}   // namespace nebula
+}  // namespace hdfs
+}  // namespace nebula

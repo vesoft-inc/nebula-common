@@ -18,8 +18,8 @@ namespace thrift {
 template <class T, class U>
 class Cpp2Ops;
 
-}   // namespace thrift
-}   // namespace apache
+}  // namespace thrift
+}  // namespace apache
 
 namespace nebula {
 
@@ -67,42 +67,42 @@ struct Value {
     Value(Value&& rhs);
     Value(const Value& rhs);
 
-    Value(const NullType& v);      // NOLINT
-    Value(NullType&& v);           // NOLINT
-    Value(const bool& v);          // NOLINT
-    Value(bool&& v);               // NOLINT
-    Value(const int8_t& v);        // NOLINT
-    Value(int8_t&& v);             // NOLINT
-    Value(const int16_t& v);       // NOLINT
-    Value(int16_t&& v);            // NOLINT
-    Value(const int32_t& v);       // NOLINT
-    Value(int32_t&& v);            // NOLINT
-    Value(const int64_t& v);       // NOLINT
-    Value(int64_t&& v);            // NOLINT
-    Value(const double& v);        // NOLINT
-    Value(double&& v);             // NOLINT
-    Value(const std::string& v);   // NOLINT
-    Value(std::string&& v);        // NOLINT
-    Value(const char* v);          // NOLINT
-    Value(folly::StringPiece v);   // NOLINT
-    Value(const Date& v);          // NOLINT
-    Value(Date&& v);               // NOLINT
-    Value(const DateTime& v);      // NOLINT
-    Value(DateTime&& v);           // NOLINT
-    Value(const Vertex& v);        // NOLINT
-    Value(Vertex&& v);             // NOLINT
-    Value(const Edge& v);          // NOLINT
-    Value(Edge&& v);               // NOLINT
-    Value(const Path& v);          // NOLINT
-    Value(Path&& v);               // NOLINT
-    Value(const List& v);          // NOLINT
-    Value(List&& v);               // NOLINT
-    Value(const Map& v);           // NOLINT
-    Value(Map&& v);                // NOLINT
-    Value(const Set& v);           // NOLINT
-    Value(Set&& v);                // NOLINT
-    Value(const DataSet& v);       // NOLINT
-    Value(DataSet&& v);            // NOLINT
+    Value(const NullType& v);     // NOLINT
+    Value(NullType&& v);          // NOLINT
+    Value(const bool& v);         // NOLINT
+    Value(bool&& v);              // NOLINT
+    Value(const int8_t& v);       // NOLINT
+    Value(int8_t&& v);            // NOLINT
+    Value(const int16_t& v);      // NOLINT
+    Value(int16_t&& v);           // NOLINT
+    Value(const int32_t& v);      // NOLINT
+    Value(int32_t&& v);           // NOLINT
+    Value(const int64_t& v);      // NOLINT
+    Value(int64_t&& v);           // NOLINT
+    Value(const double& v);       // NOLINT
+    Value(double&& v);            // NOLINT
+    Value(const std::string& v);  // NOLINT
+    Value(std::string&& v);       // NOLINT
+    Value(const char* v);         // NOLINT
+    Value(folly::StringPiece v);  // NOLINT
+    Value(const Date& v);         // NOLINT
+    Value(Date&& v);              // NOLINT
+    Value(const DateTime& v);     // NOLINT
+    Value(DateTime&& v);          // NOLINT
+    Value(const Vertex& v);       // NOLINT
+    Value(Vertex&& v);            // NOLINT
+    Value(const Edge& v);         // NOLINT
+    Value(Edge&& v);              // NOLINT
+    Value(const Path& v);         // NOLINT
+    Value(Path&& v);              // NOLINT
+    Value(const List& v);         // NOLINT
+    Value(List&& v);              // NOLINT
+    Value(const Map& v);          // NOLINT
+    Value(Map&& v);               // NOLINT
+    Value(const Set& v);          // NOLINT
+    Value(Set&& v);               // NOLINT
+    Value(const DataSet& v);      // NOLINT
+    Value(DataSet&& v);           // NOLINT
     ~Value() {
         clear();
     }
@@ -342,7 +342,7 @@ bool operator>=(const Value& lhs, const Value& rhs);
 // Logical operations
 Value operator&&(const Value& lhs, const Value& rhs);
 Value operator||(const Value& lhs, const Value& rhs);
-}   // namespace nebula
+}  // namespace nebula
 
 namespace std {
 
@@ -352,5 +352,5 @@ struct hash<nebula::Value> {
     std::size_t operator()(const nebula::Value& h) const noexcept;
 };
 
-}   // namespace std
-#endif   // DATATYPES_VALUE_H_
+}  // namespace std
+#endif  // DATATYPES_VALUE_H_

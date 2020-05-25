@@ -126,7 +126,7 @@ void NebulaSchemaProvider::addField(folly::StringPiece name,
             size = sizeof(double);
             break;
         case cpp2::PropertyType::STRING:
-            size = 8;   // string offset + string length
+            size = 8;  // string offset + string length
             break;
         case cpp2::PropertyType::FIXED_STRING:
             CHECK_GT(fixedStrLen, 0) << "Fixed string length must be greater than zero";
@@ -136,19 +136,19 @@ void NebulaSchemaProvider::addField(folly::StringPiece name,
             size = sizeof(int64_t);
             break;
         case cpp2::PropertyType::DATE:
-            size = sizeof(int16_t) +   // year
-                   sizeof(int8_t) +    // month
-                   sizeof(int8_t);     // day
+            size = sizeof(int16_t) +  // year
+                   sizeof(int8_t) +   // month
+                   sizeof(int8_t);    // day
             break;
         case cpp2::PropertyType::DATETIME:
-            size = sizeof(int16_t) +   // year
-                   sizeof(int8_t) +    // month
-                   sizeof(int8_t) +    // day
-                   sizeof(int8_t) +    // hour
-                   sizeof(int8_t) +    // minute
-                   sizeof(int8_t) +    // sec
-                   sizeof(int32_t) +   // microsec
-                   sizeof(int32_t);    // timezone
+            size = sizeof(int16_t) +  // year
+                   sizeof(int8_t) +   // month
+                   sizeof(int8_t) +   // day
+                   sizeof(int8_t) +   // hour
+                   sizeof(int8_t) +   // minute
+                   sizeof(int8_t) +   // sec
+                   sizeof(int32_t) +  // microsec
+                   sizeof(int32_t);   // timezone
             break;
         default:
             LOG(FATAL) << "Incorrect field type";
@@ -198,5 +198,5 @@ StatusOr<std::pair<std::string, int64_t>> NebulaSchemaProvider::getTTLInfo() con
     return std::make_pair(ttlCol, ttlDuration);
 }
 
-}   // namespace meta
-}   // namespace nebula
+}  // namespace meta
+}  // namespace nebula

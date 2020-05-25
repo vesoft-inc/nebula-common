@@ -43,7 +43,7 @@ private:
     const web::Router* router_;
 };
 
-}   // anonymous namespace
+}  // anonymous namespace
 
 using folly::SocketAddress;
 using proxygen::HTTPServer;
@@ -170,4 +170,4 @@ Status WebService::start() {
     return status;
 }
 
-}   // namespace nebula
+}  // namespace nebula

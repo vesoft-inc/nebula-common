@@ -379,7 +379,7 @@ TEST(Value, Logical) {
         EXPECT_EQ(true, v.getBool());
     }
 }
-}   // namespace nebula
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

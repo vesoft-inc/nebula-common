@@ -30,5 +30,5 @@ public:
     void onError(proxygen::ProxygenError err) noexcept override;
 };
 
-}   // namespace nebula
-#endif   // WEBSERVICE_NOTFOUNDHANDLER_H_
+}  // namespace nebula
+#endif  // WEBSERVICE_NOTFOUNDHANDLER_H_

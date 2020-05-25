@@ -63,6 +63,6 @@ private:
     MetaClient *metaClient_{nullptr};
 };
 
-}   // namespace meta
-}   // namespace nebula
-#endif   // META_SERVERBASEDSCHEMAMANAGER_H_
+}  // namespace meta
+}  // namespace nebula
+#endif  // META_SERVERBASEDSCHEMAMANAGER_H_

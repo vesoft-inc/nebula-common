@@ -43,5 +43,5 @@ struct Map {
     }
 };
 
-}   // namespace nebula
-#endif   // DATATYPES_MAP_H_
+}  // namespace nebula
+#endif  // DATATYPES_MAP_H_

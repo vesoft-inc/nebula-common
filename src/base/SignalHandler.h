@@ -108,6 +108,6 @@ inline std::ostream &operator<<(std::ostream &os, const SignalHandler::GeneralSi
     return os << info.toString();
 }
 
-}   // namespace nebula
+}  // namespace nebula
 
-#endif   // BASE_SIGNALHANDLER_H_
+#endif  // BASE_SIGNALHANDLER_H_

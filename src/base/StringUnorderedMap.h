@@ -130,5 +130,5 @@ bool operator==(const StringUnorderedMap<T>& lhs, const StringUnorderedMap<T>& r
 template <typename T>
 bool operator!=(const StringUnorderedMap<T>& lhs, const StringUnorderedMap<T>& rhs);
 
-}   // namespace nebula
-#endif   // COMMON_BASE_STRINGUNORDEREDMAP_H_
+}  // namespace nebula
+#endif  // COMMON_BASE_STRINGUNORDEREDMAP_H_

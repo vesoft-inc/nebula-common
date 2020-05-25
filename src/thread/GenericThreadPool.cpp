@@ -55,5 +55,5 @@ void GenericThreadPool::purgeTimerTask(uint64_t id) {
     pool_[idx]->purgeTimerTask(id);
 }
 
-}   // namespace thread
-}   // namespace nebula
+}  // namespace thread
+}  // namespace nebula

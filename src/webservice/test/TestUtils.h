@@ -24,4 +24,4 @@ bool getUrl(const std::string& urlPath, std::string& respBody) {
     return true;
 }
 
-}   // namespace nebula
+}  // namespace nebula

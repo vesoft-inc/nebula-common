@@ -59,6 +59,6 @@ public:
     static StatusOr<std::string> runCommand(const char *command);
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
-#endif   // COMMON_PROCESSUTILS_H_
+#endif  // COMMON_PROCESSUTILS_H_

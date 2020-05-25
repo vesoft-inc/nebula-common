@@ -39,5 +39,5 @@ TEST(ReservoirSamplingTest, Sample) {
         EXPECT_EQ(2, result[2]);
     }
 }
-}   // namespace algorithm
-}   // namespace nebula
+}  // namespace algorithm
+}  // namespace nebula

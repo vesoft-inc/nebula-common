@@ -90,5 +90,5 @@ TEST(BarrierTest, ConsecutiveTest) {
     ASSERT_EQ(0UL, counter.load() % N);
 }
 
-}   // namespace concurrent
-}   // namespace nebula
+}  // namespace concurrent
+}  // namespace nebula

@@ -84,11 +84,11 @@ void SignalHandler::handlerHook(int sig, siginfo_t *info, void *uctx) {
 
 void SignalHandler::doHandle(int sig, siginfo_t *info, void *uctx) {
     switch (sig) {
-        case SIGSEGV:   // segment fault
-        case SIGABRT:   // abort
-        case SIGILL:    // ill instruction
-        case SIGFPE:    // floating point error, e.g. divide by zero
-        case SIGBUS:    // I/O error in mmaped memory, mce error, etc.
+        case SIGSEGV:  // segment fault
+        case SIGABRT:  // abort
+        case SIGILL:   // ill instruction
+        case SIGFPE:   // floating point error, e.g. divide by zero
+        case SIGBUS:   // I/O error in mmaped memory, mce error, etc.
             handleFatalSignal(sig, info, uctx);
             break;
         case SIGCHLD:
@@ -142,4 +142,4 @@ const char *SignalHandler::FatalSignalInfo::toString() const {
     return GeneralSignalInfo::toString();
 }
 
-}   // namespace nebula
+}  // namespace nebula

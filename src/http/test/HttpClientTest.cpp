@@ -83,8 +83,8 @@ TEST(HttpClient, get) {
     }
 }
 
-}   // namespace http
-}   // namespace nebula
+}  // namespace http
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

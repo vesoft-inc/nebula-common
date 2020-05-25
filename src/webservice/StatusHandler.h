@@ -41,6 +41,6 @@ private:
     std::vector<std::string> statusAllNames_{"status"};
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
-#endif   // WEBSERVICE_STATUSHANDLER_H_
+#endif  // WEBSERVICE_STATUSHANDLER_H_

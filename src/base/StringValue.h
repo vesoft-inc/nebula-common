@@ -31,5 +31,5 @@ private:
     std::string str_;
 };
 
-}   // namespace nebula
-#endif   // COMMON_BASE_STRINGVALUE_H_
+}  // namespace nebula
+#endif  // COMMON_BASE_STRINGVALUE_H_

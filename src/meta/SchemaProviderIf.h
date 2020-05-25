@@ -125,6 +125,6 @@ public:
     }
 };
 
-}   // namespace meta
-}   // namespace nebula
-#endif   // META_SCHEMAPROVIDERIF_H_
+}  // namespace meta
+}  // namespace nebula
+#endif  // META_SCHEMAPROVIDERIF_H_

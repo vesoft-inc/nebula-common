@@ -47,4 +47,4 @@ void NotFoundHandler::onError(ProxygenError err) noexcept {
     delete this;
 }
 
-}   // namespace nebula
+}  // namespace nebula

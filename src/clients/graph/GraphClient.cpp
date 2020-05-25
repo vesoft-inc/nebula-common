@@ -79,5 +79,5 @@ cpp2::ErrorCode GraphClient::execute(folly::StringPiece stmt, cpp2::ExecutionRes
     return resp.get_error_code();
 }
 
-}   // namespace graph
-}   // namespace nebula
+}  // namespace graph
+}  // namespace nebula

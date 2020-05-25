@@ -69,4 +69,4 @@ folly::dynamic StatusHandler::getStatus() {
     return json;
 }
 
-}   // namespace nebula
+}  // namespace nebula

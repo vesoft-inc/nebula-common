@@ -76,5 +76,5 @@ protected:
 };
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind);
-}   // namespace nebula
-#endif   // EXPRESSION_EXPRESSION_H_
+}  // namespace nebula
+#endif  // EXPRESSION_EXPRESSION_H_

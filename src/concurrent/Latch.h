@@ -58,7 +58,7 @@ private:
     std::condition_variable cond_;
 };
 
-}   // namespace concurrent
-}   // namespace nebula
+}  // namespace concurrent
+}  // namespace nebula
 
-#endif   // COMMON_CONCURRENT_LATCH_H_
+#endif  // COMMON_CONCURRENT_LATCH_H_

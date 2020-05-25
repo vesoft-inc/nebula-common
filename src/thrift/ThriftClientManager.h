@@ -32,17 +32,16 @@ public:
     }
 
 private:
-    using ClientMap =
-        std::unordered_map<std::pair<HostAddr, folly::EventBase*>,   // <ip, port> pair
-                           std::shared_ptr<ClientType>               // Async thrift client
-                           >;
+    using ClientMap = std::unordered_map<std::pair<HostAddr, folly::EventBase*>,  // <ip, port> pair
+                                         std::shared_ptr<ClientType>  // Async thrift client
+                                         >;
 
     folly::ThreadLocal<ClientMap> clientMap_;
 };
 
-}   // namespace thrift
-}   // namespace nebula
+}  // namespace thrift
+}  // namespace nebula
 
 #include "thrift/ThriftClientManager.inl"
 
-#endif   // COMMON_THRIFT_THRIFTCLIENTMANAGER_H_
+#endif  // COMMON_THRIFT_THRIFTCLIENTMANAGER_H_

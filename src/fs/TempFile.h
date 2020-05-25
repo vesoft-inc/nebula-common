@@ -36,7 +36,7 @@ private:
     std::unique_ptr<char[]> path_;
 };
 
-}   // namespace fs
-}   // namespace nebula
+}  // namespace fs
+}  // namespace nebula
 
-#endif   // COMMON_FS_TEMPFILE_H_
+#endif  // COMMON_FS_TEMPFILE_H_

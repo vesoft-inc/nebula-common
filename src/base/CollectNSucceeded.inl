@@ -66,4 +66,4 @@ folly::Future<SucceededResultList<FutureIter>> collectNSucceeded(FutureIter firs
     return ctx->promise.getFuture();
 }
 
-}   // namespace nebula
+}  // namespace nebula

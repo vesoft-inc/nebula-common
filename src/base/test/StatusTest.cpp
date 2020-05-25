@@ -90,4 +90,4 @@ TEST(Status, Move) {
     }
 }
 
-}   // namespace nebula
+}  // namespace nebula

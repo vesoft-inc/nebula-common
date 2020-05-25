@@ -31,12 +31,12 @@ private:
     pid_t tid_;
 };
 
-}   // namespace detail
+}  // namespace detail
 
 pid_t gettid() {
     static thread_local detail::TLSThreadID tlstid;
     return tlstid.tid();
 }
 
-}   // namespace thread
-}   // namespace nebula
+}  // namespace thread
+}  // namespace nebula

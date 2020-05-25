@@ -254,7 +254,7 @@ uint64_t GenericWorker::addTimerTask(size_t delay, size_t interval, F &&f, Args 
     return id;
 }
 
-}   // namespace thread
-}   // namespace nebula
+}  // namespace thread
+}  // namespace nebula
 
-#endif   // COMMON_THREAD_GENERICWORKER_H_
+#endif  // COMMON_THREAD_GENERICWORKER_H_

@@ -41,5 +41,5 @@ struct KeyValue {
     }
 };
 
-}   // namespace nebula
-#endif   // DATATYPES_KEYVALUE_H_
+}  // namespace nebula
+#endif  // DATATYPES_KEYVALUE_H_

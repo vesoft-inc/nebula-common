@@ -58,5 +58,5 @@ TEST(TempFile, Basic) {
     }
 }
 
-}   // namespace fs
-}   // namespace nebula
+}  // namespace fs
+}  // namespace nebula

@@ -38,5 +38,5 @@ private:
     Value::Type vType_;
     std::unique_ptr<Expression> operand_;
 };
-}   // namespace nebula
+}  // namespace nebula
 #endif

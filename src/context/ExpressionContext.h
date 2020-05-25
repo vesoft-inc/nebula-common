@@ -45,5 +45,5 @@ public:
     virtual const Value& getInputProp(const std::string& prop) const = 0;
 };
 
-}   // namespace nebula
-#endif   // CONTEXT_EXPRESSIONCONTEXT_H_
+}  // namespace nebula
+#endif  // CONTEXT_EXPRESSIONCONTEXT_H_

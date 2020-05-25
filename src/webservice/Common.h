@@ -49,5 +49,5 @@ public:
     }
 };
 
-}   // namespace nebula
-#endif   // WEBSERVICE_COMMON_H_
+}  // namespace nebula
+#endif  // WEBSERVICE_COMMON_H_

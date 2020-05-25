@@ -59,6 +59,6 @@ struct ServerContext {
     uint16_t port_{0};
 };
 
-}   // namespace test
-}   // namespace nebula
-#endif   // COMMON_TEST_SERVERCONTEXT_H_
+}  // namespace test
+}  // namespace nebula
+#endif  // COMMON_TEST_SERVERCONTEXT_H_

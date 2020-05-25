@@ -79,5 +79,5 @@ ReconnectingRequestChannel::Impl& ReconnectingRequestChannel::impl() {
 
     return *impl_;
 }
-}   // namespace thrift
-}   // namespace apache
+}  // namespace thrift
+}  // namespace apache

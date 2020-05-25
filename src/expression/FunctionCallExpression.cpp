@@ -10,4 +10,4 @@ namespace nebula {
 Value FunctionCallExpression::eval() const {
     return Value(NullType::NaN);
 }
-}   // namespace nebula
+}  // namespace nebula

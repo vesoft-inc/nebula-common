@@ -18,7 +18,7 @@ TEST(SlowOpTrackerTest, SimpleTest) {
     tracker.output("PREFIX", "This is a prefix msg");
 }
 
-}   // namespace nebula
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

@@ -367,4 +367,4 @@ TEST(EitherOr, Destruct) {
     ASSERT_EQ(1UL, ptr.use_count());
 }
 
-}   // namespace nebula
+}  // namespace nebula

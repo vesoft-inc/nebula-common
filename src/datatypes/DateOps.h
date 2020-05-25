@@ -42,7 +42,7 @@ struct TccStructTraits<nebula::Date> {
     }
 };
 
-}   // namespace detail
+}  // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::Date>::clear(nebula::Date* obj) {
@@ -245,7 +245,7 @@ struct TccStructTraits<nebula::DateTime> {
     }
 };
 
-}   // namespace detail
+}  // namespace detail
 
 template <>
 inline void Cpp2Ops<nebula::DateTime>::clear(nebula::DateTime* obj) {
@@ -548,6 +548,6 @@ uint32_t Cpp2Ops<nebula::DateTime>::serializedSizeZC(Protocol const* proto,
     return xfer;
 }
 
-}   // namespace thrift
-}   // namespace apache
-#endif   // DATATYPES_DATEOPS_H_
+}  // namespace thrift
+}  // namespace apache
+#endif  // DATATYPES_DATEOPS_H_

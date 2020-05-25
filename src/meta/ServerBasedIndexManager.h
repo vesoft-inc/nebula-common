@@ -39,6 +39,6 @@ private:
     MetaClient *metaClient_{nullptr};
 };
 
-}   // namespace meta
-}   // namespace nebula
-#endif   // META_SERVERBASEDINDEXMANAGER_H_
+}  // namespace meta
+}  // namespace nebula
+#endif  // META_SERVERBASEDINDEXMANAGER_H_

@@ -37,5 +37,5 @@ private:
     int64_t dur_     = 0;
 };
 
-}   // namespace nebula
-#endif   // COMMON_BASE_SLOWOPTRACKER_H_
+}  // namespace nebula
+#endif  // COMMON_BASE_SLOWOPTRACKER_H_

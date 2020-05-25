@@ -307,5 +307,5 @@ StatusOr<StatsManager::VT> StatsManager::readHisto(const std::string& counterNam
     return sm.histograms_[index].second->getPercentileEstimate(pct, level);
 }
 
-}   // namespace stats
-}   // namespace nebula
+}  // namespace stats
+}  // namespace nebula
