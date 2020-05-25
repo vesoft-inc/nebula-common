@@ -67,23 +67,24 @@ private:
     struct TypeConverter {
         TypeConverter() = delete;
 
+        // clang-format off
+        // a malformed automatic format
         template <class... Types>
-        static constexpr
-            typename std::enable_if_t<std::is_constructible<LEFT, Types...>::value &&
-                                          !std::is_constructible<RIGHT, Types...>::value,
-                                      LeftType>*
-            sfinae() {
+        static constexpr typename std::enable_if_t<std::is_constructible<LEFT, Types...>::value &&
+                                                  !std::is_constructible<RIGHT, Types...>::value,
+                                                   LeftType>*
+        sfinae() {
             return kConstructLeft;
         }
 
         template <class... Types>
-        static constexpr
-            typename std::enable_if_t<!std::is_constructible<LEFT, Types...>::value &&
-                                          std::is_constructible<RIGHT, Types...>::value,
-                                      RightType>*
-            sfinae() {
+        static constexpr typename std::enable_if_t<!std::is_constructible<LEFT, Types...>::value &&
+                                                    std::is_constructible<RIGHT, Types...>::value,
+                                                    RightType>*
+        sfinae() {
             return kConstructRight;
         }
+        // clang-format on
 
         template <class... Types>
         static constexpr typename std::enable_if_t<std::is_constructible<LEFT, Types...>::value &&
