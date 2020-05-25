@@ -7,6 +7,7 @@ steps:
   - name: lint
     image: vesoft/nebula-dev:centos7
     commands:
+      - [ "$(clang-format --version | cut -d ' ' -f 6)" != '9.0.0' ] && echo 'Require clang-format 9.0.0' && exit 1
       - mkdir -p build && cd build
       - cmake ..
       - make format
@@ -32,6 +33,7 @@ steps:
   - name: lint
     image: vesoft/nebula-dev:ubuntu1804
     commands:
+      - [ "$(clang-format --version | cut -d ' ' -f 6)" != '9.0.0' ] && echo 'Require clang-format 9.0.0' && exit 1
       - mkdir -p build && cd build
       - cmake ..
       - make format
