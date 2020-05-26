@@ -9,12 +9,13 @@
 
 #include "common/base/Base.h"
 #include "common/datatypes/Value.h"
+#include "common/context/ExpressionContext.h"
 
 namespace nebula {
 
 class Expression {
 public:
-    enum class Kind {
+    enum class Kind : uint8_t {
         kConstant,
 
         kAdd,
@@ -63,13 +64,22 @@ public:
         return kind_;
     }
 
-    virtual Value eval() const = 0;
+    virtual bool operator==(const Expression& rhs) const = 0;
+    virtual bool operator!=(const Expression& rhs) const {
+        return !operator==(rhs);
+    }
+
+    virtual Value eval(const ExpressionContext& ctx) const = 0;
 
     virtual std::string toString() const = 0;
 
-    virtual std::string encode() const = 0;
+    virtual size_t encode(std::string& buf) const = 0;
 
-    virtual std::string decode() const = 0;
+    // Reset the content of the expression from the given binary string.
+    // It returns the position of the character right after the expression
+    virtual void resetFrom(char*& ptr, const char* end) = 0;
+
+    static std::unique_ptr<Expression> decode(char*& ptr, const char* end);
 
     static std::unique_ptr<Expression> decode(folly::StringPiece) {
         return nullptr;
@@ -84,5 +94,6 @@ protected:
 };
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind);
+
 }   // namespace nebula
 #endif   // COMMON_EXPRESSION_EXPRESSION_H_

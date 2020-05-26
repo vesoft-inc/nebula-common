@@ -10,31 +10,30 @@
 #include "common/expression/Expression.h"
 
 namespace nebula {
+
 class UUIDExpression final : public Expression {
 public:
-    explicit UUIDExpression(std::string* field) : Expression(Kind::kUUID) {
-        field_.reset(field);
-    }
+    explicit UUIDExpression(std::string* field = nullptr)
+        : Expression(Kind::kUUID)
+        , field_(field) {}
 
-    Value eval() const override;
+    bool operator==(const Expression& rhs) const override;
 
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
+    Value eval(const ExpressionContext& ctx) const override;
 
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    size_t encode(std::string& buf) const override;
+
+    void resetFrom(char*& ptr, const char* end) override;
 
     std::string toString() const override {
         // TODO
         return "";
     }
 
-private:
+
+protected:
     std::unique_ptr<std::string> field_;
 };
+
 }   // namespace nebula
-#endif
+#endif  // EXPRESSION_UUIDEXPRESSION_H_

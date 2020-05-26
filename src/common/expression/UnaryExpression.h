@@ -10,31 +10,30 @@
 #include "common/expression/Expression.h"
 
 namespace nebula {
+
 class UnaryExpression final : public Expression {
 public:
-    UnaryExpression(Kind kind, Expression* operand) : Expression(kind) {
-        operand_.reset(operand);
-    }
+    UnaryExpression(Kind kind,
+                    std::unique_ptr<Expression>&& operand = nullptr)
+        : Expression(kind)
+        , operand_(std::move(operand)) {}
 
-    Value eval() const override;
+    bool operator==(const Expression& rhs) const override;
 
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
+    Value eval(const ExpressionContext& ctx) const override;
 
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    size_t encode(std::string& buf) const override;
+
+    void resetFrom(char*& ptr, const char* end) override;
 
     std::string toString() const override {
         // TODO
         return "";
     }
 
-private:
+protected:
     std::unique_ptr<Expression> operand_;
 };
-}   // namespace nebula
-#endif
+
+}  // namespace nebula
+#endif  // EXPRESSION_UNARYEXPRESSION_H_
