@@ -106,7 +106,7 @@ public:
      * Lookup
      *
      *****************************************/
-    T& at(const key_type& key);
+    T&       at(const key_type& key);
     const T& at(const key_type& key) const;
 
     T& operator[](const key_type& key);
