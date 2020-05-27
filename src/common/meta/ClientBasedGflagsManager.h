@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef META_CLIENTBASEDGFLAGSMANAGER_H_
-#define META_CLIENTBASEDGFLAGSMANAGER_H_
+#ifndef COMMON_META_CLIENTBASEDGFLAGSMANAGER_H_
+#define COMMON_META_CLIENTBASEDGFLAGSMANAGER_H_
 
 #include "common/base/Base.h"
 #include "common/meta/GflagsManager.h"
@@ -43,4 +43,4 @@ private:
 
 }  // namespace meta
 }  // namespace nebula
-#endif  // META_CLIENTBASEDGFLAGSMANAGER_H_
+#endif  // COMMON_META_CLIENTBASEDGFLAGSMANAGER_H_

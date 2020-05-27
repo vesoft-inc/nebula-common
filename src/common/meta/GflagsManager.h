@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef META_GFLAGSMANAGER_H_
-#define META_GFLAGSMANAGER_H_
+#ifndef COMMON_META_GFLAGSMANAGER_H_
+#define COMMON_META_GFLAGSMANAGER_H_
 
 #include "common/base/Base.h"
 #include "common/base/Status.h"
@@ -54,4 +54,4 @@ cpp2::ConfigItem toThriftConfigItem(const cpp2::ConfigModule& module, const std:
 
 }  // namespace meta
 }  // namespace nebula
-#endif  // META_GFLAGSMANAGER_H_
+#endif  // COMMON_META_GFLAGSMANAGER_H_

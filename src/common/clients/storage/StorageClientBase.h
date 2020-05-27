@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef CLIENTS_STORAGE_STORAGECLIENTBASE_H_
-#define CLIENTS_STORAGE_STORAGECLIENTBASE_H_
+#ifndef COMMON_CLIENTS_STORAGE_STORAGECLIENTBASE_H_
+#define COMMON_CLIENTS_STORAGE_STORAGECLIENTBASE_H_
 
 #include "common/base/Base.h"
 #include <folly/futures/Future.h>
@@ -166,4 +166,4 @@ private:
 
 #include "common/clients/storage/StorageClientBase.inl"
 
-#endif  // CLIENTS_STORAGE_STORAGECLIENTBASE_H_
+#endif  // COMMON_CLIENTS_STORAGE_STORAGECLIENTBASE_H_

@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef DATATYPES_VALUE_H_
-#define DATATYPES_VALUE_H_
+#ifndef COMMON_DATATYPES_VALUE_H_
+#define COMMON_DATATYPES_VALUE_H_
 
 #include "common/base/Base.h"
 #include "common/thrift/ThriftTypes.h"
@@ -355,4 +355,4 @@ struct hash<nebula::Value> {
 };
 
 }  // namespace std
-#endif  // DATATYPES_VALUE_H_
+#endif  // COMMON_DATATYPES_VALUE_H_

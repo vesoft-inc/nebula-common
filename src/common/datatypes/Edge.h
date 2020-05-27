@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef DATATYPES_EDGE_H_
-#define DATATYPES_EDGE_H_
+#ifndef COMMON_DATATYPES_EDGE_H_
+#define COMMON_DATATYPES_EDGE_H_
 
 #include "common/base/Base.h"
 #include <folly/hash/Hash.h>
@@ -89,4 +89,4 @@ struct hash<nebula::Edge> {
 };
 
 }  // namespace std
-#endif  // DATATYPES_EDGE_H_
+#endif  // COMMON_DATATYPES_EDGE_H_

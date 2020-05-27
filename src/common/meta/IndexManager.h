@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef META_INDEXMANAGER_H_
-#define META_INDEXMANAGER_H_
+#ifndef COMMON_META_INDEXMANAGER_H_
+#define COMMON_META_INDEXMANAGER_H_
 
 #include "common/base/Base.h"
 #include "common/clients/meta/MetaClient.h"
@@ -51,4 +51,4 @@ protected:
 
 }  // namespace meta
 }  // namespace nebula
-#endif  // META_INDEXMANAGER_H_
+#endif  // COMMON_META_INDEXMANAGER_H_

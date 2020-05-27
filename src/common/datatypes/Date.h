@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef DATATYPES_DATE_H_
-#define DATATYPES_DATE_H_
+#ifndef COMMON_DATATYPES_DATE_H_
+#define COMMON_DATATYPES_DATE_H_
 
 #include "common/base/Base.h"
 #include <folly/hash/Hash.h>
@@ -154,4 +154,4 @@ struct hash<nebula::DateTime> {
 };
 
 }  // namespace std
-#endif  // DATATYPES_DATE_H_
+#endif  // COMMON_DATATYPES_DATE_H_

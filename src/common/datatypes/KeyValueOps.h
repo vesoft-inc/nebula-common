@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef DATATYPES_KEYVALUEOPS_H_
-#define DATATYPES_KEYVALUEOPS_H_
+#ifndef COMMON_DATATYPES_KEYVALUEOPS_H_
+#define COMMON_DATATYPES_KEYVALUEOPS_H_
 
 #include "common/base/Base.h"
 
@@ -183,4 +183,4 @@ uint32_t Cpp2Ops<nebula::KeyValue>::serializedSizeZC(Protocol const* proto,
 
 }  // namespace thrift
 }  // namespace apache
-#endif  // DATATYPES_KEYVALUEOPS_H_
+#endif  // COMMON_DATATYPES_KEYVALUEOPS_H_

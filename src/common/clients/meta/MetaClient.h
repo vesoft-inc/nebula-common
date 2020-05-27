@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef CLIENTS_META_METACLIENT_H_
-#define CLIENTS_META_METACLIENT_H_
+#ifndef COMMON_CLIENTS_META_METACLIENT_H_
+#define COMMON_CLIENTS_META_METACLIENT_H_
 
 #include "common/base/Base.h"
 #include <folly/executors/IOThreadPoolExecutor.h>
@@ -623,4 +623,4 @@ private:
 
 }  // namespace meta
 }  // namespace nebula
-#endif  // CLIENTS_META_METACLIENT_H_
+#endif  // COMMON_CLIENTS_META_METACLIENT_H_

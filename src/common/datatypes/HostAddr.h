@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef DATATYPES_HOSTADDR_H_
-#define DATATYPES_HOSTADDR_H_
+#ifndef COMMON_DATATYPES_HOSTADDR_H_
+#define COMMON_DATATYPES_HOSTADDR_H_
 
 #include "common/base/Base.h"
 #include <folly/hash/Hash.h>
@@ -58,4 +58,4 @@ struct hash<nebula::HostAddr> {
 };
 
 }  // namespace std
-#endif  // DATATYPES_HOSTADDR_H_
+#endif  // COMMON_DATATYPES_HOSTADDR_H_

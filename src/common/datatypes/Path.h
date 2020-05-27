@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef DATATYPES_PATH_H_
-#define DATATYPES_PATH_H_
+#ifndef COMMON_DATATYPES_PATH_H_
+#define COMMON_DATATYPES_PATH_H_
 
 #include "common/base/Base.h"
 #include "common/thrift/ThriftTypes.h"
@@ -102,4 +102,4 @@ struct hash<nebula::Path> {
 };
 
 }  // namespace std
-#endif  // DATATYPES_PATH_H_
+#endif  // COMMON_DATATYPES_PATH_H_

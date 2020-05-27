@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef EXPRESSION_UUIDEXPRESSION_H_
-#define EXPRESSION_UUIDEXPRESSION_H_
+#ifndef COMMON_EXPRESSION_UUIDEXPRESSION_H_
+#define COMMON_EXPRESSION_UUIDEXPRESSION_H_
 
 #include "common/expression/Expression.h"
 

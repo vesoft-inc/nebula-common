@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef DATATYPES_DATASETOPS_H_
-#define DATATYPES_DATASETOPS_H_
+#ifndef COMMON_DATATYPES_DATASETOPS_H_
+#define COMMON_DATATYPES_DATASETOPS_H_
 
 #include "common/base/Base.h"
 
@@ -370,4 +370,4 @@ uint32_t Cpp2Ops<nebula::DataSet>::serializedSizeZC(Protocol const* proto,
 
 }  // namespace thrift
 }  // namespace apache
-#endif  // DATATYPES_DATASETOPS_H_
+#endif  // COMMON_DATATYPES_DATASETOPS_H_

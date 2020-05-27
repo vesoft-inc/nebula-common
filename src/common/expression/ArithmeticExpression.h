@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef EXPRESSION_ARITHMETICEXPRESSION_H_
-#define EXPRESSION_ARITHMETICEXPRESSION_H_
+#ifndef COMMON_EXPRESSION_ARITHMETICEXPRESSION_H_
+#define COMMON_EXPRESSION_ARITHMETICEXPRESSION_H_
 
 #include "common/expression/Expression.h"
 
@@ -38,4 +38,4 @@ private:
 };
 
 }   // namespace nebula
-#endif   // EXPRESSION_EXPRESSION_H_
+#endif   // COMMON_EXPRESSION_EXPRESSION_H_

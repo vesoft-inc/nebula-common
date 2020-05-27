@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_
-#define CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_
+#ifndef COMMON_CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_
+#define COMMON_CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_
 
 #include "common/base/Base.h"
 #include <gtest/gtest_prod.h>
@@ -118,4 +118,4 @@ public:
 }   // namespace storage
 }   // namespace nebula
 
-#endif  // CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_
+#endif  // COMMON_CLIENTS_STORAGE_GRAPHSTORAGECLIENT_H_

@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef COMMON_BASE_THRIFTTYPES_H_
-#define COMMON_BASE_THRIFTTYPES_H_
+#ifndef COMMON_THRIFT_THRIFTTYPES_H_
+#define COMMON_THRIFT_THRIFTTYPES_H_
 
 #include <cstdint>
 #include <string>
@@ -39,5 +39,4 @@ using Timestamp = int64_t;
 
 
 }  // namespace nebula
-#endif  // COMMON_BASE_THRIFTTYPES_H_
-
+#endif  // COMMON_THRIFT_THRIFTTYPES_H_

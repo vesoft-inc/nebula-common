@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef DATATYPES_VERTEX_H_
-#define DATATYPES_VERTEX_H_
+#ifndef COMMON_DATATYPES_VERTEX_H_
+#define COMMON_DATATYPES_VERTEX_H_
 
 #include "common/base/Base.h"
 #include "common/thrift/ThriftTypes.h"
@@ -121,4 +121,4 @@ struct hash<nebula::Vertex> {
 };
 
 }  // namespace std
-#endif  // DATATYPES_VERTEX_H_
+#endif  // COMMON_DATATYPES_VERTEX_H_

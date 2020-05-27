@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef CONTEXT_EXPRESSIONCONTEXT_H_
-#define CONTEXT_EXPRESSIONCONTEXT_H_
+#ifndef COMMON_CONTEXT_EXPRESSIONCONTEXT_H_
+#define COMMON_CONTEXT_EXPRESSIONCONTEXT_H_
 
 #include "common/base/Base.h"
 #include <folly/RWSpinLock.h>
@@ -47,4 +47,4 @@ public:
 };
 
 }  // namespace nebula
-#endif  // CONTEXT_EXPRESSIONCONTEXT_H_
+#endif  // COMMON_CONTEXT_EXPRESSIONCONTEXT_H_

@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef META_METACOMMON_H_
-#define META_METACOMMON_H_
+#ifndef COMMON_META_METACOMMON_H_
+#define COMMON_META_METACOMMON_H_
 
 #include "common/base/Base.h"
 #include "common/thrift/ThriftTypes.h"
@@ -52,4 +52,4 @@ inline bool checkSegment(const std::string& segment) {
 }  // namespace meta
 }  // namespace nebula
 
-#endif  // META_METACOMMON_H_
+#endif  // COMMON_META_METACOMMON_H_

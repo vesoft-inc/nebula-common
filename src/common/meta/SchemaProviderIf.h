@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef META_SCHEMAPROVIDERIF_H_
-#define META_SCHEMAPROVIDERIF_H_
+#ifndef COMMON_META_SCHEMAPROVIDERIF_H_
+#define COMMON_META_SCHEMAPROVIDERIF_H_
 
 #include "common/base/Base.h"
 #include "common/interface/gen-cpp2/meta_types.h"
@@ -135,4 +135,4 @@ public:
 
 }  // namespace meta
 }  // namespace nebula
-#endif  // META_SCHEMAPROVIDERIF_H_
+#endif  // COMMON_META_SCHEMAPROVIDERIF_H_

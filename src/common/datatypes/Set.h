@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef DATATYPES_SET_H_
-#define DATATYPES_SET_H_
+#ifndef COMMON_DATATYPES_SET_H_
+#define COMMON_DATATYPES_SET_H_
 
 #include "common/base/Base.h"
 #include "common/datatypes/Value.h"
@@ -40,4 +40,4 @@ struct Set {
 };
 
 }  // namespace nebula
-#endif  // DATATYPES_SET_H_
+#endif  // COMMON_DATATYPES_SET_H_

@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef META_SCHEMAMANAGER_H_
-#define META_SCHEMAMANAGER_H_
+#ifndef COMMON_META_SCHEMAMANAGER_H_
+#define COMMON_META_SCHEMAMANAGER_H_
 
 #include "common/base/Base.h"
 #include "common/base/StatusOr.h"
@@ -68,4 +68,4 @@ protected:
 
 }  // namespace meta
 }  // namespace nebula
-#endif  // META_SCHEMAMANAGER_H_
+#endif  // COMMON_META_SCHEMAMANAGER_H_

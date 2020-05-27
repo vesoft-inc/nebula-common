@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef BASE_SIGNALHANDLER_H_
-#define BASE_SIGNALHANDLER_H_
+#ifndef COMMON_BASE_SIGNALHANDLER_H_
+#define COMMON_BASE_SIGNALHANDLER_H_
 
 #include "common/base/Base.h"
 #include <signal.h>
@@ -106,4 +106,4 @@ operator<<(std::ostream &os, const SignalHandler::GeneralSignalInfo &info) {
 }   // namespace nebula
 
 
-#endif  // BASE_SIGNALHANDLER_H_
+#endif  // COMMON_BASE_SIGNALHANDLER_H_

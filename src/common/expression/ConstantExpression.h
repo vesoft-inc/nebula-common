@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef EXPRESSION_CONSTANTEXPRESSION_H_
-#define EXPRESSION_CONSTANTEXPRESSION_H_
+#ifndef COMMON_EXPRESSION_CONSTANTEXPRESSION_H_
+#define COMMON_EXPRESSION_CONSTANTEXPRESSION_H_
 
 #include "common/base/Base.h"
 #include "common/expression/Expression.h"
@@ -37,4 +37,4 @@ private:
 };
 
 }   // namespace nebula
-#endif   // EXPRESSION_CONSTANTEXPRESSION_H_
+#endif   // COMMON_EXPRESSION_CONSTANTEXPRESSION_H_

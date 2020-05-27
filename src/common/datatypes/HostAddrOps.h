@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef DATATYPES_HOSTADDROPS_H_
-#define DATATYPES_HOSTADDROPS_H_
+#ifndef COMMON_DATATYPES_HOSTADDROPS_H_
+#define COMMON_DATATYPES_HOSTADDROPS_H_
 
 #include "common/base/Base.h"
 
@@ -189,4 +189,4 @@ uint32_t Cpp2Ops<nebula::HostAddr>::serializedSizeZC(Protocol const* proto,
 
 }  // namespace thrift
 }  // namespace apache
-#endif  // DATATYPES_HOSTADDROPS_H_
+#endif  // COMMON_DATATYPES_HOSTADDROPS_H_
