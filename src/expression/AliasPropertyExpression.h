@@ -46,11 +46,11 @@ public:
         return "";
     }
 
-    std::string* alias() const {
+    const std::string* alias() const {
         return alias_.get();
     }
 
-    std::string* prop() const {
+    const std::string* prop() const {
         return prop_.get();
     }
 
