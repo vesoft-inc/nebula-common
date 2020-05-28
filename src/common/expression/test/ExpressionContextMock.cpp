@@ -11,6 +11,10 @@ namespace nebula {
 std::unordered_map<std::string, Value> ExpressionContextMock::vals_ = {
     {"empty", Value()},
     {"null", Value(NullType::NaN)},
+    {"int_null", Value(NullType::NaN)},
+    {"float_null", Value(NullType::NaN)},
+    {"string_null", Value(NullType::NaN)},
+    {"bool_null", Value(NullType::NaN)},
     {"bool_true", Value(true)},
     {"bool_false", Value(false)},
     {"int", Value(1)},

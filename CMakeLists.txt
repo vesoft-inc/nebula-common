@@ -71,6 +71,7 @@ message(STATUS "ENABLE_STATIC_UBSAN : ${ENABLE_STATIC_UBSAN}")
 
 
 add_compile_options(-fno-strict-aliasing)
+add_compile_options(-Wno-switch)
 
 if (ENABLE_NATIVE)
     message(STATUS "ENABLE_NATIVE is ${ENABLE_NATIVE}")
@@ -261,6 +262,7 @@ if(NOT ENABLE_ASAN AND NOT ENABLE_NATIVE)
     find_package(PCHSupport)
     add_compile_options(-Winvalid-pch)
 endif()
+find_package(LLVM REQUIRED CONFIG)
 
 add_compile_options(-Wall)
 add_compile_options(-Wextra)
@@ -273,6 +275,27 @@ add_compile_options(-Wignored-qualifiers)
 if(ENABLE_WERROR)
     add_compile_options(-Werror)
 endif()
+
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+if(${LLVM_PACKAGE_VERSION} VERSION_LESS "9.0.1")
+    message(FATAL_ERROR "The minimum llvm version should be 9.0.1")
+endif()
+
+add_definitions(${LLVM_DEFINITIONS})
+llvm_map_components_to_libnames(llvm_libs
+                                Analysis
+                                core
+                                ExecutionEngine
+                                InstCombine
+                                Object
+                                OrcJIT
+                                RuntimeDyld
+                                ScalarOpts
+                                Support
+                                native)
+
+add_compile_options(-Wno-invalid-pch)
+add_link_options("-Wl,--export-dynamic")
 
 include(CheckCXXCompilerFlag)
 

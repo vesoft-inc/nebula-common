@@ -5,6 +5,7 @@
  */
 
 #include "common/expression/BinaryExpression.h"
+#include "common/jit/JITUtils.h"
 
 namespace nebula {
 
@@ -40,6 +41,44 @@ void BinaryExpression::resetFrom(Decoder& decoder) {
     // Read rhs_
     rhs_ = decoder.readExpression();
     CHECK(!!rhs_);
+}
+
+llvm::Value* BinaryExpression::createBinOp(llvm::IRBuilder<>* builder,
+                                           llvm::Value* lhs,
+                                           llvm::Value* rhs,
+                                           BinOP opForInt,
+                                           BinOP opForDouble) const {
+    switch (lhs->getType()->getTypeID()) {
+        case llvm::Type::TypeID::IntegerTyID: {
+            switch (rhs->getType()->getTypeID()) {
+                case llvm::Type::TypeID::IntegerTyID: {
+                    return opForInt(lhs, rhs);
+                }
+                case llvm::Type::TypeID::DoubleTyID: {
+                    auto* l = builder->CreateSIToFP(lhs, rhs->getType());
+                    return opForDouble(l, rhs);
+                }
+            }
+            break;
+        }
+        case llvm::Type::TypeID::DoubleTyID: {
+            switch (rhs->getType()->getTypeID()) {
+                case llvm::Type::TypeID::IntegerTyID: {
+                    auto* r = builder->CreateSIToFP(rhs, lhs->getType());
+                    return opForDouble(lhs, r);
+                }
+                case llvm::Type::TypeID::DoubleTyID: {
+                    return opForDouble(lhs, rhs);
+                }
+           }
+           break;
+        }
+        default:
+            break;
+    }
+    LOG(WARNING) << "Unsupport operations left type is " << lhs->getType()->getTypeID()
+                 << ", right type is " << rhs->getType()->getTypeID();
+    return nullptr;
 }
 
 }  // namespace nebula

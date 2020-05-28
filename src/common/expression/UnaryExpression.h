@@ -25,9 +25,35 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override {
-        // TODO
-        return "";
+        std::string buf;
+        buf.reserve(256);
+        switch (kind_) {
+            case Kind::kUnaryPlus:
+                buf += '+';
+                break;
+            case Kind::kUnaryNegate:
+                buf += '-';
+                break;
+            case Kind::kUnaryNot:
+                buf += '!';
+                break;
+            case Kind::kUnaryIncr:
+                buf += "++";
+                break;
+            case Kind::kUnaryDecr:
+                buf += "--";
+                break;
+            default:
+                LOG(FATAL) << "Uknown type!";
+                break;
+        }
+        buf += '(';
+        buf.append(operand_->toString());
+        buf += ')';
+        return buf;
     }
+
+    llvm::Value* codegen(ExprCodegenContext& ctx) const override;
 
 private:
     void writeTo(Encoder& encoder) const override;

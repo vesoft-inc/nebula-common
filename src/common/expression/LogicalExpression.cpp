@@ -5,6 +5,7 @@
  */
 
 #include "common/expression/LogicalExpression.h"
+#include "common/jit/JITUtils.h"
 
 namespace nebula {
 const Value& LogicalExpression::eval(ExpressionContext& ctx) {
@@ -27,4 +28,31 @@ const Value& LogicalExpression::eval(ExpressionContext& ctx) {
     return result_;
 }
 
-}  // namespace nebula
+llvm::Value* LogicalExpression::codegen(ExprCodegenContext& ctx) const {
+    auto* builder = ctx.builder_;
+    if (builder == nullptr) {
+        return nullptr;
+    }
+    auto* lhs = JITUtils::convertToBool(builder, lhs_->codegen(ctx));
+    auto* rhs = JITUtils::convertToBool(builder, rhs_->codegen(ctx));
+    if (!lhs || !rhs) {
+        return nullptr;
+    }
+    switch (kind_) {
+        case Kind::kLogicalAnd: {
+            return builder->CreateAnd(lhs, rhs, "and");
+        }
+        case Kind::kLogicalOr: {
+            return builder->CreateOr(lhs, rhs, "or");
+        }
+        case Kind::kLogicalXor: {
+            return builder->CreateXor(lhs, rhs, "xor");
+        }
+        default:
+            break;
+    }
+    LOG(WARNING) << "Unsupport operation " << static_cast<int32_t>(kind_);
+    return nullptr;
+}
+
+}   // namespace nebula

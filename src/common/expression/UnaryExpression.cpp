@@ -6,6 +6,7 @@
 
 #include "common/expression/UnaryExpression.h"
 #include "common/expression/VariableExpression.h"
+#include "common/jit/JITUtils.h"
 
 namespace nebula {
 
@@ -80,4 +81,52 @@ const Value& UnaryExpression::eval(ExpressionContext& ctx) {
    return result_;
 }
 
-}  // namespace nebula
+llvm::Value* UnaryExpression::codegen(ExprCodegenContext& ctx) const {
+    auto* builder = ctx.builder_;
+    if (builder == nullptr) {
+        return nullptr;
+    }
+    auto* val = operand_->codegen(ctx);
+    switch (kind_) {
+        case Kind::kUnaryPlus:
+            return val;
+        case Kind::kUnaryNegate: {
+            if (val->getType()->isDoubleTy()) {
+                return builder->CreateFNeg(val, "neg");
+            } else if (val->getType()->isIntegerTy()) {
+                return builder->CreateNSWNeg(val, "neg");
+            }
+            break;
+        }
+        case Kind::kUnaryNot: {
+            auto* ret = JITUtils::convertToBool(builder, val);
+            if (ret != nullptr) {
+                return builder->CreateNot(ret, "not");
+            }
+            break;
+        }
+        case Kind::kUnaryIncr: {
+            if (val->getType()->isIntegerTy(64)) {
+                return builder->CreateNSWAdd(val, builder->getInt64(1));
+            } else if (val->getType()->isDoubleTy()) {
+                return builder->CreateFAdd(val, llvm::ConstantFP::get(builder->getContext(),
+                                                                      llvm::APFloat(1.0)));
+            }
+            break;
+        }
+        case Kind::kUnaryDecr: {
+            if (val->getType()->isIntegerTy(64)) {
+                return builder->CreateNSWSub(val, builder->getInt64(1));
+            } else if (val->getType()->isDoubleTy()) {
+                return builder->CreateFSub(val, llvm::ConstantFP::get(builder->getContext(),
+                                                                      llvm::APFloat(1.0)));
+            }
+            break;
+        }
+        default:
+            break;
+    }
+    return nullptr;
+}
+
+}   // namespace nebula

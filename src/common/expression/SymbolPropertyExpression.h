@@ -8,6 +8,7 @@
 #define COMMON_EXPRESSION_SYMBOLPROPERTYEXPRESSION_H_
 
 #include "common/expression/Expression.h"
+#include "common/meta/NebulaSchemaProvider.h"
 
 namespace nebula {
 
@@ -52,10 +53,23 @@ public:
         return prop_.get();
     }
 
+    llvm::Value* codegen(ExprCodegenContext& ctx) const override;
+
+    std::string toString() const override {
+        return folly::stringPrintf("%s.%s.%s",
+                                   ref_->c_str(),
+                                   sym_->c_str(),
+                                   prop_->c_str());
+    }
+
 protected:
     void writeTo(Encoder& encoder) const override;
 
     void resetFrom(Decoder& decoder) override;
+
+    StatusOr<meta::cpp2::PropertyType>
+    getFieldType(meta::SchemaManager* schemaMan,
+                 GraphSpaceID spaceId) const;
 
     std::unique_ptr<std::string>    ref_;
     std::unique_ptr<std::string>    sym_;
@@ -73,11 +87,6 @@ public:
                                    prop) {}
 
     const Value& eval(ExpressionContext& ctx) override;
-
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
 };
 
 // $-.any_prop_name
@@ -90,11 +99,6 @@ public:
                                    prop) {}
 
     const Value& eval(ExpressionContext& ctx) override;
-
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
 };
 
 // $VarName.any_prop_name
@@ -108,11 +112,6 @@ public:
                                    prop) {}
 
     const Value& eval(ExpressionContext& ctx) override;
-
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
 };
 
 // $^.TagName.any_prop_name
@@ -126,11 +125,6 @@ public:
                                    prop) {}
 
     const Value& eval(ExpressionContext& ctx) override;
-
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
 };
 
 // $$.TagName.any_prop_name
@@ -144,11 +138,6 @@ public:
                                    prop) {}
 
     const Value& eval(ExpressionContext& ctx) override;
-
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
 };
 
 // EdgeName._src
@@ -161,11 +150,6 @@ public:
                                    new std::string(_SRC)) {}
 
     const Value& eval(ExpressionContext& ctx) override;
-
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
 };
 
 // EdgeName._type
@@ -178,11 +162,6 @@ public:
                                    new std::string(_TYPE)) {}
 
     const Value& eval(ExpressionContext& ctx) override;
-
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
 };
 
 // EdgeName._rank
@@ -195,11 +174,6 @@ public:
                                    new std::string(_RANK)) {}
 
     const Value& eval(ExpressionContext& ctx) override;
-
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
 };
 
 // EdgeName._dst
@@ -212,11 +186,6 @@ public:
                                    new std::string(_DST)) {}
 
     const Value& eval(ExpressionContext& ctx) override;
-
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
 };
 }   // namespace nebula
 #endif

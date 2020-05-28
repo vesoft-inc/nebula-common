@@ -369,7 +369,6 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
     LOG(FATAL) << "Unknown expression: " << decoder.getHexStr();
 }
 
-
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
     switch (kind) {
         case Expression::Kind::kConstant:

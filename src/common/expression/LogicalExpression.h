@@ -20,9 +20,30 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override {
-        // TODO
-        return "";
+       std::string buf;
+        buf.reserve(256);
+        buf += '(';
+        buf.append(lhs_->toString());
+        switch (kind_) {
+            case Kind::kLogicalAnd:
+                buf += "&&";
+                break;
+            case Kind::kLogicalOr:
+                buf += "||";
+                break;
+            case Kind::kLogicalXor:
+                buf += "XOR";
+                break;
+            default:
+                LOG(FATAL) << "Uknown type!";
+                break;
+        }
+        buf.append(rhs_->toString());
+        buf += ')';
+        return buf;
     }
+
+    llvm::Value* codegen(ExprCodegenContext& ctx) const override;
 
 private:
     Value                                       result_;

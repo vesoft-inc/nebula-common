@@ -10,8 +10,15 @@
 #include "common/base/Base.h"
 #include "common/datatypes/Value.h"
 #include "common/context/ExpressionContext.h"
+#include "common/meta/SchemaManager.h"
+#include <llvm/ADT/APFloat.h>
+#include <llvm/IR/Value.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/IRBuilder.h>
 
 namespace nebula {
+class ExprCodegenContext;
 
 class Expression {
 public:
@@ -83,6 +90,10 @@ public:
     }
 
     virtual std::string toString() const = 0;
+
+    virtual llvm::Value* codegen(ExprCodegenContext&) const {
+        return nullptr;
+    }
 
     static std::string encode(const Expression& exp);
 

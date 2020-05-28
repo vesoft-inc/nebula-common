@@ -5,6 +5,7 @@
  */
 
 #include "common/expression/TypeCastingExpression.h"
+#include "common/jit/JITUtils.h"
 
 namespace nebula {
 const Value& TypeCastingExpression::eval(ExpressionContext& ctx) {
@@ -44,4 +45,42 @@ void TypeCastingExpression::resetFrom(Decoder& decoder) {
     operand_ = decoder.readExpression();
     CHECK(!!operand_);
 }
+
+// TODO(heng): support string <==> numeric in the future.
+llvm::Value*
+TypeCastingExpression::codegen(ExprCodegenContext& ctx) const {
+    auto* builder = ctx.builder_;
+    if (builder == nullptr) {
+        return nullptr;
+    }
+    auto* val = operand_->codegen(ctx);
+    switch (vType_) {
+        case Value::Type::INT:
+            if (val->getType()->isDoubleTy()) {
+                return builder->CreateFPToSI(val, builder->getInt64Ty(), "fp2si");
+            } else if (val->getType()->isIntegerTy()) {
+                return val;
+            }
+            break;
+        case Value::Type::FLOAT:
+            if (val->getType()->isDoubleTy()) {
+                return val;
+            } else if (val->getType()->isIntegerTy()) {
+                return builder->CreateSIToFP(val, builder->getDoubleTy(), "si2fp");
+            }
+            break;
+        case Value::Type::BOOL:
+            if (val->getType()->isDoubleTy()) {
+                return builder->CreateFPToSI(val, builder->getInt1Ty(), "fp2si");
+            } else if (val->getType()->isIntegerTy()) {
+                return val;
+            }
+            break;
+        case Value::Type::STRING:
+        default:
+            break;
+    }
+    return nullptr;
+}
+
 }  // namespace nebula

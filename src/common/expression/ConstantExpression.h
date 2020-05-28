@@ -28,11 +28,16 @@ public:
     }
 
     std::string toString() const override {
-        // TODO
-        return "";
+        auto ret = val_.toString();
+        if (!ret.ok()) {
+            return "";
+        }
+        return std::move(ret).value();
     }
 
-private:
+    llvm::Value* codegen(ExprCodegenContext& ctx) const override;
+
+protected:
     void writeTo(Encoder& encoder) const override;
 
     void resetFrom(Decoder& decoder) override;
