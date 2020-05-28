@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "expression/VariableExpression.h"
-#include "datatypes/List.h"
+#include "common/expression/VariableExpression.h"
+#include "common/datatypes/List.h"
 
 namespace nebula {
 const Value& VariableExpression::eval() {

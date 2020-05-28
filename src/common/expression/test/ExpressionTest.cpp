@@ -6,14 +6,14 @@
 
 
 #include <gtest/gtest.h>
-#include "datatypes/List.h"
-#include "expression/test/ExpressionContextMock.h"
-#include "expression/ArithmeticExpression.h"
-#include "expression/ConstantExpression.h"
-#include "expression/SymbolPropertyExpression.h"
-#include "expression/RelationalExpression.h"
-#include "expression/UnaryExpression.h"
-#include "expression/VariableExpression.h"
+#include "common/datatypes/List.h"
+#include "common/expression/test/ExpressionContextMock.h"
+#include "common/expression/ArithmeticExpression.h"
+#include "common/expression/ConstantExpression.h"
+#include "common/expression/SymbolPropertyExpression.h"
+#include "common/expression/RelationalExpression.h"
+#include "common/expression/UnaryExpression.h"
+#include "common/expression/VariableExpression.h"
 
 namespace nebula {
 

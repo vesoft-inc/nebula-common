@@ -4,7 +4,7 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "expression/SymbolPropertyExpression.h"
+#include "common/expression/SymbolPropertyExpression.h"
 
 namespace nebula {
 

@@ -4,10 +4,10 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef EXPRESSION_VARIABLEEXPRESSION_H_
-#define EXPRESSION_VARIABLEEXPRESSION_H_
+#ifndef COMMON_EXPRESSION_VARIABLEEXPRESSION_H_
+#define COMMON_EXPRESSION_VARIABLEEXPRESSION_H_
 
-#include "expression/Expression.h"
+#include "common/expression/Expression.h"
 
 namespace nebula {
 class VariableExpression final : public Expression {

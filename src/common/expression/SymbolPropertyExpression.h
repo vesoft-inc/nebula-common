@@ -7,7 +7,7 @@
 #ifndef COMMON_EXPRESSION_SYMBOLPROPERTYEXPRESSION_H_
 #define COMMON_EXPRESSION_SYMBOLPROPERTYEXPRESSION_H_
 
-#include "expression/Expression.h"
+#include "common/expression/Expression.h"
 
 namespace nebula {
 

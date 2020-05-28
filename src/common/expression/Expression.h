@@ -9,7 +9,7 @@
 
 #include "common/base/Base.h"
 #include "common/datatypes/Value.h"
-#include "context/ExpressionContext.h"
+#include "common/context/ExpressionContext.h"
 
 namespace nebula {
 
@@ -87,10 +87,6 @@ public:
 
     static std::unique_ptr<Expression> decode(folly::StringPiece) {
         return nullptr;
-    }
-
-    bool isAliasPropertyExpression() const {
-        return kind_ == Kind::kAliasProperty;
     }
 
 protected:
