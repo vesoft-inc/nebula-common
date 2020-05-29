@@ -73,24 +73,59 @@ public:
 
     virtual std::string toString() const = 0;
 
-    virtual size_t encode(std::string& buf) const = 0;
+    static std::string encode(const Expression& exp);
 
-    // Reset the content of the expression from the given binary string.
-    // It returns the position of the character right after the expression
-    virtual void resetFrom(char*& ptr, const char* end) = 0;
+    static std::unique_ptr<Expression> decode(folly::StringPiece encoded);
 
-    static std::unique_ptr<Expression> decode(char*& ptr, const char* end);
+protected:
+    class Encoder final {
+    public:
+        explicit Encoder(size_t bufSizeHint = 2048);
+        std::string moveStr();
 
-    static std::unique_ptr<Expression> decode(folly::StringPiece) {
-        return nullptr;
-    }
+        Encoder& operator<<(Kind kind) noexcept;
+        Encoder& operator<<(const std::string* str) noexcept;
+        Encoder& operator<<(const Value& val) noexcept;
+        Encoder& operator<<(size_t size) noexcept;
+        Encoder& operator<<(Value::Type vType) noexcept;
+        Encoder& operator<<(const Expression& exp) noexcept;
 
-    bool isAliasPropertyExpression() const {
-        return kind_ == Kind::kAliasProperty;
-    }
+    private:
+        std::string buf_;
+    };
+
+
+    class Decoder final {
+    public:
+        explicit Decoder(folly::StringPiece encoded);
+
+        bool finished() const;
+
+        Kind readKind() noexcept;
+        std::unique_ptr<std::string> readStr() noexcept;
+        Value readValue() noexcept;
+        size_t readSize() noexcept;
+        Value::Type readValueType() noexcept;
+        std::unique_ptr<Expression> readExpression() noexcept;
+
+        // Convert the unprocessed part into the hex string
+        std::string getHexStr() const;
+
+    private:
+        folly::StringPiece encoded_;
+        const char* ptr_;
+    };
 
 protected:
     Kind kind_;
+
+    static std::unique_ptr<Expression> decode(Decoder& decoder);
+
+    // Serialize the content of the expression to the given encoder
+    virtual void writeTo(Encoder& encoder) const = 0;
+
+    // Reset the content of the expression from the given decoder
+    virtual void resetFrom(Decoder& decoder) = 0;
 };
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind);

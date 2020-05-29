@@ -18,23 +18,20 @@ bool UnaryExpression::operator==(const Expression& rhs) const {
 }
 
 
-size_t UnaryExpression::encode(std::string& buf) const {
-    size_t len = 1;
 
+void UnaryExpression::writeTo(Encoder& encoder) const {
     // kind_
-    buf.append(reinterpret_cast<const char*>(&kind_), sizeof(uint8_t));
+    encoder << kind_;
 
     // operand_
     DCHECK(!!operand_);
-    len += operand_->encode(buf);
-
-    return len;
+    encoder << *operand_;
 }
 
 
-void UnaryExpression::resetFrom(char*& ptr, const char* end) {
+void UnaryExpression::resetFrom(Decoder& decoder) {
     // Read operand_
-    operand_ = Expression::decode(ptr, end);
+    operand_ = decoder.readExpression();
     CHECK(!!operand_);
 }
 

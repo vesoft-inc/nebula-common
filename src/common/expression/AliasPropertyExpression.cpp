@@ -18,73 +18,31 @@ bool AliasPropertyExpression::operator==(const Expression& rhs) const {
 }
 
 
-size_t AliasPropertyExpression::encode(std::string& buf) const {
-    size_t len = 1;
 
+void AliasPropertyExpression::writeTo(Encoder& encoder) const {
     // kind_
-    buf.append(reinterpret_cast<const char*>(&kind_), sizeof(uint8_t));
+    encoder << kind_;
 
     // ref_
-    size_t sz = ref_ ? ref_->size() : 0;
-    buf.append(reinterpret_cast<char*>(&sz), sizeof(size_t));
-    if (sz > 0) {
-        buf.append(ref_->data(), sz);
-    }
-    len += sizeof(size_t) + sz;
+    encoder << ref_.get();
 
     // alias_
-    sz = alias_ ? alias_->size() : 0;
-    buf.append(reinterpret_cast<char*>(&sz), sizeof(size_t));
-    if (sz > 0) {
-        buf.append(alias_->data(), sz);
-    }
-    len += sizeof(size_t) + sz;
+    encoder << alias_.get();
 
     // prop_
-    sz = prop_ ? prop_->size() : 0;
-    buf.append(reinterpret_cast<char*>(&sz), sizeof(size_t));
-    if (sz > 0) {
-        buf.append(prop_->data(), sz);
-    }
-    len += sizeof(size_t) + sz;
-
-    return len;
+    encoder << prop_.get();
 }
 
 
-void AliasPropertyExpression::resetFrom(char*& ptr, const char* end) {
+void AliasPropertyExpression::resetFrom(Decoder& decoder) {
     // Read ref_
-    CHECK_LT(ptr + sizeof(size_t), end);
-    size_t sz = 0;
-    memcpy(reinterpret_cast<void*>(&sz), ptr, sizeof(size_t));
-    ptr += sizeof(size_t);
-    if (sz > 0) {
-        CHECK_LT(ptr + sz, end);
-        ref_.reset(new std::string(ptr, sz));
-    }
-    ptr += sz;
+    ref_ = decoder.readStr();
 
     // Read alias_
-    CHECK_LT(ptr + sizeof(size_t), end);
-    sz = 0;
-    memcpy(reinterpret_cast<void*>(&sz), ptr, sizeof(size_t));
-    ptr += sizeof(size_t);
-    if (sz > 0) {
-        CHECK_LT(ptr + sz, end);
-        alias_.reset(new std::string(ptr, sz));
-    }
-    ptr += sz;
+    alias_ = decoder.readStr();
 
     // Read prop_
-    CHECK_LE(ptr + sizeof(size_t), end);
-    sz = 0;
-    memcpy(reinterpret_cast<void*>(&sz), ptr, sizeof(size_t));
-    ptr += sizeof(size_t);
-    if (sz > 0) {
-        CHECK_LE(ptr + sz, end);
-        prop_.reset(new std::string(ptr, sz));
-    }
-    ptr += sz;
+    prop_ = decoder.readStr();
 }
 
 

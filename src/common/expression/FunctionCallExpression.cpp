@@ -33,55 +33,37 @@ bool FunctionCallExpression::operator==(const Expression& rhs) const {
 }
 
 
-size_t FunctionCallExpression::encode(std::string& buf) const {
-    size_t len = 1;
 
+void FunctionCallExpression::writeTo(Encoder& encoder) const {
     // kind_
-    buf.append(reinterpret_cast<const char*>(&kind_), sizeof(uint8_t));
+    encoder << kind_;
 
     // name_
-    size_t sz = name_->size();
-    buf.append(reinterpret_cast<char*>(&sz), sizeof(size_t));
-    buf.append(name_->data(), sz);
-    len += sizeof(size_t) + sz;
+    encoder << name_.get();
 
     // args_
+    size_t sz = 0;
     if (args_) {
         sz = args_->numArgs();
-    } else {
-        sz = 0;
     }
-    buf.append(reinterpret_cast<char*>(&sz), sizeof(size_t));
-    len += sizeof(size_t);
+    encoder << sz;
     if (sz > 0) {
         for (const auto& arg : args_->args()) {
-            len += arg->encode(buf);
+            encoder << *arg;
         }
     }
-
-    return len;
 }
 
 
-void FunctionCallExpression::resetFrom(char*& ptr, const char* end) {
+void FunctionCallExpression::resetFrom(Decoder& decoder) {
     // Read name_
-    CHECK_LT(ptr + sizeof(size_t), end);
-    size_t sz = 0;
-    memcpy(reinterpret_cast<void*>(&sz), ptr, sizeof(size_t));
-    ptr += sizeof(size_t);
-    DCHECK_GT(sz, 0);
-    CHECK_LT(ptr + sz, end);
-    name_.reset(new std::string(ptr, sz));
-    ptr += sz;
+    name_ = decoder.readStr();
 
     // Read args_
-    CHECK_LE(ptr + sizeof(size_t), end);
-    sz = 0;
-    memcpy(reinterpret_cast<void*>(&sz), ptr, sizeof(size_t));
-    ptr += sizeof(size_t);
+    size_t sz = decoder.readSize();
     args_ = std::make_unique<ArgumentList>();
     for (size_t i = 0;  i < sz; i++) {
-        args_->addArgument(Expression::decode(ptr, end));
+        args_->addArgument(decoder.readExpression());
     }
 }
 

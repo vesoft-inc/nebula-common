@@ -12,6 +12,8 @@
 namespace nebula {
 
 class UUIDExpression final : public Expression {
+    friend class Expression;
+
 public:
     explicit UUIDExpression(std::string* field = nullptr)
         : Expression(Kind::kUUID)
@@ -21,10 +23,6 @@ public:
 
     Value eval(const ExpressionContext& ctx) const override;
 
-    size_t encode(std::string& buf) const override;
-
-    void resetFrom(char*& ptr, const char* end) override;
-
     std::string toString() const override {
         // TODO
         return "";
@@ -33,6 +31,10 @@ public:
 
 protected:
     std::unique_ptr<std::string> field_;
+
+    void writeTo(Encoder& encoder) const override;
+
+    void resetFrom(Decoder& decoder) override;
 };
 
 }   // namespace nebula

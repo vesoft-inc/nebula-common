@@ -12,6 +12,8 @@
 namespace nebula {
 
 class TypeCastingExpression final : public Expression {
+    friend class Expression;
+
 public:
     TypeCastingExpression(Value::Type vType = Value::Type::__EMPTY__,
                           std::unique_ptr<Expression>&& operand = nullptr)
@@ -23,10 +25,6 @@ public:
 
     Value eval(const ExpressionContext& ctx) const override;
 
-    size_t encode(std::string& buf) const override;
-
-    void resetFrom(char*& ptr, const char* end) override;
-
     std::string toString() const override {
         // TODO
         return "";
@@ -35,6 +33,10 @@ public:
 protected:
     Value::Type                 vType_;
     std::unique_ptr<Expression> operand_;
+
+    void writeTo(Encoder& encoder) const override;
+
+    void resetFrom(Decoder& decoder) override;
 };
 
 }  // namespace nebula

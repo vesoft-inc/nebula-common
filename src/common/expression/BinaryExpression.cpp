@@ -4,7 +4,7 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "expression/BinaryExpression.h"
+#include "common/expression/BinaryExpression.h"
 
 namespace nebula {
 
@@ -18,31 +18,27 @@ bool BinaryExpression::operator==(const Expression& rhs) const {
 }
 
 
-size_t BinaryExpression::encode(std::string& buf) const {
-    size_t len = 1;
 
+void BinaryExpression::writeTo(Encoder& encoder) const {
     // kind_
-    buf.append(reinterpret_cast<const char*>(&kind_), sizeof(uint8_t));
+    encoder << kind_;
 
     // lhs_
     DCHECK(!!lhs_);
-    len += lhs_->encode(buf);
+    encoder << *lhs_;
 
     // rhs_
     DCHECK(!!rhs_);
-    len += rhs_->encode(buf);
-
-    return len;
+    encoder << *rhs_;
 }
 
 
-void BinaryExpression::resetFrom(char*& ptr, const char* end) {
-    CHECK_LT(ptr, end);
+void BinaryExpression::resetFrom(Decoder& decoder) {
     // Read lhs_
-    lhs_ = Expression::decode(ptr, end);
+    lhs_ = decoder.readExpression();
     CHECK(!!lhs_);
     // Read rhs_
-    rhs_ = Expression::decode(ptr, end);
+    rhs_ = decoder.readExpression();
     CHECK(!!rhs_);
 }
 

@@ -18,32 +18,20 @@ bool UUIDExpression::operator==(const Expression& rhs) const {
 }
 
 
-size_t UUIDExpression::encode(std::string& buf) const {
-    size_t len = 1;
 
+void UUIDExpression::writeTo(Encoder& encoder) const {
     // kind_
-    buf.append(reinterpret_cast<const char*>(&kind_), sizeof(uint8_t));
+    encoder << kind_;
 
     // field_
     CHECK(!!field_);
-    size_t sz = field_->size();
-    buf.append(reinterpret_cast<char*>(&sz), sizeof(size_t));
-    buf.append(field_->data(), sz);
-    len += sizeof(size_t) + sz;
-
-    return len;
+    encoder << field_.get();
 }
 
 
-void UUIDExpression::resetFrom(char*& ptr, const char* end) {
+void UUIDExpression::resetFrom(Decoder& decoder) {
     // Read field_
-    CHECK_LE(ptr + sizeof(size_t), end);
-    size_t sz = 0;
-    memcpy(reinterpret_cast<void*>(&sz), ptr, sizeof(size_t));
-    ptr += sizeof(size_t);
-    CHECK_LE(ptr + sz, end);
-    field_.reset(new std::string(ptr, sz));
-    ptr += sz;
+    field_ = decoder.readStr();
 }
 
 

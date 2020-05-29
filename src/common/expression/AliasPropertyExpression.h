@@ -18,6 +18,8 @@ constexpr char const kDstRef[] = "$$";
 
 // Alias.any_prop_name, i.e. EdgeName.any_prop_name
 class AliasPropertyExpression : public Expression {
+    friend class Expression;
+
 public:
     AliasPropertyExpression(Kind kind,
                             std::string* ref,
@@ -29,10 +31,6 @@ public:
         , prop_(prop) {}
 
     bool operator==(const Expression& rhs) const override;
-
-    size_t encode(std::string& buf) const override;
-
-    void resetFrom(char*& ptr, const char* end) override;
 
     const std::string* alias() const {
         return alias_.get();
@@ -46,6 +44,10 @@ protected:
     std::unique_ptr<std::string> ref_;
     std::unique_ptr<std::string> alias_;
     std::unique_ptr<std::string> prop_;
+
+    void writeTo(Encoder& encoder) const override;
+
+    void resetFrom(Decoder& decoder) override;
 };
 
 

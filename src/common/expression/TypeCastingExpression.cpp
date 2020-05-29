@@ -18,32 +18,26 @@ bool TypeCastingExpression::operator==(const Expression& rhs) const {
 }
 
 
-size_t TypeCastingExpression::encode(std::string& buf) const {
-    size_t len = 1;
 
+void TypeCastingExpression::writeTo(Encoder& encoder) const {
     // kind_
-    buf.append(reinterpret_cast<const char*>(&kind_), sizeof(uint8_t));
+    encoder << kind_;
 
     // vType_
-    buf.append(reinterpret_cast<const char*>(&vType_), sizeof(uint8_t));
-    len += sizeof(uint8_t);
+    encoder << vType_;
 
     // operand_
     DCHECK(!!operand_);
-    len += operand_->encode(buf);
-
-    return len;
+    encoder << *operand_;
 }
 
 
-void TypeCastingExpression::resetFrom(char*& ptr, const char* end) {
+void TypeCastingExpression::resetFrom(Decoder& decoder) {
     // Read vType_
-    CHECK_LT(ptr, end);
-    memcpy(reinterpret_cast<void*>(&vType_), ptr, sizeof(uint8_t));
-    ptr += sizeof(uint8_t);
+    vType_ = decoder.readValueType();
 
     // Read operand_
-    operand_ = Expression::decode(ptr, end);
+    operand_ = decoder.readExpression();
     CHECK(!!operand_);
 }
 

@@ -4,10 +4,10 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef EXPRESSION_BINARYEXPRESSION_H_
-#define EXPRESSION_BINARYEXPRESSION_H_
+#ifndef COMMON_EXPRESSION_BINARYEXPRESSION_H_
+#define COMMON_EXPRESSION_BINARYEXPRESSION_H_
 
-#include "expression/Expression.h"
+#include "common/expression/Expression.h"
 
 namespace nebula {
 
@@ -15,6 +15,8 @@ namespace nebula {
  *  Base class for all binary expressions
  **/
 class BinaryExpression : public Expression {
+    friend class Expression;
+
 public:
     BinaryExpression(Kind kind,
                      std::unique_ptr<Expression>&& lhs,
@@ -23,17 +25,17 @@ public:
         , lhs_(std::move(lhs))
         , rhs_(std::move(rhs)) {}
 
-    size_t encode(std::string& buf) const override;
-
     bool operator==(const Expression& rhs) const override;
-
-    void resetFrom(char*& ptr, const char* end) override;
 
 protected:
     std::unique_ptr<Expression>                 lhs_;
     std::unique_ptr<Expression>                 rhs_;
+
+    void writeTo(Encoder& encoder) const override;
+
+    void resetFrom(Decoder& decoder) override;
 };
 
 }  // namespace nebula
-#endif  // EXPRESSION_BINARYEXPRESSION_H_
+#endif  // COMMON_EXPRESSION_BINARYEXPRESSION_H_
 

@@ -38,6 +38,8 @@ private:
 
 
 class FunctionCallExpression final : public Expression {
+    friend class Expression;
+
 public:
     FunctionCallExpression(std::string* name = nullptr,
                            ArgumentList* args = nullptr)
@@ -49,10 +51,6 @@ public:
 
     Value eval(const ExpressionContext& ctx) const override;
 
-    void resetFrom(char*& ptr, const char* end) override;
-
-    size_t encode(std::string& buf) const override;
-
     std::string toString() const override {
         // TODO
         return "";
@@ -61,6 +59,10 @@ public:
 protected:
     std::unique_ptr<std::string>    name_;
     std::unique_ptr<ArgumentList>   args_;
+
+    void writeTo(Encoder& encoder) const override;
+
+    void resetFrom(Decoder& decoder) override;
 };
 
 }  // namespace nebula
