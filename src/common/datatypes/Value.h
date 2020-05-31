@@ -123,6 +123,8 @@ struct Value {
         return type_;
     }
 
+    std::string typeName() const;
+
     bool empty() const {
         return type_ == Type::__EMPTY__;
     }

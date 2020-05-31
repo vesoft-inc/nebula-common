@@ -401,6 +401,58 @@ Value::Value(DataSet&& v) {
     setG(std::make_unique<DataSet>(std::move(v)));
 }
 
+std::string Value::typeName() const {
+    switch (type_) {
+        case Value::Type::__EMPTY__: {
+            return "__EMPTY__";
+        }
+        case Value::Type::NULLVALUE: {
+            return "NULL";
+        }
+        case Value::Type::BOOL: {
+            return "BOOL";
+        }
+        case Value::Type::INT: {
+            return "INT";
+        }
+        case Value::Type::FLOAT: {
+            return "FLOAT";
+        }
+        case Value::Type::STRING: {
+            return "STRING";
+        }
+        case Value::Type::DATE: {
+            return "DATE";
+        }
+        case Value::Type::DATETIME: {
+            return "DATETIME";
+        }
+        case Value::Type::VERTEX: {
+            return "VERTEX";
+        }
+        case Value::Type::EDGE: {
+            return "EDGE";
+        }
+        case Value::Type::PATH: {
+            return "PATH";
+        }
+        case Value::Type::LIST: {
+            return "LIST";
+        }
+        case Value::Type::MAP: {
+            return "MAP";
+        }
+        case Value::Type::SET: {
+            return "SET";
+        }
+        case Value::Type::DATASET: {
+            return "DATASET";
+        }
+        default: {
+            return "__UNKNOWN__";
+        }
+    }
+}
 
 void Value::setNull(const NullType& v) {
     clear();

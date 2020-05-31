@@ -53,6 +53,25 @@ struct Map {
     bool operator==(const Map& rhs) const {
         return kvs == rhs.kvs;
     }
+
+    StatusOr<std::string> toString() const {
+        std::string str = "{";
+        for (auto &kv : kvs) {
+            str += "\"" + kv.first + "\"";
+            str += ":";
+            auto ret = kv.second.toString();
+            if (!ret.ok()) {
+                return ret.status();
+            }
+            str += "\"" + ret.value() + "\"";
+            str += ",";
+        }
+        if (str.size() > 1) {
+            str.erase(str.end() - 1);
+        }
+        str += "}";
+        return str;
+    }
 };
 
 inline std::ostream &operator<<(std::ostream& os, const Map& m) {

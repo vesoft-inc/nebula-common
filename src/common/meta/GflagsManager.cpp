@@ -14,17 +14,8 @@ namespace nebula {
 namespace meta {
 
 template <typename ValueType>
-std::string GflagsManager::gflagsValueToThriftValue(const gflags::CommandLineFlagInfo& flag) {
-    std::string ret;
-    auto value = folly::to<ValueType>(flag.current_value);
-    ret.append(reinterpret_cast<const char*>(&value), sizeof(ValueType));
-    return ret;
-}
-
-template <>
-std::string GflagsManager::gflagsValueToThriftValue<std::string>(
-        const gflags::CommandLineFlagInfo& flag) {
-    return flag.current_value;
+Value GflagsManager::gflagsValueToThriftValue(const gflags::CommandLineFlagInfo& flag) {
+    return Value(folly::to<ValueType>(flag.current_value));
 }
 
 std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>>
@@ -71,8 +62,7 @@ std::vector<cpp2::ConfigItem> GflagsManager::declareGflags(const cpp2::ConfigMod
     for (auto& flag : flags) {
         auto& name = flag.name;
         auto& type = flag.type;
-        cpp2::ConfigType cType;
-        std::string valueStr;
+        Value value;
 
         // We only register mutable configs to meta
         cpp2::ConfigMode mode = cpp2::ConfigMode::MUTABLE;
@@ -86,27 +76,28 @@ std::vector<cpp2::ConfigItem> GflagsManager::declareGflags(const cpp2::ConfigMod
 
         // TODO: all int32/uint32/uint64 gflags are converted to int64 for now
         if (type == "uint32" || type == "int32" || type == "int64" || type == "uint64") {
-            cType = cpp2::ConfigType::INT64;
-            valueStr = gflagsValueToThriftValue<int64_t>(flag);
+            value = gflagsValueToThriftValue<int64_t>(flag);
         } else if (type == "double") {
-            cType = cpp2::ConfigType::DOUBLE;
-            valueStr = gflagsValueToThriftValue<double>(flag);
+            value = gflagsValueToThriftValue<double>(flag);
         } else if (type == "bool") {
-            cType = cpp2::ConfigType::BOOL;
-            valueStr = gflagsValueToThriftValue<bool>(flag);
+            value = gflagsValueToThriftValue<bool>(flag);
         } else if (type == "string") {
-            cType = cpp2::ConfigType::STRING;
-            valueStr = gflagsValueToThriftValue<std::string>(flag);
+            value = gflagsValueToThriftValue<std::string>(flag);
             // only string gflags can be nested
             if (isNested) {
-                cType = cpp2::ConfigType::NESTED;
+                // conver to map value
+                LOG(INFO) << "";
             }
         } else {
             LOG(INFO) << "Not able to declare " << name << " of " << type;
             continue;
         }
-
-        configItems.emplace_back(toThriftConfigItem(module, name, cType, mode, valueStr));
+        cpp2::ConfigItem item;
+        item.name = name;
+        item.module = module;
+        item.mode = mode;
+        item.value = value;
+        configItems.emplace_back(std::move(item));
     }
     LOG(INFO) << "Prepare to register " << configItems.size() << " gflags to meta";
     return configItems;
@@ -129,47 +120,6 @@ void GflagsManager::getGflagsModule(cpp2::ConfigModule& gflagsModule) {
     } else {
         LOG(INFO) << "Unknown config module";
     }
-}
-
-std::string toThriftValueStr(const cpp2::ConfigType& type, const VariantType& value) {
-    std::string valueStr;
-    switch (type) {
-        case cpp2::ConfigType::INT64: {
-            int64_t val = boost::get<int64_t>(value);
-            valueStr.append(reinterpret_cast<const char*>(&val), sizeof(val));
-            break;
-        }
-        case cpp2::ConfigType::DOUBLE: {
-            double val = boost::get<double>(value);
-            valueStr.append(reinterpret_cast<const char*>(&val), sizeof(val));
-            break;
-        }
-        case cpp2::ConfigType::BOOL: {
-            bool val = boost::get<bool>(value);
-            valueStr.append(reinterpret_cast<const char*>(&val), sizeof(val));
-            break;
-        }
-        case cpp2::ConfigType::STRING:
-        case cpp2::ConfigType::NESTED: {
-            valueStr = boost::get<std::string>(value);
-            break;
-        }
-    }
-    return valueStr;
-}
-
-cpp2::ConfigItem toThriftConfigItem(const cpp2::ConfigModule& module,
-                                    const std::string& name,
-                                    const cpp2::ConfigType& type,
-                                    const cpp2::ConfigMode& mode,
-                                    const std::string& value) {
-    cpp2::ConfigItem item;
-    item.set_module(module);
-    item.set_name(name);
-    item.set_type(type);
-    item.set_mode(mode);
-    item.set_value(value);
-    return item;
 }
 
 }   // namespace meta
