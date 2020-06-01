@@ -33,6 +33,10 @@ struct HostAddr {
         port = 0;
     }
 
+    std::string toString() const {
+        return host + ":" + std::to_string(port);
+    }
+
     bool operator==(const HostAddr& rhs) const;
 
     bool operator!=(const HostAddr& rhs) const;
