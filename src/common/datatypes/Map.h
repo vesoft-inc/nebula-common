@@ -39,5 +39,14 @@ struct Map {
     }
 };
 
+inline std::ostream &operator<<(std::ostream &os, const Map &m) {
+    os << "{";
+    for (const auto &v : m.kvs) {
+        os << "\"" << v.first << "\"" << ":" << v.second << ",";
+    }
+    os << "}";
+    return os;
+}
+
 }  // namespace nebula
 #endif  // COMMON_DATATYPES_MAP_H_

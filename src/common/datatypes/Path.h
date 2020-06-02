@@ -69,6 +69,16 @@ struct Path {
     }
 };
 
+inline std::ostream &operator<<(std::ostream &os, const Path &p) {
+    os << "(" << p.src << ")";
+    for (const auto &s : p.steps) {
+        os << "-" << "[" << s.name << "]" << "->"
+            << "(" << s.dst << ")"
+            << "@" << s.ranking;
+    }
+    return os;
+}
+
 }  // namespace nebula
 
 

@@ -2041,4 +2041,56 @@ Value operator||(const Value& lhs, const Value& rhs) {
         return Value(NullType::BAD_TYPE);
     }
 }
+
+std::ostream &operator<<(std::ostream &os, const Value &v) {
+    switch (v.type()) {
+    case Value::Type::__EMPTY__:
+        os << "__EMPTY__";
+        break;
+    case Value::Type::NULLVALUE:
+        os << "NULL";
+        break;
+    case Value::Type::BOOL:
+        os << v.getBool();
+        break;
+    case Value::Type::INT:
+        os << v.getInt();
+        break;
+    case Value::Type::FLOAT:
+        os << v.getFloat();
+        break;
+    case Value::Type::STRING:
+        os << "\"" << v.getStr() << "\"";
+        break;
+    case Value::Type::DATE:
+        os << v.getDate();
+        break;
+    case Value::Type::DATETIME:
+        os << v.getDateTime();
+        break;
+    case Value::Type::VERTEX:
+        os << v.getVertex();
+        break;
+    case Value::Type::EDGE:
+        os << v.getEdge();
+        break;
+    case Value::Type::PATH:
+        os << v.getPath();
+        break;
+    case Value::Type::LIST:
+        os << v.getList();
+        break;
+    case Value::Type::MAP:
+        os << v.getMap();
+        break;
+    case Value::Type::SET:
+        os << v.getSet();
+        break;
+    case Value::Type::DATASET:
+        os << v.getDataSet();
+        break;
+    }
+    return os;
+}
+
 }  // namespace nebula

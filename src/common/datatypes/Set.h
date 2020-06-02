@@ -39,5 +39,14 @@ struct Set {
     }
 };
 
+inline std::ostream &operator<<(std::ostream &os, const Set &s) {
+    os << "{";
+    for (const auto &v : s.values) {
+        os << v << ",";
+    }
+    os << "}";
+    return os;
+}
+
 }  // namespace nebula
 #endif  // COMMON_DATATYPES_SET_H_

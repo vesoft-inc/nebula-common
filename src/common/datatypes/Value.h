@@ -380,6 +380,8 @@ bool operator>=(const Value& lhs, const Value& rhs);
 // Logical operations
 Value operator&&(const Value& lhs, const Value& rhs);
 Value operator||(const Value& lhs, const Value& rhs);
+// Visualize
+std::ostream &operator<<(std::ostream &os, const Value &v);
 }  // namespace nebula
 
 

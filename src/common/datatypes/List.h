@@ -39,5 +39,15 @@ struct List {
     }
 };
 
+
+inline std::ostream &operator<<(std::ostream &os, const List &l) {
+    os << "[";
+    for (const auto &v : l.values) {
+        os << v << ",";
+    }
+    os << "]";
+    return os;
+}
+
 }  // namespace nebula
 #endif  // COMMON_DATATYPES_LIST_H_

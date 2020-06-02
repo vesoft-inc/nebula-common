@@ -93,6 +93,11 @@ inline void swap(Vertex& a, Vertex& b) {
     b = std::move(temp);
 }
 
+inline std::ostream &operator<<(std::ostream &os, const Vertex &v) {
+    os << "(" << v.vid << ")";
+    return os;
+}
+
 }  // namespace nebula
 
 

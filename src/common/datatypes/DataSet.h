@@ -53,6 +53,10 @@ struct Row {
     }
 };
 
+inline bool operator< (const Row& lhs, const Row& rhs) {
+    return lhs.columns < rhs.columns;
+}
+
 struct DataSet {
     std::vector<std::string> colNames;
     std::vector<Row> rows;
@@ -134,6 +138,24 @@ struct DataSet {
         return colNames == rhs.colNames && rows == rhs.rows;
     }
 };
+
+inline std::ostream &operator<<(std::ostream &os, const DataSet &d) {
+    // header
+    for (const auto &h : d.colNames) {
+        os << h << ",";
+    }
+    os << std::endl;
+
+    // body
+    for (const auto &row : d.rows) {
+        for (const auto col : row.columns) {
+            os << col << ",";
+        }
+        os << std::endl;
+    }
+    os << std::endl;
+    return os;
+}
 
 }  // namespace nebula
 #endif  // COMMON_DATATYPES_DATASET_H_

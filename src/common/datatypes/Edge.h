@@ -68,6 +68,14 @@ struct Edge {
     }
 };
 
+inline std::ostream &operator<<(std::ostream &os, const Edge &v) {
+    os << "(" << v.src << ")"
+        << "-" << "[" << v.name << "]" << "->"
+        << "(" << v.dst << ")"
+        << "@" << v.ranking;
+    return os;
+}
+
 }  // namespace nebula
 
 
