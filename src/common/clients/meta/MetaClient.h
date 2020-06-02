@@ -232,7 +232,7 @@ public:
     dropSpace(std::string name, bool ifExists = false);
 
     folly::Future<StatusOr<std::vector<cpp2::HostItem>>>
-    listHosts();
+    listHosts(cpp2::ListHostType type = cpp2::ListHostType::ALLOC);
 
     folly::Future<StatusOr<std::vector<cpp2::PartItem>>>
     listParts(GraphSpaceID spaceId, std::vector<PartitionID> partIds);

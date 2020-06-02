@@ -33,11 +33,11 @@ MetaClient::MetaClient(std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool
                        std::vector<HostAddr> addrs,
                        const MetaClientOptions& options)
         : ioThreadPool_(ioThreadPool)
-        , addrs_(std::move(addrs))
+        , addrs_(addrs)
         , options_(options) {
     CHECK(ioThreadPool_ != nullptr) << "IOThreadPool is required";
     CHECK(!addrs_.empty())
-        << "No meta server address is specified. Meta server is required";
+        << "No meta server address is specified or can be solved. Meta server is required";
     clientsMan_ = std::make_shared<
         thrift::ThriftClientManager<cpp2::MetaServiceAsyncClient>
     >();
@@ -844,8 +844,11 @@ folly::Future<StatusOr<bool>> MetaClient::dropSpace(std::string name,
 }
 
 
-folly::Future<StatusOr<std::vector<cpp2::HostItem>>> MetaClient::listHosts() {
+folly::Future<StatusOr<std::vector<cpp2::HostItem>>>
+MetaClient::listHosts(cpp2::ListHostType tp) {
     cpp2::ListHostsReq req;
+    req.set_type(tp);
+
     folly::Promise<StatusOr<std::vector<cpp2::HostItem>>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
@@ -2002,6 +2005,8 @@ StatusOr<SchemaVer> MetaClient::getLatestEdgeVersionFromCache(const GraphSpaceID
 folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
     cpp2::HBReq req;
     req.set_host(options_.localHost_);
+    req.set_role(options_.role_);
+    req.set_git_info_sha(options_.gitInfoSHA_);
     if (options_.clusterId_.load() == 0) {
         options_.clusterId_ =
             FileBasedClusterIdMan::getClusterIdFromFile(FLAGS_cluster_id_path);
