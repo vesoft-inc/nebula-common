@@ -8,9 +8,9 @@
 
 namespace nebula {
 
-const Value& ArithmeticExpression::eval() {
-    auto& lhs = lhs_->eval();
-    auto& rhs = rhs_->eval();
+const Value& ArithmeticExpression::eval(ExpressionContext& ctx) {
+    auto& lhs = lhs_->eval(ctx);
+    auto& rhs = rhs_->eval(ctx);
 
     switch (kind_) {
         case Kind::kAdd:
@@ -34,8 +34,4 @@ const Value& ArithmeticExpression::eval() {
     return result_;
 }
 
-std::string ArithmeticExpression::encode() const {
-    return "";
-}
-
-}   // namespace nebula
+}  // namespace nebula

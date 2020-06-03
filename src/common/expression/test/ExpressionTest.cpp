@@ -15,47 +15,44 @@
 #include "common/expression/UnaryExpression.h"
 #include "common/expression/VariableExpression.h"
 
+nebula::ExpressionContextMock gExpCtxt;
+
 namespace nebula {
 
 class ExpressionTest : public ::testing::Test {
 public:
-    void SetUp() override {
-        expCtxt_ = std::make_unique<ExpressionContextMock>();
-    }
+    void SetUp() override {}
     void TearDown() override {}
-
-protected:
-    std::unique_ptr<ExpressionContext>   expCtxt_;
 };
 
 TEST_F(ExpressionTest, Constant) {
     {
         ConstantExpression integer(1);
-        auto eval = Expression::eval(&integer);
+        auto eval = Expression::eval(&integer, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 1);
     }
     {
         ConstantExpression doubl(1.0);
-        auto eval = Expression::eval(&doubl);
+        auto eval = Expression::eval(&doubl, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::FLOAT);
         EXPECT_EQ(eval, 1.0);
     }
     {
         ConstantExpression boolean(true);
-        auto eval = Expression::eval(&boolean);
+        auto eval = Expression::eval(&boolean, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
         ConstantExpression boolean(false);
-        auto eval = Expression::eval(&boolean);
+        auto eval = Expression::eval(&boolean, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
     {
         ConstantExpression str("abcd");
-        auto eval = Expression::eval(&str);
+        auto eval = Expression::eval(&str, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::STRING);
         EXPECT_EQ(eval, "abcd");
     }
@@ -65,8 +62,7 @@ TEST_F(ExpressionTest, Constant) {
 TEST_F(ExpressionTest, GetProp) {
     {
         EdgePropertyExpression ep(new std::string("e1"), new std::string("int"));
-        ep.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&ep);
+        auto eval = Expression::eval(&ep, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 1);
     }
@@ -77,8 +73,7 @@ TEST_F(ExpressionTest, Arithmetics) {
         // 1+ 2
         ArithmeticExpression add(
                 Expression::Kind::kAdd, new ConstantExpression(1), new ConstantExpression(2));
-        add.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&add);
+        auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 3);
     }
@@ -90,8 +85,7 @@ TEST_F(ExpressionTest, Arithmetics) {
                     Expression::Kind::kAdd,
                     new ConstantExpression(1), new ConstantExpression(2)),
                 new ConstantExpression(3));
-        add.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&add);
+        auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 6);
     }
@@ -103,8 +97,7 @@ TEST_F(ExpressionTest, Arithmetics) {
                     Expression::Kind::kAdd,
                     new ConstantExpression(1), new ConstantExpression(2)),
                 new EdgePropertyExpression(new std::string("e1"), new std::string("int")));
-        add.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&add);
+        auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 4);
     }
@@ -114,8 +107,7 @@ TEST_F(ExpressionTest, Arithmetics) {
                 Expression::Kind::kAdd,
                 new EdgePropertyExpression(new std::string("e1"), new std::string("string16")),
                 new EdgePropertyExpression(new std::string("e1"), new std::string("string16")));
-        add.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&add);
+        auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::STRING);
         EXPECT_EQ(eval, std::string(32, 'a'));
     }
@@ -128,8 +120,7 @@ TEST_F(ExpressionTest, RelationEQ) {
                 Expression::Kind::kRelEQ,
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
                 new ConstantExpression(Value(NullType::NaN)));
-        expr.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&expr);
+        auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
@@ -139,8 +130,7 @@ TEST_F(ExpressionTest, RelationEQ) {
                 Expression::Kind::kRelEQ,
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
                 new ConstantExpression(Value(NullType::NaN)));
-        expr.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&expr);
+        auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
@@ -150,8 +140,7 @@ TEST_F(ExpressionTest, RelationEQ) {
                 Expression::Kind::kRelEQ,
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list")));
-        expr.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&expr);
+        auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
@@ -161,8 +150,7 @@ TEST_F(ExpressionTest, RelationEQ) {
                 Expression::Kind::kRelEQ,
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")));
-        expr.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&expr);
+        auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
@@ -175,8 +163,7 @@ TEST_F(ExpressionTest, RelationIN) {
                 Expression::Kind::kRelIn,
                 new ConstantExpression(1),
                 new ConstantExpression(Value(List(std::vector<Value>{1, 2, 3}))));
-        expr.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&expr);
+        auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
@@ -186,8 +173,7 @@ TEST_F(ExpressionTest, RelationIN) {
                 Expression::Kind::kRelIn,
                 new ConstantExpression(5),
                 new ConstantExpression(Value(List(std::vector<Value>{1, 2, 3}))));
-        expr.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&expr);
+        auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
@@ -199,8 +185,7 @@ TEST_F(ExpressionTest, UnaryINCR) {
         UnaryExpression expr(
                 Expression::Kind::kUnaryIncr,
                 new VariableExpression(new std::string("var_int")));
-        expr.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&expr);
+        auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 2);
     }
@@ -212,8 +197,7 @@ TEST_F(ExpressionTest, UnaryDECR) {
         UnaryExpression expr(
                 Expression::Kind::kUnaryDecr,
                 new VariableExpression(new std::string("var_int")));
-        expr.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&expr);
+        auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 0);
     }
@@ -225,8 +209,7 @@ TEST_F(ExpressionTest, VersionedVar) {
         VersionedVariableExpression expr(
                 new std::string("versioned_var"),
                 new ConstantExpression(0));
-        expr.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&expr);
+        auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 1);
     }
@@ -235,8 +218,7 @@ TEST_F(ExpressionTest, VersionedVar) {
         VersionedVariableExpression expr(
                 new std::string("versioned_var"),
                 new ConstantExpression(-1));
-        expr.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&expr);
+        auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 2);
     }
@@ -245,8 +227,7 @@ TEST_F(ExpressionTest, VersionedVar) {
         VersionedVariableExpression expr(
                 new std::string("versioned_var"),
                 new ConstantExpression(1));
-        expr.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&expr);
+        auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 8);
     }
@@ -257,8 +238,7 @@ TEST_F(ExpressionTest, VersionedVar) {
                 new UnaryExpression(
                     Expression::Kind::kUnaryNegate,
                     new VariableExpression(new std::string("cnt"))));
-        expr.setEctx(expCtxt_.get());
-        auto eval = Expression::eval(&expr);
+        auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 2);
     }

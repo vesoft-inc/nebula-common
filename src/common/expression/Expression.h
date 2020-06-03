@@ -15,7 +15,7 @@ namespace nebula {
 
 class Expression {
 public:
-    enum class Kind {
+    enum class Kind : uint8_t {
         kConstant,
 
         kAdd,
@@ -71,29 +71,74 @@ public:
         return kind_;
     }
 
-    static Value eval(Expression* expr) {
-        return expr->eval();
+    static Value eval(Expression* expr, ExpressionContext& ctx) {
+        return expr->eval(ctx);
     }
 
-    virtual const Value& eval() = 0;
+    virtual const Value& eval(ExpressionContext& ctx) = 0;
 
-    virtual void setEctx(ExpressionContext* ectx) = 0;
+    virtual bool operator==(const Expression& rhs) const = 0;
+    virtual bool operator!=(const Expression& rhs) const {
+        return !operator==(rhs);
+    }
 
     virtual std::string toString() const = 0;
 
-    virtual std::string encode() const = 0;
+    static std::string encode(const Expression& exp);
 
-    virtual std::string decode() const = 0;
-
-    static std::unique_ptr<Expression> decode(folly::StringPiece) {
-        return nullptr;
-    }
+    static std::unique_ptr<Expression> decode(folly::StringPiece encoded);
 
 protected:
-    Kind                kind_;
-    ExpressionContext*  ectx_;
+    class Encoder final {
+    public:
+        explicit Encoder(size_t bufSizeHint = 2048);
+        std::string moveStr();
+
+        Encoder& operator<<(Kind kind) noexcept;
+        Encoder& operator<<(const std::string* str) noexcept;
+        Encoder& operator<<(const Value& val) noexcept;
+        Encoder& operator<<(size_t size) noexcept;
+        Encoder& operator<<(Value::Type vType) noexcept;
+        Encoder& operator<<(const Expression& exp) noexcept;
+
+    private:
+        std::string buf_;
+    };
+
+    class Decoder final {
+    public:
+        explicit Decoder(folly::StringPiece encoded);
+
+        bool finished() const;
+
+        Kind readKind() noexcept;
+        std::unique_ptr<std::string> readStr() noexcept;
+        Value readValue() noexcept;
+        size_t readSize() noexcept;
+        Value::Type readValueType() noexcept;
+        std::unique_ptr<Expression> readExpression() noexcept;
+
+        // Convert the unprocessed part into the hex string
+        std::string getHexStr() const;
+
+    private:
+        folly::StringPiece encoded_;
+        const char* ptr_;
+    };
+
+protected:
+    static std::unique_ptr<Expression> decode(Decoder& decoder);
+
+    // Serialize the content of the expression to the given encoder
+    virtual void writeTo(Encoder& encoder) const = 0;
+
+    // Reset the content of the expression from the given decoder
+    virtual void resetFrom(Decoder& decoder) = 0;
+
+    Kind kind_;
 };
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind);
+
 }   // namespace nebula
 #endif   // COMMON_EXPRESSION_EXPRESSION_H_

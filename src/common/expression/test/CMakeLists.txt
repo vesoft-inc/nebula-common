@@ -15,6 +15,7 @@ nebula_add_test(
     LIBRARIES
         gtest
         gtest_main
+        ${THRIFT_LIBRARIES}
 )
 
 nebula_add_test(
@@ -29,4 +30,18 @@ nebula_add_test(
     LIBRARIES
         follybenchmark
         boost_regex
+        ${THRIFT_LIBRARIES}
+)
+
+nebula_add_test(
+    NAME
+    NAME expression_encode_decode_test
+    SOURCES EncodeDecodeTest.cpp
+    OBJECTS
+        $<TARGET_OBJECTS:base_obj>
+        $<TARGET_OBJECTS:expression_obj>
+        $<TARGET_OBJECTS:datatypes_obj>
+    LIBRARIES
+        gtest
+        ${THRIFT_LIBRARIES}
 )

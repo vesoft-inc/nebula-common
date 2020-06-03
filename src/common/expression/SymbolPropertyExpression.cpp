@@ -8,40 +8,86 @@
 
 namespace nebula {
 
-const Value& EdgePropertyExpression::eval() {
-    return ectx_->getEdgeProp(*sym_, *prop_);
+
+bool SymbolPropertyExpression::operator==(const Expression& rhs) const {
+    if (kind_ != rhs.kind()) {
+        return false;
+    }
+
+    const auto& r = dynamic_cast<const SymbolPropertyExpression&>(rhs);
+    return *ref_ == *(r.ref_) && *sym_ == *(r.sym_) && *prop_ == *(r.prop_);
 }
 
-const Value& InputPropertyExpression::eval() {
+
+void SymbolPropertyExpression::writeTo(Encoder& encoder) const {
+    // kind_
+    encoder << kind_;
+
+    // ref_
+    encoder << ref_.get();
+
+    // alias_
+    encoder << sym_.get();
+
+    // prop_
+    encoder << prop_.get();
+}
+
+
+void SymbolPropertyExpression::resetFrom(Decoder& decoder) {
+    // Read ref_
+    ref_ = decoder.readStr();
+
+    // Read alias_
+    sym_ = decoder.readStr();
+
+    // Read prop_
+    prop_ = decoder.readStr();
+}
+
+
+const Value& EdgePropertyExpression::eval(ExpressionContext& ctx) {
+    return ctx.getEdgeProp(*sym_, *prop_);
+}
+
+
+const Value& InputPropertyExpression::eval(ExpressionContext& ctx) {
     // TODO
-    return ectx_->getInputProp(*prop_);
+    return ctx.getInputProp(*prop_);
 }
 
-const Value& VariablePropertyExpression::eval() {
-    return ectx_->getVarProp(*sym_, *prop_);
+
+const Value& VariablePropertyExpression::eval(ExpressionContext& ctx) {
+    return ctx.getVarProp(*sym_, *prop_);
 }
 
-const Value& SourcePropertyExpression::eval() {
-    return ectx_->getSrcProp(*sym_, *prop_);
+
+const Value& SourcePropertyExpression::eval(ExpressionContext& ctx) {
+    return ctx.getSrcProp(*sym_, *prop_);
 }
 
-const Value& DestPropertyExpression::eval() {
-    return ectx_->getDstProp(*sym_, *prop_);
+
+const Value& DestPropertyExpression::eval(ExpressionContext& ctx) {
+    return ctx.getDstProp(*sym_, *prop_);
 }
 
-const Value& EdgeSrcIdExpression::eval() {
-    return ectx_->getEdgeProp(*sym_, *prop_);
+
+const Value& EdgeSrcIdExpression::eval(ExpressionContext& ctx) {
+    return ctx.getEdgeProp(*sym_, *prop_);
 }
 
-const Value& EdgeTypeExpression::eval() {
-    return ectx_->getEdgeProp(*sym_, *prop_);
+
+const Value& EdgeTypeExpression::eval(ExpressionContext& ctx) {
+    return ctx.getEdgeProp(*sym_, *prop_);
 }
 
-const Value& EdgeRankExpression::eval() {
-    return ectx_->getEdgeProp(*sym_, *prop_);
+
+const Value& EdgeRankExpression::eval(ExpressionContext& ctx) {
+    return ctx.getEdgeProp(*sym_, *prop_);
 }
 
-const Value& EdgeDstIdExpression::eval() {
-    return ectx_->getEdgeProp(*sym_, *prop_);
+
+const Value& EdgeDstIdExpression::eval(ExpressionContext& ctx) {
+    return ctx.getEdgeProp(*sym_, *prop_);
 }
 }  // namespace nebula

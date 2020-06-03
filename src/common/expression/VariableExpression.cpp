@@ -8,20 +8,20 @@
 #include "common/datatypes/List.h"
 
 namespace nebula {
-const Value& VariableExpression::eval() {
-    return ectx_->getVar(*var_);
+const Value& VariableExpression::eval(ExpressionContext& ctx) {
+    return ctx.getVar(*var_);
 }
 
-const Value& VersionedVariableExpression::eval() {
+const Value& VersionedVariableExpression::eval(ExpressionContext& ctx) {
     if (version_ != nullptr) {
-        auto version = version_->eval();
+        auto version = version_->eval(ctx);
         if (UNLIKELY(version.type() != Value::Type::INT)) {
             return kNullBadType;
         }
         auto ver = version.getInt();
-        return ectx_->getVersionedVar(*var_, ver);
+        return ctx.getVersionedVar(*var_, ver);
     } else {
-        return ectx_->getVar(*var_);
+        return ctx.getVar(*var_);
     }
 }
 }  // namespace nebula

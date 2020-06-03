@@ -17,22 +17,15 @@ public:
         var_.reset(var);
     }
 
-    void setEctx(ExpressionContext* ectx) override {
-        ectx_ = ectx;
-    }
-
     const std::string& var() const {
         return *var_.get();
     }
 
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
-    std::string decode() const override {
-        // TODO
-        return "";
+    bool operator==(const Expression& rhs) const override {
+        UNUSED(rhs);
+        return false;
     }
 
     std::string toString() const override {
@@ -40,10 +33,15 @@ public:
         return "";
     }
 
-protected:
-    const Value& eval() override;
-
 private:
+    void writeTo(Encoder& encoder) const override {
+        UNUSED(encoder);
+    }
+
+    void resetFrom(Decoder& decoder) override {
+        UNUSED(decoder);
+    }
+
     std::unique_ptr<std::string>                 var_;
 };
 
@@ -59,23 +57,15 @@ public:
         version_.reset(version);
     }
 
-    void setEctx(ExpressionContext* ectx) override {
-        ectx_ = ectx;
-        version_->setEctx(ectx);
-    }
-
     const std::string& var() const {
         return *var_.get();
     }
 
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
-    std::string decode() const override {
-        // TODO
-        return "";
+    bool operator==(const Expression& rhs) const override {
+        UNUSED(rhs);
+        return false;
     }
 
     std::string toString() const override {
@@ -83,10 +73,15 @@ public:
         return "";
     }
 
-protected:
-    const Value& eval() override;
-
 private:
+    void writeTo(Encoder& encoder) const override {
+        UNUSED(encoder);
+    }
+
+    void resetFrom(Decoder& decoder) override {
+        UNUSED(decoder);
+    }
+
     std::unique_ptr<std::string>                 var_;
     // 0 means the latest, -1 the previous one, and so on.
     // 1 means the eldest, 2 the second elder one, and so on.

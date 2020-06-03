@@ -10,49 +10,46 @@
 #include "common/expression/Expression.h"
 
 namespace nebula {
+
 class ArgumentList final {
 public:
-    void addArgument(Expression* arg) {
-        args_.emplace_back(arg);
+    void addArgument(std::unique_ptr<Expression> arg) {
+        CHECK(!!arg);
+        args_.emplace_back(std::move(arg));
     }
 
-    auto&& args() {
+    auto moveArgs() {
         return std::move(args_);
     }
+
+    const auto& args() const {
+        return args_;
+    }
+
+    size_t numArgs() const {
+        return args_.size();
+    }
+
+    bool operator==(const ArgumentList& rhs) const;
 
 private:
     std::vector<std::unique_ptr<Expression>> args_;
 };
 
+
 class FunctionCallExpression final : public Expression {
+    friend class Expression;
+
 public:
-    FunctionCallExpression(std::string* name, ArgumentList* args)
-        : Expression(Kind::kFunctionCall) {
-        name_.reset(name);
-        if (args != nullptr) {
-            args_ = std::move(args)->args();
-            delete args;
-        }
-    }
+    FunctionCallExpression(std::string* name = nullptr,
+                           ArgumentList* args = nullptr)
+        : Expression(Kind::kFunctionCall)
+        , name_(name)
+        , args_(args) {}
 
-    void setEctx(ExpressionContext* ectx) override {
-        ectx_ = ectx;
-        for (auto& arg : args_) {
-            arg->setEctx(ectx);
-        }
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
-    const Value& eval() override;
-
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    bool operator==(const Expression& rhs) const override;
 
     std::string toString() const override {
         // TODO
@@ -60,9 +57,14 @@ public:
     }
 
 private:
-    std::unique_ptr<std::string>                name_;
-    std::vector<std::unique_ptr<Expression>>    args_;
-    Value                                       result_;
+    void writeTo(Encoder& encoder) const override;
+
+    void resetFrom(Decoder& decoder) override;
+
+    std::unique_ptr<std::string>    name_;
+    std::unique_ptr<ArgumentList>   args_;
+    Value                           result_;
 };
-}   // namespace nebula
-#endif
+
+}  // namespace nebula
+#endif  // EXPRESSION_FUNCTIONCALLEXPRESSION_H_

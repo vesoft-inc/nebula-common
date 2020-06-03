@@ -7,9 +7,9 @@
 #include "common/expression/LogicalExpression.h"
 
 namespace nebula {
-const Value& LogicalExpression::eval() {
-    auto& lhs = lhs_->eval();
-    auto& rhs = rhs_->eval();
+const Value& LogicalExpression::eval(ExpressionContext& ctx) {
+    auto& lhs = lhs_->eval(ctx);
+    auto& rhs = rhs_->eval(ctx);
 
     switch (kind_) {
         case Kind::kLogicalAnd:
@@ -26,4 +26,5 @@ const Value& LogicalExpression::eval() {
     }
     return result_;
 }
-}   // namespace nebula
+
+}  // namespace nebula

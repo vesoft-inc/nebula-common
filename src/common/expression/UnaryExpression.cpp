@@ -8,19 +8,48 @@
 #include "common/expression/VariableExpression.h"
 
 namespace nebula {
-const Value& UnaryExpression::eval() {
+
+bool UnaryExpression::operator==(const Expression& rhs) const {
+    if (kind_ != rhs.kind()) {
+        return false;
+    }
+
+    const auto& r = dynamic_cast<const UnaryExpression&>(rhs);
+    return *operand_ == *(r.operand_);
+}
+
+
+
+void UnaryExpression::writeTo(Encoder& encoder) const {
+    // kind_
+    encoder << kind_;
+
+    // operand_
+    DCHECK(!!operand_);
+    encoder << *operand_;
+}
+
+
+void UnaryExpression::resetFrom(Decoder& decoder) {
+    // Read operand_
+    operand_ = decoder.readExpression();
+    CHECK(!!operand_);
+}
+
+
+const Value& UnaryExpression::eval(ExpressionContext& ctx) {
    switch (kind_) {
         case Kind::kUnaryPlus: {
-            Value val(operand_->eval());
+            Value val(operand_->eval(ctx));
             result_ = std::move(val);
             break;
         }
         case Kind::kUnaryNegate: {
-            result_ = -(operand_->eval());
+            result_ = -(operand_->eval(ctx));
             break;
         }
         case Kind::kUnaryNot: {
-            result_ = !(operand_->eval());
+            result_ = !(operand_->eval(ctx));
             break;
         }
         case Kind::kUnaryIncr: {
@@ -28,9 +57,9 @@ const Value& UnaryExpression::eval() {
                 result_ = Value(NullType::BAD_TYPE);
                 break;
             }
-            result_ = operand_->eval() + 1;
+            result_ = operand_->eval(ctx) + 1;
             auto* varExpr = static_cast<VariableExpression*>(operand_.get());
-            ectx_->setVar(varExpr->var(), result_);
+            ctx.setVar(varExpr->var(), result_);
             break;
         }
         case Kind::kUnaryDecr: {
@@ -38,9 +67,9 @@ const Value& UnaryExpression::eval() {
                 result_ = Value(NullType::BAD_TYPE);
                 break;
             }
-            result_ = operand_->eval() - 1;
+            result_ = operand_->eval(ctx) - 1;
             auto* varExpr = static_cast<VariableExpression*>(operand_.get());
-            ectx_->setVar(varExpr->var(), result_);
+            ctx.setVar(varExpr->var(), result_);
             break;
         }
        default:
@@ -48,4 +77,5 @@ const Value& UnaryExpression::eval() {
    }
    return result_;
 }
-}   // namespace nebula
+
+}  // namespace nebula

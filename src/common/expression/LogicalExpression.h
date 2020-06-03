@@ -7,33 +7,17 @@
 #ifndef COMMON_EXPRESSION_LOGICALEXPRESSION_H_
 #define COMMON_EXPRESSION_LOGICALEXPRESSION_H_
 
-#include "common/expression/Expression.h"
+#include "common/expression/BinaryExpression.h"
 
 namespace nebula {
-class LogicalExpression final : public Expression {
+class LogicalExpression final : public BinaryExpression {
 public:
-    LogicalExpression(Kind kind, Expression* lhs, Expression* rhs) : Expression(kind) {
-        lhs_.reset(lhs);
-        rhs_.reset(rhs);
-    }
+    LogicalExpression(Kind kind,
+                      Expression* lhs = nullptr,
+                      Expression* rhs = nullptr)
+        : BinaryExpression(kind, lhs, rhs) {}
 
-    void setEctx(ExpressionContext* ectx) override {
-        ectx_ = ectx;
-        lhs_->setEctx(ectx);
-        rhs_->setEctx(ectx);
-    }
-
-    const Value& eval() override;
-
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override {
         // TODO
@@ -41,9 +25,8 @@ public:
     }
 
 private:
-    std::unique_ptr<Expression>                 lhs_;
-    std::unique_ptr<Expression>                 rhs_;
     Value                                       result_;
 };
+
 }   // namespace nebula
-#endif
+#endif  // COMMON_EXPRESSION_LOGICALEXPRESSION_H_

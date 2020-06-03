@@ -13,22 +13,18 @@
 namespace nebula {
 
 class ConstantExpression : public Expression {
+    friend class Expression;
+
 public:
-    explicit ConstantExpression(Value v) : Expression(Kind::kConstant), val_(std::move(v)) {}
+    explicit ConstantExpression(Value v = Value(NullType::__NULL__))
+        : Expression(Kind::kConstant)
+        , val_(std::move(v)) {}
 
-    void setEctx(ExpressionContext* ectx) override {
-        ectx_ = ectx;
-    }
+    bool operator==(const Expression& rhs) const override;
 
-    const Value& eval() override {
+    const Value& eval(ExpressionContext& ctx) override {
+        UNUSED(ctx);
         return val_;
-    }
-
-    std::string encode() const override;
-
-    std::string decode() const override {
-        // TODO
-        return "";
     }
 
     std::string toString() const override {
@@ -37,6 +33,10 @@ public:
     }
 
 private:
+    void writeTo(Encoder& encoder) const override;
+
+    void resetFrom(Decoder& decoder) override;
+
     Value val_;
 };
 

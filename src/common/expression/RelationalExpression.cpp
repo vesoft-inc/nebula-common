@@ -8,9 +8,9 @@
 #include "common/datatypes/List.h"
 
 namespace nebula {
-const Value& RelationalExpression::eval() {
-    auto& lhs = lhs_->eval();
-    auto& rhs = rhs_->eval();
+const Value& RelationalExpression::eval(ExpressionContext& ctx) {
+    auto& lhs = lhs_->eval(ctx);
+    auto& rhs = rhs_->eval(ctx);
 
     switch (kind_) {
         case Kind::kRelEQ:
@@ -50,4 +50,5 @@ const Value& RelationalExpression::eval() {
     }
     return result_;
 }
-}   // namespace nebula
+
+}  // namespace nebula

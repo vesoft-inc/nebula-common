@@ -26,41 +26,25 @@ constexpr char const kDstRef[] = "$$";
 // the form of symbol.prop, it will be transform to a proper expression
 // in a parse rule.
 class SymbolPropertyExpression: public Expression {
+    friend class Expression;
 public:
-    SymbolPropertyExpression(Kind kind = Kind::kSymProperty,
-                             std::string* ref = nullptr,
-                             std::string* sym = nullptr,
-                             std::string* prop = nullptr)
+    SymbolPropertyExpression(Kind kind,
+                             std::string* ref,
+                             std::string* sym,
+                             std::string* prop)
         : Expression(kind) {
         ref_.reset(ref);
         sym_.reset(sym);
         prop_.reset(prop);
     }
 
-    const Value& eval() override {
-        LOG(FATAL) << "Not supported for calling SymbolPropertyExpression::eval().";
-    }
-
-    void setEctx(ExpressionContext* ectx) override {
-        ectx_ = ectx;
-    }
-
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
+    bool operator==(const Expression& rhs) const override;
 
 protected:
+    void writeTo(Encoder& encoder) const override;
+
+    void resetFrom(Decoder& decoder) override;
+
     std::unique_ptr<std::string>    ref_;
     std::unique_ptr<std::string>    sym_;
     std::unique_ptr<std::string>    prop_;
@@ -69,23 +53,14 @@ protected:
 // edge_name.any_prop_name
 class EdgePropertyExpression final : public SymbolPropertyExpression {
 public:
-    EdgePropertyExpression(std::string* edge, std::string* prop)
+    EdgePropertyExpression(std::string* edge = nullptr,
+                           std::string* prop = nullptr)
         : SymbolPropertyExpression(Kind::kEdgeProperty,
                                    new std::string(""),
                                    edge,
                                    prop) {}
 
-    const Value& eval() override;
-
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override {
         // TODO
@@ -96,23 +71,13 @@ public:
 // $-.any_prop_name
 class InputPropertyExpression final : public SymbolPropertyExpression {
 public:
-    explicit InputPropertyExpression(std::string* prop)
+    explicit InputPropertyExpression(std::string* prop = nullptr)
         : SymbolPropertyExpression(Kind::kInputProperty,
                                    new std::string(kInputRef),
                                    new std::string(""),
                                    prop) {}
 
-    const Value& eval() override;
-
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override {
         // TODO
@@ -123,24 +88,14 @@ public:
 // $VarName.any_prop_name
 class VariablePropertyExpression final : public SymbolPropertyExpression {
 public:
-    VariablePropertyExpression(std::string* var,
-                               std::string* prop)
+    VariablePropertyExpression(std::string* var = nullptr,
+                               std::string* prop = nullptr)
         : SymbolPropertyExpression(Kind::kVarProperty,
                                    new std::string(kVarRef),
                                    var,
                                    prop) {}
 
-    const Value& eval() override;
-
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override {
         // TODO
@@ -151,24 +106,14 @@ public:
 // $^.TagName.any_prop_name
 class SourcePropertyExpression final : public SymbolPropertyExpression {
 public:
-    SourcePropertyExpression(std::string* tag,
-                             std::string* prop)
+    SourcePropertyExpression(std::string* tag = nullptr,
+                             std::string* prop = nullptr)
         : SymbolPropertyExpression(Kind::kSrcProperty,
                                    new std::string(kSrcRef),
                                    tag,
                                    prop) {}
 
-    const Value& eval() override;
-
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override {
         // TODO
@@ -179,24 +124,14 @@ public:
 // $$.TagName.any_prop_name
 class DestPropertyExpression final : public SymbolPropertyExpression {
 public:
-    DestPropertyExpression(std::string* tag,
-                           std::string* prop)
+    DestPropertyExpression(std::string* tag = nullptr,
+                           std::string* prop = nullptr)
         : SymbolPropertyExpression(Kind::kDstProperty,
                                    new std::string(kDstRef),
                                    tag,
                                    prop) {}
 
-    const Value& eval() override;
-
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override {
         // TODO
@@ -207,23 +142,13 @@ public:
 // EdgeName._src
 class EdgeSrcIdExpression final : public SymbolPropertyExpression {
 public:
-    explicit EdgeSrcIdExpression(std::string* edge)
+    explicit EdgeSrcIdExpression(std::string* edge = nullptr)
         : SymbolPropertyExpression(Kind::kEdgeSrc,
                                    new std::string(""),
                                    edge,
                                    new std::string(_SRC)) {}
 
-    const Value& eval() override;
-
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override {
         // TODO
@@ -234,23 +159,13 @@ public:
 // EdgeName._type
 class EdgeTypeExpression final : public SymbolPropertyExpression {
 public:
-    explicit EdgeTypeExpression(std::string* edge)
+    explicit EdgeTypeExpression(std::string* edge = nullptr)
         : SymbolPropertyExpression(Kind::kEdgeType,
                                    new std::string(""),
                                    edge,
                                    new std::string(_TYPE)) {}
 
-    const Value& eval() override;
-
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override {
         // TODO
@@ -261,23 +176,13 @@ public:
 // EdgeName._rank
 class EdgeRankExpression final : public SymbolPropertyExpression {
 public:
-    explicit EdgeRankExpression(std::string* edge)
+    explicit EdgeRankExpression(std::string* edge = nullptr)
         : SymbolPropertyExpression(Kind::kEdgeRank,
                                    new std::string(""),
                                    edge,
                                    new std::string(_RANK)) {}
 
-    const Value& eval() override;
-
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override {
         // TODO
@@ -288,23 +193,13 @@ public:
 // EdgeName._dst
 class EdgeDstIdExpression final : public SymbolPropertyExpression {
 public:
-    explicit EdgeDstIdExpression(std::string* edge)
+    explicit EdgeDstIdExpression(std::string* edge = nullptr)
         : SymbolPropertyExpression(Kind::kEdgeDst,
                                    new std::string(""),
                                    edge,
                                    new std::string(_DST)) {}
 
-    const Value& eval() override;
-
-    std::string encode() const override {
-        // TODO
-        return "";
-    }
-
-    std::string decode() const override {
-        // TODO
-        return "";
-    }
+    const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override {
         // TODO

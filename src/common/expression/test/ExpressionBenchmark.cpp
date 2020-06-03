@@ -20,7 +20,7 @@ size_t add2Constant(size_t iters) {
     for (size_t i = 0; i < iters * ops; ++i) {
         ArithmeticExpression add(
                 Expression::Kind::kAdd, new ConstantExpression(1), new ConstantExpression(2));
-        eval = Expression::eval(&add);
+        eval = Expression::eval(&add, gExpCtxt);
     }
     folly::doNotOptimizeAway(eval);
     return iters * ops;
@@ -36,7 +36,7 @@ size_t add3Constant(size_t iters) {
                     Expression::Kind::kAdd,
                     new ConstantExpression(1), new ConstantExpression(2)),
                 new ConstantExpression(3));
-        eval = Expression::eval(&add);
+        eval = Expression::eval(&add, gExpCtxt);
     }
     folly::doNotOptimizeAway(eval);
     return iters * ops;
@@ -52,8 +52,7 @@ size_t add2Constant1EdgeProp(size_t iters) {
                     Expression::Kind::kAdd,
                     new ConstantExpression(1), new ConstantExpression(2)),
                 new EdgePropertyExpression(new std::string("e1"), new std::string("int")));
-        add.setEctx(&gExpCtxt);
-        eval = Expression::eval(&add);
+        eval = Expression::eval(&add, gExpCtxt);
     }
     folly::doNotOptimizeAway(eval);
     return iters * ops;
@@ -67,8 +66,7 @@ size_t concat2String(size_t iters) {
                 Expression::Kind::kAdd,
                 new EdgePropertyExpression(new std::string("e1"), new std::string("string16")),
                 new EdgePropertyExpression(new std::string("e1"), new std::string("string16")));
-        add.setEctx(&gExpCtxt);
-        eval = Expression::eval(&add);
+        eval = Expression::eval(&add, gExpCtxt);
     }
     folly::doNotOptimizeAway(eval);
     return iters * ops;
@@ -82,8 +80,7 @@ size_t inList(size_t iters) {
                 Expression::Kind::kRelIn,
                 new ConstantExpression("aaaa"),
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list")));
-        expr.setEctx(&gExpCtxt);
-        eval = Expression::eval(&expr);
+        eval = Expression::eval(&expr, gExpCtxt);
     }
     folly::doNotOptimizeAway(eval);
     return iters * ops;
@@ -97,8 +94,7 @@ size_t isNull(size_t iters, const char* var) {
                 Expression::Kind::kRelEQ,
                 new EdgePropertyExpression(new std::string("e1"), new std::string(var)),
                 new ConstantExpression(Value(NullType::NaN)));
-        expr.setEctx(&gExpCtxt);
-        eval = Expression::eval(&expr);
+        eval = Expression::eval(&expr, gExpCtxt);
     }
     folly::doNotOptimizeAway(eval);
     return iters * ops;
@@ -112,8 +108,7 @@ size_t isListEq(size_t iters, const char* var) {
                 Expression::Kind::kRelEQ,
                 new EdgePropertyExpression(new std::string("e1"), new std::string(var)),
                 new EdgePropertyExpression(new std::string("e1"), new std::string(var)));
-        expr.setEctx(&gExpCtxt);
-        eval = Expression::eval(&expr);
+        eval = Expression::eval(&expr, gExpCtxt);
     }
     folly::doNotOptimizeAway(eval);
     return iters * ops;
