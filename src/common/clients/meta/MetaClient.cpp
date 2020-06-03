@@ -2550,7 +2550,7 @@ void MetaClient::updateGflagsValue(const cpp2::ConfigItem& item) {
     if (!gflags::GetCommandLineOption(item.name.c_str(), &curValue)) {
         return;
     } else {
-        curValue = folly::trimWhitespace(curValue).str();
+        curValue = GflagsManager::trimAllWhitespace(curValue);
         if (curValue != ValueStr) {
             if (value.isMap() && ValueStr.empty()) {
                 // Be compatible with previous configuration

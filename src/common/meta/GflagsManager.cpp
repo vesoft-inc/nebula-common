@@ -96,7 +96,7 @@ std::vector<cpp2::ConfigItem> GflagsManager::declareGflags(const cpp2::ConfigMod
         item.name = name;
         item.module = module;
         item.mode = mode;
-        item.value = value;
+        item.value = std::move(value);
         configItems.emplace_back(std::move(item));
     }
     LOG(INFO) << "Prepare to register " << configItems.size() << " gflags to meta";
@@ -120,6 +120,21 @@ void GflagsManager::getGflagsModule(cpp2::ConfigModule& gflagsModule) {
     } else {
         LOG(INFO) << "Unknown config module";
     }
+}
+
+std::string GflagsManager::trimAllWhitespace(const std::string &inStr) {
+    std::string outStr;
+    outStr.reserve(inStr.size());
+    uint32_t count = 0;
+    for (auto i = 0u; i < inStr.size(); i++) {
+        if (inStr[i] == ' ' || inStr[i] == '\n' || inStr[i] == '\t' || inStr[i] == '\r') {
+            continue;
+        }
+        outStr.push_back(inStr[i]);
+        count++;
+    }
+    outStr.resize(count);
+    return outStr;
 }
 
 }   // namespace meta
