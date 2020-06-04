@@ -68,7 +68,7 @@ struct Date {
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Date &d) {
-    os << d.year << "-" << d.month << "-" << d.day;
+    os << d.toString();
     return os;
 }
 
@@ -109,9 +109,7 @@ struct DateTime {
 
 
 inline std::ostream &operator<<(std::ostream &os, const DateTime &d) {
-    os << d.year << "-" << d.month << "-" << d.day << " "
-        << d.day << ":" << d.hour << ":" << d.minute << " "
-        << "UTC" << d.timezone;
+    os << d.toString();
     return os;
 }
 
