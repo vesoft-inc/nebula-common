@@ -1899,9 +1899,7 @@ bool operator<(const Value& lhs, const Value& rhs) {
         return false;
     }
 
-    if (lhs.empty() && rhs.empty()) {
-        return true;
-    } else if (lhs.empty() || rhs.empty()) {
+    if (lhs.empty() || rhs.empty()) {
         return false;
     }
 
@@ -1967,6 +1965,12 @@ bool operator==(const Value& lhs, const Value& rhs) {
     if (lhs.isNull() && rhs.isNull()) {
         return true;
     } else if (lhs.isNull() || rhs.isNull()) {
+        return false;
+    }
+
+    if (lhs.empty() && rhs.empty()) {
+        return true;
+    } else if (lhs.empty() || rhs.empty()) {
         return false;
     }
 

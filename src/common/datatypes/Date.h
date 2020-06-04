@@ -78,9 +78,6 @@ struct DateTime {
     int32_t microsec;
     int32_t timezone;
 
-    DateTime() : year{0}, month{1}, day{1}, hour{0}, minute{0}, sec{1}, microsec{0}, timezone{0}  {}
-    DateTime(int16_t y, int8_t m, int8_t d, int8_t h, int8_t min, int8_t s, int32_t mic, int32_t tz)
-        : year{y}, month{m}, day{d}, hour{h}, minute{min}, sec{s}, microsec{mic}, timezone{tz} {}
     void clear() {
         year = 0;
         month = 0;
