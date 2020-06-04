@@ -6,6 +6,7 @@
 nebula_add_library(
     expression_obj OBJECT
     Expression.cpp
+    BinaryExpression.cpp
     ConstantExpression.cpp
     ArithmeticExpression.cpp
     UnaryExpression.cpp
@@ -13,8 +14,9 @@ nebula_add_library(
     LogicalExpression.cpp
     TypeCastingExpression.cpp
     FunctionCallExpression.cpp
-    AliasPropertyExpression.cpp
+    SymbolPropertyExpression.cpp
     UUIDExpression.cpp
+    VariableExpression.cpp
 )
 
-#nebula_add_subdirectory(test)
+nebula_add_subdirectory(test)

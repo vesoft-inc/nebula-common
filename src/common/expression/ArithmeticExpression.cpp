@@ -8,26 +8,30 @@
 
 namespace nebula {
 
-Value ArithmeticExpression::eval() const {
+const Value& ArithmeticExpression::eval(ExpressionContext& ctx) {
+    auto& lhs = lhs_->eval(ctx);
+    auto& rhs = rhs_->eval(ctx);
+
     switch (kind_) {
         case Kind::kAdd:
-            return lhs_->eval() + rhs_->eval();
-        case Kind::kMinus:
-            return lhs_->eval() - rhs_->eval();
-        case Kind::kMultiply:
-            return lhs_->eval() * rhs_->eval();
-        case Kind::kDivision:
-            return lhs_->eval() / rhs_->eval();
-        case Kind::kMod:
-            return lhs_->eval() % rhs_->eval();
-        default:
+            result_ = lhs + rhs;
             break;
+        case Kind::kMinus:
+            result_ = lhs - rhs;
+            break;
+        case Kind::kMultiply:
+            result_ = lhs * rhs;
+            break;
+        case Kind::kDivision:
+            result_ = lhs / rhs;
+            break;
+        case Kind::kMod:
+            result_ = lhs % rhs;
+            break;
+        default:
+            LOG(FATAL) << "Unknown type: " << kind_;
     }
-    LOG(FATAL) << "Unknown type: " << kind_;
+    return result_;
 }
 
-std::string ArithmeticExpression::encode() const {
-    return "";
-}
-
-}   // namespace nebula
+}  // namespace nebula

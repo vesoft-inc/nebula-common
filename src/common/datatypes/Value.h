@@ -46,7 +46,7 @@ enum class NullType {
 struct Value {
     friend class apache::thrift::Cpp2Ops<Value, void>;
 
-    enum class Type {
+    enum class Type : uint8_t {
         __EMPTY__ = 0,
         NULLVALUE = 1,
         BOOL = 2,
@@ -360,6 +360,14 @@ void swap(Value& a, Value& b);
 
 std::ostream& operator<<(std::ostream& os, const Value::Type& type);
 
+static const Value kEmpty;
+static const Value kNullValue(NullType::__NULL__);
+static const Value kNullNan(NullType::NaN);
+static const Value kNullBadData(NullType::BAD_DATA);
+static const Value kNullBadType(NullType::BAD_TYPE);
+static const Value kNullOverflow(NullType::ERR_OVERFLOW);
+static const Value kNullUnknownProp(NullType::UNKNOWN_PROP);
+static const Value kNullDivByZero(NullType::DIV_BY_ZERO);
 
 // Arithmetic operations
 Value operator+(const Value& lhs, const Value& rhs);
