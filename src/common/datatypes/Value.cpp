@@ -1359,7 +1359,7 @@ void Value::setG(DataSet&& v) {
     new (std::addressof(value_.gVal)) std::unique_ptr<DataSet>(new DataSet(std::move(v)));
 }
 
-StatusOr<std::string> Value::toString() {
+StatusOr<std::string> Value::toString() const {
     switch (type_) {
         case Value::Type::__EMPTY__: {
             return std::string("");

@@ -266,7 +266,7 @@ struct Value {
         return kNullValue;
     }
 
-    StatusOr<std::string> toString();
+    StatusOr<std::string> toString() const;
 
 private:
     Type type_;
