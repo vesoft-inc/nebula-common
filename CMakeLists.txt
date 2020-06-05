@@ -355,7 +355,6 @@ if(ENABLE_UBSAN)
         add_compile_options(-static-libubsan)
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libubsan")
     endif()
-    add_compile_options(-static-libubsan)
     add_compile_options(-fsanitize=undefined -fno-sanitize=alignment)
     add_compile_options(-fno-sanitize-recover=all)  # Exit on failure
     # TODO(dutor) Remove the following line when RTTI-enabled RocksDB is ready
@@ -469,13 +468,7 @@ macro(nebula_add_library name type)
 endmacro()
 
 include_directories(AFTER ${NEBULA_HOME}/src)
-include_directories(AFTER src/common)
-include_directories(AFTER src/interface)
 include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR}/src)
-include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR}/src/interface)
-include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR}/src/kvstore/plugins)
-include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR}/src/kvstore/plugins/hbase)
-include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR}/src/parser)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L ${NEBULA_THIRDPARTY_ROOT}/lib")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L ${NEBULA_THIRDPARTY_ROOT}/lib64")
@@ -562,15 +555,20 @@ function(nebula_add_subdirectory dir_name)
     add_subdirectory(${dir_name})
 endfunction()
 
-set(NEBULA_CLEAN_ALL_DEPS clean-interface clean-pch clean-hbase)
+set(NEBULA_CLEAN_ALL_DEPS clean-interface clean-pch clean-bin)
 
-add_subdirectory(src)
+add_subdirectory(src/common)
+
+add_custom_target(
+    clean-bin
+    COMMAND "rm" "-fr" "bin/*"
+)
 
 add_custom_target(
     clean-build
     COMMAND ${CMAKE_MAKE_PROGRAM} clean
     COMMAND "find" "." "-name" "Testing" "|" "xargs" "rm" "-fr"
-    DEPENDS clean-interface clean-pch clean-hbase
+    DEPENDS ${NEBULA_CLEAN_ALL_DEPS}
 )
 
 add_custom_target(
