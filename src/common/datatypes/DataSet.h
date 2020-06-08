@@ -117,6 +117,18 @@ struct DataSet {
         return true;
     }
 
+    // extend value to table
+    bool merge(std::string &&colName, Value &&v) {
+        if (v.isDataSet()) {
+            return false;
+        }
+        colNames.emplace_back(std::move(colName));
+        for (auto &row : rows) {
+            row.emplace_back(std::move(v));
+        }
+        return true;
+    }
+
     void clear() {
         colNames.clear();
         rows.clear();
