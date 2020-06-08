@@ -4,8 +4,9 @@
 # attached with Common Clause Condition 1.0, found in the LICENSES directory.
 
 nebula_add_library(
-    function_manager_obj OBJECT
+    function_obj OBJECT
     FunctionManager.cpp
+    AggregateFunction.cpp
 )
 
 nebula_add_subdirectory(test)
