@@ -21,14 +21,7 @@ struct List {
     explicit List(std::vector<Value>&& vals) {
         values = std::move(vals);
     }
-
-    // Reuse the vector constructor
-    /*implicit*/ List(const std::vector<Value> &l) : values(l) {}
-    /*implicit*/ List(std::vector<Value> &&l) : values(std::move(l)) {}
-
-    std::size_t size() const {
-        return values.size();
-    }
+    explicit List(const std::vector<Value> &l) : values(l) {}
 
     bool empty() const {
         return values.empty();
@@ -38,12 +31,9 @@ struct List {
         values.reserve(n);
     }
 
-    void emplace_back(const Value &v) {
-        values.emplace_back(v);
-    }
-
-    void emplace_back(Value &&v) {
-        values.emplace_back(std::move(v));
+    template <typename T, typename = std::enable_if_t<std::is_convertible<T, Value>::value>>
+    void emplace_back(T &&v) {
+        values.emplace_back(std::forward<T>(v));
     }
 
     void clear() {
