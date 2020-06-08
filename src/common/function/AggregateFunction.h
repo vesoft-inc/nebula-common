@@ -159,9 +159,9 @@ class Stdev final : public AggFun {
 public:
     void apply(const Value &val) override {
         cnt_ = cnt_ + 1;
-        avg_ = avg_ + (val - avg_) / cnt_;
         var_ = (cnt_ - 1) / (cnt_ * cnt_) * ((val - avg_) * (val - avg_))
-            + (cnt_ - 1) / cnt_ * avg_;
+            + (cnt_ - 1) / cnt_ * var_;
+        avg_ = avg_ + (val - avg_) / cnt_;
     }
 
     Value getResult() override {

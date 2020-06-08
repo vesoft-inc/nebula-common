@@ -79,8 +79,6 @@ std::size_t hash<nebula::Value>::operator()(const nebula::Value& v) const noexce
 
 namespace nebula {
 
-constexpr auto EPSILON = 1e-8;
-
 const Value Value::kEmpty;
 const Value Value::kNullValue(NullType::__NULL__);
 const Value Value::kNullNaN(NullType::NaN);
@@ -1761,7 +1759,7 @@ Value operator/(const Value& lhs, const Value& rhs) {
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
-                    if (std::abs(denom) > EPSILON) {
+                    if (std::abs(denom) > kEpsilon) {
                         return lhs.getInt() / denom;
                     } else {
                         return Value(NullType::DIV_BY_ZERO);
@@ -1784,7 +1782,7 @@ Value operator/(const Value& lhs, const Value& rhs) {
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
-                    if (std::abs(denom) > EPSILON) {
+                    if (std::abs(denom) > kEpsilon) {
                         return lhs.getFloat() / denom;
                     } else {
                         return Value(NullType::DIV_BY_ZERO);
@@ -1823,7 +1821,7 @@ Value operator%(const Value& lhs, const Value& rhs) {
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
-                    if (std::abs(denom) > EPSILON) {
+                    if (std::abs(denom) > kEpsilon) {
                         return std::fmod(lhs.getInt(), denom);
                     } else {
                         return Value(NullType::DIV_BY_ZERO);
@@ -1846,7 +1844,7 @@ Value operator%(const Value& lhs, const Value& rhs) {
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
-                    if (std::abs(denom) > EPSILON) {
+                    if (std::abs(denom) > kEpsilon) {
                         return std::fmod(lhs.getFloat(), denom);
                     } else {
                         return Value(NullType::DIV_BY_ZERO);
@@ -1979,7 +1977,7 @@ bool operator==(const Value& lhs, const Value& rhs) {
                     return lhs.getInt() == rhs.getInt();
                 }
                 case Value::Type::FLOAT: {
-                    return std::abs(lhs.getInt() - rhs.getFloat()) < EPSILON;
+                    return std::abs(lhs.getInt() - rhs.getFloat()) < kEpsilon;
                 }
                 default: {
                     return false;
@@ -1989,10 +1987,10 @@ bool operator==(const Value& lhs, const Value& rhs) {
         case Value::Type::FLOAT: {
             switch (rType) {
                 case Value::Type::INT: {
-                    return std::abs(lhs.getFloat() - rhs.getInt()) < EPSILON;
+                    return std::abs(lhs.getFloat() - rhs.getInt()) < kEpsilon;
                 }
                 case Value::Type::FLOAT: {
-                    return std::abs(lhs.getFloat() - rhs.getFloat()) < EPSILON;
+                    return std::abs(lhs.getFloat() - rhs.getFloat()) < kEpsilon;
                 }
                 default: {
                     return false;
