@@ -360,6 +360,7 @@ void swap(Value& a, Value& b);
 
 std::ostream& operator<<(std::ostream& os, const Value::Type& type);
 
+constexpr auto kEpsilon = 1e-8;
 static const Value kEmpty;
 static const Value kNullValue(NullType::__NULL__);
 static const Value kNullNan(NullType::NaN);

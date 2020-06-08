@@ -126,19 +126,20 @@ TEST(Value, Arithmetics) {
     {
         Value v = vInt2 / vInt2;
         EXPECT_EQ(Value::Type::FLOAT, v.type());
-        EXPECT_EQ((static_cast<double>(vInt2.getInt()) / vInt2.getInt()), v.getFloat());
+        EXPECT_LE(std::abs((static_cast<double>(vInt2.getInt()) / vInt2.getInt()) - v.getFloat()),
+                kEpsilon);
 
         v = vInt2 / vFloat1;
         EXPECT_EQ(Value::Type::FLOAT, v.type());
-        EXPECT_EQ((vInt2.getInt() / vFloat1.getFloat()), v.getFloat());
+        EXPECT_LE(std::abs((vInt2.getInt() / vFloat1.getFloat()) - v.getFloat()), kEpsilon);
 
         v = vFloat1 / vInt2;
         EXPECT_EQ(Value::Type::FLOAT, v.type());
-        EXPECT_EQ((vFloat1.getFloat() / vInt2.getInt()), v.getFloat());
+        EXPECT_LE(std::abs((vFloat1.getFloat() / vInt2.getInt()) - v.getFloat()), kEpsilon);
 
         v = vFloat1 / vFloat2;
         EXPECT_EQ(Value::Type::FLOAT, v.type());
-        EXPECT_EQ((vFloat1.getFloat() / vFloat2.getFloat()), v.getFloat());
+        EXPECT_LE(std::abs((vFloat1.getFloat() / vFloat2.getFloat()) - v.getFloat()), kEpsilon);
 
         v = vFloat1 / vZero;
         EXPECT_EQ(Value::Type::NULLVALUE, v.type());
