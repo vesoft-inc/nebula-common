@@ -1707,7 +1707,7 @@ Value operator/(const Value& lhs, const Value& rhs) {
         case Value::Type::INT: {
             switch (rhs.type()) {
                 case Value::Type::INT: {
-                    int64_t denom = rhs.getInt();
+                    double denom = rhs.getInt();
                     if (denom != 0) {
                         return lhs.getInt() / denom;
                     } else {

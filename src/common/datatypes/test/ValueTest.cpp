@@ -125,8 +125,8 @@ TEST(Value, Arithmetics) {
     // /
     {
         Value v = vInt2 / vInt2;
-        EXPECT_EQ(Value::Type::INT, v.type());
-        EXPECT_EQ((vInt2.getInt() / vInt2.getInt()), v.getInt());
+        EXPECT_EQ(Value::Type::FLOAT, v.type());
+        EXPECT_EQ((static_cast<double>(vInt2.getInt()) / vInt2.getInt()), v.getFloat());
 
         v = vInt2 / vFloat1;
         EXPECT_EQ(Value::Type::FLOAT, v.type());
