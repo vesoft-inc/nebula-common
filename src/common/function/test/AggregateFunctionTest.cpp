@@ -89,4 +89,28 @@ TEST_F(AggregateFunctionTest, Stdev) {
     }
     EXPECT_EQ(stdev->getResult(), 2.87228132327);
 }
+
+TEST_F(AggregateFunctionTest, BitAnd) {
+    auto bitAnd = AggFun::aggFunMap_[kBitAnd]();
+    for (auto& val : vals_) {
+        bitAnd->apply(val);
+    }
+    EXPECT_EQ(bitAnd->getResult(), 0);
+}
+
+TEST_F(AggregateFunctionTest, BitOr) {
+    auto bitOr = AggFun::aggFunMap_[kBitOr]();
+    for (auto& val : vals_) {
+        bitOr->apply(val);
+    }
+    EXPECT_EQ(bitOr->getResult(), 15);
+}
+
+TEST_F(AggregateFunctionTest, BitXor) {
+    auto bitXor = AggFun::aggFunMap_[kBitXor]();
+    for (auto& val : vals_) {
+        bitXor->apply(val);
+    }
+    EXPECT_EQ(bitXor->getResult().getInt(), 1);
+}
 }  // namespace nebula

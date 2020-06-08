@@ -178,42 +178,57 @@ private:
 class BitAnd final : public AggFun {
 public:
     void apply(const Value &val) override {
-        UNUSED(val);
-        // TODO : implement the bit and for value;
+        if (result_.type() == Value::Type::__EMPTY__) {
+            result_ = val;
+        } else {
+            result_  = result_ & val;
+        }
     }
 
     Value getResult() override {
-        // TODO
-        return kEmpty;
+        return result_;
     }
+
+private:
+    Value result_;
 };
 
 
 class BitOr final : public AggFun {
 public:
     void apply(const Value &val) override {
-        UNUSED(val);
-        // TODO : implement the bit or for value;
+        if (result_.type() == Value::Type::__EMPTY__) {
+            result_ = val;
+        } else {
+            result_  = result_ | val;
+        }
     }
 
     Value getResult() override {
-        // TODO
-        return kEmpty;
+        return result_;
     }
+
+private:
+    Value result_;
 };
 
 
 class BitXor final : public AggFun {
 public:
     void apply(const Value &val) override {
-        UNUSED(val);
-        // TODO : implement the bit xor for value;
+        if (result_.type() == Value::Type::__EMPTY__) {
+            result_ = val;
+        } else {
+            result_  = result_ ^ val;
+        }
     }
 
     Value getResult() override {
-        // TODO
-        return kEmpty;
+        return result_;
     }
+
+private:
+    Value result_;
 };
 
 class Collect final : public AggFun {
