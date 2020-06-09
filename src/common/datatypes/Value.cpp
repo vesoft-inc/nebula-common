@@ -2050,10 +2050,6 @@ bool operator>=(const Value& lhs, const Value& rhs) {
 }
 
 Value operator&&(const Value& lhs, const Value& rhs) {
-    if (lhs.empty()) {
-        return Value(NullType::__NULL__);
-    }
-
     if (lhs.isNull()) {
         return lhs.getNull();
     }
@@ -2121,7 +2117,7 @@ Value operator&(const Value& lhs, const Value& rhs) {
             return Value(NullType::BAD_TYPE);
         }
         default: {
-            return false;
+            return Value(NullType::BAD_TYPE);
         }
     }
 }
@@ -2160,7 +2156,7 @@ Value operator|(const Value& lhs, const Value& rhs) {
             return Value(NullType::BAD_TYPE);
         }
         default: {
-            return false;
+            return Value(NullType::BAD_TYPE);
         }
     }
 }
@@ -2199,7 +2195,7 @@ Value operator^(const Value& lhs, const Value& rhs) {
             return Value(NullType::BAD_TYPE);
         }
         default: {
-            return false;
+            return Value(NullType::BAD_TYPE);
         }
     }
 }

@@ -12,20 +12,22 @@
 
 namespace nebula {
 
-constexpr char kCount[] = "COUNT";
-constexpr char kCountDist[] = "COUNT_DISTINCT";
-constexpr char kSum[] = "SUM";
-constexpr char kAvg[] = "AVG";
-constexpr char kMax[] = "MAX";
-constexpr char kMin[] = "MIN";
-constexpr char kStd[] = "STD";
-constexpr char kBitAnd[] = "BIT_AND";
-constexpr char kBitOr[] = "BIT_OR";
-constexpr char kBitXor[] = "BIT_XOR";
-constexpr char kCollect[] = "COLLECT";
-
 class AggFun {
 public:
+    enum class Function : uint8_t {
+        kNone,
+        kCount,
+        kCountDist,
+        kSum,
+        kAvg,
+        kMax,
+        kMin,
+        kStdev,
+        kBitAnd,
+        kBitOr,
+        kBitXor,
+        kCollect
+    };
     AggFun() {}
     virtual ~AggFun() {}
 
@@ -33,7 +35,7 @@ public:
     virtual void apply(const Value &val) = 0;
     virtual Value getResult() = 0;
 
-    static std::unordered_map<std::string, std::function<std::shared_ptr<AggFun>()>> aggFunMap_;
+    static std::unordered_map<Function, std::function<std::shared_ptr<AggFun>()>> aggFunMap_;
 };
 
 
@@ -71,7 +73,11 @@ private:
 class Sum final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (sum_.type() == Value::Type::__EMPTY__) {
+        if (UNLIKELY(!val.isNumeric())) {
+            sum_ = Value(NullType::BAD_TYPE);
+        }
+
+        if (sum_.empty()) {
             sum_ = val;
         } else {
             // TODO: Support += for value.
@@ -91,6 +97,9 @@ private:
 class Avg final : public AggFun {
 public:
     void apply(const Value &val) override {
+        if (UNLIKELY(!val.isNumeric())) {
+            avg_ = Value(NullType::BAD_TYPE);
+        }
         cnt_ = cnt_ + 1;
         avg_ = avg_ + (val - avg_) / cnt_;
     }
@@ -124,7 +133,7 @@ private:
 class Max final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (max_.type() == Value::Type::__EMPTY__ || val > max_) {
+        if (max_.empty() || val > max_) {
             max_ = val;
         }
     }
@@ -141,7 +150,7 @@ private:
 class Min final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (min_.type() == Value::Type::__EMPTY__ || val < min_) {
+        if (min_.empty() || val < min_) {
             min_ = val;
         }
     }
@@ -158,6 +167,10 @@ private:
 class Stdev final : public AggFun {
 public:
     void apply(const Value &val) override {
+        if (UNLIKELY(!val.isNumeric())) {
+            avg_ = Value(NullType::BAD_TYPE);
+            var_ = Value(NullType::BAD_TYPE);
+        }
         cnt_ = cnt_ + 1;
         var_ = (cnt_ - 1) / (cnt_ * cnt_) * ((val - avg_) * (val - avg_))
             + (cnt_ - 1) / cnt_ * var_;
@@ -178,7 +191,7 @@ private:
 class BitAnd final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (result_.type() == Value::Type::__EMPTY__) {
+        if (result_.empty()) {
             result_ = val;
         } else {
             result_  = result_ & val;
@@ -197,7 +210,7 @@ private:
 class BitOr final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (result_.type() == Value::Type::__EMPTY__) {
+        if (result_.empty()) {
             result_ = val;
         } else {
             result_  = result_ | val;
@@ -216,7 +229,7 @@ private:
 class BitXor final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (result_.type() == Value::Type::__EMPTY__) {
+        if (result_.empty()) {
             result_ = val;
         } else {
             result_  = result_ ^ val;

@@ -20,13 +20,13 @@ protected:
 std::vector<Value>  AggregateFunctionTest::vals_;
 
 TEST_F(AggregateFunctionTest, Group) {
-    auto group = AggFun::aggFunMap_[""]();
+    auto group = AggFun::aggFunMap_[AggFun::Function::kNone]();
     group->apply(1);
     EXPECT_EQ(group->getResult(), 1);
 }
 
 TEST_F(AggregateFunctionTest, Count) {
-    auto cnt = AggFun::aggFunMap_[kCount]();
+    auto cnt = AggFun::aggFunMap_[AggFun::Function::kCount]();
     for (auto& val : vals_) {
         cnt->apply(val);
     }
@@ -34,7 +34,7 @@ TEST_F(AggregateFunctionTest, Count) {
 }
 
 TEST_F(AggregateFunctionTest, Sum) {
-    auto sum = AggFun::aggFunMap_[kSum]();
+    auto sum = AggFun::aggFunMap_[AggFun::Function::kSum]();
     for (auto& val : vals_) {
         sum->apply(val);
     }
@@ -42,7 +42,7 @@ TEST_F(AggregateFunctionTest, Sum) {
 }
 
 TEST_F(AggregateFunctionTest, Avg) {
-    auto avg = AggFun::aggFunMap_[kAvg]();
+    auto avg = AggFun::aggFunMap_[AggFun::Function::kAvg]();
     for (auto& val : vals_) {
         avg->apply(val);
     }
@@ -51,14 +51,14 @@ TEST_F(AggregateFunctionTest, Avg) {
 
 TEST_F(AggregateFunctionTest, CountDistinct) {
     {
-        auto ct = AggFun::aggFunMap_[kCountDist]();
+        auto ct = AggFun::aggFunMap_[AggFun::Function::kCountDist]();
         for (auto& val : vals_) {
             ct->apply(val);
         }
         EXPECT_EQ(ct->getResult(), 10);
     }
     {
-        auto ct = AggFun::aggFunMap_[kCountDist]();
+        auto ct = AggFun::aggFunMap_[AggFun::Function::kCountDist]();
         for (auto& val : {0, 0, 1, 1, 2, 2}) {
             ct->apply(val);
         }
@@ -67,7 +67,7 @@ TEST_F(AggregateFunctionTest, CountDistinct) {
 }
 
 TEST_F(AggregateFunctionTest, Max) {
-    auto max = AggFun::aggFunMap_[kMax]();
+    auto max = AggFun::aggFunMap_[AggFun::Function::kMax]();
     for (auto& val : vals_) {
         max->apply(val);
     }
@@ -75,7 +75,7 @@ TEST_F(AggregateFunctionTest, Max) {
 }
 
 TEST_F(AggregateFunctionTest, Min) {
-    auto min = AggFun::aggFunMap_[kMin]();
+    auto min = AggFun::aggFunMap_[AggFun::Function::kMin]();
     for (auto& val : vals_) {
         min->apply(val);
     }
@@ -83,7 +83,7 @@ TEST_F(AggregateFunctionTest, Min) {
 }
 
 TEST_F(AggregateFunctionTest, Stdev) {
-    auto stdev = AggFun::aggFunMap_[kStd]();
+    auto stdev = AggFun::aggFunMap_[AggFun::Function::kStdev]();
     for (auto& val : vals_) {
         stdev->apply(val);
     }
@@ -91,7 +91,7 @@ TEST_F(AggregateFunctionTest, Stdev) {
 }
 
 TEST_F(AggregateFunctionTest, BitAnd) {
-    auto bitAnd = AggFun::aggFunMap_[kBitAnd]();
+    auto bitAnd = AggFun::aggFunMap_[AggFun::Function::kBitAnd]();
     for (auto& val : vals_) {
         bitAnd->apply(val);
     }
@@ -99,7 +99,7 @@ TEST_F(AggregateFunctionTest, BitAnd) {
 }
 
 TEST_F(AggregateFunctionTest, BitOr) {
-    auto bitOr = AggFun::aggFunMap_[kBitOr]();
+    auto bitOr = AggFun::aggFunMap_[AggFun::Function::kBitOr]();
     for (auto& val : vals_) {
         bitOr->apply(val);
     }
@@ -107,7 +107,7 @@ TEST_F(AggregateFunctionTest, BitOr) {
 }
 
 TEST_F(AggregateFunctionTest, BitXor) {
-    auto bitXor = AggFun::aggFunMap_[kBitXor]();
+    auto bitXor = AggFun::aggFunMap_[AggFun::Function::kBitXor]();
     for (auto& val : vals_) {
         bitXor->apply(val);
     }
