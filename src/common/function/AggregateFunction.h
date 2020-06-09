@@ -35,7 +35,7 @@ public:
     virtual void apply(const Value &val) = 0;
     virtual Value getResult() = 0;
 
-    static std::unordered_map<Function, std::function<std::shared_ptr<AggFun>()>> aggFunMap_;
+    static std::unordered_map<Function, std::function<std::unique_ptr<AggFun>()>> aggFunMap_;
 };
 
 
@@ -75,6 +75,7 @@ public:
     void apply(const Value &val) override {
         if (UNLIKELY(!val.isNumeric())) {
             sum_ = Value(NullType::BAD_TYPE);
+            return;
         }
 
         if (sum_.empty()) {
@@ -99,6 +100,7 @@ public:
     void apply(const Value &val) override {
         if (UNLIKELY(!val.isNumeric())) {
             avg_ = Value(NullType::BAD_TYPE);
+            return;
         }
         cnt_ = cnt_ + 1;
         avg_ = avg_ + (val - avg_) / cnt_;
@@ -170,6 +172,7 @@ public:
         if (UNLIKELY(!val.isNumeric())) {
             avg_ = Value(NullType::BAD_TYPE);
             var_ = Value(NullType::BAD_TYPE);
+            return;
         }
         cnt_ = cnt_ + 1;
         var_ = (cnt_ - 1) / (cnt_ * cnt_) * ((val - avg_) * (val - avg_))
@@ -178,7 +181,11 @@ public:
     }
 
     Value getResult() override {
-        return std::sqrt(var_.getFloat());
+        if (var_.empty() || var_.isNull()) {
+            return var_;
+        } else {
+            return std::sqrt(var_.getFloat());
+        }
     }
 
 private:
