@@ -39,10 +39,9 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
              * TODO(liuyu): folly said 'resolve' may take second to finish
              *              if this really happen, we will add a cache here.
              * */
-            bool needResolveHost = !folly::IPAddress::validate(host.host);
             if (!folly::IPAddress::validate(host.host)) {
                 try {
-                    folly::SocketAddress socketAddr(host.host, host.port, needResolveHost);
+                    folly::SocketAddress socketAddr(host.host, host.port, true);
                     std::ostringstream oss;
                     oss << "resolve " << host << " as ";
                     host.host = socketAddr.getAddressStr();

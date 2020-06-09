@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 vesoft inc. All rights reserved.
+    /* Copyright (c) 2018 vesoft inc. All rights reserved.
  *
  * This source code is licensed under Apache 2.0 License,
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
@@ -33,7 +33,7 @@ MetaClient::MetaClient(std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool
                        std::vector<HostAddr> addrs,
                        const MetaClientOptions& options)
         : ioThreadPool_(ioThreadPool)
-        , addrs_(addrs)
+        , addrs_(std::move(addrs))
         , options_(options) {
     CHECK(ioThreadPool_ != nullptr) << "IOThreadPool is required";
     CHECK(!addrs_.empty())
