@@ -7,6 +7,7 @@
 #ifndef COMMON_DATATYPES_LIST_H_
 #define COMMON_DATATYPES_LIST_H_
 
+#include "common/algorithm/HashRange.h"
 #include "common/base/Base.h"
 #include "common/datatypes/Value.h"
 
@@ -56,11 +57,9 @@ namespace std {
 template<>
 struct hash<nebula::List> {
     std::size_t operator()(const nebula::List& h) const noexcept {
-        size_t seed = 0;
-        for (auto& v : h.values) {
-            seed ^= hash<nebula::Value>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        }
-        return seed;
+        return nebula::algorithm::hash_range<
+            decltype(h.values.begin()),
+            nebula::Value>(h.values.begin(), h.values.end());
     }
 };
 }  // namespace std
