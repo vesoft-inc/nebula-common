@@ -1955,7 +1955,7 @@ const std::vector<HostAddr>& MetaClient::getAddresses() {
 
 
 std::vector<cpp2::RoleItem>
-MetaClient::getRolesByUserFromCache(const std::string& user) {
+MetaClient::getRolesByUserFromCache(const std::string& user) const {
     auto iter = userRolesMap_.find(user);
     if (iter == userRolesMap_.end()) {
         return std::vector<cpp2::RoleItem>(0);
@@ -1964,7 +1964,7 @@ MetaClient::getRolesByUserFromCache(const std::string& user) {
 }
 
 
-bool MetaClient::authCheckFromCache(const std::string& account, const std::string& password) {
+bool MetaClient::authCheckFromCache(const std::string& account, const std::string& password) const {
     auto iter = userPasswordMap_.find(account);
     if (iter == userPasswordMap_.end()) {
         return false;
@@ -1972,7 +1972,7 @@ bool MetaClient::authCheckFromCache(const std::string& account, const std::strin
     return iter->second == password;
 }
 
-bool MetaClient::checkShadowAccountFromCache(const std::string& account) {
+bool MetaClient::checkShadowAccountFromCache(const std::string& account) const {
     auto iter = userPasswordMap_.find(account);
     if (iter != userPasswordMap_.end()) {
         return true;
