@@ -12,7 +12,7 @@
 namespace nebula {
 namespace algorithm {
 template <class It, class T>
-inline std::size_t hash_range(It first, It last) {
+inline std::size_t hashRange(It first, It last) {
     std::size_t seed = 0;
 
     for (; first != last; ++first) {

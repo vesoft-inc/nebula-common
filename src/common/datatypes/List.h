@@ -28,12 +28,16 @@ struct List {
     }
 
     List& operator=(const List& rhs) {
-        if (this == &rhs) { return *this; }
+        if (this == &rhs) {
+            return *this;
+        }
         values = rhs.values;
         return *this;
     }
     List& operator=(List&& rhs) {
-        if (this == &rhs) { return *this; }
+        if (this == &rhs) {
+            return *this;
+        }
         values = std::move(rhs.values);
         return *this;
     }
@@ -51,15 +55,14 @@ struct List {
     }
 };
 
-}  // namespace nebula
+}   // namespace nebula
 
 namespace std {
-template<>
+template <>
 struct hash<nebula::List> {
     std::size_t operator()(const nebula::List& h) const noexcept {
-        return nebula::algorithm::hash_range<
-            decltype(h.values.begin()),
-            nebula::Value>(h.values.begin(), h.values.end());
+        return nebula::algorithm::hashRange<decltype(h.values.begin()), nebula::Value>(
+            h.values.begin(), h.values.end());
     }
 };
 }  // namespace std
