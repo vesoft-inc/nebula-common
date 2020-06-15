@@ -232,6 +232,16 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kUnaryIncr: {
+            auto exp = std::make_unique<UnaryExpression>(Expression::Kind::kUnaryIncr);
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kUnaryDecr: {
+            auto exp = std::make_unique<UnaryExpression>(Expression::Kind::kUnaryDecr);
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kRelEQ: {
             auto exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelEQ);
             exp->resetFrom(decoder);
@@ -262,6 +272,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kRelIn: {
+            auto exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelIn);
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kLogicalAnd: {
             auto exp = std::make_unique<LogicalExpression>(Expression::Kind::kLogicalAnd);
             exp->resetFrom(decoder);
@@ -289,6 +304,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
         }
         case Expression::Kind::kSymProperty: {
             return nullptr;
+        }
+        case Expression::Kind::kEdgeProperty: {
+            auto exp = std::make_unique<EdgePropertyExpression>();
+            exp->resetFrom(decoder);
+            return exp;
         }
         case Expression::Kind::kInputProperty: {
             auto exp = std::make_unique<InputPropertyExpression>();
