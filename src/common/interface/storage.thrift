@@ -58,14 +58,18 @@ enum ErrorCode {
     E_INVALID_VID            = -38,
 
     // meta client failed
-    E_LOAD_META_FAILED = -41,
+    E_LOAD_META_FAILED       = -41,
 
     // checkpoint failed
-    E_FAILED_TO_CHECKPOINT = -50,
-    E_CHECKPOINT_BLOCKED   = -51,
+    E_FAILED_TO_CHECKPOINT   = -50,
+    E_CHECKPOINT_BLOCKED     = -51,
 
     // partial result, used for kv interfaces
-    E_PARTIAL_RESULT = -61,
+    E_PARTIAL_RESULT         = -61,
+
+    // Filter out
+    E_FILTER_OUT             = -71,
+    E_INVALID_DATA           = -72,
 
     // task manager failed
     E_INVALID_TASK_PARA = -90,
