@@ -358,9 +358,6 @@ private:
 
 void swap(Value& a, Value& b);
 
-std::ostream& operator<<(std::ostream& os, const Value::Type& type);
-std::ostream& operator<<(std::ostream& os, const Value& value);
-
 static const Value kEmpty;
 static const Value kNullValue(NullType::__NULL__);
 static const Value kNullNan(NullType::NaN);
@@ -390,7 +387,9 @@ bool operator>=(const Value& lhs, const Value& rhs);
 Value operator&&(const Value& lhs, const Value& rhs);
 Value operator||(const Value& lhs, const Value& rhs);
 // Visualize
-std::ostream &operator<<(std::ostream &os, const Value &v);
+std::ostream& operator<<(std::ostream& os, const Value::Type& type);
+std::ostream& operator<<(std::ostream& os, const Value& value);
+
 }  // namespace nebula
 
 
