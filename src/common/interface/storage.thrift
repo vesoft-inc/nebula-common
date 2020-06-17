@@ -294,17 +294,20 @@ struct GetPropRequest {
     2: list<binary>                             column_names,
     3: map<common.PartitionID, list<common.Row>>
         (cpp.template = "std::unordered_map")   parts,
-    // A list of expressions with alias. In most of cases, they refer to the
-    //   properties. If the list is empty, return all properties.
-    4: list<Expr>                               props,
+    // Based on whether to get the vertex ptroperties or to get the edge properties,
+    // One of the following can be set
+    4: optional list<VertexProp>                vertex_props,
+    5: optional list<EdgeProp>                  edge_props,
+    // A list of expressions with alias
+    6: optional list<Expr>                      expressions,
     // Whether to do the dedup based on the entire result row
-    5: bool                                     dedup = false,
+    7: bool                                     dedup = false,
     // List of expressions used by the order-by clause
-    6: optional list<OrderBy>                   order_by,
-    7: optional i64                             limit,
+    8: optional list<OrderBy>                   order_by,
+    9: optional i64                             limit,
     // If a filter is provided, only vertices that are satisfied the filter
     // will be returned
-    8: optional binary                          filter,
+    10: optional binary                          filter,
 }
 
 

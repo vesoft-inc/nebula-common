@@ -53,7 +53,9 @@ public:
     folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>> getProps(
         GraphSpaceID space,
         const DataSet& input,
-        const std::vector<cpp2::Expr>& props,
+        const std::vector<cpp2::VertexProp>* vertexProps,
+        const std::vector<cpp2::EdgeProp>* edgeProps,
+        const std::vector<cpp2::Expr>* expressions,
         bool dedup = false,
         const std::vector<cpp2::OrderBy>& orderBy = std::vector<cpp2::OrderBy>(),
         int64_t limit = std::numeric_limits<int64_t>::max(),

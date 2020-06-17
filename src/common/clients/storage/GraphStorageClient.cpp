@@ -171,7 +171,9 @@ GraphStorageClient::addEdges(GraphSpaceID space,
 folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>>
 GraphStorageClient::getProps(GraphSpaceID space,
                              const DataSet& input,
-                             const std::vector<cpp2::Expr>& props,
+                             const std::vector<cpp2::VertexProp>* vertexProps,
+                             const std::vector<cpp2::EdgeProp>* edgeProps,
+                             const std::vector<cpp2::Expr>* expressions,
                              bool dedup,
                              const std::vector<cpp2::OrderBy>& orderBy,
                              int64_t limit,
@@ -197,8 +199,16 @@ GraphStorageClient::getProps(GraphSpaceID space,
         req.set_space_id(space);
         req.set_column_names(std::move(input.colNames));
         req.set_parts(std::move(c.second));
-        req.set_props(props);
         req.set_dedup(dedup);
+        if (vertexProps != nullptr) {
+            req.set_vertex_props(*vertexProps);
+        }
+        if (edgeProps != nullptr) {
+            req.set_edge_props(*edgeProps);
+        }
+        if (expressions != nullptr) {
+            req.set_expressions(*expressions);
+        }
         if (!orderBy.empty()) {
             req.set_order_by(orderBy);
         }
