@@ -75,10 +75,10 @@ public:
 
 protected:
     bool traversal(Visitor visitor) const override {
-        if (!version_->traversal(visitor)) {
+        if (!visitor(this)) {
             return false;
         }
-        return visitor(this);
+        return version_->traversal(visitor);
     }
 
 private:

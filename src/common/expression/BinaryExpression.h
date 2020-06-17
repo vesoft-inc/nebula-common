@@ -31,13 +31,13 @@ protected:
     void resetFrom(Decoder& decoder) override;
 
     bool traversal(Visitor visitor) const override {
+        if (!visitor(this)) {
+            return false;
+        }
         if (!lhs_->traversal(visitor)) {
             return false;
         }
-        if (!rhs_->traversal(visitor)) {
-            return false;
-        }
-        return visitor(this);
+        return rhs_->traversal(visitor);
     }
 
     std::unique_ptr<Expression>                 lhs_;

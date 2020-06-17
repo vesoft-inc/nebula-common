@@ -95,7 +95,7 @@ public:
     // return true continue, false return now
     using Visitor = std::function<bool(const Expression*)>;
 
-    // Post-order traversal in fact
+    // preorder traversal in fact
     // return true continue, false return now
     virtual bool traversal(Visitor visitor) const = 0;
 
