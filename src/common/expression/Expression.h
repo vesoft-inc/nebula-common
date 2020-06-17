@@ -126,6 +126,10 @@ public:
         return has;
     }
 
+    bool isConstExpr() const {
+        return !hasAnyKind(Kind::kInputProperty, Kind::kVarProperty, Kind::kVar);
+    }
+
 protected:
     class Encoder final {
     public:
