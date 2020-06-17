@@ -109,7 +109,8 @@ public:
         return kind_ == k || isAnyKind(ts...);
     }
 
-    template <typename... Ts>
+    template <typename... Ts,
+              typename = std::enable_if_t<std::is_same<Kind, std::common_type_t<Ts...>>::value>>
     bool hasAnyKind(Ts... ts) const {
         bool has = false;
         auto pack = std::make_tuple(ts...);
