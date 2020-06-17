@@ -129,9 +129,9 @@ struct Expr {
 struct EdgeProp {
     // A valid edge type
     1: common.EdgeType  type,
-    // The property name. If it is "*", then all properties on
+    // The list of property names. If it is empty, then all properties on
     // the given edge type will be returned
-    2: binary           prop,
+    2: list<binary>     props,
 }
 
 
@@ -139,9 +139,9 @@ struct EdgeProp {
 struct VertexProp {
     // A valid tag id
     1: common.TagID tag,
-    // The property name. If it is "*", then all properties on
+    // The list of property names. If it is empty, then all properties on
     // the given tag will be returned
-    2: binary       prop,
+    2: list<binary> props,
 }
 
 
@@ -295,7 +295,8 @@ struct GetPropRequest {
     3: map<common.PartitionID, list<common.Row>>
         (cpp.template = "std::unordered_map")   parts,
     // Based on whether to get the vertex ptroperties or to get the edge properties,
-    // One of the following can be set
+    //   One of the following can be set. If an empty list is given then all properties
+    //   of the vertex or the edge will be returned
     4: optional list<VertexProp>                vertex_props,
     5: optional list<EdgeProp>                  edge_props,
     // A list of expressions with alias
