@@ -57,12 +57,13 @@ public:
     }
 
 protected:
-    Status traversal(std::function<void(const Expression*)> visitor) const override {
+    bool traversal(Visitor visitor) const override {
         for (const auto &arg : args_->args()) {
-            arg->traversal(visitor);
+            if (!arg->traversal(visitor)) {
+                return false;
+            }
         }
-        visitor(this);
-        return Status::OK();
+        return visitor(this);
     }
 
 

@@ -31,10 +31,11 @@ public:
     }
 
 protected:
-    Status traversal(std::function<void(const Expression*)> visitor) const override {
-        operand_->traversal(visitor);
-        visitor(this);
-        return Status::OK();
+    bool traversal(Visitor visitor) const override {
+        if (!operand_->traversal(visitor)) {
+            return false;
+        }
+        return visitor(this);
     }
 
 private:

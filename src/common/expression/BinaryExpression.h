@@ -30,11 +30,14 @@ protected:
 
     void resetFrom(Decoder& decoder) override;
 
-    Status traversal(std::function<void(const Expression*)> visitor) const override {
-        lhs_->traversal(visitor);
-        rhs_->traversal(visitor);
-        visitor(this);
-        return Status::OK();
+    bool traversal(Visitor visitor) const override {
+        if (!lhs_->traversal(visitor)) {
+            return false;
+        }
+        if (!rhs_->traversal(visitor)) {
+            return false;
+        }
+        return visitor(this);
     }
 
     std::unique_ptr<Expression>                 lhs_;

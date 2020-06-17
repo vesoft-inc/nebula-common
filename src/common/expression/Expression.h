@@ -92,8 +92,12 @@ public:
 
     static std::unique_ptr<Expression> decode(folly::StringPiece encoded);
 
+    // return true continue, false return now
+    using Visitor = std::function<bool(const Expression*)>;
+
     // Post-order traversal in fact
-    virtual Status traversal(std::function<void(const Expression*)> visitor) const = 0;
+    // return true continue, false return now
+    virtual bool traversal(Visitor visitor) const = 0;
 
     template <typename T, typename = std::enable_if_t<std::is_same<T, Kind>::value>>
     bool isAnyKind(T k) const {
@@ -115,7 +119,9 @@ public:
             };
             if (folly::apply(bind, pack)) {
                 has = true;
+                return false;  // Already find so return now
             }
+            return true;  // Not find so continue traversal
         });
         return has;
     }

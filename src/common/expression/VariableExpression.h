@@ -74,10 +74,11 @@ public:
     }
 
 protected:
-    Status traversal(std::function<void(const Expression*)> visitor) const override {
-        version_->traversal(visitor);
-        visitor(this);
-        return Status::OK();
+    bool traversal(Visitor visitor) const override {
+        if (!version_->traversal(visitor)) {
+            return false;
+        }
+        return visitor(this);
     }
 
 private:

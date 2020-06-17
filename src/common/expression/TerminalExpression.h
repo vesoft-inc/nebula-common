@@ -21,9 +21,8 @@ public:
     explicit TerminalExpression(Kind kind) : Expression(kind) {}
 
 protected:
-    Status traversal(std::function<void(const Expression*)> visitor) const override {
-        visitor(this);
-        return Status::OK();
+    bool traversal(Visitor visitor) const override {
+        return visitor(this);
     }
 };
 
