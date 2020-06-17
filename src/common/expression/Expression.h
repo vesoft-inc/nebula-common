@@ -7,6 +7,8 @@
 #ifndef COMMON_EXPRESSION_EXPRESSION_H_
 #define COMMON_EXPRESSION_EXPRESSION_H_
 
+#include <folly/functional/ApplyTuple.h>
+
 #include "common/base/Base.h"
 #include "common/datatypes/Value.h"
 #include "common/context/ExpressionContext.h"
@@ -89,6 +91,34 @@ public:
     std::string encode() const;
 
     static std::unique_ptr<Expression> decode(folly::StringPiece encoded);
+
+    // Post-order traversal in fact
+    virtual Status traversal(std::function<void(const Expression*)> visitor) const = 0;
+
+    template <typename T, typename = std::enable_if_t<std::is_same<T, Kind>::value>>
+    bool isAnyKind(T k) const {
+        return kind_ == k;
+    }
+
+    template <typename T, typename... Ts, typename = std::enable_if_t<std::is_same<T, Kind>::value>>
+    bool isAnyKind(T k, Ts... ts) const {
+        return kind_ == k || isAnyKind(ts...);
+    }
+
+    template <typename... Ts>
+    bool hasAnyKind(Ts... ts) const {
+        bool has = false;
+        auto pack = std::make_tuple(ts...);
+        traversal([pack, &has](const Expression *expr) {
+            auto bind = [expr](Ts... ts) {
+                return expr->isAnyKind(ts...);
+            };
+            if (folly::apply(bind, pack)) {
+                has = true;
+            }
+        });
+        return has;
+    }
 
 protected:
     class Encoder final {

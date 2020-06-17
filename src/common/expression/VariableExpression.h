@@ -7,13 +7,13 @@
 #ifndef COMMON_EXPRESSION_VARIABLEEXPRESSION_H_
 #define COMMON_EXPRESSION_VARIABLEEXPRESSION_H_
 
-#include "common/expression/Expression.h"
+#include "common/expression/TerminalExpression.h"
 
 namespace nebula {
-class VariableExpression final : public Expression {
+class VariableExpression final : public TerminalExpression {
 public:
     explicit VariableExpression(std::string* var)
-        : Expression(Kind::kVar) {
+        : TerminalExpression(Kind::kVar) {
         var_.reset(var);
     }
 
@@ -71,6 +71,13 @@ public:
     std::string toString() const override {
         // TODO
         return "";
+    }
+
+protected:
+    Status traversal(std::function<void(const Expression*)> visitor) const override {
+        version_->traversal(visitor);
+        visitor(this);
+        return Status::OK();
     }
 
 private:

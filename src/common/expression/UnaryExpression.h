@@ -29,6 +29,13 @@ public:
         return "";
     }
 
+protected:
+    Status traversal(std::function<void(const Expression*)> visitor) const override {
+        operand_->traversal(visitor);
+        visitor(this);
+        return Status::OK();
+    }
+
 private:
     void writeTo(Encoder& encoder) const override;
 

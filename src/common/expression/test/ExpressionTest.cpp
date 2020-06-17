@@ -14,6 +14,7 @@
 #include "common/expression/RelationalExpression.h"
 #include "common/expression/UnaryExpression.h"
 #include "common/expression/VariableExpression.h"
+#include "common/expression/TypeCastingExpression.h"
 
 nebula::ExpressionContextMock gExpCtxt;
 
@@ -243,5 +244,73 @@ TEST_F(ExpressionTest, VersionedVar) {
         EXPECT_EQ(eval, 2);
     }
 }
+
+TEST_F(ExpressionTest, CheckComponent) {
+    {
+        // single node
+        const auto root = std::make_unique<ConstantExpression>();
+
+        ASSERT_TRUE(root->isAnyKind(Expression::Kind::kConstant));
+        ASSERT_TRUE(root->hasAnyKind(Expression::Kind::kConstant));
+
+        ASSERT_TRUE(root->isAnyKind(Expression::Kind::kConstant, Expression::Kind::kAdd));
+        ASSERT_TRUE(root->hasAnyKind(Expression::Kind::kConstant, Expression::Kind::kAdd));
+
+        ASSERT_FALSE(root->isAnyKind(Expression::Kind::kAdd));
+        ASSERT_FALSE(root->hasAnyKind(Expression::Kind::kAdd));
+
+        ASSERT_FALSE(root->isAnyKind(Expression::Kind::kDivision, Expression::Kind::kAdd));
+        ASSERT_FALSE(root->hasAnyKind(Expression::Kind::kDstProperty, Expression::Kind::kAdd));
+    }
+
+    {
+        // list like
+        const auto root = std::make_unique<TypeCastingExpression>(Value::Type::BOOL,
+            new TypeCastingExpression(Value::Type::BOOL,
+                new TypeCastingExpression(Value::Type::BOOL,
+                    new ConstantExpression())));
+
+        ASSERT_TRUE(root->isAnyKind(Expression::Kind::kTypeCasting));
+        ASSERT_TRUE(root->hasAnyKind(Expression::Kind::kConstant));
+
+        ASSERT_TRUE(root->isAnyKind(Expression::Kind::kTypeCasting, Expression::Kind::kAdd));
+        ASSERT_TRUE(root->hasAnyKind(Expression::Kind::kTypeCasting, Expression::Kind::kAdd));
+
+        ASSERT_FALSE(root->isAnyKind(Expression::Kind::kAdd));
+        ASSERT_FALSE(root->hasAnyKind(Expression::Kind::kAdd));
+
+        ASSERT_FALSE(root->isAnyKind(Expression::Kind::kDivision, Expression::Kind::kAdd));
+        ASSERT_FALSE(root->hasAnyKind(Expression::Kind::kDstProperty, Expression::Kind::kAdd));
+    }
+
+    {
+        // tree like
+        const auto root = std::make_unique<ArithmeticExpression>(Expression::Kind::kAdd,
+            new ArithmeticExpression(Expression::Kind::kDivision,
+                new ConstantExpression(3),
+                new ArithmeticExpression(Expression::Kind::kMinus,
+                    new ConstantExpression(4),
+                    new ConstantExpression(2))),
+            new ArithmeticExpression(Expression::Kind::kMod,
+                new ArithmeticExpression(Expression::Kind::kMultiply,
+                    new ConstantExpression(3),
+                    new ConstantExpression(10)),
+                new ConstantExpression(2)));
+
+        ASSERT_TRUE(root->isAnyKind(Expression::Kind::kAdd));
+        ASSERT_TRUE(root->hasAnyKind(Expression::Kind::kMinus));
+
+        ASSERT_TRUE(root->isAnyKind(Expression::Kind::kTypeCasting, Expression::Kind::kAdd));
+        ASSERT_TRUE(root->hasAnyKind(Expression::Kind::kSymProperty, Expression::Kind::kDivision));
+
+        ASSERT_FALSE(root->isAnyKind(Expression::Kind::kConstant));
+        ASSERT_FALSE(root->hasAnyKind(Expression::Kind::kFunctionCall));
+
+        ASSERT_FALSE(root->isAnyKind(Expression::Kind::kDivision, Expression::Kind::kEdgeProperty));
+        ASSERT_FALSE(root->hasAnyKind(Expression::Kind::kDstProperty,
+                                      Expression::Kind::kLogicalAnd));
+    }
+}
+
 // TODO(cpw): more test cases.
 }  // namespace nebula

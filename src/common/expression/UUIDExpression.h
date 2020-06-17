@@ -7,16 +7,16 @@
 #ifndef COMMON_EXPRESSION_UUIDEXPRESSION_H_
 #define COMMON_EXPRESSION_UUIDEXPRESSION_H_
 
-#include "common/expression/Expression.h"
+#include "common/expression/TerminalExpression.h"
 
 namespace nebula {
 
-class UUIDExpression final : public Expression {
+class UUIDExpression final : public TerminalExpression {
     friend class Expression;
 
 public:
     explicit UUIDExpression(std::string* field = nullptr)
-        : Expression(Kind::kUUID)
+        : TerminalExpression(Kind::kUUID)
         , field_(field) {}
 
     bool operator==(const Expression& rhs) const override;

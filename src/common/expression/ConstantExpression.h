@@ -8,16 +8,16 @@
 #define COMMON_EXPRESSION_CONSTANTEXPRESSION_H_
 
 #include "common/base/Base.h"
-#include "common/expression/Expression.h"
+#include "common/expression/TerminalExpression.h"
 
 namespace nebula {
 
-class ConstantExpression : public Expression {
+class ConstantExpression : public TerminalExpression {
     friend class Expression;
 
 public:
     explicit ConstantExpression(Value v = Value(NullType::__NULL__))
-        : Expression(Kind::kConstant)
+        : TerminalExpression(Kind::kConstant)
         , val_(std::move(v)) {}
 
     bool operator==(const Expression& rhs) const override;

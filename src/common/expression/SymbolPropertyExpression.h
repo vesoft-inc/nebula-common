@@ -7,7 +7,7 @@
 #ifndef COMMON_EXPRESSION_SYMBOLPROPERTYEXPRESSION_H_
 #define COMMON_EXPRESSION_SYMBOLPROPERTYEXPRESSION_H_
 
-#include "common/expression/Expression.h"
+#include "common/expression/TerminalExpression.h"
 
 namespace nebula {
 
@@ -25,14 +25,14 @@ constexpr char const kDstRef[] = "$$";
 // The SymbolPropertyExpression will only be used in parser to indicate
 // the form of symbol.prop, it will be transform to a proper expression
 // in a parse rule.
-class SymbolPropertyExpression: public Expression {
+class SymbolPropertyExpression: public TerminalExpression {
     friend class Expression;
 public:
     SymbolPropertyExpression(Kind kind,
                              std::string* ref,
                              std::string* sym,
                              std::string* prop)
-        : Expression(kind) {
+        : TerminalExpression(kind) {
         ref_.reset(ref);
         sym_.reset(sym);
         prop_.reset(prop);

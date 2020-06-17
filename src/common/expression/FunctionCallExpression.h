@@ -56,6 +56,16 @@ public:
         return "";
     }
 
+protected:
+    Status traversal(std::function<void(const Expression*)> visitor) const override {
+        for (const auto &arg : args_->args()) {
+            arg->traversal(visitor);
+        }
+        visitor(this);
+        return Status::OK();
+    }
+
+
 private:
     void writeTo(Encoder& encoder) const override;
 
