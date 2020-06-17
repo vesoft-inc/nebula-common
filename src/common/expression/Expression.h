@@ -113,8 +113,7 @@ public:
               typename = std::enable_if_t<std::is_same<Kind, std::common_type_t<Ts...>>::value>>
     bool hasAnyKind(Ts... ts) const {
         bool has = false;
-        auto pack = std::make_tuple(ts...);
-        traversal([pack, &has](const Expression *expr) {
+        traversal([pack = std::make_tuple(ts...), &has](const Expression *expr) {
             auto bind = [expr](Ts... ts) {
                 return expr->isAnyKind(ts...);
             };
