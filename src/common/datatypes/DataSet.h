@@ -158,7 +158,7 @@ struct DataSet {
     }
 };
 
-inline std::ostream &operator<<(std::ostream &os, const DataSet &d) {
+inline std::ostream &operator<<(std::ostream& os, const DataSet& d) {
     return os << d.toString();
 }
 

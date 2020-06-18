@@ -46,7 +46,7 @@ struct HostAddr {
     bool operator<(const HostAddr& rhs) const;
 };
 
-inline std::ostream& operator <<(std::ostream &os, const HostAddr &addr) {
+inline std::ostream& operator <<(std::ostream& os, const HostAddr& addr) {
     return os << addr.toString();
 }
 

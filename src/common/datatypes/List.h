@@ -60,7 +60,7 @@ struct List {
     }
 };
 
-inline std::ostream &operator<<(std::ostream &os, const List &l) {
+inline std::ostream &operator<<(std::ostream& os, const List& l) {
     return os << l.toString();
 }
 

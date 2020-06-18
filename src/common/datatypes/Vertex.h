@@ -99,7 +99,7 @@ inline void swap(Vertex& a, Vertex& b) {
     b = std::move(temp);
 }
 
-inline std::ostream &operator<<(std::ostream &os, const Vertex &v) {
+inline std::ostream &operator<<(std::ostream& os, const Vertex& v) {
     return os << v.toString();
 }
 

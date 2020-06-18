@@ -49,7 +49,7 @@ struct Set {
     }
 };
 
-inline std::ostream &operator<<(std::ostream &os, const Set &s) {
+inline std::ostream &operator<<(std::ostream& os, const Set& s) {
     return os << s.toString();
 }
 

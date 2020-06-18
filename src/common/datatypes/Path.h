@@ -80,7 +80,7 @@ struct Path {
     }
 };
 
-inline std::ostream &operator<<(std::ostream &os, const Path &p) {
+inline std::ostream &operator<<(std::ostream& os, const Path& p) {
     return os << p.toString();
 }
 

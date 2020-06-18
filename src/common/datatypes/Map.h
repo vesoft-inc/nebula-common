@@ -49,7 +49,7 @@ struct Map {
     }
 };
 
-inline std::ostream &operator<<(std::ostream &os, const Map &m) {
+inline std::ostream &operator<<(std::ostream& os, const Map& m) {
     return os << m.toString();
 }
 

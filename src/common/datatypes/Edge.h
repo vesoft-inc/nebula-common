@@ -77,7 +77,7 @@ struct Edge {
     }
 };
 
-inline std::ostream &operator<<(std::ostream &os, const Edge &v) {
+inline std::ostream &operator<<(std::ostream& os, const Edge& v) {
     return os << v.toString();
 }
 
