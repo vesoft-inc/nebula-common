@@ -127,7 +127,10 @@ public:
     }
 
     bool isConstExpr() const {
-        return !hasAnyKind(Kind::kInputProperty, Kind::kVarProperty, Kind::kVar);
+        return !hasAnyKind(Kind::kInputProperty,
+                           Kind::kVarProperty,
+                           Kind::kVar,
+                           Kind::kVersionedVar);
     }
 
 protected:
