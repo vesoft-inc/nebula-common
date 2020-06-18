@@ -48,16 +48,20 @@ struct List {
     size_t size() const {
         return values.size();
     }
+
+    std::string toString() const {
+        std::stringstream os;
+        os << "[";
+        for (const auto &v : values) {
+            os << v << ",";
+        }
+        os << "]";
+        return os.str();
+    }
 };
 
-
 inline std::ostream &operator<<(std::ostream &os, const List &l) {
-    os << "[";
-    for (const auto &v : l.values) {
-        os << v << ",";
-    }
-    os << "]";
-    return os;
+    return os << l.toString();
 }
 
 }  // namespace nebula

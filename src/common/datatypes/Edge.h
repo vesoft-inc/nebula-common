@@ -59,6 +59,15 @@ struct Edge {
         props.clear();
     }
 
+    std::string toString() const {
+        std::stringstream os;
+        os << "(" << src << ")"
+            << "-" << "[" << name << "]" << "->"
+            << "(" << dst << ")"
+            << "@" << ranking;
+        return os.str();
+    }
+
     bool operator==(const Edge& rhs) const {
         return src == rhs.src &&
                dst == rhs.dst &&
@@ -69,11 +78,7 @@ struct Edge {
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Edge &v) {
-    os << "(" << v.src << ")"
-        << "-" << "[" << v.name << "]" << "->"
-        << "(" << v.dst << ")"
-        << "@" << v.ranking;
-    return os;
+    return os << v.toString();
 }
 
 }  // namespace nebula

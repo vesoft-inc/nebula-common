@@ -134,27 +134,32 @@ struct DataSet {
         return colNames.size();
     }
 
+    std::string toString() const {
+        std::stringstream os;
+        // header
+        for (const auto &h : colNames) {
+            os << h << ",";
+        }
+        os << std::endl;
+
+        // body
+        for (const auto &row : rows) {
+            for (const auto col : row.columns) {
+                os << col << ",";
+            }
+            os << std::endl;
+        }
+        os << std::endl;
+        return os.str();
+    }
+
     bool operator==(const DataSet& rhs) const {
         return colNames == rhs.colNames && rows == rhs.rows;
     }
 };
 
 inline std::ostream &operator<<(std::ostream &os, const DataSet &d) {
-    // header
-    for (const auto &h : d.colNames) {
-        os << h << ",";
-    }
-    os << std::endl;
-
-    // body
-    for (const auto &row : d.rows) {
-        for (const auto col : row.columns) {
-            os << col << ",";
-        }
-        os << std::endl;
-    }
-    os << std::endl;
-    return os;
+    return os << d.toString();
 }
 
 }  // namespace nebula

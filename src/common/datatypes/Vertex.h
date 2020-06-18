@@ -69,6 +69,12 @@ struct Vertex {
         tags.clear();
     }
 
+    std::string toString() const {
+        std::stringstream os;
+        os << "(" << vid << ")";
+        return os.str();
+    }
+
     Vertex& operator=(Vertex&& rhs) {
         vid = std::move(rhs.vid);
         tags = std::move(rhs.tags);
@@ -94,8 +100,7 @@ inline void swap(Vertex& a, Vertex& b) {
 }
 
 inline std::ostream &operator<<(std::ostream &os, const Vertex &v) {
-    os << "(" << v.vid << ")";
-    return os;
+    return os << v.toString();
 }
 
 }  // namespace nebula

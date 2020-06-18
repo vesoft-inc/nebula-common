@@ -63,6 +63,17 @@ struct Path {
         steps.clear();
     }
 
+    std::string toString() const {
+        std::stringstream os;
+        os << "(" << src << ")";
+        for (const auto &s : steps) {
+            os << "-" << "[" << s.name << "]" << "->"
+                << "(" << s.dst << ")"
+                << "@" << s.ranking;
+        }
+        return os.str();
+    }
+
     bool operator==(const Path& rhs) const {
         return src == rhs.src &&
                steps == rhs.steps;
@@ -70,13 +81,7 @@ struct Path {
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Path &p) {
-    os << "(" << p.src << ")";
-    for (const auto &s : p.steps) {
-        os << "-" << "[" << s.name << "]" << "->"
-            << "(" << s.dst << ")"
-            << "@" << s.ranking;
-    }
-    return os;
+    return os << p.toString();
 }
 
 }  // namespace nebula

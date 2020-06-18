@@ -6,6 +6,7 @@
 
 #include "common/datatypes/Value.h"
 #include <folly/hash/Hash.h>
+#include <string>
 #include "common/datatypes/List.h"
 #include "common/datatypes/Map.h"
 #include "common/datatypes/Set.h"
@@ -1368,17 +1369,29 @@ void Value::setG(DataSet&& v) {
     new (std::addressof(value_.gVal)) std::unique_ptr<DataSet>(new DataSet(std::move(v)));
 }
 
-StatusOr<std::string> Value::toString() const {
+std::string Value::toString() const {
     switch (type_) {
         case Value::Type::__EMPTY__: {
-            return std::string("");
+            return "__EMPTY__";
         }
         case Value::Type::NULLVALUE: {
-            if (getNull() == NullType::__NULL__) {
-                return std::string("NULL");
-            } else {
-                return Status::Error("Value is illegal");
+            switch (getNull()) {
+                case NullType::__NULL__:
+                    return "__NULL__";
+                case NullType::BAD_DATA:
+                    return "__NULL_BAD_DATA__";
+                case NullType::BAD_TYPE:
+                    return "__NULL_BAD_TYPE__";
+                case NullType::DIV_BY_ZERO:
+                    return "__NULL_DIV_BY_ZERO__";
+                case NullType::ERR_OVERFLOW:
+                    return "__NULL_OVERFLOW__";
+                case NullType::NaN:
+                    return "__NULL_NaN__";
+                case NullType::UNKNOWN_PROP:
+                    return "__NULL_UNKNOWN_PROP__";
             }
+            LOG(FATAL) << "Unknown Null type " << static_cast<int>(getNull());
         }
         case Value::Type::BOOL: {
             return getBool() ? "true" : "false";
@@ -1398,10 +1411,31 @@ StatusOr<std::string> Value::toString() const {
         case Value::Type::DATETIME: {
             return getDateTime().toString();
         }
-        default: {
-            return Status::Error("Value can not convert to string");
+        case Value::Type::EDGE: {
+            return getEdge().toString();
         }
+        case Value::Type::VERTEX: {
+            return getVertex().toString();
+        }
+        case Value::Type::PATH: {
+            return getVertex().toString();
+        }
+        case Value::Type::LIST: {
+            return getList().toString();
+        }
+        case Value::Type::SET: {
+            return getSet().toString();
+        }
+        case Value::Type::MAP: {
+            return getMap().toString();
+        }
+        case Value::Type::DATASET: {
+            return getDataSet().toString();
+        }
+        // no default so the compiler will warning when lack
     }
+
+    LOG(FATAL) << "Unknown value type " << static_cast<int>(type_);
 }
 
 void swap(Value& a, Value& b) {

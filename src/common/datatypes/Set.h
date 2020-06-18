@@ -23,6 +23,16 @@ struct Set {
         values.clear();
     }
 
+    std::string toString() const {
+        std::stringstream os;
+        os << "{";
+        for (const auto &v : values) {
+            os << v << ",";
+        }
+        os << "}";
+        return os.str();
+    }
+
     Set& operator=(const Set& rhs) {
         if (this == &rhs) { return *this; }
         values = rhs.values;
@@ -40,12 +50,7 @@ struct Set {
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Set &s) {
-    os << "{";
-    for (const auto &v : s.values) {
-        os << v << ",";
-    }
-    os << "}";
-    return os;
+    return os << s.toString();
 }
 
 }  // namespace nebula
