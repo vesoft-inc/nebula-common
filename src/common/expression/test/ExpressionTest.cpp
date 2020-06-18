@@ -7,7 +7,6 @@
 
 #include <gtest/gtest.h>
 #include <boost/algorithm/string.hpp>
-#include "common/time/WallClock.h"
 #include "common/datatypes/List.h"
 #include "common/datatypes/Map.h"
 #include "common/datatypes/Set.h"
