@@ -33,6 +33,15 @@ struct Tag {
         props.clear();
     }
 
+    std::string toString() const {
+        std::stringstream os;
+        os << "Tag: " << name << ", ";
+        for (const auto& prop : props) {
+            os << prop.first << ":" << prop.second << ",";
+        }
+        return os.str();
+    }
+
     Tag& operator=(Tag&& rhs) {
         name = std::move(rhs.name);
         props = std::move(rhs.props);
@@ -72,6 +81,12 @@ struct Vertex {
     std::string toString() const {
         std::stringstream os;
         os << "(" << vid << ")";
+        if (!tags.empty()) {
+            os << ";";
+            for (const auto& tag : tags) {
+                os << tag.toString();
+            }
+        }
         return os.str();
     }
 

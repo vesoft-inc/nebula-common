@@ -138,14 +138,14 @@ struct DataSet {
         std::stringstream os;
         // header
         for (const auto &h : colNames) {
-            os << h << ",";
+            os << h << "|";
         }
         os << std::endl;
 
         // body
         for (const auto &row : rows) {
             for (const auto col : row.columns) {
-                os << col << ",";
+                os << col << "|";
             }
             os << std::endl;
         }
