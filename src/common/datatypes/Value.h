@@ -390,7 +390,9 @@ Value operator&&(const Value& lhs, const Value& rhs);
 Value operator||(const Value& lhs, const Value& rhs);
 // Visualize
 std::ostream& operator<<(std::ostream& os, const Value::Type& type);
-std::ostream& operator<<(std::ostream& os, const Value& value);
+inline std::ostream& operator<<(std::ostream& os, const Value& value) {
+    return os << value.toString();
+}
 
 }  // namespace nebula
 
