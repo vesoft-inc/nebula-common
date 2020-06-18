@@ -66,7 +66,7 @@ struct Edge {
             << "(" << dst << ")"
             << "@" << ranking;
         if (!props.empty()) {
-            os << ";";
+            os << " ";
             for (const auto& prop : props) {
                 os << prop.first << ":" << prop.second.toString() << ",";
             }

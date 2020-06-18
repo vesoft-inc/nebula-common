@@ -82,7 +82,7 @@ struct Vertex {
         std::stringstream os;
         os << "(" << vid << ")";
         if (!tags.empty()) {
-            os << ";";
+            os << " ";
             for (const auto& tag : tags) {
                 os << tag.toString();
             }
