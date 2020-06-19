@@ -407,7 +407,32 @@ std::string Value::typeName() const {
             return "__EMPTY__";
         }
         case Value::Type::NULLVALUE: {
-            return "NULL";
+            switch (value_.nVal) {
+                case NullType::__NULL__: {
+                    return "__NULL__";
+                }
+                case NullType::NaN: {
+                    return "NaN";
+                }
+                case NullType::BAD_DATA: {
+                    return "BAD_DATA";
+                }
+                case NullType::BAD_TYPE: {
+                    return "BAD_TYPE";
+                }
+                case NullType::ERR_OVERFLOW: {
+                    return "ERR_OVERFLOW";
+                }
+                case NullType::UNKNOWN_PROP: {
+                    return "UNKNOWN_PROP";
+                }
+                case NullType::DIV_BY_ZERO: {
+                    return "DIV_BY_ZERO";
+                }
+                default: {
+                    return "__UNKNOWN__";
+                }
+            }
         }
         case Value::Type::BOOL: {
             return "BOOL";
