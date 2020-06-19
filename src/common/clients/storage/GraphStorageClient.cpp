@@ -136,7 +136,7 @@ GraphStorageClient::addEdges(GraphSpaceID space,
     auto status = clusterIdsToHosts(space,
                                     std::move(edges),
                                     [](const cpp2::NewEdge& e) -> const VertexID& {
-        return e.get_key().get_src();
+        return e.get_src();
     });
 
     if (!status.ok()) {
