@@ -344,7 +344,7 @@ struct GetPropResponse {
  * Start of AddVertices section
  */
 struct NewTag {
-    1: common.TagID         tag_id,
+    1: binary               tag_name,
     2: list<common.Value>   props,
 }
 
@@ -359,7 +359,7 @@ struct EdgeKey {
     1: common.VertexID      src,
     // When edge_type > 0, it's an out-edge, otherwise, it's an in-edge
     // When query edge props, the field could be unset.
-    2: common.EdgeType      edge_type,
+    2: binary               edge_name,
     3: common.EdgeRanking   ranking,
     4: common.VertexID      dst,
 }
