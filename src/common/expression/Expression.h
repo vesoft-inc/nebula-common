@@ -114,8 +114,8 @@ public:
     bool hasAnyKind(Ts... ts) const {
         bool has = false;
         traversal([pack = std::make_tuple(ts...), &has](const Expression *expr) {
-            auto bind = [expr](Ts... ts) {
-                return expr->isAnyKind(ts...);
+            auto bind = [expr](Ts... ts_) {
+                return expr->isAnyKind(ts_...);
             };
             if (folly::apply(bind, pack)) {
                 has = true;
