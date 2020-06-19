@@ -46,6 +46,33 @@ ServerBasedSchemaManager::getTagSchema(GraphSpaceID space, TagID tag, SchemaVer 
     return std::shared_ptr<const NebulaSchemaProvider>();
 }
 
+std::shared_ptr<const NebulaSchemaProvider>
+ServerBasedSchemaManager::getTagSchema(GraphSpaceID space, const std::string &name, SchemaVer ver) {
+    VLOG(3) << "Get Tag Schema Space " << space << ", TagName " << name << ", Version " << ver;
+    CHECK(metaClient_);
+    auto tagRet = toTagID(space, name);
+    if (!tagRet.ok()) {
+        LOG(ERROR) << tagRet.status();
+        return std::shared_ptr<const NebulaSchemaProvider>();
+    }
+    auto tag = tagRet.value();
+
+    // ver less 0, get the newest ver
+    if (ver < 0) {
+        auto ret = getLatestTagSchemaVersion(space, tag);
+        if (!ret.ok()) {
+            return std::shared_ptr<const NebulaSchemaProvider>();
+        }
+        ver = ret.value();
+    }
+    auto ret = metaClient_->getTagSchemaFromCache(space, tag, ver);
+    if (ret.ok()) {
+        return ret.value();
+    }
+
+    return std::shared_ptr<const NebulaSchemaProvider>();
+}
+
 // Returns a negative number when the schema does not exist
 StatusOr<SchemaVer> ServerBasedSchemaManager::getLatestTagSchemaVersion(GraphSpaceID space,
                                                                         TagID tag) {
@@ -57,6 +84,36 @@ std::shared_ptr<const NebulaSchemaProvider>
 ServerBasedSchemaManager::getEdgeSchema(GraphSpaceID space, EdgeType edge, SchemaVer ver) {
     VLOG(3) << "Get Edge Schema Space " << space << ", EdgeType " << edge << ", Version " << ver;
     CHECK(metaClient_);
+    // ver less 0, get the newest ver
+    if (ver < 0) {
+        auto ret = getLatestEdgeSchemaVersion(space, edge);
+        if (!ret.ok()) {
+            return std::shared_ptr<const NebulaSchemaProvider>();
+        }
+        ver = ret.value();
+    }
+
+    auto ret = metaClient_->getEdgeSchemaFromCache(space, edge, ver);
+    if (ret.ok()) {
+        return ret.value();
+    }
+
+    return std::shared_ptr<const NebulaSchemaProvider>();
+}
+
+std::shared_ptr<const NebulaSchemaProvider>
+ServerBasedSchemaManager::getEdgeSchema(GraphSpaceID space,
+                                        const std::string &name,
+                                        SchemaVer ver) {
+    VLOG(3) << "Get Edge Schema Space " << space << ", EdgeName " << name << ", Version " << ver;
+    CHECK(metaClient_);
+    auto edgeRet = toEdgeType(space, name);
+    if (!edgeRet.ok()) {
+        LOG(ERROR) << edgeRet.status();
+        return std::shared_ptr<const NebulaSchemaProvider>();
+    }
+
+    auto edge = edgeRet.value();
     // ver less 0, get the newest ver
     if (ver < 0) {
         auto ret = getLatestEdgeSchemaVersion(space, edge);
