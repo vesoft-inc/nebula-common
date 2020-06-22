@@ -823,6 +823,23 @@ TEST_F(ExpressionTest, CheckComponent) {
 
         found = root->findAnyKind(Expression::Kind::kEdgeRank, Expression::Kind::kInputProperty);
         ASSERT_EQ(found, nullptr);
+
+        // find all
+        const auto willFoundAll = std::vector<const Expression*>{root.get()};
+        std::vector<const Expression*> founds = root->findAnyKindInAll(
+            Expression::Kind::kConstant);
+        ASSERT_EQ(founds, willFoundAll);
+
+        founds = root->findAnyKindInAll(Expression::Kind::kAdd, Expression::Kind::kConstant,
+                                        Expression::Kind::kEdgeDst);
+        ASSERT_EQ(founds, willFoundAll);
+
+        founds = root->findAnyKindInAll(Expression::Kind::kSrcProperty);
+        ASSERT_TRUE(founds.empty());
+
+        founds = root->findAnyKindInAll(Expression::Kind::kUnaryNegate, Expression::Kind::kEdgeDst,
+                                        Expression::Kind::kEdgeDst);
+        ASSERT_TRUE(founds.empty());
     }
 
     {
@@ -858,6 +875,20 @@ TEST_F(ExpressionTest, CheckComponent) {
         found = root->findAnyKind(Expression::Kind::kLogicalXor, Expression::Kind::kRelGE,
                                   Expression::Kind::kEdgeProperty);
         ASSERT_EQ(found, nullptr);
+
+        // found all
+        std::vector<const Expression*> founds = root->findAnyKindInAll(Expression::Kind::kConstant);
+        ASSERT_EQ(founds.size(), 1);
+
+        founds = root->findAnyKindInAll(Expression::Kind::kFunctionCall,
+                                        Expression::Kind::kTypeCasting);
+        ASSERT_EQ(founds.size(), 3);
+
+        founds = root->findAnyKindInAll(Expression::Kind::kAdd);
+        ASSERT_TRUE(founds.empty());
+
+        founds = root->findAnyKindInAll(Expression::Kind::kRelLE, Expression::Kind::kDstProperty);
+        ASSERT_TRUE(founds.empty());
     }
 
     {
@@ -901,6 +932,20 @@ TEST_F(ExpressionTest, CheckComponent) {
         found = root->findAnyKind(Expression::Kind::kLogicalXor, Expression::Kind::kEdgeRank,
                                   Expression::Kind::kUnaryNot);
         ASSERT_EQ(found, nullptr);
+
+        // found all
+        std::vector<const Expression*> founds = root->findAnyKindInAll(Expression::Kind::kConstant);
+        ASSERT_EQ(founds.size(), 6);
+
+        founds = root->findAnyKindInAll(Expression::Kind::kDivision, Expression::Kind::kMinus);
+        ASSERT_EQ(founds.size(), 2);
+
+        founds = root->findAnyKindInAll(Expression::Kind::kEdgeDst);
+        ASSERT_TRUE(founds.empty());
+
+        founds = root->findAnyKindInAll(Expression::Kind::kLogicalAnd,
+                                        Expression::Kind::kUnaryNegate);
+        ASSERT_TRUE(founds.empty());
     }
 }
 

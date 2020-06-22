@@ -131,6 +131,24 @@ private:
         return found;
     }
 
+    // Find all expression fit any kind
+    // Empty for not found any one
+    template <typename... Ts,
+              typename = std::enable_if_t<std::is_same<Kind, std::common_type_t<Ts...>>::value>>
+    std::vector<const Expression*> findAnyKindInAll(Ts... ts) const {
+        std::vector<const Expression*> exprs;
+        traversal([pack = std::make_tuple(ts...), &exprs](const Expression *expr) {
+            auto bind = [expr](Ts... ts_) {
+                return expr->isAnyKind(ts_...);
+            };
+            if (folly::apply(bind, pack)) {
+                exprs.emplace_back(expr);
+            }
+            return true;  // Not return always to traversal entire expression tree
+        });
+        return exprs;
+    }
+
     template <typename... Ts,
               typename = std::enable_if_t<std::is_same<Kind, std::common_type_t<Ts...>>::value>>
     bool hasAnyKind(Ts... ts) const {
@@ -156,6 +174,17 @@ public:
                            Kind::kEdgeType,
                            Kind::kEdgeRank,
                            Kind::kEdgeDst);
+    }
+
+    const std::vector<const Expression*> findAllStorage() const {
+        return findAnyKindInAll(Kind::kSymProperty,
+                                Kind::kEdgeProperty,
+                                Kind::kDstProperty,
+                                Kind::kSrcProperty,
+                                Kind::kEdgeSrc,
+                                Kind::kEdgeType,
+                                Kind::kEdgeRank,
+                                Kind::kEdgeDst);
     }
 
     bool hasStorage() const {
