@@ -37,6 +37,10 @@ protected:
         return operand_->traversal(visitor);
     }
 
+    const Expression* operand() const {
+        return operand_.get();
+    }
+
 private:
     void writeTo(Encoder& encoder) const override;
 
