@@ -142,15 +142,19 @@ public:
     }
 
     // require data from graph storage
+    const Expression* findStorage() const {
+        return findAnyKind(Kind::kSymProperty,
+                           Kind::kEdgeProperty,
+                           Kind::kDstProperty,
+                           Kind::kSrcProperty,
+                           Kind::kEdgeSrc,
+                           Kind::kEdgeType,
+                           Kind::kEdgeRank,
+                           Kind::kEdgeDst);
+    }
+
     bool hasStorage() const {
-        return hasAnyKind(Kind::kSymProperty,
-                          Kind::kEdgeProperty,
-                          Kind::kDstProperty,
-                          Kind::kSrcProperty,
-                          Kind::kEdgeSrc,
-                          Kind::kEdgeType,
-                          Kind::kEdgeRank,
-                          Kind::kEdgeDst);
+        return findStorage() != nullptr;
     }
 
     bool isConstExpr() const {
