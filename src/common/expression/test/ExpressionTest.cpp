@@ -808,6 +808,21 @@ TEST_F(ExpressionTest, CheckComponent) {
 
         ASSERT_FALSE(root->isAnyKind(Expression::Kind::kDivision, Expression::Kind::kAdd));
         ASSERT_FALSE(root->hasAnyKind(Expression::Kind::kDstProperty, Expression::Kind::kAdd));
+
+
+        // find
+        const Expression *found = root->findAnyKind(Expression::Kind::kConstant);
+        ASSERT_EQ(found, root.get());
+
+        found = root->findAnyKind(Expression::Kind::kConstant, Expression::Kind::kAdd,
+                                  Expression::Kind::kEdgeProperty);
+        ASSERT_EQ(found, root.get());
+
+        found = root->findAnyKind(Expression::Kind::kEdgeDst);
+        ASSERT_EQ(found, nullptr);
+
+        found = root->findAnyKind(Expression::Kind::kEdgeRank, Expression::Kind::kInputProperty);
+        ASSERT_EQ(found, nullptr);
     }
 
     {
@@ -828,6 +843,21 @@ TEST_F(ExpressionTest, CheckComponent) {
 
         ASSERT_FALSE(root->isAnyKind(Expression::Kind::kDivision, Expression::Kind::kAdd));
         ASSERT_FALSE(root->hasAnyKind(Expression::Kind::kDstProperty, Expression::Kind::kAdd));
+
+        // found
+        const Expression *found = root->findAnyKind(Expression::Kind::kTypeCasting);
+        ASSERT_EQ(found, root.get());
+
+        found = root->findAnyKind(Expression::Kind::kFunctionCall, Expression::Kind::kTypeCasting,
+                                  Expression::Kind::kLogicalAnd);
+        ASSERT_EQ(found, root.get());
+
+        found = root->findAnyKind(Expression::Kind::kDivision);
+        ASSERT_EQ(found, nullptr);
+
+        found = root->findAnyKind(Expression::Kind::kLogicalXor, Expression::Kind::kRelGE,
+                                  Expression::Kind::kEdgeProperty);
+        ASSERT_EQ(found, nullptr);
     }
 
     {
@@ -856,6 +886,21 @@ TEST_F(ExpressionTest, CheckComponent) {
         ASSERT_FALSE(root->isAnyKind(Expression::Kind::kDivision, Expression::Kind::kEdgeProperty));
         ASSERT_FALSE(root->hasAnyKind(Expression::Kind::kDstProperty,
                                       Expression::Kind::kLogicalAnd));
+
+        // found
+        const Expression *found = root->findAnyKind(Expression::Kind::kAdd);
+        ASSERT_EQ(found, root.get());
+
+        found = root->findAnyKind(Expression::Kind::kFunctionCall, Expression::Kind::kRelLE,
+                                  Expression::Kind::kMultiply);
+        ASSERT_NE(found, nullptr);
+
+        found = root->findAnyKind(Expression::Kind::kInputProperty);
+        ASSERT_EQ(found, nullptr);
+
+        found = root->findAnyKind(Expression::Kind::kLogicalXor, Expression::Kind::kEdgeRank,
+                                  Expression::Kind::kUnaryNot);
+        ASSERT_EQ(found, nullptr);
     }
 }
 

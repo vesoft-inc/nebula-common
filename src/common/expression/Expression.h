@@ -109,21 +109,28 @@ public:
         return kind_ == k || isAnyKind(ts...);
     }
 
+    // null for not found
     template <typename... Ts,
               typename = std::enable_if_t<std::is_same<Kind, std::common_type_t<Ts...>>::value>>
-    bool hasAnyKind(Ts... ts) const {
-        bool has = false;
-        traversal([pack = std::make_tuple(ts...), &has](const Expression *expr) {
+    const Expression* findAnyKind(Ts... ts) const {
+        const Expression *found = nullptr;
+        traversal([pack = std::make_tuple(ts...), &found](const Expression *expr) {
             auto bind = [expr](Ts... ts_) {
                 return expr->isAnyKind(ts_...);
             };
             if (folly::apply(bind, pack)) {
-                has = true;
+                found = expr;
                 return false;  // Already find so return now
             }
             return true;  // Not find so continue traversal
         });
-        return has;
+        return found;
+    }
+
+    template <typename... Ts,
+              typename = std::enable_if_t<std::is_same<Kind, std::common_type_t<Ts...>>::value>>
+    bool hasAnyKind(Ts... ts) const {
+        return findAnyKind(ts...) != nullptr;
     }
 
     // Require data from input/variable
