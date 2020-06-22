@@ -128,22 +128,22 @@ public:
 
     // Require data from input/variable
     bool hasInput() const {
-        return !hasAnyKind(Kind::kInputProperty,
-                           Kind::kVarProperty,
-                           Kind::kVar,
-                           Kind::kVersionedVar);
+        return hasAnyKind(Kind::kInputProperty,
+                          Kind::kVarProperty,
+                          Kind::kVar,
+                          Kind::kVersionedVar);
     }
 
     // require data from graph storage
     bool hasStorage() const {
-        return !hasAnyKind(Kind::kSymProperty,
-                           Kind::kEdgeProperty,
-                           Kind::kDstProperty,
-                           Kind::kSrcProperty,
-                           Kind::kEdgeSrc,
-                           Kind::kEdgeType,
-                           Kind::kEdgeRank,
-                           Kind::kEdgeDst);
+        return hasAnyKind(Kind::kSymProperty,
+                          Kind::kEdgeProperty,
+                          Kind::kDstProperty,
+                          Kind::kSrcProperty,
+                          Kind::kEdgeSrc,
+                          Kind::kEdgeType,
+                          Kind::kEdgeRank,
+                          Kind::kEdgeDst);
     }
 
     bool isConstExpr() const {
