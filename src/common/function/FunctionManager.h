@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef COMMON_EXPRESSION_FUNCTION_FUNCTIONMANAGER_H_
-#define COMMON_EXPRESSION_FUNCTION_FUNCTIONMANAGER_H_
+#ifndef COMMON_FUNCTION_FUNCTIONMANAGER_H_
+#define COMMON_FUNCTION_FUNCTIONMANAGER_H_
 
 // #include "common/base/Base.h"
 #include "common/base/StatusOr.h"
@@ -67,4 +67,4 @@ private:
 
 }   // namespace nebula
 
-#endif  // COMMON_EXPRESSION_FUNCTION_FUNCTIONMANAGER_H_
+#endif  // COMMON_FUNCTION_FUNCTIONMANAGER_H_
