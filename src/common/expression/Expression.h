@@ -8,6 +8,7 @@
 #define COMMON_EXPRESSION_EXPRESSION_H_
 
 #include <folly/functional/ApplyTuple.h>
+#include <gtest/gtest_prod.h>
 
 #include "common/base/Base.h"
 #include "common/datatypes/Value.h"
@@ -17,6 +18,8 @@ namespace nebula {
 
 class Expression {
 public:
+    FRIEND_TEST(ExpressionTest, CheckComponent);
+
     enum class Kind : uint8_t {
         kConstant,
 
@@ -99,6 +102,7 @@ public:
     // return true continue, false return now
     virtual bool traversal(Visitor visitor) const = 0;
 
+private:
     template <typename T, typename = std::enable_if_t<std::is_same<T, Kind>::value>>
     bool isAnyKind(T k) const {
         return kind_ == k;
@@ -133,6 +137,7 @@ public:
         return findAnyKind(ts...) != nullptr;
     }
 
+public:
     // Require data from input/variable
     bool hasInput() const {
         return hasAnyKind(Kind::kInputProperty,
