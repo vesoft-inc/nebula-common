@@ -16,7 +16,7 @@ public:
     void TearDown() override {}
 
 protected:
-    void testExpr(const char *expr, std::vector<Value> &args, Value expect) {
+    void testFunction(const char *expr, std::vector<Value> &args, Value expect) {
         auto result = FunctionManager::get(expr, args.size());
         ASSERT_TRUE(result.ok());
         EXPECT_EQ(result.value()(args), expect);
@@ -42,54 +42,52 @@ std::unordered_map<std::string, std::vector<Value>> FunctionManagerTest::args_ =
     {"neg_side", {"abcdefghijklmnopq", -2}},
 };
 
-// expr -- the expression can evaluate by nGQL parser may not evaluated by c++
-// expected -- the expected value of expression must evaluated by c++
-#define TEST_EXPR(expr, args, expected)                                                            \
+#define TEST_FUNCTION(expr, args, expected)                                                        \
     do {                                                                                           \
-        testExpr(#expr, args, expected);                                                           \
+        testFunction(#expr, args, expected);                                                       \
     } while (0);
 
 TEST_F(FunctionManagerTest, functionCall) {
     {
-        TEST_EXPR(abs, args_["neg_int"], 1);
-        TEST_EXPR(abs, args_["neg_float"], 1.1);
-        TEST_EXPR(abs, args_["int"], 4);
-        TEST_EXPR(abs, args_["float"], 1.1);
+        TEST_FUNCTION(abs, args_["neg_int"], 1);
+        TEST_FUNCTION(abs, args_["neg_float"], 1.1);
+        TEST_FUNCTION(abs, args_["int"], 4);
+        TEST_FUNCTION(abs, args_["float"], 1.1);
     }
     {
-        TEST_EXPR(floor, args_["neg_int"], -1);
-        TEST_EXPR(floor, args_["float"], 1);
-        TEST_EXPR(floor, args_["neg_float"], -2);
-        TEST_EXPR(floor, args_["int"], 4);
+        TEST_FUNCTION(floor, args_["neg_int"], -1);
+        TEST_FUNCTION(floor, args_["float"], 1);
+        TEST_FUNCTION(floor, args_["neg_float"], -2);
+        TEST_FUNCTION(floor, args_["int"], 4);
     }
     {
-        TEST_EXPR(sqrt, args_["int"], 2);
-        TEST_EXPR(sqrt, args_["float"], std::sqrt(1.1));
+        TEST_FUNCTION(sqrt, args_["int"], 2);
+        TEST_FUNCTION(sqrt, args_["float"], std::sqrt(1.1));
     }
 
     {
-        TEST_EXPR(pow, args_["pow"], 8);
-        TEST_EXPR(exp, args_["int"], std::exp(4));
-        TEST_EXPR(exp2, args_["int"], 16);
+        TEST_FUNCTION(pow, args_["pow"], 8);
+        TEST_FUNCTION(exp, args_["int"], std::exp(4));
+        TEST_FUNCTION(exp2, args_["int"], 16);
 
-        TEST_EXPR(log, args_["int"], std::log(4));
-        TEST_EXPR(log2, args_["int"], 2);
+        TEST_FUNCTION(log, args_["int"], std::log(4));
+        TEST_FUNCTION(log2, args_["int"], 2);
     }
     {
-        TEST_EXPR(lower, args_["string"], "abcdefg");
-        TEST_EXPR(upper, args_["string"], "ABCDEFG");
-        TEST_EXPR(length, args_["string"], 7);
+        TEST_FUNCTION(lower, args_["string"], "abcdefg");
+        TEST_FUNCTION(upper, args_["string"], "ABCDEFG");
+        TEST_FUNCTION(length, args_["string"], 7);
 
-        TEST_EXPR(trim, args_["trim"], "abc");
-        TEST_EXPR(ltrim, args_["trim"], "abc  ");
-        TEST_EXPR(rtrim, args_["trim"], " abc");
+        TEST_FUNCTION(trim, args_["trim"], "abc");
+        TEST_FUNCTION(ltrim, args_["trim"], "abc  ");
+        TEST_FUNCTION(rtrim, args_["trim"], " abc");
     }
     {
-        TEST_EXPR(substr, args_["substr"], "bcde");
-        TEST_EXPR(left, args_["side"], "abcde");
-        TEST_EXPR(right, args_["side"], "mnopq");
-        TEST_EXPR(left, args_["neg_side"], "");
-        TEST_EXPR(right, args_["neg_side"], "");
+        TEST_FUNCTION(substr, args_["substr"], "bcde");
+        TEST_FUNCTION(left, args_["side"], "abcde");
+        TEST_FUNCTION(right, args_["side"], "mnopq");
+        TEST_FUNCTION(left, args_["neg_side"], "");
+        TEST_FUNCTION(right, args_["neg_side"], "");
     }
     {
         auto result = FunctionManager::get("rand32", args_["rand"].size());
