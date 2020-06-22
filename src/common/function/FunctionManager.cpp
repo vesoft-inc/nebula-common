@@ -257,12 +257,12 @@ FunctionManager::FunctionManager() {
                 if (args[0].isInt()) {
                     auto max = args[0].getInt();
                     if (max < 0 || max > std::numeric_limits<uint32_t>::max()) {
-                        return Value(NullType::BAD_TYPE);
+                        return Value::kNullBadData;
                     }
                     auto value = folly::Random::rand32(max);
                     return static_cast<int64_t>(static_cast<int32_t>(value));
                 }
-                return Value(NullType::BAD_TYPE);
+                return Value::kNullBadType;
             }
             DCHECK_EQ(2UL, args.size());
             if (args[0].isInt() && args[1].isInt()) {
@@ -270,14 +270,14 @@ FunctionManager::FunctionManager() {
                 auto max = args[1].getInt();
                 if (max < 0 || min < 0 || max > std::numeric_limits<uint32_t>::max() ||
                     min > std::numeric_limits<uint32_t>::max()) {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadData;
                 }
                 if (min >= max) {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadData;
                 }
                 return static_cast<int64_t>(folly::Random::rand32(min, max));
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -292,22 +292,22 @@ FunctionManager::FunctionManager() {
                 if (args[0].isInt()) {
                     auto max = args[0].getInt();
                     if (max < 0) {
-                        return Value(NullType::BAD_TYPE);
+                        return Value::kNullBadData;
                     }
                     return static_cast<int64_t>(folly::Random::rand64(max));
                 }
-                return Value(NullType::BAD_TYPE);
+                return Value::kNullBadType;
             }
             DCHECK_EQ(2UL, args.size());
             if (args[0].isInt() && args[1].isInt()) {
                 auto min = args[0].getInt();
                 auto max = args[1].getInt();
                 if (max < 0 || min < 0 || min >= max) {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadData;
                 }
                 return static_cast<int64_t>(folly::Random::rand64(min, max));
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -533,27 +533,7 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
-            switch (args[0].type()) {
-                case Value::Type::INT: {
-                    auto v = args[0].getInt();
-                    return static_cast<int64_t>(std::hash<int64_t>()(v));
-                }
-                case Value::Type::FLOAT: {
-                    auto v = args[0].getFloat();
-                    return static_cast<int64_t>(std::hash<double>()(v));
-                }
-                case Value::Type::BOOL: {
-                    auto v = args[0].getBool();
-                    return static_cast<int64_t>(std::hash<bool>()(v));
-                }
-                case Value::Type::STRING: {
-                    auto &v = args[0].getStr();
-                    return static_cast<int64_t>(std::hash<std::string>()(v));
-                }
-                default:
-                    LOG(ERROR) << "UnKown type: " << args[0].type();
-                    return Value(NullType::BAD_TYPE);
-            }
+            return static_cast<int64_t>(std::hash<nebula::Value>()(args[0]));
         };
     }
     {
@@ -562,40 +542,15 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = INT64_MAX;
         attr.body_ = [](const auto &args) -> Value {
             switch (args[0].type()) {
-                case Value::Type::INT: {
-                    auto v = args[0].getInt();
-                    std::unordered_set<uint64_t> vals;
-                    for (auto iter = (args.begin() + 1); iter < args.end(); ++iter) {
-                        vals.emplace((*iter).getInt());
-                    }
-                    auto ret = vals.emplace(v);
-                    return !ret.second;
-                }
-                case Value::Type::FLOAT: {
-                    auto v = args[0].getFloat();
-                    std::unordered_set<double> vals;
-                    for (auto iter = (args.begin() + 1); iter < args.end(); ++iter) {
-                        vals.emplace((*iter).getFloat());
-                    }
-                    auto ret = vals.emplace(v);
-                    return !ret.second;
-                }
-                case Value::Type::BOOL: {
-                    auto v = args[0].getBool();
-                    std::unordered_set<bool> vals;
-                    for (auto iter = (args.begin() + 1); iter < args.end(); ++iter) {
-                        vals.emplace((*iter).getBool());
-                    }
-                    auto ret = vals.emplace(v);
-                    return !ret.second;
-                }
+                case Value::Type::INT:
+                case Value::Type::FLOAT:
+                case Value::Type::BOOL:
                 case Value::Type::STRING: {
-                    auto v = args[0].getStr();
-                    std::unordered_set<std::string> vals;
+                    std::unordered_set<Value> vals;
                     for (auto iter = (args.begin() + 1); iter < args.end(); ++iter) {
-                        vals.emplace((*iter).getStr());
+                        vals.emplace(*iter);
                     }
-                    auto ret = vals.emplace(v);
+                    auto ret = vals.emplace(args[0]);
                     return !ret.second;
                 }
                 default:
