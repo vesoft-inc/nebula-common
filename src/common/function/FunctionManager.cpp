@@ -533,7 +533,25 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
-            return static_cast<int64_t>(std::hash<nebula::Value>()(args[0]));
+            switch (args[0].type()) {
+                case Value::Type::NULLVALUE:
+                case Value::Type::__EMPTY__:
+                case Value::Type::INT:
+                case Value::Type::FLOAT:
+                case Value::Type::BOOL:
+                case Value::Type::STRING:
+                case Value::Type::DATE:
+                case Value::Type::DATETIME:
+                case Value::Type::VERTEX:
+                case Value::Type::EDGE:
+                case Value::Type::PATH:
+                case Value::Type::LIST: {
+                    return static_cast<int64_t>(std::hash<nebula::Value>()(args[0]));
+                }
+                default:
+                    LOG(ERROR) << "Hash has not been implemented for " << args[0].type();
+                    return Value::kNullBadType;
+            }
         };
     }
     {
@@ -541,22 +559,12 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 2;
         attr.maxArity_ = INT64_MAX;
         attr.body_ = [](const auto &args) -> Value {
-            switch (args[0].type()) {
-                case Value::Type::INT:
-                case Value::Type::FLOAT:
-                case Value::Type::BOOL:
-                case Value::Type::STRING: {
-                    std::unordered_set<Value> vals;
-                    for (auto iter = (args.begin() + 1); iter < args.end(); ++iter) {
-                        vals.emplace(*iter);
-                    }
-                    auto ret = vals.emplace(args[0]);
-                    return !ret.second;
-                }
-                default:
-                    LOG(ERROR) << "UnKown type: " << args[0].type();
-                    return Value(NullType::BAD_TYPE);
+            std::unordered_set<Value> vals;
+            for (auto iter = (args.begin() + 1); iter < args.end(); ++iter) {
+                vals.emplace(*iter);
             }
+            auto ret = vals.emplace(args[0]);
+            return !ret.second;
         };
     }
     {
