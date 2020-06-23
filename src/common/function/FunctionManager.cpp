@@ -553,11 +553,7 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 2;
         attr.maxArity_ = INT64_MAX;
         attr.body_ = [](const auto &args) -> Value {
-            std::unordered_set<Value> vals;
-            for (auto iter = (args.begin() + 1); iter < args.end(); ++iter) {
-                vals.emplace(*iter);
-            }
-            return vals.find(args[0]) != vals.end();
+            return std::find(args.begin() + 1, args.end(), args[0]) != args.end();
         };
     }
     {
@@ -602,7 +598,8 @@ FunctionManager::FunctionManager() {
                     return Value::kNullBadType;
                 }
             }
-            if (s2 == 0 || s3 == 0) {
+            double kEpsilon = 1e-8;
+            if (std::abs(s2) <= kEpsilon || std::abs(s3) <= kEpsilon) {
                 return static_cast<double>(-2);
             } else {
                 return s1 / (std::sqrt(s2) * std::sqrt(s3));

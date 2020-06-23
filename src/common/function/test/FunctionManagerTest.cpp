@@ -41,7 +41,7 @@ std::unordered_map<std::string, std::vector<Value>> FunctionManagerTest::args_ =
     {"side", {"abcdefghijklmnopq", 5}},
     {"neg_side", {"abcdefghijklmnopq", -2}},
     {"pad", {"abcdefghijkl", 16, "123"}},
-};
+    {"udf_is_in", {4, 1, 2, 8, 4, 3, 1, 0}}};
 
 #define TEST_FUNCTION(expr, args, expected)                                                        \
     do {                                                                                           \
@@ -92,6 +92,7 @@ TEST_F(FunctionManagerTest, functionCall) {
 
         TEST_FUNCTION(lpad, args_["pad"], "1231abcdefghijkl");
         TEST_FUNCTION(rpad, args_["pad"], "abcdefghijkl1231");
+        TEST_FUNCTION(udf_is_in, args_["udf_is_in"], true);
     }
     {
         auto result = FunctionManager::get("rand32", args_["rand"].size());
