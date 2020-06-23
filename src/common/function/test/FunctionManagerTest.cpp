@@ -40,6 +40,7 @@ std::unordered_map<std::string, std::vector<Value>> FunctionManagerTest::args_ =
     {"substr", {"abcdefghi", 2, 4}},
     {"side", {"abcdefghijklmnopq", 5}},
     {"neg_side", {"abcdefghijklmnopq", -2}},
+    {"pad", {"abcdefghijkl", 16, "123"}},
 };
 
 #define TEST_FUNCTION(expr, args, expected)                                                        \
@@ -88,6 +89,9 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(right, args_["side"], "mnopq");
         TEST_FUNCTION(left, args_["neg_side"], "");
         TEST_FUNCTION(right, args_["neg_side"], "");
+
+        TEST_FUNCTION(lpad, args_["pad"], "1231abcdefghijkl");
+        TEST_FUNCTION(rpad, args_["pad"], "abcdefghijkl1231");
     }
     {
         auto result = FunctionManager::get("rand32", args_["rand"].size());
@@ -103,6 +107,11 @@ TEST_F(FunctionManagerTest, functionCall) {
         auto result = FunctionManager::get("now", args_["null"].size());
         ASSERT_TRUE(result.ok());
         result.value()(args_["null"]);
+    }
+    {
+        auto result = FunctionManager::get("hash", args_["string"].size());
+        ASSERT_TRUE(result.ok());
+        result.value()(args_["string"]);
     }
 }
 

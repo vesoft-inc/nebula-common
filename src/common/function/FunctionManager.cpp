@@ -454,7 +454,7 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 3;
         attr.maxArity_ = 3;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].isStr() && args[1].isInt()) {
+            if (args[0].isStr() && args[1].isInt() && args[2].isStr()) {
                 auto value = args[0].getStr();
                 auto size = args[1].getInt();
                 if (size < 0) {
@@ -482,7 +482,7 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 3;
         attr.maxArity_ = 3;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].isStr() && args[1].isInt()) {
+            if (args[0].isStr() && args[1].isInt() && args[2].isStr()) {
                 auto value = args[0].getStr();
                 size_t size = args[1].getInt();
                 if (size < 0) {
