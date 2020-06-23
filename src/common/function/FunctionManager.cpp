@@ -27,7 +27,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return abs(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -39,7 +39,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::floor(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -51,7 +51,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::ceil(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -63,7 +63,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::round(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -75,7 +75,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::sqrt(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -87,7 +87,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::cbrt(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -101,7 +101,7 @@ FunctionManager::FunctionManager() {
                 auto y = args[1].isInt() ? args[1].getInt() : args[1].getFloat();
                 return std::hypot(x, y);
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -115,7 +115,7 @@ FunctionManager::FunctionManager() {
                 auto exp = args[1].isInt() ? args[1].getInt() : args[1].getFloat();
                 return std::pow(base, exp);
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -127,7 +127,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::exp(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -139,7 +139,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::exp2(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -151,7 +151,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::log(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -163,7 +163,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::log2(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -175,7 +175,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::log10(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -186,7 +186,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::sin(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -197,7 +197,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::asin(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -208,7 +208,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::cos(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -219,7 +219,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::acos(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -230,7 +230,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::tan(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -241,7 +241,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric()) {
                 return std::atan(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -329,7 +329,7 @@ FunctionManager::FunctionManager() {
                 return static_cast<int64_t>(
                     ::strcasecmp(args[0].getStr().c_str(), args[1].getStr().c_str()));
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -339,12 +339,10 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 auto value = const_cast<std::string &>(args[0].getStr());
-                std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {
-                    return std::tolower(c);
-                });
+                folly::toLowerAscii(value);
                 return value;
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -359,7 +357,7 @@ FunctionManager::FunctionManager() {
                 });
                 return value;
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -371,7 +369,7 @@ FunctionManager::FunctionManager() {
                 auto value = args[0].getStr();
                 return static_cast<int64_t>(value.length());
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -381,11 +379,9 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 auto value = const_cast<std::string &>(args[0].getStr());
-                value.erase(0, value.find_first_not_of(" "));
-                value.erase(value.find_last_not_of(" ") + 1);
-                return value;
+                return folly::trimWhitespace(value);
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -395,10 +391,9 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 auto value = const_cast<std::string &>(args[0].getStr());
-                value.erase(0, value.find_first_not_of(" "));
-                return value;
+                return folly::ltrimWhitespace(value);
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -408,10 +403,9 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 auto value = const_cast<std::string &>(args[0].getStr());
-                value.erase(value.find_last_not_of(" ") + 1);
-                return value;
+                return folly::rtrimWhitespace(value);
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -427,7 +421,7 @@ FunctionManager::FunctionManager() {
                 }
                 return value.substr(0, length);
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -446,7 +440,7 @@ FunctionManager::FunctionManager() {
                 }
                 return value.substr(value.size() - length);
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -474,7 +468,7 @@ FunctionManager::FunctionManager() {
                     return stream.str();
                 }
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -502,7 +496,7 @@ FunctionManager::FunctionManager() {
                     return stream.str();
                 }
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -524,7 +518,7 @@ FunctionManager::FunctionManager() {
                     return value.substr(value.size() + start, length);
                 }
             }
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         };
     }
     {
@@ -563,8 +557,7 @@ FunctionManager::FunctionManager() {
             for (auto iter = (args.begin() + 1); iter < args.end(); ++iter) {
                 vals.emplace(*iter);
             }
-            auto ret = vals.emplace(args[0]);
-            return !ret.second;
+            return vals.find(args[0]) != vals.end();
         };
     }
     {
@@ -598,11 +591,16 @@ FunctionManager::FunctionManager() {
             auto mid = args.size() / 2;
             double s1 = 0, s2 = 0, s3 = 0;
             for (decltype(args.size()) i = 0; i < mid; ++i) {
-                auto xi = args[i].getFloat();
-                auto yi = args[i + mid].getFloat();
-                s1 += (xi * yi);
-                s2 += (xi * xi);
-                s3 += (yi * yi);
+                if (args[i].isNumeric() && args[i + mid].isNumeric()) {
+                    auto xi = args[i].isInt() ? args[i].getInt() : args[i].getFloat();
+                    auto yi =
+                        args[i + mid].isInt() ? args[i + mid].getInt() : args[i + mid].getFloat();
+                    s1 += (xi * yi);
+                    s2 += (xi * xi);
+                    s3 += (yi * yi);
+                } else {
+                    return Value::kNullBadType;
+                }
             }
             if (s2 == 0 || s3 == 0) {
                 return static_cast<double>(-2);
@@ -620,7 +618,6 @@ StatusOr<FunctionManager::Function> FunctionManager::get(const std::string &func
 
 StatusOr<FunctionManager::Function> FunctionManager::getInternal(const std::string &func,
                                                                  size_t arity) const {
-    auto status = Status::OK();
     folly::RWSpinLock::ReadHolder holder(lock_);
     // check existence
     auto iter = functions_.find(func);
