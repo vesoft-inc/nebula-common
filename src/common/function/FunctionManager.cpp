@@ -338,7 +338,7 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
-                auto value = const_cast<std::string &>(args[0].getStr());
+                std::string value(args[0].getStr());
                 folly::toLowerAscii(value);
                 return value;
             }
@@ -351,7 +351,7 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
-                auto value = const_cast<std::string &>(args[0].getStr());
+                std::string value(args[0].getStr());
                 std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {
                     return std::toupper(c);
                 });
@@ -378,7 +378,7 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
-                auto value = const_cast<std::string &>(args[0].getStr());
+                std::string value(args[0].getStr());
                 return folly::trimWhitespace(value);
             }
             return Value::kNullBadType;
@@ -390,7 +390,7 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
-                auto value = const_cast<std::string &>(args[0].getStr());
+                std::string value(args[0].getStr());
                 return folly::ltrimWhitespace(value);
             }
             return Value::kNullBadType;
@@ -402,7 +402,7 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
-                auto value = const_cast<std::string &>(args[0].getStr());
+                std::string value(args[0].getStr());
                 return folly::rtrimWhitespace(value);
             }
             return Value::kNullBadType;
