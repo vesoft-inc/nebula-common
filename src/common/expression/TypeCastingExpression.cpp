@@ -44,4 +44,36 @@ void TypeCastingExpression::resetFrom(Decoder& decoder) {
     operand_ = decoder.readExpression();
     CHECK(!!operand_);
 }
+
+std::string TypeToString(Value::Type type) {
+    switch (type) {
+        case Value::Type::INT:
+            return "int";
+        case Value::Type::STRING:
+            return "string";
+        case Value::Type::FLOAT:
+            return "float";
+        case Value::Type::BOOL:
+            return "bool";
+        case Value::Type::DATETIME:
+            return  "datatime";
+        case Value::Type::DATE:
+            return "date";
+        default:
+            return "unknown type";
+    }
+}
+
+std::string TypeCastingExpression::toString() const {
+    std::string buf;
+    buf.reserve(256);
+
+    buf += "(";
+    buf += TypeToString(vType_);
+    buf += ")";
+    buf += operand_->toString();
+
+    return buf;
+}
+
 }  // namespace nebula
