@@ -33,4 +33,33 @@ void ConstantExpression::resetFrom(Decoder& decoder) {
     val_ = decoder.readValue();
 }
 
+std::string ConstantExpression::toString() const {
+    std::string buf;
+    buf.reserve(256);
+
+    switch (val_.type()) {
+        case Value::Type::INT: {
+            break;
+        }
+        case Value::Type::FLOAT: {
+            break;
+        }
+        case Value::Type::BOOL: {
+            break;
+        }
+        case Value::Type::STRING: {
+            break;
+        }
+        case Value::Type::DATE: {
+            break;
+        }
+        case Value::Type::DATETIME: {
+            break;
+        }
+        default: {
+        }
+    }
+    return buf;
+}
+
 }  // namespace nebula

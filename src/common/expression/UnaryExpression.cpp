@@ -80,4 +80,32 @@ const Value& UnaryExpression::eval(ExpressionContext& ctx) {
    return result_;
 }
 
+std::string UnaryExpression::toString() const {
+    std::string buf;
+    buf.reserve(256);
+    switch (kind_) {
+        case Kind::kUnaryPlus:
+            buf += '+';
+            break;
+        case Kind::kUnaryNegate:
+            buf += '-';
+            break;
+        case Kind::kUnaryNot:
+            buf += '!';
+            break;
+        case Kind::kUnaryIncr:
+            buf += "+1";
+            break;
+        case Kind::kUnaryDecr:
+            buf += "-1";
+            break;
+        default:
+            buf += "illegal symbol ";
+    }
+    buf += '(';
+    buf.append(operand_->toString());
+    buf += ')';
+    return buf;
+}
+
 }  // namespace nebula

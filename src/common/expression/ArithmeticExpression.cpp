@@ -34,4 +34,33 @@ const Value& ArithmeticExpression::eval(ExpressionContext& ctx) {
     return result_;
 }
 
+std::string ArithmeticExpression::toString() const {
+    std::string buf;
+    buf.reserve(256);
+    buf += '(';
+    buf.append(lhs_->toString());
+    switch (kind_) {
+        case Kind::kAdd:
+            buf += '+';
+            break;
+        case Kind::kMinus:
+            buf += '-';
+            break;
+        case Kind::kMultiply:
+            buf += '*';
+            break;
+        case Kind::kDivision:
+            buf += '/';
+            break;
+        case Kind::kMod:
+            buf += '%';
+            break;
+        default:
+            buf += "illegal symbol ";
+    }
+    buf.append(rhs_->toString());
+    buf += ')';
+    return buf;
+}
+
 }  // namespace nebula

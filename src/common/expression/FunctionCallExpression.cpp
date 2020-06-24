@@ -81,4 +81,20 @@ const Value& FunctionCallExpression::eval(ExpressionContext& ctx) {
     return result_;
 }
 
+std::string FunctionCallExpression::toString() const {
+    std::string buf;
+    buf.reserve(256);
+    buf += *name_;
+    buf += "(";
+    for (const auto &arg : args_->args()) {
+        buf += arg->toString();
+        buf += ",";
+    }
+    if (!args_->args().empty()) {
+        buf.resize(buf.size() - 1);
+    }
+    buf += ")";
+    return buf;
+}
+
 }  // namespace nebula
