@@ -165,12 +165,12 @@ protected:
         delete ep;
     }
 
-    void testFunction(const char *name, std::vector<Value> &args, Value expected) {
-        ArgumentList *arg = new ArgumentList();
+    void testFunction(const char *name, const std::vector<Value> &args, const Value &expected) {
+        ArgumentList *argList = new ArgumentList();
         for (const auto &i : args) {
-            arg->addArgument(std::make_unique<ConstantExpression>(std::move(i)));
+            argList->addArgument(std::make_unique<ConstantExpression>(std::move(i)));
         }
-        FunctionCallExpression functionCall(new std::string(name), arg);
+        FunctionCallExpression functionCall(new std::string(name), argList);
         auto eval = Expression::eval(&functionCall, gExpCtxt);
         // EXPECT_EQ(eval.type(), expected.type());
         EXPECT_EQ(eval, expected);
