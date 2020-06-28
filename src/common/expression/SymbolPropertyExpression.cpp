@@ -95,7 +95,7 @@ std::string EdgePropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (sym_ != nullptr && *sym_ != "") {
+    if (sym_ != nullptr && !sym_.empty()) {
         buf += *sym_;
         buf += ".";
     }
@@ -110,7 +110,7 @@ std::string InputPropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (ref_ != nullptr && *ref_ != "") {
+    if (ref_ != nullptr && !ref_.empty()) {
         buf += *ref_;
         buf += ".";
     }
@@ -128,7 +128,7 @@ std::string VariablePropertyExpression::toString() const {
     if (ref_ != nullptr) {
         buf += *ref_;
     }
-    if (sym_ != nullptr && *sym_ != "") {
+    if (sym_ != nullptr && !sym_.empty()) {
         buf += *sym_;
         buf += ".";
     }
@@ -143,11 +143,11 @@ std::string SourcePropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (ref_ != nullptr && *ref_ != "") {
+    if (ref_ != nullptr && !ref_.empty()) {
         buf += *ref_;
         buf += ".";
     }
-    if (sym_ != nullptr && *sym_ != "") {
+    if (sym_ != nullptr && !sym_.empty()) {
         buf += *sym_;
         buf += ".";
     }
@@ -162,11 +162,11 @@ std::string DestPropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (ref_ != nullptr && *ref_ != "") {
+    if (ref_ != nullptr && !ref_.empty()) {
         buf += *ref_;
         buf += ".";
     }
-    if (sym_ != nullptr && *sym_ != "") {
+    if (sym_ != nullptr && !sym_.empty()) {
         buf += *sym_;
         buf += ".";
     }
@@ -181,7 +181,7 @@ std::string EdgeSrcIdExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (sym_ != nullptr && *sym_ != "") {
+    if (sym_ != nullptr && !sym_.empty()) {
         buf += *sym_;
         buf += ".";
     }
@@ -196,7 +196,7 @@ std::string EdgeTypeExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (sym_ != nullptr && *sym_ != "") {
+    if (sym_ != nullptr && !sym_.empty()) {
         buf += *sym_;
         buf += ".";
     }
@@ -211,7 +211,7 @@ std::string EdgeRankExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (sym_ != nullptr && *sym_ != "") {
+    if (sym_ != nullptr && !sym_.empty()) {
         buf += *sym_;
         buf += ".";
     }
@@ -226,7 +226,7 @@ std::string EdgeDstIdExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (sym_ != nullptr && *sym_ != "") {
+    if (sym_ != nullptr && !sym_.empty()) {
         buf += *sym_;
         buf += ".";
     }
