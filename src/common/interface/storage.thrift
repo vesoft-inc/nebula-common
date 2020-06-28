@@ -370,9 +370,10 @@ struct NewEdge {
     // When edge_type > 0, it's an out-edge, otherwise, it's an in-edge
     // When query edge props, the field could be unset.
     2: binary               edge_name,
-    3: common.EdgeRanking   ranking,
-    4: common.VertexID      dst,
-    5: list<common.Value>   props,
+    3: bool                 reversely,
+    4: common.EdgeRanking   ranking,
+    5: common.VertexID      dst,
+    6: list<common.Value>   props,
 }
 
 
@@ -381,10 +382,10 @@ struct AddVerticesRequest {
     // partId => vertices
     2: map<common.PartitionID, list<NewVertex>>
         (cpp.template = "std::unordered_map")   parts,
-    // A map from TagID -> list of prop_names
+    // A map from TagName -> list of prop_names
     // The order of the property names should match the data order specified
     //   in the NewVertex.NewTag.props
-    3: map<common.TagID, list<binary>>
+    3: map<binary, list<binary>>
         (cpp.template = "std::unordered_map")   prop_names,
     // If true, it equals an (up)sert operation.
     4: bool                                     overwritable = true,

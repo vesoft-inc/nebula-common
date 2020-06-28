@@ -88,7 +88,7 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
 folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>>
 GraphStorageClient::addVertices(GraphSpaceID space,
                                 std::vector<cpp2::NewVertex> vertices,
-                                std::unordered_map<TagID, std::vector<std::string>> propNames,
+                                std::unordered_map<std::string, std::vector<std::string>> propNames,
                                 bool overwritable,
                                 folly::EventBase* evb) {
     auto status = clusterIdsToHosts(space,

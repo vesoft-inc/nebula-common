@@ -8,6 +8,7 @@
 namespace cpp nebula
 namespace java com.vesoft.nebula
 namespace go nebula
+namespace py nebula2.common
 
 cpp_include "common/thrift/ThriftTypes.h"
 cpp_include "common/datatypes/DateOps.h"
