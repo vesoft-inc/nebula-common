@@ -35,32 +35,29 @@ const Value& ArithmeticExpression::eval(ExpressionContext& ctx) {
 }
 
 std::string ArithmeticExpression::toString() const {
-    std::string buf;
-    buf.reserve(256);
-    buf += '(';
-    buf.append(lhs_->toString());
+    std::string op;
     switch (kind_) {
         case Kind::kAdd:
-            buf += '+';
+            op = "+";
             break;
         case Kind::kMinus:
-            buf += '-';
+            op = "-";
             break;
         case Kind::kMultiply:
-            buf += '*';
+            op = "*";
             break;
         case Kind::kDivision:
-            buf += '/';
+            op = "/";
             break;
         case Kind::kMod:
-            buf += '%';
+            op = "%";
             break;
         default:
-            buf += "illegal symbol ";
+            op = "illegal symbol ";
     }
-    buf.append(rhs_->toString());
-    buf += ')';
-    return buf;
+    std::stringstream out;
+    out << "(" << lhs_->toString() << op << rhs_->toString() << ")";
+    return out.str();
 }
 
 }  // namespace nebula

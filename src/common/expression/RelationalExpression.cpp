@@ -52,38 +52,35 @@ const Value& RelationalExpression::eval(ExpressionContext& ctx) {
 }
 
 std::string RelationalExpression::toString() const {
-    std::string buf;
-    buf.reserve(256);
-    buf += '(';
-    buf.append(lhs_->toString());
+    std::string op;
     switch (kind_) {
         case Kind::kRelLT:
-            buf += '<';
+            op = "<";
             break;
         case Kind::kRelLE:
-            buf += "<=";
+            op = "<=";
             break;
         case Kind::kRelGT:
-            buf += '>';
+            op = ">";
             break;
         case Kind::kRelGE:
-            buf += ">=";
+            op = ">=";
             break;
         case Kind::kRelEQ:
-            buf += "==";
+            op = "==";
             break;
         case Kind::kRelNE:
-            buf += "!=";
+            op = "!=";
             break;
         case Kind::kRelIn:
-            buf += " IN ";
+            op = " IN ";
             break;
         default:
-            buf += "illegal symbol ";
+            op = "illegal symbol ";
     }
-    buf.append(rhs_->toString());
-    buf += ')';
-    return buf;
+    std::stringstream out;
+    out << "(" << lhs_->toString() << op << rhs_->toString() << ")";
+    return out.str();
 }
 
 }  // namespace nebula
