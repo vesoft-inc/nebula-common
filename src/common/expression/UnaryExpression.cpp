@@ -81,31 +81,29 @@ const Value& UnaryExpression::eval(ExpressionContext& ctx) {
 }
 
 std::string UnaryExpression::toString() const {
-    std::string buf;
-    buf.reserve(256);
+    std::string op;
     switch (kind_) {
         case Kind::kUnaryPlus:
-            buf += '+';
+            op = "+";
             break;
         case Kind::kUnaryNegate:
-            buf += '-';
+            op = "-";
             break;
         case Kind::kUnaryNot:
-            buf += '!';
+            op = "!";
             break;
         case Kind::kUnaryIncr:
-            buf += "+1";
+            op = "++";
             break;
         case Kind::kUnaryDecr:
-            buf += "-1";
+            op = "--";
             break;
         default:
-            buf += "illegal symbol ";
+            op = "illegal symbol ";
     }
-    buf += '(';
-    buf.append(operand_->toString());
-    buf += ')';
-    return buf;
+    std::stringstream out;
+    out << op << "(" << operand_->toString() << ")";
+    return out.str();
 }
 
 }  // namespace nebula

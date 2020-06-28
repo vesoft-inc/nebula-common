@@ -95,10 +95,8 @@ std::string EdgePropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (sym_ != nullptr) {
+    if (sym_ != nullptr && *sym_ != "") {
         buf += *sym_;
-    }
-    if (*sym_ != "") {
         buf += ".";
     }
     if (prop_ != nullptr) {
@@ -112,10 +110,8 @@ std::string InputPropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (ref_ != nullptr) {
+    if (ref_ != nullptr && *ref_ != "") {
         buf += *ref_;
-    }
-    if (*ref_ != "") {
         buf += ".";
     }
     if (prop_ != nullptr) {
@@ -132,10 +128,8 @@ std::string VariablePropertyExpression::toString() const {
     if (ref_ != nullptr) {
         buf += *ref_;
     }
-    if (sym_ != nullptr) {
+    if (sym_ != nullptr && *sym_ != "") {
         buf += *sym_;
-    }
-    if (*sym_ != "") {
         buf += ".";
     }
     if (prop_ != nullptr) {
@@ -149,16 +143,12 @@ std::string SourcePropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (ref_ != nullptr) {
+    if (ref_ != nullptr && *ref_ != "") {
         buf += *ref_;
-    }
-    if (*ref_ != "") {
         buf += ".";
     }
-    if (sym_ != nullptr) {
+    if (sym_ != nullptr && *sym_ != "") {
         buf += *sym_;
-    }
-    if (*sym_ != "") {
         buf += ".";
     }
     if (prop_ != nullptr) {
@@ -172,16 +162,12 @@ std::string DestPropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (ref_ != nullptr) {
+    if (ref_ != nullptr && *ref_ != "") {
         buf += *ref_;
-    }
-    if (*ref_ != "") {
         buf += ".";
     }
-    if (sym_ != nullptr) {
+    if (sym_ != nullptr && *sym_ != "") {
         buf += *sym_;
-    }
-    if (*sym_ != "") {
         buf += ".";
     }
     if (prop_ != nullptr) {
@@ -195,10 +181,8 @@ std::string EdgeSrcIdExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (sym_ != nullptr) {
+    if (sym_ != nullptr && *sym_ != "") {
         buf += *sym_;
-    }
-    if (*sym_ != "") {
         buf += ".";
     }
     if (prop_ != nullptr) {
@@ -212,10 +196,8 @@ std::string EdgeTypeExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (sym_ != nullptr) {
+    if (sym_ != nullptr && *sym_ != "") {
         buf += *sym_;
-    }
-    if (*sym_ != "") {
         buf += ".";
     }
     if (prop_ != nullptr) {
@@ -229,10 +211,8 @@ std::string EdgeRankExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (sym_ != nullptr) {
+    if (sym_ != nullptr && *sym_ != "") {
         buf += *sym_;
-    }
-    if (*sym_ != "") {
         buf += ".";
     }
     if (prop_ != nullptr) {
@@ -246,10 +226,8 @@ std::string EdgeDstIdExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (sym_ != nullptr) {
+    if (sym_ != nullptr && *sym_ != "") {
         buf += *sym_;
-    }
-    if (*sym_ != "") {
         buf += ".";
     }
     if (prop_ != nullptr) {

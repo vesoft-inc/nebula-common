@@ -28,26 +28,23 @@ const Value& LogicalExpression::eval(ExpressionContext& ctx) {
 }
 
 std::string LogicalExpression::toString() const {
-    std::string buf;
-    buf.reserve(256);
-    buf += '(';
-    buf.append(lhs_->toString());
+    std::string op;
     switch (kind_) {
         case Kind::kLogicalAnd:
-            buf += "&&";
+            op = "&&";
             break;
         case Kind::kLogicalOr:
-            buf += "||";
+            op = "||";
             break;
         case Kind::kLogicalXor:
-            buf += "^";
+            op = "^";
             break;
         default:
-            buf += "illegal symbol ";
+            op = "illegal symbol ";
     }
-    buf.append(rhs_->toString());
-    buf += ')';
-    return buf;
+    std::stringstream out;
+    out << "(" << lhs_->toString() << op << rhs_->toString() << ")";
+    return out.str();
 }
 
 }  // namespace nebula
