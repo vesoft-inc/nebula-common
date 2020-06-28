@@ -56,7 +56,7 @@ std::string ArithmeticExpression::toString() const {
             op = "illegal symbol ";
     }
     std::stringstream out;
-    out << "(" << lhs_->toString() << op << rhs_->toString() << ")";
+    out << "(" << "(" lhs_->toString() << ")" << op << "(" << rhs_->toString() << ")" << ")";
     return out.str();
 }
 
