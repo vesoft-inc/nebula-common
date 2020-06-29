@@ -9,6 +9,7 @@ _build/
 _build.log
 _install/
 install_manifest.txt
+Base.h.gch
 
 # ccls
 .ccls

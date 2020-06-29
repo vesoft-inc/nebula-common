@@ -62,7 +62,34 @@ struct List {
     size_t size() const {
         return values.size();
     }
+
+    std::string toString() const {
+        std::stringstream os;
+        os << "[";
+        for (const auto &v : values) {
+            os << v << ",";
+        }
+        os << "]";
+        return os.str();
+    }
 };
 
+inline std::ostream &operator<<(std::ostream& os, const List& l) {
+    return os << l.toString();
+}
+
 }  // namespace nebula
+
+namespace std {
+template<>
+struct hash<nebula::List> {
+    std::size_t operator()(const nebula::List& h) const noexcept {
+        size_t seed = 0;
+        for (auto& v : h.values) {
+            seed ^= hash<nebula::Value>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+        return seed;
+    }
+};
+}  // namespace std
 #endif  // COMMON_DATATYPES_LIST_H_
