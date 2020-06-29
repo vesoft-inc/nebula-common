@@ -144,7 +144,7 @@ struct DataSet {
 
         // body
         for (const auto &row : rows) {
-            for (const auto col : row.columns) {
+            for (const auto &col : row.columns) {
                 os << col << "|";
             }
             os << std::endl;
