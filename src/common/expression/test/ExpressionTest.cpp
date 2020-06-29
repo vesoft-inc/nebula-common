@@ -897,15 +897,15 @@ TEST_F(ExpressionTest, toStringTest) {
     }
     {
         ConstantExpression ep(List(std::vector<Value>{1, 2, 3, 4, 9, 0, -23}));
-        EXPECT_EQ(ep.toString(), "[1,2,3,4,9,0,-23,]");
+        EXPECT_EQ(ep.toString(), "[1,2,3,4,9,0,-23]");
     }
     {
         ConstantExpression ep(Map({{"hello", "world"}, {"name", "zhang"}}));
-        EXPECT_EQ(ep.toString(), "{\"name\":zhang,\"hello\":world,}");
+        EXPECT_EQ(ep.toString(), "{\"name\":zhang,\"hello\":world}");
     }
     {
         ConstantExpression ep(Set({1, 2.3, "hello", true}));
-        EXPECT_EQ(ep.toString(), "{true,2.300000,hello,1,}");
+        EXPECT_EQ(ep.toString(), "{true,2.300000,hello,1}");
     }
     {
         ConstantExpression ep(Date(1234));
@@ -913,11 +913,11 @@ TEST_F(ExpressionTest, toStringTest) {
     }
     {
         ConstantExpression ep(Edge("100", "102", 2, "like", 3, {{"likeness", 95}}));
-        EXPECT_EQ(ep.toString(), "(100)-[like]->(102)@3 likeness:95,");
+        EXPECT_EQ(ep.toString(), "(100)-[like]->(102)@3 likeness:95");
     }
     {
         ConstantExpression ep(Vertex("100", {Tag("player", {{"name", "jame"}})}));
-        EXPECT_EQ(ep.toString(), "(100) Tag: player, name:jame,");
+        EXPECT_EQ(ep.toString(), "(100) Tag: player, name:jame");
     }
     {
         TypeCastingExpression ep(Value::Type::FLOAT, new ConstantExpression(2));
@@ -947,15 +947,15 @@ TEST_F(ExpressionTest, toStringTest) {
         EXPECT_EQ(versionVar.toString(), "$name{1}");
     }
     {
-        TEST_TOSTRING(2 + 2 - 3, "((((2)+(2)))-(3))");
-        TEST_TOSTRING(true || true, "((true)||(true))");
-        TEST_TOSTRING(true && false || false, "((((true)&&(false)))||(false))");
-        TEST_TOSTRING(true == 2, "((true)==(2))");
-        TEST_TOSTRING(2 > 1 && 3 > 2, "((((2)>(1)))&&(((3)>(2))))");
-        TEST_TOSTRING((3 + 5) * 3 / (6 - 2), "((((((3)+(5)))*(3)))/(((6)-(2))))");
-        TEST_TOSTRING(76 - 100 / 20 * 4, "((76)-(((((100)/(20)))*(4))))");
-        TEST_TOSTRING(8 % 2 + 1 == 1, "((((((8)%(2)))+(1)))==(1))");
-        TEST_TOSTRING(1 == 2, "((1)==(2))");
+        TEST_TOSTRING(2 + 2 - 3, "((2)+(2))-(3)");
+        TEST_TOSTRING(true || true, "(true)||(true)");
+        TEST_TOSTRING(true && false || false, "((true)&&(false))||(false)");
+        TEST_TOSTRING(true == 2, "(true)==(2)");
+        TEST_TOSTRING(2 > 1 && 3 > 2, "((2)>(1))&&((3)>(2))");
+        TEST_TOSTRING((3 + 5) * 3 / (6 - 2), "(((3)+(5))*(3))/((6)-(2))");
+        TEST_TOSTRING(76 - 100 / 20 * 4, "(76)-(((100)/(20))*(4))");
+        TEST_TOSTRING(8 % 2 + 1 == 1, "(((8)%(2))+(1))==(1)");
+        TEST_TOSTRING(1 == 2, "(1)==(2)");
     }
 }
 

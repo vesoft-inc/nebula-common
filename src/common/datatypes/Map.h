@@ -38,12 +38,15 @@ struct Map {
     }
 
     std::string toString() const {
+        std::vector<std::string> value(kvs.size());
+        std::transform(kvs.begin(), kvs.end(), value.begin(), [](const auto &iter) -> std::string {
+            std::stringstream out;
+            out << "\"" << iter.first << "\"" << ":" << iter.second;
+            return out.str();
+        });
+
         std::stringstream os;
-        os << "{";
-        for (const auto &v : kvs) {
-            os << "\"" << v.first << "\"" << ":" << v.second << ",";
-        }
-        os << "}";
+        os << "{" << folly::join(",", value) << "}";
         return os.str();
     }
 
