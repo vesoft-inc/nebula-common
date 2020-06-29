@@ -18,6 +18,9 @@ struct Set {
     Set() = default;
     Set(const Set&) = default;
     Set(Set&&) = default;
+    explicit Set(std::unordered_set<Value>&& value) {
+        values = std::move(value);
+    }
 
     void clear() {
         values.clear();

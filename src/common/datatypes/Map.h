@@ -18,6 +18,9 @@ struct Map {
     Map() = default;
     Map(const Map&) = default;
     Map(Map&&) = default;
+    explicit Map(std::unordered_map<std::string, Value> &&values) {
+        kvs = std::move(values);
+    }
 
     Map& operator=(const Map& rhs) {
         if (this == &rhs) { return *this; }
