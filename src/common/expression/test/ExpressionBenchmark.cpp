@@ -79,20 +79,20 @@ size_t inList(size_t iters) {
         RelationalExpression expr(
                 Expression::Kind::kRelIn,
                 new ConstantExpression("aaaa"),
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list")));
+                new VariablePropertyExpression(new std::string("var"), new std::string("list")));
         eval = Expression::eval(&expr, gExpCtxt);
     }
     folly::doNotOptimizeAway(eval);
     return iters * ops;
 }
 
-size_t isNull(size_t iters, const char* var) {
+size_t isNull(size_t iters, const char* prop) {
     constexpr size_t ops = 1000000UL;
     Value eval;
     for (size_t i = 0; i < iters * ops; ++i) {
         RelationalExpression expr(
                 Expression::Kind::kRelEQ,
-                new EdgePropertyExpression(new std::string("e1"), new std::string(var)),
+                new VariablePropertyExpression(new std::string("var"), new std::string(prop)),
                 new ConstantExpression(Value(NullType::NaN)));
         eval = Expression::eval(&expr, gExpCtxt);
     }
@@ -100,20 +100,55 @@ size_t isNull(size_t iters, const char* var) {
     return iters * ops;
 }
 
-size_t isListEq(size_t iters, const char* var) {
+size_t isListEq(size_t iters, const char* prop) {
     constexpr size_t ops = 1000000UL;
     Value eval;
     for (size_t i = 0; i < iters * ops; ++i) {
         RelationalExpression expr(
                 Expression::Kind::kRelEQ,
-                new EdgePropertyExpression(new std::string("e1"), new std::string(var)),
-                new EdgePropertyExpression(new std::string("e1"), new std::string(var)));
+                new VariablePropertyExpression(new std::string("var"), new std::string(prop)),
+                new VariablePropertyExpression(new std::string("var"), new std::string(prop)));
         eval = Expression::eval(&expr, gExpCtxt);
     }
     folly::doNotOptimizeAway(eval);
     return iters * ops;
 }
 
+size_t getSrcProp(size_t iters, const char* prop) {
+    constexpr size_t ops = 1000000UL;
+    Value eval;
+    for (size_t i = 0; i < iters * ops; ++i) {
+        // $^.source.int
+        SourcePropertyExpression ep(new std::string("source"), new std::string(prop));
+        eval = Expression::eval(&ep, gExpCtxt);
+    }
+    folly::doNotOptimizeAway(eval);
+    return iters * ops;
+}
+
+size_t getDstProp(size_t iters, const char* prop) {
+    constexpr size_t ops = 1000000UL;
+    Value eval;
+    for (size_t i = 0; i < iters * ops; ++i) {
+        // $^.dest.int
+        DestPropertyExpression ep(new std::string("dest"), new std::string(prop));
+        eval = Expression::eval(&ep, gExpCtxt);
+    }
+    folly::doNotOptimizeAway(eval);
+    return iters * ops;
+}
+
+size_t getEdgeProp(size_t iters, const char* prop) {
+    constexpr size_t ops = 1000000UL;
+    Value eval;
+    for (size_t i = 0; i < iters * ops; ++i) {
+        // e1.int
+        EdgePropertyExpression ep(new std::string("e1"), new std::string(prop));
+        eval = Expression::eval(&ep, gExpCtxt);
+    }
+    folly::doNotOptimizeAway(eval);
+    return iters * ops;
+}
 // TODO(cpw): more test cases.
 
 BENCHMARK_NAMED_PARAM_MULTI(add2Constant, 1_add_2)
@@ -125,6 +160,12 @@ BENCHMARK_NAMED_PARAM_MULTI(isNull, is_list_eq_null, "list")
 BENCHMARK_NAMED_PARAM_MULTI(isNull, is_listoflist_eq_Null, "list_of_list")
 BENCHMARK_NAMED_PARAM_MULTI(isListEq, is_list_eq_list, "list")
 BENCHMARK_NAMED_PARAM_MULTI(isListEq, is_listoflist_eq_listoflist, "list_of_list")
+BENCHMARK_NAMED_PARAM_MULTI(getSrcProp, ger_src_prop_int, "int")
+BENCHMARK_NAMED_PARAM_MULTI(getSrcProp, ger_src_prop_string, "string16")
+BENCHMARK_NAMED_PARAM_MULTI(getDstProp, ger_dst_prop_int, "int")
+BENCHMARK_NAMED_PARAM_MULTI(getDstProp, ger_dst_prop_string, "string16")
+BENCHMARK_NAMED_PARAM_MULTI(getEdgeProp, ger_edge_prop_int, "int")
+BENCHMARK_NAMED_PARAM_MULTI(getEdgeProp, ger_edge_prop_string, "string16")
 }  // namespace nebula
 
 int main(int argc, char** argv) {

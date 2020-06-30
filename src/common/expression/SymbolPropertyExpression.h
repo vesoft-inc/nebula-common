@@ -75,6 +75,9 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+private:
+    Value                           result_;
 };
 
 // $-.any_prop_name
@@ -119,6 +122,9 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+private:
+    Value                           result_;
 };
 
 // $$.TagName.any_prop_name
@@ -134,6 +140,9 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+private:
+    Value                           result_;
 };
 
 // EdgeName._src
@@ -148,6 +157,9 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+private:
+    Value                           result_;
 };
 
 // EdgeName._type
@@ -162,6 +174,9 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+private:
+    Value                           result_;
 };
 
 // EdgeName._rank
@@ -176,6 +191,9 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+private:
+    Value                           result_;
 };
 
 // EdgeName._dst
@@ -190,6 +208,9 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+private:
+    Value                           result_;
 };
 }   // namespace nebula
 #endif
