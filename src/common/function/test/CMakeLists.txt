@@ -24,7 +24,7 @@ nebula_add_test(
     SOURCES
         AggregateFunctionTest.cpp
     OBJECTS
-        $<TARGET_OBJECTS:function_obj>
+        $<TARGET_OBJECTS:agg_function_obj>
         $<TARGET_OBJECTS:datatypes_obj>
         $<TARGET_OBJECTS:base_obj>
     LIBRARIES
