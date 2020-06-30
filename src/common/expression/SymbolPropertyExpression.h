@@ -143,7 +143,7 @@ public:
         : SymbolPropertyExpression(Kind::kEdgeSrc,
                                    new std::string(""),
                                    edge,
-                                   new std::string(_SRC)) {}
+                                   new std::string(kSrc)) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
@@ -157,7 +157,7 @@ public:
         : SymbolPropertyExpression(Kind::kEdgeType,
                                    new std::string(""),
                                    edge,
-                                   new std::string(_TYPE)) {}
+                                   new std::string(kType)) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
@@ -171,7 +171,7 @@ public:
         : SymbolPropertyExpression(Kind::kEdgeRank,
                                    new std::string(""),
                                    edge,
-                                   new std::string(_RANK)) {}
+                                   new std::string(kRank)) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
@@ -185,7 +185,7 @@ public:
         : SymbolPropertyExpression(Kind::kEdgeDst,
                                    new std::string(""),
                                    edge,
-                                   new std::string(_DST)) {}
+                                   new std::string(kDst)) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
