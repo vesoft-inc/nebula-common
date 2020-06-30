@@ -44,6 +44,15 @@ enum class NullType {
 
 
 struct Value {
+    static const Value kEmpty;
+    static const Value kNullValue;
+    static const Value kNullNaN;
+    static const Value kNullBadData;
+    static const Value kNullBadType;
+    static const Value kNullOverflow;
+    static const Value kNullUnknownProp;
+    static const Value kNullDivByZero;
+
     friend class apache::thrift::Cpp2Ops<Value, void>;
 
     enum class Type : uint8_t {
@@ -116,6 +125,18 @@ struct Value {
     }
     bool isNull() const {
         return type_ == Type::NULLVALUE;
+    }
+    bool isBadNull() const {
+        if (!isNull()) {
+            return false;
+        }
+        auto& null = value_.nVal;
+        return null == NullType::NaN
+            || null == NullType::BAD_DATA
+            || null == NullType::BAD_TYPE
+            || null == NullType::ERR_OVERFLOW
+            || null == NullType::UNKNOWN_PROP
+            || null == NullType::DIV_BY_ZERO;
     }
     bool isNumeric() const {
         return type_ == Type::INT || type_ == Type::FLOAT;
@@ -262,11 +283,10 @@ struct Value {
     DataSet& mutableDataSet();
 
     static const Value& null() noexcept {
-        static const Value kNullValue(NullType::__NULL__);
         return kNullValue;
     }
 
-    StatusOr<std::string> toString();
+    std::string toString() const;
 
 private:
     Type type_;
@@ -359,15 +379,7 @@ private:
 void swap(Value& a, Value& b);
 
 std::ostream& operator<<(std::ostream& os, const Value::Type& type);
-
-static const Value kEmpty;
-static const Value kNullValue(NullType::__NULL__);
-static const Value kNullNan(NullType::NaN);
-static const Value kNullBadData(NullType::BAD_DATA);
-static const Value kNullBadType(NullType::BAD_TYPE);
-static const Value kNullOverflow(NullType::ERR_OVERFLOW);
-static const Value kNullUnknownProp(NullType::UNKNOWN_PROP);
-static const Value kNullDivByZero(NullType::DIV_BY_ZERO);
+std::ostream& operator<<(std::ostream& os, const Value& value);
 
 // Arithmetic operations
 Value operator+(const Value& lhs, const Value& rhs);
@@ -388,6 +400,12 @@ bool operator>=(const Value& lhs, const Value& rhs);
 // Logical operations
 Value operator&&(const Value& lhs, const Value& rhs);
 Value operator||(const Value& lhs, const Value& rhs);
+// Visualize
+std::ostream& operator<<(std::ostream& os, const Value::Type& type);
+inline std::ostream& operator<<(std::ostream& os, const Value& value) {
+    return os << value.toString();
+}
+
 }  // namespace nebula
 
 
