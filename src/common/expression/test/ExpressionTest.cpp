@@ -984,6 +984,10 @@ TEST_F(ExpressionTest, FunctionCallToStringTest) {
         FunctionCallExpression ep(new std::string("abs"), argList);
         EXPECT_EQ(ep.toString(), "abs(-1)");
     }
+    {
+        FunctionCallExpression ep(new std::string("now"), new ArgumentList());
+        EXPECT_EQ(ep.toString(), "now()");
+    }
 }
 
 TEST_F(ExpressionTest, PropertyToStringTest) {
