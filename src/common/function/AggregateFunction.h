@@ -57,7 +57,9 @@ private:
 class Count final : public AggFun {
 public:
     void apply(const Value &val) override {
-        UNUSED(val);
+        if (val.isNull()) {
+            return;
+        }
         cnt_ = cnt_ + 1;
     }
 
@@ -73,6 +75,9 @@ private:
 class Sum final : public AggFun {
 public:
     void apply(const Value &val) override {
+        if (val.isNull()) {
+            return;
+        }
         if (UNLIKELY(!val.isNumeric())) {
             sum_ = Value(NullType::BAD_TYPE);
             return;
@@ -98,6 +103,9 @@ private:
 class Avg final : public AggFun {
 public:
     void apply(const Value &val) override {
+        if (val.isNull()) {
+            return;
+        }
         if (UNLIKELY(!val.isNumeric())) {
             avg_ = Value(NullType::BAD_TYPE);
             return;
@@ -119,6 +127,9 @@ private:
 class CountDistinct final : public AggFun {
 public:
     void apply(const Value &val) override {
+        if (val.isNull()) {
+            return;
+        }
         valueSet_.emplace(val);
     }
 
@@ -135,6 +146,9 @@ private:
 class Max final : public AggFun {
 public:
     void apply(const Value &val) override {
+        if (val.isNull()) {
+            return;
+        }
         if (max_.empty() || val > max_) {
             max_ = val;
         }
@@ -152,6 +166,9 @@ private:
 class Min final : public AggFun {
 public:
     void apply(const Value &val) override {
+        if (val.isNull()) {
+            return;
+        }
         if (min_.empty() || val < min_) {
             min_ = val;
         }
@@ -169,6 +186,9 @@ private:
 class Stdev final : public AggFun {
 public:
     void apply(const Value &val) override {
+        if (val.isNull()) {
+            return;
+        }
         if (UNLIKELY(!val.isNumeric())) {
             avg_ = Value(NullType::BAD_TYPE);
             var_ = Value(NullType::BAD_TYPE);
@@ -198,6 +218,9 @@ private:
 class BitAnd final : public AggFun {
 public:
     void apply(const Value &val) override {
+        if (val.isNull()) {
+            return;
+        }
         if (result_.empty()) {
             result_ = val;
         } else {
@@ -217,6 +240,9 @@ private:
 class BitOr final : public AggFun {
 public:
     void apply(const Value &val) override {
+        if (val.isNull()) {
+            return;
+        }
         if (result_.empty()) {
             result_ = val;
         } else {
@@ -236,6 +262,9 @@ private:
 class BitXor final : public AggFun {
 public:
     void apply(const Value &val) override {
+        if (val.isNull()) {
+            return;
+        }
         if (result_.empty()) {
             result_ = val;
         } else {
@@ -254,6 +283,9 @@ private:
 class Collect final : public AggFun {
 public:
     void apply(const Value &val) override {
+        if (val.isNull()) {
+            return;
+        }
         list_.values.emplace_back(val);
     }
 
@@ -264,7 +296,6 @@ public:
 private:
     List    list_;
 };
-
 
 }  // namespace nebula
 
