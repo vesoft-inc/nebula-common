@@ -16,10 +16,10 @@ nebula::ExpressionContextMock gExpCtxt;
 namespace nebula {
 size_t add2Constant(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    ArithmeticExpression add(
+    ArithmeticExpression expr(
             Expression::Kind::kAdd, new ConstantExpression(1), new ConstantExpression(2));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(&add, gExpCtxt);
+        Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -27,14 +27,14 @@ size_t add2Constant(size_t iters) {
 
 size_t add3Constant(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    ArithmeticExpression add(
+    ArithmeticExpression expr(
             Expression::Kind::kAdd,
             new ArithmeticExpression(
                 Expression::Kind::kAdd,
                 new ConstantExpression(1), new ConstantExpression(2)),
             new ConstantExpression(3));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(&add, gExpCtxt);
+        Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -42,14 +42,14 @@ size_t add3Constant(size_t iters) {
 
 size_t add2Constant1EdgeProp(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    ArithmeticExpression add(
+    ArithmeticExpression expr(
             Expression::Kind::kAdd,
             new ArithmeticExpression(
                 Expression::Kind::kAdd,
                 new ConstantExpression(1), new ConstantExpression(2)),
             new EdgePropertyExpression(new std::string("e1"), new std::string("int")));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(&add, gExpCtxt);
+        Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -57,12 +57,12 @@ size_t add2Constant1EdgeProp(size_t iters) {
 
 size_t concat2String(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    ArithmeticExpression add(
+    ArithmeticExpression expr(
             Expression::Kind::kAdd,
             new EdgePropertyExpression(new std::string("e1"), new std::string("string16")),
             new EdgePropertyExpression(new std::string("e1"), new std::string("string16")));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(&add, gExpCtxt);
+        Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -110,9 +110,9 @@ size_t isListEq(size_t iters, const char* prop) {
 size_t getSrcProp(size_t iters, const char* prop) {
     constexpr size_t ops = 1000000UL;
     // $^.source.int
-    SourcePropertyExpression ep(new std::string("source"), new std::string(prop));
+    SourcePropertyExpression expr(new std::string("source"), new std::string(prop));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(&ep, gExpCtxt);
+        Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -121,9 +121,9 @@ size_t getSrcProp(size_t iters, const char* prop) {
 size_t getDstProp(size_t iters, const char* prop) {
     constexpr size_t ops = 1000000UL;
     // $^.dest.int
-    DestPropertyExpression ep(new std::string("dest"), new std::string(prop));
+    DestPropertyExpression expr(new std::string("dest"), new std::string(prop));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(&ep, gExpCtxt);
+        Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -132,9 +132,9 @@ size_t getDstProp(size_t iters, const char* prop) {
 size_t getEdgeProp(size_t iters, const char* prop) {
     constexpr size_t ops = 1000000UL;
     // e1.int
-    EdgePropertyExpression ep(new std::string("e1"), new std::string(prop));
+    EdgePropertyExpression expr(new std::string("e1"), new std::string(prop));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(&ep, gExpCtxt);
+        Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
