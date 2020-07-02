@@ -1534,7 +1534,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                                                rhs.getStr().c_str());
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1555,7 +1555,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return rhs.getDate() + lhs.getInt();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1573,7 +1573,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                                                rhs.getStr().c_str());
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1604,7 +1604,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return lhs.getStr() + rhs.getDateTime().toString();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1617,7 +1617,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return lhs.getDate().toString() + rhs.getStr();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1627,12 +1627,12 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return lhs.getDateTime().toString() + rhs.getStr();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -1657,7 +1657,7 @@ Value operator-(const Value& lhs, const Value& rhs) {
                     return lhs.getInt() - rhs.getFloat();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1670,7 +1670,7 @@ Value operator-(const Value& lhs, const Value& rhs) {
                     return lhs.getFloat() - rhs.getFloat();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1683,12 +1683,12 @@ Value operator-(const Value& lhs, const Value& rhs) {
                     return lhs.getDate().toInt() - rhs.getDate().toInt();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -1713,7 +1713,7 @@ Value operator*(const Value& lhs, const Value& rhs) {
                     return lhs.getInt() * rhs.getFloat();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1726,12 +1726,12 @@ Value operator*(const Value& lhs, const Value& rhs) {
                     return lhs.getFloat() * rhs.getFloat();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -1754,7 +1754,7 @@ Value operator/(const Value& lhs, const Value& rhs) {
                     if (denom != 0) {
                         return lhs.getInt() / denom;
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 case Value::Type::FLOAT: {
@@ -1762,11 +1762,11 @@ Value operator/(const Value& lhs, const Value& rhs) {
                     if (std::abs(denom) > kEpsilon) {
                         return lhs.getInt() / denom;
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1777,7 +1777,7 @@ Value operator/(const Value& lhs, const Value& rhs) {
                     if (denom != 0) {
                         return lhs.getFloat() / denom;
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 case Value::Type::FLOAT: {
@@ -1785,16 +1785,16 @@ Value operator/(const Value& lhs, const Value& rhs) {
                     if (std::abs(denom) > kEpsilon) {
                         return lhs.getFloat() / denom;
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -1816,7 +1816,7 @@ Value operator%(const Value& lhs, const Value& rhs) {
                     if (denom != 0) {
                         return lhs.getInt() % denom;
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 case Value::Type::FLOAT: {
@@ -1824,11 +1824,11 @@ Value operator%(const Value& lhs, const Value& rhs) {
                     if (std::abs(denom) > kEpsilon) {
                         return std::fmod(lhs.getInt(), denom);
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1839,7 +1839,7 @@ Value operator%(const Value& lhs, const Value& rhs) {
                     if (denom != 0) {
                         return std::fmod(lhs.getFloat(), denom);
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 case Value::Type::FLOAT: {
@@ -1847,16 +1847,16 @@ Value operator%(const Value& lhs, const Value& rhs) {
                     if (std::abs(denom) > kEpsilon) {
                         return std::fmod(lhs.getFloat(), denom);
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -1876,7 +1876,7 @@ Value operator-(const Value& rhs) {
             return val;
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -1887,7 +1887,7 @@ Value operator!(const Value& rhs) {
     }
 
     if (rhs.type() != Value::Type::BOOL) {
-        return Value(NullType::BAD_TYPE);
+        return Value::kNullBadType;
     }
 
     auto val = rhs.getBool();
@@ -2062,7 +2062,7 @@ Value operator&&(const Value& lhs, const Value& rhs) {
             && rhs.type() == Value::Type::BOOL) {
         return lhs.getBool() && rhs.getBool();
     } else {
-        return Value(NullType::BAD_TYPE);
+        return Value::kNullBadType;
     }
 }
 
@@ -2079,7 +2079,7 @@ Value operator||(const Value& lhs, const Value& rhs) {
             && rhs.type() == Value::Type::BOOL) {
         return lhs.getBool() || rhs.getBool();
     } else {
-        return Value(NullType::BAD_TYPE);
+        return Value::kNullBadType;
     }
 }
 
@@ -2093,7 +2093,7 @@ Value operator&(const Value& lhs, const Value& rhs) {
     }
 
     if (lhs.type() != rhs.type()) {
-        return Value(NullType::BAD_TYPE);
+        return Value::kNullBadType;
     }
 
     switch (lhs.type()) {
@@ -2114,10 +2114,10 @@ Value operator&(const Value& lhs, const Value& rhs) {
         case Value::Type::MAP:
         case Value::Type::SET:
         case Value::Type::DATASET: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -2132,7 +2132,7 @@ Value operator|(const Value& lhs, const Value& rhs) {
     }
 
     if (lhs.type() != rhs.type()) {
-        return Value(NullType::BAD_TYPE);
+        return Value::kNullBadType;
     }
 
     switch (lhs.type()) {
@@ -2153,10 +2153,10 @@ Value operator|(const Value& lhs, const Value& rhs) {
         case Value::Type::MAP:
         case Value::Type::SET:
         case Value::Type::DATASET: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -2171,7 +2171,7 @@ Value operator^(const Value& lhs, const Value& rhs) {
     }
 
     if (lhs.type() != rhs.type()) {
-        return Value(NullType::BAD_TYPE);
+        return Value::kNullBadType;
     }
 
     switch (lhs.type()) {
@@ -2192,10 +2192,10 @@ Value operator^(const Value& lhs, const Value& rhs) {
         case Value::Type::MAP:
         case Value::Type::SET:
         case Value::Type::DATASET: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }

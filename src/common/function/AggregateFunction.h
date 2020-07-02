@@ -57,7 +57,7 @@ private:
 class Count final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (val.isNull()) {
+        if (val.isNull() || val.empty()) {
             return;
         }
         cnt_ = cnt_ + 1;
@@ -75,7 +75,7 @@ private:
 class Sum final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (val.isNull()) {
+        if (val.isNull() || val.empty()) {
             return;
         }
         if (UNLIKELY(!val.isNumeric())) {
@@ -103,7 +103,7 @@ private:
 class Avg final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (val.isNull()) {
+        if (val.isNull() || val.empty()) {
             return;
         }
         if (UNLIKELY(!val.isNumeric())) {
@@ -127,7 +127,7 @@ private:
 class CountDistinct final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (val.isNull()) {
+        if (val.isNull() || val.empty()) {
             return;
         }
         valueSet_.emplace(val);
@@ -146,7 +146,7 @@ private:
 class Max final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (val.isNull()) {
+        if (val.isNull() || val.empty()) {
             return;
         }
         if (max_.empty() || val > max_) {
@@ -166,7 +166,7 @@ private:
 class Min final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (val.isNull()) {
+        if (val.isNull() || val.empty()) {
             return;
         }
         if (min_.empty() || val < min_) {
@@ -186,7 +186,7 @@ private:
 class Stdev final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (val.isNull()) {
+        if (val.isNull() || val.empty()) {
             return;
         }
         if (UNLIKELY(!val.isNumeric())) {
@@ -218,7 +218,7 @@ private:
 class BitAnd final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (val.isNull()) {
+        if (val.isNull() || val.empty()) {
             return;
         }
         if (result_.empty()) {
@@ -240,7 +240,7 @@ private:
 class BitOr final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (val.isNull()) {
+        if (val.isNull() || val.empty()) {
             return;
         }
         if (result_.empty()) {
@@ -262,7 +262,7 @@ private:
 class BitXor final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (val.isNull()) {
+        if (val.isNull() || val.empty()) {
             return;
         }
         if (result_.empty()) {
@@ -283,7 +283,7 @@ private:
 class Collect final : public AggFun {
 public:
     void apply(const Value &val) override {
-        if (val.isNull()) {
+        if (val.isNull() || val.empty()) {
             return;
         }
         list_.values.emplace_back(val);

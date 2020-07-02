@@ -14,6 +14,7 @@ public:
         vals1_ = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
         vals2_ = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
         vals1_.emplace_back(Value(NullType::__NULL__));
+        vals1_.emplace_back(Value());
     }
 protected:
     static std::vector<Value>  vals1_;
