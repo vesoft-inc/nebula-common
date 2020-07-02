@@ -13,16 +13,19 @@ public:
     static void SetUpTestCase() {
         vals1_ = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
         vals2_ = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        vals1_.emplace_back(Value(NullType::__NULL__));
-        vals1_.emplace_back(Value());
+        vals2_.emplace_back(Value(NullType::__NULL__));
+        vals2_.emplace_back(Value());
+        vals3_ = std::vector<Value>(10, Value::kNullValue);
     }
 protected:
     static std::vector<Value>  vals1_;
     static std::vector<Value>  vals2_;
+    static std::vector<Value>  vals3_;
 };
 
 std::vector<Value>  AggregateFunctionTest::vals1_;
 std::vector<Value>  AggregateFunctionTest::vals2_;
+std::vector<Value>  AggregateFunctionTest::vals3_;
 
 TEST_F(AggregateFunctionTest, Group) {
     auto group = AggFun::aggFunMap_[AggFun::Function::kNone]();
@@ -45,6 +48,13 @@ TEST_F(AggregateFunctionTest, Count) {
         }
         EXPECT_EQ(cnt->getResult(), 10);
     }
+    {
+        auto cnt = AggFun::aggFunMap_[AggFun::Function::kCount]();
+        for (auto& val : vals3_) {
+            cnt->apply(val);
+        }
+        EXPECT_EQ(cnt->getResult(), 0);
+    }
 }
 
 TEST_F(AggregateFunctionTest, Sum) {
@@ -61,6 +71,13 @@ TEST_F(AggregateFunctionTest, Sum) {
             sum->apply(val);
         }
         EXPECT_EQ(sum->getResult(), 45);
+    }
+    {
+        auto sum = AggFun::aggFunMap_[AggFun::Function::kSum]();
+        for (auto& val : vals3_) {
+            sum->apply(val);
+        }
+        EXPECT_EQ(sum->getResult(), Value::kNullValue);
     }
 }
 
@@ -79,6 +96,13 @@ TEST_F(AggregateFunctionTest, Avg) {
         }
         EXPECT_EQ(avg->getResult(), 4.5);
     }
+    {
+        auto avg = AggFun::aggFunMap_[AggFun::Function::kAvg]();
+        for (auto& val : vals3_) {
+            avg->apply(val);
+        }
+        EXPECT_EQ(avg->getResult(), Value::kNullValue);
+    }
 }
 
 TEST_F(AggregateFunctionTest, CountDistinct) {
@@ -95,6 +119,13 @@ TEST_F(AggregateFunctionTest, CountDistinct) {
             ct->apply(val);
         }
         EXPECT_EQ(ct->getResult(), 10);
+    }
+    {
+        auto ct = AggFun::aggFunMap_[AggFun::Function::kCountDist]();
+        for (auto& val : vals3_) {
+            ct->apply(val);
+        }
+        EXPECT_EQ(ct->getResult(), 0);
     }
     {
         auto ct = AggFun::aggFunMap_[AggFun::Function::kCountDist]();
@@ -120,6 +151,13 @@ TEST_F(AggregateFunctionTest, Max) {
         }
         EXPECT_EQ(max->getResult(), 9);
     }
+    {
+        auto max = AggFun::aggFunMap_[AggFun::Function::kMax]();
+        for (auto& val : vals3_) {
+            max->apply(val);
+        }
+        EXPECT_EQ(max->getResult(), Value::kNullValue);
+    }
 }
 
 TEST_F(AggregateFunctionTest, Min) {
@@ -136,6 +174,13 @@ TEST_F(AggregateFunctionTest, Min) {
             min->apply(val);
         }
         EXPECT_EQ(min->getResult(), 0);
+    }
+    {
+        auto min = AggFun::aggFunMap_[AggFun::Function::kMin]();
+        for (auto& val : vals3_) {
+            min->apply(val);
+        }
+        EXPECT_EQ(min->getResult(), Value::kNullValue);
     }
 }
 
@@ -154,6 +199,13 @@ TEST_F(AggregateFunctionTest, Stdev) {
         }
         EXPECT_EQ(stdev->getResult(), 2.87228132327);
     }
+    {
+        auto stdev = AggFun::aggFunMap_[AggFun::Function::kStdev]();
+        for (auto& val : vals3_) {
+            stdev->apply(val);
+        }
+        EXPECT_EQ(stdev->getResult(), Value::kNullValue);
+    }
 }
 
 TEST_F(AggregateFunctionTest, BitAnd) {
@@ -166,10 +218,17 @@ TEST_F(AggregateFunctionTest, BitAnd) {
     }
     {
         auto bitAnd = AggFun::aggFunMap_[AggFun::Function::kBitAnd]();
-        for (auto& val : vals1_) {
+        for (auto& val : vals2_) {
             bitAnd->apply(val);
         }
         EXPECT_EQ(bitAnd->getResult(), 0);
+    }
+    {
+        auto bitAnd = AggFun::aggFunMap_[AggFun::Function::kBitAnd]();
+        for (auto& val : vals3_) {
+            bitAnd->apply(val);
+        }
+        EXPECT_EQ(bitAnd->getResult(), Value::kNullValue);
     }
 }
 
@@ -188,6 +247,13 @@ TEST_F(AggregateFunctionTest, BitOr) {
         }
         EXPECT_EQ(bitOr->getResult(), 15);
     }
+    {
+        auto bitOr = AggFun::aggFunMap_[AggFun::Function::kBitOr]();
+        for (auto& val : vals3_) {
+            bitOr->apply(val);
+        }
+        EXPECT_EQ(bitOr->getResult(), Value::kNullValue);
+    }
 }
 
 TEST_F(AggregateFunctionTest, BitXor) {
@@ -196,14 +262,21 @@ TEST_F(AggregateFunctionTest, BitXor) {
         for (auto& val : vals1_) {
             bitXor->apply(val);
         }
-        EXPECT_EQ(bitXor->getResult().getInt(), 1);
+        EXPECT_EQ(bitXor->getResult(), 1);
     }
     {
         auto bitXor = AggFun::aggFunMap_[AggFun::Function::kBitXor]();
         for (auto& val : vals2_) {
             bitXor->apply(val);
         }
-        EXPECT_EQ(bitXor->getResult().getInt(), 1);
+        EXPECT_EQ(bitXor->getResult(), 1);
+    }
+    {
+        auto bitXor = AggFun::aggFunMap_[AggFun::Function::kBitXor]();
+        for (auto& val : vals3_) {
+            bitXor->apply(val);
+        }
+        EXPECT_EQ(bitXor->getResult(), Value::kNullValue);
     }
 }
 }  // namespace nebula

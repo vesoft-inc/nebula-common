@@ -83,7 +83,7 @@ public:
             return;
         }
 
-        if (sum_.empty()) {
+        if (sum_.isNull()) {
             sum_ = val;
         } else {
             // TODO: Support += for value.
@@ -96,7 +96,7 @@ public:
     }
 
 private:
-    Value   sum_;
+    Value   sum_{NullType::__NULL__};
 };
 
 
@@ -115,7 +115,7 @@ public:
     }
 
     Value getResult() override {
-        return avg_;
+        return cnt_ > 0 ? avg_ : Value::kNullValue;
     }
 
 private:
@@ -149,7 +149,7 @@ public:
         if (val.isNull() || val.empty()) {
             return;
         }
-        if (max_.empty() || val > max_) {
+        if (max_.isNull() || val > max_) {
             max_ = val;
         }
     }
@@ -159,7 +159,7 @@ public:
     }
 
 private:
-    Value     max_;
+    Value     max_{NullType::__NULL__};
 };
 
 
@@ -169,7 +169,7 @@ public:
         if (val.isNull() || val.empty()) {
             return;
         }
-        if (min_.empty() || val < min_) {
+        if (min_.isNull() || val < min_) {
             min_ = val;
         }
     }
@@ -179,7 +179,7 @@ public:
     }
 
 private:
-    Value       min_;
+    Value       min_{NullType::__NULL__};
 };
 
 
@@ -201,7 +201,9 @@ public:
     }
 
     Value getResult() override {
-        if (var_.empty() || var_.isNull()) {
+        if (cnt_ <= 0) {
+            return Value::kNullValue;
+        } else if (var_.empty() || var_.isNull()) {
             return var_;
         } else {
             return std::sqrt(var_.getFloat());
@@ -221,7 +223,7 @@ public:
         if (val.isNull() || val.empty()) {
             return;
         }
-        if (result_.empty()) {
+        if (result_.isNull()) {
             result_ = val;
         } else {
             result_  = result_ & val;
@@ -233,7 +235,7 @@ public:
     }
 
 private:
-    Value result_;
+    Value result_{NullType::__NULL__};
 };
 
 
@@ -243,7 +245,7 @@ public:
         if (val.isNull() || val.empty()) {
             return;
         }
-        if (result_.empty()) {
+        if (result_.isNull()) {
             result_ = val;
         } else {
             result_  = result_ | val;
@@ -255,7 +257,7 @@ public:
     }
 
 private:
-    Value result_;
+    Value result_{NullType::__NULL__};
 };
 
 
@@ -265,7 +267,7 @@ public:
         if (val.isNull() || val.empty()) {
             return;
         }
-        if (result_.empty()) {
+        if (result_.isNull()) {
             result_ = val;
         } else {
             result_  = result_ ^ val;
@@ -277,7 +279,7 @@ public:
     }
 
 private:
-    Value result_;
+    Value result_{NullType::__NULL__};
 };
 
 class Collect final : public AggFun {
