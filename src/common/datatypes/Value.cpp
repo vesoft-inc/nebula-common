@@ -1894,11 +1894,23 @@ Value operator!(const Value& rhs) {
 }
 
 bool operator<(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull() || rhs.isNull()) {
-        return false;
-    }
+     if (lhs == rhs) {
+         return false;
+     }
+     // null is the biggest, empty is the smallest
+     if (lhs.isNull()) {
+         return false;
+     }
 
-    if (lhs.empty() || rhs.empty()) {
+     if (rhs.isNull()) {
+         return true;
+     }
+
+     if (lhs.empty()) {
+         return true;
+     }
+
+     if (rhs.empty()) {
         return false;
     }
 
