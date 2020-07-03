@@ -27,16 +27,16 @@ public:
 
     std::string toString() const override;
 
+    const Expression* operand() const {
+        return operand_.get();
+    }
+
 protected:
     bool traversal(Visitor visitor) const override {
         if (!visitor(this)) {
             return false;
         }
         return operand_->traversal(visitor);
-    }
-
-    const Expression* operand() const {
-        return operand_.get();
     }
 
 private:
