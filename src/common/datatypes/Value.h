@@ -55,11 +55,11 @@ struct Value {
 
     friend class apache::thrift::Cpp2Ops<Value, void>;
 
-    enum Type : uint64_t {
+    enum class Type : uint64_t {
         __EMPTY__ = 1,
-        INT       = 1 << 1,
-        FLOAT     = 1 << 2,
-        BOOL      = 1 << 3,
+        BOOL      = 1 << 1,
+        INT       = 1 << 2,
+        FLOAT     = 1 << 3,
         STRING    = 1 << 4,
         DATE      = 1 << 5,
         DATETIME  = 1 << 6,
@@ -391,6 +391,10 @@ Value operator%(const Value& lhs, const Value& rhs);
 Value operator-(const Value& rhs);
 Value operator!(const Value& rhs);
 // Comparison operations
+// 1. we compare the type directly in these cases:
+//  if type do not match except both numeric
+//  if lhs and rhs have at least one null or empty
+// 2. null is the biggest, empty is the smallest
 bool operator< (const Value& lhs, const Value& rhs);
 bool operator==(const Value& lhs, const Value& rhs);
 bool operator!=(const Value& lhs, const Value& rhs);
@@ -404,6 +408,13 @@ Value operator||(const Value& lhs, const Value& rhs);
 std::ostream& operator<<(std::ostream& os, const Value::Type& type);
 inline std::ostream& operator<<(std::ostream& os, const Value& value) {
     return os << value.toString();
+}
+
+inline uint64_t operator|(const Value::Type& lhs, const Value::Type& rhs) {
+    return static_cast<uint64_t>(lhs) | static_cast<uint64_t>(rhs);
+}
+inline uint64_t operator&(const Value::Type& lhs, const Value::Type& rhs) {
+    return static_cast<uint64_t>(lhs) & static_cast<uint64_t>(rhs);
 }
 
 }  // namespace nebula

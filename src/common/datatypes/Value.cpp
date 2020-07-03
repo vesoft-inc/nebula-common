@@ -1897,22 +1897,19 @@ Value operator!(const Value& rhs) {
 }
 
 bool operator<(const Value& lhs, const Value& rhs) {
-    // null is the biggest, empty is the smallest
-    if ((lhs.type() | rhs.type()) & kEmptyNullType) {
-        return lhs.type() < rhs.type();
+    auto lType = lhs.type();
+    auto rType = rhs.type();
+    if (((lType | rType) & kEmptyNullType)
+            || (!(lType & rType) && ((lType | rType) & kNumericType) != kNumericType)) {
+        return lType < rType;
     }
 
-    // operator < apply to the same type value except numeric
-    if (!((lhs.type() & rhs.type()) | kNumericType)) {
-        return false;
-    }
-
-    switch (lhs.type()) {
+    switch (lType) {
         case Value::Type::BOOL: {
             return lhs.getBool() < rhs.getBool();
         }
         case Value::Type::INT: {
-            switch (rhs.type()) {
+            switch (rType) {
                 case Value::Type::INT: {
                     return lhs.getInt() < rhs.getInt();
                 }
@@ -1925,7 +1922,7 @@ bool operator<(const Value& lhs, const Value& rhs) {
             }
         }
         case Value::Type::FLOAT: {
-            switch (rhs.type()) {
+            switch (rType) {
                 case Value::Type::INT: {
                     return lhs.getFloat() < rhs.getInt();
                 }
@@ -1961,29 +1958,19 @@ bool operator<(const Value& lhs, const Value& rhs) {
 }
 
 bool operator==(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull() && rhs.isNull()) {
-        return true;
-    } else if (lhs.isNull() || rhs.isNull()) {
-        return false;
+    auto lType = lhs.type();
+    auto rType = rhs.type();
+    if (((lType | rType) & kEmptyNullType)
+            || (!(lType & rType) && ((lType | rType) & kNumericType) != kNumericType)) {
+        return lhs.type() == rhs.type();
     }
 
-    if (lhs.empty() && rhs.empty()) {
-        return true;
-    } else if (lhs.empty() || rhs.empty()) {
-        return false;
-    }
-
-    if (!(lhs.isNumeric() && rhs.isNumeric())
-            && (lhs.type() != rhs.type())) {
-        return false;
-    }
-
-    switch (lhs.type()) {
+    switch (lType) {
         case Value::Type::BOOL: {
             return lhs.getBool() == rhs.getBool();
         }
         case Value::Type::INT: {
-            switch (rhs.type()) {
+            switch (rType) {
                 case Value::Type::INT: {
                     return lhs.getInt() == rhs.getInt();
                 }
@@ -1996,7 +1983,7 @@ bool operator==(const Value& lhs, const Value& rhs) {
             }
         }
         case Value::Type::FLOAT: {
-            switch (rhs.type()) {
+            switch (rType) {
                 case Value::Type::INT: {
                     return std::abs(lhs.getFloat() - rhs.getInt()) < EPSILON;
                 }
