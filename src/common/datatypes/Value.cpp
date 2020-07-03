@@ -90,6 +90,9 @@ const Value Value::kNullOverflow(NullType::ERR_OVERFLOW);
 const Value Value::kNullUnknownProp(NullType::UNKNOWN_PROP);
 const Value Value::kNullDivByZero(NullType::DIV_BY_ZERO);
 
+const uint64_t kEmptyNullType = Value::Type::__EMPTY__ | Value::Type::NULLVALUE;
+const uint64_t kNumericType   = Value::Type::INT | Value::Type::FLOAT;
+
 Value::Value(Value&& rhs) : type_(Value::Type::__EMPTY__) {
     if (this == &rhs) { return; }
     if (rhs.type_ == Type::__EMPTY__) { return; }
@@ -1894,20 +1897,13 @@ Value operator!(const Value& rhs) {
 }
 
 bool operator<(const Value& lhs, const Value& rhs) {
-     if (lhs == rhs) {
-         return false;
-     }
-     // null is the biggest, empty is the smallest
-     if (lhs.isNull() || rhs.empty()) {
-         return false;
-     }
+    // null is the biggest, empty is the smallest
+    if ((lhs.type() | rhs.type()) & kEmptyNullType) {
+        return lhs.type() < rhs.type();
+    }
 
-     if (rhs.isNull() || lhs.empty()) {
-         return true;
-     }
-
-    if (!(lhs.isNumeric() && rhs.isNumeric())
-            && (lhs.type() != rhs.type())) {
+    // operator < apply to the same type value except numeric
+    if (!((lhs.type() & rhs.type()) | kNumericType)) {
         return false;
     }
 

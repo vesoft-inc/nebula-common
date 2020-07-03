@@ -55,22 +55,22 @@ struct Value {
 
     friend class apache::thrift::Cpp2Ops<Value, void>;
 
-    enum class Type : uint8_t {
-        __EMPTY__ = 0,
-        NULLVALUE = 1,
-        BOOL = 2,
-        INT = 3,
-        FLOAT = 4,
-        STRING = 5,
-        DATE = 6,
-        DATETIME = 7,
-        VERTEX = 8,
-        EDGE = 9,
-        PATH = 10,
-        LIST = 11,
-        MAP = 12,
-        SET = 13,
-        DATASET = 14,
+    enum Type : uint64_t {
+        __EMPTY__ = 1,
+        INT       = 1 << 1,
+        FLOAT     = 1 << 2,
+        BOOL      = 1 << 3,
+        STRING    = 1 << 4,
+        DATE      = 1 << 5,
+        DATETIME  = 1 << 6,
+        VERTEX    = 1 << 7,
+        EDGE      = 1 << 8,
+        PATH      = 1 << 9,
+        LIST      = 1 << 10,
+        MAP       = 1 << 11,
+        SET       = 1 << 12,
+        DATASET   = 1 << 13,
+        NULLVALUE = 0x8000000,
     };
 
     // Constructors
