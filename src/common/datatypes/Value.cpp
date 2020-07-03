@@ -1898,21 +1898,13 @@ bool operator<(const Value& lhs, const Value& rhs) {
          return false;
      }
      // null is the biggest, empty is the smallest
-     if (lhs.isNull()) {
+     if (lhs.isNull() || rhs.empty()) {
          return false;
      }
 
-     if (rhs.isNull()) {
+     if (rhs.isNull() || lhs.empty()) {
          return true;
      }
-
-     if (lhs.empty()) {
-         return true;
-     }
-
-     if (rhs.empty()) {
-        return false;
-    }
 
     if (!(lhs.isNumeric() && rhs.isNumeric())
             && (lhs.type() != rhs.type())) {
