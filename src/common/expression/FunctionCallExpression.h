@@ -53,6 +53,15 @@ public:
 
     std::string toString() const override;
 
+    const std::string* name() const {
+        return name_.get();
+    }
+
+    const ArgumentList* args() const {
+        return args_.get();
+    }
+
+
 protected:
     bool traversal(Visitor visitor) const override {
         if (!visitor(this)) {
@@ -64,14 +73,6 @@ protected:
             }
         }
         return true;
-    }
-
-    const std::string* name() const {
-        return name_.get();
-    }
-
-    const ArgumentList* args() const {
-        return args_.get();
     }
 
 private:
