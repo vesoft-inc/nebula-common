@@ -1899,8 +1899,10 @@ Value operator!(const Value& rhs) {
 bool operator<(const Value& lhs, const Value& rhs) {
     auto lType = lhs.type();
     auto rType = rhs.type();
-    if (((lType | rType) & kEmptyNullType)
-            || (!(lType & rType) && ((lType | rType) & kNumericType) != kNumericType)) {
+    auto hasNullOrEmpty = (lType | rType) & kEmptyNullType;
+    auto notSameType = lType != rType;
+    auto notBothNumeric = ((lType | rType) & kNumericType) != kNumericType;
+    if (hasNullOrEmpty || (notSameType && notBothNumeric)) {
         return lType < rType;
     }
 
@@ -1960,8 +1962,10 @@ bool operator<(const Value& lhs, const Value& rhs) {
 bool operator==(const Value& lhs, const Value& rhs) {
     auto lType = lhs.type();
     auto rType = rhs.type();
-    if (((lType | rType) & kEmptyNullType)
-            || (!(lType & rType) && ((lType | rType) & kNumericType) != kNumericType)) {
+    auto hasNullOrEmpty = (lType | rType) & kEmptyNullType;
+    auto notSameType = lType != rType;
+    auto notBothNumeric = ((lType | rType) & kNumericType) != kNumericType;
+    if (hasNullOrEmpty || (notSameType && notBothNumeric)) {
         return lhs.type() == rhs.type();
     }
 
