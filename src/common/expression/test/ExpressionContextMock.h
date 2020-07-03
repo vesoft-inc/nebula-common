@@ -78,7 +78,7 @@ public:
         }
     }
 
-    Value getDstProp(const std::string& tag,
+    const Value& getDstProp(const std::string& tag,
                             const std::string& prop) const override {
         UNUSED(tag);
         auto found = vals_.find(prop);

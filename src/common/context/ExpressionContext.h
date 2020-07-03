@@ -45,7 +45,7 @@ public:
                              const std::string& prop) const = 0;
 
     // Get the specified property from the destination vertex, such as $$.tag_name.prop_name
-    virtual Value getDstProp(const std::string& tag,
+    virtual const Value& getDstProp(const std::string& tag,
                                     const std::string& prop) const = 0;
 
     // Get the specified property from the input, such as $-.prop_name

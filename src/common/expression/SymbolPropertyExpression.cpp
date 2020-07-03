@@ -69,8 +69,7 @@ const Value& SourcePropertyExpression::eval(ExpressionContext& ctx) {
 
 
 const Value& DestPropertyExpression::eval(ExpressionContext& ctx) {
-    result_ = ctx.getDstProp(*sym_, *prop_);
-    return result_;
+    return ctx.getDstProp(*sym_, *prop_);
 }
 
 
