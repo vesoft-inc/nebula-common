@@ -24,10 +24,7 @@ public:
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
+    std::string toString() const override;
 
 protected:
     bool traversal(Visitor visitor) const override {

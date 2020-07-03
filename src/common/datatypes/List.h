@@ -21,6 +21,20 @@ struct List {
     explicit List(std::vector<Value>&& vals) {
         values = std::move(vals);
     }
+    explicit List(const std::vector<Value> &l) : values(l) {}
+
+    bool empty() const {
+        return values.empty();
+    }
+
+    void reserve(std::size_t n) {
+        values.reserve(n);
+    }
+
+    template <typename T, typename = std::enable_if_t<std::is_convertible<T, Value>::value>>
+    void emplace_back(T &&v) {
+        values.emplace_back(std::forward<T>(v));
+    }
 
     void clear() {
         values.clear();
@@ -50,12 +64,13 @@ struct List {
     }
 
     std::string toString() const {
+        std::vector<std::string> value(values.size());
+        std::transform(
+            values.begin(), values.end(), value.begin(), [](const auto& v) -> std::string {
+                return v.toString();
+            });
         std::stringstream os;
-        os << "[";
-        for (const auto &v : values) {
-            os << v << ",";
-        }
-        os << "]";
+        os << "[" << folly::join(",", value) << "]";
         return os.str();
     }
 };

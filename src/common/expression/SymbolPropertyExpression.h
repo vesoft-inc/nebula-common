@@ -74,10 +74,7 @@ public:
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
+    std::string toString() const override;
 };
 
 // $-.any_prop_name
@@ -91,10 +88,7 @@ public:
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
+    std::string toString() const override;
 };
 
 // $VarName.any_prop_name
@@ -109,10 +103,7 @@ public:
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
+    std::string toString() const override;
 };
 
 // $^.TagName.any_prop_name
@@ -127,10 +118,7 @@ public:
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
+    std::string toString() const override;
 };
 
 // $$.TagName.any_prop_name
@@ -145,10 +133,7 @@ public:
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
+    std::string toString() const override;
 };
 
 // EdgeName._src
@@ -158,14 +143,11 @@ public:
         : SymbolPropertyExpression(Kind::kEdgeSrc,
                                    new std::string(""),
                                    edge,
-                                   new std::string(_SRC)) {}
+                                   new std::string(kSrc)) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
+    std::string toString() const override;
 };
 
 // EdgeName._type
@@ -175,14 +157,11 @@ public:
         : SymbolPropertyExpression(Kind::kEdgeType,
                                    new std::string(""),
                                    edge,
-                                   new std::string(_TYPE)) {}
+                                   new std::string(kType)) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
+    std::string toString() const override;
 };
 
 // EdgeName._rank
@@ -192,14 +171,11 @@ public:
         : SymbolPropertyExpression(Kind::kEdgeRank,
                                    new std::string(""),
                                    edge,
-                                   new std::string(_RANK)) {}
+                                   new std::string(kRank)) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
+    std::string toString() const override;
 };
 
 // EdgeName._dst
@@ -209,14 +185,11 @@ public:
         : SymbolPropertyExpression(Kind::kEdgeDst,
                                    new std::string(""),
                                    edge,
-                                   new std::string(_DST)) {}
+                                   new std::string(kDst)) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    std::string toString() const override {
-        // TODO
-        return "";
-    }
+    std::string toString() const override;
 };
 }   // namespace nebula
 #endif
