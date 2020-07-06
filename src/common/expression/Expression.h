@@ -192,14 +192,14 @@ public:
     }
 
     bool isStorage() const {
-        return hasAnyKind(Kind::kSymProperty,
-                          Kind::kEdgeProperty,
-                          Kind::kDstProperty,
-                          Kind::kSrcProperty,
-                          Kind::kEdgeSrc,
-                          Kind::kEdgeType,
-                          Kind::kEdgeRank,
-                          Kind::kEdgeDst);
+        return isAnyKind(Kind::kSymProperty,
+                         Kind::kEdgeProperty,
+                         Kind::kDstProperty,
+                         Kind::kSrcProperty,
+                         Kind::kEdgeSrc,
+                         Kind::kEdgeType,
+                         Kind::kEdgeRank,
+                         Kind::kEdgeDst);
     }
 
     bool isConstExpr() const {
