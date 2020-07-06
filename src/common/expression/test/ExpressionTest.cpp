@@ -11,6 +11,8 @@
 #include "common/datatypes/Map.h"
 #include "common/datatypes/Set.h"
 #include "common/datatypes/DataSet.h"
+#include "common/datatypes/Edge.h"
+#include "common/datatypes/Vertex.h"
 #include "common/expression/test/ExpressionContextMock.h"
 #include "common/expression/ArithmeticExpression.h"
 #include "common/expression/ConstantExpression.h"
@@ -20,6 +22,7 @@
 #include "common/expression/VariableExpression.h"
 #include "common/expression/LogicalExpression.h"
 #include "common/expression/FunctionCallExpression.h"
+#include "common/expression/TypeCastingExpression.h"
 
 nebula::ExpressionContextMock gExpCtxt;
 
@@ -164,6 +167,27 @@ protected:
         EXPECT_EQ(eval, expected);
         delete ep;
     }
+
+    void testToString(const std::string &exprSymbol, const char *expected) {
+        std::string expr(exprSymbol);
+        InsertSpace(expr);
+        std::vector<std::string> splitString;
+        boost::split(splitString, expr, boost::is_any_of(" \t"));
+        Expression *ep = ExpressionCalu(splitString);
+        EXPECT_EQ(ep->toString(), expected);
+        delete ep;
+    }
+
+    void testFunction(const char *name, const std::vector<Value> &args, const Value &expected) {
+        ArgumentList *argList = new ArgumentList();
+        for (const auto &i : args) {
+            argList->addArgument(std::make_unique<ConstantExpression>(std::move(i)));
+        }
+        FunctionCallExpression functionCall(new std::string(name), argList);
+        auto eval = Expression::eval(&functionCall, gExpCtxt);
+        // EXPECT_EQ(eval.type(), expected.type());
+        EXPECT_EQ(eval, expected);
+    }
 };
 
 std::unordered_map<std::string, Expression::Kind> ExpressionTest::op_ = {
@@ -186,11 +210,39 @@ std::unordered_map<std::string, Expression::Kind> ExpressionTest::op_ = {
 std::unordered_map<std::string, Value> ExpressionTest::boolen_ = {{"true", Value(true)},
                                                                   {"false", Value(false)}};
 
+static std::unordered_map<std::string, std::vector<Value>> args_ = {
+    {"null", {}},
+    {"int", {4}},
+    {"float", {1.1}},
+    {"neg_int", {-1}},
+    {"neg_float", {-1.1}},
+    {"rand", {1, 10}},
+    {"one", {-1.2}},
+    {"two", {2, 4}},
+    {"pow", {2, 3}},
+    {"string", {"AbcDeFG"}},
+    {"trim", {" abc  "}},
+    {"substr", {"abcdefghi", 2, 4}},
+    {"side", {"abcdefghijklmnopq", 5}},
+    {"neg_side", {"abcdefghijklmnopq", -2}},
+    {"pad", {"abcdefghijkl", 16, "123"}},
+    {"udf_is_in", {4, 1, 2, 8, 4, 3, 1, 0}}};
+
 // expr -- the expression can evaluate by nGQL parser may not evaluated by c++
 // expected -- the expected value of expression must evaluated by c++
 #define TEST_EXPR(expr, expected)                                                                  \
     do {                                                                                           \
         testExpr(#expr, expected);                                                                 \
+    } while (0);
+
+#define TEST_FUNCTION(expr, args, expected)                                                        \
+    do {                                                                                           \
+        testFunction(#expr, args, expected);                                                       \
+    } while (0);
+
+#define TEST_TOSTRING(expr, expected)                                                              \
+    do {                                                                                           \
+        testToString(#expr, expected);                                                             \
     } while (0);
 
 TEST_F(ExpressionTest, Constant) {
@@ -432,16 +484,16 @@ TEST_F(ExpressionTest, LiteralConstantsRelational) {
         TEST_EXPR(true != 1.0, true);
         TEST_EXPR(true != 2.0, true);
         TEST_EXPR(true > 1.0, false);
-        TEST_EXPR(true >= 1.0, true);
-        TEST_EXPR(true < 1.0, false);
+        TEST_EXPR(true >= 1.0, false);
+        TEST_EXPR(true < 1.0, true);
         TEST_EXPR(true <= 1.0, true);
         TEST_EXPR(false == 0.0, false);
         TEST_EXPR(false == 1.0, false);
         TEST_EXPR(false != 0.0, true);
         TEST_EXPR(false != 1.0, true);
         TEST_EXPR(false > 0.0, false);
-        TEST_EXPR(false >= 0.0, true);
-        TEST_EXPR(false < 0.0, false);
+        TEST_EXPR(false >= 0.0, false);
+        TEST_EXPR(false < 0.0, true);
         TEST_EXPR(false <= 0.0, true);
 
         TEST_EXPR(true == 1, false);
@@ -449,16 +501,16 @@ TEST_F(ExpressionTest, LiteralConstantsRelational) {
         TEST_EXPR(true != 1, true);
         TEST_EXPR(true != 2, true);
         TEST_EXPR(true > 1, false);
-        TEST_EXPR(true >= 1, true);
-        TEST_EXPR(true < 1, false);
+        TEST_EXPR(true >= 1, false);
+        TEST_EXPR(true < 1, true);
         TEST_EXPR(true <= 1, true);
         TEST_EXPR(false == 0, false);
         TEST_EXPR(false == 1, false);
         TEST_EXPR(false != 0, true);
         TEST_EXPR(false != 1, true);
         TEST_EXPR(false > 0, false);
-        TEST_EXPR(false >= 0, true);
-        TEST_EXPR(false < 0, false);
+        TEST_EXPR(false >= 0, false);
+        TEST_EXPR(false < 0, true);
         TEST_EXPR(false <= 0, true);
     }
     {
@@ -526,12 +578,51 @@ TEST_F(ExpressionTest, LiteralConstantsRelational) {
     }
 }
 
-TEST_F(ExpressionTest, FunctionCall) {
+
+TEST_F(ExpressionTest, FunctionCallTest) {
     {
-        FunctionCallExpression functionCall(new std::string("int"), new ArgumentList());
-        auto eval = Expression::eval(&functionCall, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::__EMPTY__);
-        EXPECT_EQ(eval, Value());
+        TEST_FUNCTION(abs, args_["neg_int"], 1);
+        TEST_FUNCTION(abs, args_["neg_float"], 1.1);
+        TEST_FUNCTION(abs, args_["int"], 4);
+        TEST_FUNCTION(abs, args_["float"], 1.1);
+    }
+    {
+        TEST_FUNCTION(floor, args_["neg_int"], -1);
+        TEST_FUNCTION(floor, args_["float"], 1);
+        TEST_FUNCTION(floor, args_["neg_float"], -2);
+        TEST_FUNCTION(floor, args_["int"], 4);
+    }
+    {
+        TEST_FUNCTION(sqrt, args_["int"], 2);
+        TEST_FUNCTION(sqrt, args_["float"], std::sqrt(1.1));
+    }
+    {
+        TEST_FUNCTION(pow, args_["pow"], 8);
+        TEST_FUNCTION(exp, args_["int"], std::exp(4));
+        TEST_FUNCTION(exp2, args_["int"], 16);
+
+        TEST_FUNCTION(log, args_["int"], std::log(4));
+        TEST_FUNCTION(log2, args_["int"], 2);
+    }
+    {
+        TEST_FUNCTION(lower, args_["string"], "abcdefg");
+        TEST_FUNCTION(upper, args_["string"], "ABCDEFG");
+        TEST_FUNCTION(length, args_["string"], 7);
+
+        TEST_FUNCTION(trim, args_["trim"], "abc");
+        TEST_FUNCTION(ltrim, args_["trim"], "abc  ");
+        TEST_FUNCTION(rtrim, args_["trim"], " abc");
+    }
+    {
+        TEST_FUNCTION(substr, args_["substr"], "bcde");
+        TEST_FUNCTION(left, args_["side"], "abcde");
+        TEST_FUNCTION(right, args_["side"], "mnopq");
+        TEST_FUNCTION(left, args_["neg_side"], "");
+        TEST_FUNCTION(right, args_["neg_side"], "");
+
+        TEST_FUNCTION(lpad, args_["pad"], "1231abcdefghijkl");
+        TEST_FUNCTION(rpad, args_["pad"], "abcdefghijkl1231");
+        TEST_FUNCTION(udf_is_in, args_["udf_is_in"], true);
     }
 }
 
@@ -790,5 +881,152 @@ TEST_F(ExpressionTest, VersionedVar) {
         EXPECT_EQ(eval, 2);
     }
 }
-// TODO(cpw): more test cases.
+
+TEST_F(ExpressionTest, toStringTest) {
+    {
+        ConstantExpression ep(1);
+        EXPECT_EQ(ep.toString(), "1");
+    }
+    {
+        ConstantExpression ep(1.123);
+        EXPECT_EQ(ep.toString(), "1.123000");
+    }
+    {
+        ConstantExpression ep(true);
+        EXPECT_EQ(ep.toString(), "true");
+    }
+    {
+        ConstantExpression ep(List(std::vector<Value>{1, 2, 3, 4, 9, 0, -23}));
+        EXPECT_EQ(ep.toString(), "[1,2,3,4,9,0,-23]");
+    }
+    {
+        ConstantExpression ep(Map({{"hello", "world"}, {"name", "zhang"}}));
+        EXPECT_EQ(ep.toString(), "{\"name\":zhang,\"hello\":world}");
+    }
+    {
+        ConstantExpression ep(Set({1, 2.3, "hello", true}));
+        EXPECT_EQ(ep.toString(), "{true,2.300000,hello,1}");
+    }
+    {
+        ConstantExpression ep(Date(1234));
+        EXPECT_EQ(ep.toString(), "-32765/05/19");
+    }
+    {
+        ConstantExpression ep(Edge("100", "102", 2, "like", 3, {{"likeness", 95}}));
+        EXPECT_EQ(ep.toString(), "(100)-[like]->(102)@3 likeness:95");
+    }
+    {
+        ConstantExpression ep(Vertex("100", {Tag("player", {{"name", "jame"}})}));
+        EXPECT_EQ(ep.toString(), "(100) Tag: player, name:jame");
+    }
+    {
+        TypeCastingExpression ep(Value::Type::FLOAT, new ConstantExpression(2));
+        EXPECT_EQ(ep.toString(), "(FLOAT)2");
+    }
+    {
+        UnaryExpression plus(Expression::Kind::kUnaryPlus, new ConstantExpression(2));
+        EXPECT_EQ(plus.toString(), "+(2)");
+
+        UnaryExpression nega(Expression::Kind::kUnaryNegate, new ConstantExpression(2));
+        EXPECT_EQ(nega.toString(), "-(2)");
+
+        UnaryExpression incr(Expression::Kind::kUnaryIncr, new ConstantExpression(2));
+        EXPECT_EQ(incr.toString(), "++(2)");
+
+        UnaryExpression decr(Expression::Kind::kUnaryDecr, new ConstantExpression(2));
+        EXPECT_EQ(decr.toString(), "--(2)");
+
+        UnaryExpression no(Expression::Kind::kUnaryNot, new ConstantExpression(2));
+        EXPECT_EQ(no.toString(), "!(2)");
+    }
+    {
+        VariableExpression var(new std::string("name"));
+        EXPECT_EQ(var.toString(), "$name");
+
+        VersionedVariableExpression versionVar(new std::string("name"), new ConstantExpression(1));
+        EXPECT_EQ(versionVar.toString(), "$name{1}");
+    }
+    {
+        TEST_TOSTRING(2 + 2 - 3, "((2+2)-3)");
+        TEST_TOSTRING(true || true, "(true||true)");
+        TEST_TOSTRING(true && false || false, "((true&&false)||false)");
+        TEST_TOSTRING(true == 2, "(true==2)");
+        TEST_TOSTRING(2 > 1 && 3 > 2, "((2>1)&&(3>2))");
+        TEST_TOSTRING((3 + 5) * 3 / (6 - 2), "(((3+5)*3)/(6-2))");
+        TEST_TOSTRING(76 - 100 / 20 * 4, "(76-((100/20)*4))");
+        TEST_TOSTRING(8 % 2 + 1 == 1, "(((8%2)+1)==1)");
+        TEST_TOSTRING(1 == 2, "(1==2)");
+    }
+}
+
+TEST_F(ExpressionTest, FunctionCallToStringTest) {
+    {
+        ArgumentList *argList = new ArgumentList();
+        for (const auto &i : args_["pow"]) {
+            argList->addArgument(std::make_unique<ConstantExpression>(std::move(i)));
+        }
+        FunctionCallExpression ep(new std::string("pow"), argList);
+        EXPECT_EQ(ep.toString(), "pow(2,3)");
+    }
+    {
+        ArgumentList *argList = new ArgumentList();
+        for (const auto &i : args_["udf_is_in"]) {
+            argList->addArgument(std::make_unique<ConstantExpression>(std::move(i)));
+        }
+        FunctionCallExpression ep(new std::string("udf_is_in"), argList);
+        EXPECT_EQ(ep.toString(), "udf_is_in(4,1,2,8,4,3,1,0)");
+    }
+    {
+        ArgumentList *argList = new ArgumentList();
+        for (const auto &i : args_["neg_int"]) {
+            argList->addArgument(std::make_unique<ConstantExpression>(std::move(i)));
+        }
+        FunctionCallExpression ep(new std::string("abs"), argList);
+        EXPECT_EQ(ep.toString(), "abs(-1)");
+    }
+    {
+        FunctionCallExpression ep(new std::string("now"), new ArgumentList());
+        EXPECT_EQ(ep.toString(), "now()");
+    }
+}
+
+TEST_F(ExpressionTest, PropertyToStringTest) {
+    {
+        EdgePropertyExpression ep(new std::string("like"), new std::string("likeness"));
+        EXPECT_EQ(ep.toString(), "like.likeness");
+    }
+    {
+        InputPropertyExpression ep(new std::string("name"));
+        EXPECT_EQ(ep.toString(), "$-.name");
+    }
+    {
+        VariablePropertyExpression ep(new std::string("player"), new std::string("name"));
+        EXPECT_EQ(ep.toString(), "$player.name");
+    }
+    {
+        SourcePropertyExpression ep(new std::string("player"), new std::string("age"));
+        EXPECT_EQ(ep.toString(), "$^.player.age");
+    }
+    {
+        DestPropertyExpression ep(new std::string("player"), new std::string("age"));
+        EXPECT_EQ(ep.toString(), "$$.player.age");
+    }
+    {
+        EdgeSrcIdExpression ep(new std::string("like"));
+        EXPECT_EQ(ep.toString(), "like._src");
+    }
+    {
+        EdgeTypeExpression ep(new std::string("like"));
+        EXPECT_EQ(ep.toString(), "like._type");
+    }
+    {
+        EdgeRankExpression ep(new std::string("like"));
+        EXPECT_EQ(ep.toString(), "like._rank");
+    }
+    {
+        EdgeDstIdExpression ep(new std::string("like"));
+        EXPECT_EQ(ep.toString(), "like._dst");
+    }
+}
+
 }  // namespace nebula
