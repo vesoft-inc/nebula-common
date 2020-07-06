@@ -28,19 +28,25 @@ public:
         kBitXor,
         kCollect
     };
-    AggFun() {}
+    explicit AggFun(bool distinct) : distinct_(distinct) {}
     virtual ~AggFun() {}
 
 public:
     virtual void apply(const Value &val) = 0;
     virtual Value getResult() = 0;
 
-    static std::unordered_map<Function, std::function<std::unique_ptr<AggFun>()>> aggFunMap_;
+    static std::unordered_map<Function, std::function<std::unique_ptr<AggFun>(bool)>> aggFunMap_;
+
+protected:
+    bool                        distinct_{false};
+    std::unordered_set<Value>   uniques_;
 };
 
 
 class Group final : public AggFun {
 public:
+    Group() : AggFun(false) {}
+
     void apply(const Value &val) override {
         col_ = val;
     }
@@ -56,15 +62,25 @@ private:
 
 class Count final : public AggFun {
 public:
+    explicit Count(bool distinct = false) : AggFun(distinct) {}
+
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
             return;
         }
-        cnt_ = cnt_ + 1;
+        if (distinct_) {
+            uniques_.emplace(val);
+        } else {
+            cnt_ = cnt_ + 1;
+        }
     }
 
     Value getResult() override {
-        return cnt_;
+        if (distinct_) {
+            return static_cast<int64_t>(uniques_.size());
+        } else {
+            return cnt_;
+        }
     }
 
 private:
@@ -74,6 +90,8 @@ private:
 
 class Sum final : public AggFun {
 public:
+    explicit Sum(bool distinct = false) : AggFun(distinct) {}
+
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
             return;
@@ -82,26 +100,46 @@ public:
             sum_ = Value(NullType::BAD_TYPE);
             return;
         }
+        if (sum_.isBadNull()) {
+            return;
+        }
 
-        if (sum_.isNull()) {
-            sum_ = val;
+        if (distinct_) {
+            uniques_.emplace(val);
         } else {
-            // TODO: Support += for value.
-            sum_ = sum_ + val;
+            if (!applied_) {
+                sum_ = val;
+                applied_ = true;
+            } else {
+                // TODO: Support += for value.
+                sum_ = sum_ + val;
+            }
         }
     }
 
     Value getResult() override {
-        return sum_;
+        if (sum_.isBadNull() || !distinct_ || uniques_.empty()) {
+            return sum_;
+        }
+
+        DCHECK(distinct_);
+        Value sum(0.0);
+        for (auto& v : uniques_) {
+            sum = sum + v;
+        }
+        return sum;
     }
 
 private:
+    bool    applied_{false};
     Value   sum_{NullType::__NULL__};
 };
 
 
 class Avg final : public AggFun {
 public:
+    explicit Avg(bool distinct = false) : AggFun(distinct) {}
+
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
             return;
@@ -110,12 +148,33 @@ public:
             avg_ = Value(NullType::BAD_TYPE);
             return;
         }
+        if (avg_.isBadNull()) {
+            return;
+        }
+
         cnt_ = cnt_ + 1;
-        avg_ = avg_ + (val - avg_) / cnt_;
+        if (distinct_) {
+            uniques_.emplace(val);
+        } else {
+            avg_ = avg_ + (val - avg_) / cnt_;
+        }
     }
 
     Value getResult() override {
-        return cnt_ > 0 ? avg_ : Value::kNullValue;
+        if (cnt_ == 0) {
+            return Value::kNullValue;
+        }
+        if (avg_.isBadNull() || !distinct_) {
+            return avg_;
+        }
+        DCHECK(distinct_);
+        Value avg(0.0);
+        Value cnt(0.0);
+        for (auto& v : uniques_) {
+            cnt = cnt + 1;
+            avg = avg + (v - avg) / cnt;
+        }
+        return avg;
     }
 
 private:
@@ -126,6 +185,8 @@ private:
 
 class CountDistinct final : public AggFun {
 public:
+    CountDistinct() : AggFun(false) {}
+
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
             return;
@@ -145,46 +206,85 @@ private:
 
 class Max final : public AggFun {
 public:
+    explicit Max(bool distinct = false) : AggFun(distinct) {}
+
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
             return;
         }
-        if (max_.isNull() || val > max_) {
-            max_ = val;
+
+        if (distinct_) {
+            uniques_.emplace(val);
+        } else {
+            if (!applied_ || val > max_) {
+                max_ = val;
+                applied_ = true;
+            }
         }
     }
 
     Value getResult() override {
-        return max_;
+        if (distinct_) {
+            Value max = Value::kNullValue;
+            for (auto& v : uniques_) {
+                if (max.isNull() || v > max) {
+                    max = v;
+                }
+            }
+            return max;
+        } else {
+            return max_;
+        }
     }
 
 private:
+    bool      applied_{false};
     Value     max_{NullType::__NULL__};
 };
 
 
 class Min final : public AggFun {
 public:
+    explicit Min(bool distinct) : AggFun(distinct) {}
+
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
             return;
         }
-        if (min_.isNull() || val < min_) {
-            min_ = val;
+        if (distinct_) {
+            uniques_.emplace(val);
+        } else {
+            if (!applied_ || val < min_) {
+                min_ = val;
+                applied_ = true;
+            }
         }
     }
 
     Value getResult() override {
-        return min_;
+        if (distinct_) {
+            Value min = Value::kNullValue;
+            for (auto& v : uniques_) {
+                if (min.isNull() || v < min) {
+                    min = v;
+                }
+            }
+            return min;
+        } else {
+            return min_;
+        }
     }
 
 private:
+    bool        applied_{false};
     Value       min_{NullType::__NULL__};
 };
 
 
 class Stdev final : public AggFun {
 public:
+    explicit Stdev(bool distinct) : AggFun(distinct) {}
+
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
             return;
@@ -195,9 +295,13 @@ public:
             return;
         }
         cnt_ = cnt_ + 1;
-        var_ = (cnt_ - 1) / (cnt_ * cnt_) * ((val - avg_) * (val - avg_))
-            + (cnt_ - 1) / cnt_ * var_;
-        avg_ = avg_ + (val - avg_) / cnt_;
+        if (distinct_) {
+            uniques_.emplace(val);
+        } else {
+            var_ = (cnt_ - 1) / (cnt_ * cnt_) * ((val - avg_) * (val - avg_))
+                + (cnt_ - 1) / cnt_ * var_;
+            avg_ = avg_ + (val - avg_) / cnt_;
+        }
     }
 
     Value getResult() override {
@@ -205,8 +309,21 @@ public:
             return Value::kNullValue;
         } else if (var_.empty() || var_.isNull()) {
             return var_;
+        }
+
+        if (distinct_) {
+            Value cnt(0.0);
+            Value avg(0.0);
+            Value var(0.0);
+            for (auto& v : uniques_) {
+                cnt = cnt + 1;
+                var = (cnt - 1) / (cnt * cnt) * ((v - avg) * (v - avg))
+                    + (cnt - 1) / cnt * var;
+                avg = avg + (v - avg) / cnt;
+            }
+            return var.isFloat() ? std::sqrt(var.getFloat()) : Value::kNullBadType;
         } else {
-            return std::sqrt(var_.getFloat());
+            return var_.isFloat() ? std::sqrt(var_.getFloat()) : Value::kNullBadType;
         }
     }
 
@@ -219,79 +336,139 @@ private:
 
 class BitAnd final : public AggFun {
 public:
+    explicit BitAnd(bool distinct) : AggFun(distinct) {}
+
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
             return;
         }
-        if (result_.isNull()) {
-            result_ = val;
+        if (distinct_) {
+            uniques_.emplace(val);
         } else {
-            result_  = result_ & val;
+            if (!applied_) {
+                result_ = val;
+                applied_ = true;
+            } else {
+                result_  = result_ & val;
+            }
         }
     }
 
     Value getResult() override {
-        return result_;
+        if (distinct_ && !uniques_.empty()) {
+            Value result = *uniques_.begin();
+            for (auto& v : uniques_) {
+                result = result & v;
+            }
+            return result;
+        } else {
+            return result_;
+        }
     }
 
 private:
-    Value result_{NullType::__NULL__};
+    bool    applied_{false};
+    Value   result_{NullType::__NULL__};
 };
 
 
 class BitOr final : public AggFun {
 public:
+    explicit BitOr(bool distinct) : AggFun(distinct) {}
+
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
             return;
         }
-        if (result_.isNull()) {
-            result_ = val;
+        if (distinct_) {
+            uniques_.emplace(val);
         } else {
-            result_  = result_ | val;
+            if (!applied_) {
+                result_ = val;
+                applied_ = true;
+            } else {
+                result_  = result_ | val;
+            }
         }
     }
 
     Value getResult() override {
-        return result_;
+        if (distinct_ && !uniques_.empty()) {
+            Value result = *uniques_.begin();
+            for (auto& v : uniques_) {
+                result = result | v;
+            }
+            return result;
+        } else {
+            return result_;
+        }
     }
 
 private:
-    Value result_{NullType::__NULL__};
+    bool    applied_{false};
+    Value   result_{NullType::__NULL__};
 };
 
 
 class BitXor final : public AggFun {
 public:
+    explicit BitXor(bool distinct) : AggFun(distinct) {}
+
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
             return;
         }
-        if (result_.isNull()) {
-            result_ = val;
+        if (distinct_) {
+            uniques_.emplace(val);
         } else {
-            result_  = result_ ^ val;
+            if (!applied_) {
+                result_ = val;
+                applied_ = true;
+            } else {
+                result_  = result_ ^ val;
+            }
         }
     }
 
     Value getResult() override {
-        return result_;
+        if (distinct_ && !uniques_.empty()) {
+            Value result = *uniques_.begin();
+            std::for_each(++uniques_.begin(), uniques_.end(), [&result] (auto& v) {
+                result = result ^ v;
+            });
+            return result;
+        } else {
+            return result_;
+        }
     }
 
 private:
-    Value result_{NullType::__NULL__};
+    bool    applied_{false};
+    Value   result_{NullType::__NULL__};
 };
 
 class Collect final : public AggFun {
 public:
+    explicit Collect(bool distinct) : AggFun(distinct) {}
+
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
             return;
         }
-        list_.values.emplace_back(val);
+        if (distinct_) {
+            uniques_.emplace(val);
+        } else {
+            list_.values.emplace_back(val);
+        }
     }
 
     Value getResult() override {
+        if (distinct_ && !uniques_.empty()) {
+            list_.values.resize(uniques_.size());
+            std::transform(uniques_.begin(), uniques_.end(), list_.values.begin(), [] (auto&& val) {
+                return std::move(val);
+            });
+        }
         return Value(std::move(list_));
     }
 

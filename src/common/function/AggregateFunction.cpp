@@ -8,19 +8,35 @@
 
 namespace nebula {
 std::unordered_map<AggFun::Function,
-                   std::function<std::unique_ptr<AggFun>()>> AggFun::aggFunMap_  = {
-    { AggFun::Function::kNone, []() -> auto { return std::make_unique<Group>();} },
-    { AggFun::Function::kCount, []() -> auto { return std::make_unique<Count>();} },
-    { AggFun::Function::kCountDist, []() -> auto { return std::make_unique<CountDistinct>();} },
-    { AggFun::Function::kSum, []() -> auto { return std::make_unique<Sum>();} },
-    { AggFun::Function::kAvg, []() -> auto { return std::make_unique<Avg>();} },
-    { AggFun::Function::kMax, []() -> auto { return std::make_unique<Max>();} },
-    { AggFun::Function::kMin, []() -> auto { return std::make_unique<Min>();} },
-    { AggFun::Function::kStdev, []() -> auto { return std::make_unique<Stdev>();} },
-    { AggFun::Function::kBitAnd, []() -> auto { return std::make_unique<BitAnd>();} },
-    { AggFun::Function::kBitOr, []() -> auto { return std::make_unique<BitOr>();} },
-    { AggFun::Function::kBitXor, []() -> auto { return std::make_unique<BitXor>();} },
-    { AggFun::Function::kCollect, []() -> auto { return std::make_unique<Collect>();} },
+                   std::function<std::unique_ptr<AggFun>(bool)>> AggFun::aggFunMap_  = {
+    { AggFun::Function::kNone,
+        [](bool distinct) -> auto {
+            UNUSED(distinct);
+            return std::make_unique<Group>();} },
+    { AggFun::Function::kCount,
+        [](bool distinct) -> auto { return std::make_unique<Count>(distinct);} },
+    { AggFun::Function::kCountDist,
+        [](bool distinct) -> auto {
+            UNUSED(distinct);
+            return std::make_unique<CountDistinct>();} },
+    { AggFun::Function::kSum,
+        [](bool distinct) -> auto { return std::make_unique<Sum>(distinct);} },
+    { AggFun::Function::kAvg,
+        [](bool distinct) -> auto { return std::make_unique<Avg>(distinct);} },
+    { AggFun::Function::kMax,
+        [](bool distinct) -> auto { return std::make_unique<Max>(distinct);} },
+    { AggFun::Function::kMin,
+        [](bool distinct) -> auto { return std::make_unique<Min>(distinct);} },
+    { AggFun::Function::kStdev,
+        [](bool distinct) -> auto { return std::make_unique<Stdev>(distinct);} },
+    { AggFun::Function::kBitAnd,
+        [](bool distinct) -> auto { return std::make_unique<BitAnd>(distinct);} },
+    { AggFun::Function::kBitOr,
+        [](bool distinct) -> auto { return std::make_unique<BitOr>(distinct);} },
+    { AggFun::Function::kBitXor,
+        [](bool distinct) -> auto { return std::make_unique<BitXor>(distinct);} },
+    { AggFun::Function::kCollect,
+        [](bool distinct) -> auto { return std::make_unique<Collect>(distinct);} },
 };
 
 }  // namespace nebula
