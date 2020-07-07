@@ -2564,8 +2564,7 @@ void MetaClient::updateGflagsValue(const cpp2::ConfigItem& item) {
 void MetaClient::updateNestedGflags(const std::unordered_map<std::string, Value> &nameValues) {
     std::unordered_map<std::string, std::string> optionMap;
     for (const auto &value : nameValues) {
-        CHECK(value.second.isStr());
-        optionMap.emplace(value.first, value.second.getStr());
+        optionMap.emplace(value.first, value.second.toString());
     }
 
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
