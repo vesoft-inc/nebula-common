@@ -37,11 +37,12 @@ struct Map {
         kvs.clear();
     }
 
+    // the configs of rocksdb will use the interface, so the value need modify to string
     std::string toString() const {
         std::vector<std::string> value(kvs.size());
         std::transform(kvs.begin(), kvs.end(), value.begin(), [](const auto &iter) -> std::string {
             std::stringstream out;
-            out << "\"" << iter.first << "\"" << ":" << iter.second;
+            out << "\"" << iter.first << "\"" << ":" << "\"" << iter.second << "\"";
             return out.str();
         });
 
@@ -52,25 +53,6 @@ struct Map {
 
     bool operator==(const Map& rhs) const {
         return kvs == rhs.kvs;
-    }
-
-    StatusOr<std::string> toString() const {
-        std::string str = "{";
-        for (auto &kv : kvs) {
-            str += "\"" + kv.first + "\"";
-            str += ":";
-            auto ret = kv.second.toString();
-            if (!ret.ok()) {
-                return ret.status();
-            }
-            str += "\"" + ret.value() + "\"";
-            str += ",";
-        }
-        if (str.size() > 1) {
-            str.erase(str.end() - 1);
-        }
-        str += "}";
-        return str;
     }
 };
 

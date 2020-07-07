@@ -973,7 +973,7 @@ TEST_F(ExpressionTest, toStringTest) {
     }
     {
         ConstantExpression ep(Map({{"hello", "world"}, {"name", "zhang"}}));
-        EXPECT_EQ(ep.toString(), "{\"name\":zhang,\"hello\":world}");
+        EXPECT_EQ(ep.toString(), "{\"name\":\"zhang\",\"hello\":\"world\"}");
     }
     {
         ConstantExpression ep(Set({1, 2.3, "hello", true}));

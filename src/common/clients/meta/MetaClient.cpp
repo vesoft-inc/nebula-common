@@ -2538,31 +2538,24 @@ void MetaClient::updateGflagsValue(const cpp2::ConfigItem& item) {
         return;
     }
     auto value = item.value;
-
-    auto strRet = value.toString();
-    if (!strRet.ok()) {
-        LOG(ERROR) << strRet.status();
-        return;
-    }
-
-    std::string ValueStr = std::move(strRet).value();
+    std::string valueStr = value.toString();
     std::string curValue;
     if (!gflags::GetCommandLineOption(item.name.c_str(), &curValue)) {
         return;
     } else {
         curValue = GflagsManager::trimAllWhitespace(curValue);
-        if (curValue != ValueStr) {
-            if (value.isMap() && ValueStr.empty()) {
+        if (curValue != valueStr) {
+            if (value.isMap() && valueStr.empty()) {
                 // Be compatible with previous configuration
-                ValueStr = "{}";
+                valueStr = "{}";
             }
-            gflags::SetCommandLineOption(item.name.c_str(), ValueStr.c_str());
+            gflags::SetCommandLineOption(item.name.c_str(), valueStr.c_str());
             // TODO: we simply judge the rocksdb by nested type for now
             if (listener_ != nullptr && value.isMap()) {
                 updateNestedGflags(value.getMap().kvs);
             }
             LOG(INFO) << "Update config " << item.name
-                      << " from " << curValue << " to " << ValueStr;
+                      << " from " << curValue << " to " << valueStr;
         }
     }
 }
