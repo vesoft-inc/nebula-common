@@ -187,6 +187,10 @@ public:
                                 Kind::kEdgeDst);
     }
 
+    const std::vector<const Expression*> findAllInputVariableProp() const {
+        return findAnyKindInAll(Kind::kInputProperty, Kind::kVarProperty);
+    }
+
     bool hasStorage() const {
         return findStorage() != nullptr;
     }
