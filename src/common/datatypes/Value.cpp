@@ -2103,19 +2103,6 @@ Value operator&(const Value& lhs, const Value& rhs) {
         case Value::Type::INT: {
             return lhs.getInt() & rhs.getInt();
         }
-        case Value::Type::FLOAT:
-        case Value::Type::STRING:
-        case Value::Type::DATE:
-        case Value::Type::DATETIME:
-        case Value::Type::VERTEX:
-        case Value::Type::EDGE:
-        case Value::Type::PATH:
-        case Value::Type::LIST:
-        case Value::Type::MAP:
-        case Value::Type::SET:
-        case Value::Type::DATASET: {
-            return Value::kNullBadType;
-        }
         default: {
             return Value::kNullBadType;
         }
@@ -2142,19 +2129,6 @@ Value operator|(const Value& lhs, const Value& rhs) {
         case Value::Type::INT: {
             return lhs.getInt() | rhs.getInt();
         }
-        case Value::Type::FLOAT:
-        case Value::Type::STRING:
-        case Value::Type::DATE:
-        case Value::Type::DATETIME:
-        case Value::Type::VERTEX:
-        case Value::Type::EDGE:
-        case Value::Type::PATH:
-        case Value::Type::LIST:
-        case Value::Type::MAP:
-        case Value::Type::SET:
-        case Value::Type::DATASET: {
-            return Value::kNullBadType;
-        }
         default: {
             return Value::kNullBadType;
         }
@@ -2180,19 +2154,6 @@ Value operator^(const Value& lhs, const Value& rhs) {
         }
         case Value::Type::INT: {
             return lhs.getInt() ^ rhs.getInt();
-        }
-        case Value::Type::FLOAT:
-        case Value::Type::STRING:
-        case Value::Type::DATE:
-        case Value::Type::DATETIME:
-        case Value::Type::VERTEX:
-        case Value::Type::EDGE:
-        case Value::Type::PATH:
-        case Value::Type::LIST:
-        case Value::Type::MAP:
-        case Value::Type::SET:
-        case Value::Type::DATASET: {
-            return Value::kNullBadType;
         }
         default: {
             return Value::kNullBadType;

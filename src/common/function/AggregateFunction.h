@@ -1,4 +1,4 @@
-/* Copyright (c) 2019 vesoft inc. All rights reserved.
+/* Copyright (c) 2020 vesoft inc. All rights reserved.
  *
  * This source code is licensed under Apache 2.0 License,
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
@@ -17,7 +17,6 @@ public:
     enum class Function : uint8_t {
         kNone,
         kCount,
-        kCountDist,
         kSum,
         kAvg,
         kMax,
@@ -28,7 +27,7 @@ public:
         kBitXor,
         kCollect
     };
-    explicit AggFun(bool distinct) : distinct_(distinct) {}
+    explicit AggFun(const bool distinct) : distinct_(distinct) {}
     virtual ~AggFun() {}
 
 public:
@@ -38,7 +37,7 @@ public:
     static std::unordered_map<Function, std::function<std::unique_ptr<AggFun>(bool)>> aggFunMap_;
 
 protected:
-    bool                        distinct_{false};
+    const bool                  distinct_{false};
     std::unordered_set<Value>   uniques_;
 };
 
@@ -62,7 +61,7 @@ private:
 
 class Count final : public AggFun {
 public:
-    explicit Count(bool distinct = false) : AggFun(distinct) {}
+    explicit Count(const bool distinct = false) : AggFun(distinct) {}
 
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
@@ -90,7 +89,7 @@ private:
 
 class Sum final : public AggFun {
 public:
-    explicit Sum(bool distinct = false) : AggFun(distinct) {}
+    explicit Sum(const bool distinct = false) : AggFun(distinct) {}
 
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
@@ -138,7 +137,7 @@ private:
 
 class Avg final : public AggFun {
 public:
-    explicit Avg(bool distinct = false) : AggFun(distinct) {}
+    explicit Avg(const bool distinct = false) : AggFun(distinct) {}
 
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
@@ -183,30 +182,9 @@ private:
 };
 
 
-class CountDistinct final : public AggFun {
-public:
-    CountDistinct() : AggFun(false) {}
-
-    void apply(const Value &val) override {
-        if (val.isNull() || val.empty()) {
-            return;
-        }
-        valueSet_.emplace(val);
-    }
-
-    Value getResult() override {
-        int64_t count = static_cast<int64_t>(valueSet_.size());
-        return Value(count);
-    }
-
-private:
-    std::unordered_set<Value> valueSet_;
-};
-
-
 class Max final : public AggFun {
 public:
-    explicit Max(bool distinct = false) : AggFun(distinct) {}
+    explicit Max(const bool distinct = false) : AggFun(distinct) {}
 
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
@@ -245,7 +223,7 @@ private:
 
 class Min final : public AggFun {
 public:
-    explicit Min(bool distinct) : AggFun(distinct) {}
+    explicit Min(const bool distinct) : AggFun(distinct) {}
 
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
@@ -283,7 +261,7 @@ private:
 
 class Stdev final : public AggFun {
 public:
-    explicit Stdev(bool distinct) : AggFun(distinct) {}
+    explicit Stdev(const bool distinct) : AggFun(distinct) {}
 
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
@@ -336,7 +314,7 @@ private:
 
 class BitAnd final : public AggFun {
 public:
-    explicit BitAnd(bool distinct) : AggFun(distinct) {}
+    explicit BitAnd(const bool distinct) : AggFun(distinct) {}
 
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
@@ -374,7 +352,7 @@ private:
 
 class BitOr final : public AggFun {
 public:
-    explicit BitOr(bool distinct) : AggFun(distinct) {}
+    explicit BitOr(const bool distinct) : AggFun(distinct) {}
 
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {
@@ -412,7 +390,7 @@ private:
 
 class BitXor final : public AggFun {
 public:
-    explicit BitXor(bool distinct) : AggFun(distinct) {}
+    explicit BitXor(const bool distinct) : AggFun(distinct) {}
 
     void apply(const Value &val) override {
         if (val.isNull() || val.empty()) {

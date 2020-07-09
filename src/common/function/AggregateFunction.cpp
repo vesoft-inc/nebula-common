@@ -15,10 +15,6 @@ std::unordered_map<AggFun::Function,
             return std::make_unique<Group>();} },
     { AggFun::Function::kCount,
         [](bool distinct) -> auto { return std::make_unique<Count>(distinct);} },
-    { AggFun::Function::kCountDist,
-        [](bool distinct) -> auto {
-            UNUSED(distinct);
-            return std::make_unique<CountDistinct>();} },
     { AggFun::Function::kSum,
         [](bool distinct) -> auto { return std::make_unique<Sum>(distinct);} },
     { AggFun::Function::kAvg,

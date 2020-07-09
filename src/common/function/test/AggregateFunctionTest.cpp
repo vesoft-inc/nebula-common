@@ -194,37 +194,6 @@ TEST_F(AggregateFunctionTest, Avg) {
     }
 }
 
-TEST_F(AggregateFunctionTest, CountDistinct) {
-    {
-        auto ct = AggFun::aggFunMap_[AggFun::Function::kCountDist](false);
-        for (auto& val : vals1_) {
-            ct->apply(val);
-        }
-        EXPECT_EQ(ct->getResult(), 10);
-    }
-    {
-        auto ct = AggFun::aggFunMap_[AggFun::Function::kCountDist](false);
-        for (auto& val : vals2_) {
-            ct->apply(val);
-        }
-        EXPECT_EQ(ct->getResult(), 10);
-    }
-    {
-        auto ct = AggFun::aggFunMap_[AggFun::Function::kCountDist](false);
-        for (auto& val : vals3_) {
-            ct->apply(val);
-        }
-        EXPECT_EQ(ct->getResult(), 0);
-    }
-    {
-        auto ct = AggFun::aggFunMap_[AggFun::Function::kCountDist](false);
-        for (auto& val : {0, 0, 1, 1, 2, 2}) {
-            ct->apply(val);
-        }
-        EXPECT_EQ(ct->getResult(), 3);
-    }
-}
-
 TEST_F(AggregateFunctionTest, Max) {
     {
         auto max = AggFun::aggFunMap_[AggFun::Function::kMax](false);
