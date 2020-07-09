@@ -38,14 +38,14 @@ protected:
 
     void resetFrom(Decoder& decoder) override;
 
-    bool traversal(Visitor visitor) const override {
+    bool traverse(Visitor visitor) const override {
         if (!visitor(this)) {
             return false;
         }
-        if (!lhs_->traversal(visitor)) {
+        if (!lhs_->traverse(visitor)) {
             return false;
         }
-        return rhs_->traversal(visitor);
+        return rhs_->traverse(visitor);
     }
 
     std::unique_ptr<Expression>                 lhs_;

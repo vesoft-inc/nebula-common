@@ -98,9 +98,9 @@ public:
     // return true continue, false return now
     using Visitor = std::function<bool(const Expression*)>;
 
-    // preorder traversal in fact
+    // preorder traverse in fact
     // return true continue, false return now
-    virtual bool traversal(Visitor visitor) const = 0;
+    virtual bool traverse(Visitor visitor) const = 0;
 
 private:
     template <typename T, typename = std::enable_if_t<std::is_same<T, Kind>::value>>
@@ -118,7 +118,7 @@ private:
               typename = std::enable_if_t<std::is_same<Kind, std::common_type_t<Ts...>>::value>>
     const Expression* findAnyKind(Ts... ts) const {
         const Expression *found = nullptr;
-        traversal([pack = std::make_tuple(ts...), &found](const Expression *expr) {
+        traverse([pack = std::make_tuple(ts...), &found](const Expression *expr) {
             auto bind = [expr](Ts... ts_) {
                 return expr->isAnyKind(ts_...);
             };
@@ -126,7 +126,7 @@ private:
                 found = expr;
                 return false;  // Already find so return now
             }
-            return true;  // Not find so continue traversal
+            return true;  // Not find so continue traverse
         });
         return found;
     }
@@ -137,14 +137,14 @@ private:
               typename = std::enable_if_t<std::is_same<Kind, std::common_type_t<Ts...>>::value>>
     std::vector<const Expression*> findAnyKindInAll(Ts... ts) const {
         std::vector<const Expression*> exprs;
-        traversal([pack = std::make_tuple(ts...), &exprs](const Expression *expr) {
+        traverse([pack = std::make_tuple(ts...), &exprs](const Expression *expr) {
             auto bind = [expr](Ts... ts_) {
                 return expr->isAnyKind(ts_...);
             };
             if (folly::apply(bind, pack)) {
                 exprs.emplace_back(expr);
             }
-            return true;  // Not return always to traversal entire expression tree
+            return true;  // Not return always to traverse entire expression tree
         });
         return exprs;
     }

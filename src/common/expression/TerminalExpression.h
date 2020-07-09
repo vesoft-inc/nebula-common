@@ -21,7 +21,7 @@ public:
     explicit TerminalExpression(Kind kind) : Expression(kind) {}
 
 protected:
-    bool traversal(Visitor visitor) const override {
+    bool traverse(Visitor visitor) const override {
         return visitor(this);
     }
 };

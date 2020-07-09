@@ -63,12 +63,12 @@ public:
 
 
 protected:
-    bool traversal(Visitor visitor) const override {
+    bool traverse(Visitor visitor) const override {
         if (!visitor(this)) {
             return false;
         }
         for (const auto &arg : args_->args()) {
-            if (!arg->traversal(visitor)) {
+            if (!arg->traverse(visitor)) {
                 return false;
             }
         }

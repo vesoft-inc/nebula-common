@@ -68,11 +68,11 @@ public:
     std::string toString() const override;
 
 protected:
-    bool traversal(Visitor visitor) const override {
+    bool traverse(Visitor visitor) const override {
         if (!visitor(this)) {
             return false;
         }
-        return version_->traversal(visitor);
+        return version_->traverse(visitor);
     }
 
 private:

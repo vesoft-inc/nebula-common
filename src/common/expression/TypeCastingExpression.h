@@ -32,11 +32,11 @@ public:
     }
 
 protected:
-    bool traversal(Visitor visitor) const override {
+    bool traverse(Visitor visitor) const override {
         if (!visitor(this)) {
             return false;
         }
-        return operand_->traversal(visitor);
+        return operand_->traverse(visitor);
     }
 
 private:
