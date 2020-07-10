@@ -45,11 +45,20 @@ void SymbolPropertyExpression::resetFrom(Decoder& decoder) {
     prop_ = decoder.readStr();
 }
 
+const Value& SymbolPropertyExpression::eval(ExpressionContext& ctx) {
+    // TODO maybe cypher need it.
+    UNUSED(ctx);
+    LOG(FATAL) << "Unimplemented";
+}
+
 
 const Value& EdgePropertyExpression::eval(ExpressionContext& ctx) {
     return ctx.getEdgeProp(*sym_, *prop_);
 }
 
+const Value& TagPropertyExpression::eval(ExpressionContext& ctx) {
+    return ctx.getTagProp(*sym_, *prop_);
+}
 
 const Value& InputPropertyExpression::eval(ExpressionContext& ctx) {
     // TODO
@@ -92,6 +101,21 @@ const Value& EdgeDstIdExpression::eval(ExpressionContext& ctx) {
 }
 
 std::string EdgePropertyExpression::toString() const {
+    std::string buf;
+    buf.reserve(64);
+
+    if (sym_ != nullptr && !sym_->empty()) {
+        buf += *sym_;
+        buf += ".";
+    }
+    if (prop_ != nullptr) {
+        buf += *prop_;
+    }
+
+    return buf;
+}
+
+std::string TagPropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 

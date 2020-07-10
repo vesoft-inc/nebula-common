@@ -40,6 +40,8 @@ public:
 
     bool operator==(const Expression& rhs) const override;
 
+    const Value& eval(ExpressionContext& ctx) override;
+
     const std::string *ref() const {
         return ref_.get();
     }
@@ -70,6 +72,22 @@ public:
         : SymbolPropertyExpression(Kind::kEdgeProperty,
                                    new std::string(""),
                                    edge,
+                                   prop) {}
+
+    const Value& eval(ExpressionContext& ctx) override;
+
+    std::string toString() const override;
+};
+
+
+// tag_name.any_prop_name
+class TagPropertyExpression final : public SymbolPropertyExpression {
+public:
+    TagPropertyExpression(std::string* tag = nullptr,
+                           std::string* prop = nullptr)
+        : SymbolPropertyExpression(Kind::kTagProperty,
+                                   new std::string(""),
+                                   tag,
                                    prop) {}
 
     const Value& eval(ExpressionContext& ctx) override;

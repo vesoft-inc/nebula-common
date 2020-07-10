@@ -67,6 +67,17 @@ public:
         }
     }
 
+    const Value& getTagProp(const std::string& tag,
+                            const std::string& prop) const override {
+        UNUSED(tag);
+        auto found = vals_.find(prop);
+        if (found == vals_.end()) {
+            return Value::kNullValue;
+        } else {
+            return found->second;
+        }
+    }
+
     const Value& getSrcProp(const std::string& tag,
                             const std::string& prop) const override {
         UNUSED(tag);
