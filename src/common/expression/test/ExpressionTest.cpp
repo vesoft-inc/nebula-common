@@ -332,7 +332,7 @@ TEST_F(ExpressionTest, Constant) {
 TEST_F(ExpressionTest, GetProp) {
     {
         // e1.int
-        EdgePropertyExpression ep(new std::string("e1"), new std::string("int"));
+        TagEdgePropertyExpression ep(new std::string("e1"), new std::string("int"));
         auto eval = Expression::eval(&ep, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 1);
@@ -673,7 +673,7 @@ TEST_F(ExpressionTest, Arithmetics) {
                 new ArithmeticExpression(
                     Expression::Kind::kAdd,
                     new ConstantExpression(1), new ConstantExpression(2)),
-                new EdgePropertyExpression(new std::string("e1"), new std::string("int")));
+                new TagEdgePropertyExpression(new std::string("e1"), new std::string("int")));
         auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 4);
@@ -682,8 +682,8 @@ TEST_F(ExpressionTest, Arithmetics) {
         // e1.string16 + e1.string16
         ArithmeticExpression add(
                 Expression::Kind::kAdd,
-                new EdgePropertyExpression(new std::string("e1"), new std::string("string16")),
-                new EdgePropertyExpression(new std::string("e1"), new std::string("string16")));
+                new TagEdgePropertyExpression(new std::string("e1"), new std::string("string16")),
+                new TagEdgePropertyExpression(new std::string("e1"), new std::string("string16")));
         auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::STRING);
         EXPECT_EQ(eval, std::string(32, 'a'));
@@ -703,7 +703,7 @@ TEST_F(ExpressionTest, Arithmetics) {
         ArithmeticExpression minus(
             Expression::Kind::kMinus,
             new ConstantExpression(10),
-            new EdgePropertyExpression(new std::string("e1"), new std::string("int")));
+            new TagEdgePropertyExpression(new std::string("e1"), new std::string("int")));
         auto eval = Expression::eval(&minus, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 9);
@@ -722,8 +722,8 @@ TEST_F(ExpressionTest, Arithmetics) {
         // e1.string128 - e1.string64
         ArithmeticExpression minus(
             Expression::Kind::kMinus,
-            new EdgePropertyExpression(new std::string("e1"), new std::string("string128")),
-            new EdgePropertyExpression(new std::string("e1"), new std::string("string64")));
+            new TagEdgePropertyExpression(new std::string("e1"), new std::string("string128")),
+            new TagEdgePropertyExpression(new std::string("e1"), new std::string("string64")));
         auto eval = Expression::eval(&minus, gExpCtxt);
         EXPECT_NE(eval.type(), Value::Type::STRING);
         EXPECT_NE(eval, std::string(64, 'a'));
@@ -745,7 +745,7 @@ TEST_F(ExpressionTest, RelationEQ) {
         // e1.list == NULL
         RelationalExpression expr(
                 Expression::Kind::kRelEQ,
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
+                new TagEdgePropertyExpression(new std::string("e1"), new std::string("list")),
                 new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
@@ -755,7 +755,8 @@ TEST_F(ExpressionTest, RelationEQ) {
         // e1.list_of_list == NULL
         RelationalExpression expr(
                 Expression::Kind::kRelEQ,
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
+                new TagEdgePropertyExpression(new std::string("e1"),
+                                              new std::string("list_of_list")),
                 new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
@@ -765,8 +766,8 @@ TEST_F(ExpressionTest, RelationEQ) {
         // e1.list == e1.list
         RelationalExpression expr(
                 Expression::Kind::kRelEQ,
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list")));
+                new TagEdgePropertyExpression(new std::string("e1"), new std::string("list")),
+                new TagEdgePropertyExpression(new std::string("e1"), new std::string("list")));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
@@ -775,8 +776,10 @@ TEST_F(ExpressionTest, RelationEQ) {
         // e1.list_of_list == e1.list_of_list
         RelationalExpression expr(
                 Expression::Kind::kRelEQ,
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")));
+                new TagEdgePropertyExpression(new std::string("e1"),
+                                              new std::string("list_of_list")),
+                new TagEdgePropertyExpression(new std::string("e1"),
+                                              new std::string("list_of_list")));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
@@ -992,7 +995,7 @@ TEST_F(ExpressionTest, FunctionCallToStringTest) {
 
 TEST_F(ExpressionTest, PropertyToStringTest) {
     {
-        EdgePropertyExpression ep(new std::string("like"), new std::string("likeness"));
+        TagEdgePropertyExpression ep(new std::string("like"), new std::string("likeness"));
         EXPECT_EQ(ep.toString(), "like.likeness");
     }
     {

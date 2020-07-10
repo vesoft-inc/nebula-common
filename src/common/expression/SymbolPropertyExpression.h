@@ -62,10 +62,11 @@ protected:
     std::unique_ptr<std::string>    prop_;
 };
 
-// edge_name.any_prop_name
-class EdgePropertyExpression final : public SymbolPropertyExpression {
+// tag_name/edge_name.any_prop_name
+// tag_name, edge_name will not be same
+class TagEdgePropertyExpression final : public SymbolPropertyExpression {
 public:
-    EdgePropertyExpression(std::string* edge = nullptr,
+    TagEdgePropertyExpression(std::string* edge = nullptr,
                            std::string* prop = nullptr)
         : SymbolPropertyExpression(Kind::kEdgeProperty,
                                    new std::string(""),

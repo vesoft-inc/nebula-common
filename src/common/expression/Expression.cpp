@@ -328,7 +328,7 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             return exp;
         }
         case Expression::Kind::kEdgeProperty: {
-            exp = std::make_unique<EdgePropertyExpression>();
+            exp = std::make_unique<TagEdgePropertyExpression>();
             exp->resetFrom(decoder);
             return exp;
         }

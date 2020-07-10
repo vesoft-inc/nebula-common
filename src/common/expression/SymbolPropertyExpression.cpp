@@ -46,7 +46,7 @@ void SymbolPropertyExpression::resetFrom(Decoder& decoder) {
 }
 
 
-const Value& EdgePropertyExpression::eval(ExpressionContext& ctx) {
+const Value& TagEdgePropertyExpression::eval(ExpressionContext& ctx) {
     return ctx.getEdgeProp(*sym_, *prop_);
 }
 
@@ -91,7 +91,7 @@ const Value& EdgeDstIdExpression::eval(ExpressionContext& ctx) {
     return ctx.getEdgeProp(*sym_, *prop_);
 }
 
-std::string EdgePropertyExpression::toString() const {
+std::string TagEdgePropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
