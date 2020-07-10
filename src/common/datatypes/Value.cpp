@@ -1456,16 +1456,13 @@ StatusOr<bool> Value::toBool() {
             return getInt() != 0;
         }
         case Value::Type::FLOAT: {
-            return getFloat() != 0.0;
+            return std::abs(getFloat()) > kEpsilon;
         }
         case Value::Type::STRING: {
-            return getStr().empty();
+            return !getStr().empty();
         }
         case Value::Type::DATE: {
-            return getDate().toString().empty();
-        }
-        case Value::Type::DATETIME: {
-            return getDateTime().toString().empty();
+            return getDate().toInt() != 0;
         }
         default: {
             return Status::Error("Value can not convert to bool");

@@ -22,12 +22,8 @@ public:
         return std::move(args_);
     }
 
-    const std::vector<Expression*> args() const {
-        std::vector<Expression*> result;
-        result.resize(args_.size());
-        auto get = [] (auto &ptr) {return ptr.get(); };
-        std::transform(args_.begin(), args_.end(), result.begin(), get);
-        return result;
+    const auto& args() const {
+        return args_;
     }
 
     size_t numArgs() const {
