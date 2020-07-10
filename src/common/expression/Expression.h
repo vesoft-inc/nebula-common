@@ -176,7 +176,7 @@ public:
                            Kind::kEdgeDst);
     }
 
-    const std::vector<const Expression*> findAllStorage() const {
+    std::vector<const Expression*> findAllStorage() const {
         return findAnyKindInAll(Kind::kSymProperty,
                                 Kind::kEdgeProperty,
                                 Kind::kDstProperty,
@@ -187,7 +187,7 @@ public:
                                 Kind::kEdgeDst);
     }
 
-    const std::vector<const Expression*> findAllInputVariableProp() const {
+    std::vector<const Expression*> findAllInputVariableProp() const {
         return findAnyKindInAll(Kind::kInputProperty, Kind::kVarProperty);
     }
 
