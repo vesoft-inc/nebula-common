@@ -83,6 +83,10 @@ public:
         return isEdge_;
     }
 
+    void setIsEdge(bool isEdge) {
+        isEdge_ = isEdge;
+    }
+
 private:
     bool isEdge_{false};
 };
