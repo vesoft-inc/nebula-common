@@ -47,7 +47,11 @@ void SymbolPropertyExpression::resetFrom(Decoder& decoder) {
 
 
 const Value& TagEdgePropertyExpression::eval(ExpressionContext& ctx) {
-    return ctx.getEdgeProp(*sym_, *prop_);
+    if (isEdge_) {
+        return ctx.getEdgeProp(*sym_, *prop_);
+    } else {
+        return ctx.getSrcProp(*sym_, *prop_);
+    }
 }
 
 

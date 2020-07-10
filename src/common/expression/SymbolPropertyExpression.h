@@ -67,15 +67,24 @@ protected:
 class TagEdgePropertyExpression final : public SymbolPropertyExpression {
 public:
     TagEdgePropertyExpression(std::string* edge = nullptr,
-                           std::string* prop = nullptr)
+                              std::string* prop = nullptr,
+                              bool isEdge = false)
         : SymbolPropertyExpression(Kind::kEdgeProperty,
                                    new std::string(""),
                                    edge,
-                                   prop) {}
+                                   prop),
+          isEdge_(isEdge) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+    bool isEdge() const {
+        return isEdge_;
+    }
+
+private:
+    bool isEdge_{false};
 };
 
 // $-.any_prop_name
