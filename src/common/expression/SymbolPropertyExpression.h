@@ -140,9 +140,6 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
-
-private:
-    Value                           result_;
 };
 
 // EdgeName._src
