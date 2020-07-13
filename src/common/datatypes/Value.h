@@ -53,6 +53,9 @@ struct Value {
     static const Value kNullUnknownProp;
     static const Value kNullDivByZero;
 
+    static const uint64_t kEmptyNullType;
+    static const uint64_t kNumericType;
+
     friend class apache::thrift::Cpp2Ops<Value, void>;
 
     enum class Type : uint64_t {
@@ -378,8 +381,7 @@ private:
 
 void swap(Value& a, Value& b);
 
-std::ostream& operator<<(std::ostream& os, const Value::Type& type);
-std::ostream& operator<<(std::ostream& os, const Value& value);
+constexpr auto kEpsilon = 1e-8;
 
 // Arithmetic operations
 Value operator+(const Value& lhs, const Value& rhs);
@@ -404,6 +406,10 @@ bool operator>=(const Value& lhs, const Value& rhs);
 // Logical operations
 Value operator&&(const Value& lhs, const Value& rhs);
 Value operator||(const Value& lhs, const Value& rhs);
+// Bit operations
+Value operator&(const Value& lhs, const Value& rhs);
+Value operator|(const Value& lhs, const Value& rhs);
+Value operator^(const Value& lhs, const Value& rhs);
 // Visualize
 std::ostream& operator<<(std::ostream& os, const Value::Type& type);
 inline std::ostream& operator<<(std::ostream& os, const Value& value) {
@@ -413,8 +419,20 @@ inline std::ostream& operator<<(std::ostream& os, const Value& value) {
 inline uint64_t operator|(const Value::Type& lhs, const Value::Type& rhs) {
     return static_cast<uint64_t>(lhs) | static_cast<uint64_t>(rhs);
 }
+inline uint64_t operator|(const uint64_t lhs, const Value::Type& rhs) {
+    return lhs | static_cast<uint64_t>(rhs);
+}
+inline uint64_t operator|(const Value::Type& lhs, const uint64_t rhs) {
+    return static_cast<uint64_t>(lhs) | rhs;
+}
 inline uint64_t operator&(const Value::Type& lhs, const Value::Type& rhs) {
     return static_cast<uint64_t>(lhs) & static_cast<uint64_t>(rhs);
+}
+inline uint64_t operator&(const uint64_t lhs, const Value::Type& rhs) {
+    return lhs & static_cast<uint64_t>(rhs);
+}
+inline uint64_t operator&(const Value::Type& lhs, const uint64_t rhs) {
+    return static_cast<uint64_t>(lhs) & rhs;
 }
 
 }  // namespace nebula

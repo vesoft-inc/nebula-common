@@ -79,8 +79,6 @@ std::size_t hash<nebula::Value>::operator()(const nebula::Value& v) const noexce
 
 namespace nebula {
 
-constexpr auto EPSILON = 1e-8;
-
 const Value Value::kEmpty;
 const Value Value::kNullValue(NullType::__NULL__);
 const Value Value::kNullNaN(NullType::NaN);
@@ -90,8 +88,8 @@ const Value Value::kNullOverflow(NullType::ERR_OVERFLOW);
 const Value Value::kNullUnknownProp(NullType::UNKNOWN_PROP);
 const Value Value::kNullDivByZero(NullType::DIV_BY_ZERO);
 
-const uint64_t kEmptyNullType = Value::Type::__EMPTY__ | Value::Type::NULLVALUE;
-const uint64_t kNumericType   = Value::Type::INT | Value::Type::FLOAT;
+const uint64_t Value::kEmptyNullType = Value::Type::__EMPTY__ | Value::Type::NULLVALUE;
+const uint64_t Value::kNumericType   = Value::Type::INT | Value::Type::FLOAT;
 
 Value::Value(Value&& rhs) : type_(Value::Type::__EMPTY__) {
     if (this == &rhs) { return; }
@@ -1536,7 +1534,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                                                rhs.getStr().c_str());
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1557,7 +1555,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return rhs.getDate() + lhs.getInt();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1575,7 +1573,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                                                rhs.getStr().c_str());
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1606,7 +1604,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return lhs.getStr() + rhs.getDateTime().toString();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1619,7 +1617,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return lhs.getDate().toString() + rhs.getStr();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1629,12 +1627,12 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return lhs.getDateTime().toString() + rhs.getStr();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -1659,7 +1657,7 @@ Value operator-(const Value& lhs, const Value& rhs) {
                     return lhs.getInt() - rhs.getFloat();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1672,7 +1670,7 @@ Value operator-(const Value& lhs, const Value& rhs) {
                     return lhs.getFloat() - rhs.getFloat();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1685,12 +1683,12 @@ Value operator-(const Value& lhs, const Value& rhs) {
                     return lhs.getDate().toInt() - rhs.getDate().toInt();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -1715,7 +1713,7 @@ Value operator*(const Value& lhs, const Value& rhs) {
                     return lhs.getInt() * rhs.getFloat();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1728,12 +1726,12 @@ Value operator*(const Value& lhs, const Value& rhs) {
                     return lhs.getFloat() * rhs.getFloat();
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -1756,19 +1754,19 @@ Value operator/(const Value& lhs, const Value& rhs) {
                     if (denom != 0) {
                         return lhs.getInt() / denom;
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
-                    if (std::abs(denom) > EPSILON) {
+                    if (std::abs(denom) > kEpsilon) {
                         return lhs.getInt() / denom;
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1779,24 +1777,24 @@ Value operator/(const Value& lhs, const Value& rhs) {
                     if (denom != 0) {
                         return lhs.getFloat() / denom;
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
-                    if (std::abs(denom) > EPSILON) {
+                    if (std::abs(denom) > kEpsilon) {
                         return lhs.getFloat() / denom;
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -1818,19 +1816,19 @@ Value operator%(const Value& lhs, const Value& rhs) {
                     if (denom != 0) {
                         return lhs.getInt() % denom;
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
-                    if (std::abs(denom) > EPSILON) {
+                    if (std::abs(denom) > kEpsilon) {
                         return std::fmod(lhs.getInt(), denom);
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
@@ -1841,24 +1839,24 @@ Value operator%(const Value& lhs, const Value& rhs) {
                     if (denom != 0) {
                         return std::fmod(lhs.getFloat(), denom);
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
-                    if (std::abs(denom) > EPSILON) {
+                    if (std::abs(denom) > kEpsilon) {
                         return std::fmod(lhs.getFloat(), denom);
                     } else {
-                        return Value(NullType::DIV_BY_ZERO);
+                        return Value::kNullDivByZero;
                     }
                 }
                 default: {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -1878,7 +1876,7 @@ Value operator-(const Value& rhs) {
             return val;
         }
         default: {
-            return Value(NullType::BAD_TYPE);
+            return Value::kNullBadType;
         }
     }
 }
@@ -1889,7 +1887,7 @@ Value operator!(const Value& rhs) {
     }
 
     if (rhs.type() != Value::Type::BOOL) {
-        return Value(NullType::BAD_TYPE);
+        return Value::kNullBadType;
     }
 
     auto val = rhs.getBool();
@@ -1899,9 +1897,9 @@ Value operator!(const Value& rhs) {
 bool operator<(const Value& lhs, const Value& rhs) {
     auto lType = lhs.type();
     auto rType = rhs.type();
-    auto hasNullOrEmpty = (lType | rType) & kEmptyNullType;
+    auto hasNullOrEmpty = (lType | rType) & Value::kEmptyNullType;
     auto notSameType = lType != rType;
-    auto notBothNumeric = ((lType | rType) & kNumericType) != kNumericType;
+    auto notBothNumeric = ((lType | rType) & Value::kNumericType) != Value::kNumericType;
     if (hasNullOrEmpty || (notSameType && notBothNumeric)) {
         return lType < rType;
     }
@@ -1962,9 +1960,9 @@ bool operator<(const Value& lhs, const Value& rhs) {
 bool operator==(const Value& lhs, const Value& rhs) {
     auto lType = lhs.type();
     auto rType = rhs.type();
-    auto hasNullOrEmpty = (lType | rType) & kEmptyNullType;
+    auto hasNullOrEmpty = (lType | rType) & Value::kEmptyNullType;
     auto notSameType = lType != rType;
-    auto notBothNumeric = ((lType | rType) & kNumericType) != kNumericType;
+    auto notBothNumeric = ((lType | rType) & Value::kNumericType) != Value::kNumericType;
     if (hasNullOrEmpty || (notSameType && notBothNumeric)) {
         return lhs.type() == rhs.type();
     }
@@ -1979,7 +1977,7 @@ bool operator==(const Value& lhs, const Value& rhs) {
                     return lhs.getInt() == rhs.getInt();
                 }
                 case Value::Type::FLOAT: {
-                    return std::abs(lhs.getInt() - rhs.getFloat()) < EPSILON;
+                    return std::abs(lhs.getInt() - rhs.getFloat()) < kEpsilon;
                 }
                 default: {
                     return false;
@@ -1989,10 +1987,10 @@ bool operator==(const Value& lhs, const Value& rhs) {
         case Value::Type::FLOAT: {
             switch (rType) {
                 case Value::Type::INT: {
-                    return std::abs(lhs.getFloat() - rhs.getInt()) < EPSILON;
+                    return std::abs(lhs.getFloat() - rhs.getInt()) < kEpsilon;
                 }
                 case Value::Type::FLOAT: {
-                    return std::abs(lhs.getFloat() - rhs.getFloat()) < EPSILON;
+                    return std::abs(lhs.getFloat() - rhs.getFloat()) < kEpsilon;
                 }
                 default: {
                     return false;
@@ -2064,7 +2062,7 @@ Value operator&&(const Value& lhs, const Value& rhs) {
             && rhs.type() == Value::Type::BOOL) {
         return lhs.getBool() && rhs.getBool();
     } else {
-        return Value(NullType::BAD_TYPE);
+        return Value::kNullBadType;
     }
 }
 
@@ -2081,8 +2079,85 @@ Value operator||(const Value& lhs, const Value& rhs) {
             && rhs.type() == Value::Type::BOOL) {
         return lhs.getBool() || rhs.getBool();
     } else {
-        return Value(NullType::BAD_TYPE);
+        return Value::kNullBadType;
     }
 }
 
+Value operator&(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
+    }
+
+    if (lhs.type() != rhs.type()) {
+        return Value::kNullBadType;
+    }
+
+    switch (lhs.type()) {
+        case Value::Type::BOOL: {
+            return lhs.getBool() & rhs.getBool();
+        }
+        case Value::Type::INT: {
+            return lhs.getInt() & rhs.getInt();
+        }
+        default: {
+            return Value::kNullBadType;
+        }
+    }
+}
+
+Value operator|(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
+    }
+
+    if (lhs.type() != rhs.type()) {
+        return Value::kNullBadType;
+    }
+
+    switch (lhs.type()) {
+        case Value::Type::BOOL: {
+            return lhs.getBool() | rhs.getBool();
+        }
+        case Value::Type::INT: {
+            return lhs.getInt() | rhs.getInt();
+        }
+        default: {
+            return Value::kNullBadType;
+        }
+    }
+}
+
+Value operator^(const Value& lhs, const Value& rhs) {
+    if (lhs.isNull()) {
+        return lhs.getNull();
+    }
+
+    if (rhs.isNull()) {
+        return rhs.getNull();
+    }
+
+    if (lhs.type() != rhs.type()) {
+        return Value::kNullBadType;
+    }
+
+    switch (lhs.type()) {
+        case Value::Type::BOOL: {
+            return lhs.getBool() ^ rhs.getBool();
+        }
+        case Value::Type::INT: {
+            return lhs.getInt() ^ rhs.getInt();
+        }
+        default: {
+            return Value::kNullBadType;
+        }
+    }
+}
 }  // namespace nebula
