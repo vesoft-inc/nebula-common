@@ -18,6 +18,15 @@
 #include "common/expression/UnaryExpression.h"
 #include "common/expression/VariableExpression.h"
 
+namespace std {
+
+std::size_t hash<nebula::Expression>::operator()(const nebula::Expression& expr) const noexcept {
+    // TODO:
+    UNUSED(expr);
+    return 0;
+}
+}  // namespace std
+
 namespace nebula {
 
 using serializer = apache::thrift::CompactSerializer;

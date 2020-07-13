@@ -144,4 +144,18 @@ protected:
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind);
 
 }   // namespace nebula
+
+namespace std {
+template<>
+struct hash<nebula::Expression> {
+    std::size_t operator()(const nebula::Expression& expr) const noexcept;
+};
+
+template<>
+struct hash<nebula::Expression*> {
+    std::size_t operator()(const nebula::Expression* expr) const noexcept {
+        return hash<nebula::Expression>()(*expr);
+    }
+};
+}  // namespace std
 #endif   // COMMON_EXPRESSION_EXPRESSION_H_
