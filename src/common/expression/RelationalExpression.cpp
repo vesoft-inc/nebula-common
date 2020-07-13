@@ -12,6 +12,13 @@ const Value& RelationalExpression::eval(ExpressionContext& ctx) {
     auto& lhs = lhs_->eval(ctx);
     auto& rhs = rhs_->eval(ctx);
 
+    if (kind_ != Kind::kRelEQ && kind_ != Kind::kRelNE) {
+        auto lhsEmptyOrNull = lhs.type() & Value::kEmptyNullType;
+        auto rhsEmptyOrNull = rhs.type() & Value::kEmptyNullType;
+        if (lhsEmptyOrNull || rhsEmptyOrNull) {
+            return lhsEmptyOrNull ? lhs : rhs;
+        }
+    }
     switch (kind_) {
         case Kind::kRelEQ:
             result_ = lhs == rhs;
@@ -49,6 +56,38 @@ const Value& RelationalExpression::eval(ExpressionContext& ctx) {
             LOG(FATAL) << "Unknown type: " << kind_;
     }
     return result_;
+}
+
+std::string RelationalExpression::toString() const {
+    std::string op;
+    switch (kind_) {
+        case Kind::kRelLT:
+            op = "<";
+            break;
+        case Kind::kRelLE:
+            op = "<=";
+            break;
+        case Kind::kRelGT:
+            op = ">";
+            break;
+        case Kind::kRelGE:
+            op = ">=";
+            break;
+        case Kind::kRelEQ:
+            op = "==";
+            break;
+        case Kind::kRelNE:
+            op = "!=";
+            break;
+        case Kind::kRelIn:
+            op = " IN ";
+            break;
+        default:
+            op = "illegal symbol ";
+    }
+    std::stringstream out;
+    out << "(" << lhs_->toString() << op << rhs_->toString() << ")";
+    return out.str();
 }
 
 }  // namespace nebula

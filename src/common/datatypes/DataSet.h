@@ -51,8 +51,12 @@ struct DataSet {
 
     // append the DataSet to one with same header
     bool append(DataSet&& o) {
-        if (colNames != o.colNames) {
-            return false;
+        if (colNames.empty()) {
+            colNames = std::move(o.colNames);
+        } else {
+            if (colNames != o.colNames) {
+                return false;
+            }
         }
         rows.reserve(o.rows.size());
         rows.insert(rows.end(),
@@ -102,7 +106,7 @@ struct DataSet {
 
         // body
         for (const auto &row : rows) {
-            for (const auto col : row.values) {
+            for (const auto &col : row.values) {
                 os << col << "|";
             }
             os << std::endl;

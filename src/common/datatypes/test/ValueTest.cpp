@@ -204,6 +204,7 @@ TEST(Value, Comparison) {
     Value vDate1(Date(2020, 1, 1));
     Value vDate2(Date(2019, 12, 1));
 
+    // null/empty
     {
         Value v = vNull == vNull;
         EXPECT_EQ(Value::Type::BOOL, v.type());
@@ -220,7 +221,33 @@ TEST(Value, Comparison) {
         v = vInt1 == vEmpty;
         EXPECT_EQ(Value::Type::BOOL, v.type());
         EXPECT_EQ(false, v.getBool());
+
+        v = vNull < vNull;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+
+        v = vInt1 < vNull;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+
+        v = vInt1 > vNull;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+
+        v = Value() < vEmpty;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+
+        v = vInt1 < vEmpty;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+
+        v = vInt1 > vEmpty;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
     }
+
+    // int
     {
         Value v = vInt1 == vInt2;
         EXPECT_EQ(Value::Type::BOOL, v.type());
@@ -247,6 +274,7 @@ TEST(Value, Comparison) {
         EXPECT_EQ(true, v.getBool());
     }
 
+    // float
     {
         Value v = vFloat1 == vFloat1;
         EXPECT_EQ(Value::Type::BOOL, v.type());
@@ -277,6 +305,22 @@ TEST(Value, Comparison) {
         EXPECT_EQ(false, v.getBool());
     }
 
+    // int and float
+    {
+        Value v = vInt1 == vFloat1;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+
+        v = vInt1 < vFloat1;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+
+        v = vInt1 > vFloat1;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(false, v.getBool());
+    }
+
+    // str
     {
         Value v = vStr1 == vStr2;
         EXPECT_EQ(Value::Type::BOOL, v.type());
@@ -303,6 +347,7 @@ TEST(Value, Comparison) {
         EXPECT_EQ(true, v.getBool());
     }
 
+    // bool
     {
         Value v = vBool1 == vBool2;
         EXPECT_EQ(Value::Type::BOOL, v.type());
@@ -329,6 +374,7 @@ TEST(Value, Comparison) {
         EXPECT_EQ(true, v.getBool());
     }
 
+    // date
     {
         Value v = vDate1 == vDate2;
         EXPECT_EQ(Value::Type::BOOL, v.type());
@@ -395,6 +441,77 @@ TEST(Value, Logical) {
         v = vBool2 || vBool2;
         EXPECT_EQ(Value::Type::BOOL, v.type());
         EXPECT_EQ(true, v.getBool());
+    }
+}
+
+TEST(Value, Bit) {
+    Value vZero(0);
+    Value vInt1(1);
+    Value vInt2(2);
+    Value vFloat1(3.14);
+    Value vFloat2(2.67);
+    Value vStr1("Hello ");
+    Value vStr2("World");
+    Value vBool1(false);
+    Value vBool2(true);
+    Value vDate1(Date(2020, 1, 1));
+    Value vDate2(Date(2019, 12, 1));
+
+    {
+        Value v = vInt1 & vInt2;
+        EXPECT_EQ(Value::Type::INT, v.type());
+        EXPECT_EQ(0, v.getInt());
+
+        v = vBool1 & vBool2;
+        EXPECT_EQ(Value::Type::INT, v.type());
+        EXPECT_EQ(0, v.getInt());
+
+        v = vStr1 & vStr2;
+        EXPECT_TRUE(v.isNull());
+
+        v = vFloat1 & vFloat2;
+        EXPECT_TRUE(v.isNull());
+
+        v = vDate1 & vDate2;
+        EXPECT_TRUE(v.isNull());
+    }
+
+    {
+        Value v = vInt1 | vInt2;
+        EXPECT_EQ(Value::Type::INT, v.type());
+        EXPECT_EQ(3, v.getInt());
+
+        v = vBool1 | vBool2;
+        EXPECT_EQ(Value::Type::INT, v.type());
+        EXPECT_EQ(1, v.getInt());
+
+        v = vStr1 & vStr2;
+        EXPECT_TRUE(v.isNull());
+
+        v = vFloat1 & vFloat2;
+        EXPECT_TRUE(v.isNull());
+
+        v = vDate1 & vDate2;
+        EXPECT_TRUE(v.isNull());
+    }
+
+    {
+        Value v = vInt1 ^ vInt2;
+        EXPECT_EQ(Value::Type::INT, v.type());
+        EXPECT_EQ(3, v.getInt());
+
+        v = vBool1 ^ vBool2;
+        EXPECT_EQ(Value::Type::INT, v.type());
+        EXPECT_EQ(1, v.getInt());
+
+        v = vStr1 & vStr2;
+        EXPECT_TRUE(v.isNull());
+
+        v = vFloat1 & vFloat2;
+        EXPECT_TRUE(v.isNull());
+
+        v = vDate1 & vDate2;
+        EXPECT_TRUE(v.isNull());
     }
 }
 }  // namespace nebula
