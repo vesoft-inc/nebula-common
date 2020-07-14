@@ -23,7 +23,6 @@ DEFINE_int32(meta_client_timeout_ms, 60 * 1000,
              "meta client timeout");
 DEFINE_string(cluster_id_path, "cluster.id",
               "file path saved clusterId");
-DECLARE_string(gflags_mode_json);
 
 
 namespace nebula {
