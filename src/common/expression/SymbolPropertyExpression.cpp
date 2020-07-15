@@ -96,6 +96,12 @@ const Value& EdgeDstIdExpression::eval(ExpressionContext& ctx) {
     return result_;
 }
 
+const Value& VidExpression::eval(ExpressionContext& ctx) {
+    // TODO(shylock) getTagProp
+    result_ = ctx.getSrcProp(*sym_, *prop_);
+    return result_;
+}
+
 std::string EdgePropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
@@ -235,6 +241,17 @@ std::string EdgeDstIdExpression::toString() const {
         buf += *sym_;
         buf += ".";
     }
+    if (prop_ != nullptr) {
+        buf += *prop_;
+    }
+
+    return buf;
+}
+
+std::string VidExpression::toString() const {
+    std::string buf;
+    buf.reserve(64);
+
     if (prop_ != nullptr) {
         buf += *prop_;
     }

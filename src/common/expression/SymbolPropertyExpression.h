@@ -209,5 +209,23 @@ public:
 private:
     Value                           result_;
 };
+
+// _vid
+class VidExpression final : public SymbolPropertyExpression {
+public:
+    VidExpression()
+        : SymbolPropertyExpression(Kind::kVertexId,
+                                   new std::string(""),
+                                   new std::string(""),
+                                   new std::string(kVid)) {}
+
+    const Value& eval(ExpressionContext& ctx) override;
+
+    std::string toString() const override;
+
+private:
+    Value                           result_;
+};
+
 }   // namespace nebula
 #endif

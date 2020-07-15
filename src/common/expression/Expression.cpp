@@ -352,6 +352,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kVertexId: {
+            exp = std::make_unique<VidExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kVar: {
             return exp;
         }
@@ -470,6 +475,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             break;
         case Expression::Kind::kEdgeDst:
             os << "EdgeDst";
+            break;
+        case Expression::Kind::kVertexId:
+            os << "Vid";
             break;
         case Expression::Kind::kUUID:
             os << "UUID";

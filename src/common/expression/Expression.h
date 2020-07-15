@@ -56,6 +56,7 @@ public:
         kEdgeType,
         kEdgeRank,
         kEdgeDst,
+        kVertexId,
 
         kUUID,
 
