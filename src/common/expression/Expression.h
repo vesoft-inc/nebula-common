@@ -102,7 +102,6 @@ public:
     // return true continue, false return now
     virtual bool traverse(Visitor visitor) const = 0;
 
-private:
     template <typename T, typename = std::enable_if_t<std::is_same<T, Kind>::value>>
     bool isAnyKind(T k) const {
         return kind_ == k;
@@ -155,7 +154,6 @@ private:
         return findAnyKind(ts...) != nullptr;
     }
 
-public:
     // Require data from input/variable
     bool hasInput() const {
         return hasAnyKind(Kind::kInputProperty,
