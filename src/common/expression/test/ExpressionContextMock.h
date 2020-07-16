@@ -56,7 +56,7 @@ public:
         }
     }
 
-    const Value& getEdgeProp(const std::string& edgeType,
+    Value getEdgeProp(const std::string& edgeType,
                              const std::string& prop) const override {
         UNUSED(edgeType);
         auto found = vals_.find(prop);
@@ -78,8 +78,8 @@ public:
         }
     }
 
-    const Value& getSrcProp(const std::string& tag,
-                            const std::string& prop) const override {
+    Value getSrcProp(const std::string& tag,
+                     const std::string& prop) const override {
         UNUSED(tag);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
