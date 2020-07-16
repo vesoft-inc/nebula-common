@@ -41,8 +41,8 @@ public:
                               const std::string& prop) const = 0;
 
     // Get the specified property from the tag, such as tag.prop_name
-    virtual const Value& getTagProp(const std::string& tag,
-                                     const std::string& prop) const = 0;
+    virtual Value getTagProp(const std::string& tag,
+                             const std::string& prop) const = 0;
 
     // Get the specified property from the source vertex, such as $^.tag_name.prop_name
     virtual Value getSrcProp(const std::string& tag,
