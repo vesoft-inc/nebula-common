@@ -87,7 +87,7 @@ private:
 class TagPropertyExpression final : public SymbolPropertyExpression {
 public:
     TagPropertyExpression(std::string* tag = nullptr,
-                           std::string* prop = nullptr)
+                          std::string* prop = nullptr)
         : SymbolPropertyExpression(Kind::kTagProperty,
                                    new std::string(""),
                                    tag,
