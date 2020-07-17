@@ -96,6 +96,8 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+private:
+    Value result_;
 };
 
 // $-.any_prop_name

@@ -58,7 +58,8 @@ const Value& EdgePropertyExpression::eval(ExpressionContext& ctx) {
 }
 
 const Value& TagPropertyExpression::eval(ExpressionContext& ctx) {
-    return ctx.getTagProp(*sym_, *prop_);
+    result_ = ctx.getEdgeProp(*sym_, *prop_);
+    return result_;
 }
 
 const Value& InputPropertyExpression::eval(ExpressionContext& ctx) {
