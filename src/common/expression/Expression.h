@@ -148,13 +148,15 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind);
 namespace std {
 template<>
 struct hash<nebula::Expression> {
-    std::size_t operator()(const nebula::Expression& expr) const noexcept;
+    std::size_t operator()(const nebula::Expression& expr) const noexcept {
+        return std::hash<std::string>()(expr.toString());
+    }
 };
 
 template<>
 struct hash<nebula::Expression*> {
     std::size_t operator()(const nebula::Expression* expr) const noexcept {
-        return hash<nebula::Expression>()(*expr);
+        return !!expr ? hash<nebula::Expression>()(*expr) : 0;
     }
 };
 }  // namespace std
