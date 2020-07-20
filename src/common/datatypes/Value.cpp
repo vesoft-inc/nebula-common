@@ -1398,10 +1398,10 @@ std::string Value::toString() const {
             return getBool() ? "true" : "false";
         }
         case Value::Type::INT: {
-            return folly::stringPrintf("%ld", getInt());
+            return folly::to<std::string>(getInt());
         }
         case Value::Type::FLOAT: {
-            return folly::stringPrintf("%lf", getFloat());
+            return folly::to<std::string>(getFloat());
         }
         case Value::Type::STRING: {
             return getStr();
@@ -1481,11 +1481,11 @@ StatusOr<double> Value::toFloat() {
         case Value::Type::STRING: {
             std::string str = getStr();
             char *pEnd;
-            double val = strtod(str.c_str(), pEnd);
-            if (std::to_string(val) == str) {
-                return val;
+            double val = strtod(str.c_str(), &pEnd);
+            if (*pEnd != '\0') {
+                return Status::Error("Value can not convert to Float");
             }
-            return Status::Error("Value can not convert to Float");
+            return val;
         }
         default: {
             return Status::Error("Value can not convert to Float");
@@ -1504,11 +1504,11 @@ StatusOr<int64_t> Value::toInt() {
         case Value::Type::STRING: {
             std::string str = getStr();
             char *pEnd;
-            int64_t val = strtol(str.c_str(), &pEnd, 10);
-            if (std::to_string(val) == str) {
-                return val;
+            double val = strtod(str.c_str(), &pEnd);
+            if (*pEnd != '\0') {
+                return Status::Error("Value can not convert to Int");
             }
-            return Status::Error("Value can not convert to Int");
+            return static_cast<int64_t>(val);
         }
         default: {
             return Status::Error("Value can not convert to Int");
