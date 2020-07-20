@@ -137,7 +137,7 @@ FunctionManager::getReturnType(const std::string &funName,
             return args.returnType_;
         }
     }
-    return Status::Error("parameter's type error");
+    return Status::Error("Parameter's type error");
 }
 
 FunctionManager::FunctionManager() {

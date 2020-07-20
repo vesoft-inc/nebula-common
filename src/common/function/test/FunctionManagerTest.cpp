@@ -130,6 +130,7 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("abs", {Value::Type::BOOL});
         ASSERT_FALSE(result.ok());
+        EXPECT_EQ(result.status().toString(), "Parameter's type error");
     }
     {
         auto result = FunctionManager::getReturnType("rand32", {});
@@ -151,6 +152,13 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result =
             FunctionManager::getReturnType("rand32", {Value::Type::INT, Value::Type::FLOAT});
         ASSERT_FALSE(result.ok());
+        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+    }
+    {
+        auto result =
+            FunctionManager::getReturnType("noexist", {Value::Type::INT});
+        ASSERT_FALSE(result.ok());
+        EXPECT_EQ(result.status().toString(), "Function `noexist' not defined");
     }
 }
 
