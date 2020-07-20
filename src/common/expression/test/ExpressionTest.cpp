@@ -1059,6 +1059,13 @@ TEST_F(ExpressionTest, FunctionCallToStringTest) {
 
 TEST_F(ExpressionTest, PropertyToStringTest) {
     {
+        SymbolPropertyExpression ep(Expression::Kind::kSymProperty,
+                                  nullptr,
+                                  new std::string("like"),
+                                  new std::string("likeness"));
+        EXPECT_EQ(ep.toString(), "like.likeness");
+    }
+    {
         EdgePropertyExpression ep(new std::string("like"), new std::string("likeness"));
         EXPECT_EQ(ep.toString(), "like.likeness");
     }
