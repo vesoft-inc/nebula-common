@@ -1225,7 +1225,7 @@ TEST_F(ExpressionTest, TypeCastTest) {
     {
         TypeCastingExpression typeCast(Value::Type::SET, new ConstantExpression(23));
         auto eval = Expression::eval(&typeCast, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::__EMPTY__);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
     }
     {
         TypeCastingExpression typeCast(Value::Type::INT, new ConstantExpression(Set()));
