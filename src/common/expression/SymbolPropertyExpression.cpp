@@ -110,7 +110,7 @@ std::string SymbolPropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 
-    if (ref_ != nullptr) {
+    if (ref_ != nullptr && !ref_->empty()) {
         buf += *ref_;
         buf += ".";
     }
