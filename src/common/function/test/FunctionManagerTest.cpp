@@ -116,6 +116,44 @@ TEST_F(FunctionManagerTest, functionCall) {
     }
 }
 
+TEST_F(FunctionManagerTest, returnType) {
+    {
+        auto result = FunctionManager::getReturnType("abs", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("abs", {Value::Type::FLOAT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("abs", {Value::Type::BOOL});
+        ASSERT_FALSE(result.ok());
+    }
+    {
+        auto result = FunctionManager::getReturnType("rand32", {});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("rand32", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result =
+            FunctionManager::getReturnType("rand32", {Value::Type::INT, Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result =
+            FunctionManager::getReturnType("rand32", {Value::Type::INT, Value::Type::FLOAT});
+        ASSERT_FALSE(result.ok());
+    }
+}
+
 }   // namespace nebula
 
 int main(int argc, char **argv) {
