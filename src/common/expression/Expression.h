@@ -156,7 +156,14 @@ struct hash<nebula::Expression> {
 template<>
 struct hash<nebula::Expression*> {
     std::size_t operator()(const nebula::Expression* expr) const noexcept {
-        return !!expr ? hash<nebula::Expression>()(*expr) : 0;
+        return expr == nullptr ? 0 : hash<nebula::Expression>()(*expr);
+    }
+};
+
+template <>
+struct equal_to<nebula::Expression*> {
+    bool operator()(const nebula::Expression* lhs, const nebula::Expression* rhs) const noexcept {
+        return lhs == rhs ? true : (lhs != nullptr) && (rhs != nullptr) && (*lhs == *rhs);
     }
 };
 }  // namespace std
