@@ -1222,6 +1222,16 @@ TEST_F(ExpressionTest, TypeCastTest) {
         EXPECT_EQ(eval.type(), Value::Type::STRING);
         EXPECT_EQ(eval, "0.23");
     }
+    {
+        TypeCastingExpression typeCast(Value::Type::SET, new ConstantExpression(23));
+        auto eval = Expression::eval(&typeCast, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::__EMPTY__);
+    }
+    {
+        TypeCastingExpression typeCast(Value::Type::INT, new ConstantExpression(Set()));
+        auto eval = Expression::eval(&typeCast, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+    }
 }
 
 }  // namespace nebula
