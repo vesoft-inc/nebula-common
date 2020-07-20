@@ -1470,6 +1470,52 @@ StatusOr<bool> Value::toBool() {
     }
 }
 
+StatusOr<double> Value::toFloat() {
+    switch (type_) {
+        case Value::Type::INT: {
+            return static_cast<double>(getInt());
+        }
+        case Value::Type::FLOAT: {
+            return getFloat();
+        }
+        case Value::Type::STRING: {
+            std::string str = getStr();
+            char *pEnd;
+            double val = strtod(str.c_str(), pEnd);
+            if (std::to_string(val) == str) {
+                return val;
+            }
+            return Status::Error("Value can not convert to Float");
+        }
+        default: {
+            return Status::Error("Value can not convert to Float");
+        }
+    }
+}
+
+StatusOr<int64_t> Value::toInt() {
+    switch (type_) {
+        case Value::Type::INT: {
+            return getInt();
+        }
+        case Value::Type::FLOAT: {
+            return static_cast<int64_t>(getFloat());
+        }
+        case Value::Type::STRING: {
+            std::string str = getStr();
+            char *pEnd;
+            int64_t val = strtol(str.c_str(), &pEnd, 10);
+            if (std::to_string(val) == str) {
+                return val;
+            }
+            return Status::Error("Value can not convert to Int");
+        }
+        default: {
+            return Status::Error("Value can not convert to Int");
+        }
+    }
+}
+
 void swap(Value& a, Value& b) {
     Value temp(std::move(a));
     a = std::move(b);
