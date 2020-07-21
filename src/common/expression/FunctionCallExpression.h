@@ -13,8 +13,6 @@ namespace nebula {
 
 class ArgumentList final {
 public:
-    using iterator = std::vector<std::unique_ptr<Expression>>::iterator;
-
     void addArgument(std::unique_ptr<Expression> arg) {
         CHECK(!!arg);
         args_.emplace_back(std::move(arg));
