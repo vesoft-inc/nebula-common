@@ -81,10 +81,6 @@ public:
         args_.reset(args);
     }
 
-    void setArg(ArgumentList::iterator iter, Expression* expr) {
-        iter->reset(expr);
-    }
-
 private:
     void writeTo(Encoder& encoder) const override;
 
