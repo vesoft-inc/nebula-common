@@ -30,6 +30,10 @@ public:
         return operand_.get();
     }
 
+    std::unique_ptr<Expression>& mutableOperand() {
+        return operand_;
+    }
+
 private:
     void writeTo(Encoder& encoder) const override;
 

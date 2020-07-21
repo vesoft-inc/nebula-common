@@ -26,6 +26,10 @@ public:
         return args_;
     }
 
+    auto& mutableArgs() {
+        return args_;
+    }
+
     size_t numArgs() const {
         return args_.size();
     }
@@ -65,6 +69,10 @@ public:
 
     const ArgumentList* args() const {
         return args_.get();
+    }
+
+    std::unique_ptr<ArgumentList>& mutableArgs() {
+        return args_;
     }
 
 private:

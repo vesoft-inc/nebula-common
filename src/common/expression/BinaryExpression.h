@@ -29,8 +29,16 @@ public:
         return lhs_.get();
     }
 
+    std::unique_ptr<Expression>& mutableLeft() {
+        return lhs_;
+    }
+
     const Expression* right() const {
         return rhs_.get();
+    }
+
+    std::unique_ptr<Expression>& mutableRight() {
+        return rhs_;
     }
 
 protected:
