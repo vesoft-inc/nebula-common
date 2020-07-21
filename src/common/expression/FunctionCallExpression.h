@@ -28,6 +28,10 @@ public:
         return args_;
     }
 
+    auto& args() {
+        return args_;
+    }
+
     size_t numArgs() const {
         return args_.size();
     }
