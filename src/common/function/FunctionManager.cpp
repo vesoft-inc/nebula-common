@@ -90,7 +90,7 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
      {TypeSignature({}, Value::Type::INT),
       TypeSignature({Value::Type::INT}, Value::Type::INT),
       TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::INT)}},
-    {"now", {TypeSignature({}, Value::Type::STRING)}},
+    {"now", {TypeSignature({}, Value::Type::INT)}},
     {"strcasecmp",
      {TypeSignature({Value::Type::STRING, Value::Type::STRING}, Value::Type::STRING)}},
     {"lower", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
