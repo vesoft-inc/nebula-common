@@ -40,7 +40,7 @@ const Value& TypeCastingExpression::eval(ExpressionContext& ctx) {
             break;
         }
         default: {
-            LOG(ERROR) << "Can not convert `" << val.type() << "` to `" << vType_ << "`";
+            LOG(ERROR) << "Can not convert the type of `" << val << "` to `" << vType_ << "`";
             return Value::kNullValue;
         }
     }

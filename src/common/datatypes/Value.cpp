@@ -1465,7 +1465,9 @@ StatusOr<bool> Value::toBool() {
             return getDate().toInt() != 0;
         }
         default: {
-            return Status::Error("Value can not convert to bool");
+            std::stringstream ss;
+            ss << *this << "'s type " << type_ << " can not convert to Bool";
+            return Status::Error(ss.str());
         }
     }
 }
@@ -1483,12 +1485,14 @@ StatusOr<double> Value::toFloat() {
             char *pEnd;
             double val = strtod(str.c_str(), &pEnd);
             if (*pEnd != '\0') {
-                return Status::Error("Value can not convert to Float");
+                return Status::Error("%s can not convert to Float", str.c_str());
             }
             return val;
         }
         default: {
-            return Status::Error("Value can not convert to Float");
+            std::stringstream ss;
+            ss << *this << "'s type " << type_ << " can not convert to Float";
+            return Status::Error(ss.str());
         }
     }
 }
@@ -1506,12 +1510,14 @@ StatusOr<int64_t> Value::toInt() {
             char *pEnd;
             double val = strtod(str.c_str(), &pEnd);
             if (*pEnd != '\0') {
-                return Status::Error("Value can not convert to Int");
+                return Status::Error("%s can not convert to Int", str.c_str());
             }
             return static_cast<int64_t>(val);
         }
         default: {
-            return Status::Error("Value can not convert to Int");
+            std::stringstream ss;
+            ss << *this << "'s type " << type_ << " can not convert to Int";
+            return Status::Error(ss.str());
         }
     }
 }
