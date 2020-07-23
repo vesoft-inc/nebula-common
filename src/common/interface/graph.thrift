@@ -44,9 +44,11 @@ enum ErrorCode {
 
 struct ProfilingStats {
     // How many rows being processed in an executor.
-    1: i64  rows;
+    1: required i64  rows;
     // Duration spent in an executor.
-    2: i64  duration;
+    2: required i64  exec_duration;
+    // Duration spent in an executor, contains schedule time
+    3: required i64  duration;
 }
 
 // The info used for select/loop.
@@ -78,8 +80,8 @@ enum PlanFormat {
 
 
 struct PlanDescription {
-    1: list<PlanNodeDescription>   plan_node_descs;
-    2: PlanFormat                  format = PlanFormat.ROW;
+    1: required list<PlanNodeDescription>   plan_node_descs;
+    2: required PlanFormat                  format = PlanFormat.ROW;
 }
 
 
