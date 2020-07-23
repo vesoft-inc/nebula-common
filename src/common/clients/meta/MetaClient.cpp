@@ -1520,12 +1520,10 @@ MetaClient::listTagIndexes(GraphSpaceID spaceID) {
 
 folly::Future<StatusOr<bool>>
 MetaClient::rebuildTagIndex(GraphSpaceID spaceID,
-                            std::string name,
-                            bool isOffline) {
+                            std::string name) {
     cpp2::RebuildIndexReq req;
     req.set_space_id(spaceID);
     req.set_index_name(std::move(name));
-    req.set_is_offline(isOffline);
 
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
@@ -1740,12 +1738,10 @@ StatusOr<EdgeSchemas> MetaClient::getAllVerEdgeSchema(GraphSpaceID spaceId) {
 
 folly::Future<StatusOr<bool>>
 MetaClient::rebuildEdgeIndex(GraphSpaceID spaceID,
-                             std::string name,
-                             bool isOffline) {
+                             std::string name) {
     cpp2::RebuildIndexReq req;
     req.set_space_id(spaceID);
     req.set_index_name(std::move(name));
-    req.set_is_offline(isOffline);
 
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();

@@ -26,8 +26,16 @@ public:
         return args_;
     }
 
+    auto& args() {
+        return args_;
+    }
+
     size_t numArgs() const {
         return args_.size();
+    }
+
+    void setArgs(std::vector<std::unique_ptr<Expression>> args) {
+        args_ = std::move(args);
     }
 
     bool operator==(const ArgumentList& rhs) const;
@@ -65,6 +73,14 @@ public:
 
     const ArgumentList* args() const {
         return args_.get();
+    }
+
+    ArgumentList* args() {
+        return args_.get();
+    }
+
+    void setArgs(ArgumentList* args) {
+        args_.reset(args);
     }
 
 private:
