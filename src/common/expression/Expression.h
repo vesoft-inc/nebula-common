@@ -145,26 +145,4 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind);
 
 }   // namespace nebula
 
-namespace std {
-template<>
-struct hash<nebula::Expression> {
-    std::size_t operator()(const nebula::Expression& expr) const noexcept {
-        return std::hash<std::string>()(expr.toString());
-    }
-};
-
-template<>
-struct hash<nebula::Expression*> {
-    std::size_t operator()(const nebula::Expression* expr) const noexcept {
-        return expr == nullptr ? 0 : hash<nebula::Expression>()(*expr);
-    }
-};
-
-template <>
-struct equal_to<nebula::Expression*> {
-    bool operator()(const nebula::Expression* lhs, const nebula::Expression* rhs) const noexcept {
-        return lhs == rhs ? true : (lhs != nullptr) && (rhs != nullptr) && (*lhs == *rhs);
-    }
-};
-}  // namespace std
 #endif   // COMMON_EXPRESSION_EXPRESSION_H_
