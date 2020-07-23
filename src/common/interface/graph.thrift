@@ -46,9 +46,9 @@ struct ProfilingStats {
     // How many rows being processed in an executor.
     1: required i64  rows;
     // Duration spent in an executor.
-    2: required i64  exec_duration;
-    // Duration spent in an executor, contains schedule time
-    3: required i64  duration;
+    2: required i64  exec_duration_in_us;
+    // Total duration spent in an executor, contains schedule time
+    3: required i64  total_duration_in_us;
 }
 
 // The info used for select/loop.
