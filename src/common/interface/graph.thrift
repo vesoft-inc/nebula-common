@@ -81,7 +81,9 @@ enum PlanFormat {
 
 struct PlanDescription {
     1: required list<PlanNodeDescription>   plan_node_descs;
-    2: required PlanFormat                  format = PlanFormat.ROW;
+    // map from node id to index of list
+    2: required map<i64, i64>               node_index_map;
+    3: required PlanFormat                  format = PlanFormat.ROW;
 }
 
 
