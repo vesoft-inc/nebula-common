@@ -83,7 +83,7 @@ struct ExecutionResponse {
     3: optional common.DataSet          data;           // Can return multiple dataset
     4: optional binary                  space_name;
     5: optional binary                  error_msg;
-    6: optional list<PlanDescription>   plan_desc;
+    6: optional PlanDescription         plan_desc;
 }
 
 
