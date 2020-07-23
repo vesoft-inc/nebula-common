@@ -49,18 +49,24 @@ struct ProfilingStats {
     2: i64  duration;
 }
 
+// The info used for select/loop.
+struct PlanNodeBranchInfo {
+    // True if loop body or then branch of select
+    1: required bool  is_do_branch;
+    // select/loop node id
+    2: required i64   condition_node_id;
+}
 
 struct PlanNodeDescription {
     1: required binary                          name;
     2: required i64                             id;
     3: required binary                          output_var;
-    // Each argument of an executor would be tranformed to string.
-    4: optional list<binary>                    arguments;
+    // other description of an executor
+    4: optional map<binary, binary>             description;
     // If an executor would be executed multi times,
     // the profiling statistics should be multi-versioned.
     5: optional list<ProfilingStats>            profiles;
-    // The condition used for selector/loop.
-    6: optional bool                            condition;
+    6: optional PlanNodeBranchInfo              branch_info;
     7: optional list<i64>                       dependencies;
 }
 
@@ -80,7 +86,7 @@ struct PlanDescription {
 struct ExecutionResponse {
     1: required ErrorCode               error_code;
     2: required i32                     latency_in_us;  // Execution time on server
-    3: optional common.DataSet          data;           // Can return multiple dataset
+    3: optional common.DataSet          data;
     4: optional binary                  space_name;
     5: optional binary                  error_msg;
     6: optional PlanDescription         plan_desc;
