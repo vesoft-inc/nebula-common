@@ -1481,7 +1481,7 @@ StatusOr<double> Value::toFloat() {
             return getFloat();
         }
         case Value::Type::STRING: {
-            std::string str = getStr();
+            const auto& str = getStr();
             char *pEnd;
             double val = strtod(str.c_str(), &pEnd);
             if (*pEnd != '\0') {
@@ -1506,7 +1506,7 @@ StatusOr<int64_t> Value::toInt() {
             return static_cast<int64_t>(getFloat());
         }
         case Value::Type::STRING: {
-            std::string str = getStr();
+            const auto& str = getStr();
             char *pEnd;
             double val = strtod(str.c_str(), &pEnd);
             if (*pEnd != '\0') {
