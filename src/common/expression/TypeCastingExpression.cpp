@@ -7,9 +7,48 @@
 #include "common/expression/TypeCastingExpression.h"
 
 namespace nebula {
-Value TypeCastingExpression::eval() const {
-    // TODO:
-    UNUSED(vType_);
-    return Value(NullType::NaN);
+const Value& TypeCastingExpression::eval(ExpressionContext& ctx) {
+    UNUSED(ctx);
+    return result_;
 }
+
+
+bool TypeCastingExpression::operator==(const Expression& rhs) const {
+    if (kind_ != rhs.kind()) {
+        return false;
+    }
+
+    const auto& r = dynamic_cast<const TypeCastingExpression&>(rhs);
+    return vType_ == r.vType_ && *operand_ == *(r.operand_);
+}
+
+
+void TypeCastingExpression::writeTo(Encoder& encoder) const {
+    // kind_
+    encoder << kind_;
+
+    // vType_
+    encoder << vType_;
+
+    // operand_
+    DCHECK(!!operand_);
+    encoder << *operand_;
+}
+
+
+void TypeCastingExpression::resetFrom(Decoder& decoder) {
+    // Read vType_
+    vType_ = decoder.readValueType();
+
+    // Read operand_
+    operand_ = decoder.readExpression();
+    CHECK(!!operand_);
+}
+
+std::string TypeCastingExpression::toString() const {
+    std::stringstream out;
+    out << "(" << vType_ << ")" << operand_->toString();
+    return out.str();
+}
+
 }  // namespace nebula

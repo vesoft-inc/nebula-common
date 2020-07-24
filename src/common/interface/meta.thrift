@@ -7,6 +7,8 @@
 namespace cpp nebula.meta
 namespace java com.vesoft.nebula.meta
 namespace go nebula.meta
+namespace js nebula.meta
+namespace csharp nebula.meta
 
 include "common.thrift"
 
@@ -67,6 +69,9 @@ enum ErrorCode {
     E_BLOCK_WRITE_FAILURE    = -52,
     E_REBUILD_INDEX_FAILURE  = -53,
     E_INDEX_WITH_TTL         = -54,
+    E_ADD_JOB_FAILURE        = -55,
+    E_STOP_JOB_FAILURE       = -56,
+    E_SAVE_JOB_FAILURE       = -57,
 
     E_UNKNOWN        = -99,
 } (cpp.enum_strict)
@@ -221,6 +226,8 @@ struct HostItem {
         (cpp.template = "std::unordered_map") leader_parts,
     4: map<binary, list<common.PartitionID>>
         (cpp.template = "std::unordered_map") all_parts,
+    5: HostRole             role,
+    6: binary               git_info_sha
 }
 
 struct UserItem {
@@ -441,7 +448,14 @@ struct ListEdgesResp {
     3: list<EdgeItem> edges,
 }
 
+enum ListHostType {
+    ALLOC       = 0x00,
+    // nebula 1.0 show hosts, show leader, partition info
+} (cpp.enum_strict)
+
 struct ListHostsReq {
+    1: ListHostType type
+    2: optional HostRole role
 }
 
 struct ListHostsResp {
@@ -539,12 +553,20 @@ struct HBResp {
     4: i64              last_update_time_in_ms,
 }
 
+enum HostRole {
+    GRAPH       = 0x00,
+    META        = 0x01,
+    STORAGE     = 0x02,
+    UNKNOWN     = 0x03
+} (cpp.enum_strict)
+
 struct HBReq {
-    1: bool in_storaged,
+    1: HostRole   role,
     2: common.HostAddr host,
     3: ClusterID cluster_id,
     4: optional map<common.GraphSpaceID, list<common.PartitionID>>
         (cpp.template = "std::unordered_map") leader_partIds;
+    5: binary     git_info_sha
 }
 
 struct CreateTagIndexReq {
@@ -620,7 +642,6 @@ struct ListEdgeIndexesResp {
 struct RebuildIndexReq {
     1: common.GraphSpaceID space_id,
     2: binary              index_name,
-    3: bool                is_offline,
 }
 
 struct CreateUserReq {

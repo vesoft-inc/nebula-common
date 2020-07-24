@@ -9,49 +9,11 @@
 
 #include "common/base/Base.h"
 #include "common/datatypes/Value.h"
+#include "common/datatypes/List.h"
 
 namespace nebula {
 
-struct Row {
-    std::vector<Value> columns;
-
-    Row() = default;
-    // reuse the verctor constructor
-    explicit Row(std::vector<Value>&& vals) : columns(std::move(vals)) {}
-    explicit Row(const std::vector<Value>& vals) : columns(vals) {}
-    Row(const Row& r) noexcept {
-        columns = r.columns;
-    }
-    Row(Row&& r) noexcept {
-        columns = std::move(r.columns);
-    }
-
-    Row& operator=(const Row& r) noexcept {
-        columns = r.columns;
-        return *this;
-    }
-    Row& operator=(Row&& r) noexcept {
-        columns = std::move(r.columns);
-        return *this;
-    }
-
-    template <typename T, typename = std::enable_if_t<std::is_convertible<T, Value>::value, T>>
-    void emplace_back(T&& v) {
-        columns.emplace_back(std::forward<T>(v));
-    }
-
-    void clear() {
-        columns.clear();
-    }
-
-    std::size_t size() const {
-        return columns.size();
-    }
-
-    bool operator==(const Row& rhs) const {
-        return columns == rhs.columns;
-    }
-};
+using Row = List;
 
 struct DataSet {
     std::vector<std::string> colNames;
@@ -89,8 +51,12 @@ struct DataSet {
 
     // append the DataSet to one with same header
     bool append(DataSet&& o) {
-        if (colNames != o.colNames) {
-            return false;
+        if (colNames.empty()) {
+            colNames = std::move(o.colNames);
+        } else {
+            if (colNames != o.colNames) {
+                return false;
+            }
         }
         rows.reserve(o.rows.size());
         rows.insert(rows.end(),
@@ -109,10 +75,10 @@ struct DataSet {
                         std::make_move_iterator(o.colNames.begin()),
                         std::make_move_iterator(o.colNames.end()));
         for (std::size_t i = 0; i < rowSize(); ++i) {
-            rows[i].columns.reserve(o.rows[i].size());
-            rows[i].columns.insert(rows[i].columns.begin(),
-                                   std::make_move_iterator(o.rows[i].columns.begin()),
-                                   std::make_move_iterator(o.rows[i].columns.end()));
+            rows[i].values.reserve(o.rows[i].size());
+            rows[i].values.insert(rows[i].values.begin(),
+                                  std::make_move_iterator(o.rows[i].values.begin()),
+                                  std::make_move_iterator(o.rows[i].values.end()));
         }
         return true;
     }
@@ -130,10 +96,33 @@ struct DataSet {
         return colNames.size();
     }
 
+    std::string toString() const {
+        std::stringstream os;
+        // header
+        for (const auto &h : colNames) {
+            os << h << "|";
+        }
+        os << std::endl;
+
+        // body
+        for (const auto &row : rows) {
+            for (const auto &col : row.values) {
+                os << col << "|";
+            }
+            os << std::endl;
+        }
+        os << std::endl;
+        return os.str();
+    }
+
     bool operator==(const DataSet& rhs) const {
         return colNames == rhs.colNames && rows == rhs.rows;
     }
 };
+
+inline std::ostream &operator<<(std::ostream& os, const DataSet& d) {
+    return os << d.toString();
+}
 
 }  // namespace nebula
 #endif  // COMMON_DATATYPES_DATASET_H_

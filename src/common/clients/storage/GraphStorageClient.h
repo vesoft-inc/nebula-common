@@ -40,9 +40,11 @@ public:
         const std::vector<EdgeType>& edgeTypes,
         cpp2::EdgeDirection edgeDirection,
         const std::vector<cpp2::StatProp>* statProps,
-        const std::vector<cpp2::PropExp>* vertexProps,
-        const std::vector<cpp2::PropExp>* edgeProps,
+        const std::vector<cpp2::VertexProp>* vertexProps,
+        const std::vector<cpp2::EdgeProp>* edgeProps,
+        const std::vector<cpp2::Expr>* expressions,
         bool dedup = false,
+        bool random = false,
         const std::vector<cpp2::OrderBy>& orderBy = std::vector<cpp2::OrderBy>(),
         int64_t limit = std::numeric_limits<int64_t>::max(),
         std::string filter = std::string(),
@@ -51,7 +53,9 @@ public:
     folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>> getProps(
         GraphSpaceID space,
         const DataSet& input,
-        const std::vector<cpp2::PropExp>& props,
+        const std::vector<cpp2::VertexProp>* vertexProps,
+        const std::vector<cpp2::EdgeProp>* edgeProps,
+        const std::vector<cpp2::Expr>* expressions,
         bool dedup = false,
         const std::vector<cpp2::OrderBy>& orderBy = std::vector<cpp2::OrderBy>(),
         int64_t limit = std::numeric_limits<int64_t>::max(),
@@ -85,7 +89,8 @@ public:
     folly::Future<StatusOr<storage::cpp2::UpdateResponse>> updateVertex(
         GraphSpaceID space,
         VertexID vertexId,
-        std::vector<cpp2::UpdatedVertexProp> updatedProps,
+        TagID tagId,
+        std::vector<cpp2::UpdatedProp> updatedProps,
         bool insertable,
         std::vector<std::string> returnProps,
         std::string condition,
@@ -94,7 +99,7 @@ public:
     folly::Future<StatusOr<storage::cpp2::UpdateResponse>> updateEdge(
         GraphSpaceID space,
         storage::cpp2::EdgeKey edgeKey,
-        std::vector<cpp2::UpdatedEdgeProp> updatedProps,
+        std::vector<cpp2::UpdatedProp> updatedProps,
         bool insertable,
         std::vector<std::string> returnProps,
         std::string condition,
@@ -112,6 +117,12 @@ public:
         int32_t tagOrEdge,
         std::vector<std::string> returnCols,
         folly::EventBase *evb = nullptr);
+
+    folly::SemiFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>> lookupAndTraverse(
+        GraphSpaceID space,
+        cpp2::IndexSpec indexSpec,
+        cpp2::TraverseSpec traverseSpec,
+        folly::EventBase* evb = nullptr);
 };
 
 }   // namespace storage

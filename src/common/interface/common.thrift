@@ -8,6 +8,9 @@
 namespace cpp nebula
 namespace java com.vesoft.nebula
 namespace go nebula
+namespace js nebula
+namespace csharp nebula
+namespace py nebula2.common
 
 cpp_include "common/thrift/ThriftTypes.h"
 cpp_include "common/datatypes/DateOps.h"
@@ -111,7 +114,7 @@ struct Set {
 
 
 struct Row {
-    1: list<Value> columns;
+    1: list<Value> values;
 } (cpp.type = "nebula::Row")
 
 

@@ -7,6 +7,9 @@
 namespace cpp nebula.graph
 namespace java com.vesoft.nebula.graph
 namespace go nebula.graph
+namespace js nebula.graph
+namespace csharp nebula.graph
+namespace py nebula2.graph
 
 include "common.thrift"
 
@@ -39,11 +42,58 @@ enum ErrorCode {
 } (cpp.enum_strict)
 
 
+struct ProfilingStats {
+    // How many rows being processed in an executor.
+    1: required i64  rows;
+    // Duration spent in an executor.
+    2: required i64  exec_duration_in_us;
+    // Total duration spent in an executor, contains schedule time
+    3: required i64  total_duration_in_us;
+}
+
+// The info used for select/loop.
+struct PlanNodeBranchInfo {
+    // True if loop body or then branch of select
+    1: required bool  is_do_branch;
+    // select/loop node id
+    2: required i64   condition_node_id;
+}
+
+struct PlanNodeDescription {
+    1: required binary                          name;
+    2: required i64                             id;
+    3: required binary                          output_var;
+    // other description of an executor
+    4: optional map<binary, binary>             description;
+    // If an executor would be executed multi times,
+    // the profiling statistics should be multi-versioned.
+    5: optional list<ProfilingStats>            profiles;
+    6: optional PlanNodeBranchInfo              branch_info;
+    7: optional list<i64>                       dependencies;
+}
+
+
+enum PlanFormat {
+    ROW = 1,
+    DOT = 2,
+}
+
+
+struct PlanDescription {
+    1: required list<PlanNodeDescription>   plan_node_descs;
+    // map from node id to index of list
+    2: required map<i64, i64>               node_index_map;
+    3: required PlanFormat                  format = PlanFormat.ROW;
+}
+
+
 struct ExecutionResponse {
     1: required ErrorCode               error_code;
     2: required i32                     latency_in_us;  // Execution time on server
-    3: optional list<common.DataSet>    data;           // Can return multiple dataset
+    3: optional common.DataSet          data;
     4: optional binary                  space_name;
+    5: optional binary                  error_msg;
+    6: optional PlanDescription         plan_desc;
 }
 
 

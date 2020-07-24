@@ -37,7 +37,7 @@ MetaClient::MetaClient(std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool
         , options_(options) {
     CHECK(ioThreadPool_ != nullptr) << "IOThreadPool is required";
     CHECK(!addrs_.empty())
-        << "No meta server address is specified. Meta server is required";
+        << "No meta server address is specified or can be solved. Meta server is required";
     clientsMan_ = std::make_shared<
         thrift::ThriftClientManager<cpp2::MetaServiceAsyncClient>
     >();
@@ -72,7 +72,6 @@ bool MetaClient::isMetadReady() {
     }
     return ready_;
 }
-
 
 bool MetaClient::waitForMetadReady(int count, int retryIntervalSecs) {
     if (!options_.skipConfig_) {
@@ -285,6 +284,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
 
     auto tagItemVec = tagRet.value();
     auto edgeItemVec = edgeRet.value();
+    allEdgeMap[spaceId] = {};
     TagSchemas tagSchemas;
     EdgeSchemas edgeSchemas;
     TagID lastTagId = -1;
@@ -351,18 +351,11 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
         edgeSchemas[edgeIt.edge_type][schema->getVersion()] = std::move(schema);
         edgeNameTypeMap.emplace(std::make_pair(spaceId, edgeIt.edge_name), edgeIt.edge_type);
         edgeTypeNameMap.emplace(std::make_pair(spaceId, edgeIt.edge_type), edgeIt.edge_name);
-        auto it = allEdgeMap.find(spaceId);
-        if (it == allEdgeMap.end()) {
-            std::vector<std::string> v = {edgeIt.edge_name};
-            allEdgeMap.emplace(spaceId, std::move(v));
-            edges.emplace(spaceId, edgeIt.edge_type);
-        } else {
-            if (edges.find({spaceId, edgeIt.edge_type}) != edges.cend()) {
-                continue;
-            }
-            edges.emplace(spaceId, edgeIt.edge_type);
-            it->second.emplace_back(edgeIt.edge_name);
+        if (edges.find({spaceId, edgeIt.edge_type}) != edges.cend()) {
+            continue;
         }
+        edges.emplace(spaceId, edgeIt.edge_type);
+        allEdgeMap[spaceId].emplace_back(edgeIt.edge_name);
         // get the latest edge version
         auto it2 = newestEdgeVerMap.find(std::make_pair(spaceId, edgeIt.edge_type));
         if (it2 != newestEdgeVerMap.end()) {
@@ -752,9 +745,10 @@ StatusOr<PartitionID> MetaClient::partId(GraphSpaceID spaceId, const VertexID id
 
 
 folly::Future<StatusOr<cpp2::AdminJobResult>>
-MetaClient::submitJob(cpp2::AdminJobOp op, std::vector<std::string> paras) {
+MetaClient::submitJob(cpp2::AdminJobOp op, cpp2::AdminCmd cmd, std::vector<std::string> paras) {
     cpp2::AdminJobReq req;
     req.set_op(op);
+    req.set_cmd(cmd);
     req.set_paras(std::move(paras));
     folly::Promise<StatusOr<cpp2::AdminJobResult>> promise;
     auto future = promise.getFuture();
@@ -845,8 +839,11 @@ folly::Future<StatusOr<bool>> MetaClient::dropSpace(std::string name,
 }
 
 
-folly::Future<StatusOr<std::vector<cpp2::HostItem>>> MetaClient::listHosts() {
+folly::Future<StatusOr<std::vector<cpp2::HostItem>>>
+MetaClient::listHosts(cpp2::ListHostType tp) {
     cpp2::ListHostsReq req;
+    req.set_type(tp);
+
     folly::Promise<StatusOr<std::vector<cpp2::HostItem>>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
@@ -1239,7 +1236,7 @@ folly::Future<StatusOr<TagID>> MetaClient::createTagSchema(GraphSpaceID spaceId,
 }
 
 
-folly::Future<StatusOr<TagID>>
+folly::Future<StatusOr<bool>>
 MetaClient::alterTagSchema(GraphSpaceID spaceId,
                            std::string name,
                            std::vector<cpp2::AlterSchemaItem> items,
@@ -1249,14 +1246,14 @@ MetaClient::alterTagSchema(GraphSpaceID spaceId,
     req.set_tag_name(std::move(name));
     req.set_tag_items(std::move(items));
     req.set_schema_prop(std::move(schemaProp));
-    folly::Promise<StatusOr<TagID>> promise;
+    folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
                     return client->future_alterTag(request);
                 },
-                [] (cpp2::ExecResp&& resp) -> TagID {
-                    return resp.get_id().get_tag_id();
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -1523,12 +1520,10 @@ MetaClient::listTagIndexes(GraphSpaceID spaceID) {
 
 folly::Future<StatusOr<bool>>
 MetaClient::rebuildTagIndex(GraphSpaceID spaceID,
-                            std::string name,
-                            bool isOffline) {
+                            std::string name) {
     cpp2::RebuildIndexReq req;
     req.set_space_id(spaceID);
     req.set_index_name(std::move(name));
-    req.set_is_offline(isOffline);
 
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
@@ -1743,12 +1738,10 @@ StatusOr<EdgeSchemas> MetaClient::getAllVerEdgeSchema(GraphSpaceID spaceId) {
 
 folly::Future<StatusOr<bool>>
 MetaClient::rebuildEdgeIndex(GraphSpaceID spaceID,
-                             std::string name,
-                             bool isOffline) {
+                             std::string name) {
     cpp2::RebuildIndexReq req;
     req.set_space_id(spaceID);
     req.set_index_name(std::move(name));
-    req.set_is_offline(isOffline);
 
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
@@ -1955,7 +1948,7 @@ const std::vector<HostAddr>& MetaClient::getAddresses() {
 
 
 std::vector<cpp2::RoleItem>
-MetaClient::getRolesByUserFromCache(const std::string& user) {
+MetaClient::getRolesByUserFromCache(const std::string& user) const {
     auto iter = userRolesMap_.find(user);
     if (iter == userRolesMap_.end()) {
         return std::vector<cpp2::RoleItem>(0);
@@ -1964,7 +1957,7 @@ MetaClient::getRolesByUserFromCache(const std::string& user) {
 }
 
 
-bool MetaClient::authCheckFromCache(const std::string& account, const std::string& password) {
+bool MetaClient::authCheckFromCache(const std::string& account, const std::string& password) const {
     auto iter = userPasswordMap_.find(account);
     if (iter == userPasswordMap_.end()) {
         return false;
@@ -1972,6 +1965,13 @@ bool MetaClient::authCheckFromCache(const std::string& account, const std::strin
     return iter->second == password;
 }
 
+bool MetaClient::checkShadowAccountFromCache(const std::string& account) const {
+    auto iter = userPasswordMap_.find(account);
+    if (iter != userPasswordMap_.end()) {
+        return true;
+    }
+    return false;
+}
 
 StatusOr<SchemaVer> MetaClient::getLatestTagVersionFromCache(const GraphSpaceID& space,
                                                              const TagID& tagId) {
@@ -2002,14 +2002,15 @@ StatusOr<SchemaVer> MetaClient::getLatestEdgeVersionFromCache(const GraphSpaceID
 
 folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
     cpp2::HBReq req;
-    req.set_in_storaged(options_.inStoraged_);
-    if (options_.inStoraged_) {
-        req.set_host(options_.localHost_);
-        if (options_.clusterId_.load() == 0) {
-            options_.clusterId_ =
-                FileBasedClusterIdMan::getClusterIdFromFile(FLAGS_cluster_id_path);
-        }
-        req.set_cluster_id(options_.clusterId_.load());
+    req.set_host(options_.localHost_);
+    req.set_role(options_.role_);
+    req.set_git_info_sha(options_.gitInfoSHA_);
+    if (options_.clusterId_.load() == 0) {
+        options_.clusterId_ =
+            FileBasedClusterIdMan::getClusterIdFromFile(FLAGS_cluster_id_path);
+    }
+    req.set_cluster_id(options_.clusterId_.load());
+    if (options_.role_ == cpp2::HostRole::STORAGE) {
         std::unordered_map<GraphSpaceID, std::vector<PartitionID>> leaderIds;
         if (listener_ != nullptr) {
             listener_->fetchLeaderInfo(leaderIds);
@@ -2034,7 +2035,8 @@ folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
                     return client->future_heartBeat(request);
                 },
                 [this] (cpp2::HBResp&& resp) -> bool {
-                    if (options_.inStoraged_ && options_.clusterId_.load() == 0) {
+                    if (options_.role_ == cpp2::HostRole::STORAGE
+                        && options_.clusterId_.load() == 0) {
                         LOG(INFO) << "Persisit the cluster Id from metad "
                                   << resp.get_cluster_id();
                         if (FileBasedClusterIdMan::persistInFile(resp.get_cluster_id(),

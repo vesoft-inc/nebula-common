@@ -18,9 +18,23 @@ struct Set {
     Set() = default;
     Set(const Set&) = default;
     Set(Set&&) = default;
+    explicit Set(std::unordered_set<Value>&& value) {
+        values = std::move(value);
+    }
 
     void clear() {
         values.clear();
+    }
+
+    std::string toString() const {
+        std::vector<std::string> value(values.size());
+        std::transform(
+            values.begin(), values.end(), value.begin(), [](const auto& v) -> std::string {
+                return v.toString();
+            });
+        std::stringstream os;
+        os << "{" << folly::join(",", value) << "}";
+        return os.str();
     }
 
     Set& operator=(const Set& rhs) {
@@ -38,6 +52,10 @@ struct Set {
         return values == rhs.values;
     }
 };
+
+inline std::ostream &operator<<(std::ostream& os, const Set& s) {
+    return os << s.toString();
+}
 
 }  // namespace nebula
 #endif  // COMMON_DATATYPES_SET_H_
