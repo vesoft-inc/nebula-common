@@ -40,9 +40,9 @@ enum ErrorCode {
     E_INVALID_FIELD_VALUE  = -18,
     E_REBUILD_INDEX_FAILED = -19,
     E_INVALID_OPERATION    = -20,
-    E_NOT_NULLABLE         = -21,
-    E_FIELD_UNSET          = -22,
-    E_OUT_OF_RANGE         = -23,
+    E_NOT_NULLABLE         = -21,   // Not allowed to be null
+    E_FIELD_UNSET          = -22,   // The field neither can be NULL, nor has a default value
+    E_OUT_OF_RANGE         = -23,   // Value exceeds the range of type
     E_INVALID_ARGUMENT     = -24,
     E_IO_ERROR             = -25,
     E_UNSUPPORTED          = -26,
