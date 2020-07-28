@@ -402,81 +402,48 @@ Value::Value(DataSet&& v) {
 }
 
 std::string Value::typeName() const {
-    switch (type_) {
-        case Value::Type::__EMPTY__: {
-            return "__EMPTY__";
-        }
-        case Value::Type::NULLVALUE: {
-            switch (value_.nVal) {
-                case NullType::__NULL__: {
-                    return "__NULL__";
-                }
-                case NullType::NaN: {
-                    return "NaN";
-                }
-                case NullType::BAD_DATA: {
-                    return "BAD_DATA";
-                }
-                case NullType::BAD_TYPE: {
-                    return "BAD_TYPE";
-                }
-                case NullType::ERR_OVERFLOW: {
-                    return "ERR_OVERFLOW";
-                }
-                case NullType::UNKNOWN_PROP: {
-                    return "UNKNOWN_PROP";
-                }
-                case NullType::DIV_BY_ZERO: {
-                    return "DIV_BY_ZERO";
-                }
-                default: {
-                    return "__UNKNOWN__";
-                }
-            }
-        }
-        case Value::Type::BOOL: {
-            return "BOOL";
-        }
-        case Value::Type::INT: {
-            return "INT";
-        }
-        case Value::Type::FLOAT: {
-            return "FLOAT";
-        }
-        case Value::Type::STRING: {
-            return "STRING";
-        }
-        case Value::Type::DATE: {
-            return "DATE";
-        }
-        case Value::Type::DATETIME: {
-            return "DATETIME";
-        }
-        case Value::Type::VERTEX: {
-            return "VERTEX";
-        }
-        case Value::Type::EDGE: {
-            return "EDGE";
-        }
-        case Value::Type::PATH: {
-            return "PATH";
-        }
-        case Value::Type::LIST: {
-            return "LIST";
-        }
-        case Value::Type::MAP: {
-            return "MAP";
-        }
-        case Value::Type::SET: {
-            return "SET";
-        }
-        case Value::Type::DATASET: {
-            return "DATASET";
-        }
-        default: {
-            return "__UNKNOWN__";
-        }
+    static std::unordered_map<Type, std::string> typeNames = {
+        { Type::__EMPTY__, "__EMPTY__" },
+        { Type::NULLVALUE, "__NULL__" },
+        { Type::BOOL, "BOOL" },
+        { Type::INT, "INT" },
+        { Type::FLOAT, "FLOAT" },
+        { Type::STRING, "STRING" },
+        { Type::DATE, "DATE" },
+        { Type::DATETIME, "DATETIME" },
+        { Type::VERTEX, "VERTEX" },
+        { Type::EDGE, "EDGE" },
+        { Type::PATH, "PATH" },
+        { Type::LIST, "LIST" },
+        { Type::MAP, "MAP" },
+        { Type::SET, "SET" },
+        { Type::DATASET, "DATASET" },
+    };
+
+    static std::unordered_map<NullType, std::string> nullTypes = {
+        { NullType::__NULL__, "__NULL__" },
+        { NullType::NaN, "NaN"},
+        { NullType::BAD_DATA, "BAD_DATA" },
+        { NullType::BAD_TYPE, "BAD_TYPE" },
+        { NullType::ERR_OVERFLOW, "ERR_OVERFLOW" },
+        { NullType::UNKNOWN_PROP, "UNKNOWN_PROP" },
+        { NullType::DIV_BY_ZERO, "DIV_BY_ZERO" },
+    };
+
+    static std::string unknownType = "__UNKNOWN__";
+
+    auto find = typeNames.find(type_);
+    if (find == typeNames.end()) {
+        return unknownType;
     }
+    if (find->first == Type::NULLVALUE) {
+        auto nullFind = nullTypes.find(value_.nVal);
+        if (nullFind == nullTypes.end()) {
+            return unknownType;
+        }
+        return nullFind->second;
+    }
+    return find->second;
 }
 
 void Value::setNull(const NullType& v) {

@@ -85,8 +85,21 @@ std::vector<cpp2::ConfigItem> GflagsManager::declareGflags(const cpp2::ConfigMod
             value = gflagsValueToThriftValue<std::string>(flag);
             // only string gflags can be nested
             if (isNested) {
-                // conver to map value
-                LOG(INFO) << "";
+                VLOG(1) << "Nested value: " << value;
+                // transform to map value
+                conf::Configuration conf;
+                auto status = conf.parseFromString(value.getStr());
+                if (!status.ok()) {
+                    LOG(ERROR) << "Parse nested gflags: " << name
+                               << ", value: " << value
+                               << " failed: " << status;
+                    continue;
+                }
+                Map map;
+                conf.forEachItem([&map] (const std::string& key, const folly::dynamic& val) {
+                    map.kvs.emplace(key, val.asString());
+                });
+                value.setMap(std::move(map));
             }
         } else {
             LOG(INFO) << "Not able to declare " << name << " of " << type;
