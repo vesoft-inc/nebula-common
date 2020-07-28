@@ -1676,12 +1676,12 @@ MetaClient::getTagSchemaFromCache(GraphSpaceID spaceId, TagID tagID, SchemaVer v
         return std::shared_ptr<const NebulaSchemaProvider>();
     } else {
         auto tagIt = spaceIt->second->tagSchemas_.find(tagID);
-        if (tagIt == spaceIt->second->tagSchemas_.end() || tagIt->second.empty()) {
+        if (tagIt == spaceIt->second->tagSchemas_.end() ||
+            tagIt->second.empty() ||
+            tagIt->second.size() <= static_cast<size_t>(ver)) {
             return std::shared_ptr<const NebulaSchemaProvider>();
         } else if (ver < 0) {
             return tagIt->second.back();
-        } else if (tagIt->second.size() <= static_cast<size_t>(ver)) {
-            return std::shared_ptr<const NebulaSchemaProvider>();
         } else {
             return tagIt->second[ver];
         }
@@ -1701,12 +1701,12 @@ MetaClient::getEdgeSchemaFromCache(GraphSpaceID spaceId, EdgeType edgeType, Sche
         return std::shared_ptr<const NebulaSchemaProvider>();
     } else {
         auto edgeIt = spaceIt->second->edgeSchemas_.find(edgeType);
-        if (edgeIt == spaceIt->second->edgeSchemas_.end() || edgeIt->second.empty()) {
+        if (edgeIt == spaceIt->second->edgeSchemas_.end() ||
+            edgeIt->second.empty() ||
+            edgeIt->second.size() <= static_cast<size_t>(ver)) {
             return std::shared_ptr<const NebulaSchemaProvider>();
         } else if (ver < 0) {
             return edgeIt->second.back();
-        } else if (edgeIt->second.size() <= static_cast<size_t>(ver)) {
-            return std::shared_ptr<const NebulaSchemaProvider>();
         } else {
             return edgeIt->second[ver];
         }
