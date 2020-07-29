@@ -186,6 +186,9 @@ public:
         return reinterpret_cast<const Header*>(state_.get())->code_;
     }
 
+    folly::StringPiece message() const &;
+    folly::StringPiece message() const && = delete;
+
 private:
     // REQUIRES: stat_ != nullptr
     uint16_t size() const {
@@ -197,6 +200,8 @@ private:
     static std::unique_ptr<const char[]> copyState(const char *state);
 
     static std::string format(const char *fmt, va_list args);
+
+    static const char *codeToString(Code code);
 
 private:
     struct Header {

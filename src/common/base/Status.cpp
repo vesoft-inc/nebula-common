@@ -19,36 +19,19 @@ Status::Status(Code code, folly::StringPiece msg) {
     state_ = std::move(state);
 }
 
+folly::StringPiece Status::message() const & {
+    return folly::StringPiece(&state_[kHeaderSize], size());
+}
 
 std::string Status::toString() const {
-    if (code() == kOk) {
+    Code code = this->code();
+    if (code == kOk) {
         return "OK";
     }
-    char tmp[64];
-    const char *str;
-    switch (code()) {
-        case kError:
-            str = "";
-            break;
-        case kSyntaxError:
-            str = "SyntaxError: ";
-            break;
-        case kPermissionError:
-            str = "PermissionError: ";
-            break;
-        case kSpaceNotFound:
-            str = "Space not found";
-            break;
-        default:
-            snprintf(tmp, sizeof(tmp), "Unknown error(%hu): ", static_cast<uint16_t>(code()));
-            str = tmp;
-            break;
-    }
-    std::string result(str);
+    std::string result(codeToString(code));
     result.append(&state_[kHeaderSize], size());
     return result;
 }
-
 
 std::unique_ptr<const char[]> Status::copyState(const char *state) {
     const auto size = *reinterpret_cast<const uint16_t*>(state);
@@ -63,6 +46,50 @@ std::string Status::format(const char *fmt, va_list args) {
     char result[256];
     vsnprintf(result, sizeof(result), fmt, args);
     return result;
+}
+
+// static
+const char *Status::codeToString(Code code) {
+    switch (code) {
+        case kOk:
+            return "OK";
+        case kInserted:
+            return "Inserted: ";
+        case kError:
+            return "";
+        case kNoSuchFile:
+            return "NoSuchFile: ";
+        case kNotSupported:
+            return "NotSupported: ";
+        case kSyntaxError:
+            return "SyntaxError: ";
+        case kStatementEmpty:
+            return "StatementEmpty: ";
+        case kSemanticError:
+            return "SemanticError: ";
+        case kKeyNotFound:
+            return "KeyNotFound: ";
+        case kSpaceNotFound:
+            return "SpaceNotFound: ";
+        case kHostNotFound:
+            return "HostNotFound: ";
+        case kTagNotFound:
+            return "TagNotFound: ";
+        case kEdgeNotFound:
+            return "EdgeNotFound: ";
+        case kUserNotFound:
+            return "UserNotFound: ";
+        case kLeaderChanged:
+            return "LeaderChanged: ";
+        case kBalanced:
+            return "Balanced: ";
+        case kIndexNotFound:
+            return "IndexNotFound: ";
+        case kPartNotFound:
+            return "PartNotFound: ";
+        case kPermissionError:
+            return "PermissionError: ";
+    }
 }
 
 }   // namespace nebula
