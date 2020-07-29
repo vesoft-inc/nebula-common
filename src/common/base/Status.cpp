@@ -19,9 +19,9 @@ Status::Status(Code code, folly::StringPiece msg) {
     state_ = std::move(state);
 }
 
-folly::StringPiece Status::message() const {
+std::string Status::message() const {
     if (state_ == nullptr) return "";
-    return folly::StringPiece(&state_[kHeaderSize], size());
+    return std::string(&state_[kHeaderSize], size());
 }
 
 std::string Status::toString() const {

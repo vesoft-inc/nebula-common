@@ -117,6 +117,11 @@ TEST(Status, Message) {
     EXPECT_EQ(syntaxError.toString(), "SyntaxError: error");
     EXPECT_EQ("some reason", Status::Error("some reason").message());
     EXPECT_EQ("", Status::OK().message());
+    std::string msg;
+    {
+        msg = Status::Error("reason").message();
+    }
+    EXPECT_EQ(msg, "reason");
 }
 
 }   // namespace nebula
