@@ -200,7 +200,7 @@ private:
 
     static std::string format(const char *fmt, va_list args);
 
-    static const char *codeToString(Code code);
+    static const char *toString(Code code);
 
 private:
     struct Header {

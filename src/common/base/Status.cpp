@@ -20,6 +20,7 @@ Status::Status(Code code, folly::StringPiece msg) {
 }
 
 folly::StringPiece Status::message() const {
+    if (state_ == nullptr) return "";
     return folly::StringPiece(&state_[kHeaderSize], size());
 }
 
@@ -28,7 +29,7 @@ std::string Status::toString() const {
     if (code == kOk) {
         return "OK";
     }
-    std::string result(codeToString(code));
+    std::string result(toString(code));
     result.append(&state_[kHeaderSize], size());
     return result;
 }
@@ -49,7 +50,7 @@ std::string Status::format(const char *fmt, va_list args) {
 }
 
 // static
-const char *Status::codeToString(Code code) {
+const char *Status::toString(Code code) {
     switch (code) {
         case kOk:
             return "OK";
