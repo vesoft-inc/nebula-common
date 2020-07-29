@@ -43,10 +43,7 @@ enum ErrorCode {
     E_NOT_NULLABLE         = -21,   // Not allowed to be null
     E_FIELD_UNSET          = -22,   // The field neither can be NULL, nor has a default value
     E_OUT_OF_RANGE         = -23,   // Value exceeds the range of type
-    E_INVALID_ARGUMENT     = -24,
-    E_IO_ERROR             = -25,
-    E_UNSUPPORTED          = -26,
-    E_ATOMIC_OP_FAILED     = -27,
+    E_ATOMIC_OP_FAILED     = -24,   // Atomic operation failed
 
     // meta failures
     E_EDGE_PROP_NOT_FOUND    = -31,
