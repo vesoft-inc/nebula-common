@@ -91,7 +91,7 @@ const char *Status::toString(Code code) {
         case kPermissionError:
             return "PermissionError: ";
     }
-    LOG(FATAL) << "Invalid status code: " << static_cast<uint16_t>(code);
+    DLOG(FATAL) << "Invalid status code: " << static_cast<uint16_t>(code);
     return "";
 }
 
