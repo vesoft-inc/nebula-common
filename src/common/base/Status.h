@@ -186,8 +186,7 @@ public:
         return reinterpret_cast<const Header*>(state_.get())->code_;
     }
 
-    folly::StringPiece message() const &;
-    folly::StringPiece message() const && = delete;
+    folly::StringPiece message() const;
 
 private:
     // REQUIRES: stat_ != nullptr

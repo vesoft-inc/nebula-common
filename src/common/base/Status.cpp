@@ -19,7 +19,7 @@ Status::Status(Code code, folly::StringPiece msg) {
     state_ = std::move(state);
 }
 
-folly::StringPiece Status::message() const & {
+folly::StringPiece Status::message() const {
     return folly::StringPiece(&state_[kHeaderSize], size());
 }
 
@@ -90,6 +90,8 @@ const char *Status::codeToString(Code code) {
         case kPermissionError:
             return "PermissionError: ";
     }
+    LOG(FATAL) << "Invalid status code: " << static_cast<uint16_t>(code);
+    return "";
 }
 
 }   // namespace nebula
