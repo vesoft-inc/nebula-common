@@ -39,6 +39,7 @@ enum ErrorCode {
     E_EXECUTION_ERROR = -8,
     // Nothing is executed When command is comment
     E_STATEMENT_EMTPY = -9,
+    E_SEMANTIC_ERROR = -10,
 } (cpp.enum_strict)
 
 
@@ -49,6 +50,9 @@ struct ProfilingStats {
     2: required i64  exec_duration_in_us;
     // Total duration spent in an executor, contains schedule time
     3: required i64  total_duration_in_us;
+    // Other profiling stats data map
+    4: optional map<binary, binary>
+        (cpp.template = "std::unordered_map") other_stats;
 }
 
 // The info used for select/loop.
@@ -73,19 +77,13 @@ struct PlanNodeDescription {
     7: optional list<i64>                       dependencies;
 }
 
-
-enum PlanFormat {
-    ROW = 1,
-    DOT = 2,
-}
-
-
 struct PlanDescription {
     1: required list<PlanNodeDescription>     plan_node_descs;
     // map from node id to index of list
     2: required map<i64, i64>
         (cpp.template = "std::unordered_map") node_index_map;
-    3: required PlanFormat                    format = PlanFormat.ROW;
+    // the print format of exec plan, lowercase string like `dot'
+    3: required binary                        format;
 }
 
 

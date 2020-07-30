@@ -78,7 +78,7 @@ struct Value {
 
     // Constructors
     Value() : type_(Type::__EMPTY__) {}
-    Value(Value&& rhs);
+    Value(Value&& rhs) noexcept;
     Value(const Value& rhs);
 
     Value(const NullType& v);       // NOLINT
@@ -186,7 +186,7 @@ struct Value {
 
     void clear();
 
-    Value& operator=(Value&& rhs);
+    Value& operator=(Value&& rhs) noexcept;
     Value& operator=(const Value& rhs);
 
     void setNull(const NullType& v);
@@ -450,6 +450,20 @@ namespace std {
 template<>
 struct hash<nebula::Value> {
     std::size_t operator()(const nebula::Value& h) const noexcept;
+};
+
+template<>
+struct hash<nebula::Value*> {
+    std::size_t operator()(const nebula::Value* h) const noexcept {
+        return h == nullptr ? 0 : hash<nebula::Value>()(*h);
+    }
+};
+
+template<>
+struct equal_to<nebula::Value*> {
+    bool operator()(const nebula::Value* lhs, const nebula::Value* rhs) const noexcept {
+        return lhs == rhs ? true : (lhs != nullptr) && (rhs != nullptr) && (*lhs == *rhs);
+    }
 };
 
 }  // namespace std
