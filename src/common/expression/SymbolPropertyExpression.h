@@ -28,6 +28,7 @@ constexpr char const kDstRef[] = "$$";
 class SymbolPropertyExpression: public Expression {
     friend class Expression;
 public:
+    SymbolPropertyExpression() : Expression(Kind::kSymProperty) {}
     SymbolPropertyExpression(Kind kind,
                              std::string* ref,
                              std::string* sym,
@@ -40,6 +41,8 @@ public:
 
     bool operator==(const Expression& rhs) const override;
 
+    const Value& eval(ExpressionContext& ctx) override;
+
     const std::string *ref() const {
         return ref_.get();
     }
@@ -51,6 +54,8 @@ public:
     const std::string *prop() const {
         return prop_.get();
     }
+
+    std::string toString() const override;
 
 protected:
     void writeTo(Encoder& encoder) const override;
@@ -78,6 +83,24 @@ public:
 
 private:
     Value                           result_;
+};
+
+
+// tag_name.any_prop_name
+class TagPropertyExpression final : public SymbolPropertyExpression {
+public:
+    TagPropertyExpression(std::string* tag = nullptr,
+                          std::string* prop = nullptr)
+        : SymbolPropertyExpression(Kind::kTagProperty,
+                                   new std::string(""),
+                                   tag,
+                                   prop) {}
+
+    const Value& eval(ExpressionContext& ctx) override;
+
+    std::string toString() const override;
+private:
+    Value result_;
 };
 
 // $-.any_prop_name

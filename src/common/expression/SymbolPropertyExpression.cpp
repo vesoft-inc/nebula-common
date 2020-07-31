@@ -45,12 +45,22 @@ void SymbolPropertyExpression::resetFrom(Decoder& decoder) {
     prop_ = decoder.readStr();
 }
 
+const Value& SymbolPropertyExpression::eval(ExpressionContext& ctx) {
+    // TODO maybe cypher need it.
+    UNUSED(ctx);
+    LOG(FATAL) << "Unimplemented";
+}
+
 
 const Value& EdgePropertyExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getEdgeProp(*sym_, *prop_);
     return result_;
 }
 
+const Value& TagPropertyExpression::eval(ExpressionContext& ctx) {
+    result_ = ctx.getTagProp(*sym_, *prop_);
+    return result_;
+}
 
 const Value& InputPropertyExpression::eval(ExpressionContext& ctx) {
     return ctx.getInputProp(*prop_);
@@ -97,12 +107,46 @@ const Value& EdgeDstIdExpression::eval(ExpressionContext& ctx) {
 }
 
 const Value& VidExpression::eval(ExpressionContext& ctx) {
-    // TODO(shylock) getTagProp
-    result_ = ctx.getSrcProp(*sym_, *prop_);
+    result_ = ctx.getVid(*prop_);
     return result_;
 }
 
+std::string SymbolPropertyExpression::toString() const {
+    std::string buf;
+    buf.reserve(64);
+
+    if (ref_ != nullptr && !ref_->empty()) {
+        buf += *ref_;
+        buf += ".";
+    }
+
+    if (sym_ != nullptr && !sym_->empty()) {
+        buf += *sym_;
+        buf += ".";
+    }
+    if (prop_ != nullptr) {
+        buf += *prop_;
+    }
+
+    return buf;
+}
+
 std::string EdgePropertyExpression::toString() const {
+    std::string buf;
+    buf.reserve(64);
+
+    if (sym_ != nullptr && !sym_->empty()) {
+        buf += *sym_;
+        buf += ".";
+    }
+    if (prop_ != nullptr) {
+        buf += *prop_;
+    }
+
+    return buf;
+}
+
+std::string TagPropertyExpression::toString() const {
     std::string buf;
     buf.reserve(64);
 

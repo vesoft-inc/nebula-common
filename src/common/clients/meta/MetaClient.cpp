@@ -284,6 +284,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
 
     auto tagItemVec = tagRet.value();
     auto edgeItemVec = edgeRet.value();
+    allEdgeMap[spaceId] = {};
     TagSchemas tagSchemas;
     EdgeSchemas edgeSchemas;
     TagID lastTagId = -1;
@@ -345,23 +346,16 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
         if (edgeIt.edge_type != lastEdgeType) {
             // init schema vector, since schema version is zero-based, need to add one
             edgeSchemas[edgeIt.edge_type].resize(schema->getVersion() + 1);
-            lastTagId = edgeIt.edge_type;
+            lastEdgeType = edgeIt.edge_type;
         }
         edgeSchemas[edgeIt.edge_type][schema->getVersion()] = std::move(schema);
         edgeNameTypeMap.emplace(std::make_pair(spaceId, edgeIt.edge_name), edgeIt.edge_type);
         edgeTypeNameMap.emplace(std::make_pair(spaceId, edgeIt.edge_type), edgeIt.edge_name);
-        auto it = allEdgeMap.find(spaceId);
-        if (it == allEdgeMap.end()) {
-            std::vector<std::string> v = {edgeIt.edge_name};
-            allEdgeMap.emplace(spaceId, std::move(v));
-            edges.emplace(spaceId, edgeIt.edge_type);
-        } else {
-            if (edges.find({spaceId, edgeIt.edge_type}) != edges.cend()) {
-                continue;
-            }
-            edges.emplace(spaceId, edgeIt.edge_type);
-            it->second.emplace_back(edgeIt.edge_name);
+        if (edges.find({spaceId, edgeIt.edge_type}) != edges.cend()) {
+            continue;
         }
+        edges.emplace(spaceId, edgeIt.edge_type);
+        allEdgeMap[spaceId].emplace_back(edgeIt.edge_name);
         // get the latest edge version
         auto it2 = newestEdgeVerMap.find(std::make_pair(spaceId, edgeIt.edge_type));
         if (it2 != newestEdgeVerMap.end()) {
@@ -1526,12 +1520,10 @@ MetaClient::listTagIndexes(GraphSpaceID spaceID) {
 
 folly::Future<StatusOr<bool>>
 MetaClient::rebuildTagIndex(GraphSpaceID spaceID,
-                            std::string name,
-                            bool isOffline) {
+                            std::string name) {
     cpp2::RebuildIndexReq req;
     req.set_space_id(spaceID);
     req.set_index_name(std::move(name));
-    req.set_is_offline(isOffline);
 
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
@@ -1685,8 +1677,11 @@ MetaClient::getTagSchemaFromCache(GraphSpaceID spaceId, TagID tagID, SchemaVer v
     } else {
         auto tagIt = spaceIt->second->tagSchemas_.find(tagID);
         if (tagIt == spaceIt->second->tagSchemas_.end() ||
+            tagIt->second.empty() ||
             tagIt->second.size() <= static_cast<size_t>(ver)) {
             return std::shared_ptr<const NebulaSchemaProvider>();
+        } else if (ver < 0) {
+            return tagIt->second.back();
         } else {
             return tagIt->second[ver];
         }
@@ -1707,10 +1702,11 @@ MetaClient::getEdgeSchemaFromCache(GraphSpaceID spaceId, EdgeType edgeType, Sche
     } else {
         auto edgeIt = spaceIt->second->edgeSchemas_.find(edgeType);
         if (edgeIt == spaceIt->second->edgeSchemas_.end() ||
+            edgeIt->second.empty() ||
             edgeIt->second.size() <= static_cast<size_t>(ver)) {
-            LOG(ERROR) << "Space " << spaceId << ", EdgeType " << edgeType << ", version "
-                       << ver << " not found!";
             return std::shared_ptr<const NebulaSchemaProvider>();
+        } else if (ver < 0) {
+            return edgeIt->second.back();
         } else {
             return edgeIt->second[ver];
         }
@@ -1746,12 +1742,10 @@ StatusOr<EdgeSchemas> MetaClient::getAllVerEdgeSchema(GraphSpaceID spaceId) {
 
 folly::Future<StatusOr<bool>>
 MetaClient::rebuildEdgeIndex(GraphSpaceID spaceID,
-                             std::string name,
-                             bool isOffline) {
+                             std::string name) {
     cpp2::RebuildIndexReq req;
     req.set_space_id(spaceID);
     req.set_index_name(std::move(name));
-    req.set_is_offline(isOffline);
 
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
@@ -2015,12 +2009,12 @@ folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
     req.set_host(options_.localHost_);
     req.set_role(options_.role_);
     req.set_git_info_sha(options_.gitInfoSHA_);
-    if (options_.clusterId_.load() == 0) {
-        options_.clusterId_ =
-            FileBasedClusterIdMan::getClusterIdFromFile(FLAGS_cluster_id_path);
-    }
-    req.set_cluster_id(options_.clusterId_.load());
     if (options_.role_ == cpp2::HostRole::STORAGE) {
+        if (options_.clusterId_.load() == 0) {
+            options_.clusterId_ =
+                FileBasedClusterIdMan::getClusterIdFromFile(FLAGS_cluster_id_path);
+        }
+        req.set_cluster_id(options_.clusterId_.load());
         std::unordered_map<GraphSpaceID, std::vector<PartitionID>> leaderIds;
         if (listener_ != nullptr) {
             listener_->fetchLeaderInfo(leaderIds);

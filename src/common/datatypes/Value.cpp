@@ -23,23 +23,19 @@ std::size_t hash<nebula::Value>::operator()(const nebula::Value& v) const noexce
             return 0;
         }
         case nebula::Value::Type::NULLVALUE: {
-            return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&v.getNull()),
-                                          sizeof(nebula::NullType));
+            return ~0UL;
         }
         case nebula::Value::Type::BOOL: {
-            return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&v.getBool()),
-                                          sizeof(bool));
+            return hash<bool>()(v.getBool());
         }
         case nebula::Value::Type::INT: {
-            return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&v.getInt()),
-                                          sizeof(int64_t));
+            return hash<int64_t>()(v.getInt());
         }
         case nebula::Value::Type::FLOAT: {
-            return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&v.getFloat()),
-                                          sizeof(double));
+            return hash<double>()(v.getFloat());
         }
         case nebula::Value::Type::STRING: {
-            return folly::hash::fnv64(v.getStr());
+            return hash<string>()(v.getStr());
         }
         case nebula::Value::Type::DATE: {
             return hash<nebula::Date>()(v.getDate());
@@ -91,7 +87,7 @@ const Value Value::kNullDivByZero(NullType::DIV_BY_ZERO);
 const uint64_t Value::kEmptyNullType = Value::Type::__EMPTY__ | Value::Type::NULLVALUE;
 const uint64_t Value::kNumericType   = Value::Type::INT | Value::Type::FLOAT;
 
-Value::Value(Value&& rhs) : type_(Value::Type::__EMPTY__) {
+Value::Value(Value&& rhs) noexcept : type_(Value::Type::__EMPTY__) {
     if (this == &rhs) { return; }
     if (rhs.type_ == Type::__EMPTY__) { return; }
     switch (rhs.type_) {
@@ -978,7 +974,7 @@ void Value::clear() {
 }
 
 
-Value& Value::operator=(Value&& rhs) {
+Value& Value::operator=(Value&& rhs) noexcept {
     if (this == &rhs) { return *this; }
     clear();
     if (rhs.type_ == Type::__EMPTY__) { return *this; }
@@ -1398,10 +1394,10 @@ std::string Value::toString() const {
             return getBool() ? "true" : "false";
         }
         case Value::Type::INT: {
-            return folly::stringPrintf("%ld", getInt());
+            return folly::to<std::string>(getInt());
         }
         case Value::Type::FLOAT: {
-            return folly::stringPrintf("%lf", getFloat());
+            return folly::to<std::string>(getFloat());
         }
         case Value::Type::STRING: {
             return getStr();
@@ -1437,6 +1433,89 @@ std::string Value::toString() const {
     }
 
     LOG(FATAL) << "Unknown value type " << static_cast<int>(type_);
+}
+
+StatusOr<bool> Value::toBool() {
+    switch (type_) {
+        // Type::__EMPTY__ is always false
+        case Value::Type::__EMPTY__: {
+            return false;
+        }
+        // Type::NULLVALUE is always false
+        case Value::Type::NULLVALUE: {
+            return false;
+        }
+        case Value::Type::BOOL: {
+            return getBool();
+        }
+        case Value::Type::INT: {
+            return getInt() != 0;
+        }
+        case Value::Type::FLOAT: {
+            return std::abs(getFloat()) > kEpsilon;
+        }
+        case Value::Type::STRING: {
+            return !getStr().empty();
+        }
+        case Value::Type::DATE: {
+            return getDate().toInt() != 0;
+        }
+        default: {
+            std::stringstream ss;
+            ss << *this << "'s type " << type_ << " can not convert to Bool";
+            return Status::Error(ss.str());
+        }
+    }
+}
+
+StatusOr<double> Value::toFloat() {
+    switch (type_) {
+        case Value::Type::INT: {
+            return static_cast<double>(getInt());
+        }
+        case Value::Type::FLOAT: {
+            return getFloat();
+        }
+        case Value::Type::STRING: {
+            const auto& str = getStr();
+            char *pEnd;
+            double val = strtod(str.c_str(), &pEnd);
+            if (*pEnd != '\0') {
+                return Status::Error("%s can not convert to Float", str.c_str());
+            }
+            return val;
+        }
+        default: {
+            std::stringstream ss;
+            ss << *this << "'s type " << type_ << " can not convert to Float";
+            return Status::Error(ss.str());
+        }
+    }
+}
+
+StatusOr<int64_t> Value::toInt() {
+    switch (type_) {
+        case Value::Type::INT: {
+            return getInt();
+        }
+        case Value::Type::FLOAT: {
+            return static_cast<int64_t>(getFloat());
+        }
+        case Value::Type::STRING: {
+            const auto& str = getStr();
+            char *pEnd;
+            double val = strtod(str.c_str(), &pEnd);
+            if (*pEnd != '\0') {
+                return Status::Error("%s can not convert to Int", str.c_str());
+            }
+            return static_cast<int64_t>(val);
+        }
+        default: {
+            std::stringstream ss;
+            ss << *this << "'s type " << type_ << " can not convert to Int";
+            return Status::Error(ss.str());
+        }
+    }
 }
 
 void swap(Value& a, Value& b) {

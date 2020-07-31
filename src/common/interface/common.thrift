@@ -10,6 +10,7 @@ namespace java com.vesoft.nebula
 namespace go nebula
 namespace js nebula
 namespace csharp nebula
+namespace py nebula2.common
 
 cpp_include "common/thrift/ThriftTypes.h"
 cpp_include "common/datatypes/DateOps.h"
@@ -72,6 +73,9 @@ enum NullType {
     NaN      = 1,
     BAD_DATA = 2,
     BAD_TYPE = 3,
+    ERR_OVERFLOW = 4,
+    UNKNOWN_PROP = 5,
+    DIV_BY_ZERO = 6,
 } (cpp.enum_strict cpp.type = "nebula::NullType")
 
 
