@@ -11,6 +11,9 @@
 
 namespace nebula {
 
+
+
+
 class TypeCastingExpression final : public Expression {
     friend class Expression;
 
@@ -42,6 +45,8 @@ public:
     Value::Type type() const {
         return vType_;
     }
+
+    static bool validateTypeCast(const Value::Type& operandType, const Value::Type& type);
 
 private:
     void writeTo(Encoder& encoder) const override;

@@ -7,6 +7,55 @@
 #include "common/expression/TypeCastingExpression.h"
 
 namespace nebula {
+
+static std::unordered_multimap<Value::Type, Value::Type> typeCastMap = {
+    {Value::Type::INT, Value::Type::INT},
+    {Value::Type::FLOAT, Value::Type::INT},
+    {Value::Type::STRING, Value::Type::INT},
+
+    {Value::Type::STRING, Value::Type::STRING},
+    {Value::Type::__EMPTY__, Value::Type::STRING},
+    {Value::Type::NULLVALUE, Value::Type::STRING},
+    {Value::Type::BOOL, Value::Type::STRING},
+    {Value::Type::INT, Value::Type::STRING},
+    {Value::Type::FLOAT, Value::Type::STRING},
+    {Value::Type::DATE, Value::Type::STRING},
+    {Value::Type::DATETIME, Value::Type::STRING},
+    {Value::Type::MAP, Value::Type::STRING},
+    {Value::Type::PATH, Value::Type::STRING},
+    {Value::Type::LIST, Value::Type::STRING},
+    {Value::Type::SET, Value::Type::STRING},
+    {Value::Type::DATASET, Value::Type::STRING},
+    {Value::Type::VERTEX, Value::Type::STRING},
+    {Value::Type::EDGE, Value::Type::STRING},
+
+    {Value::Type::BOOL, Value::Type::BOOL},
+    {Value::Type::__EMPTY__, Value::Type::BOOL},
+    {Value::Type::NULLVALUE, Value::Type::BOOL},
+    {Value::Type::INT, Value::Type::BOOL},
+    {Value::Type::FLOAT, Value::Type::BOOL},
+    {Value::Type::STRING, Value::Type::BOOL},
+    {Value::Type::DATE, Value::Type::BOOL},
+
+    {Value::Type::FLOAT, Value::Type::FLOAT},
+    {Value::Type::INT, Value::Type::FLOAT},
+    {Value::Type::STRING, Value::Type::FLOAT}
+};
+
+static bool TypeCastingExpression::validateTypeCast(const Value::Type& operandType,
+                                                    const Value::Type& type) {
+    auto range = typeCastMap.equal_range(operandType);
+    if (range.first == typeCastMap.end() && range.second == typeCastMap.end()) {
+        return false;
+    }
+    for (const auto& it = range.first; it != range.second; ++it) {
+        if (it->second == type) {
+            return true;
+        }
+    }
+    return false;
+}
+
 const Value& TypeCastingExpression::eval(ExpressionContext& ctx) {
     auto val = operand_->eval(ctx);
 
