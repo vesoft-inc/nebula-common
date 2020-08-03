@@ -11,7 +11,7 @@ namespace nebula {
 const uint8_t daysOfMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 // The mainstream Linux kernel's implementation constrains this
-constexpr int64_t maxTimestamp = std::numeric_limits<int64_t>::max() / 1000000000;
+constexpr int64_t kMaxTimestamp = std::numeric_limits<int64_t>::max() / 1000000000;
 
 static const std::regex datetimeReg("^([1-9]\\d{3})-"
                                     "(0[1-9]|1[0-2]|\\d)-"
@@ -50,7 +50,7 @@ StatusOr<Timestamp> TimeFunction::toTimestamp(const Value &val) {
                 return Status::Error("Incorrect timestamp type: `%s'", val.toString().c_str());
             }
         } else {
-            if (isLeapyear(year)) {
+            if (isLeapYear(year)) {
                 if (day > 29) {
                     return Status::Error("Incorrect timestamp type: `%s'", val.toString().c_str());
                 }
@@ -64,7 +64,7 @@ StatusOr<Timestamp> TimeFunction::toTimestamp(const Value &val) {
         timestamp = val.getInt();
     }
 
-    if (timestamp < 0 || (timestamp > maxTimestamp)) {
+    if (timestamp < 0 || (timestamp > kMaxTimestamp)) {
         return Status::Error("Incorrect timestamp type: `%s'", val.toString().c_str());
     }
     return timestamp;
@@ -83,7 +83,7 @@ StatusOr<DateTime> TimeFunction::toDateTime(const Value&) {
 }
 
 
-bool TimeFunction::isLeapyear(int32_t year) {
+bool TimeFunction::isLeapYear(int32_t year) {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 }  // namespace nebula
