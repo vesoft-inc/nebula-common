@@ -2538,14 +2538,15 @@ void MetaClient::updateGflagsValue(const cpp2::ConfigItem& item) {
         return;
     }
     auto value = item.value;
-    std::string valueStr = value.toString();
     std::string curValue;
     if (!gflags::GetCommandLineOption(item.name.c_str(), &curValue)) {
         return;
     } else {
-        curValue = GflagsManager::trimAllWhitespace(curValue);
-        if (curValue != valueStr) {
-            if (value.isMap() && valueStr.empty()) {
+        auto gflagValue = GflagsManager::gflagsValueToValue(value.typeName(),
+                                                            curValue);
+        if (gflagValue != value) {
+            auto valueStr = value.toString();
+            if (value.isMap() && value.getMap().kvs.empty()) {
                 // Be compatible with previous configuration
                 valueStr = "{}";
             }

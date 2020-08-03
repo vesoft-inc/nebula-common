@@ -15,22 +15,19 @@
 namespace nebula {
 namespace meta {
 
-class GflagsManager {
+class GflagsManager final {
 public:
+    GflagsManager() = delete;
+
     static void getGflagsModule(cpp2::ConfigModule& gflagsModule);
 
     static std::vector<cpp2::ConfigItem> declareGflags(const cpp2::ConfigModule& module);
 
-    static std::string trimAllWhitespace(const std::string &inStr);
-
-protected:
-    virtual ~GflagsManager() = default;
-
+    static Value gflagsValueToValue(const std::string &type,
+                                    const std::string &val);
+private:
     static std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>>
            parseConfigJson(const std::string& json);
-
-    template<typename ValueType>
-    static Value gflagsValueToThriftValue(const gflags::CommandLineFlagInfo& flag);
 };
 }  // namespace meta
 }  // namespace nebula

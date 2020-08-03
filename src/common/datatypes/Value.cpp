@@ -401,26 +401,26 @@ Value::Value(DataSet&& v) {
     setG(std::make_unique<DataSet>(std::move(v)));
 }
 
-std::string Value::typeName() const {
-    static std::unordered_map<Type, std::string> typeNames = {
+const std::string& Value::typeName() const {
+    static const std::unordered_map<Type, std::string> typeNames = {
         { Type::__EMPTY__, "__EMPTY__" },
         { Type::NULLVALUE, "__NULL__" },
-        { Type::BOOL, "BOOL" },
-        { Type::INT, "INT" },
-        { Type::FLOAT, "FLOAT" },
-        { Type::STRING, "STRING" },
-        { Type::DATE, "DATE" },
-        { Type::DATETIME, "DATETIME" },
-        { Type::VERTEX, "VERTEX" },
-        { Type::EDGE, "EDGE" },
-        { Type::PATH, "PATH" },
-        { Type::LIST, "LIST" },
-        { Type::MAP, "MAP" },
-        { Type::SET, "SET" },
-        { Type::DATASET, "DATASET" },
+        { Type::BOOL, "bool" },
+        { Type::INT, "int" },
+        { Type::FLOAT, "float" },
+        { Type::STRING, "string" },
+        { Type::DATE, "date" },
+        { Type::DATETIME, "datetime" },
+        { Type::VERTEX, "vertex" },
+        { Type::EDGE, "edge" },
+        { Type::PATH, "path" },
+        { Type::LIST, "list" },
+        { Type::MAP, "map" },
+        { Type::SET, "set" },
+        { Type::DATASET, "dataset" },
     };
 
-    static std::unordered_map<NullType, std::string> nullTypes = {
+    static const std::unordered_map<NullType, std::string> nullTypes = {
         { NullType::__NULL__, "__NULL__" },
         { NullType::NaN, "NaN"},
         { NullType::BAD_DATA, "BAD_DATA" },
@@ -430,7 +430,7 @@ std::string Value::typeName() const {
         { NullType::DIV_BY_ZERO, "DIV_BY_ZERO" },
     };
 
-    static std::string unknownType = "__UNKNOWN__";
+    static const std::string unknownType = "__UNKNOWN__";
 
     auto find = typeNames.find(type_);
     if (find == typeNames.end()) {
