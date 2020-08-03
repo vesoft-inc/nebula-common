@@ -40,7 +40,19 @@ static std::unordered_multimap<Value::Type, Value::Type> typeCastMap = {
 
     {Value::Type::FLOAT, Value::Type::FLOAT},
     {Value::Type::INT, Value::Type::FLOAT},
-    {Value::Type::STRING, Value::Type::FLOAT}
+    {Value::Type::STRING, Value::Type::FLOAT},
+
+    {Value::Type::__EMPTY__, Value::Type::__EMPTY__},
+    {Value::Type::NULLVALUE, Value::Type::NULLVALUE},
+    {Value::Type::DATE, Value::Type::DATE},
+    {Value::Type::DATETIME, Value::Type::DATETIME},
+    {Value::Type::MAP, Value::Type::MAP},
+    {Value::Type::PATH, Value::Type::PATH},
+    {Value::Type::LIST, Value::Type::LIST},
+    {Value::Type::SET, Value::Type::SET},
+    {Value::Type::DATASET, Value::Type::DATASET},
+    {Value::Type::VERTEX, Value::Type::VERTEX},
+    {Value::Type::EDGE, Value::Type::EDGE}
 };
 
 // static
