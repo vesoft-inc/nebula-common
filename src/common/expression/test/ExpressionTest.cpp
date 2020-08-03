@@ -852,6 +852,82 @@ TEST_F(ExpressionTest, Relation) {
     }
 }
 
+TEST_F(ExpressionTest, RelationIN) {
+    {
+        // 1 IN [1, 2, 3]
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(1),
+                new ConstantExpression(Value(List(std::vector<Value>{1, 2, 3}))));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // 5 IN [1, 2, 3]
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(5),
+                new ConstantExpression(Value(List(std::vector<Value>{1, 2, 3}))));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+}
+
+TEST_F(ExpressionTest, RelationContains) {
+    {
+        // "abc" contains "a"
+        RelationalExpression expr(
+                Expression::Kind::kContains,
+                new ConstantExpression("abc"),
+                new ConstantExpression("a"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" contains "bc"
+        RelationalExpression expr(
+                Expression::Kind::kContains,
+                new ConstantExpression("abc"),
+                new ConstantExpression("bc"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" contains "d"
+        RelationalExpression expr(
+                Expression::Kind::kContains,
+                new ConstantExpression("abc"),
+                new ConstantExpression("d"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" contains 1
+        RelationalExpression expr(
+                Expression::Kind::kContains,
+                new ConstantExpression("abc1"),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        // 1234 contains 1
+        RelationalExpression expr(
+                Expression::Kind::kContains,
+                new ConstantExpression(1234),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+}
+
 TEST_F(ExpressionTest, UnaryINCR) {
     {
         // ++var_int
