@@ -11,9 +11,6 @@
 
 namespace nebula {
 
-
-
-
 class TypeCastingExpression final : public Expression {
     friend class Expression;
 
