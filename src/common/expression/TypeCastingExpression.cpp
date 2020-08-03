@@ -8,6 +8,7 @@
 
 namespace nebula {
 
+// first:operand's type  second:vType
 static std::unordered_multimap<Value::Type, Value::Type> typeCastMap = {
     {Value::Type::INT, Value::Type::INT},
     {Value::Type::FLOAT, Value::Type::INT},
@@ -42,13 +43,14 @@ static std::unordered_multimap<Value::Type, Value::Type> typeCastMap = {
     {Value::Type::STRING, Value::Type::FLOAT}
 };
 
-static bool TypeCastingExpression::validateTypeCast(const Value::Type& operandType,
+// static
+bool TypeCastingExpression::validateTypeCast(const Value::Type& operandType,
                                                     const Value::Type& type) {
     auto range = typeCastMap.equal_range(operandType);
     if (range.first == typeCastMap.end() && range.second == typeCastMap.end()) {
         return false;
     }
-    for (const auto& it = range.first; it != range.second; ++it) {
+    for (auto& it = range.first; it != range.second; ++it) {
         if (it->second == type) {
             return true;
         }
