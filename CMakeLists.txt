@@ -35,6 +35,7 @@ add_definitions(-DNEBULA_HOME=${CMAKE_SOURCE_DIR})
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/nebula")
 
+<<<<<<< HEAD
 include(PlatformCheck)
 include(GeneralCMakeOptions)
 include(GeneralCMakeConfig)
@@ -72,3 +73,44 @@ macro(nebula_add_library name type)
 endmacro()
 
 add_subdirectory(src/common)
+=======
+# To include customized FindXXX.cmake modules
+set(CMAKE_MODULE_PATH "${NEBULA_HOME}/cmake" ${CMAKE_MODULE_PATH})
+
+include(GetGitInfo)
+include(LinkerConfig)
+include(BuildOption)
+
+find_package(Bzip2 REQUIRED)
+find_package(DoubleConversion REQUIRED)
+find_package(Fbthrift REQUIRED)
+find_package(Folly REQUIRED)
+find_package(Gflags REQUIRED)
+find_package(Glog REQUIRED)
+find_package(Googletest REQUIRED)
+if(ENABLE_JEMALLOC)
+    find_package(Jemalloc REQUIRED)
+endif()
+find_package(Libevent REQUIRED)
+find_package(Mstch REQUIRED)
+find_package(Proxygen REQUIRED)
+find_package(Snappy REQUIRED)
+find_package(Wangle REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(Zstd REQUIRED)
+find_package(Boost REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(Krb5 REQUIRED gssapi)
+find_package(GPERF 2.8 REQUIRED)
+find_package(Libunwind REQUIRED)
+find_package(BISON 3.0.5 REQUIRED)
+include(MakeBisonRelocatable)
+find_package(FLEX REQUIRED)
+find_package(LibLZMA MODULE)
+
+include(BuildMacro)
+
+add_subdirectory(src/common)
+
+include(CleanBuild)
+>>>>>>> make CMakeLists modular
