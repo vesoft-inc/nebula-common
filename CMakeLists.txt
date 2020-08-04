@@ -36,6 +36,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/nebula")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 include(PlatformCheck)
 include(GeneralCMakeOptions)
 include(GeneralCMakeConfig)
@@ -48,6 +49,11 @@ include(GitHooksConfig)
 include(GitInfoConfig)
 include(NebulaCMakeMacros)
 include(NebulaCustomTargets)
+=======
+if(${CMAKE_SYSTEM_NAME} MATCHES "(Darwin|FreeBSD|Windows)")
+    MESSAGE(FATAL_ERROR "Only Linux is supported")
+endif ()
+>>>>>>> update
 
 # Remove the target exporting file
 file(REMOVE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-config.cmake)
