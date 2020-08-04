@@ -16,16 +16,16 @@ public:
     ExpressionList() = default;
 
     ExpressionList& add(Expression *expr) {
-        list_.emplace_back(expr);
+        items_.emplace_back(expr);
         return *this;
     }
 
     auto get() && {
-        return std::move(list_);
+        return std::move(items_);
     }
 
 private:
-    std::vector<std::unique_ptr<Expression>>    list_;
+    std::vector<std::unique_ptr<Expression>>    items_;
 };
 
 
@@ -34,17 +34,17 @@ public:
     MapItemList() = default;
 
     MapItemList& add(std::string *key, Expression *value) {
-        list_.emplace_back(key, value);
+        items_.emplace_back(key, value);
         return *this;
     }
 
     auto get() && {
-        return std::move(list_);
+        return std::move(items_);
     }
 
 private:
     using Pair = std::pair<std::unique_ptr<std::string>, std::unique_ptr<Expression>>;
-    std::vector<Pair>                           list_;
+    std::vector<Pair>                           items_;
 };
 
 
@@ -53,15 +53,15 @@ public:
     ListExpression() : Expression(Kind::kList) {
     }
 
-    explicit ListExpression(ExpressionList *list) : Expression(Kind::kList) {
-        list_ = std::move(*list).get();
-        delete list;
+    explicit ListExpression(ExpressionList *items) : Expression(Kind::kList) {
+        items_ = std::move(*items).get();
+        delete items;
     }
 
     const Value& eval(ExpressionContext &ctx) override;
 
     size_t size() const {
-        return list_.size();
+        return items_.size();
     }
 
     bool operator==(const Expression &rhs) const override;
@@ -74,7 +74,7 @@ private:
     void resetFrom(Decoder &decoder) override;
 
 private:
-    std::vector<std::unique_ptr<Expression>>    list_;
+    std::vector<std::unique_ptr<Expression>>    items_;
     Value                                       result_;
 };
 
@@ -84,15 +84,15 @@ public:
     SetExpression() : Expression(Kind::kSet) {
     }
 
-    explicit SetExpression(ExpressionList *list) : Expression(Kind::kSet) {
-        list_ = std::move(*list).get();
-        delete list;
+    explicit SetExpression(ExpressionList *items) : Expression(Kind::kSet) {
+        items_ = std::move(*items).get();
+        delete items;
     }
 
     const Value& eval(ExpressionContext &ctx) override;
 
     size_t size() const {
-        return list_.size();
+        return items_.size();
     }
 
     bool operator==(const Expression &rhs) const override;
@@ -105,7 +105,7 @@ private:
     void resetFrom(Decoder &decoder) override;
 
 private:
-    std::vector<std::unique_ptr<Expression>>    list_;
+    std::vector<std::unique_ptr<Expression>>    items_;
     Value                                       result_;
 };
 
@@ -115,15 +115,15 @@ public:
     MapExpression() : Expression(Kind::kMap) {
     }
 
-    explicit MapExpression(MapItemList *list) : Expression(Kind::kMap) {
-        list_ = std::move(*list).get();
-        delete list;
+    explicit MapExpression(MapItemList *items) : Expression(Kind::kMap) {
+        items_ = std::move(*items).get();
+        delete items;
     }
 
     const Value& eval(ExpressionContext &ctx) override;
 
     size_t size() const {
-        return list_.size();
+        return items_.size();
     }
 
     bool operator==(const Expression &rhs) const override;
@@ -137,7 +137,7 @@ private:
 
 private:
     using Pair = std::pair<std::unique_ptr<std::string>, std::unique_ptr<Expression>>;
-    std::vector<Pair>                       list_;
+    std::vector<Pair>                       items_;
     Value                                   result_;
 };
 

@@ -13,12 +13,12 @@ namespace nebula {
 
 std::string ListExpression::toString() const {
     // list *expression* is not allowed to be empty
-    DCHECK(!list_.empty());
+    DCHECK(!items_.empty());
     std::string buf;
     buf.reserve(256);
 
     buf += '[';
-    for (auto &expr : list_) {
+    for (auto &expr : items_) {
         buf += expr->toString();
         buf += ",";
     }
@@ -39,7 +39,7 @@ bool ListExpression::operator==(const Expression &rhs) const {
     }
 
     for (auto i = 0u; i < size(); i++) {
-        if (*list_[i] != *list.list_[i]) {
+        if (*items_[i] != *list.items_[i]) {
             return false;
         }
     }
@@ -50,13 +50,13 @@ bool ListExpression::operator==(const Expression &rhs) const {
 
 const Value& ListExpression::eval(ExpressionContext &ctx) {
     // TODO(dutor) Reuse `result_' iff all elements are constant
-    std::vector<Value> list;
-    list.reserve(size());
+    std::vector<Value> items;
+    items.reserve(size());
 
-    for (auto &expr : list_) {
-        list.emplace_back(expr->eval(ctx));
+    for (auto &expr : items_) {
+        items.emplace_back(expr->eval(ctx));
     }
-    result_.setList(List(std::move(list)));
+    result_.setList(List(std::move(items)));
 
     return result_;
 }
@@ -65,7 +65,7 @@ const Value& ListExpression::eval(ExpressionContext &ctx) {
 void ListExpression::writeTo(Encoder &encoder) const {
     encoder << kind();
     encoder << size();
-    for (auto &expr : list_) {
+    for (auto &expr : items_) {
         encoder << *expr;
     }
 }
@@ -73,21 +73,21 @@ void ListExpression::writeTo(Encoder &encoder) const {
 
 void ListExpression::resetFrom(Decoder &decoder) {
     auto size = decoder.readSize();
-    list_.reserve(size);
+    items_.reserve(size);
     for (auto i = 0u; i < size; i++) {
-        list_.emplace_back(decoder.readExpression());
+        items_.emplace_back(decoder.readExpression());
     }
 }
 
 
 std::string SetExpression::toString() const {
     // set *expression* is not allowed to be empty
-    DCHECK(!list_.empty());
+    DCHECK(!items_.empty());
     std::string buf;
     buf.reserve(256);
 
     buf += '{';
-    for (auto &expr : list_) {
+    for (auto &expr : items_) {
         buf += expr->toString();
         buf += ",";
     }
@@ -108,7 +108,7 @@ bool SetExpression::operator==(const Expression &rhs) const {
     }
 
     for (auto i = 0u; i < size(); i++) {
-        if (*list_[i] != *set.list_[i]) {
+        if (*items_[i] != *set.items_[i]) {
             return false;
         }
     }
@@ -122,7 +122,7 @@ const Value& SetExpression::eval(ExpressionContext &ctx) {
     std::unordered_set<Value> set;
     set.reserve(size());
 
-    for (auto &expr : list_) {
+    for (auto &expr : items_) {
         set.emplace(expr->eval(ctx));
     }
     result_.setSet(Set(std::move(set)));
@@ -134,7 +134,7 @@ const Value& SetExpression::eval(ExpressionContext &ctx) {
 void SetExpression::writeTo(Encoder &encoder) const {
     encoder << kind();
     encoder << size();
-    for (auto &expr : list_) {
+    for (auto &expr : items_) {
         encoder << *expr;
     }
 }
@@ -142,21 +142,21 @@ void SetExpression::writeTo(Encoder &encoder) const {
 
 void SetExpression::resetFrom(Decoder &decoder) {
     auto size = decoder.readSize();
-    list_.reserve(size);
+    items_.reserve(size);
     for (auto i = 0u; i < size; i++) {
-        list_.emplace_back(decoder.readExpression());
+        items_.emplace_back(decoder.readExpression());
     }
 }
 
 
 std::string MapExpression::toString() const {
     // map *expression* is not allowed to be empty
-    DCHECK(!list_.empty());
+    DCHECK(!items_.empty());
     std::string buf;
     buf.reserve(256);
 
     buf += '{';
-    for (auto &kv : list_) {
+    for (auto &kv : items_) {
         buf += "\"";
         buf += *kv.first;
         buf += "\"";
@@ -181,10 +181,10 @@ bool MapExpression::operator==(const Expression &rhs) const {
     }
 
     for (auto i = 0u; i < size(); i++) {
-        if (*list_[i].first != *map.list_[i].first) {
+        if (*items_[i].first != *map.items_[i].first) {
             return false;
         }
-        if (*list_[i].second != *map.list_[i].second) {
+        if (*items_[i].second != *map.items_[i].second) {
             return false;
         }
     }
@@ -198,7 +198,7 @@ const Value& MapExpression::eval(ExpressionContext &ctx) {
     std::unordered_map<std::string, Value> map;
     map.reserve(size());
 
-    for (auto &kv : list_) {
+    for (auto &kv : items_) {
         map.emplace(*kv.first, kv.second->eval(ctx));
     }
     result_.setMap(Map(std::move(map)));
@@ -210,7 +210,7 @@ const Value& MapExpression::eval(ExpressionContext &ctx) {
 void MapExpression::writeTo(Encoder &encoder) const {
     encoder << kind();
     encoder << size();
-    for (auto &kv : list_) {
+    for (auto &kv : items_) {
         encoder << kv.first.get();
         encoder << *kv.second;
     }
@@ -219,11 +219,11 @@ void MapExpression::writeTo(Encoder &encoder) const {
 
 void MapExpression::resetFrom(Decoder &decoder) {
     auto size = decoder.readSize();
-    list_.reserve(size);
+    items_.reserve(size);
     for (auto i = 0u; i < size; i++) {
         auto str = decoder.readStr();
         auto expr = decoder.readExpression();
-        list_.emplace_back(std::move(str), std::move(expr));
+        items_.emplace_back(std::move(str), std::move(expr));
     }
 }
 
