@@ -1,5 +1,11 @@
+# Copyright (c) 2020 vesoft inc. All rights reserved.
+#
+# This source code is licensed under Apache 2.0 License,
+# attached with Common Clause Condition 1.0, found in the LICENSES directory.
+#
+
 set(COMMON_REPO "nebula-common")
-set(NEBULA_REPO "nebula-nebula")
+set(NEBULA_REPO "nebula")
 set(STORAGE_REPO "nebula-storage")
 
 macro(nebula_add_executable)
@@ -104,14 +110,12 @@ macro(nebula_add_library name type)
             raftex_thrift_headers
         )
     elseif(${PACKAGE_NAME} STREQUAL ${NEBULA_REPO})
-        message(STATUS "nebula repo nebula_add_library")
         add_dependencies(
             ${name}
             common_project
             parser_target
         )
     elseif(${PACKAGE_NAME} STREQUAL ${STORAGE_REPO})
-        message(STATUS "storage repo nebula_add_library")
         add_dependencies(
             ${name}
             common_project
@@ -137,6 +141,7 @@ set(THRIFT_LIBRARIES
     security
     thriftfrozen2
     thrift-core
+    wangle
 )
 
 set(ROCKSDB_LIBRARIES ${Rocksdb_LIBRARY})

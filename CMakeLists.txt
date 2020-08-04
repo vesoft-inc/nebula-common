@@ -78,7 +78,6 @@ add_subdirectory(src/common)
 set(CMAKE_MODULE_PATH "${NEBULA_HOME}/cmake" ${CMAKE_MODULE_PATH})
 
 include(GetGitInfo)
-include(LinkerConfig)
 include(BuildOption)
 
 find_package(Bzip2 REQUIRED)
