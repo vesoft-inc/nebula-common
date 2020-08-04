@@ -2545,7 +2545,7 @@ void MetaClient::updateGflagsValue(const cpp2::ConfigItem& item) {
         auto gflagValue = GflagsManager::gflagsValueToValue(value.typeName(),
                                                             curValue);
         if (gflagValue != value) {
-            auto valueStr = value.toString();
+            auto valueStr = GflagsManager::ValueToGflagString(value);
             if (value.isMap() && value.getMap().kvs.empty()) {
                 // Be compatible with previous configuration
                 valueStr = "{}";

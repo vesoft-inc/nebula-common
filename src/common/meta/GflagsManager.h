@@ -25,6 +25,8 @@ public:
 
     static Value gflagsValueToValue(const std::string &type,
                                     const std::string &val);
+
+    static std::string ValueToGflagString(const Value &values);
 private:
     static std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>>
            parseConfigJson(const std::string& json);

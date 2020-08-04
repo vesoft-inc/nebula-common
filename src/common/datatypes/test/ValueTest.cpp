@@ -525,18 +525,18 @@ TEST(Value, Bit) {
 
 TEST(Value, typeName) {
     EXPECT_EQ("__EMPTY__", Value::kEmpty.typeName());
-    EXPECT_EQ("BOOL", Value(false).typeName());
-    EXPECT_EQ("FLOAT", Value(10.0).typeName());
-    EXPECT_EQ("STRING", Value("").typeName());
-    EXPECT_EQ("DATE", Value(Date()).typeName());
-    EXPECT_EQ("DATETIME", Value(DateTime()).typeName());
-    EXPECT_EQ("VERTEX", Value(Vertex()).typeName());
-    EXPECT_EQ("EDGE", Value(Edge()).typeName());
-    EXPECT_EQ("PATH", Value(Path()).typeName());
-    EXPECT_EQ("LIST", Value(List()).typeName());
-    EXPECT_EQ("MAP", Value(Map()).typeName());
-    EXPECT_EQ("SET", Value(Set()).typeName());
-    EXPECT_EQ("DATASET", Value(DataSet()).typeName());
+    EXPECT_EQ("bool", Value(false).typeName());
+    EXPECT_EQ("float", Value(10.0).typeName());
+    EXPECT_EQ("string", Value("").typeName());
+    EXPECT_EQ("date", Value(Date()).typeName());
+    EXPECT_EQ("datetime", Value(DateTime()).typeName());
+    EXPECT_EQ("vertex", Value(Vertex()).typeName());
+    EXPECT_EQ("edge", Value(Edge()).typeName());
+    EXPECT_EQ("path", Value(Path()).typeName());
+    EXPECT_EQ("list", Value(List()).typeName());
+    EXPECT_EQ("map", Value(Map()).typeName());
+    EXPECT_EQ("set", Value(Set()).typeName());
+    EXPECT_EQ("dataset", Value(DataSet()).typeName());
     EXPECT_EQ("__NULL__", Value::kNullValue.typeName());
     EXPECT_EQ("NaN", Value::kNullNaN.typeName());
     EXPECT_EQ("BAD_DATA", Value::kNullBadData.typeName());

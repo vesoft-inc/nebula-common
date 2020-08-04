@@ -142,5 +142,39 @@ void GflagsManager::getGflagsModule(cpp2::ConfigModule& gflagsModule) {
         LOG(INFO) << "Unknown config module";
     }
 }
+
+std::string GflagsManager::ValueToGflagString(const Value &val) {
+    switch (val.type()) {
+        case Value::Type::BOOL: {
+            return val.getBool() ? "true" : "false";
+        }
+        case Value::Type::INT: {
+            return folly::to<std::string>(val.getInt());
+        }
+        case Value::Type::FLOAT: {
+            return folly::to<std::string>(val.getFloat());
+        }
+        case Value::Type::STRING: {
+            return val.getStr();
+        }
+        case Value::Type::MAP: {
+            auto& kvs = val.getMap().kvs;
+            std::vector<std::string> values(kvs.size());
+            std::transform(kvs.begin(), kvs.end(), values.begin(),
+                    [](const auto &iter) -> std::string {
+                        std::stringstream out;
+                        out << "\"" << iter.first << "\"" << ":" << "\"" << iter.second << "\"";
+                        return out.str();
+                    });
+
+            std::stringstream os;
+            os << "{" << folly::join(",", values) << "}";
+            return os.str();
+        }
+        default: {
+            LOG(FATAL) << "Unsupported type for gflags";
+        }
+    }
+}
 }   // namespace meta
 }   // namespace nebula
