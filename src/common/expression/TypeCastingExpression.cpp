@@ -10,10 +10,11 @@ namespace nebula {
 
 // first:operand's type  second:vType
 static std::unordered_multimap<Value::Type, Value::Type> typeCastMap = {
+    // cast to INT
     {Value::Type::INT, Value::Type::INT},
     {Value::Type::FLOAT, Value::Type::INT},
     {Value::Type::STRING, Value::Type::INT},
-
+    // cast to STRING
     {Value::Type::STRING, Value::Type::STRING},
     {Value::Type::__EMPTY__, Value::Type::STRING},
     {Value::Type::NULLVALUE, Value::Type::STRING},
@@ -29,7 +30,7 @@ static std::unordered_multimap<Value::Type, Value::Type> typeCastMap = {
     {Value::Type::DATASET, Value::Type::STRING},
     {Value::Type::VERTEX, Value::Type::STRING},
     {Value::Type::EDGE, Value::Type::STRING},
-
+    // cast to BOOL
     {Value::Type::BOOL, Value::Type::BOOL},
     {Value::Type::__EMPTY__, Value::Type::BOOL},
     {Value::Type::NULLVALUE, Value::Type::BOOL},
@@ -37,7 +38,7 @@ static std::unordered_multimap<Value::Type, Value::Type> typeCastMap = {
     {Value::Type::FLOAT, Value::Type::BOOL},
     {Value::Type::STRING, Value::Type::BOOL},
     {Value::Type::DATE, Value::Type::BOOL},
-
+    // cast to FLOAT
     {Value::Type::FLOAT, Value::Type::FLOAT},
     {Value::Type::INT, Value::Type::FLOAT},
     {Value::Type::STRING, Value::Type::FLOAT}
@@ -45,7 +46,7 @@ static std::unordered_multimap<Value::Type, Value::Type> typeCastMap = {
 
 // static
 bool TypeCastingExpression::validateTypeCast(const Value::Type& operandType,
-                                                    const Value::Type& type) {
+                                             const Value::Type& type) {
     auto range = typeCastMap.equal_range(operandType);
     if (range.first == typeCastMap.end() && range.second == typeCastMap.end()) {
         return false;
