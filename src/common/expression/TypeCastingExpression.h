@@ -43,7 +43,7 @@ public:
         return vType_;
     }
 
-    static bool validateTypeCast(const Value::Type& operandType, const Value::Type& type);
+    static bool validateTypeCast(const Value::Type& operandType, const Value::Type type);
 
 private:
     void writeTo(Encoder& encoder) const override;

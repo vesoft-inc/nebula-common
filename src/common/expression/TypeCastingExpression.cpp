@@ -46,7 +46,7 @@ static std::unordered_multimap<Value::Type, Value::Type> typeCastMap = {
 
 // static
 bool TypeCastingExpression::validateTypeCast(const Value::Type& operandType,
-                                             const Value::Type& type) {
+                                             const Value::Type type) {
     auto range = typeCastMap.equal_range(operandType);
     if (range.first == typeCastMap.end() && range.second == typeCastMap.end()) {
         return false;
