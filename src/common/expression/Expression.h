@@ -37,6 +37,7 @@ public:
         kRelGT,
         kRelGE,
         kRelIn,
+        kRelNotIn,
 
         kLogicalAnd,
         kLogicalOr,
@@ -62,6 +63,10 @@ public:
 
         kVar,
         kVersionedVar,
+
+        kList,
+        kSet,
+        kMap,
     };
 
     explicit Expression(Kind kind) : kind_(kind) {}
@@ -79,7 +84,7 @@ public:
     virtual const Value& eval(ExpressionContext& ctx) = 0;
 
     virtual bool operator==(const Expression& rhs) const = 0;
-    virtual bool operator!=(const Expression& rhs) const {
+    bool operator!=(const Expression& rhs) const {
         return !operator==(rhs);
     }
 

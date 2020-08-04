@@ -53,6 +53,13 @@ struct Map {
     bool operator==(const Map& rhs) const {
         return kvs == rhs.kvs;
     }
+
+    bool contains(const Value &value) const {
+        if (!value.isStr()) {
+            return false;
+        }
+        return kvs.count(value.getStr()) != 0;
+    }
 };
 
 inline std::ostream &operator<<(std::ostream& os, const Map& m) {
