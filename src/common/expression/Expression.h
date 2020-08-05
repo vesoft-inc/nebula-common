@@ -38,6 +38,7 @@ public:
         kRelGE,
         kRelIn,
         kRelNotIn,
+        kSubscript,
 
         kLogicalAnd,
         kLogicalOr,

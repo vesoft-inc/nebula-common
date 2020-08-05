@@ -13,6 +13,7 @@
 #include "common/expression/FunctionCallExpression.h"
 #include "common/expression/LogicalExpression.h"
 #include "common/expression/RelationalExpression.h"
+#include "common/expression/SubscriptExpression.h"
 #include "common/expression/TypeCastingExpression.h"
 #include "common/expression/UUIDExpression.h"
 #include "common/expression/UnaryExpression.h"
@@ -285,6 +286,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kSubscript: {
+            exp = std::make_unique<SubscriptExpression>(Expression::Kind::kSubscript);
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kLogicalAnd: {
             exp = std::make_unique<LogicalExpression>(Expression::Kind::kLogicalAnd);
             exp->resetFrom(decoder);
@@ -456,6 +462,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             break;
         case Expression::Kind::kRelNotIn:
             os << "NotIn";
+            break;
+        case Expression::Kind::kSubscript:
+            os << "Subscript";
             break;
         case Expression::Kind::kLogicalAnd:
             os << "LogicalAnd";
