@@ -421,24 +421,6 @@ struct AddEdgesRequest {
     4: bool                                     overwritable = true,
 }
 
-enum TossEdgeOpType {
-    ADD = 0
-}
-
-struct TossOperation {
-    1: TossEdgeOpType                           opType
-    2: list<NewEdge>                            edges
-    3: list<binary>                             prop_names
-    4: bool                                     overwritable = true
-}
-
-enum TransactionStatus {
-    PREPARE         = 1
-    COMMIT          = 2
-    FINISHED        = 3
-    ROLLBACK        = 4
-}
-
 struct TransactionReq {
     1: i64                                  txn_id
     2: i32                                  space_id
@@ -463,16 +445,6 @@ struct TransactionResponse {
     //   per peoperty. If there is no given property, the value will be a NULL
     2: optional common.DataSet      props,
 }
-
-// struct TransactionContext {
-//     1: i64                                  transaction_id
-//     2: i32                                  space_id
-//     3: i32                                  part_id
-//     4: i32                                  index;
-//     5: list<common.HostAddr>                chain
-//     6: list<TossOperation>                  operations
-//     7: TransactionStatus                    status
-// }
 
 /*
  * End of AddVertices section
