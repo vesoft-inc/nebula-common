@@ -12,6 +12,7 @@
 #include "common/expression/FunctionCallExpression.h"
 #include "common/expression/LogicalExpression.h"
 #include "common/expression/RelationalExpression.h"
+#include "common/expression/SubscriptExpression.h"
 #include "common/expression/TypeCastingExpression.h"
 #include "common/expression/UUIDExpression.h"
 #include "common/expression/UnaryExpression.h"
@@ -300,6 +301,15 @@ TEST(ExpressionEncodeDecode, MapExpression) {
            .add(new std::string("key2"), new ConstantExpression(2))
            .add(new std::string("key3"), new ConstantExpression(3));
     auto origin = std::make_unique<MapExpression>(list);
+    auto decoded = Expression::decode(Expression::encode(*origin));
+    ASSERT_EQ(*origin, *decoded);
+}
+
+
+TEST(ExpressionEncodeDecode, SubscriptExpression) {
+    auto *left = new ConstantExpression(1);
+    auto *right = new ConstantExpression(2);
+    auto origin = std::make_unique<SubscriptExpression>(left, right);
     auto decoded = Expression::decode(Expression::encode(*origin));
     ASSERT_EQ(*origin, *decoded);
 }

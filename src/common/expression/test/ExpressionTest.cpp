@@ -1402,7 +1402,7 @@ TEST_F(ExpressionTest, ListSubscript) {
                 .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression(0);
-        SubscriptExpression expr(Expression::Kind::kSubscript, list, index);
+        SubscriptExpression expr(list, index);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isInt());
         ASSERT_EQ(1, value.getInt());
@@ -1416,7 +1416,7 @@ TEST_F(ExpressionTest, ListSubscript) {
                 .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression(3);
-        SubscriptExpression expr(Expression::Kind::kSubscript, list, index);
+        SubscriptExpression expr(list, index);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isInt());
         ASSERT_EQ(4, value.getInt());
@@ -1430,7 +1430,7 @@ TEST_F(ExpressionTest, ListSubscript) {
                 .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression(4);
-        SubscriptExpression expr(Expression::Kind::kSubscript, list, index);
+        SubscriptExpression expr(list, index);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBadNull());
     }
@@ -1443,7 +1443,7 @@ TEST_F(ExpressionTest, ListSubscript) {
                 .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression(-1);
-        SubscriptExpression expr(Expression::Kind::kSubscript, list, index);
+        SubscriptExpression expr(list, index);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isInt());
         ASSERT_EQ(4, value.getInt());
@@ -1457,7 +1457,7 @@ TEST_F(ExpressionTest, ListSubscript) {
                 .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression(-4);
-        SubscriptExpression expr(Expression::Kind::kSubscript, list, index);
+        SubscriptExpression expr(list, index);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isInt());
         ASSERT_EQ(1, value.getInt());
@@ -1471,7 +1471,7 @@ TEST_F(ExpressionTest, ListSubscript) {
                 .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression(-5);
-        SubscriptExpression expr(Expression::Kind::kSubscript, list, index);
+        SubscriptExpression expr(list, index);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBadNull());
     }
@@ -1484,7 +1484,7 @@ TEST_F(ExpressionTest, ListSubscript) {
                 .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression("0");
-        SubscriptExpression expr(Expression::Kind::kSubscript, list, index);
+        SubscriptExpression expr(list, index);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBadNull());
     }
@@ -1492,7 +1492,7 @@ TEST_F(ExpressionTest, ListSubscript) {
     {
         auto *integer = new ConstantExpression(1);
         auto *index = new ConstantExpression(0);
-        SubscriptExpression expr(Expression::Kind::kSubscript, integer, index);
+        SubscriptExpression expr(integer, index);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBadNull());
     }
@@ -1507,7 +1507,7 @@ TEST_F(ExpressionTest, MapSubscript) {
                 .add(new std::string("key3"), new ConstantExpression(3));
         auto *map = new MapExpression(items);
         auto *key = new ConstantExpression("key1");
-        SubscriptExpression expr(Expression::Kind::kSubscript, map, key);
+        SubscriptExpression expr(map, key);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isInt());
         ASSERT_EQ(1, value.getInt());
@@ -1520,7 +1520,7 @@ TEST_F(ExpressionTest, MapSubscript) {
                 .add(new std::string("key3"), new ConstantExpression(3));
         auto *map = new MapExpression(items);
         auto *key = new ConstantExpression("key4");
-        SubscriptExpression expr(Expression::Kind::kSubscript, map, key);
+        SubscriptExpression expr(map, key);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isNull());
         ASSERT_FALSE(value.isBadNull());
@@ -1533,7 +1533,7 @@ TEST_F(ExpressionTest, MapSubscript) {
                 .add(new std::string("key3"), new ConstantExpression(3));
         auto *map = new MapExpression(items);
         auto *key = new ConstantExpression(0);
-        SubscriptExpression expr(Expression::Kind::kSubscript, map, key);
+        SubscriptExpression expr(map, key);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isNull());
         ASSERT_FALSE(value.isBadNull());

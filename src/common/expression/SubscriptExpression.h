@@ -13,10 +13,9 @@ namespace nebula {
 
 class SubscriptExpression final : public BinaryExpression {
 public:
-    explicit SubscriptExpression(Kind kind,
-                                 Expression *lhs = nullptr,
+    explicit SubscriptExpression(Expression *lhs = nullptr,
                                  Expression *rhs = nullptr)
-        : BinaryExpression(kind, lhs, rhs) {}
+        : BinaryExpression(Kind::kSubscript, lhs, rhs) {}
 
     const Value& eval(ExpressionContext &ctx) override;
 

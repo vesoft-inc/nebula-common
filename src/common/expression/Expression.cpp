@@ -287,7 +287,7 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             return exp;
         }
         case Expression::Kind::kSubscript: {
-            exp = std::make_unique<SubscriptExpression>(Expression::Kind::kSubscript);
+            exp = std::make_unique<SubscriptExpression>();
             exp->resetFrom(decoder);
             return exp;
         }
