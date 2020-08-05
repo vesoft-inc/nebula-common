@@ -34,6 +34,12 @@ TEST(TimeFunctionTest, toTimestamp) {
 
     // correct string
     EXPECT_TRUE(TimeFunction::toTimestamp("2020-8-1 9:0:0").ok());
+
+    EXPECT_FALSE(TimeFunction::isValid(9223372037));
+
+    EXPECT_FALSE(TimeFunction::isValid(-1));
+
+    EXPECT_TRUE(TimeFunction::isValid(9223372036));
 }
 
 }   // namespace nebula

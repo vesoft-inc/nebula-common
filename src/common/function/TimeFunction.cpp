@@ -86,5 +86,13 @@ StatusOr<DateTime> TimeFunction::toDateTime(const Value&) {
 bool TimeFunction::isLeapYear(int32_t year) {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
+
+bool TimeFunction::isValid(int64_t val) {
+    if (val < 0 || val > kMaxTimestamp) {
+        return false;
+    }
+    return true;
+}
+
 }  // namespace nebula
 

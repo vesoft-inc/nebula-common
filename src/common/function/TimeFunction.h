@@ -28,6 +28,8 @@ public:
     static StatusOr<DateTime> toDateTime(const Value &val);
 
     static bool isLeapYear(int32_t year);
+
+    static bool isValid(int64_t val);
 };
 }   // namespace nebula
 #endif   // COMMON_FUNCTION_TIMEFUNCTION_H
