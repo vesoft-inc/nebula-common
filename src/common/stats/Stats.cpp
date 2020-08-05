@@ -27,13 +27,13 @@ void Stats::addStatsValue(const Stats *stats, bool ok, int64_t latency, uint32_t
         return;
     }
     if (ok && stats->getQpsStatId() != 0) {
-        StatsManager::addValue(stats->getQpsStatId(), count);
+        StatsManager::addValue(stats->getQpsStatId(), count);   // ok
     }
     if (!ok && stats->getErrorQpsStatId() != 0) {
         StatsManager::addValue(stats->getErrorQpsStatId(), count);
     }
     if (stats->getLatencyStatId() != 0) {
-        StatsManager::addValue(stats->getLatencyStatId(), latency);
+        StatsManager::addValue(stats->getLatencyStatId(), latency);  // ok
     }
 }
 

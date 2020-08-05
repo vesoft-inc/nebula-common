@@ -34,11 +34,13 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
         });
 
     if (!status.ok()) {
+        LOG(INFO) << "messi !status.ok()";
         return folly::makeFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>>(
             std::runtime_error(status.status().toString()));
     }
 
     auto& clusters = status.value();
+    LOG(INFO) << "messi clusters.size() = " << clusters.size();
     std::unordered_map<HostAddr, cpp2::GetNeighborsRequest> requests;
     for (auto& c : clusters) {
         auto& host = c.first;
@@ -80,6 +82,7 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
         evb, std::move(requests),
         [] (cpp2::GraphStorageServiceAsyncClient* client,
             const cpp2::GetNeighborsRequest& r) {
+            LOG(INFO) << "messi before client->future_getNeighbors(r);";
             return client->future_getNeighbors(r);
         },
         [] (const std::pair<const PartitionID, std::vector<Row>>& p) {
@@ -170,6 +173,63 @@ GraphStorageClient::addEdges(GraphSpaceID space,
         });
 }
 
+folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>>
+GraphStorageClient::atomicAddEdges(GraphSpaceID space,
+                             std::vector<cpp2::NewEdge> edges,
+                             std::vector<std::string> propNames,
+                             bool overwritable,
+                             folly::EventBase* evb) {
+    auto status = clusterIdsToHosts(space,
+                                    std::move(edges),
+                                    [](const cpp2::NewEdge& e) -> const VertexID& {
+        return e.get_key().get_src();
+    });
+
+    if (!status.ok()) {
+        return folly::makeFuture<StorageRpcResponse<cpp2::ExecResponse>>(
+            std::runtime_error(status.status().toString()));
+    }
+
+    auto& clusters = status.value();
+    std::unordered_map<HostAddr, cpp2::AddEdgesRequest> requests;
+    for (auto& c : clusters) {
+        auto& host = c.first;
+        auto& req = requests[host];
+        req.set_space_id(space);
+        req.set_overwritable(overwritable);
+        req.set_parts(std::move(c.second));
+        req.set_prop_names(std::move(propNames));
+    }
+
+    return collectResponse(
+        evb,
+        std::move(requests),
+        [] (cpp2::GraphStorageServiceAsyncClient* client,
+            const cpp2::AddEdgesRequest& r) {
+            return client->future_addEdgesAtomic(r);
+        },
+        [] (const std::pair<const PartitionID, std::vector<cpp2::NewEdge>>& p) {
+            return p.first;
+        });
+}
+
+
+folly::Future<StatusOr<storage::cpp2::ExecResponse>>
+GraphStorageClient::forwardTransaction(cpp2::TransactionReq txnCtx,
+                                       folly::EventBase* evb) {
+    std::pair<HostAddr, cpp2::TransactionReq> request;
+    request.first = txnCtx.chain[txnCtx.pos_of_chain];
+    txnCtx.part_id = txnCtx.parts[txnCtx.pos_of_chain];
+    request.second = std::move(txnCtx);
+
+
+    return getResponse(
+        evb, std::move(request),
+        [] (cpp2::GraphStorageServiceAsyncClient* client,
+            const cpp2::TransactionReq& r) {
+            return client->future_processTransaction(r);
+        });
+}
 
 folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>>
 GraphStorageClient::getProps(GraphSpaceID space,
@@ -182,6 +242,7 @@ GraphStorageClient::getProps(GraphSpaceID space,
                              int64_t limit,
                              std::string filter,
                              folly::EventBase* evb) {
+    LOG(INFO) << "messi [enter] " << __func__;
     auto status = clusterIdsToHosts(space,
                                     input.rows,
                                     [](const Row& r) -> const VertexID& {
@@ -190,6 +251,7 @@ GraphStorageClient::getProps(GraphSpaceID space,
     });
 
     if (!status.ok()) {
+        LOG(INFO) << "messi [exit] " << __func__;
         return folly::makeFuture<StorageRpcResponse<cpp2::GetPropResponse>>(
             std::runtime_error(status.status().toString()));
     }
@@ -228,6 +290,7 @@ GraphStorageClient::getProps(GraphSpaceID space,
         std::move(requests),
         [] (cpp2::GraphStorageServiceAsyncClient* client,
             const cpp2::GetPropRequest& r) {
+            LOG(INFO) << "messi client->future_getProps(r)";
             return client->future_getProps(r);
         },
         [] (const std::pair<const PartitionID, std::vector<Row>>& p) {

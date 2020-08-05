@@ -120,7 +120,8 @@ endif()
 
 # Possible values are Debug, Release, RelWithDebInfo, MinSizeRel
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug")
+    set(CMAKE_BUILD_TYPE "Release")
+    # set(CMAKE_BUILD_TYPE "Debug")
 endif(NOT CMAKE_BUILD_TYPE)
 
 if(NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")

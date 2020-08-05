@@ -78,6 +78,10 @@ enum ErrorCode {
     E_FILTER_OUT             = -81,
     E_INVALID_DATA           = -82,
 
+    // transaction 
+    E_TXN_ERR_UNKNOWN        = -85
+    E_ADD_EDGE_CONFILCT      = -86
+
     // task manager failed
     E_INVALID_TASK_PARA      = -90,
     E_USER_CANCEL            = -99,
@@ -416,6 +420,60 @@ struct AddEdgesRequest {
     // If true, it equals an upsert operation.
     4: bool                                     overwritable = true,
 }
+
+enum TossEdgeOpType {
+    ADD = 0
+}
+
+struct TossOperation {
+    1: TossEdgeOpType                           opType
+    2: list<NewEdge>                            edges
+    3: list<binary>                             prop_names
+    4: bool                                     overwritable = true
+}
+
+enum TransactionStatus {
+    PREPARE         = 1
+    COMMIT          = 2
+    FINISHED        = 3
+    ROLLBACK        = 4
+}
+
+struct TransactionReq {
+    1: i64                                  txn_id
+    2: i32                                  space_id
+    3: i32                                  pos_of_chain;
+    4: list<i32>                            parts
+    5: list<common.HostAddr>                chain
+    6: list<EdgeKey>                        edges
+    7: binary                               encoded_prop
+    8: i32                                  part_id
+    9: i32                                  space_vid_len
+    10: i32                                 version
+}
+
+// Response for transaction requests
+struct TransactionResponse {
+    1: required ResponseCommon      result,
+    // The result will be returned in a dataset, which is in the following form
+    //
+    // The name of the first column is "_inserted". It has a boolean value. It's
+    //   TRUE if insertion happens
+    // Starting from the second column, it's the all returned properties, one column
+    //   per peoperty. If there is no given property, the value will be a NULL
+    2: optional common.DataSet      props,
+}
+
+// struct TransactionContext {
+//     1: i64                                  transaction_id
+//     2: i32                                  space_id
+//     3: i32                                  part_id
+//     4: i32                                  index;
+//     5: list<common.HostAddr>                chain
+//     6: list<TossOperation>                  operations
+//     7: TransactionStatus                    status
+// }
+
 /*
  * End of AddVertices section
  */
@@ -646,6 +704,8 @@ service GraphStorageService {
     LookupIndexResp lookupIndex(1: LookupIndexRequest req);
 
     GetNeighborsResponse lookupAndTraverse(1: LookupAndTraverseRequest req);
+    ExecResponse addEdgesAtomic(1: AddEdgesRequest req);
+    ExecResponse processTransaction(1: TransactionReq txnCtx);
 }
 
 

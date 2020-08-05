@@ -76,6 +76,17 @@ public:
         bool overwritable,
         folly::EventBase* evb = nullptr);
 
+    folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> atomicAddEdges(
+        GraphSpaceID space,
+        std::vector<cpp2::NewEdge> edges,
+        std::vector<std::string> propNames,
+        bool overwritable,
+        folly::EventBase* evb = nullptr);
+
+    folly::Future<StatusOr<storage::cpp2::ExecResponse>> forwardTransaction(
+        cpp2::TransactionReq txnCtx,
+        folly::EventBase* evb = nullptr);
+
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> deleteEdges(
         GraphSpaceID space,
         std::vector<storage::cpp2::EdgeKey> edges,

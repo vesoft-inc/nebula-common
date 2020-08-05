@@ -93,6 +93,7 @@ StorageClientBase<ClientType>::~StorageClientBase() {
 template<typename ClientType>
 void StorageClientBase<ClientType>::loadLeader() const {
     if (loadLeaderBefore_) {
+        // LOG(INFO) << "messi loadLeaderBefore_, return directly";
         return;
     }
     bool expected = false;
@@ -120,6 +121,12 @@ StorageClientBase<ClientType>::getLeader(const meta::PartHosts& partHosts) const
 
     auto it = leaders_.find(part);
     if (it != leaders_.end()) {
+        // LOG(INFO) << "messi getLeader: spaceId_ " << partHosts.spaceId_
+        //           << ", partId_ " << partHosts.partId_;
+        // for (size_t i = 0U; i != partHosts.hosts_.size(); ++i) {
+        //     LOG(INFO) << "messi hosts[" << i << "]=" << partHosts.hosts_[i];
+        // }
+        // LOG(INFO) << "messi leader=" << it->second;
         return it->second;
     } else {
         VLOG(1) << "No leader exists. Choose one random.";
@@ -131,6 +138,7 @@ StorageClientBase<ClientType>::getLeader(const meta::PartHosts& partHosts) const
 
         auto& random = partHosts.hosts_[folly::Random::rand32(partHosts.hosts_.size())];
         leaders_[part] = random;
+        // LOG(INFO) << "messi getLeader: No leader exists. Choose one random: " << random;
         return random;
     }
 }
@@ -169,6 +177,7 @@ StorageClientBase<ClientType>::collectResponse(
         std::unordered_map<HostAddr, Request> requests,
         RemoteFunc&& remoteFunc,
         GetPartIDFunc getPartIDFunc) {
+    LOG(INFO) << "messi [enter] " << __func__;
     auto context = std::make_shared<ResponseContext<Request, RemoteFunc, Response>>(
         requests.size(), std::move(remoteFunc));
 
@@ -177,6 +186,7 @@ StorageClientBase<ClientType>::collectResponse(
         evb = ioThreadPool_->getEventBase();
     }
 
+    LOG(INFO) << "messi requests.size() = " << requests.size();
     for (auto& req : requests) {
         auto& host = req.first;
         auto spaceId = req.second.get_space_id();

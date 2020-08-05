@@ -75,7 +75,8 @@ public:
     }
 
 private:
-    const size_t totalReqsSent_;
+    // const size_t totalReqsSent_;
+    size_t totalReqsSent_;
     size_t failedReqs_{0};
 
     Result result_{Result::ALL_SUCCEEDED};
@@ -91,6 +92,9 @@ private:
  */
 template<typename ClientType>
 class StorageClientBase {
+public:
+    void updateLeader(GraphSpaceID spaceId, PartitionID partId, const HostAddr& leader);
+
 protected:
     StorageClientBase(std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool,
                       meta::MetaClient* metaClient);
@@ -98,7 +102,7 @@ protected:
 
     virtual void loadLeader() const;
     const HostAddr getLeader(const meta::PartHosts& partHosts) const;
-    void updateLeader(GraphSpaceID spaceId, PartitionID partId, const HostAddr& leader);
+
     void invalidLeader(GraphSpaceID spaceId, PartitionID partId);
 
     template<class Request,
