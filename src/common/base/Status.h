@@ -141,9 +141,13 @@ public:
     STATUS_GENERATOR(Balanced);
     STATUS_GENERATOR(PartNotFound);
     STATUS_GENERATOR(ListenerNotFound);
+    STATUS_GENERATOR(DataTypeMismatch);
 
     // User or permission errors
     STATUS_GENERATOR(PermissionError);
+
+    // Transaction errors
+    STATUS_GENERATOR(ConflictRequest);
 
 #undef STATUS_GENERATOR
 
@@ -168,6 +172,7 @@ public:
         kSemanticError          = 203,
         // 3xx, for storage engine errors
         kKeyNotFound            = 301,
+        kDataTypeMismatch       = 302,
         // 4xx, for meta service errors
         kSpaceNotFound          = 404,
         kHostNotFound           = 405,
@@ -183,6 +188,8 @@ public:
         kListenerNotFound       = 415,
         // 5xx for user or permission error
         kPermissionError        = 501,
+        // 6xx for transaction errors
+        kConflictRequest        = 601,
     };
 
     Code code() const {
