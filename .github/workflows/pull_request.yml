@@ -35,10 +35,9 @@ jobs:
   build:
     name: build
     needs: lint
-    if: ${{ jobs.lint.outputs.num_source_files != 0 }}
+    if: ${{ needs.lint.outputs.num_source_files != 0 }}
     runs-on: self-hosted
     defaults:
-      timeout-minutes: 15
       run:
         shell: bash
     strategy:
@@ -95,6 +94,7 @@ jobs:
           ASAN_OPTIONS: fast_unwind_on_malloc=1
         run: ctest -j $(($(nproc)/2+1)) --timeout 400 --output-on-failure
         working_directory: build/
+        timeout-minutes: 15
       - name: Cleanup
         if: ${{ always() }}
         run: rm -rf build
