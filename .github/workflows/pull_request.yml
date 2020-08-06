@@ -93,7 +93,7 @@ jobs:
           ASAN_SYMBOLIZER_PATH: /opt/vesoft/toolset/clang/9.0.0/bin/llvm-symbolizer
           ASAN_OPTIONS: fast_unwind_on_malloc=1
         run: ctest -j $(($(nproc)/2+1)) --timeout 400 --output-on-failure
-        working_directory: build/
+        working-directory: build/
         timeout-minutes: 15
       - name: Cleanup
         if: ${{ always() }}
