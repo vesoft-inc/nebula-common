@@ -78,7 +78,7 @@ enum ErrorCode {
     E_FILTER_OUT             = -81,
     E_INVALID_DATA           = -82,
 
-    // transaction 
+    // transaction
     E_TXN_ERR_UNKNOWN        = -85
     E_ADD_EDGE_CONFILCT      = -86
 
@@ -855,3 +855,7 @@ service GeneralStorageService {
     ExecResponse    remove(1: KVRemoveRequest req);
 }
 
+service InternalStorageService {
+    // GetPropResponse getProps(1: GetPropRequest req);
+    ExecResponse processTransaction(1: TransactionReq txnCtx);
+}
