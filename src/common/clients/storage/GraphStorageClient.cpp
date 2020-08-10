@@ -42,12 +42,15 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
                 mutableR.values[0] = Value(reinterpret_cast<const char*>(&r.values[0].getInt()));
                 return mutableR.values[0].getStr();
             };
-    } else {
+    } else if (vidType == Value::Type::STRING) {
         cb = [](const Row& r) -> const VertexID& {
                 // The first column has to be the vid
                 DCHECK_EQ(Value::Type::STRING, r.values[0].type());
                 return r.values[0].getStr();
             };
+    } else {
+        return folly::makeFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>>(
+            std::runtime_error("Only support integer/string type vid."));
     }
 
 
@@ -128,11 +131,14 @@ GraphStorageClient::addVertices(GraphSpaceID space,
                 mutableV.id = Value(reinterpret_cast<const char*>(&v.id.getInt()));
                 return mutableV.id.getStr();
             };
-    } else {
+    } else if (vidType == Value::Type::STRING) {
         cb = [](const cpp2::NewVertex& v) -> const VertexID& {
                 DCHECK_EQ(Value::Type::STRING, v.id.type());
                 return v.id.getStr();
             };
+    } else {
+        return folly::makeFuture<StorageRpcResponse<cpp2::ExecResponse>>(
+            std::runtime_error("Only support integer/string type vid."));
     }
 
     auto status = clusterIdsToHosts(space, std::move(vertices), cb);
@@ -189,12 +195,15 @@ GraphStorageClient::addEdges(GraphSpaceID space,
                 mutableE.key.dst = Value(reinterpret_cast<const char*>(&e.key.dst.getInt()));
                 return mutableE.key.src.getStr();
             };
-    } else {
+    } else if (vidType == Value::Type::STRING) {
         cb = [](const cpp2::NewEdge& e) -> const VertexID& {
                 DCHECK_EQ(Value::Type::STRING, e.key.src.type());
                 DCHECK_EQ(Value::Type::STRING, e.key.dst.type());
                 return e.key.src.getStr();
             };
+    } else {
+        return folly::makeFuture<StorageRpcResponse<cpp2::ExecResponse>>(
+            std::runtime_error("Only support integer/string type vid."));
     }
 
     auto status = clusterIdsToHosts(space, std::move(edges), cb);
@@ -254,12 +263,15 @@ GraphStorageClient::getProps(GraphSpaceID space,
                 mutableR.values[0] = Value(reinterpret_cast<const char*>(&r.values[0].getInt()));
                 return mutableR.values[0].getStr();
             };
-    } else {
+    } else if (vidType == Value::Type::STRING) {
         cb = [](const Row& r) -> const VertexID& {
                 // The first column has to be the vid
                 DCHECK_EQ(Value::Type::STRING, r.values[0].type());
                 return r.values[0].getStr();
             };
+    } else {
+        return folly::makeFuture<StorageRpcResponse<cpp2::GetPropResponse>>(
+            std::runtime_error("Only support integer/string type vid."));
     }
 
     auto status = clusterIdsToHosts(space, input.rows, cb);
@@ -331,12 +343,15 @@ GraphStorageClient::deleteEdges(GraphSpaceID space,
                 mutableEK.dst = Value(reinterpret_cast<const char*>(&eKey.dst.getInt()));
                 return mutableEK.src.getStr();
             };
-    } else {
+    } else if (vidType == Value::Type::STRING) {
         cb = [](const cpp2::EdgeKey& eKey) -> const VertexID& {
                 DCHECK_EQ(Value::Type::STRING, eKey.src.type());
                 DCHECK_EQ(Value::Type::STRING, eKey.dst.type());
                 return eKey.src.getStr();
             };
+    } else {
+        return folly::makeFuture<StorageRpcResponse<cpp2::ExecResponse>>(
+            std::runtime_error("Only support integer/string type vid."));
     }
 
     auto status = clusterIdsToHosts(space, std::move(edges), cb);
@@ -386,11 +401,14 @@ GraphStorageClient::deleteVertices(GraphSpaceID space,
                 mutableV = Value(reinterpret_cast<const char*>(&v.getInt()));
                 return mutableV.getStr();
             };
-    } else {
+    } else if (vidType == Value::Type::STRING) {
         cb = [](const Value& v) -> const VertexID& {
                 DCHECK_EQ(Value::Type::STRING, v.type());
                 return v.getStr();
             };
+    } else {
+        return folly::makeFuture<StorageRpcResponse<cpp2::ExecResponse>>(
+            std::runtime_error("Only support integer/string type vid."));
     }
 
     auto status = clusterIdsToHosts(space, std::move(ids), cb);
@@ -444,11 +462,14 @@ GraphStorageClient::updateVertex(GraphSpaceID space,
                 mutableV = Value(reinterpret_cast<const char*>(&v.getInt()));
                 return mutableV.getStr();
             };
-    } else {
+    } else if (vidType == Value::Type::STRING) {
         cb = [](const Value& v) -> const VertexID& {
                 DCHECK_EQ(Value::Type::STRING, v.type());
                 return v.getStr();
             };
+    } else {
+        return folly::makeFuture<StatusOr<storage::cpp2::UpdateResponse>>(
+            Status::Error("Only support integer/string type vid."));
     }
 
     std::pair<HostAddr, cpp2::UpdateVertexRequest> request;
@@ -515,12 +536,15 @@ GraphStorageClient::updateEdge(GraphSpaceID space,
                 mutableEK.dst = Value(reinterpret_cast<const char*>(&eKey.dst.getInt()));
                 return mutableEK.src.getStr();
             };
-    } else {
+    } else if (vidType == Value::Type::STRING) {
         cb = [](const cpp2::EdgeKey& eKey) -> const VertexID& {
                 DCHECK_EQ(Value::Type::STRING, eKey.src.type());
                 DCHECK_EQ(Value::Type::STRING, eKey.dst.type());
                 return eKey.src.getStr();
             };
+    } else {
+        return folly::makeFuture<StatusOr<storage::cpp2::UpdateResponse>>(
+            Status::Error("Only support integer/string type vid."));
     }
 
     std::pair<HostAddr, cpp2::UpdateEdgeRequest> request;
