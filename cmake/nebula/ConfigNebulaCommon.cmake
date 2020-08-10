@@ -47,6 +47,12 @@ macro(config_nebula_common)
         COMMAND +${CMAKE_COMMAND} --build ${common_build_dir}
     )
 
+    add_custom_target(
+        clean-common
+        COMMAND $(MAKE) clean
+        WORKING_DIRECTORY ${common_build_dir}
+    )
+
     set(nebula-common_DIR ${common_build_dir})
     find_package(nebula-common REQUIRED)
     include_directories(AFTER ${common_source_dir}/src)
