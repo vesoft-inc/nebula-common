@@ -123,6 +123,22 @@ public:
         cpp2::IndexSpec indexSpec,
         cpp2::TraverseSpec traverseSpec,
         folly::EventBase* evb = nullptr);
+
+private:
+    StatusOr<std::function<const VertexID&(const Row&)>>
+        getIdFromRow(GraphSpaceID space) const;
+
+    StatusOr<std::function<const VertexID&(const cpp2::NewVertex&)>>
+        getIdFromNewVertex(GraphSpaceID space) const;
+
+    StatusOr<std::function<const VertexID&(const cpp2::NewEdge&)>>
+        getIdFromNewEdge(GraphSpaceID space) const;
+
+    StatusOr<std::function<const VertexID&(const cpp2::EdgeKey&)>>
+        getIdFromEdgeKey(GraphSpaceID space) const;
+
+    StatusOr<std::function<const VertexID&(const Value&)>>
+        getIdFromValue(GraphSpaceID space) const;
 };
 
 }   // namespace storage
