@@ -1664,6 +1664,25 @@ StatusOr<int32_t> MetaClient::getSpaceVidLen(const GraphSpaceID& spaceId) {
     return vIdLen;
 }
 
+StatusOr<Value::Type> MetaClient::getSpaceVidType(const GraphSpaceID& spaceId) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        LOG(ERROR) << "Space " << spaceId << " not found!";
+        return Status::Error(folly::stringPrintf("Space %d not found", spaceId));
+    }
+    auto vIdType = spaceIt->second->vertexIdType_;
+    if (vIdType != Value::Type::INT || vIdType != Value::Type::STRING) {
+        std::stringstream ss;
+        ss << "Space " << spaceId << "vertexId type invalid: " << vIdType;
+        return Status::Error(ss.str());
+    }
+    return vIdType;
+}
+
 StatusOr<std::shared_ptr<const NebulaSchemaProvider>>
 MetaClient::getTagSchemaFromCache(GraphSpaceID spaceId, TagID tagID, SchemaVer ver) {
     if (!ready_) {

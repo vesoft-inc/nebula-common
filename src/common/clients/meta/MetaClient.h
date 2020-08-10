@@ -55,6 +55,7 @@ struct SpaceInfoCache {
     Indexes tagIndexes_;
     Indexes edgeIndexes_;
     int32_t vertexIdLen_ = -1;
+    Value::Type vertexIdType_ = Value::Type::INT;
 };
 
 using LocalCache = std::unordered_map<GraphSpaceID, std::shared_ptr<SpaceInfoCache>>;
@@ -115,13 +116,15 @@ struct SpaceDesc {
               int32_t replicaFactor,
               const std::string& charsetName = "",
               const std::string& collationName = "",
-              int32_t vidSize = 8)
+              int32_t vidSize = 8,
+              Value::Type vidType = Value::Type::INT)
         : spaceName_(spaceName)
         , partNum_(partNum)
         , replicaFactor_(replicaFactor)
         , charsetName_(charsetName)
         , collationName_(collationName)
-        , vidSize_(vidSize) {
+        , vidSize_(vidSize)
+        , vidType_(vidType) {
     }
 
     std::string  spaceName_;
@@ -130,6 +133,7 @@ struct SpaceDesc {
     std::string  charsetName_;
     std::string  collationName_;
     int32_t      vidSize_{8};
+    Value::Type  vidType_{Value::Type::INT};
 };
 
 
@@ -411,6 +415,8 @@ public:
     StatusOr<GraphSpaceID> getSpaceIdByNameFromCache(const std::string& name);
 
     StatusOr<int32_t> getSpaceVidLen(const GraphSpaceID& space);
+
+    StatusOr<Value::Type> getSpaceVidType(const GraphSpaceID& space);
 
     StatusOr<TagID> getTagIDByNameFromCache(const GraphSpaceID& space,
                                             const std::string& name);
