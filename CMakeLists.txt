@@ -35,6 +35,7 @@ add_definitions(-DNEBULA_HOME=${CMAKE_SOURCE_DIR})
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/nebula")
 
+include(PlatformCheck)
 include(GeneralCMakeOptions)
 include(GeneralCMakeConfig)
 include(GeneralCompilerConfig)
