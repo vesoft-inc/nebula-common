@@ -83,12 +83,12 @@ public:
 
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> deleteVertices(
         GraphSpaceID space,
-        std::vector<VertexID> ids,
+        std::vector<Value> ids,
         folly::EventBase* evb = nullptr);
 
     folly::Future<StatusOr<storage::cpp2::UpdateResponse>> updateVertex(
         GraphSpaceID space,
-        VertexID vertexId,
+        Value vertexId,
         TagID tagId,
         std::vector<cpp2::UpdatedProp> updatedProps,
         bool insertable,
