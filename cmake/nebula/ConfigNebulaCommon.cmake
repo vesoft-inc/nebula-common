@@ -44,8 +44,7 @@ macro(config_nebula_common)
 
     add_custom_target(
         common_project ALL
-        COMMAND make -j${MODULE_BUILDING_JOBS}
-        WORKING_DIRECTORY ${common_build_dir}
+        COMMAND +${CMAKE_COMMAND} --build ${common_build_dir}
     )
 
     set(nebula-common_DIR ${common_build_dir})
