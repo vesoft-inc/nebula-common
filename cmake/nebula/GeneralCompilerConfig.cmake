@@ -16,7 +16,6 @@ add_compile_options(-Wshadow)
 add_compile_options(-Wnon-virtual-dtor)
 add_compile_options(-Woverloaded-virtual)
 add_compile_options(-Wignored-qualifiers)
-add_compile_options(-fno-strict-aliasing)
 
 add_definitions(-DS2_USE_GLOG)
 
@@ -30,6 +29,8 @@ endif()
 
 if(NOT ENABLE_STRICT_ALIASING)
     add_compile_options(-fno-strict-aliasing)
+else()
+    add_compile_options(-fstrict-aliasing)
 endif()
 
 if(ENABLE_FRAME_POINTER)
