@@ -60,6 +60,15 @@ public:
 
     const Value& eval(ExpressionContext &ctx) override;
 
+    std::vector<const Expression*> items() const {
+        std::vector<const Expression*> items;
+        items.reserve(items_.size());
+        for (auto &item : items_) {
+            items.emplace_back(item.get());
+        }
+        return items;
+    }
+
     size_t size() const {
         return items_.size();
     }
@@ -91,6 +100,15 @@ public:
 
     const Value& eval(ExpressionContext &ctx) override;
 
+    std::vector<const Expression*> items() const {
+        std::vector<const Expression*> items;
+        items.reserve(items_.size());
+        for (auto &item : items_) {
+            items.emplace_back(item.get());
+        }
+        return items;
+    }
+
     size_t size() const {
         return items_.size();
     }
@@ -121,6 +139,15 @@ public:
     }
 
     const Value& eval(ExpressionContext &ctx) override;
+
+    std::vector<std::pair<const std::string*, const Expression*>> items() const {
+        std::vector<std::pair<const std::string*, const Expression*>> items;
+        items.reserve(items_.size());
+        for (auto &item : items_) {
+            items.emplace_back(item.first.get(), item.second.get());
+        }
+        return items;
+    }
 
     size_t size() const {
         return items_.size();
