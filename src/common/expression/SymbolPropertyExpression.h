@@ -57,6 +57,8 @@ public:
 
     std::string toString() const override;
 
+    void accept(ExprVisitor* visitor) const override;
+
 protected:
     void writeTo(Encoder& encoder) const override;
 
@@ -81,6 +83,8 @@ public:
 
     std::string toString() const override;
 
+    void accept(ExprVisitor* visitor) const override;
+
 private:
     Value                           result_;
 };
@@ -99,6 +103,9 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) const override;
+
 private:
     Value result_;
 };
@@ -115,6 +122,8 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) const override;
 };
 
 // $VarName.any_prop_name
@@ -130,6 +139,8 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) const override;
 };
 
 // $^.TagName.any_prop_name
@@ -145,6 +156,8 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) const override;
 
 private:
     Value                           result_;
@@ -163,6 +176,8 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) const override;
 };
 
 // EdgeName._src
@@ -177,6 +192,8 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) const override;
 
 private:
     Value                           result_;
@@ -195,6 +212,8 @@ public:
 
     std::string toString() const override;
 
+    void accept(ExprVisitor* visitor) const override;
+
 private:
     Value                           result_;
 };
@@ -212,6 +231,8 @@ public:
 
     std::string toString() const override;
 
+    void accept(ExprVisitor* visitor) const override;
+
 private:
     Value                           result_;
 };
@@ -228,6 +249,8 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) const override;
 
 private:
     Value                           result_;

@@ -30,6 +30,8 @@ public:
 
     std::string toString() const override;
 
+    void accept(ExprVisitor* visitor) const override;
+
 private:
     void writeTo(Encoder& encoder) const override {
         UNUSED(encoder);
@@ -66,6 +68,8 @@ public:
     }
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) const override;
 
 private:
     void writeTo(Encoder& encoder) const override {

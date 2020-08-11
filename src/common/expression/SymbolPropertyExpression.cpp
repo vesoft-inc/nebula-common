@@ -5,6 +5,7 @@
  */
 
 #include "common/expression/SymbolPropertyExpression.h"
+#include "common/expression/ExprVisitor.h"
 
 namespace nebula {
 
@@ -51,10 +52,17 @@ const Value& SymbolPropertyExpression::eval(ExpressionContext& ctx) {
     LOG(FATAL) << "Unimplemented";
 }
 
+void SymbolPropertyExpression::accept(ExprVisitor* visitor) const {
+    visitor->visitSymbolPropertyExpr(this);
+}
 
 const Value& EdgePropertyExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getEdgeProp(*sym_, *prop_);
     return result_;
+}
+
+void EdgePropertyExpression::accept(ExprVisitor *visitor) const {
+    visitor->visitEdgePropertyExpr(this);
 }
 
 const Value& TagPropertyExpression::eval(ExpressionContext& ctx) {
@@ -62,48 +70,77 @@ const Value& TagPropertyExpression::eval(ExpressionContext& ctx) {
     return result_;
 }
 
+void TagPropertyExpression::accept(ExprVisitor* visitor) const {
+    visitor->visitTagPropertyExpr(this);
+}
+
 const Value& InputPropertyExpression::eval(ExpressionContext& ctx) {
     return ctx.getInputProp(*prop_);
 }
 
+void InputPropertyExpression::accept(ExprVisitor* visitor) const {
+    visitor->visitInputPropertyExpr(this);
+}
 
 const Value& VariablePropertyExpression::eval(ExpressionContext& ctx) {
     return ctx.getVarProp(*sym_, *prop_);
 }
 
+void VariablePropertyExpression::accept(ExprVisitor* visitor) const {
+    visitor->visitVariablePropertyExpr(this);
+}
 
 const Value& SourcePropertyExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getSrcProp(*sym_, *prop_);
     return result_;
 }
 
+void SourcePropertyExpression::accept(ExprVisitor* visitor) const {
+    visitor->visitSourcePropertyExpr(this);
+}
 
 const Value& DestPropertyExpression::eval(ExpressionContext& ctx) {
     return ctx.getDstProp(*sym_, *prop_);
 }
 
+void DestPropertyExpression::accept(ExprVisitor* visitor) const {
+    visitor->visitDestPropertyExpr(this);
+}
 
 const Value& EdgeSrcIdExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getEdgeProp(*sym_, *prop_);
     return result_;
 }
 
+void EdgeSrcIdExpression::accept(ExprVisitor* visitor) const {
+    visitor->visitEdgeSrcIdExpr(this);
+}
 
 const Value& EdgeTypeExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getEdgeProp(*sym_, *prop_);
     return result_;
 }
 
+void EdgeTypeExpression::accept(ExprVisitor* visitor) const {
+    visitor->visitEdgeTypeExpr(this);
+}
 
 const Value& EdgeRankExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getEdgeProp(*sym_, *prop_);
     return result_;
 }
 
+void EdgeRankExpression::accept(ExprVisitor* visitor) const {
+    visitor->visitEdgeRankExpr(this);
+}
 
 const Value& EdgeDstIdExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getEdgeProp(*sym_, *prop_);
     return result_;
+}
+
+void EdgeDstIdExpression::accept(ExprVisitor* visitor) const {
+    visitor->visitEdgeDstIdExpr(this);
 }
 
 std::string SymbolPropertyExpression::toString() const {

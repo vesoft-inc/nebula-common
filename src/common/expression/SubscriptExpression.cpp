@@ -7,6 +7,7 @@
 #include "common/expression/SubscriptExpression.h"
 #include "common/datatypes/Map.h"
 #include "common/datatypes/List.h"
+#include "common/expression/ExprVisitor.h"
 
 namespace nebula {
 
@@ -56,6 +57,10 @@ std::string SubscriptExpression::toString() const {
     buf += right()->toString();
     buf += ']';
     return buf;
+}
+
+void SubscriptExpression::accept(ExprVisitor *visitor) const {
+    visitor->visitSubscriptExpr(this);
 }
 
 }   // namespace nebula

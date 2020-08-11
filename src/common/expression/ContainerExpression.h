@@ -81,6 +81,8 @@ public:
 
     std::string toString() const override;
 
+    void accept(ExprVisitor *visitor) const override;
+
 private:
     void writeTo(Encoder &encoder) const override;
 
@@ -125,6 +127,8 @@ public:
 
     std::string toString() const override;
 
+    void accept(ExprVisitor* visitor) const override;
+
 private:
     void writeTo(Encoder &encoder) const override;
 
@@ -138,6 +142,8 @@ private:
 
 class MapExpression final : public Expression {
 public:
+    using Pair = std::pair<std::unique_ptr<std::string>, std::unique_ptr<Expression>>;
+
     MapExpression() : Expression(Kind::kMap) {
     }
 
@@ -169,6 +175,8 @@ public:
     bool operator==(const Expression &rhs) const override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) const override;
 
 private:
     void writeTo(Encoder &encoder) const override;

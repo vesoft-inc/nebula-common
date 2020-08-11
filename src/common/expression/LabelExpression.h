@@ -33,6 +33,8 @@ public:
 
     std::string toString() const override;
 
+    void accept(ExprVisitor* visitor) const override;
+
 protected:
     void writeTo(Encoder& encoder) const override;
 

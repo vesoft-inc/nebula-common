@@ -27,6 +27,8 @@ public:
         return val_;
     }
 
+    void accept(ExprVisitor* visitor) const override;
+
     std::string toString() const override;
 
 private:

@@ -20,6 +20,8 @@ public:
 
     const Value& eval(ExpressionContext& ctx) override;
 
+    void accept(ExprVisitor* visitor) const override;
+
     std::string toString() const override;
 
 private:
