@@ -10,33 +10,50 @@
 #include "common/expression/Expression.h"
 
 namespace nebula {
+
 class TypeCastingExpression final : public Expression {
+    friend class Expression;
+
 public:
-    TypeCastingExpression(Value::Type vType, Expression* operand)
-        : Expression(Kind::kTypeCasting), vType_(vType) {
-        operand_.reset(operand);
+    TypeCastingExpression(Value::Type vType = Value::Type::__EMPTY__,
+                          Expression* operand = nullptr)
+        : Expression(Kind::kTypeCasting)
+        , vType_(vType)
+        , operand_(std::move(operand)) {}
+
+    bool operator==(const Expression& rhs) const override;
+
+    const Value& eval(ExpressionContext& ctx) override;
+
+    std::string toString() const override;
+
+    const Expression* operand() const {
+        return operand_.get();
     }
 
-    Value eval() const override;
-
-    std::string encode() const override {
-        // TODO
-        return "";
+    Expression* operand() {
+        return operand_.get();
     }
 
-    std::string decode() const override {
-        // TODO
-        return "";
+    void setOperand(Expression* expr) {
+        operand_.reset(expr);
     }
 
-    std::string toString() const override {
-        // TODO
-        return "";
+    Value::Type type() const {
+        return vType_;
     }
+
+    static bool validateTypeCast(Value::Type operandType, Value::Type type);
 
 private:
-    Value::Type vType_;
+    void writeTo(Encoder& encoder) const override;
+
+    void resetFrom(Decoder& decoder) override;
+
+    Value::Type                 vType_{Value::Type::__EMPTY__};
     std::unique_ptr<Expression> operand_;
+    Value                       result_;
 };
-}   // namespace nebula
-#endif
+
+}  // namespace nebula
+#endif  // EXPRESSION_TYPECASTINGEXPRESSION_H_

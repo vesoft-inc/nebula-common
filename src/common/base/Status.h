@@ -19,6 +19,9 @@
 
 namespace nebula {
 
+template <typename T>
+class StatusOr;
+
 class Status final {
 public:
     Status() = default;
@@ -49,6 +52,20 @@ public:
             state_ = std::move(rhs.state_);
         }
         return *this;
+    }
+
+    static Status from(const Status &s) {
+        return s;
+    }
+
+    template <typename T>
+    static Status from(StatusOr<T> &&s) {
+        return std::move(s).status();
+    }
+
+    template <typename T>
+    static Status from(const StatusOr<T> &s) {
+        return s.status();
     }
 
     bool operator==(const Status &rhs) const {
@@ -103,6 +120,7 @@ public:
 
     // Graph engine errors
     STATUS_GENERATOR(SyntaxError);
+    STATUS_GENERATOR(SemanticError);
     // Nothing is executed When command is comment
     STATUS_GENERATOR(StatementEmpty);
 
@@ -144,6 +162,7 @@ public:
         // 2xx, for graph engine errors
         kSyntaxError            = 201,
         kStatementEmpty         = 202,
+        kSemanticError          = 203,
         // 3xx, for storage engine errors
         kKeyNotFound            = 301,
         // 4xx, for meta service errors
@@ -167,6 +186,8 @@ public:
         return reinterpret_cast<const Header*>(state_.get())->code_;
     }
 
+    std::string message() const;
+
 private:
     // REQUIRES: stat_ != nullptr
     uint16_t size() const {
@@ -178,6 +199,8 @@ private:
     static std::unique_ptr<const char[]> copyState(const char *state);
 
     static std::string format(const char *fmt, va_list args);
+
+    static const char *toString(Code code);
 
 private:
     struct Header {
@@ -198,12 +221,24 @@ inline std::ostream& operator<<(std::ostream &os, const Status &status) {
     return os << status.toString();
 }
 
-#define NG_RETURN_IF_ERROR(...)                                                                    \
+}   // namespace nebula
+
+#define NG_RETURN_IF_ERROR(s)                                                                      \
     do {                                                                                           \
-        ::nebula::Status _status = (__VA_ARGS__);                                                  \
-        if (UNLIKELY(!_status.ok())) return _status;                                               \
+        const auto &__s = (s);                                                                     \
+        if (UNLIKELY(!__s.ok())) {                                                                 \
+            return ::nebula::Status::from(__s);                                                    \
+        }                                                                                          \
     } while (0)
 
-}   // namespace nebula
+#define NG_LOG_AND_RETURN_IF_ERROR(s)                                                              \
+    do {                                                                                           \
+        const auto &__s = (s);                                                                     \
+        if (UNLIKELY(!__s.ok())) {                                                                 \
+            ::nebula::Status __status = ::nebula::Status::from(__s);                               \
+            LOG(ERROR) << __status;                                                                \
+            return __status;                                                                       \
+        }                                                                                          \
+    } while (0)
 
 #endif  // COMMON_BASE_STATUS_H_

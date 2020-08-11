@@ -9,13 +9,14 @@ _build/
 _build.log
 _install/
 install_manifest.txt
+Base.h.gch
 
 # ccls
 .ccls
 .ccls-cache
 compile_commands.json
 
-src/base/Base.h.gch
+src/common/base/Base.h.gch
 gen-*
 
 # cmake
@@ -40,3 +41,4 @@ pids/
 cmake-build-debug/
 cmake-build-release/
 .vscode/
+.clang-format

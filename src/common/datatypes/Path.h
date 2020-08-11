@@ -27,11 +27,12 @@ struct Step {
                         , name(s.name)
                         , ranking(s.ranking)
                         , props(s.props) {}
-    Step(Step&& s) : dst(std::move(s.dst))
-                   , type(std::move(s.type))
-                   , name(std::move(s.name))
-                   , ranking(std::move(s.ranking))
-                   , props(std::move(s.props)) {}
+    Step(Step&& s) noexcept
+        : dst(std::move(s.dst))
+        , type(std::move(s.type))
+        , name(std::move(s.name))
+        , ranking(std::move(s.ranking))
+        , props(std::move(s.props)) {}
 
     void clear() {
         dst.clear();
@@ -39,6 +40,18 @@ struct Step {
         name.clear();
         ranking = 0;
         props.clear();
+    }
+
+    std::string toString() const {
+        std::stringstream os;
+        os << "-" << "[" << name << "]" << "->"
+            << "(" << dst << ")"
+            << "@" << ranking;
+        os << " ";
+        for (const auto& prop : props) {
+            os << prop.first << ":" << prop.second << ",";
+        }
+        return os.str();
     }
 
     bool operator==(const Step& rhs) const {
@@ -56,11 +69,23 @@ struct Path {
 
     Path() = default;
     Path(const Path& p) : src(p.src), steps(p.steps) {}
-    Path(Path&& p) : src(std::move(p.src)), steps(std::move(p.steps)) {}
+    Path(Path&& p) noexcept
+        : src(std::move(p.src)), steps(std::move(p.steps)) {}
 
     void clear() {
         src.clear();
         steps.clear();
+    }
+
+    std::string toString() const {
+        std::stringstream os;
+        os << "(" << src << ")";
+        os << " ";
+        for (const auto &s : steps) {
+            os << s.toString();
+            os << " ";
+        }
+        return os.str();
     }
 
     bool operator==(const Path& rhs) const {
@@ -68,6 +93,10 @@ struct Path {
                steps == rhs.steps;
     }
 };
+
+inline std::ostream &operator<<(std::ostream& os, const Path& p) {
+    return os << p.toString();
+}
 
 }  // namespace nebula
 

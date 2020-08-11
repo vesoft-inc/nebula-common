@@ -23,7 +23,7 @@ struct Edge {
     std::unordered_map<std::string, Value> props;
 
     Edge() {}
-    Edge(Edge&& v)
+    Edge(Edge&& v) noexcept
         : src(std::move(v.src))
         , dst(std::move(v.dst))
         , type(std::move(v.type))
@@ -59,6 +59,25 @@ struct Edge {
         props.clear();
     }
 
+    std::string toString() const {
+        std::stringstream os;
+        os << "(" << src << ")"
+            << "-" << "[" << name << "]" << "->"
+            << "(" << dst << ")"
+            << "@" << ranking;
+        if (!props.empty()) {
+            std::vector<std::string> value(props.size());
+            std::transform(
+                props.begin(), props.end(), value.begin(), [](const auto& iter) -> std::string {
+                    std::stringstream out;
+                    out << iter.first << ":" << iter.second;
+                    return out.str();
+                });
+            os << " " << folly::join(",", value);
+        }
+        return os.str();
+    }
+
     bool operator==(const Edge& rhs) const {
         return src == rhs.src &&
                dst == rhs.dst &&
@@ -67,6 +86,10 @@ struct Edge {
                props == rhs.props;
     }
 };
+
+inline std::ostream &operator<<(std::ostream& os, const Edge& v) {
+    return os << v.toString();
+}
 
 }  // namespace nebula
 

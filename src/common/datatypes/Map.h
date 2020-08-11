@@ -17,14 +17,17 @@ struct Map {
 
     Map() = default;
     Map(const Map&) = default;
-    Map(Map&&) = default;
+    Map(Map&&) noexcept = default;
+    explicit Map(std::unordered_map<std::string, Value> values) {
+        kvs = std::move(values);
+    }
 
     Map& operator=(const Map& rhs) {
         if (this == &rhs) { return *this; }
         kvs = rhs.kvs;
         return *this;
     }
-    Map& operator=(Map&& rhs) {
+    Map& operator=(Map&& rhs) noexcept {
         if (this == &rhs) { return *this; }
         kvs = std::move(rhs.kvs);
         return *this;
@@ -34,10 +37,42 @@ struct Map {
         kvs.clear();
     }
 
+    std::string toString() const {
+        std::vector<std::string> value(kvs.size());
+        std::transform(kvs.begin(), kvs.end(), value.begin(), [](const auto &iter) -> std::string {
+            std::stringstream out;
+            out << "\"" << iter.first << "\"" << ":" << iter.second;
+            return out.str();
+        });
+
+        std::stringstream os;
+        os << "{" << folly::join(",", value) << "}";
+        return os.str();
+    }
+
     bool operator==(const Map& rhs) const {
         return kvs == rhs.kvs;
     }
+
+    bool contains(const Value &value) const {
+        if (!value.isStr()) {
+            return false;
+        }
+        return kvs.count(value.getStr()) != 0;
+    }
+
+    const Value& at(const std::string &key) const {
+        auto iter = kvs.find(key);
+        if (iter == kvs.end()) {
+            return Value::kNullValue;
+        }
+        return iter->second;
+    }
 };
+
+inline std::ostream &operator<<(std::ostream& os, const Map& m) {
+    return os << m.toString();
+}
 
 }  // namespace nebula
 #endif  // COMMON_DATATYPES_MAP_H_

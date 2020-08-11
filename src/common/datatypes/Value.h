@@ -40,33 +40,47 @@ enum class NullType {
     ERR_OVERFLOW = 4,
     UNKNOWN_PROP = 5,
     DIV_BY_ZERO = 6,
+    OUT_OF_RANGE = 7,
 };
 
 
 struct Value {
+    static const Value kEmpty;
+    static const Value kNullValue;
+    static const Value kNullNaN;
+    static const Value kNullBadData;
+    static const Value kNullBadType;
+    static const Value kNullOverflow;
+    static const Value kNullUnknownProp;
+    static const Value kNullDivByZero;
+    static const Value kNullOutOfRange;
+
+    static const uint64_t kEmptyNullType;
+    static const uint64_t kNumericType;
+
     friend class apache::thrift::Cpp2Ops<Value, void>;
 
-    enum class Type {
-        __EMPTY__ = 0,
-        NULLVALUE = 1,
-        BOOL = 2,
-        INT = 3,
-        FLOAT = 4,
-        STRING = 5,
-        DATE = 6,
-        DATETIME = 7,
-        VERTEX = 8,
-        EDGE = 9,
-        PATH = 10,
-        LIST = 11,
-        MAP = 12,
-        SET = 13,
-        DATASET = 14,
+    enum class Type : uint64_t {
+        __EMPTY__ = 1UL,
+        BOOL      = 1UL << 1,
+        INT       = 1UL << 2,
+        FLOAT     = 1UL << 3,
+        STRING    = 1UL << 4,
+        DATE      = 1UL << 5,
+        DATETIME  = 1UL << 6,
+        VERTEX    = 1UL << 7,
+        EDGE      = 1UL << 8,
+        PATH      = 1UL << 9,
+        LIST      = 1UL << 10,
+        MAP       = 1UL << 11,
+        SET       = 1UL << 12,
+        DATASET   = 1UL << 13,
+        NULLVALUE = 1UL << 63,
     };
 
     // Constructors
     Value() : type_(Type::__EMPTY__) {}
-    Value(Value&& rhs);
+    Value(Value&& rhs) noexcept;
     Value(const Value& rhs);
 
     Value(const NullType& v);       // NOLINT
@@ -117,6 +131,19 @@ struct Value {
     bool isNull() const {
         return type_ == Type::NULLVALUE;
     }
+    bool isBadNull() const {
+        if (!isNull()) {
+            return false;
+        }
+        auto& null = value_.nVal;
+        return null == NullType::NaN
+            || null == NullType::BAD_DATA
+            || null == NullType::BAD_TYPE
+            || null == NullType::ERR_OVERFLOW
+            || null == NullType::UNKNOWN_PROP
+            || null == NullType::DIV_BY_ZERO
+            || null == NullType::OUT_OF_RANGE;
+    }
     bool isNumeric() const {
         return type_ == Type::INT || type_ == Type::FLOAT;
     }
@@ -162,7 +189,7 @@ struct Value {
 
     void clear();
 
-    Value& operator=(Value&& rhs);
+    Value& operator=(Value&& rhs) noexcept;
     Value& operator=(const Value& rhs);
 
     void setNull(const NullType& v);
@@ -262,11 +289,16 @@ struct Value {
     DataSet& mutableDataSet();
 
     static const Value& null() noexcept {
-        static const Value kNullValue(NullType::__NULL__);
         return kNullValue;
     }
 
-    StatusOr<std::string> toString();
+    std::string toString() const;
+
+    StatusOr<bool> toBool();
+
+    StatusOr<double> toFloat();
+
+    StatusOr<int64_t> toInt();
 
 private:
     Type type_;
@@ -358,8 +390,7 @@ private:
 
 void swap(Value& a, Value& b);
 
-std::ostream& operator<<(std::ostream& os, const Value::Type& type);
-
+constexpr auto kEpsilon = 1e-8;
 
 // Arithmetic operations
 Value operator+(const Value& lhs, const Value& rhs);
@@ -371,6 +402,10 @@ Value operator%(const Value& lhs, const Value& rhs);
 Value operator-(const Value& rhs);
 Value operator!(const Value& rhs);
 // Comparison operations
+// 1. we compare the type directly in these cases:
+//  if type do not match except both numeric
+//  if lhs and rhs have at least one null or empty
+// 2. null is the biggest, empty is the smallest
 bool operator< (const Value& lhs, const Value& rhs);
 bool operator==(const Value& lhs, const Value& rhs);
 bool operator!=(const Value& lhs, const Value& rhs);
@@ -380,6 +415,35 @@ bool operator>=(const Value& lhs, const Value& rhs);
 // Logical operations
 Value operator&&(const Value& lhs, const Value& rhs);
 Value operator||(const Value& lhs, const Value& rhs);
+// Bit operations
+Value operator&(const Value& lhs, const Value& rhs);
+Value operator|(const Value& lhs, const Value& rhs);
+Value operator^(const Value& lhs, const Value& rhs);
+// Visualize
+std::ostream& operator<<(std::ostream& os, const Value::Type& type);
+inline std::ostream& operator<<(std::ostream& os, const Value& value) {
+    return os << value.toString();
+}
+
+inline uint64_t operator|(const Value::Type& lhs, const Value::Type& rhs) {
+    return static_cast<uint64_t>(lhs) | static_cast<uint64_t>(rhs);
+}
+inline uint64_t operator|(const uint64_t lhs, const Value::Type& rhs) {
+    return lhs | static_cast<uint64_t>(rhs);
+}
+inline uint64_t operator|(const Value::Type& lhs, const uint64_t rhs) {
+    return static_cast<uint64_t>(lhs) | rhs;
+}
+inline uint64_t operator&(const Value::Type& lhs, const Value::Type& rhs) {
+    return static_cast<uint64_t>(lhs) & static_cast<uint64_t>(rhs);
+}
+inline uint64_t operator&(const uint64_t lhs, const Value::Type& rhs) {
+    return lhs & static_cast<uint64_t>(rhs);
+}
+inline uint64_t operator&(const Value::Type& lhs, const uint64_t rhs) {
+    return static_cast<uint64_t>(lhs) & rhs;
+}
+
 }  // namespace nebula
 
 
@@ -389,6 +453,20 @@ namespace std {
 template<>
 struct hash<nebula::Value> {
     std::size_t operator()(const nebula::Value& h) const noexcept;
+};
+
+template<>
+struct hash<nebula::Value*> {
+    std::size_t operator()(const nebula::Value* h) const noexcept {
+        return h == nullptr ? 0 : hash<nebula::Value>()(*h);
+    }
+};
+
+template<>
+struct equal_to<nebula::Value*> {
+    bool operator()(const nebula::Value* lhs, const nebula::Value* rhs) const noexcept {
+        return lhs == rhs ? true : (lhs != nullptr) && (rhs != nullptr) && (*lhs == *rhs);
+    }
 };
 
 }  // namespace std

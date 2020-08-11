@@ -9,12 +9,13 @@
 
 #include "common/base/Base.h"
 #include "common/datatypes/Value.h"
+#include "common/context/ExpressionContext.h"
 
 namespace nebula {
 
 class Expression {
 public:
-    enum class Kind {
+    enum class Kind : uint8_t {
         kConstant,
 
         kAdd,
@@ -26,6 +27,8 @@ public:
         kUnaryPlus,
         kUnaryNegate,
         kUnaryNot,
+        kUnaryIncr,
+        kUnaryDecr,
 
         kRelEQ,
         kRelNE,
@@ -33,6 +36,10 @@ public:
         kRelLE,
         kRelGT,
         kRelGE,
+        kRelIn,
+        kRelNotIn,
+        kContains,
+        kSubscript,
 
         kLogicalAnd,
         kLogicalOr,
@@ -42,7 +49,9 @@ public:
 
         kFunctionCall,
 
-        kAliasProperty,
+        kSymProperty,
+        kTagProperty,
+        kEdgeProperty,
         kInputProperty,
         kVarProperty,
         kDstProperty,
@@ -53,6 +62,15 @@ public:
         kEdgeDst,
 
         kUUID,
+
+        kVar,
+        kVersionedVar,
+
+        kList,
+        kSet,
+        kMap,
+
+        kLabel,
     };
 
     explicit Expression(Kind kind) : kind_(kind) {}
@@ -63,26 +81,77 @@ public:
         return kind_;
     }
 
-    virtual Value eval() const = 0;
+    static Value eval(Expression* expr, ExpressionContext& ctx) {
+        return expr->eval(ctx);
+    }
+
+    virtual const Value& eval(ExpressionContext& ctx) = 0;
+
+    virtual bool operator==(const Expression& rhs) const = 0;
+    bool operator!=(const Expression& rhs) const {
+        return !operator==(rhs);
+    }
 
     virtual std::string toString() const = 0;
 
-    virtual std::string encode() const = 0;
+    static std::string encode(const Expression& exp);
 
-    virtual std::string decode() const = 0;
+    std::string encode() const;
 
-    static std::unique_ptr<Expression> decode(folly::StringPiece) {
-        return nullptr;
-    }
-
-    bool isAliasPropertyExpression() const {
-        return kind_ == Kind::kAliasProperty;
-    }
+    static std::unique_ptr<Expression> decode(folly::StringPiece encoded);
 
 protected:
+    class Encoder final {
+    public:
+        explicit Encoder(size_t bufSizeHint = 2048);
+        std::string moveStr();
+
+        Encoder& operator<<(Kind kind) noexcept;
+        Encoder& operator<<(const std::string* str) noexcept;
+        Encoder& operator<<(const Value& val) noexcept;
+        Encoder& operator<<(size_t size) noexcept;
+        Encoder& operator<<(Value::Type vType) noexcept;
+        Encoder& operator<<(const Expression& exp) noexcept;
+
+    private:
+        std::string buf_;
+    };
+
+    class Decoder final {
+    public:
+        explicit Decoder(folly::StringPiece encoded);
+
+        bool finished() const;
+
+        Kind readKind() noexcept;
+        std::unique_ptr<std::string> readStr() noexcept;
+        Value readValue() noexcept;
+        size_t readSize() noexcept;
+        Value::Type readValueType() noexcept;
+        std::unique_ptr<Expression> readExpression() noexcept;
+
+        // Convert the unprocessed part into the hex string
+        std::string getHexStr() const;
+
+    private:
+        folly::StringPiece encoded_;
+        const char* ptr_;
+    };
+
+protected:
+    static std::unique_ptr<Expression> decode(Decoder& decoder);
+
+    // Serialize the content of the expression to the given encoder
+    virtual void writeTo(Encoder& encoder) const = 0;
+
+    // Reset the content of the expression from the given decoder
+    virtual void resetFrom(Decoder& decoder) = 0;
+
     Kind kind_;
 };
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind);
+
 }   // namespace nebula
+
 #endif   // COMMON_EXPRESSION_EXPRESSION_H_

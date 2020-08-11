@@ -7,20 +7,44 @@
 #include "common/expression/LogicalExpression.h"
 
 namespace nebula {
-Value LogicalExpression::eval() const {
-    auto lhs = lhs_->eval();
-    auto rhs = rhs_->eval();
+const Value& LogicalExpression::eval(ExpressionContext& ctx) {
+    auto& lhs = lhs_->eval(ctx);
+    auto& rhs = rhs_->eval(ctx);
 
     switch (kind_) {
         case Kind::kLogicalAnd:
-            return lhs && rhs;
-        case Kind::kLogicalOr:
-            return lhs || rhs;
-        case Kind::kLogicalXor:
-            return (lhs && !rhs) || (!lhs && rhs);
-        default:
+            result_ = lhs && rhs;
             break;
+        case Kind::kLogicalOr:
+            result_ = lhs || rhs;
+            break;
+        case Kind::kLogicalXor:
+            result_ = (lhs && !rhs) || (!lhs && rhs);
+            break;
+        default:
+            LOG(FATAL) << "Unknown type: " << kind_;
     }
-    LOG(FATAL) << "Unknown type: " << kind_;
+    return result_;
 }
-}   // namespace nebula
+
+std::string LogicalExpression::toString() const {
+    std::string op;
+    switch (kind_) {
+        case Kind::kLogicalAnd:
+            op = "&&";
+            break;
+        case Kind::kLogicalOr:
+            op = "||";
+            break;
+        case Kind::kLogicalXor:
+            op = "^";
+            break;
+        default:
+            op = "illegal symbol ";
+    }
+    std::stringstream out;
+    out << "(" << lhs_->toString() << op << rhs_->toString() << ")";
+    return out.str();
+}
+
+}  // namespace nebula

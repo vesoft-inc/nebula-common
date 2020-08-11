@@ -7,8 +7,42 @@
 #include "common/expression/UUIDExpression.h"
 
 namespace nebula {
-Value UUIDExpression::eval() const {
-    // TODO
-    return Value(NullType::NaN);
+
+bool UUIDExpression::operator==(const Expression& rhs) const {
+    if (kind_ != rhs.kind()) {
+        return false;
+    }
+
+    const auto& r = dynamic_cast<const UUIDExpression&>(rhs);
+    return *field_ == *(r.field_);
 }
+
+
+
+void UUIDExpression::writeTo(Encoder& encoder) const {
+    // kind_
+    encoder << kind_;
+
+    // field_
+    CHECK(!!field_);
+    encoder << field_.get();
+}
+
+
+void UUIDExpression::resetFrom(Decoder& decoder) {
+    // Read field_
+    field_ = decoder.readStr();
+}
+
+
+const Value& UUIDExpression::eval(ExpressionContext& ctx) {
+    // TODO
+    UNUSED(ctx);
+    return result_;
+}
+
+std::string UUIDExpression::toString() const {
+    return folly::stringPrintf("uuid(%s)", field_->c_str());
+}
+
 }  // namespace nebula
