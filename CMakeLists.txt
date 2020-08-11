@@ -48,6 +48,9 @@ include(GitInfoConfig)
 include(NebulaCMakeMacros)
 include(NebulaCustomTargets)
 
+# Remove the target exporting file
+file(REMOVE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-config.cmake)
+
 # For simplicity, we make all ordinary libraries depend on the compile-time generated files,
 # including the precompiled header, a.k.a Base.h.gch, and thrift headers.
 macro(nebula_add_library name type)
