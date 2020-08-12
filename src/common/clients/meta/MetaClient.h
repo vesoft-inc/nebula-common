@@ -194,7 +194,7 @@ public:
         listener_ = nullptr;
     }
 
-    folly::Future<StatusOr<cpp2::AdminJobResult>>
+    folly::Future<StatusOr<cpp2::AdminJobResp>>
     submitJob(cpp2::AdminJobOp op, cpp2::AdminCmd cmd, std::vector<std::string> paras);
 
     // Operations for parts
@@ -210,7 +210,7 @@ public:
     folly::Future<StatusOr<cpp2::ExecResp>>
     dropSpace(std::string name, bool ifExists = false);
 
-    folly::Future<StatusOr<std::vector<cpp2::HostItem>>>
+    folly::Future<StatusOr<cpp2::ListHostsResp>>
     listHosts(cpp2::ListHostType type = cpp2::ListHostType::ALLOC);
 
     folly::Future<StatusOr<cpp2::ListPartsResp>>

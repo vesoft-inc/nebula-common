@@ -21,35 +21,6 @@ include "common.thrift"
  *
  */
 
-enum ErrorCode {
-    SUCCEEDED = 0,
-
-    // RPC Failure
-    E_DISCONNECTED = -1,
-    E_FAIL_TO_CONNECT = -2,
-    E_RPC_FAILURE = -3,
-
-    // Authentication error
-    E_BAD_USERNAME_PASSWORD = -4,
-
-    // Execution errors
-    E_SESSION_INVALID = -5,
-    E_SESSION_TIMEOUT = -6,
-
-    E_SYNTAX_ERROR = -7,
-    E_EXECUTION_ERROR = -8,
-    // Nothing is executed When command is comment
-    E_STATEMENT_EMTPY = -9,
-
-    // User and permission error
-    E_USER_NOT_FOUND = -10,
-    E_BAD_PERMISSION = -11,
-
-    // semantic error
-    E_SEMANTIC_ERROR = -12,
-} (cpp.enum_strict)
-
-
 struct ProfilingStats {
     // How many rows being processed in an executor.
     1: required i64  rows;

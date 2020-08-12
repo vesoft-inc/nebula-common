@@ -134,7 +134,7 @@ void MetaClient::heartBeatThreadFunc() {
                         << FLAGS_cluster_id_path;
         }
     }
-    metadLastUpdateTime_ = resp.get_last_update_time_in_ms();
+    metadLastUpdateTime_ = ret.value().get_last_update_time_in_ms();
     VLOG(1) << "Metad last update time: " << metadLastUpdateTime_;
 
     // if MetaServer has some changes, refesh the localCache_
@@ -247,7 +247,7 @@ bool MetaClient::loadData() {
             LOG(ERROR) << "Get space properties failed for space " << spaceId;
             return false;
         }
-        const auto& properties = resp.value().get_properties();
+        const auto& properties = resp.value().get_item().get_properties();
         spaceCache->vertexIdLen_ = properties.get_vid_size();
 
         cache.emplace(spaceId, spaceCache);
@@ -298,8 +298,8 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
         return false;
     }
 
-    auto tagItemVec = tagRet.value();
-    auto edgeItemVec = edgeRet.value();
+    auto tagItemVec = tagRet.value().get_tags();
+    auto edgeItemVec = edgeRet.value().get_edges();
     allEdgeMap[spaceId] = {};
     TagSchemas tagSchemas;
     EdgeSchemas edgeSchemas;
@@ -700,7 +700,7 @@ StatusOr<PartitionID> MetaClient::partId(GraphSpaceID spaceId, const VertexID id
 }
 
 
-folly::Future<StatusOr<cpp2::AdminJobResult>>
+folly::Future<StatusOr<cpp2::AdminJobResp>>
 MetaClient::submitJob(cpp2::AdminJobOp op, cpp2::AdminCmd cmd, std::vector<std::string> paras) {
     cpp2::AdminJobReq req;
     req.set_op(op);
@@ -782,12 +782,12 @@ folly::Future<StatusOr<cpp2::ExecResp>> MetaClient::dropSpace(std::string name,
     return future;
 }
 
-folly::Future<StatusOr<std::vector<cpp2::HostItem>>>
+folly::Future<StatusOr<cpp2::ListHostsResp>>
 MetaClient::listHosts(cpp2::ListHostType tp) {
     cpp2::ListHostsReq req;
     req.set_type(tp);
 
-    folly::Promise<StatusOr<std::vector<cpp2::HostItem>>> promise;
+    folly::Promise<StatusOr<cpp2::ListHostsResp>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
