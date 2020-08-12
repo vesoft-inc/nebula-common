@@ -69,6 +69,10 @@ public:
         return items;
     }
 
+    void setItems(std::vector<std::unique_ptr<Expression>> items) {
+        items_ = std::move(items);
+    }
+
     size_t size() const {
         return items_.size();
     }
@@ -107,6 +111,10 @@ public:
             items.emplace_back(item.get());
         }
         return items;
+    }
+
+    void setItems(std::vector<std::unique_ptr<Expression>> items) {
+        items_ = std::move(items);
     }
 
     size_t size() const {
@@ -149,6 +157,11 @@ public:
         return items;
     }
 
+    using Item = std::pair<std::unique_ptr<std::string>, std::unique_ptr<Expression>>;
+    void setItems(std::vector<Item> items) {
+        items_ = std::move(items);
+    }
+
     size_t size() const {
         return items_.size();
     }
@@ -163,8 +176,7 @@ private:
     void resetFrom(Decoder &decoder) override;
 
 private:
-    using Pair = std::pair<std::unique_ptr<std::string>, std::unique_ptr<Expression>>;
-    std::vector<Pair>                       items_;
+    std::vector<Item>                       items_;
     Value                                   result_;
 };
 
