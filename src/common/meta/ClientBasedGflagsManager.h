@@ -20,23 +20,25 @@ public:
 
     ~ClientBasedGflagsManager();
 
-    folly::Future<StatusOr<bool>> setConfig(const cpp2::ConfigModule& module,
-                                            const std::string& name,
-                                            const cpp2::ConfigType& type,
-                                            const VariantType& value) override;
+    folly::Future<StatusOr<cpp2::ExecResp>> setConfig(const cpp2::ConfigModule& module,
+                                                      const std::string& name,
+                                                      const cpp2::ConfigType& type,
+                                                      const VariantType& value) override;
 
-    folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
+    folly::Future<StatusOr<cpp2::GetConfigResp>>
     getConfig(const cpp2::ConfigModule& module, const std::string& name) override;
 
-    folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
+    folly::Future<StatusOr<cpp2::ListConfigsResp>>
     listConfigs(const cpp2::ConfigModule& module) override;
 
     Status registerGflags(const std::vector<cpp2::ConfigItem>& items);
 
 private:
     template<typename ValueType>
-    folly::Future<StatusOr<bool>> set(const cpp2::ConfigModule& module, const std::string& name,
-                                      const cpp2::ConfigType& type, const ValueType& value);
+    folly::Future<StatusOr<cpp2::ExecResp>> set(const cpp2::ConfigModule& module,
+                                                const std::string& name,
+                                                const cpp2::ConfigType& type,
+                                                const ValueType& value);
 
     MetaClient                          *metaClient_{nullptr};
 };

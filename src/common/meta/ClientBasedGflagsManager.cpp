@@ -19,17 +19,18 @@ ClientBasedGflagsManager::~ClientBasedGflagsManager() {
 }
 
 template<typename ValueType>
-folly::Future<StatusOr<bool>> ClientBasedGflagsManager::set(const cpp2::ConfigModule& module,
-                                                            const std::string& name,
-                                                            const cpp2::ConfigType& type,
-                                                            const ValueType& value) {
+folly::Future<StatusOr<cpp2::ExecResp>>
+ClientBasedGflagsManager::set(const cpp2::ConfigModule& module,
+                              const std::string& name,
+                              const cpp2::ConfigType& type,
+                              const ValueType& value) {
     std::string valueStr;
     valueStr.append(reinterpret_cast<const char*>(&value), sizeof(value));
     return metaClient_->setConfig(module, name, type, std::move(valueStr));
 }
 
 template<>
-folly::Future<StatusOr<bool>>
+folly::Future<StatusOr<cpp2::ExecResp>>
 ClientBasedGflagsManager::set<std::string>(const cpp2::ConfigModule& module,
                                            const std::string& name,
                                            const cpp2::ConfigType& type,
@@ -37,7 +38,7 @@ ClientBasedGflagsManager::set<std::string>(const cpp2::ConfigModule& module,
     return metaClient_->setConfig(module, name, type, value);
 }
 
-folly::Future<StatusOr<bool>>
+folly::Future<StatusOr<cpp2::ExecResp>>
 ClientBasedGflagsManager::setConfig(const cpp2::ConfigModule& module, const std::string& name,
                                     const cpp2::ConfigType& type, const VariantType &value) {
     switch (type) {
@@ -55,12 +56,12 @@ ClientBasedGflagsManager::setConfig(const cpp2::ConfigModule& module, const std:
     }
 }
 
-folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
+folly::Future<StatusOr<cpp2::GetConfigResp>>
 ClientBasedGflagsManager::getConfig(const cpp2::ConfigModule& module, const std::string& name) {
     return metaClient_->getConfig(module, name);
 }
 
-folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
+folly::Future<StatusOr<cpp2::ListConfigsResp>>
 ClientBasedGflagsManager::listConfigs(const cpp2::ConfigModule& module) {
     return metaClient_->listConfigs(module);
 }

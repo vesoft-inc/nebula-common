@@ -18,15 +18,15 @@ namespace meta {
 class GflagsManager {
 public:
     // methods for consoles, reg/set/get/list configs from meta server
-    virtual folly::Future<StatusOr<bool>> setConfig(const cpp2::ConfigModule& module,
-                                                    const std::string& name,
-                                                    const cpp2::ConfigType& type,
-                                                    const VariantType& value) = 0;
+    virtual folly::Future<StatusOr<cpp2::ExecResp>> setConfig(const cpp2::ConfigModule& module,
+                                                              const std::string& name,
+                                                              const cpp2::ConfigType& type,
+                                                              const VariantType& value) = 0;
 
-    virtual folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
+    virtual folly::Future<StatusOr<cpp2::GetConfigResp>>
     getConfig(const cpp2::ConfigModule& module, const std::string& name) = 0;
 
-    virtual folly::Future<StatusOr<std::vector<cpp2::ConfigItem>>>
+    virtual folly::Future<StatusOr<cpp2::ListConfigsResp>>
     listConfigs(const cpp2::ConfigModule& module) = 0;
 
     static void getGflagsModule(cpp2::ConfigModule& gflagsModule);

@@ -33,7 +33,7 @@ thrift_generate(
 thrift_generate("meta" "MetaService" ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} "common/interface")
 
 # Target object name : error_msg_thrift_obj
-thrift_generate("error_msg" "" ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} "interface")
+thrift_generate("error_msg" "" ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} "common/interface")
 
 add_custom_target(
     clean-interface
