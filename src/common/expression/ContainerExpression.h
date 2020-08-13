@@ -142,8 +142,6 @@ private:
 
 class MapExpression final : public Expression {
 public:
-    using Pair = std::pair<std::unique_ptr<std::string>, std::unique_ptr<Expression>>;
-
     MapExpression() : Expression(Kind::kMap) {
     }
 
