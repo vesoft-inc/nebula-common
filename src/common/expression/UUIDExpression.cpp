@@ -46,7 +46,7 @@ std::string UUIDExpression::toString() const {
     return folly::stringPrintf("uuid(%s)", field_->c_str());
 }
 
-void UUIDExpression::accept(ExprVisitor* visitor) const {
+void UUIDExpression::accept(ExprVisitor* visitor) {
     visitor->visitUUIDExpr(this);
 }
 

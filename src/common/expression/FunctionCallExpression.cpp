@@ -93,7 +93,7 @@ std::string FunctionCallExpression::toString() const {
     return out.str();
 }
 
-void FunctionCallExpression::accept(ExprVisitor* visitor) const {
+void FunctionCallExpression::accept(ExprVisitor* visitor) {
     visitor->visitFunctionCallExpr(this);
 }
 

@@ -48,7 +48,7 @@ std::string LogicalExpression::toString() const {
     return out.str();
 }
 
-void LogicalExpression::accept(ExprVisitor* visitor) const {
+void LogicalExpression::accept(ExprVisitor* visitor) {
     visitor->visitLogicalExpr(this);
 }
 

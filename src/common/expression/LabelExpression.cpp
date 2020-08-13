@@ -39,7 +39,7 @@ void LabelExpression::resetFrom(Decoder& decoder) {
     name_ = decoder.readStr();
 }
 
-void LabelExpression::accept(ExprVisitor* visitor) const {
+void LabelExpression::accept(ExprVisitor* visitor) {
     visitor->visitLabelExpr(this);
 }
 

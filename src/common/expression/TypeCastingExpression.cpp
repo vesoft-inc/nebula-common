@@ -138,7 +138,7 @@ std::string TypeCastingExpression::toString() const {
     return out.str();
 }
 
-void TypeCastingExpression::accept(ExprVisitor* visitor) const {
+void TypeCastingExpression::accept(ExprVisitor* visitor) {
     visitor->visitTypeCastingExpr(this);
 }
 

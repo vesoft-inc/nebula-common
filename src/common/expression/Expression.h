@@ -96,7 +96,7 @@ public:
 
     virtual std::string toString() const = 0;
 
-    virtual void accept(ExprVisitor* visitor) const = 0;
+    virtual void accept(ExprVisitor* visitor) = 0;
 
     static std::string encode(const Expression& exp);
 

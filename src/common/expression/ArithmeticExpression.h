@@ -20,7 +20,7 @@ public:
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
     std::string toString() const override;
 

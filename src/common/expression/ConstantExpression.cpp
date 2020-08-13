@@ -35,7 +35,7 @@ void ConstantExpression::resetFrom(Decoder& decoder) {
     val_ = decoder.readValue();
 }
 
-void ConstantExpression::accept(ExprVisitor* visitor) const {
+void ConstantExpression::accept(ExprVisitor* visitor) {
     visitor->visitConstantExpr(this);
 }
 

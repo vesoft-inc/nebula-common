@@ -62,7 +62,7 @@ std::string ArithmeticExpression::toString() const {
     return out.str();
 }
 
-void ArithmeticExpression::accept(ExprVisitor* visitor) const {
+void ArithmeticExpression::accept(ExprVisitor* visitor) {
     visitor->visitArithmeticExpr(this);
 }
 

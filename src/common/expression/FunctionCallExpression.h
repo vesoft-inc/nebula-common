@@ -67,7 +67,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
     const std::string* name() const {
         return name_.get();

@@ -80,7 +80,7 @@ void ListExpression::resetFrom(Decoder &decoder) {
     }
 }
 
-void ListExpression::accept(ExprVisitor *visitor) const {
+void ListExpression::accept(ExprVisitor *visitor) {
     visitor->visitListExpr(this);
 }
 
@@ -152,7 +152,7 @@ void SetExpression::resetFrom(Decoder &decoder) {
     }
 }
 
-void SetExpression::accept(ExprVisitor *visitor) const {
+void SetExpression::accept(ExprVisitor *visitor) {
     visitor->visitSetExpr(this);
 }
 
@@ -234,7 +234,7 @@ void MapExpression::resetFrom(Decoder &decoder) {
     }
 }
 
-void MapExpression::accept(ExprVisitor *visitor) const {
+void MapExpression::accept(ExprVisitor *visitor) {
     visitor->visitMapExpr(this);
 }
 

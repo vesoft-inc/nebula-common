@@ -13,7 +13,7 @@ const Value& VariableExpression::eval(ExpressionContext& ctx) {
     return ctx.getVar(*var_);
 }
 
-void VariableExpression::accept(ExprVisitor* visitor) const {
+void VariableExpression::accept(ExprVisitor* visitor) {
     visitor->visitVariableExpr(this);
 }
 
@@ -53,7 +53,7 @@ std::string VersionedVariableExpression::toString() const {
     return out.str();
 }
 
-void VersionedVariableExpression::accept(ExprVisitor* visitor) const {
+void VersionedVariableExpression::accept(ExprVisitor* visitor) {
     visitor->visitVersionedVariableExpr(this);
 }
 

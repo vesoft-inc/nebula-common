@@ -81,7 +81,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor *visitor) const override;
+    void accept(ExprVisitor *visitor) override;
 
 private:
     void writeTo(Encoder &encoder) const override;
@@ -127,7 +127,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
 private:
     void writeTo(Encoder &encoder) const override;
@@ -174,7 +174,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
 private:
     void writeTo(Encoder &encoder) const override;

@@ -59,7 +59,7 @@ std::string SubscriptExpression::toString() const {
     return buf;
 }
 
-void SubscriptExpression::accept(ExprVisitor *visitor) const {
+void SubscriptExpression::accept(ExprVisitor *visitor) {
     visitor->visitSubscriptExpr(this);
 }
 

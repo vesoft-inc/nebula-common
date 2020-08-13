@@ -40,32 +40,32 @@ class ExprVisitor {
 public:
     virtual ~ExprVisitor() = default;
 
-    virtual void visitConstantExpr(const ConstantExpression *expr) = 0;
-    virtual void visitArithmeticExpr(const ArithmeticExpression *expr) = 0;
-    virtual void visitUnaryExpr(const UnaryExpression *expr) = 0;
-    virtual void visitRelationalExpr(const RelationalExpression *expr) = 0;
-    virtual void visitLogicalExpr(const LogicalExpression *expr) = 0;
-    virtual void visitTypeCastingExpr(const TypeCastingExpression *expr) = 0;
-    virtual void visitFunctionCallExpr(const FunctionCallExpression *expr) = 0;
-    virtual void visitEdgePropertyExpr(const EdgePropertyExpression *expr) = 0;
-    virtual void visitTagPropertyExpr(const TagPropertyExpression *expr) = 0;
-    virtual void visitInputPropertyExpr(const InputPropertyExpression *expr) = 0;
-    virtual void visitVariablePropertyExpr(const VariablePropertyExpression *expr) = 0;
-    virtual void visitSourcePropertyExpr(const SourcePropertyExpression *expr) = 0;
-    virtual void visitDestPropertyExpr(const DestPropertyExpression *expr) = 0;
-    virtual void visitEdgeSrcIdExpr(const EdgeSrcIdExpression *expr) = 0;
-    virtual void visitEdgeTypeExpr(const EdgeTypeExpression *expr) = 0;
-    virtual void visitEdgeRankExpr(const EdgeRankExpression *expr) = 0;
-    virtual void visitEdgeDstIdExpr(const EdgeDstIdExpression *expr) = 0;
-    virtual void visitUUIDExpr(const UUIDExpression *expr) = 0;
-    virtual void visitVariableExpr(const VariableExpression *expr) = 0;
-    virtual void visitVersionedVariableExpr(const VersionedVariableExpression *expr) = 0;
-    virtual void visitListExpr(const ListExpression *expr) = 0;
-    virtual void visitSetExpr(const SetExpression *expr) = 0;
-    virtual void visitMapExpr(const MapExpression *expr) = 0;
-    virtual void visitLabelExpr(const LabelExpression *expr) = 0;
-    virtual void visitSubscriptExpr(const SubscriptExpression *expr) = 0;
-    virtual void visitSymbolPropertyExpr(const SymbolPropertyExpression *expr) = 0;
+    virtual void visitConstantExpr(ConstantExpression *expr) = 0;
+    virtual void visitArithmeticExpr(ArithmeticExpression *expr) = 0;
+    virtual void visitUnaryExpr(UnaryExpression *expr) = 0;
+    virtual void visitRelationalExpr(RelationalExpression *expr) = 0;
+    virtual void visitLogicalExpr(LogicalExpression *expr) = 0;
+    virtual void visitTypeCastingExpr(TypeCastingExpression *expr) = 0;
+    virtual void visitFunctionCallExpr(FunctionCallExpression *expr) = 0;
+    virtual void visitEdgePropertyExpr(EdgePropertyExpression *expr) = 0;
+    virtual void visitTagPropertyExpr(TagPropertyExpression *expr) = 0;
+    virtual void visitInputPropertyExpr(InputPropertyExpression *expr) = 0;
+    virtual void visitVariablePropertyExpr(VariablePropertyExpression *expr) = 0;
+    virtual void visitSourcePropertyExpr(SourcePropertyExpression *expr) = 0;
+    virtual void visitDestPropertyExpr(DestPropertyExpression *expr) = 0;
+    virtual void visitEdgeSrcIdExpr(EdgeSrcIdExpression *expr) = 0;
+    virtual void visitEdgeTypeExpr(EdgeTypeExpression *expr) = 0;
+    virtual void visitEdgeRankExpr(EdgeRankExpression *expr) = 0;
+    virtual void visitEdgeDstIdExpr(EdgeDstIdExpression *expr) = 0;
+    virtual void visitUUIDExpr(UUIDExpression *expr) = 0;
+    virtual void visitVariableExpr(VariableExpression *expr) = 0;
+    virtual void visitVersionedVariableExpr(VersionedVariableExpression *expr) = 0;
+    virtual void visitListExpr(ListExpression *expr) = 0;
+    virtual void visitSetExpr(SetExpression *expr) = 0;
+    virtual void visitMapExpr(MapExpression *expr) = 0;
+    virtual void visitLabelExpr(LabelExpression *expr) = 0;
+    virtual void visitSubscriptExpr(SubscriptExpression *expr) = 0;
+    virtual void visitSymbolPropertyExpr(SymbolPropertyExpression *expr) = 0;
 };
 
 }   // namespace nebula

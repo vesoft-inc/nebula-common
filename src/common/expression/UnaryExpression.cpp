@@ -107,7 +107,7 @@ std::string UnaryExpression::toString() const {
     return out.str();
 }
 
-void UnaryExpression::accept(ExprVisitor* visitor) const {
+void UnaryExpression::accept(ExprVisitor* visitor) {
     visitor->visitUnaryExpr(this);
 }
 

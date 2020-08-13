@@ -57,7 +57,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
 protected:
     void writeTo(Encoder& encoder) const override;
@@ -83,7 +83,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
 private:
     Value                           result_;
@@ -104,7 +104,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
 private:
     Value result_;
@@ -123,7 +123,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 };
 
 // $VarName.any_prop_name
@@ -140,7 +140,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 };
 
 // $^.TagName.any_prop_name
@@ -157,7 +157,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
 private:
     Value                           result_;
@@ -177,7 +177,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 };
 
 // EdgeName._src
@@ -193,7 +193,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
 private:
     Value                           result_;
@@ -212,7 +212,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
 private:
     Value                           result_;
@@ -231,7 +231,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
 private:
     Value                           result_;
@@ -250,7 +250,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
 private:
     Value                           result_;

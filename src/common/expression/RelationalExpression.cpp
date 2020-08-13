@@ -117,7 +117,7 @@ std::string RelationalExpression::toString() const {
     return out.str();
 }
 
-void RelationalExpression::accept(ExprVisitor* visitor) const {
+void RelationalExpression::accept(ExprVisitor* visitor) {
     visitor->visitRelationalExpr(this);
 }
 

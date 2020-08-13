@@ -27,7 +27,7 @@ public:
 
     std::string toString() const override;
 
-    void accept(ExprVisitor* visitor) const override;
+    void accept(ExprVisitor* visitor) override;
 
     const Expression* operand() const {
         return operand_.get();
