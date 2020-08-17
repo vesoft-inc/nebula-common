@@ -56,14 +56,17 @@ jobs:
       image: vesoft/nebula-dev:${{ matrix.os }}
       env:
         CCACHE_DIR: /tmp/ccache/nebula-common/${{ matrix.os }}-${{ matrix.compiler }}
-        CCACHE_MAXSIZE: 1G
-      volumes:
-        - /tmp/ccache/nebula-common/${{ matrix.os }}-${{ matrix.compiler }}:/tmp/ccache/nebula-common/${{ matrix.os }}-${{ matrix.compiler }}
-      options: --mount type=tmpfs,destination=/tmp/ccache/nebula-common,tmpfs-size=1073741824 --cap-add=SYS_PTRACE
+        CCACHE_MAXSIZE: 3G
+      options: --cap-add=SYS_PTRACE
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
+      - uses: actions/cache@v2
+        with:
+          path: /tmp/ccache/nebula-common/${{ matrix.os }}-${{ matrix.compiler }}
+          key: ${{ matrix.os }}-${{ matrix.compiler }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: ${{ matrix.os }}-${{ matrix.compiler }}-
       - name: Prepare environment
         run: '[ -d build/ ] && rm -rf build/* || mkdir -p build'
       - name: CMake
