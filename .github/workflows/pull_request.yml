@@ -36,7 +36,7 @@ jobs:
     name: build
     needs: lint
     if: ${{ needs.lint.outputs.has_source_files != 0 }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
