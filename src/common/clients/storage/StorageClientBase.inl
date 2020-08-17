@@ -209,7 +209,7 @@ StorageClientBase<ClientType>::collectResponse(
                         auto partId = getPartIDFunc(part);
                         VLOG(3) << "Exception! Failed part " << partId;
                         context->resp.emplaceFailedPart(partId,
-                                                        storage::cpp2::ErrorCode::E_RPC_FAILURE);
+                                                        nebula::cpp2::ErrorCode::E_RPC_FAILED);
                         invalidLeader(spaceId, partId);
                     }
                     context->resp.markFailure();
@@ -221,7 +221,7 @@ StorageClientBase<ClientType>::collectResponse(
                         VLOG(3) << "Failure! Failed part " << code.get_part_id()
                                 << ", failed code " << static_cast<int32_t>(code.get_code());
                         hasFailure = true;
-                        if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
+                        if (code.get_code() == nebula::cpp2::ErrorCode::E_LEADER_CHANGED) {
                             auto* leader = code.get_leader();
                             if (leader != nullptr &&
                                 !leader->host.empty() &&
@@ -230,8 +230,8 @@ StorageClientBase<ClientType>::collectResponse(
                             } else {
                                 invalidLeader(spaceId, code.get_part_id());
                             }
-                        } else if (code.get_code() == cpp2::ErrorCode::E_PART_NOT_FOUND
-                                || code.get_code() == cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
+                        } else if (code.get_code() == nebula::cpp2::ErrorCode::E_PART_NOT_FOUND
+                                || code.get_code() == nebula::cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
                             invalidLeader(spaceId, code.get_part_id());
                         } else {
                             // Simply keep the result
@@ -308,7 +308,7 @@ folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
             for (auto& code : result.get_failed_parts()) {
                 VLOG(3) << "Failure! Failed part " << code.get_part_id()
                         << ", failed code " << static_cast<int32_t>(code.get_code());
-                if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
+                if (code.get_code() == nebula::cpp2::ErrorCode::E_LEADER_CHANGED) {
                     auto* leader = code.get_leader();
                     if (leader != nullptr &&
                         !leader->host.empty() &&
@@ -317,8 +317,8 @@ folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
                     } else {
                         invalidLeader(spaceId, code.get_part_id());
                     }
-                } else if (code.get_code() == storage::cpp2::ErrorCode::E_PART_NOT_FOUND ||
-                           code.get_code() == storage::cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
+                } else if (code.get_code() == nebula::cpp2::ErrorCode::E_PART_NOT_FOUND ||
+                           code.get_code() == nebula::cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
                     invalidLeader(spaceId, code.get_part_id());
                 }
             }

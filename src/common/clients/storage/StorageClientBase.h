@@ -14,6 +14,7 @@
 #include "common/meta/Common.h"
 #include "common/thrift/ThriftClientManager.h"
 #include "common/clients/meta/MetaClient.h"
+#include "common/interface/gen-cpp2/common_types.h"
 #include "common/interface/gen-cpp2/storage_types.h"
 
 DECLARE_int32(storage_client_timeout_ms);
@@ -58,11 +59,11 @@ public:
         return totalReqsSent_ == 0 ? 0 : (totalReqsSent_ - failedReqs_) * 100 / totalReqsSent_;
     }
 
-    const std::unordered_map<PartitionID, storage::cpp2::ErrorCode>& failedParts() const {
+    const std::unordered_map<PartitionID, nebula::cpp2::ErrorCode>& failedParts() const {
         return failedParts_;
     }
 
-    void emplaceFailedPart(PartitionID partId, storage::cpp2::ErrorCode errorCode) {
+    void emplaceFailedPart(PartitionID partId, nebula::cpp2::ErrorCode errorCode) {
         failedParts_.emplace(partId, errorCode);
     }
 
@@ -79,7 +80,7 @@ private:
     size_t failedReqs_{0};
 
     Result result_{Result::ALL_SUCCEEDED};
-    std::unordered_map<PartitionID, storage::cpp2::ErrorCode> failedParts_;
+    std::unordered_map<PartitionID, nebula::cpp2::ErrorCode> failedParts_;
     int32_t maxLatency_{0};
     std::vector<Response> responses_;
     std::vector<std::tuple<HostAddr, int32_t, int32_t>> hostLatency_;

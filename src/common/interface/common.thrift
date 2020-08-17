@@ -178,3 +178,137 @@ struct KeyValue {
     1: binary key,
     2: binary value,
 } (cpp.type = "nebula::KeyValue")
+
+
+enum ErrorCode {
+    SUCCEEDED                     = 0,
+
+    // 1xxxx, for rpc Failure
+    E_RPC_FAILED                  = 10002,
+
+    // raft
+    E_LEADER_CHANGED              = 10003,
+
+
+    // 2xxxx, for graph Failure
+    // Authentication error
+    E_BAD_USERNAME_PASSWORD       = 20001,
+
+    // Execution errors
+    E_SESSION_INVALID             = 20002,
+
+    // current not use
+    E_SESSION_TIMEOUT             = 20003,
+
+    E_SYNTAX_ERROR                = 20004,
+    // Nothing is executed When command is comment
+    E_STATEMENT_EMTPY             = 20005,
+    E_SEMANTIC_ERROR              = 20006,
+
+    // 3xxxx, for meta Failure
+    E_NO_HOSTS                    = 30001,
+
+    // existed
+    E_SPACE_EXISTED               = 30002,
+    E_TAG_EXISTED                 = 30003,
+    E_EDGE_EXISTED                = 30004,
+    E_INDEX_EXISTED               = 30005,
+    E_USE_EXISTED                 = 30006,
+
+    // it will not return by graphd, it just use by internal
+    E_INVALID_HOST                = 30007,
+    E_UNSUPPORTED                 = 30008,
+    E_NOT_DROP_PROP               = 30009,
+    E_BALANCER_RUNNING            = 30010,
+    E_CONFIG_IMMUTABLE            = 30011,
+    E_CONFLICT                    = 30012,
+    E_INVALID_PARM                = 30013,
+    // it will not return by graphd, it just use by internal
+    E_WRONGCLUSTER                = 30014,
+
+    E_STORE_FAILED                = 30015,
+    E_STORE_SEGMENT_ILLEGAL       = 30016,
+    E_BAD_BALANCE_PLAN            = 30017,
+    E_BALANCED                    = 30018,
+    E_NO_RUNNING_BALANCE_PLAN     = 30019,
+    E_NO_VALID_HOST               = 30020,
+    E_CORRUPTTED_BALANCE_PLAN     = 30021,
+
+    // Authentication Failure
+    E_INVALID_PASSWORD            = 30022,
+    E_IMPROPER_ROLE               = 30023,
+    E_INVALID_PARTITION_NUM       = 30024,
+    E_INVALID_REPLICA_FACTOR      = 30025,
+    E_INVALID_CHARSET             = 30026,
+    E_INVALID_COLLATE             = 30027,
+    E_CHARSET_COLLATE_NOT_MATCH   = 30028,
+
+    // Admin Failure
+    E_SNAPSHOT_FAILED             = 30029,
+    E_BLOCK_WRITE_FAILED          = 30030,
+    E_INDEX_WITH_TTL              = 30031,
+    E_ADD_JOB_FAILED              = 30032,
+    E_STOP_JOB_FAILED             = 30033,
+    E_SAVE_JOB_FAILED             = 30034,
+
+
+    // 4xxxx, for storage Failure
+    E_KEY_HAS_EXISTS              = 40002,
+    E_PART_NOT_FOUND              = 40004,
+    E_KEY_NOT_FOUND               = 40005,
+    E_CONSENSUS_ERROR             = 40006,
+    E_DATA_TYPE_MISMATCH          = 40007,
+    E_INVALID_FIELD_VALUE         = 40008,
+    E_INVALID_OPERATION           = 40010,
+    E_NOT_NULLABLE                = 40011,   // Not allowed to be null
+    E_FIELD_UNSET                 = 40012,   // The field neither can be NULL, nor has a default value
+    E_OUT_OF_RANGE                = 40013,   // Value exceeds the range of type
+    E_ATOMIC_OP_FAILED            = 40014,   // Atomic operation failed
+
+    // meta failures
+    E_IMPROPER_DATA_TYPE          = 40017,
+    E_INVALID_SPACEVIDLEN         = 40018,
+
+    // Invalid request
+    E_INVALID_FILTER              = 40019,
+    E_INVALID_UPDATER             = 40020,
+    E_INVALID_STORE               = 40021,
+    E_INVALID_PEER                = 40022,
+    E_RETRY_EXHAUSTED             = 40023,
+    E_TRANSFER_LEADER_FAILED      = 40024,
+    E_INVALID_STAT_TYPE           = 40025,
+
+    // meta client failed, currently not use
+    E_LOAD_META_FAILED            = 40026,
+
+    // checkpoint failed
+    E_FAILED_TO_CHECKPOINT        = 40027,
+    E_CHECKPOINT_BLOCKED          = 40028,
+
+    // partial result, used for kv interfaces
+    E_PARTIAL_RESULT              = 40029,
+
+    // Filter out
+    E_FILTER_OUT                  = 40030,
+    E_INVALID_DATA                = 40031,
+
+    // task manager failed
+    E_INVALID_TASK_PARA           = 40032,
+    E_USER_CANCEL                 = 40033,
+
+
+    // 5xxxx, for common Failure
+    E_SPACE_NOT_FOUND             = 50001,
+    E_TAG_NOT_FOUND               = 50002,
+    E_EDGE_NOT_FOUND              = 50003,
+    E_INDEX_NOT_FOUND             = 50004,
+    E_EDGE_PROP_NOT_FOUND         = 50005,
+    E_TAG_PROP_NOT_FOUND          = 50007,
+
+    E_REBUILD_INDEX_FAILED        = 50008,
+
+    E_INVALID_VID                 = 50009,
+
+    // internal error
+    E_INTERNAL_ERROR              = 100000,
+} (cpp.enum_strict)
