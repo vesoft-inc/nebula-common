@@ -36,6 +36,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/nebula")
 
 include(PlatformCheck)
+include(NebulaCMakeMacros)
 include(GeneralCMakeOptions)
 include(GeneralCMakeConfig)
 include(GeneralCompilerConfig)
@@ -45,7 +46,6 @@ include(ThirdPartyConfig)
 include(SanitizerConfig)
 include(GitHooksConfig)
 include(GitInfoConfig)
-include(NebulaCMakeMacros)
 include(NebulaCustomTargets)
 
 # Remove the target exporting file
