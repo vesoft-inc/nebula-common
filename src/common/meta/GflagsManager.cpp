@@ -14,7 +14,7 @@ namespace nebula {
 namespace meta {
 
 Value GflagsManager::gflagsValueToValue(const std::string &type, const std::string &flagValue) {
-    // TODO: all int32/uint32/uint64 gflags are converted to int64 for now
+    // all int32/uint32/uint64 gflags are converted to int64 for now
     folly::StringPiece view(type);
     if (view.startsWith("int") || view.startsWith("uint")) {
         return Value(folly::to<int64_t>(flagValue));
