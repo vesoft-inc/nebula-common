@@ -767,9 +767,18 @@ folly::Future<StatusOr<GraphSpaceID>> MetaClient::createSpace(SpaceDesc spaceDes
     properties.set_space_name(std::move(spaceDesc.spaceName_));
     properties.set_partition_num(spaceDesc.partNum_);
     properties.set_replica_factor(spaceDesc.replicaFactor_);
-    properties.set_vid_size(spaceDesc.vidSize_);
     properties.set_charset_name(std::move(spaceDesc.charsetName_));
     properties.set_collate_name(std::move(spaceDesc.collationName_));
+    properties.set_vid_size(spaceDesc.vidSize_);
+    if (spaceDesc.vidType_ == Value::Type::STRING) {
+        properties.set_vid_type(cpp2::PropertyType::STRING);
+    } else if (spaceDesc.vidType_ == Value::Type::INT) {
+        properties.set_vid_type(cpp2::PropertyType::INT64);
+    } else {
+        std::stringstream ss;
+        ss << "Unsupported vid type: " << spaceDesc.vidType_;
+        return folly::makeFuture<StatusOr<GraphSpaceID>>(Status::Error(ss.str()));
+    }
 
     cpp2::CreateSpaceReq req;
     req.set_properties(std::move(properties));

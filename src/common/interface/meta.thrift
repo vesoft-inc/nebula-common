@@ -167,9 +167,10 @@ struct SpaceProperties {
     1: binary               space_name,
     2: i32                  partition_num,
     3: i32                  replica_factor,
-    4: i32                  vid_size = 8,
-    5: binary               charset_name,
-    6: binary               collate_name,
+    4: binary               charset_name,
+    5: binary               collate_name,
+    6: i32                  vid_size = 8,
+    7: PropertyType         vid_type = PropertyType.INT64,
 }
 
 struct SpaceItem {
