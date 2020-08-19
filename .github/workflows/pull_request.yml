@@ -45,7 +45,7 @@ jobs:
       image: vesoft/nebula-dev:${{ matrix.os }}
       env:
         CCACHE_DIR: /tmp/ccache/nebula-common/${{ matrix.os }}-${{ matrix.compiler }}
-        CCACHE_MAXSIZE: 3G
+        CCACHE_MAXSIZE: 128M
       options: --cap-add=SYS_PTRACE
     steps:
       - uses: actions/checkout@v2
