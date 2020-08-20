@@ -43,9 +43,10 @@ const Value& SubscriptExpression::eval(ExpressionContext &ctx) {
         }
         if (lvalue.isDataSet()) {
             if (!rvalue.isInt()) {
+                result_ = Value::kNullBadType;
                 break;
             }
-            auto size = static_cast<int64_t>(lvalue.getDataSet().size());
+            auto size = static_cast<int64_t>(lvalue.getDataSet().rowSize());
             auto rowIndex = rvalue.getInt();
             if (rowIndex >= size || rowIndex < 0) {
                 result_ = Value::kNullOutOfRange;
