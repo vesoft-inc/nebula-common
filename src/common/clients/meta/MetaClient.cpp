@@ -200,7 +200,7 @@ bool MetaClient::loadData() {
 
         auto spaceCache = std::make_shared<SpaceInfoCache>();
         auto partsAlloc = r.value();
-        spaceCache->spaceName = space.second;
+        auto spaceName = space.second;
         spaceCache->partsOnHost_ = reverse(partsAlloc);
         spaceCache->partsAlloc_ = std::move(partsAlloc);
         VLOG(2) << "Load space " << spaceId
@@ -226,13 +226,29 @@ bool MetaClient::loadData() {
         }
 
         // get space properties
-        auto resp = getSpace(spaceCache->spaceName).get();
+        auto resp = getSpace(spaceName).get();
         if (!resp.ok()) {
             LOG(ERROR) << "Get space properties failed for space " << spaceId;
             return false;
         }
         const auto& properties = resp.value().get_properties();
-        spaceCache->vertexIdLen_ = properties.get_vid_size();
+        SpaceDesc spaceDesc;
+        spaceDesc.spaceName_ = properties.get_space_name();
+        spaceDesc.partNum_ = properties.get_partition_num();
+        spaceDesc.replicaFactor_ = properties.get_replica_factor();
+        spaceDesc.charsetName_ = properties.get_charset_name();
+        spaceDesc.collationName_ = properties.get_collate_name();
+        spaceDesc.vidSize_ = properties.get_vid_size();
+        if (properties.get_vid_type() == cpp2::PropertyType::STRING) {
+            spaceDesc.vidType_ = Value::Type::STRING;
+        } else if (properties.get_vid_type() == cpp2::PropertyType::INT64) {
+            spaceDesc.vidType_ = Value::Type::INT;
+        } else {
+            LOG(ERROR) << "Unsupported vid type: "
+                << meta::cpp2::_PropertyType_VALUES_TO_NAMES.at(properties.get_vid_type());
+            return false;
+        }
+        spaceCache->spaceDesc_ = std::move(spaceDesc);
 
         cache.emplace(spaceId, spaceCache);
         spaceIndexByName.emplace(space.second, spaceId);
@@ -1666,7 +1682,7 @@ StatusOr<int32_t> MetaClient::getSpaceVidLen(const GraphSpaceID& spaceId) {
         LOG(ERROR) << "Space " << spaceId << " not found!";
         return Status::Error(folly::stringPrintf("Space %d not found", spaceId));
     }
-    auto vIdLen = spaceIt->second->vertexIdLen_;
+    auto vIdLen = spaceIt->second->spaceDesc_.vidSize_;
     if (vIdLen <= 0) {
         return Status::Error(folly::stringPrintf("Space %d vertexId length invalid", spaceId));
     }
@@ -1683,7 +1699,7 @@ StatusOr<Value::Type> MetaClient::getSpaceVidType(const GraphSpaceID& spaceId) {
         LOG(ERROR) << "Space " << spaceId << " not found!";
         return Status::Error(folly::stringPrintf("Space %d not found", spaceId));
     }
-    auto vIdType = spaceIt->second->vertexIdType_;
+    auto vIdType = spaceIt->second->spaceDesc_.vidType_;
     if (vIdType != Value::Type::INT || vIdType != Value::Type::STRING) {
         std::stringstream ss;
         ss << "Space " << spaceId << "vertexId type invalid: " << vIdType;

@@ -46,16 +46,42 @@ using NameIndexMap = std::unordered_map<std::pair<GraphSpaceID, std::string>, In
 // Get Index Structure by indexID
 using Indexes = std::unordered_map<IndexID, std::shared_ptr<cpp2::IndexItem>>;
 
+struct SpaceDesc {
+    SpaceDesc() {}
+
+    SpaceDesc(const std::string& spaceName,
+              int32_t partNum,
+              int32_t replicaFactor,
+              const std::string& charsetName = "",
+              const std::string& collationName = "",
+              int32_t vidSize = 8,
+              Value::Type vidType = Value::Type::INT)
+        : spaceName_(spaceName)
+        , partNum_(partNum)
+        , replicaFactor_(replicaFactor)
+        , charsetName_(charsetName)
+        , collationName_(collationName)
+        , vidSize_(vidSize)
+        , vidType_(vidType) {
+    }
+
+    std::string  spaceName_;
+    int32_t      partNum_{0};
+    int32_t      replicaFactor_{0};
+    std::string  charsetName_;
+    std::string  collationName_;
+    int32_t      vidSize_{8};
+    Value::Type  vidType_{Value::Type::INT};
+};
+
 struct SpaceInfoCache {
-    std::string spaceName;
+    SpaceDesc spaceDesc_;
     PartsAlloc partsAlloc_;
     std::unordered_map<HostAddr, std::vector<PartitionID>> partsOnHost_;
     TagSchemas tagSchemas_;
     EdgeSchemas edgeSchemas_;
     Indexes tagIndexes_;
     Indexes edgeIndexes_;
-    int32_t vertexIdLen_ = -1;
-    Value::Type vertexIdType_ = Value::Type::INT;
 };
 
 using LocalCache = std::unordered_map<GraphSpaceID, std::shared_ptr<SpaceInfoCache>>;
@@ -85,35 +111,6 @@ using IndexStatus = std::tuple<std::string, std::string, std::string>;
 using UserRolesMap = std::unordered_map<std::string, std::vector<cpp2::RoleItem>>;
 // get user password by account
 using UserPasswordMap = std::unordered_map<std::string, std::string>;
-
-struct SpaceDesc {
-    SpaceDesc() {}
-
-    SpaceDesc(const std::string& spaceName,
-              int32_t partNum,
-              int32_t replicaFactor,
-              const std::string& charsetName = "",
-              const std::string& collationName = "",
-              int32_t vidSize = 8,
-              Value::Type vidType = Value::Type::INT)
-        : spaceName_(spaceName)
-        , partNum_(partNum)
-        , replicaFactor_(replicaFactor)
-        , charsetName_(charsetName)
-        , collationName_(collationName)
-        , vidSize_(vidSize)
-        , vidType_(vidType) {
-    }
-
-    std::string  spaceName_;
-    int32_t      partNum_{0};
-    int32_t      replicaFactor_{0};
-    std::string  charsetName_;
-    std::string  collationName_;
-    int32_t      vidSize_{8};
-    Value::Type  vidType_{Value::Type::INT};
-};
-
 
 // config cahce, get config via module and name
 using MetaConfigMap = std::unordered_map<std::pair<cpp2::ConfigModule, std::string>,
