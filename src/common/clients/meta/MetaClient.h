@@ -393,6 +393,8 @@ public:
 
     StatusOr<Value::Type> getSpaceVidType(const GraphSpaceID& space);
 
+    StatusOr<SpaceDesc> getSpaceDesc(const GraphSpaceID& space);
+
     StatusOr<TagID> getTagIDByNameFromCache(const GraphSpaceID& space,
                                             const std::string& name);
 
