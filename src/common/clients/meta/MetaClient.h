@@ -199,7 +199,7 @@ public:
 
     // Operations for parts
     folly::Future<StatusOr<cpp2::ExecResp>> createSpace(SpaceDesc spaceDesc,
-                                                        bool ifNotExists);
+                                                        bool ifNotExists = false);
 
     folly::Future<StatusOr<cpp2::ListSpacesResp>>
     listSpaces();

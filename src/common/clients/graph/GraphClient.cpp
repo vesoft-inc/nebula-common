@@ -28,8 +28,8 @@ GraphClient::~GraphClient() {
 }
 
 
-cpp2::ErrorCode GraphClient::connect(const std::string& username,
-                                     const std::string& password) {
+nebula::cpp2::ErrorCode GraphClient::connect(const std::string& username,
+                                             const std::string& password) {
     using apache::thrift::async::TAsyncSocket;
     using apache::thrift::HeaderClientChannel;
 
@@ -45,7 +45,7 @@ cpp2::ErrorCode GraphClient::connect(const std::string& username,
     cpp2::AuthResponse resp;
     try {
         client_->sync_authenticate(resp, username, password);
-        if (resp.get_error_code() != cpp2::ErrorCode::SUCCEEDED) {
+        if (resp.get_error_code() != nebula::cpp2::ErrorCode::SUCCEEDED) {
             LOG(ERROR) << "Failed to authenticate \"" << username << "\": ";
 // TODO(sye) In order to support multi-language, a separate module will e provided
 //           for looking up the error messages
@@ -54,11 +54,11 @@ cpp2::ErrorCode GraphClient::connect(const std::string& username,
         }
     } catch (const std::exception& ex) {
         LOG(ERROR) << "Thrift rpc call failed: " << ex.what();
-        return cpp2::ErrorCode::E_RPC_FAILURE;
+        return nebula::cpp2::ErrorCode::E_RPC_FAILED;
     }
 
     sessionId_ = *(resp.get_session_id());
-    return cpp2::ErrorCode::SUCCEEDED;
+    return nebula::cpp2::ErrorCode::SUCCEEDED;
 }
 
 
@@ -74,18 +74,19 @@ void GraphClient::disconnect() {
 }
 
 
-cpp2::ErrorCode GraphClient::execute(folly::StringPiece stmt,
-                                     cpp2::ExecutionResponse& resp) {
+nebula::cpp2::ErrorCode GraphClient::execute(folly::StringPiece stmt,
+                                             cpp2::ExecutionResponse& resp) {
     if (!client_) {
         LOG(ERROR) << "Disconnected from the server";
-        return cpp2::ErrorCode::E_DISCONNECTED;
+        // TODO(laura): need add new error code in client when disconnected
+        return nebula::cpp2::ErrorCode::E_RPC_FAILED;
     }
 
     try {
         client_->sync_execute(resp, sessionId_, stmt.toString());
     } catch (const std::exception& ex) {
         LOG(ERROR) << "Thrift rpc call failed: " << ex.what();
-        return cpp2::ErrorCode::E_RPC_FAILURE;
+        return nebula::cpp2::ErrorCode::E_RPC_FAILED;
     }
 
     return resp.get_error_code();

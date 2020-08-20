@@ -6,7 +6,7 @@
 
 namespace cpp nebula.graph
 
-include "graph.thrift"
+include "common.thrift"
 
 /*
  *
@@ -27,115 +27,224 @@ enum Encoding {
     E_UTF8 = 1,
 }(cpp.enum_strict)
 
-const map<graph.ErrorCode, map<Language, binary>(cpp.template = "std::unordered_map")>
+const map<common.ErrorCode, map<Language, binary>(cpp.template = "std::unordered_map")>
 (cpp.template = "std::unordered_map") ErrorMsgUTF8Map = {
-    graph.ErrorCode.E_DISCONNECTED: {
-        Language.L_EN: "Disconnected",
+    common.ErrorCode.E_RPC_FAILED: {
+        Language.L_EN: "RPC failed from `%s'.",
     },
-    graph.ErrorCode.E_RPC_FAILURE: {
-        Language.L_EN: "Rpc failure: %s",
+    common.ErrorCode.E_LEADER_CHANGED: {
+        Language.L_EN: "`%s' has leader change.",
     },
-    graph.ErrorCode.E_RPC_FAILURE: {
-        Language.L_EN: "Rpc failure: %s",
+    common.ErrorCode.E_BAD_USERNAME_PASSWORD: {
+        Language.L_EN: "Wrong username or password.",
     },
-    graph.ErrorCode.E_NOT_USE_SPACE: {
-        Language.L_EN: "Please choose a graph space with `USE spaceName' firstly",
+    common.ErrorCode.E_SESSION_INVALID: {
+        Language.L_EN: "Session id `%ld' is invalid.",
     },
-    graph.ErrorCode.E_INVALID_PARAM: {
-        Language.L_EN: "Invalid param `%s'",
+    common.ErrorCode.E_SYNTAX_ERROR: {
+        Language.L_EN: "Syntax Error: %s.",
     },
-    graph.ErrorCode.E_NO_HOSTS: {
-        Language.L_EN: "No hosts",
+    common.ErrorCode.E_SEMANTIC_ERROR: {
+        Language.L_EN: "Semantic Error: %s.",
     },
-    graph.ErrorCode.E_NO_VALID_HOST: {
-        Language.L_EN: "No valid host",
+    common.ErrorCode.E_NO_HOSTS: {
+        Language.L_EN: "Not hosts.",
     },
-    graph.ErrorCode.E_SPACE_NOT_FOUND: {
-        Language.L_EN: "Space `%s' not found",
+    common.ErrorCode.E_SPACE_EXISTED: {
+        Language.L_EN: "Space `%s' existed.",
     },
-    graph.ErrorCode.E_TAG_NOT_FOUND: {
-        Language.L_EN: "Tag `%s' not found",
+    common.ErrorCode.E_TAG_EXISTED: {
+        Language.L_EN: "Tag `%s' existed.",
     },
-    graph.ErrorCode.E_EDGE_NOT_FOUND: {
-        Language.L_EN: "Edge `%s' not found",
+    common.ErrorCode.E_EDGE_EXISTED: {
+        Language.L_EN: "Edge `%s' existed.",
     },
-    graph.ErrorCode.E_INDEX_NOT_FOUND: {
-        Language.L_EN: "Index `%s' not found",
+    common.ErrorCode.E_INDEX_EXISTED: {
+        Language.L_EN: "Index `%s' existed.",
     },
-    graph.ErrorCode.E_USER_NOT_FOUND: {
-        Language.L_EN: "User `%s' not found",
+    common.ErrorCode.E_UNSUPPORTED: {
+        Language.L_EN: "Unsupported.",
     },
-    graph.ErrorCode.E_CONFIG_NOT_FOUND: {
-        Language.L_EN: "Config `%s' not found",
+    common.ErrorCode.E_NOT_DROP_PROP: {
+        Language.L_EN: "Couldn't drop property.",
     },
-    graph.ErrorCode.E_COLUMN_NOT_FOUND: {
-        Language.L_EN: "Column name `%s' not found",
+    common.ErrorCode.E_CONFIG_IMMUTABLE: {
+        Language.L_EN: "Config `%s' is immutable.",
     },
-    graph.ErrorCode.E_WRONG_COLUMN_NUM: {
-        Language.L_EN: "Wrong column number",
+    common.ErrorCode.E_CONFLICT: {
+        Language.L_EN: "`%s' is conflict.",
     },
-    graph.ErrorCode.E_SPACE_EXISTED: {
-        Language.L_EN: "Space `%s' existed",
+    common.ErrorCode.E_INVALID_PARM: {
+        Language.L_EN: "Invalid Param `%s'.",
     },
-    graph.ErrorCode.E_TAG_EXISTED: {
-        Language.L_EN: "Tag `%s' existed",
+    common.ErrorCode.E_STORE_FAILED: {
+        Language.L_EN: "Strore failed.",
     },
-    graph.ErrorCode.E_EDGE_EXISTED: {
-        Language.L_EN: "Edge `%s' existed",
+    common.ErrorCode.E_STORE_SEGMENT_ILLEGAL: {
+        Language.L_EN: "Storage segment illegal.",
     },
-    graph.ErrorCode.E_INDEX_EXISTED: {
-        Language.L_EN: "Index `%s' existed",
+    common.ErrorCode.E_BALANCER_RUNNING: {
+        Language.L_EN: "Balancer is running.",
     },
-    graph.ErrorCode.E_TAG_CONFLICT: {
-        Language.L_EN: "Tag `%s' conflict",
+    common.ErrorCode.E_BAD_BALANCE_PLAN: {
+        Language.L_EN: "Bad balance plan.",
     },
-    graph.ErrorCode.E_EDGE_CONFLICT: {
-        Language.L_EN: "Edge `%s' conflict",
+    common.ErrorCode.E_BALANCED: {
+        Language.L_EN: "Balance in progress.",
     },
-    graph.ErrorCode.E_DEFAULT_NOT_DEFINE: {
-        Language.L_EN: "Column `%s' has not default value",
+    common.ErrorCode.E_NO_RUNNING_BALANCE_PLAN: {
+        Language.L_EN: "No running blance paln.",
     },
-    graph.ErrorCode.E_VARIABLE_NOT_DEFINE: {
-        Language.L_EN: "Variable `%s' not defined",
+    common.ErrorCode.E_CORRUPTTED_BALANCE_PLAN: {
+        Language.L_EN: "Corruptted balance plan.",
     },
-    graph.ErrorCode.E_SRC_NOT_DEFINE: {
-        Language.L_EN: "Src not defined",
+    common.ErrorCode.E_NO_VALID_HOST: {
+        Language.L_EN: "No valid host .",
     },
-    graph.ErrorCode.E_DST_NOT_DEFINE: {
-        Language.L_EN: "Dst not defined",
+    common.ErrorCode.E_INVALID_PASSWORD: {
+        Language.L_EN: "Invalid password.",
     },
-    graph.ErrorCode.E_INVALID_PARAM: {
-        Language.L_EN: "Invalid param `%s'",
+    common.ErrorCode.E_IMPROPER_ROLE: {
+        Language.L_EN: "Improper password.",
     },
-    graph.ErrorCode.E_CONFIG_IMMUTABLE: {
-        Language.L_EN: "Config immutable `%s'",
+    common.ErrorCode.E_INVALID_PARTITION_NUM: {
+        Language.L_EN: "Invalid parttion number.",
     },
-    graph.ErrorCode.E_CHARSET_NOT_SUPPORT: {
-        Language.L_EN: "Charset `%s' not support",
+    common.ErrorCode.E_INVALID_REPLICA_FACTOR: {
+        Language.L_EN: "Invalid replica factor.",
     },
-    graph.ErrorCode.E_COLLACTION_NOT_SUPPORT: {
-        Language.L_EN: "Collation `%s' not support",
+    common.ErrorCode.E_INVALID_CHARSET: {
+        Language.L_EN: "Invalid charset.",
     },
-    graph.ErrorCode.E_NOT_COMPLETE: {
-        Language.L_EN: "Not complete, completeness: %d",
+    common.ErrorCode.E_INVALID_COLLATE: {
+        Language.L_EN: "Invalid collate.",
     },
-    graph.ErrorCode.E_INTERNAL_ERROR: {
-        Language.L_EN: "Internal error: %s",
+    common.ErrorCode.E_CHARSET_COLLATE_NOT_MATCH: {
+        Language.L_EN: "Charset and collate is not match.",
     },
-    graph.ErrorCode.E_BALANCED: {
-        Language.L_EN: "The cluster is balanced",
+    common.ErrorCode.E_SNAPSHOT_FAILED: {
+        Language.L_EN: "Create snapshot failed.",
     },
-    graph.ErrorCode.E_BALANCER_RUNNING: {
-        Language.L_EN: "The balancer is running",
+    common.ErrorCode.E_BLOCK_WRITE_FAILED: {
+        Language.L_EN: "Block write failed.",
     },
-    graph.ErrorCode.E_BAD_BALANCE_PLAN: {
-        Language.L_EN: "Bad balance plan",
+    common.ErrorCode.E_REBUILD_INDEX_FAILED: {
+        Language.L_EN: "Rebuild index failed.",
     },
-    graph.ErrorCode.E_NO_RUNNING_BALANCE_PLAN: {
-        Language.L_EN: "No running balance plan",
+    common.ErrorCode.E_INDEX_WITH_TTL: {
+        Language.L_EN: "Index with ttl.",
     },
-    graph.ErrorCode.E_CORRUPTTED_BALANCE_PLAN: {
-        Language.L_EN: "Corruptted balance plan",
+    common.ErrorCode.E_ADD_JOB_FAILED: {
+        Language.L_EN: "Add job failed.",
+    },
+    common.ErrorCode.E_STOP_JOB_FAILED: {
+        Language.L_EN: "Stop job failed.",
+    },
+    common.ErrorCode.E_SAVE_JOB_FAILED: {
+        Language.L_EN: "Save job failed.",
+    },
+    common.ErrorCode.E_KEY_HAS_EXISTS: {
+        Language.L_EN: "Key has exists.",
+    },
+    common.ErrorCode.E_PART_NOT_FOUND: {
+        Language.L_EN: "Part not found.",
+    },
+    common.ErrorCode.E_KEY_NOT_FOUND: {
+        Language.L_EN: "Key not found.",
+    },
+    common.ErrorCode.E_CONSENSUS_ERROR: {
+        Language.L_EN: "Consensus error.",
+    },
+    common.ErrorCode.E_DATA_TYPE_MISMATCH: {
+        Language.L_EN: "Data type not match.",
+    },
+    common.ErrorCode.E_INVALID_FIELD_VALUE: {
+        Language.L_EN: "Invalid field value.",
+    },
+    common.ErrorCode.E_INVALID_OPERATION: {
+        Language.L_EN: "Invalid operation.",
+    },
+    common.ErrorCode.E_NOT_NULLABLE: {
+        Language.L_EN: "Field not nullable.",
+    },
+    common.ErrorCode.E_FIELD_UNSET: {
+        Language.L_EN: "Field not set value.",
+    },
+    common.ErrorCode.E_OUT_OF_RANGE: {
+        Language.L_EN: "Field out of range.",
+    },
+    common.ErrorCode.E_ATOMIC_OP_FAILED: {
+        Language.L_EN: "Storage op failed.",
+    },
+    common.ErrorCode.E_IMPROPER_DATA_TYPE: {
+        Language.L_EN: "Improper data type.",
+    },
+    common.ErrorCode.E_INVALID_SPACEVIDLEN: {
+        Language.L_EN: "Invalid vid length.",
+    },
+    common.ErrorCode.E_INVALID_FILTER: {
+        Language.L_EN: "Invalid filter.",
+    },
+    common.ErrorCode.E_INVALID_UPDATER: {
+        Language.L_EN: "Invalid update item.",
+    },
+    common.ErrorCode.E_INVALID_STORE: {
+        Language.L_EN: "Invalid store.",
+    },
+    common.ErrorCode.E_INVALID_PEER: {
+        Language.L_EN: "Invalid peer.",
+    },
+    common.ErrorCode.E_RETRY_EXHAUSTED: {
+        Language.L_EN: "Reach the maximum number of retries for storage.",
+    },
+    common.ErrorCode.E_TRANSFER_LEADER_FAILED: {
+        Language.L_EN: "Transfer leader failed.",
+    },
+    common.ErrorCode.E_INVALID_STAT_TYPE: {
+        Language.L_EN: "Invalid stat type.",
+    },
+    common.ErrorCode.E_FAILED_TO_CHECKPOINT: {
+        Language.L_EN: "Checkpoint failed.",
+    },
+    common.ErrorCode.E_CHECKPOINT_BLOCKED: {
+        Language.L_EN: "Checkpoint blocked.",
+    },
+    common.ErrorCode.E_FILTER_OUT: {
+        Language.L_EN: "Update filter out.",
+    },
+    common.ErrorCode.E_INVALID_DATA: {
+        Language.L_EN: "Invalid data.",
+    },
+    common.ErrorCode.E_INVALID_TASK_PARA: {
+        Language.L_EN: "Invalid task param.",
+    },
+    common.ErrorCode.E_USER_CANCEL: {
+        Language.L_EN: "User cancel.",
+    },
+    common.ErrorCode.E_SPACE_NOT_FOUND: {
+        Language.L_EN: "Space not found.",
+    },
+    common.ErrorCode.E_TAG_NOT_FOUND: {
+        Language.L_EN: "Tag not found.",
+    },
+    common.ErrorCode.E_EDGE_NOT_FOUND: {
+        Language.L_EN: "Edge not found.",
+    },
+    common.ErrorCode.E_INDEX_NOT_FOUND: {
+        Language.L_EN: "Index not found.",
+    },
+    common.ErrorCode.E_TAG_PROP_NOT_FOUND: {
+        Language.L_EN: "Tag prop not found.",
+    },
+    common.ErrorCode.E_EDGE_PROP_NOT_FOUND: {
+        Language.L_EN: "Edge prop not found.",
+    },
+    common.ErrorCode.E_INVALID_VID: {
+        Language.L_EN: "Invalid vid.",
+    },
+    common.ErrorCode.E_INTERNAL_ERROR: {
+        Language.L_EN: "Internal error `%s'.",
     },
 }
+
 

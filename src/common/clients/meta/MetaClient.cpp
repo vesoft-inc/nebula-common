@@ -12,6 +12,7 @@
 #include "common/conf/Configuration.h"
 #include "common/stats/StatsManager.h"
 #include "common/clients/meta/FileBasedClusterIdMan.h"
+#include "common/interface/gen-cpp2/common_types.h"
 #include <folly/ScopeGuard.h>
 
 
@@ -549,11 +550,7 @@ void MetaClient::getResponse(Request req,
                 return;
             }
             auto&& resp = t.value();
-            if (resp.code == cpp2::ErrorCode::SUCCEEDED) {
-                // succeeded
-                pro.setValue(std::move(resp));
-                return;
-            } else if (resp.code == cpp2::ErrorCode::E_LEADER_CHANGED) {
+            if (resp.code == nebula::cpp2::ErrorCode::E_LEADER_CHANGED) {
                 updateLeader(resp.get_leader());
                 if (retry < retryLimit) {
                     evb->runAfterDelay([req = std::move(req),
