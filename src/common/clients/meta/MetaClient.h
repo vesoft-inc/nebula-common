@@ -55,7 +55,7 @@ struct SpaceDesc {
               const std::string& charsetName = "",
               const std::string& collationName = "",
               int32_t vidSize = 8,
-              Value::Type vidType = Value::Type::INT)
+              Value::Type vidType = Value::Type::STRING)
         : spaceName_(spaceName)
         , partNum_(partNum)
         , replicaFactor_(replicaFactor)
@@ -71,7 +71,7 @@ struct SpaceDesc {
     std::string  charsetName_;
     std::string  collationName_;
     int32_t      vidSize_{8};
-    Value::Type  vidType_{Value::Type::INT};
+    Value::Type  vidType_{Value::Type::STRING};
 };
 
 struct SpaceInfoCache {
