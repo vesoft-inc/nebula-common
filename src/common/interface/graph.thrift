@@ -41,12 +41,12 @@ enum ErrorCode {
     // Nothing is executed When command is comment
     E_STATEMENT_EMTPY = -9,
 
-    // User and permission error
-    E_USER_NOT_FOUND = -10,
-    E_BAD_PERMISSION = -11,
-
     // semantic error
-    E_SEMANTIC_ERROR = -12,
+    E_SEMANTIC_ERROR = -10,
+
+    // User and permission error
+    E_USER_NOT_FOUND = -11,
+    E_BAD_PERMISSION = -12,
 } (cpp.enum_strict)
 
 
