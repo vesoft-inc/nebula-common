@@ -1700,7 +1700,7 @@ StatusOr<Value::Type> MetaClient::getSpaceVidType(const GraphSpaceID& spaceId) {
         return Status::Error(folly::stringPrintf("Space %d not found", spaceId));
     }
     auto vIdType = spaceIt->second->spaceDesc_.vidType_;
-    if (vIdType != Value::Type::INT || vIdType != Value::Type::STRING) {
+    if (vIdType != Value::Type::INT && vIdType != Value::Type::STRING) {
         std::stringstream ss;
         ss << "Space " << spaceId << "vertexId type invalid: " << vIdType;
         return Status::Error(ss.str());
