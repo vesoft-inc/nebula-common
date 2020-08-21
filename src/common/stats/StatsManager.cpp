@@ -172,6 +172,8 @@ StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName
         case StatsMethod::COUNT:
             return readValue(index, spec.method);
     }
+    DLOG(FATAL) << "Unknown method " << static_cast<int>(spec.method);
+    return Status::Error("Unknown method %d.", spec.method);
 }
 
 /*static*/ StatusOr<StatsManager::VT> StatsManager::readValue(int32_t index, StatsMethod method) {
