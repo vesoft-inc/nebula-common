@@ -795,9 +795,10 @@ MetaClient::listHosts(cpp2::ListHostType tp) {
 }
 
 folly::Future<StatusOr<cpp2::ListPartsResp>>
-MetaClient::listParts(GraphSpaceID spaceId) {
+MetaClient::listParts(GraphSpaceID spaceId, std::vector<PartitionID> partIds) {
     cpp2::ListPartsReq req;
     req.set_space_id(std::move(spaceId));
+    req.set_part_ids(std::move(partIds));
     folly::Promise<StatusOr<cpp2::ListPartsResp>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
@@ -1172,10 +1173,11 @@ MetaClient::listTagSchemas(GraphSpaceID spaceId) {
 
 
 folly::Future<StatusOr<cpp2::ExecResp>>
-MetaClient::dropTagSchema(int32_t spaceId, std::string tagName) {
+MetaClient::dropTagSchema(int32_t spaceId, std::string tagName, const bool ifExists) {
     cpp2::DropTagReq req;
     req.set_space_id(spaceId);
     req.set_tag_name(std::move(tagName));
+    req.set_if_exists(ifExists);
     folly::Promise<StatusOr<cpp2::ExecResp>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
@@ -1280,10 +1282,11 @@ MetaClient::getEdgeSchema(GraphSpaceID spaceId, std::string name, SchemaVer vers
 
 
 folly::Future<StatusOr<cpp2::ExecResp>>
-MetaClient::dropEdgeSchema(GraphSpaceID spaceId, std::string name) {
+MetaClient::dropEdgeSchema(GraphSpaceID spaceId, std::string name, bool ifExists = false) {
     cpp2::DropEdgeReq req;
     req.set_space_id(std::move(spaceId));
     req.set_edge_name(std::move(name));
+    req.set_if_exists(ifExists);
     folly::Promise<StatusOr<cpp2::ExecResp>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),

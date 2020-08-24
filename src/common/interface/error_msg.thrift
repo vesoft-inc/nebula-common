@@ -1,4 +1,5 @@
-/* Copyright (c) 2020 vesoft inc. All rights reserved.
+/* vim: ft=proto
+ * Copyright (c) 2020 vesoft inc. All rights reserved.
  *
  * This source code is licensed under Apache 2.0 License,
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
@@ -42,10 +43,52 @@ const map<common.ErrorCode, map<Language, binary>(cpp.template = "std::unordered
         Language.L_EN: "Session id `%ld' is invalid.",
     },
     common.ErrorCode.E_SYNTAX_ERROR: {
-        Language.L_EN: "Syntax Error: %s.",
+        Language.L_EN: "SyntaxError: %s.",
     },
     common.ErrorCode.E_SEMANTIC_ERROR: {
-        Language.L_EN: "Semantic Error: %s.",
+        Language.L_EN: "SemanticError: %s.",
+    },
+    common.ErrorCode.E_NOT_USE_SPACE: {
+        Language.L_EN: "Please choose a graph space with `USE spaceName' firstly.",
+    },
+    common.ErrorCode.E_INVALID_RANK: {
+        Language.L_EN: "Invalid rank value.",
+    },
+    common.ErrorCode.E_INVALID_EDGE_TYPE: {
+        Language.L_EN: "Invalid edge type value.",
+    },
+    common.ErrorCode.E_OUT_OF_LEN_OF_USERNAME: {
+        Language.L_EN: "Out of length of the username.",
+    },
+    common.ErrorCode.E_OUT_OF_LEN_OF_PASSWORD: {
+        Language.L_EN: "Out of length of the password.",
+    },
+    common.ErrorCode.E_DUPLICATE_COLUMN_NAME: {
+        Language.L_EN: "Duplicate column name `%s'.",
+    },
+    common.ErrorCode.E_COLUMN_COUNT_NOT_MATCH: {
+        Language.L_EN: "Column count not match.",
+    },
+    common.ErrorCode.E_COLUMN_NOT_FOUND: {
+        Language.L_EN: "Column name `%s' not found.",
+    },
+    common.ErrorCode.E_UNSUPPORTED_EXPR: {
+        Language.L_EN: "Unsupported expression `%s'.",
+    },
+    common.ErrorCode.E_OUT_OF_MAX_STATEMENTS: {
+        Language.L_EN: "Out of range of the maximum number of statements to execute.",
+    },
+    common.ErrorCode.E_PERMISSION_DENIED: {
+        Language.L_EN: "Permission denied.",
+    },
+    common.ErrorCode.E_NO_TAGS: {
+        Language.L_EN: "There is no tags in space.",
+    },
+    common.ErrorCode.E_NO_EDGES: {
+        Language.L_EN: "There is no edges in space.",
+    },
+    common.ErrorCode.E_INVALID_EXPR: {
+        Language.L_EN: "Invalid expression `%s'.",
     },
     common.ErrorCode.E_NO_HOSTS: {
         Language.L_EN: "Not hosts.",
@@ -74,7 +117,7 @@ const map<common.ErrorCode, map<Language, binary>(cpp.template = "std::unordered
     common.ErrorCode.E_CONFLICT: {
         Language.L_EN: "`%s' is conflict.",
     },
-    common.ErrorCode.E_INVALID_PARM: {
+    common.ErrorCode.E_INVALID_PARAM: {
         Language.L_EN: "Invalid Param `%s'.",
     },
     common.ErrorCode.E_STORE_FAILED: {
@@ -243,8 +286,7 @@ const map<common.ErrorCode, map<Language, binary>(cpp.template = "std::unordered
         Language.L_EN: "Invalid vid.",
     },
     common.ErrorCode.E_INTERNAL_ERROR: {
-        Language.L_EN: "Internal error `%s'.",
+        Language.L_EN: "InternalError: `%s'.",
     },
 }
-
 

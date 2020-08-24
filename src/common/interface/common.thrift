@@ -206,6 +206,20 @@ enum ErrorCode {
     // Nothing is executed When command is comment
     E_STATEMENT_EMTPY             = 20005,
     E_SEMANTIC_ERROR              = 20006,
+    E_NOT_USE_SPACE               = 20007,
+    E_INVALID_RANK                = 20008,
+    E_INVALID_EDGE_TYPE           = 20009,
+    E_OUT_OF_LEN_OF_USERNAME      = 20010,
+    E_OUT_OF_LEN_OF_PASSWORD      = 20011,
+    E_DUPLICATE_COLUMN_NAME       = 20012,
+    E_COLUMN_COUNT_NOT_MATCH      = 20013,
+    E_COLUMN_NOT_FOUND            = 20014,  // for query var or input ref
+    E_UNSUPPORTED_EXPR            = 20015,
+    E_OUT_OF_MAX_STATEMENTS       = 20016,  // the maximum number of statements
+    E_PERMISSION_DENIED           = 20017,
+    E_NO_TAGS                     = 20018,
+    E_NO_EDGES                    = 20019,
+    E_INVALID_EXPR                = 20020,
 
     // 3xxxx, for meta Failure
     E_NO_HOSTS                    = 30001,
@@ -226,7 +240,7 @@ enum ErrorCode {
     E_BALANCER_RUNNING            = 30011,
     E_CONFIG_IMMUTABLE            = 30012,
     E_CONFLICT                    = 30013,
-    E_INVALID_PARM                = 30014,
+    E_INVALID_PARAM               = 30014,
     // it will not return by graphd, it just use by internal
     E_WRONGCLUSTER                = 30015,
 
@@ -322,3 +336,4 @@ enum ErrorCode {
     // internal error
     E_INTERNAL_ERROR              = 100000,
 } (cpp.enum_strict)
+

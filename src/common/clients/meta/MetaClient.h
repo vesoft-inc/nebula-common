@@ -214,7 +214,7 @@ public:
     listHosts(cpp2::ListHostType type = cpp2::ListHostType::ALLOC);
 
     folly::Future<StatusOr<cpp2::ListPartsResp>>
-    listParts(GraphSpaceID spaceId);
+    listParts(GraphSpaceID spaceId, std::vector<PartitionID> partIds);
 
     folly::Future<StatusOr<cpp2::GetPartsAllocResp>>
     getPartsAlloc(GraphSpaceID spaceId);
@@ -235,7 +235,7 @@ public:
     listTagSchemas(GraphSpaceID spaceId);
 
     folly::Future<StatusOr<cpp2::ExecResp>>
-    dropTagSchema(int32_t spaceId, std::string name);
+    dropTagSchema(int32_t spaceId, std::string name, const bool ifExists);
 
     // Return the latest schema when ver = -1
     folly::Future<StatusOr<cpp2::GetTagResp>>
@@ -260,7 +260,7 @@ public:
     getEdgeSchema(GraphSpaceID spaceId, std::string name, SchemaVer version = -1);
 
     folly::Future<StatusOr<cpp2::ExecResp>>
-    dropEdgeSchema(GraphSpaceID spaceId, std::string name);
+    dropEdgeSchema(GraphSpaceID spaceId, std::string name, const bool ifExists);
 
     // Operations for index
     folly::Future<StatusOr<cpp2::ExecResp>>
