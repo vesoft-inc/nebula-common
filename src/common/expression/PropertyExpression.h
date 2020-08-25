@@ -72,9 +72,9 @@ public:
     EdgePropertyExpression(std::string* edge = nullptr,
                            std::string* prop = nullptr)
         : PropertyExpression(Kind::kEdgeProperty,
-                                   new std::string(""),
-                                   edge,
-                                   prop) {}
+                             new std::string(""),
+                             edge,
+                             prop) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
