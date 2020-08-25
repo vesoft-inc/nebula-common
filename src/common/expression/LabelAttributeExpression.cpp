@@ -9,8 +9,8 @@
 namespace nebula {
 
 std::string LabelAttributeExpression::toString() const {
-    CHECK(left()->kind() == Kind::kLabel || left()->kind() == Kind::kConstant);
-    CHECK(right()->kind() == Kind::kLabel || right()->kind() == Kind::kConstant);
+    CHECK(left()->kind() == Kind::kLabel);
+    CHECK(right()->kind() == Kind::kLabel);
     return left()->toString() + "." + right()->toString();
 }
 
