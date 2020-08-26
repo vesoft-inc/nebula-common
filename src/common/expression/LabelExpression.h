@@ -24,8 +24,7 @@ public:
     }
 
     explicit LabelExpression(std::string name)
-        : LabelExpression(new std::string(std::move(name))) {
-    }
+        : LabelExpression(new std::string(std::move(name))) {}
 
     bool operator==(const Expression& rhs) const override;
 

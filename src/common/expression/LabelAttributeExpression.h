@@ -55,8 +55,8 @@ private:
         auto *rhs = decoder.readExpression().release();
         DCHECK(lhs->kind() == Kind::kLabel);
         DCHECK(rhs->kind() == Kind::kLabel);
-        lhs_.reset(static_cast<LabelExpression*>(lhs));
-        rhs_.reset(static_cast<LabelExpression*>(rhs));
+        lhs_.reset(static_cast<LabelExpression *>(lhs));
+        rhs_.reset(static_cast<LabelExpression *>(rhs));
     }
 
 private:
