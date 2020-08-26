@@ -21,7 +21,7 @@ class EdgeExpression final : public Expression {
 public:
     EdgeExpression() : Expression(Kind::kEdge) {}
 
-    const Value& eval(ExpressionContext &ctx) override;
+    const Value &eval(ExpressionContext &ctx) override;
 
     std::string toString() const override {
         return "EDGE";
@@ -36,12 +36,12 @@ private:
         encoder << kind();
     }
 
-    void resetFrom(Decoder&) override {}
+    void resetFrom(Decoder &) override {}
 
 private:
-    Value                                   result_;
+    Value result_;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
 #endif  // COMMON_EXPRESSION_EDGEEXPRESSION_H_

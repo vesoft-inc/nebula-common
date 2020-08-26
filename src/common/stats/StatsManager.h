@@ -7,13 +7,14 @@
 #ifndef COMMON_STATS_STATSMANAGER_H_
 #define COMMON_STATS_STATSMANAGER_H_
 
-#include "common/base/Base.h"
 #include <folly/RWSpinLock.h>
 #include <folly/stats/MultiLevelTimeSeries.h>
 #include <folly/stats/TimeseriesHistogram.h>
+
+#include "common/base/Base.h"
+#include "common/base/StatusOr.h"
 #include "common/datatypes/HostAddr.h"
 #include "common/time/WallClock.h"
-#include "common/base/StatusOr.h"
 
 namespace nebula {
 namespace stats {
@@ -47,19 +48,9 @@ class StatsManager final {
     using HistogramType = folly::TimeseriesHistogram<VT>;
 
 public:
-    enum class StatsMethod {
-        SUM = 1,
-        COUNT,
-        AVG,
-        RATE
-    };
+    enum class StatsMethod { SUM = 1, COUNT, AVG, RATE };
 
-    enum class TimeRange {
-        FIVE_SECONDS = 0,
-        ONE_MINUTE = 1,
-        TEN_MINUTES = 2,
-        ONE_HOUR = 3
-    };
+    enum class TimeRange { FIVE_SECONDS = 0, ONE_MINUTE = 1, TEN_MINUTES = 2, ONE_HOUR = 3 };
 
     static void setDomain(folly::StringPiece domain);
     // addr     -- The ip/port of the stats collector. StatsManager will periodically
@@ -72,23 +63,16 @@ public:
     // Both register methods is not thread safe, and user need to register stats one
     // by onebefore calling addValue, readStats, readHisto and so on.
     static int32_t registerStats(folly::StringPiece counterName);
-    static int32_t registerHisto(folly::StringPiece counterName,
-                                 VT bucketSize,
-                                 VT min,
-                                 VT max);
+    static int32_t registerHisto(folly::StringPiece counterName, VT bucketSize, VT min, VT max);
 
     static void addValue(int32_t index, VT value = 1);
 
     static StatusOr<VT> readValue(folly::StringPiece counter);
-    static StatusOr<VT> readStats(int32_t index,
-                                  TimeRange range,
-                                  StatsMethod method);
+    static StatusOr<VT> readStats(int32_t index, TimeRange range, StatsMethod method);
     static StatusOr<VT> readStats(const std::string& counterName,
                                   TimeRange range,
                                   StatsMethod method);
-    static StatusOr<VT> readHisto(const std::string& counterName,
-                                  TimeRange range,
-                                  double pct);
+    static StatusOr<VT> readHisto(const std::string& counterName, TimeRange range, double pct);
     static void readAllValue(folly::dynamic& vals);
 
 private:
@@ -98,9 +82,8 @@ private:
     StatsManager(const StatsManager&) = delete;
     StatsManager(StatsManager&&) = delete;
 
-    template<class StatsHolder>
+    template <class StatsHolder>
     static VT readValue(StatsHolder& stats, TimeRange range, StatsMethod method);
-
 
 private:
     std::string domain_;
@@ -114,18 +97,10 @@ private:
     std::unordered_map<std::string, int32_t> nameMap_;
 
     // All time series stats
-    std::vector<
-        std::pair<std::unique_ptr<std::mutex>,
-                  std::unique_ptr<StatsType>
-        >
-    > stats_;
+    std::vector<std::pair<std::unique_ptr<std::mutex>, std::unique_ptr<StatsType>>> stats_;
 
     // All histogram stats
-    std::vector<
-        std::pair<std::unique_ptr<std::mutex>,
-                  std::unique_ptr<HistogramType>
-        >
-    > histograms_;
+    std::vector<std::pair<std::unique_ptr<std::mutex>, std::unique_ptr<HistogramType>>> histograms_;
 };
 
 }  // namespace stats

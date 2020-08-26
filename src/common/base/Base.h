@@ -7,84 +7,77 @@
 #ifndef COMMON_BASE_BASE_H_
 #define COMMON_BASE_BASE_H_
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <fcntl.h>
-
-#include <thread>
-#include <atomic>
-#include <mutex>
-#include <condition_variable>
-#include <regex>
-#include <chrono>
-#include <limits>
-
-#include <functional>
-#include <string>
-#include <memory>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-
-#include <vector>
-#include <map>
-#include <set>
-#include <list>
-#include <unordered_map>
-#include <unordered_set>
-#include <queue>
-#include <deque>
-#include <tuple>
-
-#include <cstdio>
-#include <cstdlib>
-#include <cstdint>
-#include <cerrno>
-#include <cstring>
-#include <ctime>
-#include <cassert>
-#include <cmath>
-
-#include <gflags/gflags.h>
-
-#include <boost/variant.hpp>
-#include <boost/any.hpp>
-
-#include <folly/init/Init.h>
-#include <folly/String.h>
-#include <folly/Range.h>
-#include <folly/Hash.h>
-#include <folly/Random.h>
 #include <folly/Conv.h>
+#include <folly/Hash.h>
+#include <folly/RWSpinLock.h>
+#include <folly/Random.h>
+#include <folly/Range.h>
+#include <folly/String.h>
 #include <folly/ThreadLocal.h>
 #include <folly/Varint.h>
 #include <folly/dynamic.h>
-#include <folly/json.h>
-#include <folly/RWSpinLock.h>
 #include <folly/futures/Future.h>
+#include <folly/init/Init.h>
+#include <folly/json.h>
+#include <gflags/gflags.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <atomic>
+#include <boost/any.hpp>
+#include <boost/variant.hpp>
+#include <cassert>
+#include <cerrno>
+#include <chrono>
+#include <cmath>
+#include <condition_variable>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <deque>
+#include <fstream>
+#include <functional>
+#include <iostream>
+#include <limits>
+#include <list>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <regex>
+#include <set>
+#include <sstream>
+#include <string>
+#include <thread>
+#include <tuple>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 #include "common/base/Logging.h"
 
-#define MUST_USE_RESULT                 __attribute__((warn_unused_result))
-#define DONT_OPTIMIZE                   __attribute__((optimize("O0")))
+#define MUST_USE_RESULT __attribute__((warn_unused_result))
+#define DONT_OPTIMIZE __attribute__((optimize("O0")))
 
-#define ALWAYS_INLINE                   __attribute__((always_inline))
-#define ALWAYS_NO_INLINE                __attribute__((noinline))
+#define ALWAYS_INLINE __attribute__((always_inline))
+#define ALWAYS_NO_INLINE __attribute__((noinline))
 
-#define BEGIN_NO_OPTIMIZATION           _Pragma("GCC push_options") \
-                                        _Pragma("GCC optimize(\"O0\")")
-#define END_NO_OPTIMIZATION             _Pragma("GCC pop_options")
+#define BEGIN_NO_OPTIMIZATION _Pragma("GCC push_options") _Pragma("GCC optimize(\"O0\")")
+#define END_NO_OPTIMIZATION _Pragma("GCC pop_options")
 
-#define NEBULA_STRINGIFY(STR)           NEBULA_STRINGIFY_X(STR)
-#define NEBULA_STRINGIFY_X(STR)         #STR
+#define NEBULA_STRINGIFY(STR) NEBULA_STRINGIFY_X(STR)
+#define NEBULA_STRINGIFY_X(STR) #STR
 
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)
 #endif  // UNUSED
 
 #ifndef MAYBE_UNUSED
-#if (__cplusplus >= 201703L)   // c++17
+#if (__cplusplus >= 201703L)  // c++17
 #include <folly/CppAttributes.h>
 #define MAYBE_UNUSED FOLLY_MAYBE_UNUSED
 #else
@@ -93,7 +86,7 @@
 #endif
 
 #ifndef COMPILER_BARRIER
-#define COMPILER_BARRIER()              asm volatile ("":::"memory")
+#define COMPILER_BARRIER() asm volatile("" ::: "memory")
 #endif  // COMPILER_BARRIER
 
 // Formated logging
@@ -127,12 +120,12 @@ using VariantType = boost::variant<int64_t, double, bool, std::string>;
 #endif
 
 // reserved property names
-constexpr char kId[]    = "_id";
-constexpr char kVid[]   = "_vid";
-constexpr char kSrc[]   = "_src";
-constexpr char kType[]  = "_type";
-constexpr char kRank[]  = "_rank";
-constexpr char kDst[]   = "_dst";
+constexpr char kId[] = "_id";
+constexpr char kVid[] = "_vid";
+constexpr char kSrc[] = "_src";
+constexpr char kType[] = "_type";
+constexpr char kRank[] = "_rank";
+constexpr char kDst[] = "_dst";
 
 // Useful type traits
 
@@ -146,11 +139,11 @@ static constexpr auto is_move_constructible_v = std::is_move_constructible<T>::v
 
 // Tell if `T' is copy or move constructible
 template <typename T>
-static constexpr auto is_copy_or_move_constructible_v = is_copy_constructible_v<T> ||
-                                                        is_move_constructible_v<T>;
+static constexpr auto is_copy_or_move_constructible_v =
+    is_copy_constructible_v<T> || is_move_constructible_v<T>;
 
 // Tell if `T' is constructible from `Args'
-template <typename T, typename...Args>
+template <typename T, typename... Args>
 static constexpr auto is_constructible_v = std::is_constructible<T, Args...>::value;
 
 // Tell if `U' could be convertible to `T'

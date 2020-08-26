@@ -4,8 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
+
+#include "common/base/Base.h"
 #include "common/stats/StatsManager.h"
 #include "common/thread/GenericWorker.h"
 
@@ -17,9 +18,7 @@ TEST(StatsManager, RateTest) {
     auto thread = std::make_unique<thread::GenericWorker>();
     ASSERT_TRUE(thread->start());
 
-    auto task = [=] () {
-        StatsManager::addValue(statId);
-    };
+    auto task = [=]() { StatsManager::addValue(statId); };
     constexpr auto qps = 100L;
     thread->addRepeatTask(1 * 1000 / qps, task);
 
@@ -27,17 +26,16 @@ TEST(StatsManager, RateTest) {
 
     auto actual = StatsManager::readValue("ratetest.rate.60").value();
 
-    ASSERT_LT(std::max(qps, actual) - std::min(qps, actual), 10L) << "expected: " << qps
-                                                                  << ", actual: " << actual;
+    ASSERT_LT(std::max(qps, actual) - std::min(qps, actual), 10L)
+        << "expected: " << qps << ", actual: " << actual;
 
     thread->stop();
     thread->wait();
     thread.reset();
 }
 
-}   // namespace stats
-}   // namespace nebula
-
+}  // namespace stats
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

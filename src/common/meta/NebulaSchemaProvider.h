@@ -7,9 +7,10 @@
 #ifndef COMMON_META_NEBULASCHEMAPROVIDER_H_
 #define COMMON_META_NEBULASCHEMAPROVIDER_H_
 
+#include <folly/RWSpinLock.h>
+
 #include "common/base/Base.h"
 #include "common/base/StatusOr.h"
-#include <folly/RWSpinLock.h>
 #include "common/meta/SchemaProviderIf.h"
 
 namespace nebula {
@@ -17,6 +18,7 @@ namespace meta {
 
 class NebulaSchemaProvider : public SchemaProviderIf {
     friend class FileBasedSchemaManager;
+
 public:
     class SchemaField final : public SchemaProviderIf::Field {
     public:
@@ -28,14 +30,14 @@ public:
                     size_t size,
                     size_t offset,
                     size_t nullFlagPos)
-            : name_(std::move(name))
-            , type_(std::move(type))
-            , nullable_(nullable)
-            , hasDefault_(hasDefault)
-            , defaultValue_(defaultValue)
-            , size_(size)
-            , offset_(offset)
-            , nullFlagPos_(nullFlagPos) {}
+            : name_(std::move(name)),
+              type_(std::move(type)),
+              nullable_(nullable),
+              hasDefault_(hasDefault),
+              defaultValue_(defaultValue),
+              size_(size),
+              offset_(offset),
+              nullFlagPos_(nullFlagPos) {}
 
         const char* name() const override {
             return name_.c_str();
@@ -82,9 +84,7 @@ public:
     };
 
 public:
-    explicit NebulaSchemaProvider(SchemaVer ver)
-        : ver_(ver)
-        , numNullableFields_(0) {}
+    explicit NebulaSchemaProvider(SchemaVer ver) : ver_(ver), numNullableFields_(0) {}
 
     SchemaVer getVersion() const noexcept override;
     size_t getNumFields() const noexcept override;
@@ -120,10 +120,10 @@ protected:
     SchemaVer ver_{-1};
 
     // fieldname -> index
-    std::unordered_map<std::string, int64_t>    fieldNameIndex_;
-    std::vector<SchemaField>                    fields_;
-    size_t                                      numNullableFields_;
-    cpp2::SchemaProp                            schemaProp_;
+    std::unordered_map<std::string, int64_t> fieldNameIndex_;
+    std::vector<SchemaField> fields_;
+    size_t numNullableFields_;
+    cpp2::SchemaProp schemaProp_;
 };
 
 }  // namespace meta

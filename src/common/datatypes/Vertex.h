@@ -8,8 +8,8 @@
 #define COMMON_DATATYPES_VERTEX_H_
 
 #include "common/base/Base.h"
-#include "common/thrift/ThriftTypes.h"
 #include "common/datatypes/Value.h"
+#include "common/thrift/ThriftTypes.h"
 
 namespace nebula {
 
@@ -18,15 +18,10 @@ struct Tag {
     std::unordered_map<std::string, Value> props;
 
     Tag() = default;
-    Tag(Tag&& tag) noexcept
-        : name(std::move(tag.name))
-        , props(std::move(tag.props)) {}
-    Tag(const Tag& tag)
-        : name(tag.name)
-        , props(tag.props) {}
+    Tag(Tag&& tag) noexcept : name(std::move(tag.name)), props(std::move(tag.props)) {}
+    Tag(const Tag& tag) : name(tag.name), props(tag.props) {}
     Tag(std::string tagName, std::unordered_map<std::string, Value> tagProps)
-        : name(std::move(tagName))
-        , props(std::move(tagProps)) {}
+        : name(std::move(tagName)), props(std::move(tagProps)) {}
 
     void clear() {
         name.clear();
@@ -68,19 +63,14 @@ struct Tag {
     }
 };
 
-
 struct Vertex {
     VertexID vid;
     std::vector<Tag> tags;
 
     Vertex() = default;
     Vertex(const Vertex& v) : vid(v.vid), tags(v.tags) {}
-    Vertex(Vertex&& v) noexcept
-        : vid(std::move(v.vid))
-        , tags(std::move(v.tags)) {}
-    Vertex(VertexID id, std::vector<Tag> t)
-        : vid(std::move(id))
-        , tags(std::move(t)) {}
+    Vertex(Vertex&& v) noexcept : vid(std::move(v.vid)), tags(std::move(v.tags)) {}
+    Vertex(VertexID id, std::vector<Tag> t) : vid(std::move(id)), tags(std::move(t)) {}
 
     void clear() {
         vid.clear();
@@ -120,32 +110,29 @@ struct Vertex {
     }
 };
 
-
 inline void swap(Vertex& a, Vertex& b) {
     auto temp = std::move(a);
     a = std::move(b);
     b = std::move(temp);
 }
 
-inline std::ostream &operator<<(std::ostream& os, const Vertex& v) {
+inline std::ostream& operator<<(std::ostream& os, const Vertex& v) {
     return os << v.toString();
 }
 
 }  // namespace nebula
 
-
 namespace std {
 
 // Inject a customized hash function
-template<>
+template <>
 struct hash<nebula::Tag> {
     std::size_t operator()(const nebula::Tag& h) const noexcept {
         return folly::hash::fnv64(h.name);
     }
 };
 
-
-template<>
+template <>
 struct hash<nebula::Vertex> {
     std::size_t operator()(const nebula::Vertex& h) const noexcept {
         size_t hv = folly::hash::fnv64(h.vid);

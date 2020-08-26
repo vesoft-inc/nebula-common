@@ -5,6 +5,7 @@
  */
 
 #include "common/meta/IndexManager.h"
+
 #include "common/meta/ServerBasedIndexManager.h"
 
 namespace nebula {
@@ -14,5 +15,5 @@ std::unique_ptr<IndexManager> IndexManager::create() {
     return std::make_unique<ServerBasedIndexManager>();
 }
 
-}   // namespace meta
-}   // namespace nebula
+}  // namespace meta
+}  // namespace nebula

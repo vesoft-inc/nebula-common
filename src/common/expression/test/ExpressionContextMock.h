@@ -4,9 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/datatypes/Value.h"
-#include "common/datatypes/List.h"
 #include "common/context/ExpressionContext.h"
+#include "common/datatypes/List.h"
+#include "common/datatypes/Value.h"
 
 namespace nebula {
 
@@ -24,8 +24,7 @@ public:
         }
     }
 
-    const Value& getVersionedVar(const std::string& var,
-                                 int64_t version) const override {
+    const Value& getVersionedVar(const std::string& var, int64_t version) const override {
         auto found = vals_.find(var);
         if (found == vals_.end()) {
             return Value::kNullValue;
@@ -45,8 +44,7 @@ public:
         }
     }
 
-    const Value& getVarProp(const std::string& var,
-                            const std::string& prop) const override {
+    const Value& getVarProp(const std::string& var, const std::string& prop) const override {
         UNUSED(var);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
@@ -56,8 +54,7 @@ public:
         }
     }
 
-    Value getEdgeProp(const std::string& edgeType,
-                      const std::string& prop) const override {
+    Value getEdgeProp(const std::string& edgeType, const std::string& prop) const override {
         UNUSED(edgeType);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
@@ -67,8 +64,7 @@ public:
         }
     }
 
-    Value getTagProp(const std::string& tag,
-                     const std::string& prop) const override {
+    Value getTagProp(const std::string& tag, const std::string& prop) const override {
         UNUSED(tag);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
@@ -78,8 +74,7 @@ public:
         }
     }
 
-    Value getSrcProp(const std::string& tag,
-                     const std::string& prop) const override {
+    Value getSrcProp(const std::string& tag, const std::string& prop) const override {
         UNUSED(tag);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
@@ -89,8 +84,7 @@ public:
         }
     }
 
-    const Value& getDstProp(const std::string& tag,
-                            const std::string& prop) const override {
+    const Value& getDstProp(const std::string& tag, const std::string& prop) const override {
         UNUSED(tag);
         auto found = vals_.find(prop);
         if (found == vals_.end()) {
@@ -123,6 +117,6 @@ public:
     }
 
 private:
-    static std::unordered_map<std::string, Value>      vals_;
+    static std::unordered_map<std::string, Value> vals_;
 };
 }  // namespace nebula

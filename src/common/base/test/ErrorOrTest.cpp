@@ -4,10 +4,10 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
-#include "common/base/ErrorOr.h"
 
+#include "common/base/Base.h"
+#include "common/base/ErrorOr.h"
 
 namespace nebula {
 
@@ -18,7 +18,6 @@ enum class ErrorCode {
     E_4,
     E_5,
 };
-
 
 TEST(ErrorOr, VerifyOk) {
     {
@@ -33,7 +32,6 @@ TEST(ErrorOr, VerifyOk) {
         EXPECT_EQ(ErrorCode::E_2, error(e));
     }
 }
-
 
 TEST(ErrorOr, RetrieveValue) {
     {

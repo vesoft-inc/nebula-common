@@ -4,9 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include "common/concurrent/Barrier.h"
 
+#include "common/base/Base.h"
 
 namespace nebula {
 namespace concurrent {
@@ -31,9 +31,9 @@ void Barrier::wait() {
         cond_.notify_all();
     } else {
         auto current = generation_;
-        cond_.wait(guard, [=] () { return current != generation_; });
+        cond_.wait(guard, [=]() { return current != generation_; });
     }
 }
 
-}   // namespace concurrent
-}   // namespace nebula
+}  // namespace concurrent
+}  // namespace nebula

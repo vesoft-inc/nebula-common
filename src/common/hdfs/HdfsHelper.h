@@ -29,7 +29,7 @@ public:
     virtual bool checkHadoopPath() = 0;
 };
 
-}   // namespace hdfs
-}   // namespace nebula
+}  // namespace hdfs
+}  // namespace nebula
 
 #endif  // COMMON_HDFSHELPER_H

@@ -4,17 +4,18 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
-#include "common/datatypes/Value.h"
-#include "common/datatypes/Map.h"
-#include "common/datatypes/Set.h"
-#include "common/datatypes/List.h"
-#include "common/datatypes/Date.h"
-#include "common/datatypes/Vertex.h"
-#include "common/datatypes/Edge.h"
-#include "common/datatypes/Path.h"
+
+#include "common/base/Base.h"
 #include "common/datatypes/DataSet.h"
+#include "common/datatypes/Date.h"
+#include "common/datatypes/Edge.h"
+#include "common/datatypes/List.h"
+#include "common/datatypes/Map.h"
+#include "common/datatypes/Path.h"
+#include "common/datatypes/Set.h"
+#include "common/datatypes/Value.h"
+#include "common/datatypes/Vertex.h"
 
 namespace nebula {
 
@@ -546,7 +547,6 @@ TEST(Value, typeName) {
     EXPECT_EQ("DIV_BY_ZERO", Value::kNullDivByZero.typeName());
 }
 }  // namespace nebula
-
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

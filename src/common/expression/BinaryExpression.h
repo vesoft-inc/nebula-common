@@ -18,9 +18,7 @@ class BinaryExpression : public Expression {
     friend class Expression;
 
 public:
-    BinaryExpression(Kind kind,
-                     Expression* lhs,
-                     Expression* rhs)
+    BinaryExpression(Kind kind, Expression* lhs, Expression* rhs)
         : Expression(kind), lhs_(lhs), rhs_(rhs) {}
 
     bool operator==(const Expression& rhs) const override;
@@ -54,10 +52,9 @@ protected:
 
     void resetFrom(Decoder& decoder) override;
 
-    std::unique_ptr<Expression>                 lhs_;
-    std::unique_ptr<Expression>                 rhs_;
+    std::unique_ptr<Expression> lhs_;
+    std::unique_ptr<Expression> rhs_;
 };
 
 }  // namespace nebula
 #endif  // COMMON_EXPRESSION_BINARYEXPRESSION_H_
-

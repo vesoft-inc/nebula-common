@@ -7,8 +7,9 @@
 #ifndef COMMON_FS_FILEUTILS_H_
 #define COMMON_FS_FILEUTILS_H_
 
-#include "common/base/Base.h"
 #include <dirent.h>
+
+#include "common/base/Base.h"
 #include "common/base/StatusOr.h"
 
 namespace nebula {
@@ -26,19 +27,18 @@ enum class FileType {
     SOCKET
 };
 
-
 class FileUtils final {
 public:
     FileUtils() = delete;
 
     // Get the directory part of a path
-    static std::string dirname(const char *path);
+    static std::string dirname(const char* path);
     // Get the base part of a path
-    static std::string basename(const char *path);
+    static std::string basename(const char* path);
     // Get the content of a symbol link
-    static StatusOr<std::string> readLink(const char *path);
+    static StatusOr<std::string> readLink(const char* path);
     // Get the canonicalized absolute pathname of a path
-    static StatusOr<std::string> realPath(const char *path);
+    static StatusOr<std::string> realPath(const char* path);
 
     // return the size of the given file
     static size_t fileSize(const char* path);
@@ -62,8 +62,7 @@ public:
     //
     // If dir is empty, the result would be representation of the local file,
     // for example, joinPath("", "foo.bar") will return "./foo.bar"
-    static std::string joinPath(const folly::StringPiece dir,
-                                const folly::StringPiece filename);
+    static std::string joinPath(const folly::StringPiece dir, const folly::StringPiece filename);
     // Divide the given path into two parts: the parent directory path
     // (without the ending "/") and the filename or the child directory name
     //
@@ -124,29 +123,26 @@ public:
      * You can also pass in a wildcard pattern, which makes the function
      * to only return entities whose names match the pattern
      */
-    static std::vector<std::string> listAllTypedEntitiesInDir(
-        const char* dirpath,
-        FileType type,
-        bool returnFullPath,
-        const char* namePattern);
+    static std::vector<std::string> listAllTypedEntitiesInDir(const char* dirpath,
+                                                              FileType type,
+                                                              bool returnFullPath,
+                                                              const char* namePattern);
     /**
      * List all files in the given directory
      *
      * Internally, it calls listAllTypedEntitiesInDir()
      */
-    static std::vector<std::string> listAllFilesInDir(
-        const char* dirpath,
-        bool returnFullPath = false,
-        const char* namePattern = nullptr);
+    static std::vector<std::string> listAllFilesInDir(const char* dirpath,
+                                                      bool returnFullPath = false,
+                                                      const char* namePattern = nullptr);
     /**
      * List all sub-directories in the given directory
      *
      * Internally, it calls listAllTypedEntitiesInDir()
      */
-    static std::vector<std::string> listAllDirsInDir(
-        const char* dirpath,
-        bool returnFullPath = false,
-        const char* namePattern = nullptr);
+    static std::vector<std::string> listAllDirsInDir(const char* dirpath,
+                                                     bool returnFullPath = false,
+                                                     const char* namePattern = nullptr);
 
     static bool isReg(struct dirent* dEnt, const char* path);
     static bool isDir(struct dirent* dEnt, const char* path);
@@ -173,7 +169,7 @@ public:
          * @path    path to a regular file or directory
          * @pattern optional regex pattern
          */
-        explicit Iterator(std::string path, const std::regex *pattern = nullptr);
+        explicit Iterator(std::string path, const std::regex* pattern = nullptr);
         ~Iterator();
 
         // Whether this iterator is valid
@@ -234,28 +230,28 @@ public:
         void fileNext();
 
     private:
-        std::string                         path_;
-        FileType                            type_{FileType::UNKNOWN};
-        std::unique_ptr<std::ifstream>      fstream_;
-        DIR                                *dir_{nullptr};
-        const std::regex                   *pattern_{nullptr};
-        std::string                         entry_;
-        std::smatch                         matched_;
-        Status                              status_;
+        std::string path_;
+        FileType type_{FileType::UNKNOWN};
+        std::unique_ptr<std::ifstream> fstream_;
+        DIR* dir_{nullptr};
+        const std::regex* pattern_{nullptr};
+        std::string entry_;
+        std::smatch matched_;
+        Status status_;
     };
 };
 
 }  // namespace fs
 }  // namespace nebula
 
-#define CHECK_TYPE(NAME, FTYPE, DTYPE) \
-    bool FileUtils::is ## NAME(struct dirent *dEnt, const char* path) { \
-        if (dEnt->d_type == DT_UNKNOWN) { \
-            const char* subPath = FileUtils::joinPath(path, dEnt->d_name).c_str(); \
-            return FileUtils::fileType(subPath) == FileType::FTYPE; \
-        } else { \
-            return dEnt->d_type == DT_ ## DTYPE; \
-        } \
+#define CHECK_TYPE(NAME, FTYPE, DTYPE)                                                             \
+    bool FileUtils::is##NAME(struct dirent* dEnt, const char* path) {                              \
+        if (dEnt->d_type == DT_UNKNOWN) {                                                          \
+            const char* subPath = FileUtils::joinPath(path, dEnt->d_name).c_str();                 \
+            return FileUtils::fileType(subPath) == FileType::FTYPE;                                \
+        } else {                                                                                   \
+            return dEnt->d_type == DT_##DTYPE;                                                     \
+        }                                                                                          \
     }
 
 #endif  // COMMON_FS_FILEUTILS_H_

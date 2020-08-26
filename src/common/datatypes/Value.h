@@ -8,19 +8,18 @@
 #define COMMON_DATATYPES_VALUE_H_
 
 #include "common/base/Base.h"
-#include "common/thrift/ThriftTypes.h"
-#include "common/datatypes/Date.h"
 #include "common/base/StatusOr.h"
+#include "common/datatypes/Date.h"
+#include "common/thrift/ThriftTypes.h"
 
 namespace apache {
 namespace thrift {
 
-template<class T, class U>
+template <class T, class U>
 class Cpp2Ops;
 
 }  // namespace thrift
 }  // namespace apache
-
 
 namespace nebula {
 
@@ -34,7 +33,7 @@ struct DataSet;
 
 enum class NullType {
     __NULL__ = 0,
-    NaN      = 1,
+    NaN = 1,
     BAD_DATA = 2,
     BAD_TYPE = 3,
     ERR_OVERFLOW = 4,
@@ -42,7 +41,6 @@ enum class NullType {
     DIV_BY_ZERO = 6,
     OUT_OF_RANGE = 7,
 };
-
 
 struct Value {
     static const Value kEmpty;
@@ -62,19 +60,19 @@ struct Value {
 
     enum class Type : uint64_t {
         __EMPTY__ = 1UL,
-        BOOL      = 1UL << 1,
-        INT       = 1UL << 2,
-        FLOAT     = 1UL << 3,
-        STRING    = 1UL << 4,
-        DATE      = 1UL << 5,
-        DATETIME  = 1UL << 6,
-        VERTEX    = 1UL << 7,
-        EDGE      = 1UL << 8,
-        PATH      = 1UL << 9,
-        LIST      = 1UL << 10,
-        MAP       = 1UL << 11,
-        SET       = 1UL << 12,
-        DATASET   = 1UL << 13,
+        BOOL = 1UL << 1,
+        INT = 1UL << 2,
+        FLOAT = 1UL << 3,
+        STRING = 1UL << 4,
+        DATE = 1UL << 5,
+        DATETIME = 1UL << 6,
+        VERTEX = 1UL << 7,
+        EDGE = 1UL << 8,
+        PATH = 1UL << 9,
+        LIST = 1UL << 10,
+        MAP = 1UL << 11,
+        SET = 1UL << 12,
+        DATASET = 1UL << 13,
         NULLVALUE = 1UL << 63,
     };
 
@@ -83,43 +81,45 @@ struct Value {
     Value(Value&& rhs) noexcept;
     Value(const Value& rhs);
 
-    Value(const NullType& v);       // NOLINT
-    Value(NullType&& v);            // NOLINT
-    Value(const bool& v);           // NOLINT
-    Value(bool&& v);                // NOLINT
-    Value(const int8_t& v);         // NOLINT
-    Value(int8_t&& v);              // NOLINT
-    Value(const int16_t& v);        // NOLINT
-    Value(int16_t&& v);             // NOLINT
-    Value(const int32_t& v);        // NOLINT
-    Value(int32_t&& v);             // NOLINT
-    Value(const int64_t& v);        // NOLINT
-    Value(int64_t&& v);             // NOLINT
-    Value(const double& v);         // NOLINT
-    Value(double&& v);              // NOLINT
-    Value(const std::string& v);    // NOLINT
-    Value(std::string&& v);         // NOLINT
-    Value(const char* v);           // NOLINT
-    Value(folly::StringPiece v);    // NOLINT
-    Value(const Date& v);           // NOLINT
-    Value(Date&& v);                // NOLINT
-    Value(const DateTime& v);       // NOLINT
-    Value(DateTime&& v);            // NOLINT
-    Value(const Vertex& v);         // NOLINT
-    Value(Vertex&& v);              // NOLINT
-    Value(const Edge& v);           // NOLINT
-    Value(Edge&& v);                // NOLINT
-    Value(const Path& v);           // NOLINT
-    Value(Path&& v);                // NOLINT
-    Value(const List& v);           // NOLINT
-    Value(List&& v);                // NOLINT
-    Value(const Map& v);            // NOLINT
-    Value(Map&& v);                 // NOLINT
-    Value(const Set& v);            // NOLINT
-    Value(Set&& v);                 // NOLINT
-    Value(const DataSet& v);        // NOLINT
-    Value(DataSet&& v);             // NOLINT
-    ~Value() { clear(); }
+    Value(const NullType& v);     // NOLINT
+    Value(NullType&& v);          // NOLINT
+    Value(const bool& v);         // NOLINT
+    Value(bool&& v);              // NOLINT
+    Value(const int8_t& v);       // NOLINT
+    Value(int8_t&& v);            // NOLINT
+    Value(const int16_t& v);      // NOLINT
+    Value(int16_t&& v);           // NOLINT
+    Value(const int32_t& v);      // NOLINT
+    Value(int32_t&& v);           // NOLINT
+    Value(const int64_t& v);      // NOLINT
+    Value(int64_t&& v);           // NOLINT
+    Value(const double& v);       // NOLINT
+    Value(double&& v);            // NOLINT
+    Value(const std::string& v);  // NOLINT
+    Value(std::string&& v);       // NOLINT
+    Value(const char* v);         // NOLINT
+    Value(folly::StringPiece v);  // NOLINT
+    Value(const Date& v);         // NOLINT
+    Value(Date&& v);              // NOLINT
+    Value(const DateTime& v);     // NOLINT
+    Value(DateTime&& v);          // NOLINT
+    Value(const Vertex& v);       // NOLINT
+    Value(Vertex&& v);            // NOLINT
+    Value(const Edge& v);         // NOLINT
+    Value(Edge&& v);              // NOLINT
+    Value(const Path& v);         // NOLINT
+    Value(Path&& v);              // NOLINT
+    Value(const List& v);         // NOLINT
+    Value(List&& v);              // NOLINT
+    Value(const Map& v);          // NOLINT
+    Value(Map&& v);               // NOLINT
+    Value(const Set& v);          // NOLINT
+    Value(Set&& v);               // NOLINT
+    Value(const DataSet& v);      // NOLINT
+    Value(DataSet&& v);           // NOLINT
+    ~Value() {
+        clear();
+    }
 
     Type type() const noexcept {
         return type_;
@@ -138,13 +138,9 @@ struct Value {
             return false;
         }
         auto& null = value_.nVal;
-        return null == NullType::NaN
-            || null == NullType::BAD_DATA
-            || null == NullType::BAD_TYPE
-            || null == NullType::ERR_OVERFLOW
-            || null == NullType::UNKNOWN_PROP
-            || null == NullType::DIV_BY_ZERO
-            || null == NullType::OUT_OF_RANGE;
+        return null == NullType::NaN || null == NullType::BAD_DATA || null == NullType::BAD_TYPE ||
+               null == NullType::ERR_OVERFLOW || null == NullType::UNKNOWN_PROP ||
+               null == NullType::DIV_BY_ZERO || null == NullType::OUT_OF_RANGE;
     }
     bool isNumeric() const {
         return type_ == Type::INT || type_ == Type::FLOAT;
@@ -306,20 +302,20 @@ private:
     Type type_;
 
     union Storage {
-        NullType                    nVal;
-        bool                        bVal;
-        int64_t                     iVal;
-        double                      fVal;
-        std::string                 sVal;
-        Date                        dVal;
-        DateTime                    tVal;
-        std::unique_ptr<Vertex>     vVal;
-        std::unique_ptr<Edge>       eVal;
-        std::unique_ptr<Path>       pVal;
-        std::unique_ptr<List>       lVal;
-        std::unique_ptr<Map>        mVal;
-        std::unique_ptr<Set>        uVal;
-        std::unique_ptr<DataSet>    gVal;
+        NullType nVal;
+        bool bVal;
+        int64_t iVal;
+        double fVal;
+        std::string sVal;
+        Date dVal;
+        DateTime tVal;
+        std::unique_ptr<Vertex> vVal;
+        std::unique_ptr<Edge> eVal;
+        std::unique_ptr<Path> pVal;
+        std::unique_ptr<List> lVal;
+        std::unique_ptr<Map> mVal;
+        std::unique_ptr<Set> uVal;
+        std::unique_ptr<DataSet> gVal;
 
         Storage() {}
         ~Storage() {}
@@ -408,10 +404,10 @@ Value operator!(const Value& rhs);
 //  if type do not match except both numeric
 //  if lhs and rhs have at least one null or empty
 // 2. null is the biggest, empty is the smallest
-bool operator< (const Value& lhs, const Value& rhs);
+bool operator<(const Value& lhs, const Value& rhs);
 bool operator==(const Value& lhs, const Value& rhs);
 bool operator!=(const Value& lhs, const Value& rhs);
-bool operator> (const Value& lhs, const Value& rhs);
+bool operator>(const Value& lhs, const Value& rhs);
 bool operator<=(const Value& lhs, const Value& rhs);
 bool operator>=(const Value& lhs, const Value& rhs);
 // Logical operations
@@ -448,23 +444,22 @@ inline uint64_t operator&(const Value::Type& lhs, const uint64_t rhs) {
 
 }  // namespace nebula
 
-
 namespace std {
 
 // Inject a customized hash function
-template<>
+template <>
 struct hash<nebula::Value> {
     std::size_t operator()(const nebula::Value& h) const noexcept;
 };
 
-template<>
+template <>
 struct hash<nebula::Value*> {
     std::size_t operator()(const nebula::Value* h) const noexcept {
         return h == nullptr ? 0 : hash<nebula::Value>()(*h);
     }
 };
 
-template<>
+template <>
 struct equal_to<nebula::Value*> {
     bool operator()(const nebula::Value* lhs, const nebula::Value* rhs) const noexcept {
         return lhs == rhs ? true : (lhs != nullptr) && (rhs != nullptr) && (*lhs == *rhs);

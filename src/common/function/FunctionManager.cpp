@@ -5,6 +5,7 @@
  */
 
 #include "FunctionManager.h"
+
 #include "common/base/Base.h"
 #include "common/expression/Expression.h"
 #include "common/time/WallClock.h"
@@ -107,24 +108,23 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"substr",
      {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT},
                     Value::Type::STRING)}},
-    {"hash", {TypeSignature({Value::Type::INT}, Value::Type::INT),
-              TypeSignature({Value::Type::FLOAT}, Value::Type::INT),
-              TypeSignature({Value::Type::STRING}, Value::Type::INT),
-              TypeSignature({Value::Type::NULLVALUE}, Value::Type::INT),
-              TypeSignature({Value::Type::__EMPTY__}, Value::Type::INT),
-              TypeSignature({Value::Type::BOOL}, Value::Type::INT),
-              TypeSignature({Value::Type::DATE}, Value::Type::INT),
-              TypeSignature({Value::Type::DATETIME}, Value::Type::INT),
-              TypeSignature({Value::Type::PATH}, Value::Type::INT),
-              TypeSignature({Value::Type::VERTEX}, Value::Type::INT),
-              TypeSignature({Value::Type::EDGE}, Value::Type::INT),
-              TypeSignature({Value::Type::LIST}, Value::Type::INT)}}
-};
+    {"hash",
+     {TypeSignature({Value::Type::INT}, Value::Type::INT),
+      TypeSignature({Value::Type::FLOAT}, Value::Type::INT),
+      TypeSignature({Value::Type::STRING}, Value::Type::INT),
+      TypeSignature({Value::Type::NULLVALUE}, Value::Type::INT),
+      TypeSignature({Value::Type::__EMPTY__}, Value::Type::INT),
+      TypeSignature({Value::Type::BOOL}, Value::Type::INT),
+      TypeSignature({Value::Type::DATE}, Value::Type::INT),
+      TypeSignature({Value::Type::DATETIME}, Value::Type::INT),
+      TypeSignature({Value::Type::PATH}, Value::Type::INT),
+      TypeSignature({Value::Type::VERTEX}, Value::Type::INT),
+      TypeSignature({Value::Type::EDGE}, Value::Type::INT),
+      TypeSignature({Value::Type::LIST}, Value::Type::INT)}}};
 
 // static
-StatusOr<Value::Type>
-FunctionManager::getReturnType(const std::string &funName,
-                               const std::vector<Value::Type> &argsType) {
+StatusOr<Value::Type> FunctionManager::getReturnType(const std::string &funName,
+                                                     const std::vector<Value::Type> &argsType) {
     auto iter = typeSignature_.find(funName);
     if (iter == typeSignature_.end()) {
         return Status::Error("Function `%s' not defined", funName.c_str());
@@ -725,7 +725,7 @@ FunctionManager::FunctionManager() {
             }
         };
     }
-}   // NOLINT
+}  // NOLINT
 
 // static
 StatusOr<FunctionManager::Function> FunctionManager::get(const std::string &func, size_t arity) {
@@ -780,4 +780,4 @@ Status FunctionManager::unloadInternal(const std::string &, const std::vector<st
     return Status::Error("Dynamic function unloading not supported yet");
 }
 
-}   // namespace nebula
+}  // namespace nebula

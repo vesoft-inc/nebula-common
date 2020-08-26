@@ -12,9 +12,7 @@
 namespace nebula {
 class LogicalExpression final : public BinaryExpression {
 public:
-    LogicalExpression(Kind kind,
-                      Expression* lhs = nullptr,
-                      Expression* rhs = nullptr)
+    explicit LogicalExpression(Kind kind, Expression* lhs = nullptr, Expression* rhs = nullptr)
         : BinaryExpression(kind, lhs, rhs) {}
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -22,8 +20,8 @@ public:
     std::string toString() const override;
 
 private:
-    Value                                       result_;
+    Value result_;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 #endif  // COMMON_EXPRESSION_LOGICALEXPRESSION_H_

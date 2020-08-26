@@ -4,8 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <folly/Benchmark.h>
+
+#include "common/base/Base.h"
 #include "common/stats/StatsManager.h"
 
 using nebula::stats::StatsManager;
@@ -13,12 +14,11 @@ using nebula::stats::StatsManager;
 const int32_t kCounterStats = StatsManager::registerStats("stats");
 const int32_t kCounterHisto = StatsManager::registerHisto("histogram", 10, 1, 100);
 
-
 void statsBM(int32_t counterId, uint32_t numThreads, uint32_t iters) {
     std::vector<std::thread> threads;
     for (uint32_t i = 0; i < numThreads; i++) {
-        auto itersInThread = i == 0 ? iters - (iters / numThreads) * (numThreads - 1)
-                                    : iters / numThreads;
+        auto itersInThread =
+            i == 0 ? iters - (iters / numThreads) * (numThreads - 1) : iters / numThreads;
         threads.emplace_back([counterId, itersInThread]() {
             for (uint32_t k = 0; k < itersInThread; k++) {
                 StatsManager::addValue(counterId, k);
@@ -30,7 +30,6 @@ void statsBM(int32_t counterId, uint32_t numThreads, uint32_t iters) {
         t.join();
     }
 }
-
 
 BENCHMARK_DRAW_LINE();
 
@@ -61,7 +60,6 @@ BENCHMARK(add_histogram_value_8t, iters) {
 }
 
 BENCHMARK_DRAW_LINE();
-
 
 int main(int argc, char** argv) {
     folly::init(&argc, &argv, true);

@@ -7,6 +7,8 @@
 #include "common/function/AggregateFunction.h"
 
 namespace nebula {
+
+// clang-format off
 std::unordered_map<AggFun::Function,
                    std::function<std::unique_ptr<AggFun>(bool)>> AggFun::aggFunMap_  = {
     { AggFun::Function::kNone,
@@ -34,6 +36,7 @@ std::unordered_map<AggFun::Function,
     { AggFun::Function::kCollect,
         [](bool distinct) -> auto { return std::make_unique<Collect>(distinct);} },
 };
+// clang-format on
 
 std::unordered_map<std::string, AggFun::Function> AggFun::nameIdMap_ = {
     {"", AggFun::Function::kNone},
@@ -48,4 +51,5 @@ std::unordered_map<std::string, AggFun::Function> AggFun::nameIdMap_ = {
     {"BIT_XOR", AggFun::Function::kBitXor},
     {"COLLECT", AggFun::Function::kCollect},
 };
+
 }  // namespace nebula

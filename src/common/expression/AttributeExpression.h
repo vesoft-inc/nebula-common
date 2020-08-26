@@ -14,15 +14,14 @@ namespace nebula {
 // <expr>.label
 class AttributeExpression final : public BinaryExpression {
 public:
-    explicit AttributeExpression(Expression *lhs = nullptr,
-                                 Expression *rhs = nullptr)
+    explicit AttributeExpression(Expression *lhs = nullptr, Expression *rhs = nullptr)
         : BinaryExpression(Kind::kAttribute, lhs, rhs) {}
 
-    const Value& eval(ExpressionContext &ctx) override;
+    const Value &eval(ExpressionContext &ctx) override;
 
     std::string toString() const override;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
 #endif  // COMMON_EXPRESSION_ATTRIBUTEEXPRESSION_H_

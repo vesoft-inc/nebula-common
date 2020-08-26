@@ -4,8 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
+
+#include "common/base/Base.h"
 #include "common/charset/Charset.h"
 
 namespace nebula {
@@ -21,7 +22,6 @@ TEST(CharsetInfo, isSupportCharset) {
         ASSERT_FALSE(status.ok());
     }
 }
-
 
 TEST(CharsetInfo, isSupportCollate) {
     auto* charsetInfo = CharsetInfo::instance();
@@ -39,7 +39,6 @@ TEST(CharsetInfo, isSupportCollate) {
     }
 }
 
-
 TEST(CharsetInfo, charsetAndCollateMatch) {
     auto* charsetInfo = CharsetInfo::instance();
     {
@@ -55,7 +54,6 @@ TEST(CharsetInfo, charsetAndCollateMatch) {
         ASSERT_FALSE(status.ok());
     }
 }
-
 
 TEST(CharsetInfo, getDefaultCollationbyCharset) {
     auto* charsetInfo = CharsetInfo::instance();
@@ -74,7 +72,6 @@ TEST(CharsetInfo, getDefaultCollationbyCharset) {
     }
 }
 
-
 TEST(CharsetInfo, getCharsetbyCollation) {
     auto* charsetInfo = CharsetInfo::instance();
     {
@@ -92,10 +89,9 @@ TEST(CharsetInfo, getCharsetbyCollation) {
     }
 }
 
-
 TEST(CharsetInfo, getCharsetDesc) {
     auto* charsetInfo = CharsetInfo::instance();
     auto result = charsetInfo->getCharsetDesc();
     EXPECT_EQ(1, result.size());
 }
-}   // namespace nebula
+}  // namespace nebula

@@ -8,9 +8,9 @@
 
 namespace nebula {
 
-const Value& EdgeExpression::eval(ExpressionContext &ctx) {
+const Value& EdgeExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getEdge();
     return result_;
 }
 
-}   // namespace nebula
+}  // namespace nebula

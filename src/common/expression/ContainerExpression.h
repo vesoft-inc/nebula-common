@@ -15,7 +15,7 @@ class ExpressionList final {
 public:
     ExpressionList() = default;
 
-    ExpressionList& add(Expression *expr) {
+    ExpressionList &add(Expression *expr) {
         items_.emplace_back(expr);
         return *this;
     }
@@ -25,15 +25,14 @@ public:
     }
 
 private:
-    std::vector<std::unique_ptr<Expression>>    items_;
+    std::vector<std::unique_ptr<Expression>> items_;
 };
-
 
 class MapItemList final {
 public:
     MapItemList() = default;
 
-    MapItemList& add(std::string *key, Expression *value) {
+    MapItemList &add(std::string *key, Expression *value) {
         items_.emplace_back(key, value);
         return *this;
     }
@@ -44,24 +43,22 @@ public:
 
 private:
     using Pair = std::pair<std::unique_ptr<std::string>, std::unique_ptr<Expression>>;
-    std::vector<Pair>                           items_;
+    std::vector<Pair> items_;
 };
-
 
 class ListExpression final : public Expression {
 public:
-    ListExpression() : Expression(Kind::kList) {
-    }
+    ListExpression() : Expression(Kind::kList) {}
 
     explicit ListExpression(ExpressionList *items) : Expression(Kind::kList) {
         items_ = std::move(*items).get();
         delete items;
     }
 
-    const Value& eval(ExpressionContext &ctx) override;
+    const Value &eval(ExpressionContext &ctx) override;
 
-    std::vector<const Expression*> items() const {
-        std::vector<const Expression*> items;
+    std::vector<const Expression *> items() const {
+        std::vector<const Expression *> items;
         items.reserve(items_.size());
         for (auto &item : items_) {
             items.emplace_back(item.get());
@@ -87,25 +84,23 @@ private:
     void resetFrom(Decoder &decoder) override;
 
 private:
-    std::vector<std::unique_ptr<Expression>>    items_;
-    Value                                       result_;
+    std::vector<std::unique_ptr<Expression>> items_;
+    Value result_;
 };
-
 
 class SetExpression final : public Expression {
 public:
-    SetExpression() : Expression(Kind::kSet) {
-    }
+    SetExpression() : Expression(Kind::kSet) {}
 
     explicit SetExpression(ExpressionList *items) : Expression(Kind::kSet) {
         items_ = std::move(*items).get();
         delete items;
     }
 
-    const Value& eval(ExpressionContext &ctx) override;
+    const Value &eval(ExpressionContext &ctx) override;
 
-    std::vector<const Expression*> items() const {
-        std::vector<const Expression*> items;
+    std::vector<const Expression *> items() const {
+        std::vector<const Expression *> items;
         items.reserve(items_.size());
         for (auto &item : items_) {
             items.emplace_back(item.get());
@@ -131,25 +126,23 @@ private:
     void resetFrom(Decoder &decoder) override;
 
 private:
-    std::vector<std::unique_ptr<Expression>>    items_;
-    Value                                       result_;
+    std::vector<std::unique_ptr<Expression>> items_;
+    Value result_;
 };
-
 
 class MapExpression final : public Expression {
 public:
-    MapExpression() : Expression(Kind::kMap) {
-    }
+    MapExpression() : Expression(Kind::kMap) {}
 
     explicit MapExpression(MapItemList *items) : Expression(Kind::kMap) {
         items_ = std::move(*items).get();
         delete items;
     }
 
-    const Value& eval(ExpressionContext &ctx) override;
+    const Value &eval(ExpressionContext &ctx) override;
 
-    std::vector<std::pair<const std::string*, const Expression*>> items() const {
-        std::vector<std::pair<const std::string*, const Expression*>> items;
+    std::vector<std::pair<const std::string *, const Expression *>> items() const {
+        std::vector<std::pair<const std::string *, const Expression *>> items;
         items.reserve(items_.size());
         for (auto &item : items_) {
             items.emplace_back(item.first.get(), item.second.get());
@@ -176,10 +169,10 @@ private:
     void resetFrom(Decoder &decoder) override;
 
 private:
-    std::vector<Item>                       items_;
-    Value                                   result_;
+    std::vector<Item> items_;
+    Value result_;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
 #endif  // COMMON_EXPRESSION_CONTAINEREXPRESSION_H_

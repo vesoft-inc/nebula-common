@@ -4,10 +4,12 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include "common/thread/GenericWorker.h"
-#include <sys/eventfd.h>
+
 #include <event2/event.h>
+#include <sys/eventfd.h>
+
+#include "common/base/Base.h"
 
 namespace nebula {
 namespace thread {
@@ -47,14 +49,14 @@ bool GenericWorker::start(std::string name) {
         LOG(ERROR) << "Create eventfd failed: " << ::strerror(errno);
         return false;
     }
-    auto cb = [] (int fd, int16_t, void *arg) {
+    auto cb = [](int fd, int16_t, void *arg) {
         auto val = 0UL;
         auto len = ::read(fd, &val, sizeof(val));
         DCHECK(len == sizeof(val));
-        reinterpret_cast<GenericWorker*>(arg)->onNotify();
+        reinterpret_cast<GenericWorker *>(arg)->onNotify();
     };
     auto events = EV_READ | EV_PERSIST;
-    notifier_  = event_new(evbase_, evfd_, events, cb, this);
+    notifier_ = event_new(evbase_, evfd_, events, cb, this);
     DCHECK(notifier_ != nullptr);
     event_add(notifier_, nullptr);
 
@@ -120,9 +122,9 @@ void GenericWorker::onNotify() {
             std::lock_guard<std::mutex> guard(lock_);
             newcomings.swap(pendingTimers_);
         }
-        auto cb = [] (int fd, int16_t, void *arg) {
+        auto cb = [](int fd, int16_t, void *arg) {
             UNUSED(fd);
-            auto timer = reinterpret_cast<Timer*>(arg);
+            auto timer = reinterpret_cast<Timer *>(arg);
             auto worker = timer->owner_;
             timer->callback_();
             if (timer->intervalMSec_ == 0.0) {
@@ -180,5 +182,5 @@ void GenericWorker::purgeTimerInternal(uint64_t id) {
     }
 }
 
-}   // namespace thread
-}   // namespace nebula
+}  // namespace thread
+}  // namespace nebula

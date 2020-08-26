@@ -44,13 +44,11 @@ private:
     std::vector<std::unique_ptr<Expression>> args_;
 };
 
-
 class FunctionCallExpression final : public Expression {
     friend class Expression;
 
 public:
-    FunctionCallExpression(std::string* name = nullptr,
-                           ArgumentList* args = nullptr)
+    explicit FunctionCallExpression(std::string* name = nullptr, ArgumentList* args = nullptr)
         : Expression(Kind::kFunctionCall) {
         if (args == nullptr) {
             args_ = std::make_unique<ArgumentList>();
@@ -88,9 +86,9 @@ private:
 
     void resetFrom(Decoder& decoder) override;
 
-    std::unique_ptr<std::string>    name_;
-    std::unique_ptr<ArgumentList>   args_;
-    Value                           result_;
+    std::unique_ptr<std::string> name_;
+    std::unique_ptr<ArgumentList> args_;
+    Value result_;
 };
 
 }  // namespace nebula

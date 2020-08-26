@@ -11,7 +11,6 @@
 #include "common/fs/FileUtils.h"
 #include "common/meta/ClusterIdManBase.h"
 
-
 namespace nebula {
 namespace meta {
 

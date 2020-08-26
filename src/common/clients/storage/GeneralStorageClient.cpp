@@ -4,22 +4,20 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include "common/clients/storage/GeneralStorageClient.h"
+
+#include "common/base/Base.h"
 
 namespace nebula {
 namespace storage {
 
-folly::SemiFuture<StorageRpcResponse<cpp2::KVGetResponse>>
-GeneralStorageClient::get(GraphSpaceID space,
-                          std::vector<std::string>&& keys,
-                          bool returnPartly,
-                          folly::EventBase* evb) {
-    auto status = clusterIdsToHosts(space,
-                                    std::move(keys),
-                                    [] (const std::string& v) -> const std::string& {
-        return v;
-    });
+folly::SemiFuture<StorageRpcResponse<cpp2::KVGetResponse>> GeneralStorageClient::get(
+    GraphSpaceID space,
+    std::vector<std::string>&& keys,
+    bool returnPartly,
+    folly::EventBase* evb) {
+    auto status = clusterIdsToHosts(
+        space, std::move(keys), [](const std::string& v) -> const std::string& { return v; });
 
     if (!status.ok()) {
         return folly::makeFuture<StorageRpcResponse<cpp2::KVGetResponse>>(
@@ -39,25 +37,16 @@ GeneralStorageClient::get(GraphSpaceID space,
     return collectResponse(
         evb,
         std::move(requests),
-        [] (cpp2::GeneralStorageServiceAsyncClient* client,
-            const cpp2::KVGetRequest& r) {
+        [](cpp2::GeneralStorageServiceAsyncClient* client, const cpp2::KVGetRequest& r) {
             return client->future_get(r);
         },
-        [] (const std::pair<const PartitionID, std::vector<std::string>>& p) {
-            return p.first;
-        });
+        [](const std::pair<const PartitionID, std::vector<std::string>>& p) { return p.first; });
 }
 
-
 folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>>
-GeneralStorageClient::put(GraphSpaceID space,
-                          std::vector<KeyValue> kvs,
-                          folly::EventBase* evb) {
-    auto status = clusterIdsToHosts(space,
-                                    std::move(kvs),
-                                    [] (const KeyValue& v) -> const std::string& {
-        return v.key;
-    });
+GeneralStorageClient::put(GraphSpaceID space, std::vector<KeyValue> kvs, folly::EventBase* evb) {
+    auto status = clusterIdsToHosts(
+        space, std::move(kvs), [](const KeyValue& v) -> const std::string& { return v.key; });
 
     if (!status.ok()) {
         return folly::makeFuture<StorageRpcResponse<cpp2::ExecResponse>>(
@@ -76,24 +65,18 @@ GeneralStorageClient::put(GraphSpaceID space,
     return collectResponse(
         evb,
         std::move(requests),
-        [] (cpp2::GeneralStorageServiceAsyncClient* client,
-            const cpp2::KVPutRequest& r) {
+        [](cpp2::GeneralStorageServiceAsyncClient* client, const cpp2::KVPutRequest& r) {
             return client->future_put(r);
         },
-        [] (const std::pair<const PartitionID, std::vector<KeyValue>>& p) {
-            return p.first;
-        });
+        [](const std::pair<const PartitionID, std::vector<KeyValue>>& p) { return p.first; });
 }
 
-folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>>
-GeneralStorageClient::remove(GraphSpaceID space,
-                             std::vector<std::string> keys,
-                             folly::EventBase* evb) {
-    auto status = clusterIdsToHosts(space,
-                                    std::move(keys),
-                                    [] (const std::string& v) -> const std::string& {
-        return v;
-    });
+folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> GeneralStorageClient::remove(
+    GraphSpaceID space,
+    std::vector<std::string> keys,
+    folly::EventBase* evb) {
+    auto status = clusterIdsToHosts(
+        space, std::move(keys), [](const std::string& v) -> const std::string& { return v; });
 
     if (!status.ok()) {
         return folly::makeFuture<StorageRpcResponse<cpp2::ExecResponse>>(
@@ -112,13 +95,10 @@ GeneralStorageClient::remove(GraphSpaceID space,
     return collectResponse(
         evb,
         std::move(requests),
-        [] (cpp2::GeneralStorageServiceAsyncClient* client,
-            const cpp2::KVRemoveRequest& r) {
+        [](cpp2::GeneralStorageServiceAsyncClient* client, const cpp2::KVRemoveRequest& r) {
             return client->future_remove(r);
         },
-        [] (const std::pair<const PartitionID, std::vector<std::string>>& p) {
-            return p.first;
-        });
+        [](const std::pair<const PartitionID, std::vector<std::string>>& p) { return p.first; });
 }
 
 }  // namespace storage

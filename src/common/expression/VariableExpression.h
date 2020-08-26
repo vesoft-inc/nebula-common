@@ -12,8 +12,7 @@
 namespace nebula {
 class VariableExpression final : public Expression {
 public:
-    explicit VariableExpression(std::string* var)
-        : Expression(Kind::kVar) {
+    explicit VariableExpression(std::string* var) : Expression(Kind::kVar) {
         var_.reset(var);
     }
 
@@ -39,7 +38,7 @@ private:
         UNUSED(decoder);
     }
 
-    std::unique_ptr<std::string>                 var_;
+    std::unique_ptr<std::string> var_;
 };
 
 /*
@@ -76,10 +75,10 @@ private:
         UNUSED(decoder);
     }
 
-    std::unique_ptr<std::string>                 var_;
+    std::unique_ptr<std::string> var_;
     // 0 means the latest, -1 the previous one, and so on.
     // 1 means the eldest, 2 the second elder one, and so on.
-    std::unique_ptr<Expression>                  version_;
+    std::unique_ptr<Expression> version_;
 };
 }  // namespace nebula
 #endif

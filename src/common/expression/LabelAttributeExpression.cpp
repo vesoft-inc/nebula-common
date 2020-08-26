@@ -12,4 +12,4 @@ std::string LabelAttributeExpression::toString() const {
     return left()->toString() + "." + right()->toString();
 }
 
-}   // namespace nebula
+}  // namespace nebula

@@ -5,13 +5,14 @@
  */
 
 #include "common/expression/AttributeExpression.h"
-#include "common/datatypes/Map.h"
+
 #include "common/datatypes/Edge.h"
+#include "common/datatypes/Map.h"
 #include "common/datatypes/Vertex.h"
 
 namespace nebula {
 
-const Value& AttributeExpression::eval(ExpressionContext &ctx) {
+const Value &AttributeExpression::eval(ExpressionContext &ctx) {
     auto &lvalue = left()->eval(ctx);
     auto &rvalue = right()->eval(ctx);
     DCHECK(rvalue.isStr());
@@ -38,7 +39,6 @@ const Value& AttributeExpression::eval(ExpressionContext &ctx) {
     return Value::kNullBadType;
 }
 
-
 std::string AttributeExpression::toString() const {
     CHECK(right()->kind() == Kind::kLabel || right()->kind() == Kind::kConstant);
     std::string buf;
@@ -50,4 +50,4 @@ std::string AttributeExpression::toString() const {
     return buf;
 }
 
-}   // namespace nebula
+}  // namespace nebula

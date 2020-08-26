@@ -4,9 +4,10 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include "common/time/Duration.h"
+
 #include "common/base/Base.h"
 #include "common/time/detail/TscHelper.h"
-#include "common/time/Duration.h"
 
 namespace nebula {
 namespace time {
@@ -21,7 +22,6 @@ void Duration::reset(bool paused) {
     }
 }
 
-
 void Duration::pause() {
     if (isPaused_) {
         return;
@@ -32,7 +32,6 @@ void Duration::pause() {
     startTick_ = 0;
 }
 
-
 void Duration::resume() {
     if (!isPaused_) {
         return;
@@ -42,24 +41,18 @@ void Duration::resume() {
     isPaused_ = false;
 }
 
-
 uint64_t Duration::elapsedInSec() const {
-    uint64_t ticks = isPaused_ ? accumulated_ :
-                                 TscHelper::readTsc() - startTick_ + accumulated_;
+    uint64_t ticks = isPaused_ ? accumulated_ : TscHelper::readTsc() - startTick_ + accumulated_;
     return TscHelper::ticksToDurationInSec(ticks);
 }
 
-
 uint64_t Duration::elapsedInMSec() const {
-    uint64_t ticks = isPaused_ ? accumulated_ :
-                                 TscHelper::readTsc() - startTick_ + accumulated_;
+    uint64_t ticks = isPaused_ ? accumulated_ : TscHelper::readTsc() - startTick_ + accumulated_;
     return TscHelper::ticksToDurationInMSec(ticks);
 }
 
-
 uint64_t Duration::elapsedInUSec() const {
-    uint64_t ticks = isPaused_ ? accumulated_ :
-                                 TscHelper::readTsc() - startTick_ + accumulated_;
+    uint64_t ticks = isPaused_ ? accumulated_ : TscHelper::readTsc() - startTick_ + accumulated_;
     return TscHelper::ticksToDurationInUSec(ticks);
 }
 

@@ -25,14 +25,11 @@ namespace nebula {
  * ErrorOr<> would be more suitable. If the caller also needs an error message along
  * with the error code from the callee, then StatusOr<> should be used
  */
-template<
-    typename ErrorCode, typename ResultType,
-    typename = std::enable_if_t<
-        std::is_integral<ErrorCode>::value || std::is_enum<ErrorCode>::value
-    >
->
+template <typename ErrorCode,
+          typename ResultType,
+          typename = std::enable_if_t<std::is_integral<ErrorCode>::value ||
+                                      std::is_enum<ErrorCode>::value>>
 using ErrorOr = EitherOr<ErrorCode, ResultType>;
-
 
 /***********************************************
  *
@@ -40,32 +37,32 @@ using ErrorOr = EitherOr<ErrorCode, ResultType>;
  *
  **********************************************/
 // We treat void ErrorOr objects as succeeded
-template<typename E, typename R>
+template <typename E, typename R>
 bool ok(const ErrorOr<E, R>& err) {
     return !err.isLeftType();
 }
 
-template<typename E, typename R>
+template <typename E, typename R>
 E error(const ErrorOr<E, R>& err) {
     return err.left();
 }
 
-template<typename E, typename R>
+template <typename E, typename R>
 bool hasValue(const ErrorOr<E, R>& err) {
     return err.isRightType();
 }
 
-template<typename E, typename R>
+template <typename E, typename R>
 R& value(ErrorOr<E, R>& err) {
     return err.right();
 }
 
-template<typename E, typename R>
+template <typename E, typename R>
 const R& value(const ErrorOr<E, R>& err) {
     return err.right();
 }
 
-template<typename E, typename R>
+template <typename E, typename R>
 R value(ErrorOr<E, R>&& err) {
     return std::move(err).right();
 }

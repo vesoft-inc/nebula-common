@@ -16,8 +16,7 @@ class UUIDExpression final : public Expression {
 
 public:
     explicit UUIDExpression(std::string* field = nullptr)
-        : Expression(Kind::kUUID)
-        , field_(field) {}
+        : Expression(Kind::kUUID), field_(field) {}
 
     bool operator==(const Expression& rhs) const override;
 
@@ -30,9 +29,9 @@ private:
 
     void resetFrom(Decoder& decoder) override;
 
-    std::unique_ptr<std::string>                field_;
-    Value                                       result_;
+    std::unique_ptr<std::string> field_;
+    Value result_;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 #endif  // EXPRESSION_UUIDEXPRESSION_H_

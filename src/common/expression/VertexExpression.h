@@ -21,7 +21,7 @@ class VertexExpression final : public Expression {
 public:
     VertexExpression() : Expression(Kind::kVertex) {}
 
-    const Value& eval(ExpressionContext &ctx) override;
+    const Value &eval(ExpressionContext &ctx) override;
 
     std::string toString() const override {
         return "VERTEX";
@@ -36,12 +36,12 @@ private:
         encoder << kind();
     }
 
-    void resetFrom(Decoder&) override {}
+    void resetFrom(Decoder &) override {}
 
 private:
-    Value                                   result_;
+    Value result_;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
 #endif  // COMMON_EXPRESSION_VERTEXEXPRESSION_H_

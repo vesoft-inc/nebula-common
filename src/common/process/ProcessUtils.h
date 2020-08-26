@@ -56,9 +56,9 @@ public:
     /**
      * Execute a shell command and return the standard output of the command
      */
-    static StatusOr<std::string> runCommand(const char* command);
+    static StatusOr<std::string> runCommand(const char *command);
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
 #endif  // COMMON_PROCESSUTILS_H_

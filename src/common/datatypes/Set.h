@@ -38,13 +38,17 @@ struct Set {
     }
 
     Set& operator=(const Set& rhs) {
-        if (this == &rhs) { return *this; }
+        if (this == &rhs) {
+            return *this;
+        }
         values = rhs.values;
         return *this;
     }
 
     Set& operator=(Set&& rhs) noexcept {
-        if (this == &rhs) { return *this; }
+        if (this == &rhs) {
+            return *this;
+        }
         values = std::move(rhs.values);
         return *this;
     }
@@ -53,12 +57,12 @@ struct Set {
         return values == rhs.values;
     }
 
-    bool contains(const Value &value) const {
+    bool contains(const Value& value) const {
         return values.count(value) != 0;
     }
 };
 
-inline std::ostream &operator<<(std::ostream& os, const Set& s) {
+inline std::ostream& operator<<(std::ostream& os, const Set& s) {
     return os << s.toString();
 }
 

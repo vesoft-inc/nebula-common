@@ -12,20 +12,18 @@
 
 namespace nebula {
 
-
 struct CharsetDesc {
     // Charset name
-    std::string               charsetName_;
+    std::string charsetName_;
     // Charset default collation
-    std::string               defaultColl_;
+    std::string defaultColl_;
     // All collations supported by this charset
-    std::vector<std::string>  supportColls_;
+    std::vector<std::string> supportColls_;
     // Charset description info
-    std::string               desc_;
+    std::string desc_;
     // Maximum byte number of a character by this charset
-    int32_t                   maxLen_;
+    int32_t maxLen_;
 };
-
 
 class CharsetInfo final {
 public:
@@ -47,8 +45,7 @@ public:
     /**
      * Check if charset and collation match
      */
-    Status charsetAndCollateMatch(const std::string& charsetName,
-                                  const std::string& collateName);
+    Status charsetAndCollateMatch(const std::string& charsetName, const std::string& collateName);
 
     /**
      * Get the corresponding collation according to charset
@@ -69,7 +66,7 @@ public:
 
 private:
     CharsetInfo() {
-       charsetDesc_["utf8"] = {"utf8", "utf8_bin", {"utf8_bin"}, "UTF-8 Unicode", 4};
+        charsetDesc_["utf8"] = {"utf8", "utf8_bin", {"utf8_bin"}, "UTF-8 Unicode", 4};
     }
 
     /**
@@ -88,6 +85,6 @@ private:
     std::unordered_map<std::string, CharsetDesc> charsetDesc_;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
 #endif  // COMMON_CHARSET_CHARSET_H_

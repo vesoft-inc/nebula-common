@@ -7,12 +7,11 @@
 #ifndef COMMON_DATATYPES_SETOPS_H_
 #define COMMON_DATATYPES_SETOPS_H_
 
-#include "common/base/Base.h"
-
 #include <thrift/lib/cpp2/GeneratedSerializationCodeHelper.h>
 #include <thrift/lib/cpp2/gen/module_types_tcc.h>
 #include <thrift/lib/cpp2/protocol/ProtocolReaderStructReadState.h>
 
+#include "common/base/Base.h"
 #include "common/datatypes/Set.h"
 
 namespace apache {
@@ -20,12 +19,11 @@ namespace thrift {
 
 namespace detail {
 
-template<>
+template <>
 struct TccStructTraits<nebula::Set> {
-    static void translateFieldName(
-            MAYBE_UNUSED folly::StringPiece _fname,
-            MAYBE_UNUSED int16_t& fid,
-            MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
+    static void translateFieldName(MAYBE_UNUSED folly::StringPiece _fname,
+                                   MAYBE_UNUSED int16_t& fid,
+                                   MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "values") {
             fid = 1;
             _ftype = apache::thrift::protocol::T_STRUCT;
@@ -35,30 +33,26 @@ struct TccStructTraits<nebula::Set> {
 
 }  // namespace detail
 
-
-template<>
+template <>
 inline void Cpp2Ops<nebula::Set>::clear(nebula::Set* obj) {
     return obj->clear();
 }
 
-
-template<>
+template <>
 inline constexpr protocol::TType Cpp2Ops<nebula::Set>::thriftType() {
     return apache::thrift::protocol::T_STRUCT;
 }
 
-
-template<>
-template<class Protocol>
+template <>
+template <class Protocol>
 uint32_t Cpp2Ops<nebula::Set>::write(Protocol* proto, nebula::Set const* obj) {
     uint32_t xfer = 0;
     xfer += proto->writeStructBegin("Set");
 
     xfer += proto->writeFieldBegin("values", apache::thrift::protocol::T_SET, 1);
-    xfer += detail::pm::protocol_methods<
-            type_class::set<type_class::structure>,
-            std::unordered_set<nebula::Value>
-        >::write(*proto, obj->values);
+    xfer +=
+        detail::pm::protocol_methods<type_class::set<type_class::structure>,
+                                     std::unordered_set<nebula::Value>>::write(*proto, obj->values);
     xfer += proto->writeFieldEnd();
 
     xfer += proto->writeFieldStop();
@@ -66,9 +60,8 @@ uint32_t Cpp2Ops<nebula::Set>::write(Protocol* proto, nebula::Set const* obj) {
     return xfer;
 }
 
-
-template<>
-template<class Protocol>
+template <>
+template <class Protocol>
 void Cpp2Ops<nebula::Set>::read(Protocol* proto, nebula::Set* obj) {
     detail::ProtocolReaderStructReadState<Protocol> readState;
 
@@ -76,19 +69,15 @@ void Cpp2Ops<nebula::Set>::read(Protocol* proto, nebula::Set* obj) {
 
     using apache::thrift::protocol::TProtocolException;
 
-
     if (UNLIKELY(!readState.advanceToNextField(proto, 0, 1, protocol::T_SET))) {
-      goto _loop;
+        goto _loop;
     }
 
-_readField_values:
-    {
-        obj->values = std::unordered_set<nebula::Value>();
-        detail::pm::protocol_methods<
-                type_class::set<type_class::structure>,
-                std::unordered_set<nebula::Value>
-            >::read(*proto, obj->values);
-    }
+_readField_values : {
+    obj->values = std::unordered_set<nebula::Value>();
+    detail::pm::protocol_methods<type_class::set<type_class::structure>,
+                                 std::unordered_set<nebula::Value>>::read(*proto, obj->values);
+}
 
     if (UNLIKELY(!readState.advanceToNextField(proto, 1, 0, protocol::T_STOP))) {
         goto _loop;
@@ -110,17 +99,15 @@ _loop:
     }
 
     switch (readState.fieldId) {
-        case 1:
-        {
+        case 1: {
             if (LIKELY(readState.fieldType == apache::thrift::protocol::T_SET)) {
                 goto _readField_values;
             } else {
                 goto _skip;
             }
         }
-        default:
-        {
-_skip:
+        default: {
+        _skip:
             proto->skip(readState.fieldType);
             readState.readFieldEnd(proto);
             readState.readFieldBeginNoInline(proto);
@@ -129,34 +116,28 @@ _skip:
     }
 }
 
-
-template<>
-template<class Protocol>
-uint32_t Cpp2Ops<nebula::Set>::serializedSize(Protocol const* proto,
-                                              nebula::Set const* obj) {
+template <>
+template <class Protocol>
+uint32_t Cpp2Ops<nebula::Set>::serializedSize(Protocol const* proto, nebula::Set const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("Set");
     xfer += proto->serializedFieldSize("values", apache::thrift::protocol::T_SET, 1);
     xfer += detail::pm::protocol_methods<
-            type_class::set<type_class::structure>,
-            std::unordered_set<nebula::Value>
-        >::serializedSize<false>(*proto, obj->values);
+        type_class::set<type_class::structure>,
+        std::unordered_set<nebula::Value>>::serializedSize<false>(*proto, obj->values);
     xfer += proto->serializedSizeStop();
     return xfer;
 }
 
-
-template<>
-template<class Protocol>
-uint32_t Cpp2Ops<nebula::Set>::serializedSizeZC(Protocol const* proto,
-                                                nebula::Set const* obj) {
+template <>
+template <class Protocol>
+uint32_t Cpp2Ops<nebula::Set>::serializedSizeZC(Protocol const* proto, nebula::Set const* obj) {
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("Set");
     xfer += proto->serializedFieldSize("values", apache::thrift::protocol::T_SET, 1);
     xfer += detail::pm::protocol_methods<
-            type_class::set<type_class::structure>,
-            std::unordered_set<nebula::Value>
-        >::serializedSize<false>(*proto, obj->values);
+        type_class::set<type_class::structure>,
+        std::unordered_set<nebula::Value>>::serializedSize<false>(*proto, obj->values);
     xfer += proto->serializedSizeStop();
     return xfer;
 }

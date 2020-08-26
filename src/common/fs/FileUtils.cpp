@@ -4,12 +4,14 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include "common/fs/FileUtils.h"
+
 #include <dirent.h>
 #include <fnmatch.h>
 #include <limits.h>
 #include <stdlib.h>
+
+#include "common/base/Base.h"
 
 namespace nebula {
 namespace fs {
@@ -20,15 +22,15 @@ namespace detail {
 
 bool removeDir(const char* path, bool recursively) {
     // Assuming the path is a directory
-    DIR *dh = opendir(path);
+    DIR* dh = opendir(path);
     if (!dh) {
-        LOG(ERROR) << "Failed to read the directory \"" << path
-                   << "\" (" << errno << "): " << strerror(errno);
+        LOG(ERROR) << "Failed to read the directory \"" << path << "\" (" << errno
+                   << "): " << strerror(errno);
         return false;
     }
 
     bool succeeded = true;
-    struct dirent *dEnt;
+    struct dirent* dEnt;
     errno = 0;
     while (succeeded && !!(dEnt = readdir(dh))) {
         if (!strcmp(dEnt->d_name, ".") || !strcmp(dEnt->d_name, "..")) {
@@ -38,17 +40,14 @@ bool removeDir(const char* path, bool recursively) {
 
         if (FileUtils::isDir(dEnt, path) && !recursively) {
             LOG(ERROR) << "Cannot remove the directory \"" << path
-                       << "\" because it contains sub-directory \""
-                       << dEnt->d_name << "\"";
+                       << "\" because it contains sub-directory \"" << dEnt->d_name << "\"";
             succeeded = false;
         } else {
             // Remove the directory entry, recursive call
-            succeeded = FileUtils::remove(
-                FileUtils::joinPath(path, dEnt->d_name).c_str(), recursively);
+            succeeded =
+                FileUtils::remove(FileUtils::joinPath(path, dEnt->d_name).c_str(), recursively);
             if (!succeeded) {
-                LOG(ERROR) << "Failed to remove \"" << dEnt->d_name
-                           << "\" in \"" << path
-                           << "\"";
+                LOG(ERROR) << "Failed to remove \"" << dEnt->d_name << "\" in \"" << path << "\"";
             } else {
                 VLOG(2) << "Succeeded removing \"" << dEnt->d_name << "\"";
             }
@@ -57,28 +56,26 @@ bool removeDir(const char* path, bool recursively) {
 
     if (succeeded && errno) {
         // There is an error
-        LOG(ERROR) << "Failed to read the directory \"" << path
-                   << "\" (" << errno << "): " << strerror(errno);
+        LOG(ERROR) << "Failed to read the directory \"" << path << "\" (" << errno
+                   << "): " << strerror(errno);
         succeeded = false;
     }
 
     if (closedir(dh)) {
         // Failed to close the directory stream
-        LOG(ERROR) << "Failed to close the directory stream (" << errno
-                   << "): " << strerror(errno);
+        LOG(ERROR) << "Failed to close the directory stream (" << errno << "): " << strerror(errno);
         return false;
     }
 
     if (!succeeded) {
-        LOG(ERROR) << "Failed to remove the content of the directory \""
-                   << path << "\"";
+        LOG(ERROR) << "Failed to remove the content of the directory \"" << path << "\"";
         return false;
     }
 
     // All content has been removed, now remove the directory itself
     if (rmdir(path)) {
-        LOG(ERROR) << "Failed to remove the directory \"" << path
-                   << "\" (" << errno << "): " << strerror(errno);
+        LOG(ERROR) << "Failed to remove the directory \"" << path << "\" (" << errno
+                   << "): " << strerror(errno);
         return false;
     }
     return true;
@@ -86,8 +83,7 @@ bool removeDir(const char* path, bool recursively) {
 
 }  // namespace detail
 
-
-StatusOr<std::string> FileUtils::readLink(const char *path) {
+StatusOr<std::string> FileUtils::readLink(const char* path) {
     char buffer[kMaxPathLen];
     auto len = ::readlink(path, buffer, kMaxPathLen);
     if (len == -1) {
@@ -96,8 +92,8 @@ StatusOr<std::string> FileUtils::readLink(const char *path) {
     return std::string(buffer, len);
 }
 
-StatusOr<std::string> FileUtils::realPath(const char *path) {
-    char *buffer  = ::realpath(path, NULL);
+StatusOr<std::string> FileUtils::realPath(const char* path) {
+    char* buffer = ::realpath(path, NULL);
     if (buffer == NULL) {
         return Status::Error("realpath %s: %s", path, ::strerror(errno));
     }
@@ -106,24 +102,23 @@ StatusOr<std::string> FileUtils::realPath(const char *path) {
     return truePath;
 }
 
-std::string FileUtils::dirname(const char *path) {
+std::string FileUtils::dirname(const char* path) {
     DCHECK(path != nullptr && *path != '\0');
-    if (::strcmp("/", path) == 0) {     // root only
+    if (::strcmp("/", path) == 0) {  // root only
         return "/";
     }
     static const std::regex pattern("(.*)/([^/]+)/?");
     std::cmatch result;
     if (std::regex_match(path, result, pattern)) {
-        if (result[1].first == result[1].second) {    // "/path" or "/path/"
+        if (result[1].first == result[1].second) {  // "/path" or "/path/"
             return "/";
         }
-        return result[1].str();     // "/path/to", "path/to", or "path/to/"
+        return result[1].str();  // "/path/to", "path/to", or "path/to/"
     }
     return ".";
 }
 
-
-std::string FileUtils::basename(const char *path) {
+std::string FileUtils::basename(const char* path) {
     DCHECK(path != nullptr && *path != '\0');
     if (::strcmp("/", path) == 0) {
         return "";
@@ -134,36 +129,31 @@ std::string FileUtils::basename(const char *path) {
     return result[3].str();
 }
 
-
 const char* FileUtils::getFileTypeName(FileType type) {
-    static const char* kTypeNames[] = {
-        "Unknown",
-        "NotExist",
-        "Regular",
-        "Directory",
-        "SoftLink",
-        "CharDevice",
-        "BlockDevice",
-        "FIFO",
-        "Socket"
-    };
+    static const char* kTypeNames[] = {"Unknown",
+                                       "NotExist",
+                                       "Regular",
+                                       "Directory",
+                                       "SoftLink",
+                                       "CharDevice",
+                                       "BlockDevice",
+                                       "FIFO",
+                                       "Socket"};
 
     return kTypeNames[static_cast<int>(type)];
 }
-
 
 size_t FileUtils::fileSize(const char* path) {
     struct stat st;
     if (lstat(path, &st)) {
         // Failed o get file stat
-        VLOG(3) << "Failed to get information about \"" << path
-                << "\" (" << errno << "): " << strerror(errno);
+        VLOG(3) << "Failed to get information about \"" << path << "\" (" << errno
+                << "): " << strerror(errno);
         return 0;
     }
 
     return st.st_size;
 }
-
 
 FileType FileUtils::fileType(const char* path) {
     struct stat st;
@@ -173,8 +163,8 @@ FileType FileUtils::fileType(const char* path) {
             return FileType::NOTEXIST;
         } else {
             // Failed o get file stat
-            VLOG(3) << "Failed to get information about \"" << path
-                    << "\" (" << errno << "): " << strerror(errno);
+            VLOG(3) << "Failed to get information about \"" << path << "\" (" << errno
+                    << "): " << strerror(errno);
             return FileType::UNKNOWN;
         }
     }
@@ -198,52 +188,45 @@ FileType FileUtils::fileType(const char* path) {
     return FileType::UNKNOWN;
 }
 
-
 int64_t FileUtils::fileLastUpdateTime(const char* path) {
     struct stat st;
     if (lstat(path, &st)) {
         // Failed to get file stat
-        LOG(ERROR) << "Failed to get file information for \"" << path
-                   << "\" (" << errno << "): " << strerror(errno);
+        LOG(ERROR) << "Failed to get file information for \"" << path << "\" (" << errno
+                   << "): " << strerror(errno);
         return -1;
     }
     return st.st_mtime;
 }
 
-
 bool FileUtils::isStdinTTY() {
     return isFdTTY(::fileno(stdin));
 }
-
 
 bool FileUtils::isStdoutTTY() {
     return isFdTTY(::fileno(stdout));
 }
 
-
 bool FileUtils::isStderrTTY() {
     return isFdTTY(::fileno(stderr));
 }
-
 
 bool FileUtils::isFdTTY(int fd) {
     return ::isatty(fd) == 1;
 }
 
-
-std::string FileUtils::joinPath(const folly::StringPiece dir,
-                                const folly::StringPiece filename) {
+std::string FileUtils::joinPath(const folly::StringPiece dir, const folly::StringPiece filename) {
     std::string buf;
 
     std::size_t len = dir.size();
     if (len == 0) {
         buf.resize(filename.size() + 2);
-        strcpy(&(buf[0]), "./");    // NOLINT
+        strcpy(&(buf[0]), "./");  // NOLINT
         strncpy(&(buf[2]), filename.begin(), filename.size());
         return buf;
     }
 
-    if (dir[len-1] == '/') {
+    if (dir[len - 1] == '/') {
         buf.resize(len + filename.size());
         strncpy(&(buf[0]), dir.data(), len);
     } else {
@@ -257,7 +240,6 @@ std::string FileUtils::joinPath(const folly::StringPiece dir,
     return buf;
 }
 
-
 void FileUtils::dividePath(const folly::StringPiece path,
                            folly::StringPiece& parent,
                            folly::StringPiece& child) {
@@ -269,8 +251,7 @@ void FileUtils::dividePath(const folly::StringPiece path,
     }
 
     folly::StringPiece pathToLook =
-        (path.back() == '/') ? folly::StringPiece(path.begin(), path.size() - 1)
-                             : path;
+        (path.back() == '/') ? folly::StringPiece(path.begin(), path.size() - 1) : path;
     auto pos = pathToLook.rfind('/');
     if (pos == std::string::npos) {
         // Not found
@@ -280,8 +261,7 @@ void FileUtils::dividePath(const folly::StringPiece path,
     }
 
     // Found the last "/"
-    child = folly::StringPiece(pathToLook.begin() + pos + 1,
-                               pathToLook.size() - pos - 1);
+    child = folly::StringPiece(pathToLook.begin() + pos + 1, pathToLook.size() - pos - 1);
     if (pos == 0) {
         // In the root directory
         parent = folly::StringPiece(pathToLook.begin(), 1);
@@ -290,40 +270,37 @@ void FileUtils::dividePath(const folly::StringPiece path,
     }
 }
 
-
 bool FileUtils::remove(const char* path, bool recursively) {
     auto type = fileType(path);
     switch (type) {
-    case FileType::REGULAR:
-    case FileType::SYM_LINK:
-        // Regular file or link
-        if (unlink(path)) {
-            // Failed
-            LOG(ERROR) << "Failed to remove the file \"" << path
-                       << "\" (" << errno << "): " << strerror(errno);
+        case FileType::REGULAR:
+        case FileType::SYM_LINK:
+            // Regular file or link
+            if (unlink(path)) {
+                // Failed
+                LOG(ERROR) << "Failed to remove the file \"" << path << "\" (" << errno
+                           << "): " << strerror(errno);
+                return false;
+            }
+            return true;
+        case FileType::DIRECTORY:
+            // Directory
+            return detail::removeDir(path, recursively);
+        case FileType::CHAR_DEV:
+        case FileType::BLOCK_DEV:
+        case FileType::FIFO:
+        case FileType::SOCKET:
+            LOG(ERROR) << "Only a directory, a regular file, or a soft link"
+                       << " can be removed. But \"" << path << "\" is a " << getFileTypeName(type);
             return false;
-        }
-        return true;
-    case FileType::DIRECTORY:
-        // Directory
-        return detail::removeDir(path, recursively);
-    case FileType::CHAR_DEV:
-    case FileType::BLOCK_DEV:
-    case FileType::FIFO:
-    case FileType::SOCKET:
-        LOG(ERROR) << "Only a directory, a regular file, or a soft link"
-                   << " can be removed. But \"" << path << "\" is a "
-                   << getFileTypeName(type);
-        return false;
-    case FileType::NOTEXIST:
-        VLOG(2) << "The path \"" << path << "\" does not exist";
-        return true;
-    default:
-        LOG(ERROR) << "We don't know the type of \"" << path << "\"";
-        return false;
+        case FileType::NOTEXIST:
+            VLOG(2) << "The path \"" << path << "\" does not exist";
+            return true;
+        default:
+            LOG(ERROR) << "We don't know the type of \"" << path << "\"";
+            return false;
     }
 }
-
 
 bool FileUtils::makeDir(const std::string& dir, uint32_t mode) {
     if (dir.empty()) {
@@ -367,22 +344,21 @@ bool FileUtils::exist(const std::string& path) {
 // static
 bool FileUtils::rename(const std::string& src, const std::string& dst) {
     auto status = ::rename(src.c_str(), dst.c_str());
-    LOG_IF(WARNING, status != 0) << "Rename " << src << " to " << dst << " failed, the errno: "
-        << ::strerror(errno);
+    LOG_IF(WARNING, status != 0) << "Rename " << src << " to " << dst
+                                 << " failed, the errno: " << ::strerror(errno);
     return status == 0;
 }
 
-std::vector<std::string> FileUtils::listAllTypedEntitiesInDir(
-        const char* dirpath,
-        FileType type,
-        bool returnFullPath,
-        const char* namePattern) {
+std::vector<std::string> FileUtils::listAllTypedEntitiesInDir(const char* dirpath,
+                                                              FileType type,
+                                                              bool returnFullPath,
+                                                              const char* namePattern) {
     std::vector<std::string> entities;
-    struct dirent *dirInfo;
-    DIR *dir = opendir(dirpath);
+    struct dirent* dirInfo;
+    DIR* dir = opendir(dirpath);
     if (dir == nullptr) {
-        LOG(ERROR)<< "Failed to read the directory \"" << dirpath
-                  << "\" (" << errno << "): " << strerror(errno);
+        LOG(ERROR) << "Failed to read the directory \"" << dirpath << "\" (" << errno
+                   << "): " << strerror(errno);
         return entities;
     }
 
@@ -398,16 +374,14 @@ std::vector<std::string> FileUtils::listAllTypedEntitiesInDir(
                 // Skip the "." and ".."
                 continue;
             }
-            if (namePattern &&
-                fnmatch(namePattern, dirInfo->d_name, FNM_FILE_NAME | FNM_PERIOD)) {
+            if (namePattern && fnmatch(namePattern, dirInfo->d_name, FNM_FILE_NAME | FNM_PERIOD)) {
                 // Mismatched
                 continue;
             }
 
             // We found one entity
-            entities.emplace_back(
-                returnFullPath ? joinPath(dirpath, std::string(dirInfo->d_name))
-                               : std::string(dirInfo->d_name));
+            entities.emplace_back(returnFullPath ? joinPath(dirpath, std::string(dirInfo->d_name))
+                                                 : std::string(dirInfo->d_name));
         }
     }
     closedir(dir);
@@ -415,30 +389,19 @@ std::vector<std::string> FileUtils::listAllTypedEntitiesInDir(
     return entities;
 }
 
-
-std::vector<std::string> FileUtils::listAllFilesInDir(
-        const char* dirpath,
-        bool returnFullPath,
-        const char* namePattern) {
-    return listAllTypedEntitiesInDir(dirpath,
-                                     FileType::REGULAR,
-                                     returnFullPath,
-                                     namePattern);
+std::vector<std::string> FileUtils::listAllFilesInDir(const char* dirpath,
+                                                      bool returnFullPath,
+                                                      const char* namePattern) {
+    return listAllTypedEntitiesInDir(dirpath, FileType::REGULAR, returnFullPath, namePattern);
 }
 
-
-std::vector<std::string> FileUtils::listAllDirsInDir(
-        const char* dirpath,
-        bool returnFullPath,
-        const char* namePattern) {
-    return listAllTypedEntitiesInDir(dirpath,
-                                     FileType::DIRECTORY,
-                                     returnFullPath,
-                                     namePattern);
+std::vector<std::string> FileUtils::listAllDirsInDir(const char* dirpath,
+                                                     bool returnFullPath,
+                                                     const char* namePattern) {
+    return listAllTypedEntitiesInDir(dirpath, FileType::DIRECTORY, returnFullPath, namePattern);
 }
 
-
-FileUtils::Iterator::Iterator(std::string path, const std::regex *pattern)
+FileUtils::Iterator::Iterator(std::string path, const std::regex* pattern)
     : path_(std::move(path)) {
     pattern_ = pattern;
     openFileOrDirectory();
@@ -446,7 +409,6 @@ FileUtils::Iterator::Iterator(std::string path, const std::regex *pattern)
         next();
     }
 }
-
 
 FileUtils::Iterator::~Iterator() {
     if (fstream_ != nullptr && fstream_->is_open()) {
@@ -457,7 +419,6 @@ FileUtils::Iterator::~Iterator() {
         dir_ = nullptr;
     }
 }
-
 
 void FileUtils::Iterator::next() {
     CHECK(valid());
@@ -480,11 +441,10 @@ void FileUtils::Iterator::next() {
     }
 }
 
-
 void FileUtils::Iterator::dirNext() {
     CHECK(type_ == FileType::DIRECTORY);
     CHECK(dir_ != nullptr);
-    struct dirent *dent;
+    struct dirent* dent;
     while ((dent = ::readdir(dir_)) != nullptr) {
         if (dent->d_name[0] == '.') {
             continue;
@@ -498,7 +458,6 @@ void FileUtils::Iterator::dirNext() {
     entry_ = dent->d_name;
 }
 
-
 void FileUtils::Iterator::fileNext() {
     CHECK(type_ == FileType::REGULAR);
     CHECK(fstream_ != nullptr);
@@ -506,7 +465,6 @@ void FileUtils::Iterator::fileNext() {
         status_ = Status::Error("EOF");
     }
 }
-
 
 void FileUtils::Iterator::openFileOrDirectory() {
     type_ = FileUtils::fileType(path_.c_str());
@@ -531,13 +489,12 @@ void FileUtils::Iterator::openFileOrDirectory() {
         path_ = std::move(result).value();
         openFileOrDirectory();
     } else {
-        status_ = Status::Error("Filetype not supported `%s': %s",
-                                path_.c_str(), FileUtils::getFileTypeName(type_));
+        status_ = Status::Error(
+            "Filetype not supported `%s': %s", path_.c_str(), FileUtils::getFileTypeName(type_));
         return;
     }
     status_ = Status::OK();
 }
-
 
 CHECK_TYPE(Reg, REGULAR, REG)
 CHECK_TYPE(Dir, DIRECTORY, DIR)

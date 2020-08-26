@@ -7,10 +7,11 @@
 #ifndef COMMON_WEBSERVICE_GETFLAGSHANDLER_H_
 #define COMMON_WEBSERVICE_GETFLAGSHANDLER_H_
 
-#include "common/base/Base.h"
-#include "common/webservice/Common.h"
 #include <folly/dynamic.h>
 #include <proxygen/httpserver/RequestHandler.h>
+
+#include "common/base/Base.h"
+#include "common/webservice/Common.h"
 
 namespace nebula {
 
@@ -18,8 +19,7 @@ class GetFlagsHandler : public proxygen::RequestHandler {
 public:
     GetFlagsHandler() = default;
 
-    void onRequest(std::unique_ptr<proxygen::HTTPMessage> headers)
-        noexcept override;
+    void onRequest(std::unique_ptr<proxygen::HTTPMessage> headers) noexcept override;
 
     void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override;
 

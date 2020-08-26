@@ -4,9 +4,10 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
-#include <gtest/gtest.h>
 #include <folly/json.h>
+#include <gtest/gtest.h>
+
+#include "common/base/Base.h"
 #include "common/webservice/WebService.h"
 #include "common/webservice/test/TestUtils.h"
 
@@ -80,7 +81,6 @@ TEST(FlagsAccessTest, JsonTest) {
     EXPECT_DOUBLE_EQ(FLAGS_double_test, it->second.getDouble());
 }
 
-
 TEST(FlagsAccessTest, VerboseTest) {
     std::string resp;
     ASSERT_TRUE(getUrl("/get_flags?flags=int32_test&returnjson&verbose", resp));
@@ -116,7 +116,6 @@ TEST(FlagsAccessTest, VerboseTest) {
     EXPECT_TRUE(it->second.getBool());
 }
 
-
 TEST(FlagsAccessTest, ErrorTest) {
     std::string resp;
     ASSERT_TRUE(getUrl("/get_flags123?flags=int32_test", resp));
@@ -124,7 +123,6 @@ TEST(FlagsAccessTest, ErrorTest) {
 }
 
 }  // namespace nebula
-
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

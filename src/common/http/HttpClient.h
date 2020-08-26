@@ -24,7 +24,7 @@ public:
     static StatusOr<std::string> post(const std::string& path, const std::string& header);
 };
 
-}   // namespace http
-}   // namespace nebula
+}  // namespace http
+}  // namespace nebula
 
 #endif  // COMMON_HTTPCLIENT_H

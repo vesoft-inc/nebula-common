@@ -5,6 +5,7 @@
  */
 
 #include "common/expression/UnaryExpression.h"
+
 #include "common/expression/VariableExpression.h"
 
 namespace nebula {
@@ -18,8 +19,6 @@ bool UnaryExpression::operator==(const Expression& rhs) const {
     return *operand_ == *(r.operand_);
 }
 
-
-
 void UnaryExpression::writeTo(Encoder& encoder) const {
     // kind_
     encoder << kind_;
@@ -29,16 +28,14 @@ void UnaryExpression::writeTo(Encoder& encoder) const {
     encoder << *operand_;
 }
 
-
 void UnaryExpression::resetFrom(Decoder& decoder) {
     // Read operand_
     operand_ = decoder.readExpression();
     CHECK(!!operand_);
 }
 
-
 const Value& UnaryExpression::eval(ExpressionContext& ctx) {
-   switch (kind_) {
+    switch (kind_) {
         case Kind::kUnaryPlus: {
             Value val(operand_->eval(ctx));
             result_ = std::move(val);
@@ -53,8 +50,8 @@ const Value& UnaryExpression::eval(ExpressionContext& ctx) {
             break;
         }
         case Kind::kUnaryIncr: {
-            if (UNLIKELY(operand_->kind() != Kind::kVar
-                        && operand_->kind() != Kind::kVersionedVar)) {
+            if (UNLIKELY(operand_->kind() != Kind::kVar &&
+                         operand_->kind() != Kind::kVersionedVar)) {
                 result_ = Value(NullType::BAD_TYPE);
                 break;
             }
@@ -64,8 +61,8 @@ const Value& UnaryExpression::eval(ExpressionContext& ctx) {
             break;
         }
         case Kind::kUnaryDecr: {
-            if (UNLIKELY(operand_->kind() != Kind::kVar
-                        && operand_->kind() != Kind::kVersionedVar)) {
+            if (UNLIKELY(operand_->kind() != Kind::kVar &&
+                         operand_->kind() != Kind::kVersionedVar)) {
                 result_ = Value(NullType::BAD_TYPE);
                 break;
             }
@@ -74,10 +71,10 @@ const Value& UnaryExpression::eval(ExpressionContext& ctx) {
             ctx.setVar(varExpr->var(), result_);
             break;
         }
-       default:
-           LOG(FATAL) << "Unknown type: " << kind_;
-   }
-   return result_;
+        default:
+            LOG(FATAL) << "Unknown type: " << kind_;
+    }
+    return result_;
 }
 
 std::string UnaryExpression::toString() const {

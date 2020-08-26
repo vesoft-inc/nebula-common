@@ -8,8 +8,8 @@
 #define COMMON_EXPRESSION_EXPRESSION_H_
 
 #include "common/base/Base.h"
-#include "common/datatypes/Value.h"
 #include "common/context/ExpressionContext.h"
+#include "common/datatypes/Value.h"
 
 namespace nebula {
 
@@ -155,6 +155,6 @@ protected:
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind);
 
-}   // namespace nebula
+}  // namespace nebula
 
-#endif   // COMMON_EXPRESSION_EXPRESSION_H_
+#endif  // COMMON_EXPRESSION_EXPRESSION_H_

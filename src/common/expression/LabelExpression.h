@@ -13,10 +13,9 @@
 // need to rewrite it based on the usage scenario
 namespace nebula {
 
-class LabelExpression: public Expression {
+class LabelExpression : public Expression {
 public:
-    explicit LabelExpression(std::string* name = nullptr)
-        : Expression(Kind::kLabel) {
+    explicit LabelExpression(std::string* name = nullptr) : Expression(Kind::kLabel) {
         if (name == nullptr) {
             name_.reset(new std::string(""));
         } else {
@@ -28,7 +27,7 @@ public:
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    const std::string *name() const {
+    const std::string* name() const {
         return name_.get();
     }
 
@@ -39,9 +38,9 @@ protected:
 
     void resetFrom(Decoder& decoder) override;
 
-    std::unique_ptr<std::string>    name_;
-    Value                           result_;
+    std::unique_ptr<std::string> name_;
+    Value result_;
 };
 
 }  // namespace nebula
-#endif   // COMMON_EXPRESSION_LABELEXPRESSION_H_
+#endif  // COMMON_EXPRESSION_LABELEXPRESSION_H_

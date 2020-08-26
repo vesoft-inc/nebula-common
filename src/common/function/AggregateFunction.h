@@ -38,10 +38,9 @@ public:
     static std::unordered_map<std::string, AggFun::Function> nameIdMap_;
 
 protected:
-    const bool                  distinct_{false};
-    std::unordered_set<Value>   uniques_;
+    const bool distinct_{false};
+    std::unordered_set<Value> uniques_;
 };
-
 
 class Group final : public AggFun {
 public:
@@ -56,9 +55,8 @@ public:
     }
 
 private:
-    Value   col_;
+    Value col_;
 };
-
 
 class Count final : public AggFun {
 public:
@@ -84,9 +82,8 @@ public:
     }
 
 private:
-    Value   cnt_{0};
+    Value cnt_{0};
 };
-
 
 class Sum final : public AggFun {
 public:
@@ -124,17 +121,16 @@ public:
 
         DCHECK(distinct_);
         Value sum(0.0);
-        for (auto& v : uniques_) {
+        for (auto &v : uniques_) {
             sum = sum + v;
         }
         return sum;
     }
 
 private:
-    bool    applied_{false};
-    Value   sum_{NullType::__NULL__};
+    bool applied_{false};
+    Value sum_{NullType::__NULL__};
 };
-
 
 class Avg final : public AggFun {
 public:
@@ -170,7 +166,7 @@ public:
         DCHECK(distinct_);
         Value avg(0.0);
         Value cnt(0.0);
-        for (auto& v : uniques_) {
+        for (auto &v : uniques_) {
             cnt = cnt + 1;
             avg = avg + (v - avg) / cnt;
         }
@@ -178,10 +174,9 @@ public:
     }
 
 private:
-    Value               avg_{0.0};
-    Value               cnt_{0.0};
+    Value avg_{0.0};
+    Value cnt_{0.0};
 };
-
 
 class Max final : public AggFun {
 public:
@@ -205,7 +200,7 @@ public:
     Value getResult() override {
         if (distinct_) {
             Value max = Value::kNullValue;
-            for (auto& v : uniques_) {
+            for (auto &v : uniques_) {
                 if (max.isNull() || v > max) {
                     max = v;
                 }
@@ -217,10 +212,9 @@ public:
     }
 
 private:
-    bool      applied_{false};
-    Value     max_{NullType::__NULL__};
+    bool applied_{false};
+    Value max_{NullType::__NULL__};
 };
-
 
 class Min final : public AggFun {
 public:
@@ -243,7 +237,7 @@ public:
     Value getResult() override {
         if (distinct_) {
             Value min = Value::kNullValue;
-            for (auto& v : uniques_) {
+            for (auto &v : uniques_) {
                 if (min.isNull() || v < min) {
                     min = v;
                 }
@@ -255,10 +249,9 @@ public:
     }
 
 private:
-    bool        applied_{false};
-    Value       min_{NullType::__NULL__};
+    bool applied_{false};
+    Value min_{NullType::__NULL__};
 };
-
 
 class Stdev final : public AggFun {
 public:
@@ -277,8 +270,8 @@ public:
         if (distinct_) {
             uniques_.emplace(val);
         } else {
-            var_ = (cnt_ - 1) / (cnt_ * cnt_) * ((val - avg_) * (val - avg_))
-                + (cnt_ - 1) / cnt_ * var_;
+            var_ = (cnt_ - 1) / (cnt_ * cnt_) * ((val - avg_) * (val - avg_)) +
+                   (cnt_ - 1) / cnt_ * var_;
             avg_ = avg_ + (val - avg_) / cnt_;
         }
     }
@@ -294,10 +287,9 @@ public:
             Value cnt(0.0);
             Value avg(0.0);
             Value var(0.0);
-            for (auto& v : uniques_) {
+            for (auto &v : uniques_) {
                 cnt = cnt + 1;
-                var = (cnt - 1) / (cnt * cnt) * ((v - avg) * (v - avg))
-                    + (cnt - 1) / cnt * var;
+                var = (cnt - 1) / (cnt * cnt) * ((v - avg) * (v - avg)) + (cnt - 1) / cnt * var;
                 avg = avg + (v - avg) / cnt;
             }
             return var.isFloat() ? std::sqrt(var.getFloat()) : Value::kNullBadType;
@@ -307,11 +299,10 @@ public:
     }
 
 private:
-    Value   avg_{0.0};
-    Value   cnt_{0.0};
-    Value   var_{0.0};
+    Value avg_{0.0};
+    Value cnt_{0.0};
+    Value var_{0.0};
 };
-
 
 class BitAnd final : public AggFun {
 public:
@@ -328,7 +319,7 @@ public:
                 result_ = val;
                 applied_ = true;
             } else {
-                result_  = result_ & val;
+                result_ = result_ & val;
             }
         }
     }
@@ -336,7 +327,7 @@ public:
     Value getResult() override {
         if (distinct_ && !uniques_.empty()) {
             Value result = *uniques_.begin();
-            for (auto& v : uniques_) {
+            for (auto &v : uniques_) {
                 result = result & v;
             }
             return result;
@@ -346,10 +337,9 @@ public:
     }
 
 private:
-    bool    applied_{false};
-    Value   result_{NullType::__NULL__};
+    bool applied_{false};
+    Value result_{NullType::__NULL__};
 };
-
 
 class BitOr final : public AggFun {
 public:
@@ -366,7 +356,7 @@ public:
                 result_ = val;
                 applied_ = true;
             } else {
-                result_  = result_ | val;
+                result_ = result_ | val;
             }
         }
     }
@@ -374,7 +364,7 @@ public:
     Value getResult() override {
         if (distinct_ && !uniques_.empty()) {
             Value result = *uniques_.begin();
-            for (auto& v : uniques_) {
+            for (auto &v : uniques_) {
                 result = result | v;
             }
             return result;
@@ -384,10 +374,9 @@ public:
     }
 
 private:
-    bool    applied_{false};
-    Value   result_{NullType::__NULL__};
+    bool applied_{false};
+    Value result_{NullType::__NULL__};
 };
-
 
 class BitXor final : public AggFun {
 public:
@@ -404,7 +393,7 @@ public:
                 result_ = val;
                 applied_ = true;
             } else {
-                result_  = result_ ^ val;
+                result_ = result_ ^ val;
             }
         }
     }
@@ -412,9 +401,8 @@ public:
     Value getResult() override {
         if (distinct_ && !uniques_.empty()) {
             Value result = *uniques_.begin();
-            std::for_each(++uniques_.begin(), uniques_.end(), [&result] (auto& v) {
-                result = result ^ v;
-            });
+            std::for_each(
+                ++uniques_.begin(), uniques_.end(), [&result](auto &v) { result = result ^ v; });
             return result;
         } else {
             return result_;
@@ -422,8 +410,8 @@ public:
     }
 
 private:
-    bool    applied_{false};
-    Value   result_{NullType::__NULL__};
+    bool applied_{false};
+    Value result_{NullType::__NULL__};
 };
 
 class Collect final : public AggFun {
@@ -444,7 +432,7 @@ public:
     Value getResult() override {
         if (distinct_ && !uniques_.empty()) {
             list_.values.resize(uniques_.size());
-            std::transform(uniques_.begin(), uniques_.end(), list_.values.begin(), [] (auto&& val) {
+            std::transform(uniques_.begin(), uniques_.end(), list_.values.begin(), [](auto &&val) {
                 return std::move(val);
             });
         }
@@ -452,7 +440,7 @@ public:
     }
 
 private:
-    List    list_;
+    List list_;
 };
 
 }  // namespace nebula

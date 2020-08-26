@@ -5,25 +5,27 @@
  */
 
 #include "common/expression/Expression.h"
+
 #include <thrift/lib/cpp2/protocol/Serializer.h>
+
 #include "common/datatypes/ValueOps.h"
-#include "common/expression/PropertyExpression.h"
 #include "common/expression/ArithmeticExpression.h"
+#include "common/expression/AttributeExpression.h"
 #include "common/expression/ConstantExpression.h"
+#include "common/expression/ContainerExpression.h"
+#include "common/expression/EdgeExpression.h"
 #include "common/expression/FunctionCallExpression.h"
+#include "common/expression/LabelAttributeExpression.h"
+#include "common/expression/LabelExpression.h"
 #include "common/expression/LogicalExpression.h"
+#include "common/expression/PropertyExpression.h"
 #include "common/expression/RelationalExpression.h"
 #include "common/expression/SubscriptExpression.h"
-#include "common/expression/AttributeExpression.h"
-#include "common/expression/LabelAttributeExpression.h"
 #include "common/expression/TypeCastingExpression.h"
 #include "common/expression/UUIDExpression.h"
 #include "common/expression/UnaryExpression.h"
 #include "common/expression/VariableExpression.h"
-#include "common/expression/ContainerExpression.h"
-#include "common/expression/LabelExpression.h"
 #include "common/expression/VertexExpression.h"
-#include "common/expression/EdgeExpression.h"
 
 namespace nebula {
 
@@ -38,17 +40,14 @@ Expression::Encoder::Encoder(size_t bufSizeHint) {
     buf_.reserve(bufSizeHint);
 }
 
-
 std::string Expression::Encoder::moveStr() {
     return std::move(buf_);
 }
-
 
 Expression::Encoder& Expression::Encoder::operator<<(Kind kind) noexcept {
     buf_.append(reinterpret_cast<const char*>(&kind), sizeof(uint8_t));
     return *this;
 }
-
 
 Expression::Encoder& Expression::Encoder::operator<<(const std::string* str) noexcept {
     size_t sz = str ? str->size() : 0;
@@ -59,30 +58,25 @@ Expression::Encoder& Expression::Encoder::operator<<(const std::string* str) noe
     return *this;
 }
 
-
 Expression::Encoder& Expression::Encoder::operator<<(const Value& val) noexcept {
     serializer::serialize(val, &buf_);
     return *this;
 }
-
 
 Expression::Encoder& Expression::Encoder::operator<<(size_t size) noexcept {
     buf_.append(reinterpret_cast<char*>(&size), sizeof(size_t));
     return *this;
 }
 
-
 Expression::Encoder& Expression::Encoder::operator<<(Value::Type vType) noexcept {
     buf_.append(reinterpret_cast<char*>(&vType), sizeof(Value::Type));
     return *this;
 }
 
-
 Expression::Encoder& Expression::Encoder::operator<<(const Expression& exp) noexcept {
     exp.writeTo(*this);
     return *this;
 }
-
 
 /****************************************
  *
@@ -90,19 +84,15 @@ Expression::Encoder& Expression::Encoder::operator<<(const Expression& exp) noex
  *
  ***************************************/
 Expression::Decoder::Decoder(folly::StringPiece encoded)
-    : encoded_(encoded)
-    , ptr_(encoded_.begin()) {}
-
+    : encoded_(encoded), ptr_(encoded_.begin()) {}
 
 bool Expression::Decoder::finished() const {
     return ptr_ >= encoded_.end();
 }
 
-
 std::string Expression::Decoder::getHexStr() const {
     return toHexStr(encoded_);
 }
-
 
 Expression::Kind Expression::Decoder::readKind() noexcept {
     CHECK_LE(ptr_ + sizeof(uint8_t), encoded_.end());
@@ -113,7 +103,6 @@ Expression::Kind Expression::Decoder::readKind() noexcept {
 
     return kind;
 }
-
 
 std::unique_ptr<std::string> Expression::Decoder::readStr() noexcept {
     CHECK_LE(ptr_ + sizeof(size_t), encoded_.end());
@@ -134,14 +123,12 @@ std::unique_ptr<std::string> Expression::Decoder::readStr() noexcept {
     return str;
 }
 
-
 Value Expression::Decoder::readValue() noexcept {
     Value val;
     size_t len = serializer::deserialize(folly::StringPiece(ptr_, encoded_.end()), val);
     ptr_ += len;
     return val;
 }
-
 
 size_t Expression::Decoder::readSize() noexcept {
     size_t sz = 0;
@@ -150,7 +137,6 @@ size_t Expression::Decoder::readSize() noexcept {
     return sz;
 }
 
-
 Value::Type Expression::Decoder::readValueType() noexcept {
     Value::Type type;
     memcpy(reinterpret_cast<void*>(&type), ptr_, sizeof(Value::Type));
@@ -158,11 +144,9 @@ Value::Type Expression::Decoder::readValueType() noexcept {
     return type;
 }
 
-
 std::unique_ptr<Expression> Expression::Decoder::readExpression() noexcept {
     return Expression::decode(*this);
 }
-
 
 /****************************************
  *
@@ -180,7 +164,6 @@ std::string Expression::encode() const {
     return encoder.moveStr();
 }
 
-
 // static
 std::unique_ptr<Expression> Expression::decode(folly::StringPiece encoded) {
     Decoder decoder(encoded);
@@ -189,7 +172,6 @@ std::unique_ptr<Expression> Expression::decode(folly::StringPiece encoded) {
     }
     return decode(decoder);
 }
-
 
 // static
 std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
@@ -427,12 +409,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
-        // no default so the compiler will warning when lack
+            // no default so the compiler will warning when lack
     }
 
     LOG(FATAL) << "Unknown expression: " << decoder.getHexStr();
 }
-
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
     switch (kind) {

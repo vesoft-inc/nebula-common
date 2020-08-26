@@ -5,6 +5,7 @@
  */
 
 #include "common/meta/GflagsManager.h"
+
 #include "common/conf/Configuration.h"
 #include "common/fs/FileUtils.h"
 
@@ -13,7 +14,7 @@ DEFINE_string(gflags_mode_json, "share/resources/gflags.json", "gflags mode json
 namespace nebula {
 namespace meta {
 
-Value GflagsManager::gflagsValueToValue(const std::string &type, const std::string &flagValue) {
+Value GflagsManager::gflagsValueToValue(const std::string& type, const std::string& flagValue) {
     // all int32/uint32/uint64 gflags are converted to int64 for now
     folly::StringPiece view(type);
     if (view.startsWith("int") || view.startsWith("uint")) {
@@ -31,12 +32,11 @@ Value GflagsManager::gflagsValueToValue(const std::string &type, const std::stri
         conf::Configuration conf;
         auto status = conf.parseFromString(value.getStr());
         if (!status.ok()) {
-            LOG(ERROR) << "Parse value: " << value
-                        << " failed: " << status;
+            LOG(ERROR) << "Parse value: " << value << " failed: " << status;
             return Value::kNullValue;
         }
         Map map;
-        conf.forEachItem([&map] (const std::string& key, const folly::dynamic& val) {
+        conf.forEachItem([&map](const std::string& key, const folly::dynamic& val) {
             map.kvs.emplace(key, val.asString());
         });
         value.setMap(std::move(map));
@@ -46,8 +46,8 @@ Value GflagsManager::gflagsValueToValue(const std::string &type, const std::stri
     return Value::kEmpty;
 }
 
-std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>>
-GflagsManager::parseConfigJson(const std::string& path) {
+std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>> GflagsManager::parseConfigJson(
+    const std::string& path) {
     std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>> configModeMap;
     conf::Configuration conf;
     if (!conf.parseFromFile(path).ok()) {
@@ -109,8 +109,7 @@ std::vector<cpp2::ConfigItem> GflagsManager::declareGflags(const cpp2::ConfigMod
             continue;
         }
         if (value.isNull()) {
-            LOG(ERROR) << "Parse gflags: " << name
-                       << ", value: " << flag.current_value
+            LOG(ERROR) << "Parse gflags: " << name << ", value: " << flag.current_value
                        << " failed.";
             continue;
         }
@@ -144,7 +143,7 @@ void GflagsManager::getGflagsModule(cpp2::ConfigModule& gflagsModule) {
     }
 }
 
-std::string GflagsManager::ValueToGflagString(const Value &val) {
+std::string GflagsManager::ValueToGflagString(const Value& val) {
     switch (val.type()) {
         case Value::Type::BOOL: {
             return val.getBool() ? "true" : "false";
@@ -161,12 +160,14 @@ std::string GflagsManager::ValueToGflagString(const Value &val) {
         case Value::Type::MAP: {
             auto& kvs = val.getMap().kvs;
             std::vector<std::string> values(kvs.size());
-            std::transform(kvs.begin(), kvs.end(), values.begin(),
-                    [](const auto &iter) -> std::string {
-                        std::stringstream out;
-                        out << "\"" << iter.first << "\"" << ":" << "\"" << iter.second << "\"";
-                        return out.str();
-                    });
+            std::transform(
+                kvs.begin(), kvs.end(), values.begin(), [](const auto& iter) -> std::string {
+                    std::stringstream out;
+                    out << "\"" << iter.first << "\""
+                        << ":"
+                        << "\"" << iter.second << "\"";
+                    return out.str();
+                });
 
             std::stringstream os;
             os << "{" << folly::join(",", values) << "}";
@@ -177,5 +178,5 @@ std::string GflagsManager::ValueToGflagString(const Value &val) {
         }
     }
 }
-}   // namespace meta
-}   // namespace nebula
+}  // namespace meta
+}  // namespace nebula

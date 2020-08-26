@@ -4,10 +4,10 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
-#include "common/base/Status.h"
 
+#include "common/base/Base.h"
+#include "common/base/Status.h"
 
 namespace nebula {
 
@@ -18,7 +18,6 @@ TEST(Status, Basic) {
     ASSERT_EQ(8UL, sizeof(Status));
 }
 
-
 TEST(Status, toString) {
     ASSERT_EQ("OK", Status().toString());
     ASSERT_EQ("OK", Status::OK().toString());
@@ -27,7 +26,6 @@ TEST(Status, toString) {
     ASSERT_EQ("SomeError(-1)", Status::Error("%s(%d)", "SomeError", -1).toString());
     ASSERT_EQ("SyntaxError: message", Status::SyntaxError("message").toString());
 }
-
 
 TEST(Status, StreamOperator) {
     {
@@ -57,7 +55,6 @@ TEST(Status, StreamOperator) {
     }
 }
 
-
 TEST(Status, Copy) {
     {
         Status ok;
@@ -74,7 +71,6 @@ TEST(Status, Copy) {
         ASSERT_EQ("SomeError", copy.toString());
     }
 }
-
 
 TEST(Status, Move) {
     {
@@ -118,10 +114,8 @@ TEST(Status, Message) {
     EXPECT_EQ("some reason", Status::Error("some reason").message());
     EXPECT_EQ("", Status::OK().message());
     std::string msg;
-    {
-        msg = Status::Error("reason").message();
-    }
+    { msg = Status::Error("reason").message(); }
     EXPECT_EQ(msg, "reason");
 }
 
-}   // namespace nebula
+}  // namespace nebula

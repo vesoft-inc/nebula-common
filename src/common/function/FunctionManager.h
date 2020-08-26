@@ -7,10 +7,11 @@
 #ifndef COMMON_FUNCTION_FUNCTIONMANAGER_H_
 #define COMMON_FUNCTION_FUNCTIONMANAGER_H_
 
-#include "common/base/StatusOr.h"
-#include "common/base/Status.h"
-#include "common/datatypes/Value.h"
 #include <folly/futures/Future.h>
+
+#include "common/base/Status.h"
+#include "common/base/StatusOr.h"
+#include "common/datatypes/Value.h"
 
 /**
  * FunctionManager is for managing builtin and dynamic-loaded functions,
@@ -24,14 +25,14 @@ namespace nebula {
 struct TypeSignature {
     TypeSignature() = default;
     TypeSignature(std::vector<Value::Type> argsType, Value::Type returnType)
-        :argsType_(std::move(argsType)), returnType_(returnType) {}
+        : argsType_(std::move(argsType)), returnType_(returnType) {}
     std::vector<Value::Type> argsType_;
     Value::Type returnType_;
 };
 
 class FunctionManager final {
 public:
-    using Function = std::function<Value(const std::vector<Value>&)>;
+    using Function = std::function<Value(const std::vector<Value> &)>;
 
     /**
      * To obtain a function named `func', with the actual arity.
@@ -80,6 +81,6 @@ private:
     std::unordered_map<std::string, FunctionAttributes> functions_;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
 #endif  // COMMON_FUNCTION_FUNCTIONMANAGER_H_

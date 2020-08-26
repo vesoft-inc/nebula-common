@@ -4,10 +4,11 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
-#include "common/fs/TempDir.h"
+
+#include "common/base/Base.h"
 #include "common/fs/FileUtils.h"
+#include "common/fs/TempDir.h"
 
 namespace nebula {
 namespace fs {
@@ -35,7 +36,6 @@ TEST(TempDir, AutoRemoval) {
     ASSERT_EQ(FileType::NOTEXIST, FileUtils::fileType(dirpath.c_str()));
 }
 
-
 TEST(TempDir, LeftBehind) {
     std::string dirpath;
 
@@ -50,7 +50,6 @@ TEST(TempDir, LeftBehind) {
     EXPECT_EQ(FileType::NOTEXIST, FileUtils::fileType(dirpath.c_str()));
 }
 
-
 TEST(TempDir, CreateFiles) {
     std::string dirpath;
     {
@@ -58,18 +57,16 @@ TEST(TempDir, CreateFiles) {
         ASSERT_FALSE(!td.path());
         dirpath = td.path();
 
-        int fd = open(FileUtils::joinPath(dirpath, "testfile.txt").c_str(),
-                      O_CREAT | O_RDWR | O_EXCL,
-                      0644);
+        int fd = open(
+            FileUtils::joinPath(dirpath, "testfile.txt").c_str(), O_CREAT | O_RDWR | O_EXCL, 0644);
         EXPECT_LE(0, fd);
         EXPECT_EQ(0, close(fd));
     }
     EXPECT_EQ(FileType::NOTEXIST, FileUtils::fileType(dirpath.c_str()));
 }
 
-}   // namespace fs
-}   // namespace nebula
-
+}  // namespace fs
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

@@ -4,10 +4,11 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include <thrift/lib/cpp2/async/ReconnectingRequestChannel.h>
-#include <thrift/lib/cpp2/async/HeaderClientChannel.h>
-#include <thrift/lib/cpp/async/TAsyncSocket.h>
 #include <folly/system/ThreadName.h>
+#include <thrift/lib/cpp/async/TAsyncSocket.h>
+#include <thrift/lib/cpp2/async/HeaderClientChannel.h>
+#include <thrift/lib/cpp2/async/ReconnectingRequestChannel.h>
+
 #include "common/network/NetworkUtils.h"
 
 DECLARE_int32(conn_timeout_ms);
@@ -15,9 +16,11 @@ DECLARE_int32(conn_timeout_ms);
 namespace nebula {
 namespace thrift {
 
-template<class ClientType>
-std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
-        const HostAddr& host, folly::EventBase* evb, bool compatibility, uint32_t timeout) {
+template <class ClientType>
+std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(const HostAddr& host,
+                                                                    folly::EventBase* evb,
+                                                                    bool compatibility,
+                                                                    uint32_t timeout) {
     VLOG(2) << "Getting a client to " << host;
 
     if (evb == nullptr) {
@@ -32,7 +35,7 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
     // Need to create a new client
     VLOG(2) << "There is no existing client to " << host << ", trying to create one";
     auto channel = apache::thrift::ReconnectingRequestChannel::newChannel(
-        *evb, [compatibility, host = host, timeout] (folly::EventBase& eb) mutable {
+        *evb, [compatibility, host = host, timeout](folly::EventBase& eb) mutable {
             static thread_local int connectionCount = 0;
 
             /*
@@ -47,18 +50,17 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
                     host.host = socketAddr.getAddressStr();
                     oss << host;
                     LOG(INFO) << oss.str();
-                } catch(const std::exception& e) {
+                } catch (const std::exception& e) {
                     LOG(ERROR) << e.what();
                 }
             }
 
             VLOG(2) << "Connecting to " << host << " for " << ++connectionCount << " times";
             std::shared_ptr<apache::thrift::async::TAsyncSocket> socket;
-            eb.runImmediatelyOrRunInEventBaseThreadAndWait(
-                [&socket, &eb, host]() {
-                    socket = apache::thrift::async::TAsyncSocket::newSocket(
-                        &eb, host.host, host.port, FLAGS_conn_timeout_ms);
-                });
+            eb.runImmediatelyOrRunInEventBaseThreadAndWait([&socket, &eb, host]() {
+                socket = apache::thrift::async::TAsyncSocket::newSocket(
+                    &eb, host.host, host.port, FLAGS_conn_timeout_ms);
+            });
             auto headerClientChannel = apache::thrift::HeaderClientChannel::newChannel(socket);
             if (timeout > 0) {
                 headerClientChannel->setTimeout(timeout);
@@ -70,9 +72,7 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
             return headerClientChannel;
         });
     std::shared_ptr<ClientType> client(new ClientType(std::move(channel)), [evb](auto* p) {
-        evb->runImmediatelyOrRunInEventBaseThreadAndWait([p] {
-            delete p;
-        });
+        evb->runImmediatelyOrRunInEventBaseThreadAndWait([p] { delete p; });
     });
     clientMap_->emplace(std::make_pair(host, evb), client);
     return client;

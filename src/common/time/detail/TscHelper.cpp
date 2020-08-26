@@ -4,10 +4,12 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
-#include <time.h>
-#include "common/thread/NamedThread.h"
 #include "common/time/detail/TscHelper.h"
+
+#include <time.h>
+
+#include "common/base/Base.h"
+#include "common/thread/NamedThread.h"
 
 namespace nebula {
 namespace time {
@@ -19,13 +21,12 @@ TscHelper::TscHelper() {
     firstTick_ = readTscImpl();
     ::usleep(10000);
     calibrate();
-    thread::NamedThread calibrator("tsc-calibrator",
-        [this] () {
-            while (true) {
-                sleep(2);
-                calibrate();
-            }
-        });
+    thread::NamedThread calibrator("tsc-calibrator", [this]() {
+        while (true) {
+            sleep(2);
+            calibrate();
+        }
+    });
     /**
      * Detach the thread so we can avoid the joining latency introduced by `sleep'.
      * This shall be safe because all data this thread will access are static POD.
@@ -33,12 +34,10 @@ TscHelper::TscHelper() {
     calibrator.detach();
 }
 
-
 TscHelper& TscHelper::get() {
     static TscHelper tscHelper;
     return tscHelper;
 }
-
 
 uint64_t TscHelper::readTsc() {
     return get().readTscImpl();
@@ -47,14 +46,13 @@ uint64_t TscHelper::readTsc() {
 uint64_t TscHelper::readTscImpl() {
 #ifdef DURATION_USE_RDTSCP
     uint32_t eax, ecx, edx;
-    __asm__ volatile ("rdtscp" : "=a" (eax), "=d" (edx) : "c");
+    __asm__ volatile("rdtscp" : "=a"(eax), "=d"(edx) : "c");
 #else
     uint32_t eax, edx;
-    __asm__ volatile ("rdtsc" : "=a" (eax), "=d" (edx));
+    __asm__ volatile("rdtsc" : "=a"(eax), "=d"(edx));
 #endif
     return ((uint64_t)edx) << 32 | (uint64_t)eax;
 }
-
 
 void TscHelper::calibrate() {
     auto dur = std::chrono::steady_clock::now() - startMonoTime_;
@@ -67,41 +65,34 @@ void TscHelper::calibrate() {
     ticksPerUSecFactor_ = 1.0 / ticksPerUSec;
 }
 
-
 uint64_t TscHelper::ticksToDurationInSec(uint64_t ticks) {
     return ticks * get().ticksPerSecFactor_ + 0.5;
 }
-
 
 uint64_t TscHelper::ticksToDurationInMSec(uint64_t ticks) {
     return ticks * get().ticksPerMSecFactor_ + 0.5;
 }
 
-
 uint64_t TscHelper::ticksToDurationInUSec(uint64_t ticks) {
     return ticks * get().ticksPerUSecFactor_;
 }
-
 
 uint64_t TscHelper::tickToTimePointInSec(uint64_t tick) {
     static const int64_t st = get().startRealTime_.tv_sec;
     return st + get().ticksToDurationInSec(tick - get().firstTick_);
 }
 
-
 uint64_t TscHelper::tickToTimePointInMSec(uint64_t tick) {
-    static const int64_t st = get().startRealTime_.tv_sec * 1000
-                                + get().startRealTime_.tv_nsec / 1000000;
+    static const int64_t st =
+        get().startRealTime_.tv_sec * 1000 + get().startRealTime_.tv_nsec / 1000000;
     return st + get().ticksToDurationInMSec(tick - get().firstTick_);
 }
 
-
 uint64_t TscHelper::tickToTimePointInUSec(uint64_t tick) {
-    static const int64_t st = get().startRealTime_.tv_sec * 1000000
-                                + get().startRealTime_.tv_nsec / 1000;
+    static const int64_t st =
+        get().startRealTime_.tv_sec * 1000000 + get().startRealTime_.tv_nsec / 1000;
     return st + get().ticksToDurationInUSec(tick - get().firstTick_);
 }
-
 
 }  // namespace time
 }  // namespace nebula

@@ -25,7 +25,6 @@ bool LabelExpression::operator==(const Expression& rhs) const {
     return *name_ == *(expr.name());
 }
 
-
 void LabelExpression::writeTo(Encoder& encoder) const {
     // kind_
     encoder << kind_;
@@ -33,7 +32,6 @@ void LabelExpression::writeTo(Encoder& encoder) const {
     // name_
     encoder << name_.get();
 }
-
 
 void LabelExpression::resetFrom(Decoder& decoder) {
     // Read name_

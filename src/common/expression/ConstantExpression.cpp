@@ -17,8 +17,6 @@ bool ConstantExpression::operator==(const Expression& rhs) const {
     return val_ == r.val_;
 }
 
-
-
 void ConstantExpression::writeTo(Encoder& encoder) const {
     // kind_
     encoder << kind_;
@@ -26,7 +24,6 @@ void ConstantExpression::writeTo(Encoder& encoder) const {
     // val_
     encoder << val_;
 }
-
 
 void ConstantExpression::resetFrom(Decoder& decoder) {
     // Deserialize val_

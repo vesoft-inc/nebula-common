@@ -4,9 +4,10 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include "common/time/WallClock.h"
+
 #include "common/base/Base.h"
 #include "common/time/detail/TscHelper.h"
-#include "common/time/WallClock.h"
 
 namespace nebula {
 namespace time {
@@ -17,11 +18,9 @@ int64_t WallClock::slowNowInSec() {
     return ts.tv_sec;
 }
 
-
 int64_t WallClock::fastNowInSec() {
     return TscHelper::tickToTimePointInSec(TscHelper::readTsc());
 }
-
 
 int64_t WallClock::slowNowInMilliSec() {
     struct timespec ts;
@@ -29,18 +28,15 @@ int64_t WallClock::slowNowInMilliSec() {
     return ts.tv_sec * 1000L + ts.tv_nsec / 1000000L;
 }
 
-
 int64_t WallClock::fastNowInMilliSec() {
     return TscHelper::tickToTimePointInMSec(TscHelper::readTsc());
 }
-
 
 int64_t WallClock::slowNowInMicroSec() {
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     return ts.tv_sec * 1000000L + ts.tv_nsec / 1000;
 }
-
 
 int64_t WallClock::fastNowInMicroSec() {
     return TscHelper::tickToTimePointInUSec(TscHelper::readTsc());

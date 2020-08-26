@@ -5,9 +5,10 @@
  */
 
 #include "common/expression/RelationalExpression.h"
+
 #include "common/datatypes/List.h"
-#include "common/datatypes/Set.h"
 #include "common/datatypes/Map.h"
+#include "common/datatypes/Set.h"
 
 namespace nebula {
 const Value& RelationalExpression::eval(ExpressionContext& ctx) {

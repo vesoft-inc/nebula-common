@@ -7,10 +7,11 @@
 #ifndef COMMON_META_SERVERBASEDSCHEMAMANAGER_H_
 #define COMMON_META_SERVERBASEDSCHEMAMANAGER_H_
 
-#include "common/base/Base.h"
 #include <folly/RWSpinLock.h>
-#include "common/meta/SchemaManager.h"
+
+#include "common/base/Base.h"
 #include "common/clients/meta/MetaClient.h"
+#include "common/meta/SchemaManager.h"
 
 namespace nebula {
 namespace meta {
@@ -23,15 +24,17 @@ public:
     StatusOr<int32_t> getSpaceVidLen(GraphSpaceID space) override;
 
     // return the newest one if ver less 0
-    std::shared_ptr<const NebulaSchemaProvider>
-    getTagSchema(GraphSpaceID space, TagID tag, SchemaVer ver = -1) override;
+    std::shared_ptr<const NebulaSchemaProvider> getTagSchema(GraphSpaceID space,
+                                                             TagID tag,
+                                                             SchemaVer ver = -1) override;
 
     // Returns a negative number when the schema does not exist
     StatusOr<SchemaVer> getLatestTagSchemaVersion(GraphSpaceID space, TagID tag) override;
 
     // return the newest one if ver less 0
-    std::shared_ptr<const NebulaSchemaProvider>
-    getEdgeSchema(GraphSpaceID space, EdgeType edge, SchemaVer ver = -1) override;
+    std::shared_ptr<const NebulaSchemaProvider> getEdgeSchema(GraphSpaceID space,
+                                                              EdgeType edge,
+                                                              SchemaVer ver = -1) override;
 
     // Returns a negative number when the schema does not exist
     StatusOr<SchemaVer> getLatestEdgeSchemaVersion(GraphSpaceID space, EdgeType edge) override;
@@ -57,7 +60,7 @@ public:
     void init(MetaClient *client);
 
 private:
-    MetaClient             *metaClient_{nullptr};
+    MetaClient *metaClient_{nullptr};
 };
 
 }  // namespace meta

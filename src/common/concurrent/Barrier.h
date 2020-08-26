@@ -39,15 +39,15 @@ public:
     void wait();
 
 private:
-    std::function<void()>   completion_{nullptr};
-    size_t                  counter_{0};
-    size_t                  ages_{0};
-    size_t                  generation_{0};
-    std::mutex              lock_;
+    std::function<void()> completion_{nullptr};
+    size_t counter_{0};
+    size_t ages_{0};
+    size_t generation_{0};
+    std::mutex lock_;
     std::condition_variable cond_;
 };
 
-}   // namespace concurrent
-}   // namespace nebula
+}  // namespace concurrent
+}  // namespace nebula
 
 #endif  // COMMON_CONCURRENT_BARRIER_H_

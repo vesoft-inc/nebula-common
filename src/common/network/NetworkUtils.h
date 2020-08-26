@@ -22,7 +22,7 @@ public:
 
     // Get the Ipv4 address bound to a specific net device.
     // If given "any", it returns "0.0.0.0".
-    static StatusOr<std::string> getIPv4FromDevice(const std::string &device);
+    static StatusOr<std::string> getIPv4FromDevice(const std::string& device);
     // List out all Ipv4 addresses, including the loopback one.
     static StatusOr<std::vector<std::string>> listIPv4s();
     // List out all network devices and its cooresponding Ipv4 address.
@@ -39,8 +39,7 @@ public:
     // So don't use it in production code.
     static uint16_t getAvailablePort();
 
-    static StatusOr<std::vector<HostAddr>> resolveHost(const std::string &host,
-                                                       int32_t port);
+    static StatusOr<std::vector<HostAddr>> resolveHost(const std::string& host, int32_t port);
 
     // Convert the given 32-bit unsigned integer (in network order) to an IPv4
     // address string (in the form of xx.xx.xx.xx)

@@ -7,8 +7,9 @@
 #ifndef COMMON_BASE_SIGNALHANDLER_H_
 #define COMMON_BASE_SIGNALHANDLER_H_
 
-#include "common/base/Base.h"
 #include <signal.h>
+
+#include "common/base/Base.h"
 #include "common/base/Status.h"
 
 /**
@@ -38,7 +39,7 @@ public:
      * e.g. stop the process on SIGTERM.
      */
     class GeneralSignalInfo;
-    using Handler = std::function<void(GeneralSignalInfo*)>;
+    using Handler = std::function<void(GeneralSignalInfo *)>;
     static Status install(int sig, Handler handler);
     static Status install(std::initializer_list<int> sigs, Handler handler);
 
@@ -46,15 +47,21 @@ public:
     public:
         explicit GeneralSignalInfo(const siginfo_t *info);
         virtual ~GeneralSignalInfo() = default;
-        virtual const char* toString() const;
-        int sig() const { return sig_; }
-        pid_t pid() const { return pid_; }
-        uid_t uid() const { return uid_; }
+        virtual const char *toString() const;
+        int sig() const {
+            return sig_;
+        }
+        pid_t pid() const {
+            return pid_;
+        }
+        uid_t uid() const {
+            return uid_;
+        }
 
     protected:
-        int                                     sig_{0};
-        pid_t                                   pid_{0};
-        uid_t                                   uid_{0};
+        int sig_{0};
+        pid_t pid_{0};
+        uid_t uid_{0};
     };
 
     // TODO(dutor) Retrieve the stacktrace of the thread who raises the fatal signal
@@ -67,13 +74,13 @@ public:
 
 private:
     SignalHandler();
-    SignalHandler(const SignalHandler&) = delete;
-    SignalHandler& operator=(const SignalHandler&) = delete;
-    SignalHandler(SignalHandler&&) = delete;
-    SignalHandler& operator=(SignalHandler&&) = delete;
+    SignalHandler(const SignalHandler &) = delete;
+    SignalHandler &operator=(const SignalHandler &) = delete;
+    SignalHandler(SignalHandler &&) = delete;
+    SignalHandler &operator=(SignalHandler &&) = delete;
 
     // Get the singleton
-    static SignalHandler& get();
+    static SignalHandler &get();
 
     // The handler we use to register to the operating system.
     static void handlerHook(int sig, siginfo_t *info, void *uctx);
@@ -94,16 +101,13 @@ private:
 
 private:
     // The POSIX signal number ranges from 1 to 64, so we use (sig - 1) as index
-    std::array<Handler, 64>                     handlers_;
+    std::array<Handler, 64> handlers_;
 };
 
-
-inline std::ostream&
-operator<<(std::ostream &os, const SignalHandler::GeneralSignalInfo &info) {
+inline std::ostream &operator<<(std::ostream &os, const SignalHandler::GeneralSignalInfo &info) {
     return os << info.toString();
 }
 
-}   // namespace nebula
-
+}  // namespace nebula
 
 #endif  // COMMON_BASE_SIGNALHANDLER_H_

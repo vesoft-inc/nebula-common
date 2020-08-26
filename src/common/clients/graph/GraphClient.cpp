@@ -4,52 +4,43 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include "common/clients/graph/GraphClient.h"
+
 #include <thrift/lib/cpp/async/TAsyncSocket.h>
 #include <thrift/lib/cpp2/async/HeaderClientChannel.h>
 
-DEFINE_int32(server_conn_timeout_ms, 1000,
-             "Connection timeout in milliseconds");
+#include "common/base/Base.h"
 
+DEFINE_int32(server_conn_timeout_ms, 1000, "Connection timeout in milliseconds");
 
 namespace nebula {
 namespace graph {
 
 GraphClient::GraphClient(const std::string& addr, uint16_t port)
-        : addr_(addr)
-        , port_(port)
-        , sessionId_(0) {
-}
-
+    : addr_(addr), port_(port), sessionId_(0) {}
 
 GraphClient::~GraphClient() {
     disconnect();
 }
 
-
-cpp2::ErrorCode GraphClient::connect(const std::string& username,
-                                     const std::string& password) {
-    using apache::thrift::async::TAsyncSocket;
+cpp2::ErrorCode GraphClient::connect(const std::string& username, const std::string& password) {
     using apache::thrift::HeaderClientChannel;
+    using apache::thrift::async::TAsyncSocket;
 
     auto socket = TAsyncSocket::newSocket(
-        folly::EventBaseManager::get()->getEventBase(),
-        addr_,
-        port_,
-        FLAGS_server_conn_timeout_ms);
+        folly::EventBaseManager::get()->getEventBase(), addr_, port_, FLAGS_server_conn_timeout_ms);
 
-    client_ = std::make_unique<cpp2::GraphServiceAsyncClient>(
-        HeaderClientChannel::newChannel(socket));
+    client_ =
+        std::make_unique<cpp2::GraphServiceAsyncClient>(HeaderClientChannel::newChannel(socket));
 
     cpp2::AuthResponse resp;
     try {
         client_->sync_authenticate(resp, username, password);
         if (resp.get_error_code() != cpp2::ErrorCode::SUCCEEDED) {
             LOG(ERROR) << "Failed to authenticate \"" << username << "\": ";
-// TODO(sye) In order to support multi-language, a separate module will e provided
-//           for looking up the error messages
-//                       << resp.get_error_msg();
+            // TODO(sye) In order to support multi-language, a separate module will e provided
+            //           for looking up the error messages
+            //                       << resp.get_error_msg();
             return resp.get_error_code();
         }
     } catch (const std::exception& ex) {
@@ -60,7 +51,6 @@ cpp2::ErrorCode GraphClient::connect(const std::string& username,
     sessionId_ = *(resp.get_session_id());
     return cpp2::ErrorCode::SUCCEEDED;
 }
-
 
 void GraphClient::disconnect() {
     if (!client_) {
@@ -73,9 +63,7 @@ void GraphClient::disconnect() {
     client_.reset();
 }
 
-
-cpp2::ErrorCode GraphClient::execute(folly::StringPiece stmt,
-                                     cpp2::ExecutionResponse& resp) {
+cpp2::ErrorCode GraphClient::execute(folly::StringPiece stmt, cpp2::ExecutionResponse& resp) {
     if (!client_) {
         LOG(ERROR) << "Disconnected from the server";
         return cpp2::ErrorCode::E_DISCONNECTED;

@@ -26,11 +26,8 @@ public:
     // If the temp directory is created successfully, path() will return the
     // full path name, otherwise, path() will return empty
     explicit TempDir(const char* pathTemplate, bool deleteOnDestroy = true);
-    TempDir(const char* parent,
-            const char* nameTemplate,
-            bool deleteOnDestroy = true)
-        : TempDir(FileUtils::joinPath(parent, nameTemplate).c_str(),
-                  deleteOnDestroy) {}
+    TempDir(const char* parent, const char* nameTemplate, bool deleteOnDestroy = true)
+        : TempDir(FileUtils::joinPath(parent, nameTemplate).c_str(), deleteOnDestroy) {}
 
     ~TempDir();
 

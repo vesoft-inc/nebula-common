@@ -4,8 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <folly/Benchmark.h>
+
+#include "common/base/Base.h"
 #include "common/base/Cord.h"
 
 using nebula::Cord;
@@ -47,9 +48,7 @@ BENCHMARK_RELATIVE(cord_1k_mix, iters) {
     for (auto i = 0u; i < iters; i++) {
         Cord cord;
         for (int j = 0; j < 50; j++) {
-            cord << "abcdefg"
-                 << folly::to<std::string>(1234567890L)
-                 << folly::to<std::string>(true)
+            cord << "abcdefg" << folly::to<std::string>(1234567890L) << folly::to<std::string>(true)
                  << folly::to<std::string>(1.23456789);
         }
         std::string str = cord.str();
@@ -57,14 +56,12 @@ BENCHMARK_RELATIVE(cord_1k_mix, iters) {
     }
 }
 
-
 int main(int argc, char** argv) {
     folly::init(&argc, &argv, true);
 
     folly::runBenchmarks();
     return 0;
 }
-
 
 /*
 Benchmark number is from virtualbox running on i7-8650

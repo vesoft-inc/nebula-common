@@ -8,7 +8,6 @@
 
 namespace nebula {
 
-
 bool PropertyExpression::operator==(const Expression& rhs) const {
     if (kind_ != rhs.kind()) {
         return false;
@@ -17,7 +16,6 @@ bool PropertyExpression::operator==(const Expression& rhs) const {
     const auto& r = dynamic_cast<const PropertyExpression&>(rhs);
     return *ref_ == *(r.ref_) && *sym_ == *(r.sym_) && *prop_ == *(r.prop_);
 }
-
 
 void PropertyExpression::writeTo(Encoder& encoder) const {
     // kind_
@@ -32,7 +30,6 @@ void PropertyExpression::writeTo(Encoder& encoder) const {
     // prop_
     encoder << prop_.get();
 }
-
 
 void PropertyExpression::resetFrom(Decoder& decoder) {
     // Read ref_
@@ -51,7 +48,6 @@ const Value& PropertyExpression::eval(ExpressionContext& ctx) {
     LOG(FATAL) << "Unimplemented";
 }
 
-
 const Value& EdgePropertyExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getEdgeProp(*sym_, *prop_);
     return result_;
@@ -66,40 +62,33 @@ const Value& InputPropertyExpression::eval(ExpressionContext& ctx) {
     return ctx.getInputProp(*prop_);
 }
 
-
 const Value& VariablePropertyExpression::eval(ExpressionContext& ctx) {
     return ctx.getVarProp(*sym_, *prop_);
 }
-
 
 const Value& SourcePropertyExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getSrcProp(*sym_, *prop_);
     return result_;
 }
 
-
 const Value& DestPropertyExpression::eval(ExpressionContext& ctx) {
     return ctx.getDstProp(*sym_, *prop_);
 }
-
 
 const Value& EdgeSrcIdExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getEdgeProp(*sym_, *prop_);
     return result_;
 }
 
-
 const Value& EdgeTypeExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getEdgeProp(*sym_, *prop_);
     return result_;
 }
 
-
 const Value& EdgeRankExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getEdgeProp(*sym_, *prop_);
     return result_;
 }
-
 
 const Value& EdgeDstIdExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getEdgeProp(*sym_, *prop_);

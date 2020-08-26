@@ -4,8 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <folly/Benchmark.h>
+
+#include "common/base/Base.h"
 #include "common/network/NetworkUtils.h"
 
 using nebula::network::NetworkUtils;
@@ -23,7 +24,6 @@ std::string intToIp(uint32_t ip) {
 
     return folly::join(".", parts);
 }
-
 
 BENCHMARK_DRAW_LINE();
 
@@ -44,14 +44,12 @@ BENCHMARK_RELATIVE(intToIPv4, iters) {
 
 BENCHMARK_DRAW_LINE();
 
-
 int main(int argc, char** argv) {
     folly::init(&argc, &argv, true);
 
     folly::runBenchmarks();
     return 0;
 }
-
 
 /*
  Tested on Intel Core i5-4300U (4 cores) with 8GB RAM

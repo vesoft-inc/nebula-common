@@ -4,8 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
+
+#include "common/base/Base.h"
 #include "common/datatypes/HostAddr.h"
 
 namespace nebula {
@@ -33,7 +34,6 @@ TEST(HostAddr, HashTest) {
 }
 
 }  // namespace nebula
-
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

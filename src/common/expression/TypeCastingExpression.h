@@ -15,11 +15,9 @@ class TypeCastingExpression final : public Expression {
     friend class Expression;
 
 public:
-    TypeCastingExpression(Value::Type vType = Value::Type::__EMPTY__,
-                          Expression* operand = nullptr)
-        : Expression(Kind::kTypeCasting)
-        , vType_(vType)
-        , operand_(std::move(operand)) {}
+    explicit TypeCastingExpression(Value::Type vType = Value::Type::__EMPTY__,
+                                   Expression* operand = nullptr)
+        : Expression(Kind::kTypeCasting), vType_(vType), operand_(std::move(operand)) {}
 
     bool operator==(const Expression& rhs) const override;
 
@@ -50,9 +48,9 @@ private:
 
     void resetFrom(Decoder& decoder) override;
 
-    Value::Type                 vType_{Value::Type::__EMPTY__};
+    Value::Type vType_{Value::Type::__EMPTY__};
     std::unique_ptr<Expression> operand_;
-    Value                       result_;
+    Value result_;
 };
 
 }  // namespace nebula

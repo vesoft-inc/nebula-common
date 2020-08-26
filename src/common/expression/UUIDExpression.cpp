@@ -17,8 +17,6 @@ bool UUIDExpression::operator==(const Expression& rhs) const {
     return *field_ == *(r.field_);
 }
 
-
-
 void UUIDExpression::writeTo(Encoder& encoder) const {
     // kind_
     encoder << kind_;
@@ -28,12 +26,10 @@ void UUIDExpression::writeTo(Encoder& encoder) const {
     encoder << field_.get();
 }
 
-
 void UUIDExpression::resetFrom(Decoder& decoder) {
     // Read field_
     field_ = decoder.readStr();
 }
-
 
 const Value& UUIDExpression::eval(ExpressionContext& ctx) {
     // TODO

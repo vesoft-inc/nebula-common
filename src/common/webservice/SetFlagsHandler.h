@@ -7,9 +7,10 @@
 #ifndef COMMON_WEBSERVICE_SETFLAGSHANDLER_H_
 #define COMMON_WEBSERVICE_SETFLAGSHANDLER_H_
 
+#include <proxygen/httpserver/RequestHandler.h>
+
 #include "common/base/Base.h"
 #include "common/webservice/Common.h"
-#include <proxygen/httpserver/RequestHandler.h>
 
 namespace nebula {
 
@@ -17,8 +18,7 @@ class SetFlagsHandler : public proxygen::RequestHandler {
 public:
     SetFlagsHandler() = default;
 
-    void onRequest(std::unique_ptr<proxygen::HTTPMessage> headers)
-        noexcept override;
+    void onRequest(std::unique_ptr<proxygen::HTTPMessage> headers) noexcept override;
 
     void onBody(std::unique_ptr<folly::IOBuf> body) noexcept override;
 

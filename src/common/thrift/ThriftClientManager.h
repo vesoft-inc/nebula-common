@@ -7,14 +7,15 @@
 #ifndef COMMON_THRIFT_THRIFTCLIENTMANAGER_H_
 #define COMMON_THRIFT_THRIFTCLIENTMANAGER_H_
 
-#include "common/base/Base.h"
 #include <folly/io/async/EventBaseManager.h>
+
+#include "common/base/Base.h"
 #include "common/datatypes/HostAddr.h"
 
 namespace nebula {
 namespace thrift {
 
-template<class ClientType>
+template <class ClientType>
 class ThriftClientManager final {
 public:
     std::shared_ptr<ClientType> client(const HostAddr& host,
@@ -31,10 +32,9 @@ public:
     }
 
 private:
-    using ClientMap = std::unordered_map<
-        std::pair<HostAddr, folly::EventBase*>,     // <ip, port> pair
-        std::shared_ptr<ClientType>                 // Async thrift client
-    >;
+    using ClientMap = std::unordered_map<std::pair<HostAddr, folly::EventBase*>,  // <ip, port> pair
+                                         std::shared_ptr<ClientType>  // Async thrift client
+                                         >;
 
     folly::ThreadLocal<ClientMap> clientMap_;
 };

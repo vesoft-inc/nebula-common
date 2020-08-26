@@ -17,8 +17,7 @@ class ConstantExpression : public Expression {
 
 public:
     explicit ConstantExpression(Value v = Value(NullType::__NULL__))
-        : Expression(Kind::kConstant)
-        , val_(std::move(v)) {}
+        : Expression(Kind::kConstant), val_(std::move(v)) {}
 
     bool operator==(const Expression& rhs) const override;
 
@@ -37,5 +36,5 @@ private:
     Value val_;
 };
 
-}   // namespace nebula
-#endif   // COMMON_EXPRESSION_CONSTANTEXPRESSION_H_
+}  // namespace nebula
+#endif  // COMMON_EXPRESSION_CONSTANTEXPRESSION_H_

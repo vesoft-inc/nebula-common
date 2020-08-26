@@ -8,6 +8,7 @@
 #define COMMON_BASE_CORD_H_
 
 #include <stdlib.h>
+
 #include <functional>
 #include <string>
 
@@ -72,4 +73,3 @@ private:
 
 }  // namespace nebula
 #endif  // COMMON_BASE_CORD_H_
-

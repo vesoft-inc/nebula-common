@@ -6,9 +6,9 @@
 
 #include "common/webservice/Router.h"
 
-#include <sstream>
-
 #include <proxygen/httpserver/RequestHandler.h>
+
+#include <sstream>
 
 #include "common/webservice/NotFoundHandler.h"
 #include "common/webservice/WebService.h"
@@ -135,5 +135,5 @@ void Router::append(Route *route) {
     }
 }
 
-}   // namespace web
-}   // namespace nebula
+}  // namespace web
+}  // namespace nebula

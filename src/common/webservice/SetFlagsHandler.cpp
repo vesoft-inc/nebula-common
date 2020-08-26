@@ -4,20 +4,22 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include "common/webservice/SetFlagsHandler.h"
-#include "common/webservice/Common.h"
+
 #include <folly/Conv.h>
-#include <proxygen/lib/http/ProxygenErrorEnum.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
+#include <proxygen/lib/http/ProxygenErrorEnum.h>
+
+#include "common/base/Base.h"
+#include "common/webservice/Common.h"
 
 namespace nebula {
 
 using proxygen::HTTPMessage;
 using proxygen::HTTPMethod;
 using proxygen::ProxygenError;
-using proxygen::UpgradeProtocol;
 using proxygen::ResponseBuilder;
+using proxygen::UpgradeProtocol;
 
 void SetFlagsHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
     if (headers->getMethod().value() != HTTPMethod::GET) {
@@ -47,11 +49,9 @@ void SetFlagsHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
     }
 }
 
-
 void SetFlagsHandler::onBody(std::unique_ptr<folly::IOBuf>) noexcept {
     // Do nothing, we only support GET
 }
-
 
 void SetFlagsHandler::onEOM() noexcept {
     switch (err_) {
@@ -87,20 +87,16 @@ void SetFlagsHandler::onEOM() noexcept {
     }
 }
 
-
 void SetFlagsHandler::onUpgrade(UpgradeProtocol) noexcept {
     // Do nothing
 }
-
 
 void SetFlagsHandler::requestComplete() noexcept {
     delete this;
 }
 
-
 void SetFlagsHandler::onError(ProxygenError err) noexcept {
-    LOG(ERROR) << "Web service SetFlagsHandler got error: "
-               << proxygen::getErrorString(err);
+    LOG(ERROR) << "Web service SetFlagsHandler got error: " << proxygen::getErrorString(err);
     delete this;
 }
 

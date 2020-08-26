@@ -3,8 +3,9 @@
  * This source code is licensed under Apache 2.0 License,
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
-#include "common/function/FunctionManager.h"
 #include "common/expression/FunctionCallExpression.h"
+
+#include "common/function/FunctionManager.h"
 
 namespace nebula {
 
@@ -22,7 +23,6 @@ bool ArgumentList::operator==(const ArgumentList& rhs) const {
     return true;
 }
 
-
 bool FunctionCallExpression::operator==(const Expression& rhs) const {
     if (kind_ != rhs.kind()) {
         return false;
@@ -31,8 +31,6 @@ bool FunctionCallExpression::operator==(const Expression& rhs) const {
     const auto& r = dynamic_cast<const FunctionCallExpression&>(rhs);
     return *name_ == *(r.name_) && *args_ == *(r.args_);
 }
-
-
 
 void FunctionCallExpression::writeTo(Encoder& encoder) const {
     // kind_
@@ -54,7 +52,6 @@ void FunctionCallExpression::writeTo(Encoder& encoder) const {
     }
 }
 
-
 void FunctionCallExpression::resetFrom(Decoder& decoder) {
     // Read name_
     name_ = decoder.readStr();
@@ -62,7 +59,7 @@ void FunctionCallExpression::resetFrom(Decoder& decoder) {
     // Read args_
     size_t sz = decoder.readSize();
     args_ = std::make_unique<ArgumentList>();
-    for (size_t i = 0;  i < sz; i++) {
+    for (size_t i = 0; i < sz; i++) {
         args_->addArgument(decoder.readExpression());
     }
 }

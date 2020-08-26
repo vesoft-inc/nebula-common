@@ -24,7 +24,7 @@ public:
      * The file would be created with the mode 0600.
      * May throw std::runtime_error on failure.
      */
-    explicit TempFile(const char *path, bool autoDelete = true);
+    explicit TempFile(const char* path, bool autoDelete = true);
     ~TempFile();
     /**
      * Return the actual path of the created temporary file.
@@ -32,11 +32,11 @@ public:
     const char* path() const;
 
 private:
-    bool                                        autoDelete_;
-    std::unique_ptr<char[]>                     path_;
+    bool autoDelete_;
+    std::unique_ptr<char[]> path_;
 };
 
-}   // namespace fs
-}   // namespace nebula
+}  // namespace fs
+}  // namespace nebula
 
 #endif  // COMMON_FS_TEMPFILE_H_

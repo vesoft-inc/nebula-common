@@ -4,9 +4,11 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include "common/process/ProcessUtils.h"
+
 #include <signal.h>
+
+#include "common/base/Base.h"
 #include "common/base/Cord.h"
 #include "common/fs/FileUtils.h"
 
@@ -30,7 +32,6 @@ Status ProcessUtils::isPidAvailable(pid_t pid) {
     return Status::OK();
 }
 
-
 Status ProcessUtils::isPidAvailable(const std::string &pidFile) {
     // Test existence and readability
     if (::access(pidFile.c_str(), R_OK) == -1) {
@@ -50,7 +51,6 @@ Status ProcessUtils::isPidAvailable(const std::string &pidFile) {
     // Now we have a valid pid
     return isPidAvailable(folly::to<uint32_t>(iter.matched()[1].str()));
 }
-
 
 Status ProcessUtils::makePidFile(const std::string &pidFile, pid_t pid) {
     if (pidFile.empty()) {
@@ -78,7 +78,6 @@ Status ProcessUtils::makePidFile(const std::string &pidFile, pid_t pid) {
     return Status::OK();
 }
 
-
 Status ProcessUtils::daemonize(const std::string &pidFile) {
     auto pid = ::fork();
     if (pid == -1) {
@@ -98,7 +97,6 @@ Status ProcessUtils::daemonize(const std::string &pidFile) {
     return makePidFile(pidFile);
 }
 
-
 StatusOr<std::string> ProcessUtils::getExePath(pid_t pid) {
     if (pid == 0) {
         pid = ::getpid();
@@ -108,7 +106,6 @@ StatusOr<std::string> ProcessUtils::getExePath(pid_t pid) {
     return fs::FileUtils::readLink(path);
 }
 
-
 StatusOr<std::string> ProcessUtils::getExeCWD(pid_t pid) {
     if (pid == 0) {
         pid = ::getpid();
@@ -117,7 +114,6 @@ StatusOr<std::string> ProcessUtils::getExeCWD(pid_t pid) {
     snprintf(path, sizeof(path), "/proc/%u/cwd", pid);
     return fs::FileUtils::readLink(path);
 }
-
 
 StatusOr<std::string> ProcessUtils::getProcessName(pid_t pid) {
     if (pid == 0) {
@@ -132,7 +128,6 @@ StatusOr<std::string> ProcessUtils::getProcessName(pid_t pid) {
     return iter.entry();
 }
 
-
 pid_t ProcessUtils::maxPid() {
     static const std::regex pattern("([0-9]+)");
     fs::FileUtils::FileLineIterator iter("/proc/sys/kernel/pid_max", &pattern);
@@ -140,9 +135,8 @@ pid_t ProcessUtils::maxPid() {
     return folly::to<uint32_t>(iter.matched()[1].str());
 }
 
-
-StatusOr<std::string> ProcessUtils::runCommand(const char* command) {
-    FILE* f = popen(command, "re");
+StatusOr<std::string> ProcessUtils::runCommand(const char *command) {
+    FILE *f = popen(command, "re");
     if (f == nullptr) {
         return Status::Error("Failed to execute the command \"%s\"", command);
     }
@@ -167,4 +161,4 @@ StatusOr<std::string> ProcessUtils::runCommand(const char* command) {
     return out.str();
 }
 
-}   // namespace nebula
+}  // namespace nebula

@@ -23,13 +23,13 @@ public:
 
     static std::vector<cpp2::ConfigItem> declareGflags(const cpp2::ConfigModule& module);
 
-    static Value gflagsValueToValue(const std::string &type,
-                                    const std::string &val);
+    static Value gflagsValueToValue(const std::string& type, const std::string& val);
 
-    static std::string ValueToGflagString(const Value &values);
+    static std::string ValueToGflagString(const Value& values);
+
 private:
-    static std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>>
-           parseConfigJson(const std::string& json);
+    static std::unordered_map<std::string, std::pair<cpp2::ConfigMode, bool>> parseConfigJson(
+        const std::string& json);
 };
 }  // namespace meta
 }  // namespace nebula

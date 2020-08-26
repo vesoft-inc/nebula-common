@@ -8,7 +8,7 @@ namespace nebula {
 namespace stats {
 
 // static
-template<class StatsHolder>
+template <class StatsHolder>
 StatsManager::VT StatsManager::readValue(StatsHolder& stats,
                                          StatsManager::TimeRange range,
                                          StatsManager::StatsMethod method) {
@@ -29,4 +29,3 @@ StatsManager::VT StatsManager::readValue(StatsHolder& stats,
 
 }  // namespace stats
 }  // namespace nebula
-

@@ -41,8 +41,7 @@ static std::unordered_multimap<Value::Type, Value::Type> typeCastMap = {
     // cast to FLOAT
     {Value::Type::FLOAT, Value::Type::FLOAT},
     {Value::Type::INT, Value::Type::FLOAT},
-    {Value::Type::STRING, Value::Type::FLOAT}
-};
+    {Value::Type::STRING, Value::Type::FLOAT}};
 
 // static
 bool TypeCastingExpression::validateTypeCast(Value::Type operandType, Value::Type type) {
@@ -98,7 +97,6 @@ const Value& TypeCastingExpression::eval(ExpressionContext& ctx) {
     return result_;
 }
 
-
 bool TypeCastingExpression::operator==(const Expression& rhs) const {
     if (kind_ != rhs.kind()) {
         return false;
@@ -107,7 +105,6 @@ bool TypeCastingExpression::operator==(const Expression& rhs) const {
     const auto& r = dynamic_cast<const TypeCastingExpression&>(rhs);
     return vType_ == r.vType_ && *operand_ == *(r.operand_);
 }
-
 
 void TypeCastingExpression::writeTo(Encoder& encoder) const {
     // kind_
@@ -120,7 +117,6 @@ void TypeCastingExpression::writeTo(Encoder& encoder) const {
     DCHECK(!!operand_);
     encoder << *operand_;
 }
-
 
 void TypeCastingExpression::resetFrom(Decoder& decoder) {
     // Read vType_

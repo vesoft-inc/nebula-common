@@ -7,12 +7,12 @@
 #ifndef COMMON_BASE_STRINGUNORDEREDMAP_H_
 #define COMMON_BASE_STRINGUNORDEREDMAP_H_
 
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 
 namespace nebula {
 
-template<typename T>
+template <typename T>
 class StringUnorderedMap {
 public:
     using key_type = std::string;
@@ -35,7 +35,7 @@ public:
     StringUnorderedMap(StringUnorderedMap&& other);
     StringUnorderedMap(std::initializer_list<value_type> init);
 
-    template<typename InputIt>
+    template <typename InputIt>
     StringUnorderedMap(InputIt first, InputIt last);
 
     ~StringUnorderedMap() = default;
@@ -80,18 +80,18 @@ public:
 
     std::pair<iterator, bool> insert(const value_type& value);
     std::pair<iterator, bool> insert(value_type&& value);
-    template<class V>
+    template <class V>
     std::pair<iterator, bool> insert(V&& value);
-    template<class InputIt>
+    template <class InputIt>
     void insert(InputIt first, InputIt last);
     void insert(std::initializer_list<value_type> ilist);
 
-    template<class V>
+    template <class V>
     std::pair<iterator, bool> insert_or_assign(const key_type& key, V&& v);
-    template<class V>
+    template <class V>
     std::pair<iterator, bool> insert_or_assign(key_type&& key, V&& v);
 
-    template< class... Args >
+    template <class... Args>
     std::pair<iterator, bool> emplace(Args&&... args);
 
     iterator erase(const_iterator pos);
@@ -101,12 +101,12 @@ public:
     void swap(StringUnorderedMap& other);
     void swap(StringUnorderedMap& other) noexcept
 
-    /******************************************
-     *
-     * Lookup
-     *
-     *****************************************/
-    T& at(const key_type& key);
+        /******************************************
+         *
+         * Lookup
+         *
+         *****************************************/
+        T& at(const key_type& key);
     const T& at(const key_type& key) const;
 
     T& operator[](const key_type& key);
@@ -125,14 +125,10 @@ private:
     std::unordered_map<uint64_t, std::string> keyMap_;
 };
 
-
-template<typename T>
-bool operator==(const StringUnorderedMap<T>& lhs,
-                const StringUnorderedMap<T>& rhs);
-template<typename T>
-bool operator!=(const StringUnorderedMap<T>& lhs,
-                const StringUnorderedMap<T>& rhs);
+template <typename T>
+bool operator==(const StringUnorderedMap<T>& lhs, const StringUnorderedMap<T>& rhs);
+template <typename T>
+bool operator!=(const StringUnorderedMap<T>& lhs, const StringUnorderedMap<T>& rhs);
 
 }  // namespace nebula
 #endif  // COMMON_BASE_STRINGUNORDEREDMAP_H_
-

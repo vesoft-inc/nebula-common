@@ -4,8 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include "common/thread/NamedThread.h"
+
+#include "common/base/Base.h"
 
 namespace nebula {
 namespace thread {
@@ -27,15 +28,15 @@ public:
     }
 
 private:
-    pid_t                           tid_;
+    pid_t tid_;
 };
 
-}   // namespace detail
+}  // namespace detail
 
 pid_t gettid() {
     static thread_local detail::TLSThreadID tlstid;
     return tlstid.tid();
 }
 
-}   // namespace thread
-}   // namespace nebula
+}  // namespace thread
+}  // namespace nebula

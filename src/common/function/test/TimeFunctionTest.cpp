@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "common/function/TimeFunction.h"
 
 namespace nebula {
@@ -14,7 +15,7 @@ TEST(TimeFunctionTest, toTimestamp) {
     EXPECT_FALSE(TimeFunction::toTimestamp(Value(10.0)).ok());
 
     // incorrect int value
-    EXPECT_FALSE(TimeFunction::toTimestamp(Value(std::numeric_limits<int64_t>::max()-10)).ok());
+    EXPECT_FALSE(TimeFunction::toTimestamp(Value(std::numeric_limits<int64_t>::max() - 10)).ok());
 
     // incorrect string value
     EXPECT_FALSE(TimeFunction::toTimestamp(Value("2001-02-29 10:00:10")).ok());
@@ -29,12 +30,11 @@ TEST(TimeFunctionTest, toTimestamp) {
     EXPECT_TRUE(TimeFunction::toTimestamp(Value(0)).ok());
 
     // correct int
-    EXPECT_TRUE(TimeFunction::toTimestamp(
-                Value(std::numeric_limits<int64_t>::max() / 1000000000)).ok());
+    EXPECT_TRUE(
+        TimeFunction::toTimestamp(Value(std::numeric_limits<int64_t>::max() / 1000000000)).ok());
 
     // correct string
     EXPECT_TRUE(TimeFunction::toTimestamp("2020-8-1 9:0:0").ok());
 }
 
-}   // namespace nebula
-
+}  // namespace nebula

@@ -5,12 +5,13 @@
  */
 
 #include "common/expression/SubscriptExpression.h"
-#include "common/datatypes/Map.h"
+
 #include "common/datatypes/List.h"
+#include "common/datatypes/Map.h"
 
 namespace nebula {
 
-const Value& SubscriptExpression::eval(ExpressionContext &ctx) {
+const Value &SubscriptExpression::eval(ExpressionContext &ctx) {
     auto &lvalue = left()->eval(ctx);
     auto &rvalue = right()->eval(ctx);
 
@@ -61,7 +62,6 @@ const Value& SubscriptExpression::eval(ExpressionContext &ctx) {
     return result_;
 }
 
-
 std::string SubscriptExpression::toString() const {
     std::string buf;
     buf.reserve(256);
@@ -72,4 +72,4 @@ std::string SubscriptExpression::toString() const {
     return buf;
 }
 
-}   // namespace nebula
+}  // namespace nebula

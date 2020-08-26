@@ -4,29 +4,30 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-
 #include <gtest/gtest.h>
+
 #include <boost/algorithm/string.hpp>
+
+#include "common/datatypes/DataSet.h"
+#include "common/datatypes/Edge.h"
 #include "common/datatypes/List.h"
 #include "common/datatypes/Map.h"
 #include "common/datatypes/Set.h"
-#include "common/datatypes/DataSet.h"
-#include "common/datatypes/Edge.h"
 #include "common/datatypes/Vertex.h"
-#include "common/expression/test/ExpressionContextMock.h"
 #include "common/expression/ArithmeticExpression.h"
+#include "common/expression/AttributeExpression.h"
 #include "common/expression/ConstantExpression.h"
+#include "common/expression/ContainerExpression.h"
+#include "common/expression/FunctionCallExpression.h"
+#include "common/expression/LabelExpression.h"
+#include "common/expression/LogicalExpression.h"
 #include "common/expression/PropertyExpression.h"
 #include "common/expression/RelationalExpression.h"
 #include "common/expression/SubscriptExpression.h"
-#include "common/expression/AttributeExpression.h"
+#include "common/expression/TypeCastingExpression.h"
 #include "common/expression/UnaryExpression.h"
 #include "common/expression/VariableExpression.h"
-#include "common/expression/LogicalExpression.h"
-#include "common/expression/FunctionCallExpression.h"
-#include "common/expression/TypeCastingExpression.h"
-#include "common/expression/ContainerExpression.h"
-#include "common/expression/LabelExpression.h"
+#include "common/expression/test/ExpressionContextMock.h"
 
 nebula::ExpressionContextMock gExpCtxt;
 
@@ -589,7 +590,6 @@ TEST_F(ExpressionTest, LiteralConstantsRelational) {
     }
 }
 
-
 TEST_F(ExpressionTest, FunctionCallTest) {
     {
         TEST_FUNCTION(abs, args_["neg_int"], 1);
@@ -680,11 +680,10 @@ TEST_F(ExpressionTest, Arithmetics) {
     {
         // 1 + 2 + e1.int
         ArithmeticExpression add(
-                Expression::Kind::kAdd,
-                new ArithmeticExpression(
-                    Expression::Kind::kAdd,
-                    new ConstantExpression(1), new ConstantExpression(2)),
-                new EdgePropertyExpression(new std::string("e1"), new std::string("int")));
+            Expression::Kind::kAdd,
+            new ArithmeticExpression(
+                Expression::Kind::kAdd, new ConstantExpression(1), new ConstantExpression(2)),
+            new EdgePropertyExpression(new std::string("e1"), new std::string("int")));
         auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 4);
@@ -692,9 +691,9 @@ TEST_F(ExpressionTest, Arithmetics) {
     {
         // e1.string16 + e1.string16
         ArithmeticExpression add(
-                Expression::Kind::kAdd,
-                new EdgePropertyExpression(new std::string("e1"), new std::string("string16")),
-                new EdgePropertyExpression(new std::string("e1"), new std::string("string16")));
+            Expression::Kind::kAdd,
+            new EdgePropertyExpression(new std::string("e1"), new std::string("string16")),
+            new EdgePropertyExpression(new std::string("e1"), new std::string("string16")));
         auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::STRING);
         EXPECT_EQ(eval, std::string(32, 'a'));
@@ -755,9 +754,9 @@ TEST_F(ExpressionTest, Relation) {
     {
         // e1.list == NULL
         RelationalExpression expr(
-                Expression::Kind::kRelEQ,
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
-                new ConstantExpression(Value(NullType::NaN)));
+            Expression::Kind::kRelEQ,
+            new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
+            new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
@@ -765,9 +764,9 @@ TEST_F(ExpressionTest, Relation) {
     {
         // e1.list_of_list == NULL
         RelationalExpression expr(
-                Expression::Kind::kRelEQ,
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
-                new ConstantExpression(Value(NullType::NaN)));
+            Expression::Kind::kRelEQ,
+            new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
+            new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
@@ -775,9 +774,9 @@ TEST_F(ExpressionTest, Relation) {
     {
         // e1.list == e1.list
         RelationalExpression expr(
-                Expression::Kind::kRelEQ,
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list")));
+            Expression::Kind::kRelEQ,
+            new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
+            new EdgePropertyExpression(new std::string("e1"), new std::string("list")));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
@@ -785,69 +784,63 @@ TEST_F(ExpressionTest, Relation) {
     {
         // e1.list_of_list == e1.list_of_list
         RelationalExpression expr(
-                Expression::Kind::kRelEQ,
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
-                new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")));
+            Expression::Kind::kRelEQ,
+            new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
+            new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
         // 1 == NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelEQ,
-                new ConstantExpression(Value(1)),
-                new ConstantExpression(Value(NullType::NaN)));
+        RelationalExpression expr(Expression::Kind::kRelEQ,
+                                  new ConstantExpression(Value(1)),
+                                  new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
     {
         // NULL == NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelEQ,
-                new ConstantExpression(Value(NullType::NaN)),
-                new ConstantExpression(Value(NullType::NaN)));
+        RelationalExpression expr(Expression::Kind::kRelEQ,
+                                  new ConstantExpression(Value(NullType::NaN)),
+                                  new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
         // 1 != NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelNE,
-                new ConstantExpression(Value(1)),
-                new ConstantExpression(Value(NullType::NaN)));
+        RelationalExpression expr(Expression::Kind::kRelNE,
+                                  new ConstantExpression(Value(1)),
+                                  new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
         // NULL != NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelNE,
-                new ConstantExpression(Value(NullType::NaN)),
-                new ConstantExpression(Value(NullType::NaN)));
+        RelationalExpression expr(Expression::Kind::kRelNE,
+                                  new ConstantExpression(Value(NullType::NaN)),
+                                  new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
     {
         // 1 < NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelLT,
-                new ConstantExpression(Value(1)),
-                new ConstantExpression(Value(NullType::NaN)));
+        RelationalExpression expr(Expression::Kind::kRelLT,
+                                  new ConstantExpression(Value(1)),
+                                  new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
         EXPECT_EQ(eval, Value::kNullValue);
     }
     {
         // NULL < NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelLT,
-                new ConstantExpression(Value(NullType::NaN)),
-                new ConstantExpression(Value(NullType::NaN)));
+        RelationalExpression expr(Expression::Kind::kRelLT,
+                                  new ConstantExpression(Value(NullType::NaN)),
+                                  new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
         EXPECT_EQ(eval, Value::kNullValue);
@@ -857,20 +850,17 @@ TEST_F(ExpressionTest, Relation) {
 TEST_F(ExpressionTest, UnaryINCR) {
     {
         // ++var_int
-        UnaryExpression expr(
-                Expression::Kind::kUnaryIncr,
-                new VariableExpression(new std::string("var_int")));
+        UnaryExpression expr(Expression::Kind::kUnaryIncr,
+                             new VariableExpression(new std::string("var_int")));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 2);
     }
     {
         // ++versioned_var{0}
-        UnaryExpression expr(
-                Expression::Kind::kUnaryIncr,
-                new VersionedVariableExpression(
-                    new std::string("versioned_var"),
-                    new ConstantExpression(0)));
+        UnaryExpression expr(Expression::Kind::kUnaryIncr,
+                             new VersionedVariableExpression(new std::string("versioned_var"),
+                                                             new ConstantExpression(0)));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 2);
@@ -880,9 +870,8 @@ TEST_F(ExpressionTest, UnaryINCR) {
 TEST_F(ExpressionTest, UnaryDECR) {
     {
         // --var_int
-        UnaryExpression expr(
-                Expression::Kind::kUnaryDecr,
-                new VariableExpression(new std::string("var_int")));
+        UnaryExpression expr(Expression::Kind::kUnaryDecr,
+                             new VariableExpression(new std::string("var_int")));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 0);
@@ -892,27 +881,24 @@ TEST_F(ExpressionTest, UnaryDECR) {
 TEST_F(ExpressionTest, VersionedVar) {
     {
         // versioned_var{0}
-        VersionedVariableExpression expr(
-                new std::string("versioned_var"),
-                new ConstantExpression(0));
+        VersionedVariableExpression expr(new std::string("versioned_var"),
+                                         new ConstantExpression(0));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 1);
     }
     {
         // versioned_var{0}
-        VersionedVariableExpression expr(
-                new std::string("versioned_var"),
-                new ConstantExpression(-1));
+        VersionedVariableExpression expr(new std::string("versioned_var"),
+                                         new ConstantExpression(-1));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 2);
     }
     {
         // versioned_var{0}
-        VersionedVariableExpression expr(
-                new std::string("versioned_var"),
-                new ConstantExpression(1));
+        VersionedVariableExpression expr(new std::string("versioned_var"),
+                                         new ConstantExpression(1));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 8);
@@ -920,10 +906,9 @@ TEST_F(ExpressionTest, VersionedVar) {
     {
         // versioned_var{-cnt}
         VersionedVariableExpression expr(
-                new std::string("versioned_var"),
-                new UnaryExpression(
-                    Expression::Kind::kUnaryNegate,
-                    new VariableExpression(new std::string("cnt"))));
+            new std::string("versioned_var"),
+            new UnaryExpression(Expression::Kind::kUnaryNegate,
+                                new VariableExpression(new std::string("cnt"))));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 2);
@@ -1045,8 +1030,7 @@ TEST_F(ExpressionTest, FunctionCallToStringTest) {
 
 TEST_F(ExpressionTest, PropertyToStringTest) {
     {
-        DestPropertyExpression ep(new std::string("like"),
-                                  new std::string("likeness"));
+        DestPropertyExpression ep(new std::string("like"), new std::string("likeness"));
         EXPECT_EQ(ep.toString(), "$$.like.likeness");
     }
     {
@@ -1089,44 +1073,48 @@ TEST_F(ExpressionTest, PropertyToStringTest) {
 
 TEST_F(ExpressionTest, ListToString) {
     auto *elist = new ExpressionList();
-    (*elist).add(new ConstantExpression(12345))
-            .add(new ConstantExpression("Hello"))
-            .add(new ConstantExpression(true));
+    (*elist)
+        .add(new ConstantExpression(12345))
+        .add(new ConstantExpression("Hello"))
+        .add(new ConstantExpression(true));
     auto expr = std::make_unique<ListExpression>(elist);
     ASSERT_EQ("[12345,Hello,true]", expr->toString());
 }
 
 TEST_F(ExpressionTest, SetToString) {
     auto *elist = new ExpressionList();
-    (*elist).add(new ConstantExpression(12345))
-            .add(new ConstantExpression(12345))
-            .add(new ConstantExpression("Hello"))
-            .add(new ConstantExpression(true));
+    (*elist)
+        .add(new ConstantExpression(12345))
+        .add(new ConstantExpression(12345))
+        .add(new ConstantExpression("Hello"))
+        .add(new ConstantExpression(true));
     auto expr = std::make_unique<SetExpression>(elist);
     ASSERT_EQ("{12345,12345,Hello,true}", expr->toString());
 }
 
 TEST_F(ExpressionTest, MapTostring) {
     auto *items = new MapItemList();
-    (*items).add(new std::string("key1"), new ConstantExpression(12345))
-            .add(new std::string("key2"), new ConstantExpression(12345))
-            .add(new std::string("key3"), new ConstantExpression("Hello"))
-            .add(new std::string("key4"), new ConstantExpression(true));
+    (*items)
+        .add(new std::string("key1"), new ConstantExpression(12345))
+        .add(new std::string("key2"), new ConstantExpression(12345))
+        .add(new std::string("key3"), new ConstantExpression("Hello"))
+        .add(new std::string("key4"), new ConstantExpression(true));
     auto expr = std::make_unique<MapExpression>(items);
     auto expected = "{"
-                        "\"key1\":12345,"
-                        "\"key2\":12345,"
-                        "\"key3\":Hello,"
-                        "\"key4\":true"
+                    "\"key1\":12345,"
+                    "\"key2\":12345,"
+                    "\"key3\":Hello,"
+                    "\"key4\":true"
                     "}";
     ASSERT_EQ(expected, expr->toString());
 }
 
 TEST_F(ExpressionTest, ListEvaluate) {
     auto *elist = new ExpressionList();
-    (*elist).add(new ConstantExpression(12345))
-            .add(new ConstantExpression("Hello"))
-            .add(new ConstantExpression(true));
+    (*elist)
+        .add(new ConstantExpression(12345))
+        .add(new ConstantExpression("Hello"))
+        .add(new ConstantExpression(true));
     auto expr = std::make_unique<ListExpression>(elist);
     auto expected = Value(List({12345, "Hello", true}));
     auto value = Expression::eval(expr.get(), gExpCtxt);
@@ -1135,10 +1123,11 @@ TEST_F(ExpressionTest, ListEvaluate) {
 
 TEST_F(ExpressionTest, SetEvaluate) {
     auto *elist = new ExpressionList();
-    (*elist).add(new ConstantExpression(12345))
-            .add(new ConstantExpression(12345))
-            .add(new ConstantExpression("Hello"))
-            .add(new ConstantExpression(true));
+    (*elist)
+        .add(new ConstantExpression(12345))
+        .add(new ConstantExpression(12345))
+        .add(new ConstantExpression("Hello"))
+        .add(new ConstantExpression(true));
     auto expr = std::make_unique<SetExpression>(elist);
     auto expected = Value(Set({12345, "Hello", true}));
     auto value = Expression::eval(expr.get(), gExpCtxt);
@@ -1148,32 +1137,28 @@ TEST_F(ExpressionTest, SetEvaluate) {
 TEST_F(ExpressionTest, MapEvaluate) {
     {
         auto *items = new MapItemList();
-        (*items).add(new std::string("key1"), new ConstantExpression(12345))
-                .add(new std::string("key2"), new ConstantExpression(12345))
-                .add(new std::string("key3"), new ConstantExpression("Hello"))
-                .add(new std::string("key4"), new ConstantExpression(true));
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(12345))
+            .add(new std::string("key2"), new ConstantExpression(12345))
+            .add(new std::string("key3"), new ConstantExpression("Hello"))
+            .add(new std::string("key4"), new ConstantExpression(true));
         auto expr = std::make_unique<MapExpression>(items);
-        auto expected = Value(Map({
-                                    {"key1", 12345},
-                                    {"key2", 12345},
-                                    {"key3", "Hello"},
-                                    {"key4", true}}));
+        auto expected =
+            Value(Map({{"key1", 12345}, {"key2", 12345}, {"key3", "Hello"}, {"key4", true}}));
         auto value = Expression::eval(expr.get(), gExpCtxt);
         ASSERT_EQ(expected, value);
     }
     {
         auto *items = new MapItemList();
-        (*items).add(new std::string("key1"), new ConstantExpression(12345))
-                .add(new std::string("key2"), new ConstantExpression(12345))
-                .add(new std::string("key3"), new ConstantExpression("Hello"))
-                .add(new std::string("key4"), new ConstantExpression(false))
-                .add(new std::string("key4"), new ConstantExpression(true));
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(12345))
+            .add(new std::string("key2"), new ConstantExpression(12345))
+            .add(new std::string("key3"), new ConstantExpression("Hello"))
+            .add(new std::string("key4"), new ConstantExpression(false))
+            .add(new std::string("key4"), new ConstantExpression(true));
         auto expr = std::make_unique<MapExpression>(items);
-        auto expected = Value(Map({
-                                    {"key1", 12345},
-                                    {"key2", 12345},
-                                    {"key3", "Hello"},
-                                    {"key4", false}}));
+        auto expected =
+            Value(Map({{"key1", 12345}, {"key2", 12345}, {"key3", "Hello"}, {"key4", false}}));
         auto value = Expression::eval(expr.get(), gExpCtxt);
         ASSERT_EQ(expected, value);
     }
@@ -1182,26 +1167,26 @@ TEST_F(ExpressionTest, MapEvaluate) {
 TEST_F(ExpressionTest, InList) {
     {
         auto *elist = new ExpressionList;
-        (*elist).add(new ConstantExpression(12345))
-                .add(new ConstantExpression("Hello"))
-                .add(new ConstantExpression(true));
+        (*elist)
+            .add(new ConstantExpression(12345))
+            .add(new ConstantExpression("Hello"))
+            .add(new ConstantExpression(true));
         auto listExpr = new ListExpression(elist);
-        RelationalExpression expr(Expression::Kind::kRelIn,
-                                  new ConstantExpression(12345),
-                                  listExpr);
+        RelationalExpression expr(
+            Expression::Kind::kRelIn, new ConstantExpression(12345), listExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(true, value);
     }
     {
         auto *elist = new ExpressionList;
-        (*elist).add(new ConstantExpression(12345))
-                .add(new ConstantExpression("Hello"))
-                .add(new ConstantExpression(true));
+        (*elist)
+            .add(new ConstantExpression(12345))
+            .add(new ConstantExpression("Hello"))
+            .add(new ConstantExpression(true));
         auto listExpr = new ListExpression(elist);
-        RelationalExpression expr(Expression::Kind::kRelIn,
-                                  new ConstantExpression(false),
-                                  listExpr);
+        RelationalExpression expr(
+            Expression::Kind::kRelIn, new ConstantExpression(false), listExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(false, value);
@@ -1211,26 +1196,24 @@ TEST_F(ExpressionTest, InList) {
 TEST_F(ExpressionTest, InSet) {
     {
         auto *elist = new ExpressionList;
-        (*elist).add(new ConstantExpression(12345))
-                .add(new ConstantExpression("Hello"))
-                .add(new ConstantExpression(true));
+        (*elist)
+            .add(new ConstantExpression(12345))
+            .add(new ConstantExpression("Hello"))
+            .add(new ConstantExpression(true));
         auto setExpr = new SetExpression(elist);
-        RelationalExpression expr(Expression::Kind::kRelIn,
-                                  new ConstantExpression(12345),
-                                  setExpr);
+        RelationalExpression expr(Expression::Kind::kRelIn, new ConstantExpression(12345), setExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(true, value);
     }
     {
         auto *elist = new ExpressionList;
-        (*elist).add(new ConstantExpression(12345))
-                .add(new ConstantExpression("Hello"))
-                .add(new ConstantExpression(true));
+        (*elist)
+            .add(new ConstantExpression(12345))
+            .add(new ConstantExpression("Hello"))
+            .add(new ConstantExpression(true));
         auto setExpr = new ListExpression(elist);
-        RelationalExpression expr(Expression::Kind::kRelIn,
-                                  new ConstantExpression(false),
-                                  setExpr);
+        RelationalExpression expr(Expression::Kind::kRelIn, new ConstantExpression(false), setExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(false, value);
@@ -1240,42 +1223,41 @@ TEST_F(ExpressionTest, InSet) {
 TEST_F(ExpressionTest, InMap) {
     {
         auto *items = new MapItemList();
-        (*items).add(new std::string("key1"), new ConstantExpression(12345))
-                .add(new std::string("key2"), new ConstantExpression(12345))
-                .add(new std::string("key3"), new ConstantExpression("Hello"))
-                .add(new std::string("key4"), new ConstantExpression(true));
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(12345))
+            .add(new std::string("key2"), new ConstantExpression(12345))
+            .add(new std::string("key3"), new ConstantExpression("Hello"))
+            .add(new std::string("key4"), new ConstantExpression(true));
         auto mapExpr = new MapExpression(items);
-        RelationalExpression expr(Expression::Kind::kRelIn,
-                                  new ConstantExpression("key1"),
-                                  mapExpr);
+        RelationalExpression expr(
+            Expression::Kind::kRelIn, new ConstantExpression("key1"), mapExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(true, value);
     }
     {
         auto *items = new MapItemList();
-        (*items).add(new std::string("key1"), new ConstantExpression(12345))
-                .add(new std::string("key2"), new ConstantExpression(12345))
-                .add(new std::string("key3"), new ConstantExpression("Hello"))
-                .add(new std::string("key4"), new ConstantExpression(true));
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(12345))
+            .add(new std::string("key2"), new ConstantExpression(12345))
+            .add(new std::string("key3"), new ConstantExpression("Hello"))
+            .add(new std::string("key4"), new ConstantExpression(true));
         auto mapExpr = new MapExpression(items);
-        RelationalExpression expr(Expression::Kind::kRelIn,
-                                  new ConstantExpression("key5"),
-                                  mapExpr);
+        RelationalExpression expr(
+            Expression::Kind::kRelIn, new ConstantExpression("key5"), mapExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(false, value);
     }
     {
         auto *items = new MapItemList();
-        (*items).add(new std::string("key1"), new ConstantExpression(12345))
-                .add(new std::string("key2"), new ConstantExpression(12345))
-                .add(new std::string("key3"), new ConstantExpression("Hello"))
-                .add(new std::string("key4"), new ConstantExpression(true));
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(12345))
+            .add(new std::string("key2"), new ConstantExpression(12345))
+            .add(new std::string("key3"), new ConstantExpression("Hello"))
+            .add(new std::string("key4"), new ConstantExpression(true));
         auto mapExpr = new MapExpression(items);
-        RelationalExpression expr(Expression::Kind::kRelIn,
-                                  new ConstantExpression(12345),
-                                  mapExpr);
+        RelationalExpression expr(Expression::Kind::kRelIn, new ConstantExpression(12345), mapExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(false, value);
@@ -1285,26 +1267,26 @@ TEST_F(ExpressionTest, InMap) {
 TEST_F(ExpressionTest, NotInList) {
     {
         auto *elist = new ExpressionList;
-        (*elist).add(new ConstantExpression(12345))
-                .add(new ConstantExpression("Hello"))
-                .add(new ConstantExpression(true));
+        (*elist)
+            .add(new ConstantExpression(12345))
+            .add(new ConstantExpression("Hello"))
+            .add(new ConstantExpression(true));
         auto listExpr = new ListExpression(elist);
-        RelationalExpression expr(Expression::Kind::kRelNotIn,
-                                  new ConstantExpression(12345),
-                                  listExpr);
+        RelationalExpression expr(
+            Expression::Kind::kRelNotIn, new ConstantExpression(12345), listExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(false, value);
     }
     {
         auto *elist = new ExpressionList;
-        (*elist).add(new ConstantExpression(12345))
-                .add(new ConstantExpression("Hello"))
-                .add(new ConstantExpression(true));
+        (*elist)
+            .add(new ConstantExpression(12345))
+            .add(new ConstantExpression("Hello"))
+            .add(new ConstantExpression(true));
         auto listExpr = new ListExpression(elist);
-        RelationalExpression expr(Expression::Kind::kRelNotIn,
-                                  new ConstantExpression(false),
-                                  listExpr);
+        RelationalExpression expr(
+            Expression::Kind::kRelNotIn, new ConstantExpression(false), listExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(true, value);
@@ -1314,26 +1296,26 @@ TEST_F(ExpressionTest, NotInList) {
 TEST_F(ExpressionTest, NotInSet) {
     {
         auto *elist = new ExpressionList;
-        (*elist).add(new ConstantExpression(12345))
-                .add(new ConstantExpression("Hello"))
-                .add(new ConstantExpression(true));
+        (*elist)
+            .add(new ConstantExpression(12345))
+            .add(new ConstantExpression("Hello"))
+            .add(new ConstantExpression(true));
         auto setExpr = new SetExpression(elist);
-        RelationalExpression expr(Expression::Kind::kRelNotIn,
-                                  new ConstantExpression(12345),
-                                  setExpr);
+        RelationalExpression expr(
+            Expression::Kind::kRelNotIn, new ConstantExpression(12345), setExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(false, value);
     }
     {
         auto *elist = new ExpressionList;
-        (*elist).add(new ConstantExpression(12345))
-                .add(new ConstantExpression("Hello"))
-                .add(new ConstantExpression(true));
+        (*elist)
+            .add(new ConstantExpression(12345))
+            .add(new ConstantExpression("Hello"))
+            .add(new ConstantExpression(true));
         auto setExpr = new ListExpression(elist);
-        RelationalExpression expr(Expression::Kind::kRelNotIn,
-                                  new ConstantExpression(false),
-                                  setExpr);
+        RelationalExpression expr(
+            Expression::Kind::kRelNotIn, new ConstantExpression(false), setExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(true, value);
@@ -1343,42 +1325,42 @@ TEST_F(ExpressionTest, NotInSet) {
 TEST_F(ExpressionTest, NotInMap) {
     {
         auto *items = new MapItemList();
-        (*items).add(new std::string("key1"), new ConstantExpression(12345))
-                .add(new std::string("key2"), new ConstantExpression(12345))
-                .add(new std::string("key3"), new ConstantExpression("Hello"))
-                .add(new std::string("key4"), new ConstantExpression(true));
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(12345))
+            .add(new std::string("key2"), new ConstantExpression(12345))
+            .add(new std::string("key3"), new ConstantExpression("Hello"))
+            .add(new std::string("key4"), new ConstantExpression(true));
         auto mapExpr = new MapExpression(items);
-        RelationalExpression expr(Expression::Kind::kRelNotIn,
-                                  new ConstantExpression("key1"),
-                                  mapExpr);
+        RelationalExpression expr(
+            Expression::Kind::kRelNotIn, new ConstantExpression("key1"), mapExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(false, value);
     }
     {
         auto *items = new MapItemList();
-        (*items).add(new std::string("key1"), new ConstantExpression(12345))
-                .add(new std::string("key2"), new ConstantExpression(12345))
-                .add(new std::string("key3"), new ConstantExpression("Hello"))
-                .add(new std::string("key4"), new ConstantExpression(true));
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(12345))
+            .add(new std::string("key2"), new ConstantExpression(12345))
+            .add(new std::string("key3"), new ConstantExpression("Hello"))
+            .add(new std::string("key4"), new ConstantExpression(true));
         auto mapExpr = new MapExpression(items);
-        RelationalExpression expr(Expression::Kind::kRelNotIn,
-                                  new ConstantExpression("key5"),
-                                  mapExpr);
+        RelationalExpression expr(
+            Expression::Kind::kRelNotIn, new ConstantExpression("key5"), mapExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(true, value);
     }
     {
         auto *items = new MapItemList();
-        (*items).add(new std::string("key1"), new ConstantExpression(12345))
-                .add(new std::string("key2"), new ConstantExpression(12345))
-                .add(new std::string("key3"), new ConstantExpression("Hello"))
-                .add(new std::string("key4"), new ConstantExpression(true));
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(12345))
+            .add(new std::string("key2"), new ConstantExpression(12345))
+            .add(new std::string("key3"), new ConstantExpression("Hello"))
+            .add(new std::string("key4"), new ConstantExpression(true));
         auto mapExpr = new MapExpression(items);
-        RelationalExpression expr(Expression::Kind::kRelNotIn,
-                                  new ConstantExpression(12345),
-                                  mapExpr);
+        RelationalExpression expr(
+            Expression::Kind::kRelNotIn, new ConstantExpression(12345), mapExpr);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(true, value);
@@ -1468,10 +1450,11 @@ TEST_F(ExpressionTest, ListSubscript) {
     // [1,2,3,4][0]
     {
         auto *items = new ExpressionList();
-        (*items).add(new ConstantExpression(1))
-                .add(new ConstantExpression(2))
-                .add(new ConstantExpression(3))
-                .add(new ConstantExpression(4));
+        (*items)
+            .add(new ConstantExpression(1))
+            .add(new ConstantExpression(2))
+            .add(new ConstantExpression(3))
+            .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression(0);
         SubscriptExpression expr(list, index);
@@ -1482,10 +1465,11 @@ TEST_F(ExpressionTest, ListSubscript) {
     // [1,2,3,4][3]
     {
         auto *items = new ExpressionList();
-        (*items).add(new ConstantExpression(1))
-                .add(new ConstantExpression(2))
-                .add(new ConstantExpression(3))
-                .add(new ConstantExpression(4));
+        (*items)
+            .add(new ConstantExpression(1))
+            .add(new ConstantExpression(2))
+            .add(new ConstantExpression(3))
+            .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression(3);
         SubscriptExpression expr(list, index);
@@ -1496,10 +1480,11 @@ TEST_F(ExpressionTest, ListSubscript) {
     // [1,2,3,4][4]
     {
         auto *items = new ExpressionList();
-        (*items).add(new ConstantExpression(1))
-                .add(new ConstantExpression(2))
-                .add(new ConstantExpression(3))
-                .add(new ConstantExpression(4));
+        (*items)
+            .add(new ConstantExpression(1))
+            .add(new ConstantExpression(2))
+            .add(new ConstantExpression(3))
+            .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression(4);
         SubscriptExpression expr(list, index);
@@ -1509,10 +1494,11 @@ TEST_F(ExpressionTest, ListSubscript) {
     // [1,2,3,4][-1]
     {
         auto *items = new ExpressionList();
-        (*items).add(new ConstantExpression(1))
-                .add(new ConstantExpression(2))
-                .add(new ConstantExpression(3))
-                .add(new ConstantExpression(4));
+        (*items)
+            .add(new ConstantExpression(1))
+            .add(new ConstantExpression(2))
+            .add(new ConstantExpression(3))
+            .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression(-1);
         SubscriptExpression expr(list, index);
@@ -1523,10 +1509,11 @@ TEST_F(ExpressionTest, ListSubscript) {
     // [1,2,3,4][-4]
     {
         auto *items = new ExpressionList();
-        (*items).add(new ConstantExpression(1))
-                .add(new ConstantExpression(2))
-                .add(new ConstantExpression(3))
-                .add(new ConstantExpression(4));
+        (*items)
+            .add(new ConstantExpression(1))
+            .add(new ConstantExpression(2))
+            .add(new ConstantExpression(3))
+            .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression(-4);
         SubscriptExpression expr(list, index);
@@ -1537,10 +1524,11 @@ TEST_F(ExpressionTest, ListSubscript) {
     // [1,2,3,4][-5]
     {
         auto *items = new ExpressionList();
-        (*items).add(new ConstantExpression(1))
-                .add(new ConstantExpression(2))
-                .add(new ConstantExpression(3))
-                .add(new ConstantExpression(4));
+        (*items)
+            .add(new ConstantExpression(1))
+            .add(new ConstantExpression(2))
+            .add(new ConstantExpression(3))
+            .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression(-5);
         SubscriptExpression expr(list, index);
@@ -1550,10 +1538,11 @@ TEST_F(ExpressionTest, ListSubscript) {
     // [1,2,3,4]["0"]
     {
         auto *items = new ExpressionList();
-        (*items).add(new ConstantExpression(1))
-                .add(new ConstantExpression(2))
-                .add(new ConstantExpression(3))
-                .add(new ConstantExpression(4));
+        (*items)
+            .add(new ConstantExpression(1))
+            .add(new ConstantExpression(2))
+            .add(new ConstantExpression(3))
+            .add(new ConstantExpression(4));
         auto *list = new ListExpression(items);
         auto *index = new ConstantExpression("0");
         SubscriptExpression expr(list, index);
@@ -1574,9 +1563,10 @@ TEST_F(ExpressionTest, MapSubscript) {
     // {"key1":1,"key2":2, "key3":3}["key1"]
     {
         auto *items = new MapItemList();
-        (*items).add(new std::string("key1"), new ConstantExpression(1))
-                .add(new std::string("key2"), new ConstantExpression(2))
-                .add(new std::string("key3"), new ConstantExpression(3));
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(1))
+            .add(new std::string("key2"), new ConstantExpression(2))
+            .add(new std::string("key3"), new ConstantExpression(3));
         auto *map = new MapExpression(items);
         auto *key = new ConstantExpression("key1");
         SubscriptExpression expr(map, key);
@@ -1587,9 +1577,10 @@ TEST_F(ExpressionTest, MapSubscript) {
     // {"key1":1,"key2":2, "key3":3}["key4"]
     {
         auto *items = new MapItemList();
-        (*items).add(new std::string("key1"), new ConstantExpression(1))
-                .add(new std::string("key2"), new ConstantExpression(2))
-                .add(new std::string("key3"), new ConstantExpression(3));
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(1))
+            .add(new std::string("key2"), new ConstantExpression(2))
+            .add(new std::string("key3"), new ConstantExpression(3));
         auto *map = new MapExpression(items);
         auto *key = new ConstantExpression("key4");
         SubscriptExpression expr(map, key);
@@ -1600,9 +1591,10 @@ TEST_F(ExpressionTest, MapSubscript) {
     // {"key1":1,"key2":2, "key3":3}[0]
     {
         auto *items = new MapItemList();
-        (*items).add(new std::string("key1"), new ConstantExpression(1))
-                .add(new std::string("key2"), new ConstantExpression(2))
-                .add(new std::string("key3"), new ConstantExpression(3));
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(1))
+            .add(new std::string("key2"), new ConstantExpression(2))
+            .add(new std::string("key3"), new ConstantExpression(3));
         auto *map = new MapExpression(items);
         auto *key = new ConstantExpression(0);
         SubscriptExpression expr(map, key);
@@ -1616,9 +1608,10 @@ TEST_F(ExpressionTest, MapAttribute) {
     // {"key1":1, "key2":2, "key3":3}.key1
     {
         auto *items = new MapItemList();
-        (*items).add(new std::string("key1"), new ConstantExpression(1))
-                .add(new std::string("key2"), new ConstantExpression(2))
-                .add(new std::string("key3"), new ConstantExpression(3));
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(1))
+            .add(new std::string("key2"), new ConstantExpression(2))
+            .add(new std::string("key3"), new ConstantExpression(3));
         auto *map = new MapExpression(items);
         auto *key = new LabelExpression(new std::string("key1"));
         AttributeExpression expr(map, key);
@@ -1810,30 +1803,27 @@ TEST_F(ExpressionTest, TypeCastTest) {
 TEST_F(ExpressionTest, RelationContains) {
     {
         // "abc" contains "a"
-        RelationalExpression expr(
-                Expression::Kind::kContains,
-                new ConstantExpression("abc"),
-                new ConstantExpression("a"));
+        RelationalExpression expr(Expression::Kind::kContains,
+                                  new ConstantExpression("abc"),
+                                  new ConstantExpression("a"));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
         // "abc" contains "bc"
-        RelationalExpression expr(
-                Expression::Kind::kContains,
-                new ConstantExpression("abc"),
-                new ConstantExpression("bc"));
+        RelationalExpression expr(Expression::Kind::kContains,
+                                  new ConstantExpression("abc"),
+                                  new ConstantExpression("bc"));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
         // "abc" contains "d"
-        RelationalExpression expr(
-                Expression::Kind::kContains,
-                new ConstantExpression("abc"),
-                new ConstantExpression("d"));
+        RelationalExpression expr(Expression::Kind::kContains,
+                                  new ConstantExpression("abc"),
+                                  new ConstantExpression("d"));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
@@ -1841,9 +1831,7 @@ TEST_F(ExpressionTest, RelationContains) {
     {
         // "abc" contains 1
         RelationalExpression expr(
-                Expression::Kind::kContains,
-                new ConstantExpression("abc1"),
-                new ConstantExpression(1));
+            Expression::Kind::kContains, new ConstantExpression("abc1"), new ConstantExpression(1));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
         EXPECT_EQ(eval, Value::kNullBadType);
@@ -1851,9 +1839,7 @@ TEST_F(ExpressionTest, RelationContains) {
     {
         // 1234 contains 1
         RelationalExpression expr(
-                Expression::Kind::kContains,
-                new ConstantExpression(1234),
-                new ConstantExpression(1));
+            Expression::Kind::kContains, new ConstantExpression(1234), new ConstantExpression(1));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
         EXPECT_EQ(eval, Value::kNullBadType);
@@ -1863,10 +1849,9 @@ TEST_F(ExpressionTest, RelationContains) {
 TEST_F(ExpressionTest, ContainsToString) {
     {
         // "abc" contains "a"
-        RelationalExpression expr(
-                Expression::Kind::kContains,
-                new ConstantExpression("abc"),
-                new ConstantExpression("a"));
+        RelationalExpression expr(Expression::Kind::kContains,
+                                  new ConstantExpression("abc"),
+                                  new ConstantExpression("a"));
         ASSERT_EQ("(abc CONTAINS a)", expr.toString());
     }
 }
@@ -1885,7 +1870,7 @@ TEST_F(ExpressionTest, LabelEvaluate) {
 
 }  // namespace nebula
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     folly::init(&argc, &argv, true);
     google::SetStderrLogging(google::INFO);

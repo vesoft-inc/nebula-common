@@ -4,8 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
+
+#include "common/base/Base.h"
 #include "common/stats/StatsManager.h"
 #include "common/thread/GenericWorker.h"
 
@@ -16,7 +17,7 @@ TEST(StatsManager, StatsTest) {
     auto statId = StatsManager::registerStats("stat01");
     std::vector<std::thread> threads;
     for (int i = 0; i < 10; i++) {
-        threads.emplace_back([statId, i] () {
+        threads.emplace_back([statId, i]() {
             for (int k = i * 10 + 1; k <= i * 10 + 10; k++) {
                 sleep(6);
                 StatsManager::addValue(statId, k);
@@ -46,12 +47,11 @@ TEST(StatsManager, StatsTest) {
     EXPECT_FALSE(StatsManager::readValue("stat01.Avg1.3600").ok());
 }
 
-
 TEST(StatsManager, HistogramTest) {
     auto statId = StatsManager::registerHisto("stat02", 1, 1, 100);
     std::vector<std::thread> threads;
     for (int i = 0; i < 10; i++) {
-        threads.emplace_back([statId, i] () {
+        threads.emplace_back([statId, i]() {
             for (int k = i * 10 + 1; k <= i * 10 + 10; k++) {
                 sleep(6);
                 StatsManager::addValue(statId, k);
@@ -90,10 +90,8 @@ TEST(StatsManager, HistogramTest) {
     EXPECT_FALSE(StatsManager::readValue("stat02.t9599.60").ok());
 }
 
-
-}   // namespace stats
-}   // namespace nebula
-
+}  // namespace stats
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

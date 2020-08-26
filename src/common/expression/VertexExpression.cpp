@@ -8,9 +8,9 @@
 
 namespace nebula {
 
-const Value& VertexExpression::eval(ExpressionContext &ctx) {
+const Value& VertexExpression::eval(ExpressionContext& ctx) {
     result_ = ctx.getVertex();
     return result_;
 }
 
-}   // namespace nebula
+}  // namespace nebula

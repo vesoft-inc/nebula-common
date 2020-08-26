@@ -53,12 +53,12 @@ public:
     bool isReady();
 
 private:
-    volatile size_t         counter_{0};
-    std::mutex              lock_;
+    volatile size_t counter_{0};
+    std::mutex lock_;
     std::condition_variable cond_;
 };
 
-}   // namespace concurrent
-}   // namespace nebula
+}  // namespace concurrent
+}  // namespace nebula
 
 #endif  // COMMON_CONCURRENT_LATCH_H_

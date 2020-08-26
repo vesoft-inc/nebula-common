@@ -21,7 +21,7 @@ struct List {
     explicit List(std::vector<Value>&& vals) {
         values = std::move(vals);
     }
-    explicit List(const std::vector<Value> &l) : values(l) {}
+    explicit List(const std::vector<Value>& l) : values(l) {}
 
     bool empty() const {
         return values.empty();
@@ -32,7 +32,7 @@ struct List {
     }
 
     template <typename T, typename = std::enable_if_t<std::is_convertible<T, Value>::value>>
-    void emplace_back(T &&v) {
+    void emplace_back(T&& v) {
         values.emplace_back(std::forward<T>(v));
     }
 
@@ -41,12 +41,16 @@ struct List {
     }
 
     List& operator=(const List& rhs) {
-        if (this == &rhs) { return *this; }
+        if (this == &rhs) {
+            return *this;
+        }
         values = rhs.values;
         return *this;
     }
     List& operator=(List&& rhs) noexcept {
-        if (this == &rhs) { return *this; }
+        if (this == &rhs) {
+            return *this;
+        }
         values = std::move(rhs.values);
         return *this;
     }
@@ -63,7 +67,7 @@ struct List {
         return values[i];
     }
 
-    bool contains(const Value &value) const {
+    bool contains(const Value& value) const {
         return std::find(values.begin(), values.end(), value) != values.end();
     }
 
@@ -83,14 +87,14 @@ struct List {
     }
 };
 
-inline std::ostream &operator<<(std::ostream& os, const List& l) {
+inline std::ostream& operator<<(std::ostream& os, const List& l) {
     return os << l.toString();
 }
 
 }  // namespace nebula
 
 namespace std {
-template<>
+template <>
 struct hash<nebula::List> {
     std::size_t operator()(const nebula::List& h) const noexcept {
         size_t seed = 0;

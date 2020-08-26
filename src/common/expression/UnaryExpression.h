@@ -15,10 +15,8 @@ class UnaryExpression final : public Expression {
     friend class Expression;
 
 public:
-    UnaryExpression(Kind kind,
-                    Expression* operand = nullptr)
-        : Expression(kind)
-        , operand_(std::move(operand)) {}
+    explicit UnaryExpression(Kind kind, Expression* operand = nullptr)
+        : Expression(kind), operand_(std::move(operand)) {}
 
     bool operator==(const Expression& rhs) const override;
 
@@ -44,7 +42,7 @@ private:
     void resetFrom(Decoder& decoder) override;
 
     std::unique_ptr<Expression> operand_;
-    Value                       result_;
+    Value result_;
 };
 
 }  // namespace nebula

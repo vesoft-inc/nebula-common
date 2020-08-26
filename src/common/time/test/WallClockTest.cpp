@@ -4,8 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
+
+#include "common/base/Base.h"
 #include "common/time/WallClock.h"
 
 using nebula::time::WallClock;
@@ -22,7 +23,6 @@ TEST(WallClock, TimePointInSeconds) {
     }
 }
 
-
 TEST(WallClock, TimePointInMilliSeconds) {
     for (int i = 0; i < 100; i++) {
         auto tp1 = WallClock::slowNowInMilliSec();
@@ -34,7 +34,6 @@ TEST(WallClock, TimePointInMilliSeconds) {
         ASSERT_LE(tp2, tp3 + 500);
     }
 }
-
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

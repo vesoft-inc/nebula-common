@@ -25,38 +25,38 @@ public:
         if (rhs.kind() != kind()) {
             return false;
         }
-        auto &expr = static_cast<const LabelAttributeExpression&>(rhs);
+        auto &expr = static_cast<const LabelAttributeExpression &>(rhs);
         return *lhs_ == *expr.lhs_ && *rhs_ == *expr.rhs_;
     }
 
-    const Value& eval(ExpressionContext&) override {
+    const Value &eval(ExpressionContext &) override {
         LOG(FATAL) << "LabelAttributeExpression has to be rewritten";
     }
 
-    const LabelExpression* left() const {
+    const LabelExpression *left() const {
         return lhs_.get();
     }
 
-    const LabelExpression* right() const {
+    const LabelExpression *right() const {
         return rhs_.get();
     }
 
     std::string toString() const override;
 
 private:
-    void writeTo(Encoder&) const override {
+    void writeTo(Encoder &) const override {
         LOG(FATAL) << "LabelAttributeExpression cannot be encoded";
     }
 
-    void resetFrom(Decoder&) override {
+    void resetFrom(Decoder &) override {
         LOG(FATAL) << "LabelAttributeExpression cannot be decoded";
     }
 
 private:
-    std::unique_ptr<LabelExpression>    lhs_;
-    std::unique_ptr<LabelExpression>    rhs_;
+    std::unique_ptr<LabelExpression> lhs_;
+    std::unique_ptr<LabelExpression> rhs_;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
 #endif  // COMMON_EXPRESSION_LABELATTRIBUTEEXPRESSION_H_

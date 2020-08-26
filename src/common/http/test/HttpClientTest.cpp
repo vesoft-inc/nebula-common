@@ -4,12 +4,11 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/http/HttpClient.h"
-
 #include <gtest/gtest.h>
 #include <proxygen/httpserver/RequestHandler.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
 
+#include "common/http/HttpClient.h"
 #include "common/webservice/Common.h"
 #include "common/webservice/Router.h"
 #include "common/webservice/WebService.h"
@@ -21,11 +20,9 @@ class HttpClientHandler : public proxygen::RequestHandler {
 public:
     HttpClientHandler() = default;
 
-    void onRequest(std::unique_ptr<proxygen::HTTPMessage>) noexcept override {
-    }
+    void onRequest(std::unique_ptr<proxygen::HTTPMessage>) noexcept override {}
 
-    void onBody(std::unique_ptr<folly::IOBuf>) noexcept override {
-    }
+    void onBody(std::unique_ptr<folly::IOBuf>) noexcept override {}
 
     void onEOM() noexcept override {
         proxygen::ResponseBuilder(downstream_)
@@ -35,16 +32,14 @@ public:
             .sendWithEOM();
     }
 
-    void onUpgrade(proxygen::UpgradeProtocol) noexcept override {
-    }
+    void onUpgrade(proxygen::UpgradeProtocol) noexcept override {}
 
     void requestComplete() noexcept override {
         delete this;
     }
 
     void onError(proxygen::ProxygenError error) noexcept override {
-        LOG(ERROR) << "HttpClientHandler Error: "
-                   << proxygen::getErrorString(error);
+        LOG(ERROR) << "HttpClientHandler Error: " << proxygen::getErrorString(error);
     }
 };
 class HttpClientTestEnv : public ::testing::Environment {
@@ -73,23 +68,23 @@ private:
 
 TEST(HttpClient, get) {
     {
-        auto url = folly::stringPrintf("http://%s:%d%s", FLAGS_ws_ip.c_str(),
-                                       FLAGS_ws_http_port, "/path");
+        auto url =
+            folly::stringPrintf("http://%s:%d%s", FLAGS_ws_ip.c_str(), FLAGS_ws_http_port, "/path");
         auto result = HttpClient::get(url);
         ASSERT_TRUE(result.ok());
         ASSERT_EQ("HttpClientHandler successfully", result.value());
     }
     {
-        auto url = folly::stringPrintf("http://%s:%d%s", FLAGS_ws_ip.c_str(),
-                                       FLAGS_ws_http_port, "/not_exist");
+        auto url = folly::stringPrintf(
+            "http://%s:%d%s", FLAGS_ws_ip.c_str(), FLAGS_ws_http_port, "/not_exist");
         auto result = HttpClient::get(url);
         ASSERT_TRUE(result.ok());
         ASSERT_TRUE(result.value().empty());
     }
 }
 
-}   // namespace http
-}   // namespace nebula
+}  // namespace http
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

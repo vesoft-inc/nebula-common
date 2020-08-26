@@ -12,9 +12,7 @@
 namespace nebula {
 class RelationalExpression final : public BinaryExpression {
 public:
-    RelationalExpression(Kind kind,
-                         Expression* lhs = nullptr,
-                         Expression* rhs = nullptr)
+    explicit RelationalExpression(Kind kind, Expression* lhs = nullptr, Expression* rhs = nullptr)
         : BinaryExpression(kind, lhs, rhs) {}
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -22,7 +20,7 @@ public:
     std::string toString() const override;
 
 private:
-    Value                                       result_;
+    Value result_;
 };
 
 }  // namespace nebula

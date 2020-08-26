@@ -23,12 +23,16 @@ struct Map {
     }
 
     Map& operator=(const Map& rhs) {
-        if (this == &rhs) { return *this; }
+        if (this == &rhs) {
+            return *this;
+        }
         kvs = rhs.kvs;
         return *this;
     }
     Map& operator=(Map&& rhs) noexcept {
-        if (this == &rhs) { return *this; }
+        if (this == &rhs) {
+            return *this;
+        }
         kvs = std::move(rhs.kvs);
         return *this;
     }
@@ -40,9 +44,10 @@ struct Map {
     // the configs of rocksdb will use the interface, so the value need modify to string
     std::string toString() const {
         std::vector<std::string> value(kvs.size());
-        std::transform(kvs.begin(), kvs.end(), value.begin(), [](const auto &iter) -> std::string {
+        std::transform(kvs.begin(), kvs.end(), value.begin(), [](const auto& iter) -> std::string {
             std::stringstream out;
-            out << "\"" << iter.first << "\"" << ":" << iter.second;
+            out << "\"" << iter.first << "\""
+                << ":" << iter.second;
             return out.str();
         });
 
@@ -55,14 +60,14 @@ struct Map {
         return kvs == rhs.kvs;
     }
 
-    bool contains(const Value &value) const {
+    bool contains(const Value& value) const {
         if (!value.isStr()) {
             return false;
         }
         return kvs.count(value.getStr()) != 0;
     }
 
-    const Value& at(const std::string &key) const {
+    const Value& at(const std::string& key) const {
         auto iter = kvs.find(key);
         if (iter == kvs.end()) {
             return Value::kNullValue;
@@ -71,7 +76,7 @@ struct Map {
     }
 };
 
-inline std::ostream &operator<<(std::ostream& os, const Map& m) {
+inline std::ostream& operator<<(std::ostream& os, const Map& m) {
     return os << m.toString();
 }
 

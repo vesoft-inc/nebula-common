@@ -13,9 +13,7 @@ namespace nebula {
 
 class ArithmeticExpression final : public BinaryExpression {
 public:
-    ArithmeticExpression(Kind kind,
-                         Expression* lhs = nullptr,
-                         Expression* rhs = nullptr)
+    explicit ArithmeticExpression(Kind kind, Expression* lhs = nullptr, Expression* rhs = nullptr)
         : BinaryExpression(kind, lhs, rhs) {}
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -23,8 +21,8 @@ public:
     std::string toString() const override;
 
 private:
-    Value                       result_;
+    Value result_;
 };
 
-}   // namespace nebula
-#endif   // COMMON_EXPRESSION_EXPRESSION_H_
+}  // namespace nebula
+#endif  // COMMON_EXPRESSION_EXPRESSION_H_

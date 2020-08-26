@@ -1,8 +1,8 @@
 /* Copyright (c) 2020 vesoft inc. All rights reserved.
-*
-* This source code is licensed under Apache 2.0 License,
-* attached with Common Clause Condition 1.0, found in the LICENSES directory.
-*/
+ *
+ * This source code is licensed under Apache 2.0 License,
+ * attached with Common Clause Condition 1.0, found in the LICENSES directory.
+ */
 
 #include "common/function/TimeFunction.h"
 
@@ -70,21 +70,17 @@ StatusOr<Timestamp> TimeFunction::toTimestamp(const Value &val) {
     return timestamp;
 }
 
-
-StatusOr<Date> TimeFunction::toDate(const Value&) {
+StatusOr<Date> TimeFunction::toDate(const Value &) {
     LOG(FATAL) << "Unsupported";
     return Date();
 }
 
-
-StatusOr<DateTime> TimeFunction::toDateTime(const Value&) {
+StatusOr<DateTime> TimeFunction::toDateTime(const Value &) {
     LOG(FATAL) << "Unsupported";
     return DateTime();
 }
-
 
 bool TimeFunction::isLeapYear(int32_t year) {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 }  // namespace nebula
-

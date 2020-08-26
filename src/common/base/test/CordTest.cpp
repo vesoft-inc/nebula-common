@@ -4,8 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
+
+#include "common/base/Base.h"
 #include "common/base/Cord.h"
 
 namespace nebula {
@@ -19,9 +20,8 @@ TEST(Cord, empty) {
     EXPECT_EQ(a, cord.str());
     cord.appendTo(b);
     EXPECT_EQ(a, b);
-    EXPECT_TRUE(cord.applyTo([](const char* s, int32_t len) -> bool {
-        return s == nullptr && len == 0;
-    }));
+    EXPECT_TRUE(
+        cord.applyTo([](const char* s, int32_t len) -> bool { return s == nullptr && len == 0; }));
     cord.clear();
 }
 
@@ -40,12 +40,9 @@ TEST(Cord, write) {
     EXPECT_EQ(9 + sizeof(int64_t), cord.size());
     EXPECT_EQ(9 + sizeof(int64_t), cord.str().size());
     iVal = 0;
-    memcpy(reinterpret_cast<char*>(&iVal),
-           cord.str().data() + 9,
-           sizeof(int64_t));
+    memcpy(reinterpret_cast<char*>(&iVal), cord.str().data() + 9, sizeof(int64_t));
     EXPECT_EQ(1234567890L, iVal);
 }
-
 
 TEST(Cord, multipleBlocks) {
     Cord cord(128);
@@ -62,28 +59,35 @@ TEST(Cord, multipleBlocks) {
     EXPECT_EQ(buf, cord.str());
 }
 
-
 TEST(Cord, byteStream) {
     Cord cord1;
 
-    cord1 << static_cast<int8_t>('A')
-          << static_cast<uint8_t>('b')
-          << 'C'
-          << true;
+    cord1 << static_cast<int8_t>('A') << static_cast<uint8_t>('b') << 'C' << true;
 
     EXPECT_EQ(4, cord1.size());
     EXPECT_EQ(4, cord1.str().size());
     EXPECT_EQ("AbC", cord1.str().substr(0, 3));
 
     bool bVal = false;
-    memcpy(reinterpret_cast<char*>(&bVal),
-           cord1.str().data() + 3,
-           sizeof(bool));
+    memcpy(reinterpret_cast<char*>(&bVal), cord1.str().data() + 3, sizeof(bool));
     EXPECT_EQ(true, bVal);
 
-    uint8_t bytes[] = {
-        0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
-        0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
+    uint8_t bytes[] = {0x00,
+                       0x11,
+                       0x22,
+                       0x33,
+                       0x44,
+                       0x55,
+                       0x66,
+                       0x77,
+                       0x88,
+                       0x99,
+                       0xAA,
+                       0xBB,
+                       0xCC,
+                       0xDD,
+                       0xEE,
+                       0xFF};
     Cord cord2;
 
     cord2.write(reinterpret_cast<const char*>(&bytes[0]), sizeof(bytes));
@@ -96,24 +100,18 @@ TEST(Cord, byteStream) {
     }
 }
 
-
 TEST(Cord, integerStream) {
     Cord cord;
 
-    cord << static_cast<int16_t>(16)
-         << static_cast<uint16_t>(0x8080)
-         << static_cast<int32_t>(32)
-         << static_cast<uint32_t>(0xFF00FF00)
-         << static_cast<int64_t>(64)
+    cord << static_cast<int16_t>(16) << static_cast<uint16_t>(0x8080) << static_cast<int32_t>(32)
+         << static_cast<uint32_t>(0xFF00FF00) << static_cast<int64_t>(64)
          << static_cast<uint64_t>(0xFF11FF22FF33FF44UL);
 
-    EXPECT_EQ(sizeof(int16_t) + sizeof(uint16_t)
-                + sizeof(int32_t) + sizeof(uint32_t)
-                + sizeof(int64_t) + sizeof(uint64_t),
+    EXPECT_EQ(sizeof(int16_t) + sizeof(uint16_t) + sizeof(int32_t) + sizeof(uint32_t) +
+                  sizeof(int64_t) + sizeof(uint64_t),
               cord.size());
-    EXPECT_EQ(sizeof(int16_t) + sizeof(uint16_t)
-                + sizeof(int32_t) + sizeof(uint32_t)
-                + sizeof(int64_t) + sizeof(uint64_t),
+    EXPECT_EQ(sizeof(int16_t) + sizeof(uint16_t) + sizeof(int32_t) + sizeof(uint32_t) +
+                  sizeof(int64_t) + sizeof(uint64_t),
               cord.str().size());
 
     int16_t sVal;
@@ -124,27 +122,20 @@ TEST(Cord, integerStream) {
     uint64_t ulVal;
 
     std::string str = cord.str();
-    memcpy(reinterpret_cast<char*>(&sVal),
-           str.data(),
-           sizeof(int16_t));
-    memcpy(reinterpret_cast<char*>(&usVal),
-           str.data() + sizeof(int16_t),
-           sizeof(uint16_t));
+    memcpy(reinterpret_cast<char*>(&sVal), str.data(), sizeof(int16_t));
+    memcpy(reinterpret_cast<char*>(&usVal), str.data() + sizeof(int16_t), sizeof(uint16_t));
     memcpy(reinterpret_cast<char*>(&iVal),
            str.data() + sizeof(int16_t) + sizeof(uint16_t),
            sizeof(int32_t));
     memcpy(reinterpret_cast<char*>(&uiVal),
-           str.data() + sizeof(int16_t) + sizeof(uint16_t)
-                      + sizeof(int32_t),
+           str.data() + sizeof(int16_t) + sizeof(uint16_t) + sizeof(int32_t),
            sizeof(uint32_t));
     memcpy(reinterpret_cast<char*>(&lVal),
-           str.data() + sizeof(int16_t) + sizeof(uint16_t)
-                      + sizeof(int32_t) + sizeof(uint32_t),
+           str.data() + sizeof(int16_t) + sizeof(uint16_t) + sizeof(int32_t) + sizeof(uint32_t),
            sizeof(int64_t));
     memcpy(reinterpret_cast<char*>(&ulVal),
-           str.data() + sizeof(int16_t) + sizeof(uint16_t)
-                      + sizeof(int32_t) + sizeof(uint32_t)
-                      + sizeof(int64_t),
+           str.data() + sizeof(int16_t) + sizeof(uint16_t) + sizeof(int32_t) + sizeof(uint32_t) +
+               sizeof(int64_t),
            sizeof(uint64_t));
 
     EXPECT_EQ(16, sVal);
@@ -154,7 +145,6 @@ TEST(Cord, integerStream) {
     EXPECT_EQ(64, lVal);
     EXPECT_EQ(0xFF11FF22FF33FF44UL, ulVal);
 }
-
 
 TEST(Cord, floatStream) {
     Cord cord;
@@ -168,17 +158,12 @@ TEST(Cord, floatStream) {
     double dVal;
 
     std::string str = cord.str();
-    memcpy(reinterpret_cast<char*>(&fVal),
-           str.data(),
-           sizeof(float));
-    memcpy(reinterpret_cast<char*>(&dVal),
-           str.data() + sizeof(float),
-           sizeof(double));
+    memcpy(reinterpret_cast<char*>(&fVal), str.data(), sizeof(float));
+    memcpy(reinterpret_cast<char*>(&dVal), str.data() + sizeof(float), sizeof(double));
 
     EXPECT_FLOAT_EQ(1.234, fVal);
     EXPECT_DOUBLE_EQ(9.876, dVal);
 }
-
 
 TEST(Cord, stringStream) {
     std::string str1("Hello");
@@ -195,7 +180,6 @@ TEST(Cord, stringStream) {
     EXPECT_EQ(str1 + str2 + str3, cord.str());
 }
 
-
 TEST(Cord, cordStream) {
     Cord c1;
     Cord c2;
@@ -210,8 +194,7 @@ TEST(Cord, cordStream) {
     EXPECT_EQ(str1 + str2, c1.str());
 }
 
-}   // namespace nebula
-
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

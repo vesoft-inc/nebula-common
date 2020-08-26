@@ -6,6 +6,4 @@
 
 #include "common/datatypes/Path.h"
 
-namespace nebula {
-
-}  // namespace nebula
+namespace nebula {}  // namespace nebula

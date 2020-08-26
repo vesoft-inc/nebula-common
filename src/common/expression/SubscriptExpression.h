@@ -13,18 +13,17 @@ namespace nebula {
 
 class SubscriptExpression final : public BinaryExpression {
 public:
-    explicit SubscriptExpression(Expression *lhs = nullptr,
-                                 Expression *rhs = nullptr)
+    explicit SubscriptExpression(Expression *lhs = nullptr, Expression *rhs = nullptr)
         : BinaryExpression(Kind::kSubscript, lhs, rhs) {}
 
-    const Value& eval(ExpressionContext &ctx) override;
+    const Value &eval(ExpressionContext &ctx) override;
 
     std::string toString() const override;
 
 private:
-    Value                               result_;
+    Value result_;
 };
 
-}   // namespace nebula
+}  // namespace nebula
 
 #endif  // COMMON_EXPRESSION_SUBSCRIPTEXPRESSION_H_

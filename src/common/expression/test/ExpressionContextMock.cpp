@@ -32,7 +32,6 @@ std::unordered_map<std::string, Value> ExpressionContextMock::vals_ = {
     {"_type", Value(1)},
     {"_rank", Value(1)},
     {"srcProperty", Value(13)},
-    {"dstProperty", Value(3)}
-};
+    {"dstProperty", Value(3)}};
 
-}   // namespace nebula
+}  // namespace nebula

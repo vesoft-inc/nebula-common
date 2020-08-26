@@ -4,8 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
+
+#include "common/base/Base.h"
 #include "common/fs/FileUtils.h"
 
 namespace nebula {
@@ -17,7 +18,6 @@ TEST(FileUtils, readLink) {
     ASSERT_NE(std::string::npos, result.value().find("file_utils_test")) << result.value();
 }
 
-
 TEST(FileUtils, dirname) {
     ASSERT_EQ("/", FileUtils::dirname("/"));
     ASSERT_EQ("/", FileUtils::dirname("/var"));
@@ -28,7 +28,6 @@ TEST(FileUtils, dirname) {
     ASSERT_EQ(".", FileUtils::dirname("var/"));
 }
 
-
 TEST(FileUtils, basename) {
     ASSERT_EQ("", FileUtils::basename("/"));
     ASSERT_EQ("var", FileUtils::basename("/var"));
@@ -36,7 +35,6 @@ TEST(FileUtils, basename) {
     ASSERT_EQ("var", FileUtils::basename("var"));
     ASSERT_EQ("var", FileUtils::basename("var/"));
 }
-
 
 TEST(FileUtils, joinPath) {
     EXPECT_EQ(std::string("./test.log"), FileUtils::joinPath("", "test.log"));
@@ -51,7 +49,6 @@ TEST(FileUtils, joinPath) {
     EXPECT_STREQ("/bin/test.log", FileUtils::joinPath("/bin", "test.log").c_str());
     EXPECT_STREQ("/bin/test.log", FileUtils::joinPath("/bin/", "test.log").c_str());
 }
-
 
 TEST(FileUtils, dividePath) {
     folly::StringPiece parent;
@@ -82,13 +79,10 @@ TEST(FileUtils, dividePath) {
     EXPECT_EQ(std::string("FullPathFile"), child);
 }
 
-
 TEST(FileUtils, fileType) {
     EXPECT_EQ(FileType::CHAR_DEV, FileUtils::fileType("/dev/null"));
-    EXPECT_STREQ("SoftLink",
-                 FileUtils::getFileTypeName(FileUtils::fileType("/dev/stdin")));
+    EXPECT_STREQ("SoftLink", FileUtils::getFileTypeName(FileUtils::fileType("/dev/stdin")));
 }
-
 
 TEST(FileUtils, removeFile) {
     // Create a temporary file
@@ -109,7 +103,6 @@ TEST(FileUtils, removeFile) {
     EXPECT_EQ(errno, ENOENT);
 }
 
-
 TEST(FileUtils, removeDirNonrecursively) {
     // Create a temp directory
     char dirTemp[] = "/tmp/FileUtilTest-TempDir.XXXXXX";
@@ -122,8 +115,7 @@ TEST(FileUtils, removeDirNonrecursively) {
     ASSERT_EQ(close(fd), 0);
 
     char subDirTemp[64];
-    snprintf(subDirTemp, sizeof(subDirTemp),
-        "%s/FileUtilTest-SubTempDir.XXXXXX", dirTemp);
+    snprintf(subDirTemp, sizeof(subDirTemp), "%s/FileUtilTest-SubTempDir.XXXXXX", dirTemp);
     ASSERT_NE(mkdtemp(subDirTemp), nullptr);
 
     // Non-recursively removal should fail
@@ -140,7 +132,6 @@ TEST(FileUtils, removeDirNonrecursively) {
     EXPECT_LT(lstat(dirTemp, &st), 0);
     EXPECT_EQ(errno, ENOENT);
 }
-
 
 TEST(FileUtils, removeDirRecursively) {
     // Create a temp directory
@@ -179,7 +170,6 @@ TEST(FileUtils, removeDirRecursively) {
     EXPECT_LT(lstat(dirTemp, &st), 0);
     EXPECT_EQ(errno, ENOENT);
 }
-
 
 TEST(FileUtils, makeDir) {
     // Create a temp directory
@@ -229,7 +219,6 @@ TEST(FileUtils, makeDir) {
     EXPECT_EQ(FileType::NOTEXIST, FileUtils::fileType(dirTemp));
 }
 
-
 TEST(FileUtils, listContentInDir) {
     // Create a temp directory
     char dirTemp[] = "/tmp/FileUtilTest-listContent.XXXXXX";
@@ -259,21 +248,15 @@ TEST(FileUtils, listContentInDir) {
     ASSERT_EQ(0, fclose(f2));
 
     // Create two symbolic links
-    ASSERT_EQ(0, symlink(subDir2.c_str(),
-                         FileUtils::joinPath(dirTemp, "symlink1").c_str()));
-    ASSERT_EQ(0, symlink(fn1.c_str(),
-                         FileUtils::joinPath(dirTemp, "symlink2").c_str()));
+    ASSERT_EQ(0, symlink(subDir2.c_str(), FileUtils::joinPath(dirTemp, "symlink1").c_str()));
+    ASSERT_EQ(0, symlink(fn1.c_str(), FileUtils::joinPath(dirTemp, "symlink2").c_str()));
 
     // List sym links
-    auto symlinks = FileUtils::listAllTypedEntitiesInDir(dirTemp,
-                                                         FileType::SYM_LINK,
-                                                         false,
-                                                         nullptr);
+    auto symlinks =
+        FileUtils::listAllTypedEntitiesInDir(dirTemp, FileType::SYM_LINK, false, nullptr);
     EXPECT_EQ(2, symlinks.size());
-    EXPECT_NE(symlinks.end(),
-              std::find(symlinks.begin(), symlinks.end(), "symlink1"));
-    EXPECT_NE(symlinks.end(),
-              std::find(symlinks.begin(), symlinks.end(), "symlink2"));
+    EXPECT_NE(symlinks.end(), std::find(symlinks.begin(), symlinks.end(), "symlink1"));
+    EXPECT_NE(symlinks.end(), std::find(symlinks.begin(), symlinks.end(), "symlink2"));
 
     // List files
     auto files = FileUtils::listAllFilesInDir(dirTemp, true, nullptr);
@@ -292,10 +275,9 @@ TEST(FileUtils, listContentInDir) {
     EXPECT_EQ(FileType::NOTEXIST, FileUtils::fileType(dirTemp));
 }
 
-
 TEST(FileUtilsIterator, Directory) {
     auto stopped = false;
-    std::thread t([&] () {
+    std::thread t([&]() {
         while (!stopped) {
             usleep(1000);
         }
@@ -315,7 +297,6 @@ TEST(FileUtilsIterator, Directory) {
     t.join();
 }
 
-
 TEST(FileUtilsIterator, File) {
     std::regex regex("([0-9]+\\.[0-9]{2})[ \\t]+"
                      "([0-9]+\\.[0-9]{2})[ \\t]+"
@@ -324,7 +305,7 @@ TEST(FileUtilsIterator, File) {
     FileUtils::FileLineIterator iter("/proc/loadavg", &regex);
 
     ASSERT_TRUE(iter.valid());
-    auto &sm = iter.matched();
+    auto& sm = iter.matched();
 
     double load1 = atof(sm[1].str().c_str());
     double load5 = atof(sm[2].str().c_str());
@@ -340,9 +321,8 @@ TEST(FileUtilsIterator, File) {
     ASSERT_FALSE(iter.valid());
 }
 
-}   // namespace fs
-}   // namespace nebula
-
+}  // namespace fs
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

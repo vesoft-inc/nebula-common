@@ -1,8 +1,8 @@
 /* Copyright (c) 2020 vesoft inc. All rights reserved.
-*
-* This source code is licensed under Apache 2.0 License,
-* attached with Common Clause Condition 1.0, found in the LICENSES directory.
-*/
+ *
+ * This source code is licensed under Apache 2.0 License,
+ * attached with Common Clause Condition 1.0, found in the LICENSES directory.
+ */
 
 #ifndef COMMON_FUNCTION_TIMEFUNCTION_H
 #define COMMON_FUNCTION_TIMEFUNCTION_H
@@ -11,7 +11,6 @@
 #include "common/base/StatusOr.h"
 #include "common/datatypes/Date.h"
 #include "common/interface/gen-cpp2/common_types.h"
-
 
 namespace nebula {
 
@@ -29,6 +28,5 @@ public:
 
     static bool isLeapYear(int32_t year);
 };
-}   // namespace nebula
-#endif   // COMMON_FUNCTION_TIMEFUNCTION_H
-
+}  // namespace nebula
+#endif  // COMMON_FUNCTION_TIMEFUNCTION_H

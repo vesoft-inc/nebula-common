@@ -4,14 +4,14 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include "common/thread/GenericThreadPool.h"
+
+#include "common/base/Base.h"
 
 namespace nebula {
 namespace thread {
 
-GenericThreadPool::GenericThreadPool() {
-}
+GenericThreadPool::GenericThreadPool() {}
 
 GenericThreadPool::~GenericThreadPool() {
     stop();
@@ -55,5 +55,5 @@ void GenericThreadPool::purgeTimerTask(uint64_t id) {
     pool_[idx]->purgeTimerTask(id);
 }
 
-}   // namespace thread
-}   // namespace nebula
+}  // namespace thread
+}  // namespace nebula

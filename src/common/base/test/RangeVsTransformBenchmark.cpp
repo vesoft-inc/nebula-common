@@ -3,11 +3,11 @@
  * This source code is licensed under Apache 2.0 License,
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
-#include <folly/init/Init.h>
 #include <folly/Benchmark.h>
+#include <folly/init/Init.h>
+
 #include <algorithm>
 #include <vector>
-
 
 BENCHMARK(Test1_RangeTestStr) {
     std::vector<int32_t> from;
@@ -29,9 +29,8 @@ BENCHMARK_RELATIVE(Test1_TransformStr) {
         from.resize(1000, 0);
         to.resize(1000);
     }
-    std::transform(from.begin(), from.end(), to.begin(), [] (const auto& e) {
-        return std::to_string(e);
-    });
+    std::transform(
+        from.begin(), from.end(), to.begin(), [](const auto& e) { return std::to_string(e); });
     folly::doNotOptimizeAway(to);
 }
 
@@ -57,9 +56,7 @@ BENCHMARK_RELATIVE(Test2_TransformInt) {
         from.resize(1000, 0);
         to.resize(1000);
     }
-    std::transform(from.begin(), from.end(), to.begin(), [] (const auto& e) {
-        return e;
-    });
+    std::transform(from.begin(), from.end(), to.begin(), [](const auto& e) { return e; });
     folly::doNotOptimizeAway(to);
 }
 
@@ -82,7 +79,7 @@ BENCHMARK_RELATIVE(Test3_ForEachInt) {
     BENCHMARK_SUSPEND {
         v.resize(1000, 0);
     }
-    std::for_each(v.begin(), v.end(), [] (const auto&) {
+    std::for_each(v.begin(), v.end(), [](const auto&) {
         int a;
         folly::doNotOptimizeAway(a);
     });
@@ -93,7 +90,6 @@ int main(int argc, char** argv) {
     folly::runBenchmarks();
     return 0;
 }
-
 
 /*
 Intel(R) Xeon(R) CPU E5-2690 v2 @ 3.00GHz*
@@ -127,4 +123,3 @@ Test3_ForEachInt                                 102.41%   386.61ns    2.59M
 ============================================================================
 
 */
-

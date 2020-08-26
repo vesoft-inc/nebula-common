@@ -4,12 +4,13 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
-#include <gtest/gtest.h>
 #include <folly/json.h>
-#include "common/webservice/WebService.h"
+#include <gtest/gtest.h>
+
+#include "common/base/Base.h"
 #include "common/fs/TempDir.h"
 #include "common/http/HttpClient.h"
+#include "common/webservice/WebService.h"
 
 namespace nebula {
 
@@ -31,17 +32,17 @@ public:
         webSvc_.reset();
         VLOG(1) << "Web service stopped";
     }
+
 protected:
     std::unique_ptr<WebService> webSvc_;
 };
-
 
 TEST(StatusHandlerTest, SimpleTest) {
     std::string gitInfoSha = NEBULA_STRINGIFY(GIT_INFO_SHA);
     {
         auto url = "/status";
-        auto request = folly::stringPrintf("http://%s:%d%s", FLAGS_ws_ip.c_str(),
-                                           FLAGS_ws_http_port, url);
+        auto request =
+            folly::stringPrintf("http://%s:%d%s", FLAGS_ws_ip.c_str(), FLAGS_ws_http_port, url);
         auto resp = http::HttpClient::get(request);
         ASSERT_TRUE(resp.ok());
         auto json = folly::parseJson(resp.value());
@@ -51,8 +52,8 @@ TEST(StatusHandlerTest, SimpleTest) {
     }
     {
         auto url = "";
-        auto request = folly::stringPrintf("http://%s:%d%s", FLAGS_ws_ip.c_str(),
-                                           FLAGS_ws_http_port, url);
+        auto request =
+            folly::stringPrintf("http://%s:%d%s", FLAGS_ws_ip.c_str(), FLAGS_ws_http_port, url);
         auto resp = http::HttpClient::get(request);
         ASSERT_TRUE(resp.ok());
         auto json = folly::parseJson(resp.value());
@@ -62,7 +63,6 @@ TEST(StatusHandlerTest, SimpleTest) {
 }
 
 }  // namespace nebula
-
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

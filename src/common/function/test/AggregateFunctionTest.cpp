@@ -5,6 +5,7 @@
  */
 
 #include <gtest/gtest.h>
+
 #include "common/function/AggregateFunction.h"
 
 namespace nebula {
@@ -20,17 +21,18 @@ public:
         vals4_.emplace_back(Value(NullType::__NULL__));
         vals4_.emplace_back(Value());
     }
+
 protected:
-    static std::vector<Value>  vals1_;
-    static std::vector<Value>  vals2_;
-    static std::vector<Value>  vals3_;
-    static std::vector<Value>  vals4_;
+    static std::vector<Value> vals1_;
+    static std::vector<Value> vals2_;
+    static std::vector<Value> vals3_;
+    static std::vector<Value> vals4_;
 };
 
-std::vector<Value>  AggregateFunctionTest::vals1_;
-std::vector<Value>  AggregateFunctionTest::vals2_;
-std::vector<Value>  AggregateFunctionTest::vals3_;
-std::vector<Value>  AggregateFunctionTest::vals4_;
+std::vector<Value> AggregateFunctionTest::vals1_;
+std::vector<Value> AggregateFunctionTest::vals2_;
+std::vector<Value> AggregateFunctionTest::vals3_;
+std::vector<Value> AggregateFunctionTest::vals4_;
 
 TEST_F(AggregateFunctionTest, Group) {
     auto group = AggFun::aggFunMap_[AggFun::Function::kNone](false);

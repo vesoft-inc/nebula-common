@@ -4,14 +4,15 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
+
+#include "common/base/Base.h"
 #include "common/base/SignalHandler.h"
 
 namespace nebula {
 
 TEST(SignalHandler, Term) {
-    auto handler = [] (auto *info) {
+    auto handler = [](auto *info) {
         ASSERT_EQ(SIGTERM, info->sig());
         ASSERT_EQ(::getpid(), info->pid());
         ASSERT_EQ(::getuid(), info->uid());
@@ -20,15 +21,13 @@ TEST(SignalHandler, Term) {
     ::raise(SIGTERM);
 }
 
-
 TEST(SignalHandler, Pipe) {
     // SIGPIPE has been ignored
     ::raise(SIGPIPE);
 }
 
-
 TEST(SignalHandler, Overwrite) {
-    auto handler = [] (auto *info) {
+    auto handler = [](auto *info) {
         ASSERT_EQ(SIGHUP, info->sig());
         ASSERT_EQ(::getpid(), info->pid());
         ASSERT_EQ(::getuid(), info->uid());
@@ -38,4 +37,4 @@ TEST(SignalHandler, Overwrite) {
     ::raise(SIGHUP);
 }
 
-}   // namespace nebula
+}  // namespace nebula

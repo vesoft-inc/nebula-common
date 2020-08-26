@@ -4,9 +4,10 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include <gtest/gtest.h>
+
 #include "common/base/Base.h"
 #include "common/base/ConcurrentLRUCache.h"
-#include <gtest/gtest.h>
 
 namespace nebula {
 
@@ -98,7 +99,7 @@ TEST(ConcurrentLRUCacheTest, EvictKeyTest) {
         EXPECT_TRUE(v.ok());
         EXPECT_EQ(folly::stringPrintf("%d_str", i), v.value());
     }
-    for (auto i = 1; i < 1000; i+=2) {
+    for (auto i = 1; i < 1000; i += 2) {
         cache.evict(i);
     }
     for (auto i = 0; i < 1000; i++) {
@@ -119,8 +120,8 @@ TEST(ConcurrentLRUCacheTest, MultiThreadsTest) {
     ConcurrentLRUCache<int32_t, std::string> cache(1024 * 1024);
     std::vector<std::thread> threads;
     for (auto i = 0; i < 10; i++) {
-        threads.emplace_back([&cache, i] () {
-            for (auto j = i * 1000; j < (i + 1) *1000; j++) {
+        threads.emplace_back([&cache, i]() {
+            for (auto j = i * 1000; j < (i + 1) * 1000; j++) {
                 cache.insert(j, folly::stringPrintf("%d_str", j));
             }
         });
@@ -139,9 +140,7 @@ TEST(ConcurrentLRUCacheTest, MultiThreadsTest) {
     EXPECT_EQ(10000, cache.total());
 }
 
-
 }  // namespace nebula
-
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

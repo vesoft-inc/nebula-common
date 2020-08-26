@@ -4,8 +4,9 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
+
+#include "common/base/Base.h"
 #include "common/base/MurmurHash2.h"
 
 namespace nebula {
@@ -38,58 +39,52 @@ TEST(MurmurHash2, Basic) {
         ASSERT_EQ(static_cast<size_t>(rand64), hash(rand64));
     }
     // pointer
-    {
-        {
-            auto *ptr = new MurmurHash2();
-            ASSERT_EQ(reinterpret_cast<size_t>(ptr), hash(ptr));
-            delete ptr;
-        }
-        {
-            auto *ptr = new std::string();
-            ASSERT_EQ(reinterpret_cast<size_t>(ptr), hash(ptr));
-            delete ptr;
-        }
-        {
-            auto *ptr = new int();
-            ASSERT_EQ(reinterpret_cast<size_t>(ptr), hash(ptr));
-            delete ptr;
-        }
-    }
-    // shared_ptr
-    {
-        {
-            auto ptr = std::make_shared<MurmurHash2>();
-            ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
-        }
-        {
-            auto ptr = std::make_shared<std::string>();
-            ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
-        }
-        {
-            auto ptr = std::make_shared<int>();
-            ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
-        }
-    }
-    // unique_ptr
-    {
-        {
-            auto ptr = std::make_unique<MurmurHash2>();
-            ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
-        }
-        {
-            auto ptr = std::make_unique<std::string>();
-            ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
-        }
-        {
-            auto ptr = std::make_unique<int>();
-            ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
-        }
-    }
-    // std::thread::id
-    {
-        auto id = std::this_thread::get_id();
-        ASSERT_EQ(std::hash<std::thread::id>()(id), hash(id));
-    }
+    {{auto *ptr = new MurmurHash2();
+    ASSERT_EQ(reinterpret_cast<size_t>(ptr), hash(ptr));
+    delete ptr;
+}
+{
+    auto *ptr = new std::string();
+    ASSERT_EQ(reinterpret_cast<size_t>(ptr), hash(ptr));
+    delete ptr;
+}
+{
+    auto *ptr = new int();
+    ASSERT_EQ(reinterpret_cast<size_t>(ptr), hash(ptr));
+    delete ptr;
+}
+}  // namespace nebula
+// shared_ptr
+{{auto ptr = std::make_shared<MurmurHash2>();
+ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
+}
+{
+    auto ptr = std::make_shared<std::string>();
+    ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
+}
+{
+    auto ptr = std::make_shared<int>();
+    ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
+}
+}
+// unique_ptr
+{{auto ptr = std::make_unique<MurmurHash2>();
+ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
+}
+{
+    auto ptr = std::make_unique<std::string>();
+    ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
+}
+{
+    auto ptr = std::make_unique<int>();
+    ASSERT_EQ(reinterpret_cast<size_t>(ptr.get()), hash(ptr));
+}
+}
+// std::thread::id
+{
+    auto id = std::this_thread::get_id();
+    ASSERT_EQ(std::hash<std::thread::id>()(id), hash(id));
+}
 }
 
-}   // namespace nebula
+}  // namespace nebula

@@ -16,8 +16,7 @@ namespace nebula {
 
 class SlowOpTracker {
 public:
-    SlowOpTracker()
-        : startMs_(time::WallClock::fastNowInMilliSec()) {}
+    SlowOpTracker() : startMs_(time::WallClock::fastNowInMilliSec()) {}
 
     ~SlowOpTracker() = default;
 

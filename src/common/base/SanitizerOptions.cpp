@@ -10,9 +10,9 @@
 // Following hook functions are required by the sanitizer runtime library.
 // So make them exported.
 // Besides, keep these hooks outside the consideration of sanitizer
-#define SANITIZER_HOOK_ATTRIBUTES                                               \
-    __attribute__((visibility("default")))                                      \
-    // __attribute__((no_sanitize("address", "thread", "undefined")))
+#define SANITIZER_HOOK_ATTRIBUTES                                                                  \
+    __attribute__((                                                                                \
+        visibility("default")))  // __attribute__((no_sanitize("address", "thread", "undefined")))
 
 extern "C" {
 
@@ -30,9 +30,8 @@ const char* __asan_default_options() {
            "strict_string_checks=1 \n"
            "detect_container_overflow=1 \n"
            "strip_path_prefix=" NEBULA_STRINGIFY(NEBULA_HOME) "/ \n"
-           "";
+                                                              "";
 }
-
 
 SANITIZER_HOOK_ATTRIBUTES
 const char* __asan_default_suppressions() {
@@ -41,14 +40,12 @@ const char* __asan_default_suppressions() {
            "";
 }
 
-
 SANITIZER_HOOK_ATTRIBUTES
 const char* __lsan_default_options() {
     return ""
            ""
            "";
 }
-
 
 SANITIZER_HOOK_ATTRIBUTES
 const char* __lsan_default_suppressions() {
@@ -59,13 +56,12 @@ const char* __lsan_default_suppressions() {
            "";
 }
 
-
 SANITIZER_HOOK_ATTRIBUTES
 const char* __ubsan_default_options() {
     return "print_stacktrace=1 \n";
 }
 
-}   // extern "C"
+}  // extern "C"
 
 #undef SANITIZER_HOOK_ATTRIBUTES
 

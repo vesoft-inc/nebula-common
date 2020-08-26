@@ -7,19 +7,19 @@
 #ifndef COMMON_WEBSERVICE_ROUTER_H_
 #define COMMON_WEBSERVICE_ROUTER_H_
 
+#include <proxygen/lib/http/HTTPMethod.h>
+
 #include <memory>
 #include <regex>
 #include <unordered_map>
 #include <vector>
-
-#include <proxygen/lib/http/HTTPMethod.h>
 
 #include "common/cpp/helpers.h"
 
 namespace proxygen {
 class RequestHandler;
 class HTTPMessage;
-}   // namespace proxygen
+}  // namespace proxygen
 
 namespace nebula {
 
@@ -70,8 +70,8 @@ private:
 class Router final : public cpp::NonCopyable, public cpp::NonMovable {
 public:
     explicit Router(const std::string &prefix) : prefix_(prefix), webSvc_(nullptr) {}
-    Router(const std::string &prefix, const WebService *webSvc) : prefix_(prefix),
-        webSvc_(DCHECK_NOTNULL(webSvc)) {}
+    Router(const std::string &prefix, const WebService *webSvc)
+        : prefix_(prefix), webSvc_(DCHECK_NOTNULL(webSvc)) {}
     ~Router();
 
     proxygen::RequestHandler *dispatch(const proxygen::HTTPMessage *msg) const;
@@ -103,7 +103,7 @@ private:
     const WebService *webSvc_;
 };
 
-}   // namespace web
-}   // namespace nebula
+}  // namespace web
+}  // namespace nebula
 
-#endif   // COMMON_WEBSERVICE_ROUTER_H_
+#endif  // COMMON_WEBSERVICE_ROUTER_H_

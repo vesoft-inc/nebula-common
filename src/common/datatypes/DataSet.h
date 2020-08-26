@@ -8,8 +8,8 @@
 #define COMMON_DATATYPES_DATASET_H_
 
 #include "common/base/Base.h"
-#include "common/datatypes/Value.h"
 #include "common/datatypes/List.h"
+#include "common/datatypes/Value.h"
 
 namespace nebula {
 
@@ -104,14 +104,14 @@ struct DataSet {
     std::string toString() const {
         std::stringstream os;
         // header
-        for (const auto &h : colNames) {
+        for (const auto& h : colNames) {
             os << h << "|";
         }
         os << std::endl;
 
         // body
-        for (const auto &row : rows) {
-            for (const auto &col : row.values) {
+        for (const auto& row : rows) {
+            for (const auto& col : row.values) {
                 os << col << "|";
             }
             os << std::endl;
@@ -125,7 +125,7 @@ struct DataSet {
     }
 };
 
-inline std::ostream &operator<<(std::ostream& os, const DataSet& d) {
+inline std::ostream& operator<<(std::ostream& os, const DataSet& d) {
     return os << d.toString();
 }
 

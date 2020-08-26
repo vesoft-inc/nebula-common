@@ -19,12 +19,10 @@ public:
     virtual ~GraphClient();
 
     // Authenticate the user
-    cpp2::ErrorCode connect(const std::string& username,
-                            const std::string& password);
+    cpp2::ErrorCode connect(const std::string& username, const std::string& password);
     void disconnect();
 
-    cpp2::ErrorCode execute(folly::StringPiece stmt,
-                            cpp2::ExecutionResponse& resp);
+    cpp2::ErrorCode execute(folly::StringPiece stmt, cpp2::ExecutionResponse& resp);
 
 private:
     std::unique_ptr<cpp2::GraphServiceAsyncClient> client_;

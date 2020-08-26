@@ -4,9 +4,10 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include <gtest/gtest.h>
+
 #include "common/base/Base.h"
 #include "common/hdfs/HdfsCommandHelper.h"
-#include <gtest/gtest.h>
 
 namespace nebula {
 namespace hdfs {
@@ -23,8 +24,8 @@ TEST(HdfsHelper, copyToLocal) {
     ASSERT_TRUE(result.ok()) << result.status();
 }
 
-}   // namespace hdfs
-}   // namespace nebula
+}  // namespace hdfs
+}  // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

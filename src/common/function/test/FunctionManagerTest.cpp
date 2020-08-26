@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-
 #include <gtest/gtest.h>
+
 #include "common/function/FunctionManager.h"
 
 namespace nebula {
@@ -261,32 +261,27 @@ TEST_F(FunctionManagerTest, returnType) {
         EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
-        auto result =
-            FunctionManager::getReturnType("cos", {Value::Type::FLOAT});
+        auto result = FunctionManager::getReturnType("cos", {Value::Type::FLOAT});
         ASSERT_TRUE(result.ok());
         EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
-        auto result =
-            FunctionManager::getReturnType("sin", {Value::Type::INT});
+        auto result = FunctionManager::getReturnType("sin", {Value::Type::INT});
         ASSERT_TRUE(result.ok());
         EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
-        auto result =
-            FunctionManager::getReturnType("asin", {Value::Type::INT});
+        auto result = FunctionManager::getReturnType("asin", {Value::Type::INT});
         ASSERT_TRUE(result.ok());
         EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
-        auto result =
-            FunctionManager::getReturnType("acos", {Value::Type::FLOAT});
+        auto result = FunctionManager::getReturnType("acos", {Value::Type::FLOAT});
         ASSERT_TRUE(result.ok());
         EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
-        auto result =
-            FunctionManager::getReturnType("acos", {Value::Type::STRING});
+        auto result = FunctionManager::getReturnType("acos", {Value::Type::STRING});
         ASSERT_FALSE(result.ok());
         EXPECT_EQ(result.status().toString(), "Parameter's type error");
     }
@@ -424,14 +419,13 @@ TEST_F(FunctionManagerTest, returnType) {
         EXPECT_EQ(result.status().toString(), "Parameter's type error");
     }
     {
-        auto result =
-            FunctionManager::getReturnType("noexist", {Value::Type::INT});
+        auto result = FunctionManager::getReturnType("noexist", {Value::Type::INT});
         ASSERT_FALSE(result.ok());
         EXPECT_EQ(result.status().toString(), "Function `noexist' not defined");
     }
 }
 
-}   // namespace nebula
+}  // namespace nebula
 
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
