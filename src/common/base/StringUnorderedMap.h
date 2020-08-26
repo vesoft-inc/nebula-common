@@ -99,14 +99,14 @@ public:
     size_type erase(const key_type& key);
 
     void swap(StringUnorderedMap& other);
-    void swap(StringUnorderedMap& other) noexcept
+    void swap(StringUnorderedMap& other) noexcept;
 
-        /******************************************
-         *
-         * Lookup
-         *
-         *****************************************/
-        T& at(const key_type& key);
+    /******************************************
+     *
+     * Lookup
+     *
+     *****************************************/
+    T& at(const key_type& key);
     const T& at(const key_type& key) const;
 
     T& operator[](const key_type& key);
