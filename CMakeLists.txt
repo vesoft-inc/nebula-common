@@ -98,6 +98,17 @@ if (ENABLE_TESTING AND ENABLE_COVERAGE)
     set(COVERAGES --coverage)
 endif()
 
+# clang format
+# Set the source files to clang-format
+FILE(GLOB_RECURSE
+    CHECK_CXX_SOURCE_FILES
+    *.h
+    *.cpp
+    *.inl
+)
+INCLUDE("cmake/ClangFormat.cmake")
+
+
 # To detect if ccache is available
 find_program(ccache_program_found "ccache")
 if (ENABLE_CCACHE AND ccache_program_found)
