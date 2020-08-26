@@ -306,7 +306,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
                          col.get_type(),
                          len,
                          nullable,
-                         hasDef ? defaultValueExpr.get() : nullptr);
+                         hasDef ? defaultValueExpr.release() : nullptr);
     };
 
     for (auto& tagIt : tagItemVec) {
