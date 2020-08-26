@@ -16,6 +16,8 @@ jobs:
     name: lint
     if: ${{ contains(github.event.pull_request.labels.*.name, 'ready-for-testing') }}
     runs-on: ubuntu-latest
+    container:
+      image: vesoft/nebula-dev
     steps:
       - uses: actions/checkout@v2
         with:
@@ -31,7 +33,7 @@ jobs:
           cmake ..
           make format-check
           cd ..
-          rm rf build
+          rm -rf build
 
   build:
     name: build
