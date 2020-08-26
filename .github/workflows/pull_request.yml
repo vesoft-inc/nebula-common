@@ -28,6 +28,7 @@ jobs:
           .linters/cpp/pre-commit.sh $(git --no-pager diff --diff-filter=d --name-only HEAD^ HEAD)
       - name: Format check
         run: |
+          if [ "$(clang-format --version | cut -d ' ' -f 6)" != '9.0.0' ] ; then echo 'Require clang-format 9.0.0' && exit 1; fi
           mkdir -p build
           cd build
           cmake ..
