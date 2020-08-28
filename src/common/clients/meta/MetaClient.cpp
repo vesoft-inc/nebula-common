@@ -231,24 +231,8 @@ bool MetaClient::loadData() {
             LOG(ERROR) << "Get space properties failed for space " << spaceId;
             return false;
         }
-        const auto& properties = resp.value().get_properties();
-        SpaceDesc spaceDesc;
-        spaceDesc.spaceName_ = properties.get_space_name();
-        spaceDesc.partNum_ = properties.get_partition_num();
-        spaceDesc.replicaFactor_ = properties.get_replica_factor();
-        spaceDesc.charsetName_ = properties.get_charset_name();
-        spaceDesc.collationName_ = properties.get_collate_name();
-        spaceDesc.vidSize_ = properties.get_vid_size();
-        if (properties.get_vid_type() == cpp2::PropertyType::STRING) {
-            spaceDesc.vidType_ = Value::Type::STRING;
-        } else if (properties.get_vid_type() == cpp2::PropertyType::INT64) {
-            spaceDesc.vidType_ = Value::Type::INT;
-        } else {
-            LOG(ERROR) << "Unsupported vid type: "
-                << meta::cpp2::_PropertyType_VALUES_TO_NAMES.at(properties.get_vid_type());
-            return false;
-        }
-        spaceCache->spaceDesc_ = std::move(spaceDesc);
+        auto properties = resp.value().get_properties();
+        spaceCache->spaceDesc_ = std::move(properties);
 
         cache.emplace(spaceId, spaceCache);
         spaceIndexByName.emplace(space.second, spaceId);
@@ -776,28 +760,10 @@ MetaClient::submitJob(cpp2::AdminJobOp op, cpp2::AdminCmd cmd, std::vector<std::
     return future;
 }
 
-
-folly::Future<StatusOr<GraphSpaceID>> MetaClient::createSpace(SpaceDesc spaceDesc,
+folly::Future<StatusOr<GraphSpaceID>> MetaClient::createSpace(meta::cpp2::SpaceDesc spaceDesc,
                                                               bool ifNotExists) {
-    cpp2::SpaceProperties properties;
-    properties.set_space_name(std::move(spaceDesc.spaceName_));
-    properties.set_partition_num(spaceDesc.partNum_);
-    properties.set_replica_factor(spaceDesc.replicaFactor_);
-    properties.set_charset_name(std::move(spaceDesc.charsetName_));
-    properties.set_collate_name(std::move(spaceDesc.collationName_));
-    properties.set_vid_size(spaceDesc.vidSize_);
-    if (spaceDesc.vidType_ == Value::Type::STRING) {
-        properties.set_vid_type(cpp2::PropertyType::STRING);
-    } else if (spaceDesc.vidType_ == Value::Type::INT) {
-        properties.set_vid_type(cpp2::PropertyType::INT64);
-    } else {
-        std::stringstream ss;
-        ss << "Unsupported vid type: " << spaceDesc.vidType_;
-        return folly::makeFuture<StatusOr<GraphSpaceID>>(Status::Error(ss.str()));
-    }
-
     cpp2::CreateSpaceReq req;
-    req.set_properties(std::move(properties));
+    req.set_properties(std::move(spaceDesc));
     req.set_if_not_exists(ifNotExists);
     folly::Promise<StatusOr<GraphSpaceID>> promise;
     auto future = promise.getFuture();
@@ -812,7 +778,6 @@ folly::Future<StatusOr<GraphSpaceID>> MetaClient::createSpace(SpaceDesc spaceDes
                 true);
     return future;
 }
-
 
 folly::Future<StatusOr<std::vector<SpaceIdName>>> MetaClient::listSpaces() {
     cpp2::ListSpacesReq req;
@@ -1682,14 +1647,14 @@ StatusOr<int32_t> MetaClient::getSpaceVidLen(const GraphSpaceID& spaceId) {
         LOG(ERROR) << "Space " << spaceId << " not found!";
         return Status::Error(folly::stringPrintf("Space %d not found", spaceId));
     }
-    auto vIdLen = spaceIt->second->spaceDesc_.vidSize_;
+    auto vIdLen = spaceIt->second->spaceDesc_.vid_size;
     if (vIdLen <= 0) {
         return Status::Error(folly::stringPrintf("Space %d vertexId length invalid", spaceId));
     }
     return vIdLen;
 }
 
-StatusOr<Value::Type> MetaClient::getSpaceVidType(const GraphSpaceID& spaceId) {
+StatusOr<cpp2::PropertyType> MetaClient::getSpaceVidType(const GraphSpaceID& spaceId) {
     if (!ready_) {
         return Status::Error("Not ready!");
     }
@@ -1699,16 +1664,17 @@ StatusOr<Value::Type> MetaClient::getSpaceVidType(const GraphSpaceID& spaceId) {
         LOG(ERROR) << "Space " << spaceId << " not found!";
         return Status::Error(folly::stringPrintf("Space %d not found", spaceId));
     }
-    auto vIdType = spaceIt->second->spaceDesc_.vidType_;
-    if (vIdType != Value::Type::INT && vIdType != Value::Type::STRING) {
+    auto vIdType = spaceIt->second->spaceDesc_.vid_type;
+    if (vIdType != cpp2::PropertyType::INT64 && vIdType != cpp2::PropertyType::FIXED_STRING) {
         std::stringstream ss;
-        ss << "Space " << spaceId << "vertexId type invalid: " << vIdType;
+        ss << "Space " << spaceId << ", vertexId type invalid: "
+            << meta::cpp2::_PropertyType_VALUES_TO_NAMES.at(vIdType);
         return Status::Error(ss.str());
     }
     return vIdType;
 }
 
-StatusOr<SpaceDesc> MetaClient::getSpaceDesc(const GraphSpaceID& space) {
+StatusOr<cpp2::SpaceDesc> MetaClient::getSpaceDesc(const GraphSpaceID& space) {
     if (!ready_) {
         return Status::Error("Not ready!");
     }

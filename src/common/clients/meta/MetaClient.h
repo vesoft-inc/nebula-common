@@ -46,36 +46,8 @@ using NameIndexMap = std::unordered_map<std::pair<GraphSpaceID, std::string>, In
 // Get Index Structure by indexID
 using Indexes = std::unordered_map<IndexID, std::shared_ptr<cpp2::IndexItem>>;
 
-struct SpaceDesc {
-    SpaceDesc() {}
-
-    SpaceDesc(const std::string& spaceName,
-              int32_t partNum,
-              int32_t replicaFactor,
-              const std::string& charsetName = "",
-              const std::string& collationName = "",
-              int32_t vidSize = 8,
-              Value::Type vidType = Value::Type::STRING)
-        : spaceName_(spaceName)
-        , partNum_(partNum)
-        , replicaFactor_(replicaFactor)
-        , charsetName_(charsetName)
-        , collationName_(collationName)
-        , vidSize_(vidSize)
-        , vidType_(vidType) {
-    }
-
-    std::string  spaceName_;
-    int32_t      partNum_{0};
-    int32_t      replicaFactor_{0};
-    std::string  charsetName_;
-    std::string  collationName_;
-    int32_t      vidSize_{8};
-    Value::Type  vidType_{Value::Type::STRING};
-};
-
 struct SpaceInfoCache {
-    SpaceDesc spaceDesc_;
+    cpp2::SpaceDesc spaceDesc_;
     PartsAlloc partsAlloc_;
     std::unordered_map<HostAddr, std::vector<PartitionID>> partsOnHost_;
     TagSchemas tagSchemas_;
@@ -199,7 +171,7 @@ public:
     submitJob(cpp2::AdminJobOp op, cpp2::AdminCmd cmd, std::vector<std::string> paras);
 
     // Operations for parts
-    folly::Future<StatusOr<GraphSpaceID>> createSpace(SpaceDesc spaceDesc,
+    folly::Future<StatusOr<GraphSpaceID>> createSpace(meta::cpp2::SpaceDesc spaceDesc,
                                                       bool ifNotExists = false);
 
     folly::Future<StatusOr<std::vector<SpaceIdName>>>
@@ -391,9 +363,9 @@ public:
 
     StatusOr<int32_t> getSpaceVidLen(const GraphSpaceID& space);
 
-    StatusOr<Value::Type> getSpaceVidType(const GraphSpaceID& space);
+    StatusOr<cpp2::PropertyType> getSpaceVidType(const GraphSpaceID& space);
 
-    StatusOr<SpaceDesc> getSpaceDesc(const GraphSpaceID& space);
+    StatusOr<meta::cpp2::SpaceDesc> getSpaceDesc(const GraphSpaceID& space);
 
     StatusOr<TagID> getTagIDByNameFromCache(const GraphSpaceID& space,
                                             const std::string& name);
