@@ -47,6 +47,7 @@ include(SanitizerConfig)
 include(GitHooksConfig)
 include(GitInfoConfig)
 include(NebulaCustomTargets)
+include(ClangTidy)
 
 # Remove the target exporting file
 file(REMOVE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-config.cmake)
