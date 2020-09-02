@@ -34,7 +34,7 @@ public:
 
     folly::SemiFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>> getNeighbors(
         GraphSpaceID space,
-        std::vector<std::string> colNames,
+        const std::vector<std::string>& colNames,
         // The first column has to be the VertexID
         const std::vector<Row>& vertices,
         const std::vector<EdgeType>& edgeTypes,
@@ -47,7 +47,7 @@ public:
         bool random = false,
         const std::vector<cpp2::OrderBy>& orderBy = std::vector<cpp2::OrderBy>(),
         int64_t limit = std::numeric_limits<int64_t>::max(),
-        std::string filter = std::string(),
+        const std::string& filter = std::string(),
         folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>> getProps(
@@ -59,20 +59,20 @@ public:
         bool dedup = false,
         const std::vector<cpp2::OrderBy>& orderBy = std::vector<cpp2::OrderBy>(),
         int64_t limit = std::numeric_limits<int64_t>::max(),
-        std::string filter = std::string(),
+        const std::string& filter = std::string(),
         folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> addVertices(
         GraphSpaceID space,
         std::vector<cpp2::NewVertex> vertices,
-        std::unordered_map<TagID, std::vector<std::string>> propNames,
+        const std::unordered_map<TagID, std::vector<std::string>>& propNames,
         bool overwritable,
         folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> addEdges(
         GraphSpaceID space,
         std::vector<cpp2::NewEdge> edges,
-        std::vector<std::string> propNames,
+        const std::vector<std::string>& propNames,
         bool overwritable,
         folly::EventBase* evb = nullptr);
 
@@ -112,11 +112,11 @@ public:
 
     folly::SemiFuture<StorageRpcResponse<cpp2::LookupIndexResp>> lookupIndex(
         GraphSpaceID space,
-        std::vector<storage::cpp2::IndexQueryContext> contexts,
+        const std::vector<storage::cpp2::IndexQueryContext>& contexts,
         bool isEdge,
         int32_t tagOrEdge,
         std::vector<std::string> returnCols,
-        folly::EventBase *evb = nullptr);
+        folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>> lookupAndTraverse(
         GraphSpaceID space,

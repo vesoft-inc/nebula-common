@@ -10,9 +10,6 @@
 namespace nebula {
 namespace thread {
 
-GenericThreadPool::GenericThreadPool() {
-}
-
 GenericThreadPool::~GenericThreadPool() {
     stop();
     wait();

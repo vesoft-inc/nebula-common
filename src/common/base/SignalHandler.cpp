@@ -9,10 +9,6 @@
 
 namespace nebula {
 
-SignalHandler::SignalHandler() {
-}
-
-
 Status SignalHandler::init() {
     // Ignore SIGPIPE and SIGHUP
     auto ignored = {SIGPIPE, SIGHUP};

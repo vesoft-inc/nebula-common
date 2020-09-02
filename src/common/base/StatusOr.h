@@ -258,9 +258,7 @@ public:
     // `*this' must be a rvalue
     T value() && {
         DCHECK(ok());
-        auto value = std::move(variant_.value_);
-        resetValue();
-        return value;
+        return std::move(variant_.value_);
     }
 
 private:

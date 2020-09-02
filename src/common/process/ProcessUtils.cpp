@@ -6,7 +6,7 @@
 
 #include "common/base/Base.h"
 #include "common/process/ProcessUtils.h"
-#include <signal.h>
+#include <csignal>
 #include "common/base/Cord.h"
 #include "common/fs/FileUtils.h"
 

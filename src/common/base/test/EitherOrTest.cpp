@@ -130,7 +130,7 @@ TEST(EitherOr, ReturnFromMoveOnlyValue) {
 
 TEST(EitherOr, CopyConstructFromDefault) {
     EitherOr<int, std::string> result1;
-    auto result2 = result1;
+    auto result2 = result1;   // NOLINT
     ASSERT_TRUE(result2.isVoid());
 }
 
@@ -218,8 +218,8 @@ TEST(EitherOr, CopyAssignFromValue) {
 
 TEST(EitherOr, MoveConstructFromDefault) {
     EitherOr<int, std::string> result1;
-    auto result2 = std::move(result1);
     ASSERT_TRUE(result1.isVoid());
+    auto result2 = std::move(result1);
     ASSERT_TRUE(result2.isVoid());
 }
 
@@ -228,7 +228,6 @@ TEST(EitherOr, MoveConstructFromValue) {
     {
         EitherOr<int, std::string> result1(101);
         auto result2 = std::move(result1);
-        ASSERT_TRUE(result1.isVoid());
         ASSERT_FALSE(result2.isVoid());
         ASSERT_TRUE(result2.isLeftType());
         EXPECT_EQ(101, result2.left());
@@ -236,21 +235,18 @@ TEST(EitherOr, MoveConstructFromValue) {
     {
         EitherOr<int, std::string> result1("SomeValue");
         auto result2 = std::move(result1);
-        ASSERT_TRUE(result1.isVoid());
         ASSERT_TRUE(result2.isRightType());
         EXPECT_EQ("SomeValue", result2.right());
     }
     {
         EitherOr<int16_t, std::string> r1("Hello World");
         EitherOr<int32_t, std::string> r2 = std::move(r1);
-        ASSERT_TRUE(r1.isVoid());
         ASSERT_TRUE(r2.isRightType());
         EXPECT_EQ("Hello World", r2.right());
     }
     {
         EitherOr<int16_t, std::string> r1(256);
         EitherOr<int32_t, std::string> r2 = std::move(r1);
-        ASSERT_TRUE(r1.isVoid());
         ASSERT_TRUE(r2.isLeftType());
         EXPECT_EQ(256, r2.left());
     }
@@ -261,7 +257,6 @@ TEST(EitherOr, MoveAssignFromDefault) {
     EitherOr<int, std::string> result1;
     decltype(result1) result2;
     result2 = std::move(result1);
-    ASSERT_TRUE(result1.isVoid());
     ASSERT_TRUE(result2.isVoid());
 }
 
@@ -271,7 +266,6 @@ TEST(EitherOr, MoveAssignFromValue) {
         EitherOr<int, std::string> result1(101);
         decltype(result1) result2;
         result2 = std::move(result1);
-        ASSERT_TRUE(result1.isVoid());
         ASSERT_FALSE(result2.isVoid());
         ASSERT_TRUE(result2.isLeftType());
         EXPECT_EQ(101, result2.left());
@@ -280,7 +274,6 @@ TEST(EitherOr, MoveAssignFromValue) {
         EitherOr<int, std::string> result1("SomeValue");
         decltype(result1) result2;
         result2 = std::move(result1);
-        ASSERT_TRUE(result1.isVoid());
         ASSERT_TRUE(result2.isRightType());
         EXPECT_EQ("SomeValue", result2.right());
     }
@@ -288,13 +281,11 @@ TEST(EitherOr, MoveAssignFromValue) {
         EitherOr<int16_t, std::string> r1("Hello World");
         EitherOr<int32_t, std::string> r2;
         r2 = std::move(r1);
-        ASSERT_TRUE(r1.isVoid());
         ASSERT_TRUE(r2.isRightType());
         EXPECT_EQ("Hello World", r2.right());
 
         r1 = 256;
         r2 = std::move(r1);
-        ASSERT_TRUE(r1.isVoid());
         ASSERT_TRUE(r2.isLeftType());
         EXPECT_EQ(256, r2.left());
     }
@@ -332,7 +323,6 @@ TEST(EitherOr, AssignFromValue) {
 
         auto str = std::string("SomeValue");
         result = std::move(str);
-        ASSERT_TRUE(str.empty());
         ASSERT_TRUE(result.isRightType());
         EXPECT_EQ("SomeValue", result.right());
     }
@@ -354,7 +344,6 @@ TEST(EitherOr, MoveOutValue) {
     ASSERT_FALSE(result.isVoid());
     EXPECT_EQ("SomeValue", result.right());
     auto str = std::move(result).right();
-    ASSERT_TRUE(result.isVoid());
     EXPECT_EQ("SomeValue", str);
 }
 
@@ -368,9 +357,9 @@ TEST(EitherOr, SelfAssignment) {
     }
     {
         EitherOr<int, std::string> r("SomeValue");
-        r = std::move(r);
-        ASSERT_TRUE(r.isRightType());
-        EXPECT_EQ("SomeValue", r.right());
+        r = std::move(r);                    // NOLINT
+        ASSERT_TRUE(r.isRightType());        // NOLINT
+        EXPECT_EQ("SomeValue", r.right());   // NOLINT
     }
 }
 

@@ -189,7 +189,7 @@ bool MetaClient::loadData() {
     decltype(spaceTagIndexById_)        spaceTagIndexById;
     decltype(spaceAllEdgeMap_)          spaceAllEdgeMap;
 
-    for (auto space : ret.value()) {
+    for (const auto& space : ret.value()) {
         auto spaceId = space.first;
         auto r = getPartsAlloc(spaceId).get();
         if (!r.ok()) {
@@ -396,7 +396,7 @@ bool MetaClient::loadIndexes(GraphSpaceID spaceId,
     }
 
     Indexes tagIndexes;
-    for (auto tagIndex : tagIndexesRet.value()) {
+    for (const auto& tagIndex : tagIndexesRet.value()) {
         auto indexName = tagIndex.get_index_name();
         auto indexID = tagIndex.get_index_id();
         std::pair<GraphSpaceID, std::string> pair(spaceId, indexName);
@@ -637,9 +637,9 @@ Status MetaClient::handleResponse(const RESP& resp) {
 PartsMap MetaClient::doGetPartsMap(const HostAddr& host,
                                    const LocalCache& localCache) {
     PartsMap partMap;
-    for (auto it = localCache.begin(); it != localCache.end(); it++) {
-        auto spaceId = it->first;
-        auto& cache = it->second;
+    for (const auto& lc : localCache) {
+        auto spaceId = lc.first;
+        auto& cache = lc.second;
         auto partsIt = cache->partsOnHost_.find(host);
         if (partsIt != cache->partsOnHost_.end()) {
             for (auto& partId : partsIt->second) {
@@ -647,8 +647,8 @@ PartsMap MetaClient::doGetPartsMap(const HostAddr& host,
                 CHECK(partAllocIter != cache->partsAlloc_.end());
                 auto& partM = partMap[spaceId][partId];
                 partM.spaceId_ = spaceId;
-                partM.partId_  = partId;
-                partM.hosts_   = partAllocIter->second;
+                partM.partId_ = partId;
+                partM.hosts_ = partAllocIter->second;
             }
         }
     }
@@ -665,30 +665,30 @@ void MetaClient::diff(const LocalCache& oldCache, const LocalCache& newCache) {
     auto newPartsMap = doGetPartsMap(options_.localHost_, newCache);
     auto oldPartsMap = doGetPartsMap(options_.localHost_, oldCache);
     VLOG(1) << "Let's check if any new parts added/updated for " << options_.localHost_;
-    for (auto it = newPartsMap.begin(); it != newPartsMap.end(); it++) {
-        auto spaceId = it->first;
-        const auto& newParts = it->second;
+    for (const auto& part : newPartsMap) {
+        auto spaceId = part.first;
+        const auto& newParts = part.second;
         auto oldIt = oldPartsMap.find(spaceId);
         if (oldIt == oldPartsMap.end()) {
             VLOG(1) << "SpaceId " << spaceId << " was added!";
             listener_->onSpaceAdded(spaceId);
-            for (auto partIt = newParts.begin(); partIt != newParts.end(); partIt++) {
-                listener_->onPartAdded(partIt->second);
+            for (const auto& p : newParts) {
+                listener_->onPartAdded(p.second);
             }
         } else {
             const auto& oldParts = oldIt->second;
-            for (auto partIt = newParts.begin(); partIt != newParts.end(); partIt++) {
-                auto oldPartIt = oldParts.find(partIt->first);
+            for (const auto &p : newParts) {
+                auto oldPartIt = oldParts.find(p.first);
                 if (oldPartIt == oldParts.end()) {
                     VLOG(1) << "SpaceId " << spaceId << ", partId "
-                            << partIt->first << " was added!";
-                    listener_->onPartAdded(partIt->second);
+                            << p.first << " was added!";
+                    listener_->onPartAdded(p.second);
                 } else {
                     const auto& oldPartHosts = oldPartIt->second;
-                    const auto& newPartHosts = partIt->second;
+                    const auto& newPartHosts = p.second;
                     if (oldPartHosts != newPartHosts) {
                         VLOG(1) << "SpaceId " << spaceId
-                                << ", partId " << partIt->first << " was updated!";
+                                << ", partId " << p.first << " was updated!";
                         listener_->onPartUpdated(newPartHosts);
                     }
                 }
@@ -696,24 +696,23 @@ void MetaClient::diff(const LocalCache& oldCache, const LocalCache& newCache) {
         }
     }
     VLOG(1) << "Let's check if any old parts removed....";
-    for (auto it = oldPartsMap.begin(); it != oldPartsMap.end(); it++) {
-        auto spaceId = it->first;
-        const auto& oldParts = it->second;
+    for (const auto& part : oldPartsMap) {
+        auto spaceId = part.first;
+        const auto& oldParts = part.second;
         auto newIt = newPartsMap.find(spaceId);
         if (newIt == newPartsMap.end()) {
             VLOG(1) << "SpaceId " << spaceId << " was removed!";
-            for (auto partIt = oldParts.begin(); partIt != oldParts.end(); partIt++) {
-                listener_->onPartRemoved(spaceId, partIt->first);
+            for (const auto& p : oldParts) {
+                listener_->onPartRemoved(spaceId, p.first);
             }
             listener_->onSpaceRemoved(spaceId);
         } else {
             const auto& newParts = newIt->second;
-            for (auto partIt = oldParts.begin(); partIt != oldParts.end(); partIt++) {
-                auto newPartIt = newParts.find(partIt->first);
+            for (const auto& p : oldParts) {
+                auto newPartIt = newParts.find(p.first);
                 if (newPartIt == newParts.end()) {
-                    VLOG(1) << "SpaceId " << spaceId
-                            << ", partId " << partIt->first << " was removed!";
-                    listener_->onPartRemoved(spaceId, partIt->first);
+                    VLOG(1) << "SpaceId " << spaceId << ", partId " << p.first << " was removed!";
+                    listener_->onPartRemoved(spaceId, p.first);
                 }
             }
         }
@@ -723,7 +722,7 @@ void MetaClient::diff(const LocalCache& oldCache, const LocalCache& newCache) {
 
 /// ================================== public methods =================================
 
-StatusOr<PartitionID> MetaClient::partId(GraphSpaceID spaceId, const VertexID id) const {
+StatusOr<PartitionID> MetaClient::partId(GraphSpaceID spaceId, const VertexID& id) const {
     auto status = partsNum(spaceId);
     if (!status.ok()) {
         return Status::Error("Space not found, spaceid: %d", spaceId);
@@ -742,7 +741,6 @@ StatusOr<PartitionID> MetaClient::partId(GraphSpaceID spaceId, const VertexID id
     CHECK_GT(pId, 0U);
     return pId;
 }
-
 
 folly::Future<StatusOr<cpp2::AdminJobResult>>
 MetaClient::submitJob(cpp2::AdminJobOp op, cpp2::AdminCmd cmd, std::vector<std::string> paras) {
@@ -888,8 +886,8 @@ MetaClient::getPartsAlloc(GraphSpaceID spaceId) {
                 },
                 [] (cpp2::GetPartsAllocResp&& resp) -> decltype(auto) {
                     std::unordered_map<PartitionID, std::vector<HostAddr>> parts;
-                    for (auto it = resp.parts.begin(); it != resp.parts.end(); it++) {
-                        parts.emplace(it->first, it->second);
+                    for (const auto& p : resp.parts) {
+                        parts.emplace(p.first, p.second);
                     }
                     return parts;
                 },
@@ -998,9 +996,13 @@ MetaClient::multiPut(std::string segment,
 
     cpp2::MultiPutReq req;
     std::vector<nebula::KeyValue> data;
-    for (auto& element : pairs) {
-        data.emplace_back(std::move(element));
-    }
+    data.reserve(pairs.size());
+    using p_iter_t = std::vector<std::pair<std::string, std::string>>::iterator;
+    std::transform(std::move_iterator<p_iter_t>(pairs.begin()),
+                   std::move_iterator<p_iter_t>(pairs.end()),
+                   std::back_inserter(data),
+                   [](auto pair) { return nebula::KeyValue(std::move(pair)); });
+
     req.set_segment(std::move(segment));
     req.set_pairs(std::move(data));
     folly::Promise<StatusOr<bool>> promise;
@@ -2338,14 +2340,11 @@ MetaClient::getEdgeDefaultValue(GraphSpaceID spaceId,
     req.set_key(std::move(key));
     folly::Promise<StatusOr<std::string>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_get(request);
-                },
-                [] (cpp2::GetResp&& resp) -> std::string {
-                    return resp.get_value();
-                },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_get(request); },
+        [](cpp2::GetResp&& resp) -> std::string { return resp.get_value(); },
+        std::move(promise)); // NOLINT
     return future;
 }
 
@@ -2356,15 +2355,14 @@ MetaClient::regConfig(const std::vector<cpp2::ConfigItem>& items) {
     req.set_items(items);
     folly::Promise<StatusOr<int64_t>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_regConfig(request);
-                },
-                [] (cpp2::ExecResp&& resp) -> decltype(auto) {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
-                },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_regConfig(request); },
+        [](cpp2::ExecResp&& resp) -> decltype(auto) {
+            return resp.code == cpp2::ErrorCode::SUCCEEDED;
+        },
+        std::move(promise),   // NOLINT
+        true);
     return future;
 }
 
@@ -2381,14 +2379,11 @@ MetaClient::getConfig(const cpp2::ConfigModule& module, const std::string& name)
     req.set_item(item);
     folly::Promise<StatusOr<std::vector<cpp2::ConfigItem>>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_getConfig(request);
-                },
-                [] (cpp2::GetConfigResp&& resp) -> decltype(auto) {
-                    return std::move(resp).get_items();
-                },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_getConfig(request); },
+        [](cpp2::GetConfigResp&& resp) -> decltype(auto) { return std::move(resp).get_items(); },
+        std::move(promise));   // NOLINT
     return future;
 }
 
@@ -2406,15 +2401,14 @@ MetaClient::setConfig(const cpp2::ConfigModule& module,
     req.set_item(item);
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_setConfig(request);
-                },
-                [] (cpp2::ExecResp&& resp) -> decltype(auto) {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
-                },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_setConfig(request); },
+        [](cpp2::ExecResp&& resp) -> decltype(auto) {
+            return resp.code == cpp2::ErrorCode::SUCCEEDED;
+        },
+        std::move(promise),   // NOLINT
+        true);
     return future;
 }
 
@@ -2425,14 +2419,11 @@ MetaClient::listConfigs(const cpp2::ConfigModule& module) {
     req.set_module(module);
     folly::Promise<StatusOr<std::vector<cpp2::ConfigItem>>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_listConfigs(request);
-                },
-                [] (cpp2::ListConfigsResp&& resp) -> decltype(auto) {
-                    return std::move(resp).get_items();
-                },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_listConfigs(request); },
+        [](cpp2::ListConfigsResp&& resp) -> decltype(auto) { return std::move(resp).get_items(); },
+        std::move(promise));   // NOLINT
     return future;
 }
 
@@ -2441,15 +2432,12 @@ folly::Future<StatusOr<bool>> MetaClient::createSnapshot() {
     cpp2::CreateSnapshotReq req;
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_createSnapshot(request);
-                },
-                [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
-                },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_createSnapshot(request); },
+        [](cpp2::ExecResp&& resp) -> bool { return resp.code == cpp2::ErrorCode::SUCCEEDED; },
+        std::move(promise),   // NOLINT
+        true);
     return future;
 }
 
@@ -2459,15 +2447,12 @@ folly::Future<StatusOr<bool>> MetaClient::dropSnapshot(const std::string& name) 
     req.set_name(name);
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_dropSnapshot(request);
-                },
-                [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
-                },
-                std::move(promise),
-                true);
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_dropSnapshot(request); },
+        [](cpp2::ExecResp&& resp) -> bool { return resp.code == cpp2::ErrorCode::SUCCEEDED; },
+        std::move(promise),   // NOLINT
+        true);
     return future;
 }
 
@@ -2476,14 +2461,13 @@ folly::Future<StatusOr<std::vector<cpp2::Snapshot>>> MetaClient::listSnapshots()
     cpp2::ListSnapshotsReq req;
     folly::Promise<StatusOr<std::vector<cpp2::Snapshot>>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_listSnapshots(request);
-                },
-                [] (cpp2::ListSnapshotsResp&& resp) -> decltype(auto){
-                    return std::move(resp).get_snapshots();
-                },
-                std::move(promise));
+    getResponse(
+        std::move(req),
+        [](auto client, auto request) { return client->future_listSnapshots(request); },
+        [](cpp2::ListSnapshotsResp&& resp) -> decltype(auto) {
+            return std::move(resp).get_snapshots();
+        },
+        std::move(promise));   // NOLINT
     return future;
 }
 

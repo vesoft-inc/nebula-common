@@ -8,8 +8,8 @@
 #include "common/fs/FileUtils.h"
 #include <dirent.h>
 #include <fnmatch.h>
-#include <limits.h>
-#include <stdlib.h>
+#include <climits>
+#include <cstdlib>
 
 namespace nebula {
 namespace fs {
@@ -97,8 +97,8 @@ StatusOr<std::string> FileUtils::readLink(const char *path) {
 }
 
 StatusOr<std::string> FileUtils::realPath(const char *path) {
-    char *buffer  = ::realpath(path, NULL);
-    if (buffer == NULL) {
+    char *buffer  = ::realpath(path, nullptr);
+    if (buffer == nullptr) {
         return Status::Error("realpath %s: %s", path, ::strerror(errno));
     }
     std::string truePath(buffer);

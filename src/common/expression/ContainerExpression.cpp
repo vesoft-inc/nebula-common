@@ -39,7 +39,7 @@ bool ListExpression::operator==(const Expression &rhs) const {
         return false;
     }
 
-    for (auto i = 0u; i < size(); i++) {
+    for (size_t i = 0; i < size(); i++) {
         if (*items_[i] != *list.items_[i]) {
             return false;
         }
@@ -75,7 +75,7 @@ void ListExpression::writeTo(Encoder &encoder) const {
 void ListExpression::resetFrom(Decoder &decoder) {
     auto size = decoder.readSize();
     items_.reserve(size);
-    for (auto i = 0u; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         items_.emplace_back(decoder.readExpression());
     }
 }
@@ -111,7 +111,7 @@ bool SetExpression::operator==(const Expression &rhs) const {
         return false;
     }
 
-    for (auto i = 0u; i < size(); i++) {
+    for (size_t i = 0; i < size(); i++) {
         if (*items_[i] != *set.items_[i]) {
             return false;
         }
@@ -147,7 +147,7 @@ void SetExpression::writeTo(Encoder &encoder) const {
 void SetExpression::resetFrom(Decoder &decoder) {
     auto size = decoder.readSize();
     items_.reserve(size);
-    for (auto i = 0u; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         items_.emplace_back(decoder.readExpression());
     }
 }
@@ -187,7 +187,7 @@ bool MapExpression::operator==(const Expression &rhs) const {
         return false;
     }
 
-    for (auto i = 0u; i < size(); i++) {
+    for (size_t i = 0; i < size(); i++) {
         if (*items_[i].first != *map.items_[i].first) {
             return false;
         }
@@ -227,7 +227,7 @@ void MapExpression::writeTo(Encoder &encoder) const {
 void MapExpression::resetFrom(Decoder &decoder) {
     auto size = decoder.readSize();
     items_.reserve(size);
-    for (auto i = 0u; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         auto str = decoder.readStr();
         auto expr = decoder.readExpression();
         items_.emplace_back(std::move(str), std::move(expr));

@@ -62,8 +62,6 @@ TEST(ErrorOr, RetrieveValue) {
 
         auto res = value(std::move(e));
         EXPECT_EQ(10, res);
-        ASSERT_TRUE(ok(e));  // void is considered as succeeded
-        ASSERT_FALSE(hasValue(e));
     }
 }
 

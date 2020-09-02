@@ -38,6 +38,7 @@ private:
 TEST(StatsReaderTest, GetStatsTest) {
     auto statId = StatsManager::registerStats("stat01");
     std::vector<std::thread> threads;
+    threads.reserve(10);
     for (int i = 0; i < 10; i++) {
         threads.emplace_back([statId, i] () {
             for (int k = i * 10 + 1; k <= i * 10 + 10; k++) {
@@ -57,14 +58,12 @@ TEST(StatsReaderTest, GetStatsTest) {
         ASSERT_TRUE(getUrl("/get_stats?stats=stat01.sum.60", resp1));
         EXPECT_EQ(folly::stringPrintf("stat01.sum.60=%ld\n", statSum), resp1);
 
-        statSum = 0;
         statSum = StatsManager::readValue("stat01.sum.600").value();
         EXPECT_EQ(5050, statSum);
         std::string resp2;
         ASSERT_TRUE(getUrl("/get_stats?stats=stat01.sum.600", resp2));
         EXPECT_EQ(folly::stringPrintf("stat01.sum.600=%ld\n", statSum), resp2);
 
-        statSum = 0;
         statSum = StatsManager::readValue("stat01.sum.3600").value();
         EXPECT_EQ(5050, statSum);
         std::string resp3;
@@ -79,14 +78,12 @@ TEST(StatsReaderTest, GetStatsTest) {
         ASSERT_TRUE(getUrl("/get_stats?stats=stat01.count.60", resp1));
         EXPECT_EQ(folly::stringPrintf("stat01.count.60=%ld\n", statCount), resp1);
 
-        statCount = 0;
         statCount = StatsManager::readValue("stat01.count.600").value();
         EXPECT_EQ(100, statCount);
         std::string resp2;
         ASSERT_TRUE(getUrl("/get_stats?stats=stat01.count.600", resp2));
         EXPECT_EQ(folly::stringPrintf("stat01.count.600=%ld\n", statCount), resp2);
 
-        statCount = 0;
         statCount = StatsManager::readValue("stat01.count.3600").value();
         EXPECT_EQ(100, statCount);
         std::string resp3;
@@ -147,6 +144,7 @@ TEST(StatsReaderTest, GetStatsTest) {
 TEST(StatsReaderTest, GetHistoTest) {
     auto statId = StatsManager::registerHisto("stat02", 1, 1, 100);
     std::vector<std::thread> threads;
+    threads.reserve(10);
     for (int i = 0; i < 10; i++) {
         threads.emplace_back([statId, i] () {
             for (int k = i * 10 + 1; k <= i * 10 + 10; k++) {
@@ -166,14 +164,12 @@ TEST(StatsReaderTest, GetHistoTest) {
         ASSERT_TRUE(getUrl("/get_stats?stats=stat02.avg.60", resp1));
         EXPECT_EQ(folly::stringPrintf("stat02.avg.60=%ld\n", statAvg), resp1);
 
-        statAvg = 0;
         statAvg = StatsManager::readValue("stat02.Avg.600").value();
         EXPECT_EQ(50, statAvg);
         std::string resp2;
         ASSERT_TRUE(getUrl("/get_stats?stats=stat02.Avg.600", resp2));
         EXPECT_EQ(folly::stringPrintf("stat02.Avg.600=%ld\n", statAvg), resp2);
 
-        statAvg = 0;
         statAvg = StatsManager::readValue("stat02.AVG.3600").value();
         EXPECT_EQ(50, statAvg);
         std::string resp3;
@@ -188,14 +184,12 @@ TEST(StatsReaderTest, GetHistoTest) {
         ASSERT_TRUE(getUrl("/get_stats?stats=stat02.p99.60", resp1));
         EXPECT_EQ(folly::stringPrintf("stat02.p99.60=%ld\n", statP), resp1);
 
-        statP = 0;
         statP = StatsManager::readValue("stat02.P99.600").value();
         EXPECT_EQ(100, statP);
         std::string resp2;
         ASSERT_TRUE(getUrl("/get_stats?stats=stat02.P99.600", resp2));
         EXPECT_EQ(folly::stringPrintf("stat02.P99.600=%ld\n", statP), resp2);
 
-        statP = 0;
         EXPECT_FALSE(StatsManager::readValue("stat02.t99.3600").ok());
         std::string resp3;
         ASSERT_TRUE(getUrl("/get_stats?stats=stat02.t99.3600", resp3));

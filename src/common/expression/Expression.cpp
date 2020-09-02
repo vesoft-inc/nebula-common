@@ -61,7 +61,7 @@ Expression::Encoder& Expression::Encoder::operator<<(const std::string* str) noe
 
 
 Expression::Encoder& Expression::Encoder::operator<<(const Value& val) noexcept {
-    serializer::serialize(val, &buf_);
+    serializer::serialize(val, &buf_); // NOLINT
     return *this;
 }
 
@@ -125,9 +125,9 @@ std::unique_ptr<std::string> Expression::Decoder::readStr() noexcept {
     std::unique_ptr<std::string> str;
     if (sz > 0) {
         CHECK_LE(ptr_ + sz, encoded_.end());
-        str.reset(new std::string(ptr_, sz));
+        str = std::make_unique<std::string>(ptr_, sz);
     } else {
-        str.reset(new std::string());
+        str = std::make_unique<std::string>();
     }
     ptr_ += sz;
 

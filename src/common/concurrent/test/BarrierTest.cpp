@@ -80,6 +80,7 @@ TEST(BarrierTest, ConsecutiveTest) {
     };
 
     std::vector<std::thread> threads;
+    threads.reserve(N);
     for (auto i = 0UL; i < N; i++) {
         threads.emplace_back(cb);
     }

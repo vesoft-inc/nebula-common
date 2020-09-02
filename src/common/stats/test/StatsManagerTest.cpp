@@ -15,6 +15,7 @@ namespace stats {
 TEST(StatsManager, StatsTest) {
     auto statId = StatsManager::registerStats("stat01");
     std::vector<std::thread> threads;
+    threads.reserve(10);
     for (int i = 0; i < 10; i++) {
         threads.emplace_back([statId, i] () {
             for (int k = i * 10 + 1; k <= i * 10 + 10; k++) {
@@ -50,6 +51,7 @@ TEST(StatsManager, StatsTest) {
 TEST(StatsManager, HistogramTest) {
     auto statId = StatsManager::registerHisto("stat02", 1, 1, 100);
     std::vector<std::thread> threads;
+    threads.reserve(10);
     for (int i = 0; i < 10; i++) {
         threads.emplace_back([statId, i] () {
             for (int k = i * 10 + 1; k <= i * 10 + 10; k++) {

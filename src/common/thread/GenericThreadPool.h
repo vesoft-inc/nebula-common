@@ -23,7 +23,7 @@ namespace thread {
 class GenericThreadPool final : public nebula::cpp::NonCopyable
                               , public nebula::cpp::NonMovable {
 public:
-    GenericThreadPool();
+    GenericThreadPool() = default;
     ~GenericThreadPool();
 
     /**

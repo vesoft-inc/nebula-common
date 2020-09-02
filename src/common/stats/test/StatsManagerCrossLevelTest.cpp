@@ -15,6 +15,7 @@ namespace stats {
 TEST(StatsManager, CrossLevelTest) {
     auto statId = StatsManager::registerHisto("stat03", 1, 1, 100);
     std::vector<std::thread> threads;
+    threads.reserve(10);
     for (int i = 0; i < 10; i++) {
         threads.emplace_back([statId, i] () {
             for (int k = i * 10 + 10; k >= i * 10 + 1; k--) {

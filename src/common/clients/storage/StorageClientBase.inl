@@ -176,7 +176,7 @@ StorageClientBase<ClientType>::collectResponse(
         auto& host = req.first;
         auto spaceId = req.second.get_space_id();
         auto res = context->insertRequest(host, std::move(req.second));
-        DCHECK(res.second);
+        DCHECK(res.second);   // NOLINT
         // Invoke the remote method
         folly::via(evb, [this,
                          evb,

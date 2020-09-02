@@ -33,7 +33,7 @@ nebula::ExpressionContextMock gExpCtxt;
 namespace nebula {
 
 static void InsertSpace(std::string &str) {
-    for (unsigned int i = 0; i < str.size(); i++) {
+    for (size_t i = 0; i < str.size(); i++) {
         if (str[i] == '(') {
             str.insert(i + 1, 1, ' ');
         } else if (str[i] == ')') {
@@ -176,7 +176,7 @@ protected:
         std::string expr(exprSymbol);
         InsertSpace(expr);
         std::vector<std::string> splitString;
-        boost::split(splitString, expr, boost::is_any_of(" \t"));
+        boost::split(splitString, expr, boost::is_any_of(" \t"));   // NOLINT
         Expression *ep = ExpressionCalu(splitString);
         EXPECT_EQ(ep->toString(), expected);
         delete ep;

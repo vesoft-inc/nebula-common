@@ -95,6 +95,7 @@ GeneralStorageClient::remove(GraphSpaceID space,
         return v;
     });
 
+    // NOLINTNEXTLINE
     if (!status.ok()) {
         return folly::makeFuture<StorageRpcResponse<cpp2::ExecResponse>>(
             std::runtime_error(status.status().toString()));

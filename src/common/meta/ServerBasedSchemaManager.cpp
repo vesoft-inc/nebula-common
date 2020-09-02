@@ -27,7 +27,7 @@ StatusOr<int32_t> ServerBasedSchemaManager::getSpaceVidLen(GraphSpaceID space) {
 }
 
 std::shared_ptr<const NebulaSchemaProvider>
-ServerBasedSchemaManager::getTagSchema(GraphSpaceID space, TagID tag, SchemaVer ver) {
+ServerBasedSchemaManager::getTagSchema(GraphSpaceID space, TagID tag, SchemaVer ver) {   // NOLINT
     VLOG(3) << "Get Tag Schema Space " << space << ", TagID " << tag << ", Version " << ver;
     CHECK(metaClient_);
     // ver less 0, get the newest ver
@@ -54,6 +54,7 @@ StatusOr<SchemaVer> ServerBasedSchemaManager::getLatestTagSchemaVersion(GraphSpa
 }
 
 std::shared_ptr<const NebulaSchemaProvider>
+// NOLINTNEXTLINE
 ServerBasedSchemaManager::getEdgeSchema(GraphSpaceID space, EdgeType edge, SchemaVer ver) {
     VLOG(3) << "Get Edge Schema Space " << space << ", EdgeType " << edge << ", Version " << ver;
     CHECK(metaClient_);

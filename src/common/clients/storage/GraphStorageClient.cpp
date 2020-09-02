@@ -10,22 +10,22 @@
 namespace nebula {
 namespace storage {
 
-folly::SemiFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>>
-GraphStorageClient::getNeighbors(GraphSpaceID space,
-                                 std::vector<std::string> colNames,
-                                 const std::vector<Row>& vertices,
-                                 const std::vector<EdgeType>& edgeTypes,
-                                 cpp2::EdgeDirection edgeDirection,
-                                 const std::vector<cpp2::StatProp>* statProps,
-                                 const std::vector<cpp2::VertexProp>* vertexProps,
-                                 const std::vector<cpp2::EdgeProp>* edgeProps,
-                                 const std::vector<cpp2::Expr>* expressions,
-                                 bool dedup,
-                                 bool random,
-                                 const std::vector<cpp2::OrderBy>& orderBy,
-                                 int64_t limit,
-                                 std::string filter,
-                                 folly::EventBase* evb) {
+folly::SemiFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>> GraphStorageClient::getNeighbors(
+    GraphSpaceID space,
+    const std::vector<std::string>& colNames,
+    const std::vector<Row>& vertices,
+    const std::vector<EdgeType>& edgeTypes,
+    cpp2::EdgeDirection edgeDirection,
+    const std::vector<cpp2::StatProp>* statProps,
+    const std::vector<cpp2::VertexProp>* vertexProps,
+    const std::vector<cpp2::EdgeProp>* edgeProps,
+    const std::vector<cpp2::Expr>* expressions,
+    bool dedup,
+    bool random,
+    const std::vector<cpp2::OrderBy>& orderBy,
+    int64_t limit,
+    const std::string& filter,
+    folly::EventBase* evb) {
     auto status = clusterIdsToHosts(
         space, vertices, [](const Row& r) -> const VertexID& {
             // The first column has to be the vid
@@ -44,7 +44,7 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
         auto& host = c.first;
         auto& req = requests[host];
         req.set_space_id(space);
-        req.set_column_names(std::move(colNames));
+        req.set_column_names(colNames);
         req.set_parts(std::move(c.second));
 
         cpp2::TraverseSpec spec;
@@ -71,7 +71,7 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
             spec.set_limit(limit);
         }
         if (filter.size() > 0) {
-            spec.set_filter(std::move(filter));
+            spec.set_filter(filter);
         }
         req.set_traverse_spec(std::move(spec));
     }
@@ -87,13 +87,12 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
         });
 }
 
-
-folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>>
-GraphStorageClient::addVertices(GraphSpaceID space,
-                                std::vector<cpp2::NewVertex> vertices,
-                                std::unordered_map<TagID, std::vector<std::string>> propNames,
-                                bool overwritable,
-                                folly::EventBase* evb) {
+folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> GraphStorageClient::addVertices(
+    GraphSpaceID space,
+    std::vector<cpp2::NewVertex> vertices,
+    const std::unordered_map<TagID, std::vector<std::string>>& propNames,
+    bool overwritable,
+    folly::EventBase* evb) {
     auto status = clusterIdsToHosts(space,
                                     std::move(vertices),
                                     [](const cpp2::NewVertex& v) -> const VertexID& {
@@ -113,7 +112,7 @@ GraphStorageClient::addVertices(GraphSpaceID space,
         req.set_space_id(space);
         req.set_overwritable(overwritable);
         req.set_parts(std::move(c.second));
-        req.set_prop_names(std::move(propNames));
+        req.set_prop_names(propNames);
     }
 
     VLOG(3) << "requests size " << requests.size();
@@ -129,13 +128,12 @@ GraphStorageClient::addVertices(GraphSpaceID space,
         });
 }
 
-
-folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>>
-GraphStorageClient::addEdges(GraphSpaceID space,
-                             std::vector<cpp2::NewEdge> edges,
-                             std::vector<std::string> propNames,
-                             bool overwritable,
-                             folly::EventBase* evb) {
+folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> GraphStorageClient::addEdges(
+    GraphSpaceID space,
+    std::vector<cpp2::NewEdge> edges,
+    const std::vector<std::string>& propNames,
+    bool overwritable,
+    folly::EventBase* evb) {
     auto status = clusterIdsToHosts(space,
                                     std::move(edges),
                                     [](const cpp2::NewEdge& e) -> const VertexID& {
@@ -155,7 +153,7 @@ GraphStorageClient::addEdges(GraphSpaceID space,
         req.set_space_id(space);
         req.set_overwritable(overwritable);
         req.set_parts(std::move(c.second));
-        req.set_prop_names(std::move(propNames));
+        req.set_prop_names(propNames);
     }
 
     return collectResponse(
@@ -170,18 +168,17 @@ GraphStorageClient::addEdges(GraphSpaceID space,
         });
 }
 
-
-folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>>
-GraphStorageClient::getProps(GraphSpaceID space,
-                             const DataSet& input,
-                             const std::vector<cpp2::VertexProp>* vertexProps,
-                             const std::vector<cpp2::EdgeProp>* edgeProps,
-                             const std::vector<cpp2::Expr>* expressions,
-                             bool dedup,
-                             const std::vector<cpp2::OrderBy>& orderBy,
-                             int64_t limit,
-                             std::string filter,
-                             folly::EventBase* evb) {
+folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>> GraphStorageClient::getProps(
+    GraphSpaceID space,
+    const DataSet& input,
+    const std::vector<cpp2::VertexProp>* vertexProps,
+    const std::vector<cpp2::EdgeProp>* edgeProps,
+    const std::vector<cpp2::Expr>* expressions,
+    bool dedup,
+    const std::vector<cpp2::OrderBy>& orderBy,
+    int64_t limit,
+    const std::string& filter,
+    folly::EventBase* evb) {
     auto status = clusterIdsToHosts(space,
                                     input.rows,
                                     [](const Row& r) -> const VertexID& {
@@ -219,7 +216,7 @@ GraphStorageClient::getProps(GraphSpaceID space,
             req.set_limit(limit);
         }
         if (filter.size() > 0) {
-            req.set_filter(std::move(filter));
+            req.set_filter(filter);
         }
     }
 
@@ -234,7 +231,6 @@ GraphStorageClient::getProps(GraphSpaceID space,
             return p.first;
         });
 }
-
 
 folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>>
 GraphStorageClient::deleteEdges(GraphSpaceID space,
@@ -442,13 +438,13 @@ GraphStorageClient::getUUID(GraphSpaceID space,
     });
 }
 
-folly::SemiFuture<StorageRpcResponse<cpp2::LookupIndexResp>>
-GraphStorageClient::lookupIndex(GraphSpaceID space,
-                                std::vector<storage::cpp2::IndexQueryContext> contexts,
-                                bool isEdge,
-                                int32_t tagOrEdge,
-                                std::vector<std::string> returnCols,
-                                folly::EventBase *evb) {
+folly::SemiFuture<StorageRpcResponse<cpp2::LookupIndexResp>> GraphStorageClient::lookupIndex(
+    GraphSpaceID space,
+    const std::vector<storage::cpp2::IndexQueryContext>& contexts,
+    bool isEdge,
+    int32_t tagOrEdge,
+    std::vector<std::string> returnCols,
+    folly::EventBase* evb) {
     auto status = getHostParts(space);
     if (!status.ok()) {
         return folly::makeFuture<StorageRpcResponse<cpp2::LookupIndexResp>>(
@@ -465,7 +461,7 @@ GraphStorageClient::lookupIndex(GraphSpaceID space,
         req.set_return_columns(returnCols);
 
         cpp2::IndexSpec spec;
-        spec.set_contexts(std::move(contexts));
+        spec.set_contexts(contexts);
         spec.set_is_edge(isEdge);
         spec.set_tag_or_edge_id(tagOrEdge);
 
@@ -482,13 +478,13 @@ GraphStorageClient::lookupIndex(GraphSpaceID space,
                            });
 }
 
-
 folly::SemiFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>>
 GraphStorageClient::lookupAndTraverse(GraphSpaceID space,
                                       cpp2::IndexSpec indexSpec,
                                       cpp2::TraverseSpec traverseSpec,
                                       folly::EventBase* evb) {
     auto status = getHostParts(space);
+    // NOLINTNEXTLINE
     if (!status.ok()) {
         return folly::makeFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>>(
             std::runtime_error(status.status().toString()));
