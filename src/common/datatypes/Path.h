@@ -33,6 +33,12 @@ struct Step {
         , name(std::move(s.name))
         , ranking(std::move(s.ranking))
         , props(std::move(s.props)) {}
+    Step(Vertex d,
+         EdgeType t,
+         std::string n,
+         EdgeRanking r,
+         std::unordered_map<std::string, Value> p) noexcept
+        : dst(std::move(d)), type(t), name(std::move(n)), ranking(r), props(std::move(p)) {}
 
     void clear() {
         dst.clear();
