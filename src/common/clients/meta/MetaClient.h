@@ -235,7 +235,7 @@ public:
     listTagSchemas(GraphSpaceID spaceId);
 
     folly::Future<StatusOr<cpp2::ExecResp>>
-    dropTagSchema(int32_t spaceId, std::string name, const bool ifExists);
+    dropTagSchema(int32_t spaceId, std::string name, bool ifExists = false);
 
     // Return the latest schema when ver = -1
     folly::Future<StatusOr<cpp2::GetTagResp>>
@@ -260,7 +260,7 @@ public:
     getEdgeSchema(GraphSpaceID spaceId, std::string name, SchemaVer version = -1);
 
     folly::Future<StatusOr<cpp2::ExecResp>>
-    dropEdgeSchema(GraphSpaceID spaceId, std::string name, const bool ifExists);
+    dropEdgeSchema(GraphSpaceID spaceId, std::string name, bool ifExists = false);
 
     // Operations for index
     folly::Future<StatusOr<cpp2::ExecResp>>
@@ -477,7 +477,8 @@ public:
 
     std::vector<cpp2::RoleItem> getRolesByUserFromCache(const std::string& user) const;
 
-    bool authCheckFromCache(const std::string& account, const std::string& password) const;
+    nebula::cpp2::ErrorCode authCheckFromCache(const std::string& account,
+                                               const std::string& password) const;
 
     bool checkShadowAccountFromCache(const std::string& account) const;
 

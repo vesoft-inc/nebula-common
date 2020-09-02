@@ -1282,7 +1282,7 @@ MetaClient::getEdgeSchema(GraphSpaceID spaceId, std::string name, SchemaVer vers
 
 
 folly::Future<StatusOr<cpp2::ExecResp>>
-MetaClient::dropEdgeSchema(GraphSpaceID spaceId, std::string name, bool ifExists = false) {
+MetaClient::dropEdgeSchema(GraphSpaceID spaceId, std::string name, bool ifExists) {
     cpp2::DropEdgeReq req;
     req.set_space_id(std::move(spaceId));
     req.set_edge_name(std::move(name));
@@ -1792,12 +1792,17 @@ MetaClient::getRolesByUserFromCache(const std::string& user) const {
 }
 
 
-bool MetaClient::authCheckFromCache(const std::string& account, const std::string& password) const {
+nebula::cpp2::ErrorCode
+MetaClient::authCheckFromCache(const std::string& account, const std::string& password) const {
     auto iter = userPasswordMap_.find(account);
     if (iter == userPasswordMap_.end()) {
-        return false;
+        return nebula::cpp2::ErrorCode::E_USERNAME_NOT_FOUND;
     }
-    return iter->second == password;
+
+    if (iter->second != password) {
+        return nebula::cpp2::ErrorCode::E_INVALID_PASSWORD;
+    }
+    return nebula::cpp2::ErrorCode::SUCCEEDED;
 }
 
 bool MetaClient::checkShadowAccountFromCache(const std::string& account) const {

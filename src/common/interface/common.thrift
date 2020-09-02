@@ -194,13 +194,10 @@ enum ErrorCode {
 
     // 2xxxx, for graph Failure
     // Authentication error
-    E_BAD_USERNAME_PASSWORD       = 20001,
+    E_USERNAME_NOT_FOUND          = 20001,
 
-    // Execution errors
-    E_SESSION_INVALID             = 20002,
-
-    // current not use
-    E_SESSION_TIMEOUT             = 20003,
+    E_SESSION_NOT_EXIST           = 20002,
+    E_SESSION_EXPIRED             = 20003,
 
     E_SYNTAX_ERROR                = 20004,
     // Nothing is executed When command is comment
@@ -220,6 +217,7 @@ enum ErrorCode {
     E_NO_TAGS                     = 20018,
     E_NO_EDGES                    = 20019,
     E_INVALID_EXPR                = 20020,
+    E_INVALID_AUTH_TYPE           = 20021,
 
     // 3xxxx, for meta Failure
     E_NO_HOSTS                    = 30001,
@@ -250,10 +248,9 @@ enum ErrorCode {
     E_BALANCED                    = 30019,
     E_NO_RUNNING_BALANCE_PLAN     = 30020,
     E_NO_VALID_HOST               = 30021,
-    E_CORRUPTTED_BALANCE_PLAN     = 30022,
 
     // Authentication Failure
-    E_INVALID_PASSWORD            = 30023,
+    E_INVALID_PASSWORD            = 30023,    // use for change the password
     E_IMPROPER_ROLE               = 30024,
     E_INVALID_PARTITION_NUM       = 30025,
     E_INVALID_REPLICA_FACTOR      = 30026,
@@ -262,58 +259,57 @@ enum ErrorCode {
     E_CHARSET_COLLATE_NOT_MATCH   = 30029,
 
     // Admin Failure
-    E_SNAPSHOT_FAILED             = 30030,
+    E_SNAPSHOT_FAILED             = 30030,   // Create snapshot plan failed
     E_BLOCK_WRITE_FAILED          = 30031,
     E_INDEX_WITH_TTL              = 30032,
     E_PROP_WITH_TTL               = 30033,
-    E_ADD_JOB_FAILED              = 30034,
-    E_STOP_JOB_FAILED             = 30035,
-    E_SAVE_JOB_FAILED             = 30036,
+    E_ILLEGAL_TTL_COLUMN_TYPE     = 30034
+    E_ADD_JOB_FAILED              = 30035,
+    E_STOP_JOB_FAILED             = 30036,
+    E_SAVE_JOB_FAILED             = 30037,
 
     // 4xxxx, for storage Failure
-    E_KEY_HAS_EXISTS              = 40002,
-    E_PART_NOT_FOUND              = 40004,
-    E_KEY_NOT_FOUND               = 40005,
-    E_CONSENSUS_ERROR             = 40006,
-    E_DATA_TYPE_MISMATCH          = 40007,
-    E_INVALID_FIELD_VALUE         = 40008,
-    E_INVALID_OPERATION           = 40010,
-    E_NOT_NULLABLE                = 40011,   // Not allowed to be null
-    E_FIELD_UNSET                 = 40012,   // The field neither can be NULL, nor has a default value
-    E_OUT_OF_RANGE                = 40013,   // Value exceeds the range of type
-    E_ATOMIC_OP_FAILED            = 40014,   // Atomic operation failed
+    E_PART_NOT_FOUND              = 40001,
+    E_KEY_NOT_FOUND               = 40002,
+    E_CONSENSUS_ERROR             = 40003,
+    E_DATA_TYPE_MISMATCH          = 40004,
+    E_INVALID_FIELD_VALUE         = 40005,
+    E_INVALID_OPERATION           = 40006,
+    E_NOT_NULLABLE                = 40007,   // Not allowed to be null
+    E_NO_DEFAULT_VALUE            = 40008,   // The field neither can be NULL, nor has a default value
+    E_OUT_OF_RANGE                = 40009,   // Value exceeds the range of type
+    E_ATOMIC_OP_FAILED            = 40010,   // Atomic operation failed
 
     // meta failures
-    E_IMPROPER_DATA_TYPE          = 40017,
-    E_INVALID_SPACEVIDLEN         = 40018,
+    E_IMPROPER_DATA_TYPE          = 40011,
+    E_INVALID_SPACEVIDLEN         = 40012,
 
     // Invalid request
-    E_INVALID_FILTER              = 40019,
-    E_INVALID_UPDATER             = 40020,
-    E_INVALID_STORE               = 40021,
-    E_INVALID_PEER                = 40022,
-    E_RETRY_EXHAUSTED             = 40023,
-    E_TRANSFER_LEADER_FAILED      = 40024,
-    E_INVALID_STAT_TYPE           = 40025,
-
-    // meta client failed, currently not use
-    E_LOAD_META_FAILED            = 40026,
+    E_INVALID_FILTER              = 40013,
+    E_INVALID_FIELD               = 40014,
+    E_INVALID_RETURN              = 40015,
+    E_INVALID_STORE               = 40016,
+    E_INVALID_PEER                = 40017,    // Internal error code, storage return ro meta, graph will not receive
+    E_RETRY_EXHAUSTED             = 40018,    // Internal error code, storage return ro meta, graph will not receive
+    E_TRANSFER_LEADER_FAILED      = 40019,    // Internal error code, storage return ro meta, graph will not receive
+    E_INVALID_STAT_TYPE           = 40020,
 
     // checkpoint failed
-    E_FAILED_TO_CHECKPOINT        = 40027,
-    E_CHECKPOINT_BLOCKED          = 40028,
+    E_FAILED_TO_CHECKPOINT        = 40021,
+    E_CHECKPOINT_BLOCKED          = 40022,
 
     // partial result, used for kv interfaces
-    E_PARTIAL_RESULT              = 40029,
+    E_PARTIAL_RESULT              = 40023,
 
     // Filter out
-    E_FILTER_OUT                  = 40030,
+    E_FILTER_OUT                  = 40024,     // Internal error code, graph will return secceeded
 
-    E_INVALID_DATA                = 40031,
+    E_INVALID_DATA                = 40025,
 
     // task manager failed
-    E_INVALID_TASK_PARA           = 40032,
-    E_USER_CANCEL                 = 40033,
+    E_USER_CANCEL                 = 40026,     // Internal error code, storage return ro meta, graph will not receive
+    E_REBUILD_INDEX_FAILED        = 40027,
+    E_INVALID_TASK_PARAM          = 40028,     // Internal error code, storage return ro meta, graph will not receive
 
 
     // 5xxxx, for common Failure
@@ -326,14 +322,12 @@ enum ErrorCode {
     E_PROP_NOT_FOUND              = 50008,
     E_USER_NOT_FOUND              = 50009,
     E_ROLE_NOT_FOUND              = 50010,
-    E_SEGMENT_NOT_FOUND           = 50011,
     E_CONFIG_NOT_FOUND            = 50012,
 
-    E_REBUILD_INDEX_FAILED        = 50013,
-
-    E_INVALID_VID                 = 50014,
+    E_INVALID_VID                 = 50013,
 
     // internal error
     E_INTERNAL_ERROR              = 100000,
 } (cpp.enum_strict)
+
 
