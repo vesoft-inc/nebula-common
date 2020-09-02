@@ -1,5 +1,3 @@
-option (ENABLE_CLANG_TIDY "Enable clang-tidy if present" OFF)
-
 if (ENABLE_CLANG_TIDY)
     if (${CMAKE_VERSION} VERSION_LESS "3.6.0")
         message(FATAL_ERROR "clang-tidy requires CMake version at least 3.6.")
