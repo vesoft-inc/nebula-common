@@ -16,14 +16,22 @@ jobs:
     name: lint
     if: ${{ contains(github.event.pull_request.labels.*.name, 'ready-for-testing') }}
     runs-on: ubuntu-latest
+    container:
+      image: vesoft/nebula-dev:ubuntu1804
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Cpplint
+      - name: Prepare environment
+        run: '[ -d build/ ] && rm -rf build/* || mkdir -p build'
+      - name: CMake
         run: |
-          ln -snf $PWD/.linters/cpp/hooks/pre-commit.sh $PWD/.linters/cpp/pre-commit.sh
-          .linters/cpp/pre-commit.sh $(git --no-pager diff --diff-filter=d --name-only HEAD^ HEAD)
+          cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DENABLE_CLANG_TIDY=ON -B build/
+      - name: Make
+          cmake --build build/ -j $(nproc)
+      - name: Cleanup
+        if: ${{ always() }}
+        run: rm -rf build
 
   build:
     name: build
