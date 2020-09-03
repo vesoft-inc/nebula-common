@@ -200,7 +200,7 @@ bool MetaClient::loadData() {
 
         auto spaceCache = std::make_shared<SpaceInfoCache>();
         auto partsAlloc = r.value();
-        auto spaceName = space.second;
+        auto& spaceName = space.second;
         spaceCache->partsOnHost_ = reverse(partsAlloc);
         spaceCache->partsAlloc_ = std::move(partsAlloc);
         VLOG(2) << "Load space " << spaceId
@@ -532,8 +532,8 @@ void MetaClient::getResponse(Request req,
                 } else {
                     LOG(ERROR) << "Send request to " << host << ", exceed retry limit";
                     pro.setValue(
-                        Status::Error(folly::stringPrintf("RPC failure in MetaClient: %s",
-                                                          t.exception().what().c_str())));
+                        Status::Error("RPC failure in MetaClient: %s",
+                                                          t.exception().what().c_str()));
                 }
                 return;
             }
@@ -910,9 +910,8 @@ StatusOr<TagID> MetaClient::getTagIDByNameFromCache(const GraphSpaceID& space,
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = spaceTagIndexByName_.find(std::make_pair(space, name));
     if (it == spaceTagIndexByName_.end()) {
-        std::string error = folly::stringPrintf("TagName `%s'  is nonexistent",
+        return Status::Error("TagName `%s'  is nonexistent",
                                                 name.c_str());
-        return Status::Error(std::move(error));
     }
     return it->second;
 }
@@ -926,8 +925,7 @@ StatusOr<std::string> MetaClient::getTagNameByIdFromCache(const GraphSpaceID& sp
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = spaceTagIndexById_.find(std::make_pair(space, tagId));
     if (it == spaceTagIndexById_.end()) {
-        std::string error = folly::stringPrintf("TagID `%d'  is nonexistent", tagId);
-        return Status::Error(std::move(error));
+        return Status::Error("TagID `%d'  is nonexistent", tagId);
     }
     return it->second;
 }
@@ -941,9 +939,8 @@ StatusOr<EdgeType> MetaClient::getEdgeTypeByNameFromCache(const GraphSpaceID& sp
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = spaceEdgeIndexByName_.find(std::make_pair(space, name));
     if (it == spaceEdgeIndexByName_.end()) {
-        std::string error = folly::stringPrintf("EdgeName `%s'  is nonexistent",
+        return Status::Error("EdgeName `%s'  is nonexistent",
                                                 name.c_str());
-        return Status::Error(std::move(error));
     }
     return it->second;
 }
@@ -957,8 +954,7 @@ StatusOr<std::string> MetaClient::getEdgeNameByTypeFromCache(const GraphSpaceID&
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = spaceEdgeIndexByType_.find(std::make_pair(space, edgeType));
     if (it == spaceEdgeIndexByType_.end()) {
-        std::string error = folly::stringPrintf("EdgeType `%d'  is nonexistent", edgeType);
-        return Status::Error(std::move(error));
+        return Status::Error("EdgeType `%d'  is nonexistent", edgeType);
     }
     return it->second;
 }
@@ -972,8 +968,7 @@ MetaClient::getAllEdgeFromCache(const GraphSpaceID& space) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = spaceAllEdgeMap_.find(space);
     if (it == spaceAllEdgeMap_.end()) {
-        std::string error = folly::stringPrintf("SpaceId `%d'  is nonexistent", space);
-        return Status::Error(std::move(error));
+        return Status::Error("SpaceId `%d'  is nonexistent", space);
     }
     return it->second;
 }
@@ -1645,11 +1640,11 @@ StatusOr<int32_t> MetaClient::getSpaceVidLen(const GraphSpaceID& spaceId) {
     auto spaceIt = localCache_.find(spaceId);
     if (spaceIt == localCache_.end()) {
         LOG(ERROR) << "Space " << spaceId << " not found!";
-        return Status::Error(folly::stringPrintf("Space %d not found", spaceId));
+        return Status::Error("Space %d not found", spaceId);
     }
     auto vIdLen = spaceIt->second->spaceDesc_.vid_size;
     if (vIdLen <= 0) {
-        return Status::Error(folly::stringPrintf("Space %d vertexId length invalid", spaceId));
+        return Status::Error("Space %d vertexId length invalid", spaceId);
     }
     return vIdLen;
 }
@@ -1662,7 +1657,7 @@ StatusOr<cpp2::PropertyType> MetaClient::getSpaceVidType(const GraphSpaceID& spa
     auto spaceIt = localCache_.find(spaceId);
     if (spaceIt == localCache_.end()) {
         LOG(ERROR) << "Space " << spaceId << " not found!";
-        return Status::Error(folly::stringPrintf("Space %d not found", spaceId));
+        return Status::Error("Space %d not found", spaceId);
     }
     auto vIdType = spaceIt->second->spaceDesc_.vid_type;
     if (vIdType != cpp2::PropertyType::INT64 && vIdType != cpp2::PropertyType::FIXED_STRING) {
@@ -1682,7 +1677,7 @@ StatusOr<cpp2::SpaceDesc> MetaClient::getSpaceDesc(const GraphSpaceID& space) {
     auto spaceIt = localCache_.find(space);
     if (spaceIt == localCache_.end()) {
         LOG(ERROR) << "Space " << space << " not found!";
-        return Status::Error(folly::stringPrintf("Space %d not found", space));
+        return Status::Error("Space %d not found", space);
     }
     return spaceIt->second->spaceDesc_;
 }
@@ -1744,7 +1739,7 @@ StatusOr<TagSchemas> MetaClient::getAllVerTagSchema(GraphSpaceID spaceId) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = localCache_.find(spaceId);
     if (iter == localCache_.end()) {
-        return Status::Error(folly::stringPrintf("Space not %d found", spaceId));
+        return Status::Error("Space not %d found", spaceId);
     }
     return iter->second->tagSchemas_;
 }
@@ -1757,7 +1752,7 @@ StatusOr<EdgeSchemas> MetaClient::getAllVerEdgeSchema(GraphSpaceID spaceId) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = localCache_.find(spaceId);
     if (iter == localCache_.end()) {
-        return Status::Error(folly::stringPrintf("Space not %d found", spaceId));
+        return Status::Error("Space not %d found", spaceId);
     }
     return iter->second->edgeSchemas_;
 }
