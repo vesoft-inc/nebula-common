@@ -194,6 +194,12 @@ TEST_F(FunctionManagerTest, functionCall) {
         auto res = std::move(result).value()({Value::kEmpty});
         EXPECT_EQ(res, Value::kEmpty);
     }
+    {
+        auto result = FunctionManager::get("size", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({true});
+        EXPECT_EQ(res, Value::kNullBadType);
+    }
 }
 
 TEST_F(FunctionManagerTest, returnType) {
