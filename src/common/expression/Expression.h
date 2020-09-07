@@ -100,6 +100,12 @@ public:
     virtual std::string toString() const = 0;
 
     virtual void accept(ExprVisitor* visitor) = 0;
+    // Make sure know what you're doing
+    void accept(const std::vector<ExprVisitor*> &visitors) {
+        for (auto visitor : visitors) {
+            accept(visitor);
+        }
+    }
 
     // Deep copy
     std::unique_ptr<Expression> clone() const;
