@@ -337,13 +337,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             return exp;
         }
         case Expression::Kind::kInputProperty: {
-            exp = std::make_unique<InputPropertyExpression>();
-            exp->resetFrom(decoder);
+            LOG(FATAL) << "Should not decode input property expression";
             return exp;
         }
         case Expression::Kind::kVarProperty: {
-            exp = std::make_unique<VariablePropertyExpression>();
-            exp->resetFrom(decoder);
+            LOG(FATAL) << "Should not decode variable property expression";
             return exp;
         }
         case Expression::Kind::kDstProperty: {
