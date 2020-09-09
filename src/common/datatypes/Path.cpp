@@ -8,6 +8,9 @@
 
 namespace nebula {
 void Path::reverse() {
+    if (steps.empty()) {
+        return;
+    }
     std::reverse(steps.begin(), steps.end());
     swap(src, steps.front().dst);
     for (size_t i = 0; i < steps.size(); ++i) {
@@ -19,13 +22,13 @@ void Path::reverse() {
 }
 
 bool Path::append(Path path) {
-    if (this->steps.back().dst != path.src) {
+    if (src != path.src && steps.back().dst != path.src) {
         return false;
     }
-    this->steps.reserve(path.steps.size());
-    this->steps.insert(this->steps.end(),
-                       std::make_move_iterator(path.steps.begin()),
-                       std::make_move_iterator(path.steps.end()));
+    steps.reserve(path.steps.size());
+    steps.insert(steps.end(),
+                 std::make_move_iterator(path.steps.begin()),
+                 std::make_move_iterator(path.steps.end()));
     return true;
 }
 }  // namespace nebula
