@@ -9,34 +9,106 @@
 #include "common/datatypes/Path.h"
 
 namespace nebula {
+TEST(Path, Reverse) {
+    {
+        Path path;
+        path.src = Vertex("1", {});
+        path.addStep(Step(Vertex("2", {}), 1, "", 0, {}));
+        path.addStep(Step(Vertex("3", {}), 1, "", 0, {}));
+        path.reverse();
+
+        Path expected;
+        expected.src = Vertex("3", {});
+        expected.addStep(Step(Vertex("2", {}), -1, "", 0, {}));
+        expected.addStep(Step(Vertex("1", {}), -1, "", 0, {}));
+
+        EXPECT_EQ(expected, path);
+    }
+    {
+        Path path;
+        path.src = Vertex("1", {});
+        path.addStep(Step(Vertex("2", {}), 1, "", 0, {}));
+        path.reverse();
+
+        Path expected;
+        expected.src = Vertex("2", {});
+        expected.addStep(Step(Vertex("1", {}), -1, "", 0, {}));
+
+        EXPECT_EQ(expected, path);
+    }
+    {
+        Path path;
+        path.src = Vertex("1", {});
+        path.reverse();
+
+        Path expected;
+        expected.src = Vertex("1", {});
+
+        EXPECT_EQ(expected, path);
+    }
+}
+
 TEST(Path, Base) {
-    Path path;
-    path.src = Vertex("1", {});
-    path.addStep(Step(Vertex("2", {}), 1, "", 0, {}));
-    path.addStep(Step(Vertex("3", {}), 1, "", 0, {}));
-    path.reverse();
+    {
+        Path path;
+        path.src = Vertex("1", {});
+        path.addStep(Step(Vertex("2", {}), 1, "", 0, {}));
+        path.addStep(Step(Vertex("3", {}), 1, "", 0, {}));
+        path.reverse();
 
-    Path expected;
-    expected.src = Vertex("3", {});
-    expected.addStep(Step(Vertex("2", {}), -1, "", 0, {}));
-    expected.addStep(Step(Vertex("1", {}), -1, "", 0, {}));
+        Path path2;
+        path2.src = Vertex("5", {});
+        path2.addStep(Step(Vertex("4", {}), 1, "", 0, {}));
+        path2.addStep(Step(Vertex("3", {}), 1, "", 0, {}));
+        path2.append(std::move(path));
 
-    EXPECT_EQ(expected, path);
+        Path expected;
+        expected.src = Vertex("5", {});
+        expected.addStep(Step(Vertex("4", {}), 1, "", 0, {}));
+        expected.addStep(Step(Vertex("3", {}), 1, "", 0, {}));
+        expected.addStep(Step(Vertex("2", {}), -1, "", 0, {}));
+        expected.addStep(Step(Vertex("1", {}), -1, "", 0, {}));
 
-    Path path2;
-    path2.src = Vertex("5", {});
-    path2.addStep(Step(Vertex("4", {}), 1, "", 0, {}));
-    path2.addStep(Step(Vertex("3", {}), 1, "", 0, {}));
-    path2.append(std::move(path));
+        EXPECT_EQ(expected, path2);
+    }
+    {
+        Path path;
+        path.src = Vertex("1", {});
+        path.addStep(Step(Vertex("3", {}), 1, "", 0, {}));
+        path.reverse();
 
-    Path expected2;
-    expected2.src = Vertex("5", {});
-    expected2.addStep(Step(Vertex("4", {}), 1, "", 0, {}));
-    expected2.addStep(Step(Vertex("3", {}), 1, "", 0, {}));
-    expected2.addStep(Step(Vertex("2", {}), -1, "", 0, {}));
-    expected2.addStep(Step(Vertex("1", {}), -1, "", 0, {}));
+        Path path2;
+        path2.src = Vertex("5", {});
+        path2.addStep(Step(Vertex("4", {}), 1, "", 0, {}));
+        path2.addStep(Step(Vertex("3", {}), 1, "", 0, {}));
+        path2.append(std::move(path));
 
-    EXPECT_EQ(expected2, path2);
+        Path expected;
+        expected.src = Vertex("5", {});
+        expected.addStep(Step(Vertex("4", {}), 1, "", 0, {}));
+        expected.addStep(Step(Vertex("3", {}), 1, "", 0, {}));
+        expected.addStep(Step(Vertex("1", {}), -1, "", 0, {}));
+
+        EXPECT_EQ(expected, path2);
+    }
+    {
+        Path path;
+        path.src = Vertex("3", {});
+        path.reverse();
+
+        Path path2;
+        path2.src = Vertex("5", {});
+        path2.addStep(Step(Vertex("4", {}), 1, "", 0, {}));
+        path2.addStep(Step(Vertex("3", {}), 1, "", 0, {}));
+        path2.append(std::move(path));
+
+        Path expected;
+        expected.src = Vertex("5", {});
+        expected.addStep(Step(Vertex("4", {}), 1, "", 0, {}));
+        expected.addStep(Step(Vertex("3", {}), 1, "", 0, {}));
+
+        EXPECT_EQ(expected, path2);
+    }
 }
 }  // namespace nebula
 

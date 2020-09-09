@@ -14,7 +14,7 @@ void Path::reverse() {
     std::reverse(steps.begin(), steps.end());
     swap(src, steps.front().dst);
     for (size_t i = 0; i < steps.size(); ++i) {
-        if (i <= steps.size() - 2) {
+        if ((i + 2) <= steps.size()) {
             swap(steps[i].dst, steps[i + 1].dst);
         }
         steps[i].type = -steps[i].type;
