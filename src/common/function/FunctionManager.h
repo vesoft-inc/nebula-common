@@ -37,7 +37,9 @@ public:
     /**
      * To obtain a function named `func', with the actual arity.
      */
-    static StatusOr<Function> get(const std::string &func, size_t arity);
+    static StatusOr<Function> get(const std::string &func,
+                                  size_t arity,
+                                  const std::string &scope = kGlobalFunctionScope);
 
     /**
      * To load a set of functions from a shared object dynamically.

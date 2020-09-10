@@ -7,6 +7,7 @@
 #ifndef COMMON_EXPRESSION_FUNCTIONCALLEXPRESSION_H_
 #define COMMON_EXPRESSION_FUNCTIONCALLEXPRESSION_H_
 
+#include "common/function/FunctionManager.h"
 #include "common/expression/Expression.h"
 
 namespace nebula {
@@ -55,15 +56,10 @@ class FunctionCallExpression final : public Expression {
 
 public:
     FunctionCallExpression(std::string* name = nullptr,
-                           ArgumentList* args = nullptr)
-        : Expression(Kind::kFunctionCall) {
-        if (args == nullptr) {
-            args_ = std::make_unique<ArgumentList>();
-        } else {
-            args_.reset(args);
-        }
-
-        name_.reset(name);
+                           ArgumentList* args = new ArgumentList(),
+                           std::string* scope =
+                                new std::string(FunctionManager::kGlobalFunctionScope))
+        : Expression(Kind::kFunctionCall), scope_(scope), name_(name), args_(args) {
     }
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -79,7 +75,9 @@ public:
         for (auto& arg : args_->args()) {
             arguments->addArgument(arg->clone());
         }
-        return std::make_unique<FunctionCallExpression>(new std::string(*name_), arguments);
+        return std::make_unique<FunctionCallExpression>(new std::string(*name_),
+                                                        arguments,
+                                                        new std::string(*scope_));
     }
 
     const std::string* name() const {
@@ -103,6 +101,7 @@ private:
 
     void resetFrom(Decoder& decoder) override;
 
+    std::unique_ptr<std::string>    scope_;
     std::unique_ptr<std::string>    name_;
     std::unique_ptr<ArgumentList>   args_;
     Value                           result_;

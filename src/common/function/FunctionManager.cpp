@@ -613,8 +613,10 @@ FunctionManager::FunctionManager() : functions_({
 }
 
 // static
-StatusOr<FunctionManager::Function> FunctionManager::get(const std::string &func, size_t arity) {
-    return instance().getInternal(func, arity);
+StatusOr<FunctionManager::Function> FunctionManager::get(const std::string &func,
+                                                         size_t arity,
+                                                         const std::string &scope) {
+    return instance().getInternal(func, arity, scope);
 }
 
 StatusOr<FunctionManager::Function> FunctionManager::getInternal(const std::string &func,

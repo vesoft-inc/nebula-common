@@ -1044,6 +1044,13 @@ TEST_F(ExpressionTest, FunctionCallToStringTest) {
         FunctionCallExpression ep(new std::string("now"));
         EXPECT_EQ(ep.toString(), "now()");
     }
+    // With scope
+    {
+        FunctionCallExpression ep(new std::string("now"),
+                                  new ArgumentList(),
+                                  new std::string("datetime"));
+        EXPECT_EQ(ep.toString(), "datetime.now()");
+    }
 }
 
 TEST_F(ExpressionTest, PropertyToStringTest) {
@@ -1917,6 +1924,11 @@ TEST_F(ExpressionTest, TestExprClone) {
 
     FunctionCallExpression fnCallExpr(new std::string("count"), new ArgumentList);
     ASSERT_EQ(fnCallExpr, *fnCallExpr.clone());
+
+    FunctionCallExpression fnCallWithScopeExpr(new std::string("count"),
+                                      new ArgumentList(),
+                                      new std::string("scope"));
+    ASSERT_EQ(fnCallWithScopeExpr, *fnCallWithScopeExpr.clone());
 
     UUIDExpression uuidExpr(new std::string("hello"));
     ASSERT_EQ(uuidExpr, *uuidExpr.clone());

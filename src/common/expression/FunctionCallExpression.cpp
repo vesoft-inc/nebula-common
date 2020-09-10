@@ -3,7 +3,6 @@
  * This source code is licensed under Apache 2.0 License,
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
-#include "common/function/FunctionManager.h"
 #include "common/expression/FunctionCallExpression.h"
 #include "common/expression/ExprVisitor.h"
 
@@ -30,7 +29,7 @@ bool FunctionCallExpression::operator==(const Expression& rhs) const {
     }
 
     const auto& r = dynamic_cast<const FunctionCallExpression&>(rhs);
-    return *name_ == *(r.name_) && *args_ == *(r.args_);
+    return *scope_ == *(r.scope_) && *name_ == *(r.name_) && *args_ == *(r.args_);
 }
 
 
@@ -38,6 +37,9 @@ bool FunctionCallExpression::operator==(const Expression& rhs) const {
 void FunctionCallExpression::writeTo(Encoder& encoder) const {
     // kind_
     encoder << kind_;
+
+    // scope_
+    encoder << scope_.get();
 
     // name_
     encoder << name_.get();
@@ -57,6 +59,9 @@ void FunctionCallExpression::writeTo(Encoder& encoder) const {
 
 
 void FunctionCallExpression::resetFrom(Decoder& decoder) {
+    // Read scope_
+    scope_ = decoder.readStr();
+
     // Read name_
     name_ = decoder.readStr();
 
@@ -69,7 +74,7 @@ void FunctionCallExpression::resetFrom(Decoder& decoder) {
 }
 
 const Value& FunctionCallExpression::eval(ExpressionContext& ctx) {
-    auto function = FunctionManager::get(*name_, args_->numArgs());
+    auto function = FunctionManager::get(*name_, args_->numArgs(), *scope_);
     if (!function.ok()) {
         result_ = Value::kNullBadData;
     } else {
@@ -89,6 +94,9 @@ std::string FunctionCallExpression::toString() const {
                    args.begin(),
                    [](const auto& arg) -> std::string { return arg->toString(); });
     std::stringstream out;
+    if (*scope_ != FunctionManager::kGlobalFunctionScope) {
+        out << *scope_ << ".";
+    }
     out << *name_ << "(" << folly::join(",", args) << ")";
     return out.str();
 }

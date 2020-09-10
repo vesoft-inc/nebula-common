@@ -122,14 +122,28 @@ TEST(ExpressionEncodeDecode, ArithmeticExpression) {
 
 
 TEST(ExpressionEncodeDecode, FunctionCallExpression) {
-    ArgumentList* args = new ArgumentList();
-    args->addArgument(std::make_unique<ConstantExpression>(123));
-    args->addArgument(std::make_unique<ConstantExpression>(3.14));
-    args->addArgument(std::make_unique<ConstantExpression>("Hello world"));
-    FunctionCallExpression fcEx(new std::string("func"), args);
-    std::string encoded = Expression::encode(fcEx);
-    auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
-    EXPECT_EQ(fcEx, *decoded);
+    {
+        ArgumentList* args = new ArgumentList();
+        args->addArgument(std::make_unique<ConstantExpression>(123));
+        args->addArgument(std::make_unique<ConstantExpression>(3.14));
+        args->addArgument(std::make_unique<ConstantExpression>("Hello world"));
+        FunctionCallExpression fcEx(new std::string("func"), args);
+        std::string encoded = Expression::encode(fcEx);
+        auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
+        EXPECT_EQ(fcEx, *decoded);
+    }
+
+    // with scope
+    {
+        ArgumentList* args = new ArgumentList();
+        args->addArgument(std::make_unique<ConstantExpression>(123));
+        args->addArgument(std::make_unique<ConstantExpression>(3.14));
+        args->addArgument(std::make_unique<ConstantExpression>("Hello world"));
+        FunctionCallExpression fcEx(new std::string("func"), args, new std::string("scope"));
+        std::string encoded = Expression::encode(fcEx);
+        auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
+        EXPECT_EQ(fcEx, *decoded);
+    }
 }
 
 
