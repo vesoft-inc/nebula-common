@@ -531,9 +531,8 @@ void MetaClient::getResponse(Request req,
                     return;
                 } else {
                     LOG(ERROR) << "Send request to " << host << ", exceed retry limit";
-                    pro.setValue(
-                        Status::Error("RPC failure in MetaClient: %s",
-                                                          t.exception().what().c_str()));
+                    pro.setValue(Status::Error("RPC failure in MetaClient: %s",
+                                               t.exception().what().c_str()));
                 }
                 return;
             }
@@ -910,8 +909,7 @@ StatusOr<TagID> MetaClient::getTagIDByNameFromCache(const GraphSpaceID& space,
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = spaceTagIndexByName_.find(std::make_pair(space, name));
     if (it == spaceTagIndexByName_.end()) {
-        return Status::Error("TagName `%s'  is nonexistent",
-                                                name.c_str());
+        return Status::Error("TagName `%s'  is nonexistent", name.c_str());
     }
     return it->second;
 }
@@ -939,8 +937,7 @@ StatusOr<EdgeType> MetaClient::getEdgeTypeByNameFromCache(const GraphSpaceID& sp
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = spaceEdgeIndexByName_.find(std::make_pair(space, name));
     if (it == spaceEdgeIndexByName_.end()) {
-        return Status::Error("EdgeName `%s'  is nonexistent",
-                                                name.c_str());
+        return Status::Error("EdgeName `%s'  is nonexistent", name.c_str());
     }
     return it->second;
 }

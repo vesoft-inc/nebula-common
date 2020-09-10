@@ -169,7 +169,7 @@ struct SpaceDesc {
     3: i32                  replica_factor = 0,
     4: binary               charset_name,
     5: binary               collate_name,
-    6: i32                  vid_size = 8,
+    6: i16                  vid_size = 8,
     7: PropertyType         vid_type = PropertyType.FIXED_STRING,
 }
 
