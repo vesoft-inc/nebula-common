@@ -13,12 +13,11 @@ void Path::reverse() {
     }
     std::reverse(steps.begin(), steps.end());
     swap(src, steps.front().dst);
-    for (size_t i = 0; i < steps.size(); ++i) {
-        if ((i + 2) <= steps.size()) {
-            swap(steps[i].dst, steps[i + 1].dst);
-        }
+    for (size_t i = 0; i < steps.size() - 1; ++i) {
+        swap(steps[i].dst, steps[i + 1].dst);
         steps[i].type = -steps[i].type;
     }
+    steps.back().type = -steps.back().type;
 }
 
 bool Path::append(Path path) {

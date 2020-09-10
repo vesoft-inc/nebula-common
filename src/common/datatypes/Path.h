@@ -126,6 +126,9 @@ struct Path {
     }
 
     void reverse();
+
+    // Append a path to another one.
+    // 5->4>3 appended by 3->2->1 => 5->4->3->2->1
     bool append(Path path);
 };
 
