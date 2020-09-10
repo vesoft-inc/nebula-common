@@ -15,6 +15,8 @@
 
 namespace nebula {
 
+constexpr char FunctionManager::kGlobalFunctionScope[];
+
 // static
 FunctionManager &FunctionManager::instance() {
     static FunctionManager instance;
@@ -487,7 +489,7 @@ const FunctionManager::Function FunctionManager::size = [](const auto &args) -> 
         };
 
 FunctionManager::FunctionManager() : functions_({
-    {"", {
+    {kGlobalFunctionScope, {
         // absolute value
         {"abs", {1, 1, abs}, {TypeSignature({Value::Type::INT}, Value::Type::INT),
                               TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},

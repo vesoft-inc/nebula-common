@@ -31,6 +31,7 @@ struct TypeSignature {
 
 class FunctionManager final {
 public:
+    static constexpr char kGlobalFunctionScope[] = "";
     using Function = std::function<Value(const std::vector<Value>&)>;
 
     /**
@@ -53,7 +54,7 @@ public:
      */
     static StatusOr<Value::Type> getReturnType(const std::string &funcName,
                                                const std::vector<Value::Type> &argsType,
-                                               const std::string &scope = "");
+                                               const std::string &scope = kGlobalFunctionScope);
 
 private:
     /**
@@ -65,7 +66,7 @@ private:
 
     StatusOr<Function> getInternal(const std::string &func,
                                    size_t arity,
-                                   const std::string &scope = "") const;
+                                   const std::string &scope = kGlobalFunctionScope) const;
 
     Status loadInternal(const std::string &soname, const std::vector<std::string> &funcs);
 
