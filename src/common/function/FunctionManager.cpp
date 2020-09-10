@@ -149,85 +149,49 @@ FunctionManager::getReturnType(const std::string &funName,
     return Status::Error("Parameter's type error");
 }
 
-FunctionManager::FunctionManager() {
-    {
-        // absolute value
-        auto &attr = functions_["abs"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+const FunctionManager::Function FunctionManager::abs = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::abs(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // to nearest integer value not greater than x
-        auto &attr = functions_["floor"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::floor = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::floor(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // to nearest integer value not less than x
-        auto &attr = functions_["ceil"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::ceil = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::ceil(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // to nearest integer value
-        auto &attr = functions_["round"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::round = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::round(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // square root
-        auto &attr = functions_["sqrt"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::sqrt = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::sqrt(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // cubic root
-        auto &attr = functions_["cbrt"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::cbrt = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::cbrt(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // sqrt(x^2 + y^2)
-        auto &attr = functions_["hypot"];
-        attr.minArity_ = 2;
-        attr.maxArity_ = 2;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::hypot = [](const auto &args) -> Value {
             if (args[0].isNumeric() && args[1].isNumeric()) {
                 auto x = args[0].isInt() ? args[0].getInt() : args[0].getFloat();
                 auto y = args[1].isInt() ? args[1].getInt() : args[1].getFloat();
@@ -235,13 +199,8 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // base^exp
-        auto &attr = functions_["pow"];
-        attr.minArity_ = 2;
-        attr.maxArity_ = 2;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::pow = [](const auto &args) -> Value {
             if (args[0].isNumeric() && args[1].isNumeric()) {
                 auto base = args[0].isInt() ? args[0].getInt() : args[0].getFloat();
                 auto exp = args[1].isInt() ? args[1].getInt() : args[1].getFloat();
@@ -249,139 +208,85 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // e^x
-        auto &attr = functions_["exp"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::exp = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::exp(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // 2^x
-        auto &attr = functions_["exp2"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::exp2 = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::exp2(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // e-based logarithm
-        auto &attr = functions_["log"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::log = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::log(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // 2-based logarithm
-        auto &attr = functions_["log2"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::log2 = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::log2(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // 10-based logarithm
-        auto &attr = functions_["log10"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::log10 = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::log10(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["sin"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::sin = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::sin(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["asin"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::asin = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::asin(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["cos"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::cos = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::cos(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["acos"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::acos = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::acos(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["tan"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::tan = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::tan(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["atan"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::atan = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::atan(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // rand32(), rand32(max), rand32(min, max)
-        auto &attr = functions_["rand32"];
-        attr.minArity_ = 0;
-        attr.maxArity_ = 2;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::rand32 = [](const auto &args) -> Value {
             if (args.empty()) {
                 auto value = folly::Random::rand32();
                 return static_cast<int64_t>(static_cast<int32_t>(value));
@@ -411,13 +316,8 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // rand64(), rand64(max), rand64(min, max)
-        auto &attr = functions_["rand64"];
-        attr.minArity_ = 0;
-        attr.maxArity_ = 2;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::rand64 = [](const auto &args) -> Value {
             if (args.empty()) {
                 return static_cast<int64_t>(folly::Random::rand64());
             } else if (args.size() == 1UL) {
@@ -441,34 +341,21 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // unix timestamp
-        auto &attr = functions_["now"];
-        attr.minArity_ = 0;
-        attr.maxArity_ = 0;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::now = [](const auto &args) -> Value {
             UNUSED(args);
             return time::WallClock::fastNowInSec();
         };
-    }
-    {
-        auto &attr = functions_["strcasecmp"];
-        attr.minArity_ = 2;
-        attr.maxArity_ = 2;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::strcasecmp = [](const auto &args) -> Value {
             if (args[0].isStr() && args[1].isStr()) {
                 return static_cast<int64_t>(
                     ::strcasecmp(args[0].getStr().c_str(), args[1].getStr().c_str()));
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["lower"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::lower = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
                 folly::toLowerAscii(value);
@@ -476,12 +363,8 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["upper"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::upper = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
                 std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {
@@ -491,60 +374,40 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["length"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::length = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 auto value = args[0].getStr();
                 return static_cast<int64_t>(value.length());
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["trim"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::trim = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
                 return folly::trimWhitespace(value);
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["ltrim"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::ltrim = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
                 return folly::ltrimWhitespace(value);
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["rtrim"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::rtrim = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
                 return folly::rtrimWhitespace(value);
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["left"];
-        attr.minArity_ = 2;
-        attr.maxArity_ = 2;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::left = [](const auto &args) -> Value {
             if (args[0].isStr() && args[1].isInt()) {
                 auto value = args[0].getStr();
                 auto length = args[1].getInt();
@@ -555,12 +418,8 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["right"];
-        attr.minArity_ = 2;
-        attr.maxArity_ = 2;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::right = [](const auto &args) -> Value {
             if (args[0].isStr() && args[1].isInt()) {
                 auto value = args[0].getStr();
                 auto length = args[1].getInt();
@@ -574,12 +433,8 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["lpad"];
-        attr.minArity_ = 3;
-        attr.maxArity_ = 3;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::lpad = [](const auto &args) -> Value {
             if (args[0].isStr() && args[1].isInt() && args[2].isStr()) {
                 auto value = args[0].getStr();
                 auto size = args[1].getInt();
@@ -602,12 +457,8 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["rpad"];
-        attr.minArity_ = 3;
-        attr.maxArity_ = 3;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::rpad = [](const auto &args) -> Value {
             if (args[0].isStr() && args[1].isInt() && args[2].isStr()) {
                 auto value = args[0].getStr();
                 size_t size = args[1].getInt();
@@ -630,12 +481,8 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        auto &attr = functions_["substr"];
-        attr.minArity_ = 3;
-        attr.maxArity_ = 3;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::substr = [](const auto &args) -> Value {
             if (args[0].isStr() && args[1].isInt() && args[2].isInt()) {
                 auto value = args[0].getStr();
                 auto start = args[1].getInt();
@@ -652,13 +499,8 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
-    }
-    {
-        // 64bit signed hash value
-        auto &attr = functions_["hash"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::hash = [](const auto &args) -> Value {
             switch (args[0].type()) {
                 case Value::Type::NULLVALUE:
                 case Value::Type::__EMPTY__:
@@ -679,20 +521,12 @@ FunctionManager::FunctionManager() {
                     return Value::kNullBadType;
             }
         };
-    }
-    {
-        auto &attr = functions_["udf_is_in"];
-        attr.minArity_ = 2;
-        attr.maxArity_ = INT64_MAX;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::udf_is_in = [](const auto &args) -> Value {
             return std::find(args.begin() + 1, args.end(), args[0]) != args.end();
         };
-    }
-    {
-        auto &attr = functions_["near"];
-        attr.minArity_ = 2;
-        attr.maxArity_ = 2;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::near = [](const auto &args) -> Value {
             // auto result = geo::GeoFilter::near(args);
             // if (!result.ok()) {
             //     return std::string("");
@@ -703,12 +537,8 @@ FunctionManager::FunctionManager() {
             UNUSED(args);
             return std::string("");
         };
-    }
-    {
-        auto &attr = functions_["cos_similarity"];
-        attr.minArity_ = 2;
-        attr.maxArity_ = INT64_MAX;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::cos_similarity = [](const auto &args) -> Value {
             if (args.size() % 2 != 0) {
                 LOG(ERROR) << "The number of arguments must be even.";
                 // value range of cos is [-1, 1]
@@ -736,12 +566,8 @@ FunctionManager::FunctionManager() {
                 return s1 / (std::sqrt(s2) * std::sqrt(s3));
             }
         };
-    }
-    {
-        auto &attr = functions_["size"];
-        attr.minArity_ = 1;
-        attr.maxArity_ = 1;
-        attr.body_ = [](const auto &args) -> Value {
+
+const FunctionManager::Function FunctionManager::size = [](const auto &args) -> Value {
             switch (args[0].type()) {
                 case Value::Type::NULLVALUE:
                     return Value::kNullValue;
@@ -770,8 +596,66 @@ FunctionManager::FunctionManager() {
                     return Value::kNullBadType;
             }
         };
-    }
-}   // NOLINT
+
+FunctionManager::FunctionManager() : functions_({
+    {"", {
+        // absolute value
+        {"abs", {1, 1, abs}},
+        // to nearest integer value not greater than x
+        {"floor", {1, 1, floor}},
+        // to nearest integer value not less than x
+        {"ceil", {1, 1, ceil}},
+        // to nearest integer value
+        {"round", {1, 1, round}},
+        // square root
+        {"sqrt", {1, 1, sqrt}},
+        // cubic root
+        {"cbrt", {1, 1, cbrt}},
+        // sqrt(x^2 + y^2)
+        {"hypot", {2, 2, hypot}},
+        // base^exp
+        {"pow", {2, 2, pow}},
+        // e^x
+        {"exp", {1, 1, exp}},
+        // 2^x
+        {"exp2", {1, 1, exp2}},
+        // e-based logarithm
+        {"log", {1, 1, log}},
+        // 2-based logarithm
+        {"log2", {1, 1, log2}},
+        // 10-based logarithm
+        {"log10", {1, 1, log10}},
+        {"sin", {1, 1, sin}},
+        {"asin", {1, 1, asin}},
+        {"cos", {1, 1, cos}},
+        {"acos", {1, 1, acos}},
+        {"tan", {1, 1, tan}},
+        {"atan", {1, 1, atan}},
+        // rand32(), rand32(max), rand32(min, max)
+        {"rand32", {0, 2, rand32}},
+        // rand64(), rand64(max), rand64(min, max)
+        {"rand64", {0, 2, rand64}},
+        {"now", {0, 0, now}},
+        {"strcasecmp", {2, 2, strcasecmp}},
+        {"lower", {1, 1, lower}},
+        {"upper", {1, 1, upper}},
+        {"length", {1, 1, length}},
+        {"trim", {1, 1, trim}},
+        {"ltrim", {1, 1, ltrim}},
+        {"rtrim", {1, 1, rtrim}},
+        {"left", {2, 2, left}},
+        {"right", {2, 2, right}},
+        {"lpad", {3, 3, lpad}},
+        {"rpad", {3, 3, rpad}},
+        {"substr", {3, 3, substr}},
+        {"hash", {1, 1, hash}},
+        {"udf_is_in", {2, INT64_MAX, udf_is_in}},
+        {"near", {2, 2, near}},
+        {"cos_similarity", {2, INT64_MAX, cos_similarity}},
+        {"size", {1, 1, size}},
+    }}
+}) {
+}
 
 // static
 StatusOr<FunctionManager::Function> FunctionManager::get(const std::string &func, size_t arity) {
@@ -779,13 +663,12 @@ StatusOr<FunctionManager::Function> FunctionManager::get(const std::string &func
 }
 
 StatusOr<FunctionManager::Function> FunctionManager::getInternal(const std::string &func,
-                                                                 size_t arity) const {
-    folly::RWSpinLock::ReadHolder holder(lock_);
+                                                                 size_t arity,
+                                                                 const std::string &scope) const {
     // check existence
-    auto iter = functions_.find(func);
-    if (iter == functions_.end()) {
-        return Status::Error("Function `%s' not defined", func.c_str());
-    }
+    auto result = functions_.find(scope, func);
+    NG_RETURN_IF_ERROR(result);
+    const auto iter = std::move(result).value();
     // check arity
     auto minArity = iter->second.minArity_;
     auto maxArity = iter->second.maxArity_;
