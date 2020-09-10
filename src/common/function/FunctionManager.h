@@ -192,7 +192,7 @@ private:
     static const Function cos_similarity;
     static const Function size;
 
-    ScopedFunctions functions_;
+    const ScopedFunctions functions_;
 };
 
 }   // namespace nebula
