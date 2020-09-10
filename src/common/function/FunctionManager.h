@@ -52,7 +52,8 @@ public:
      * To obtain the return value type according to the parameter type
      */
     static StatusOr<Value::Type> getReturnType(const std::string &funcName,
-                                               const std::vector<Value::Type> &argsType);
+                                               const std::vector<Value::Type> &argsType,
+                                               const std::string &scope = "");
 
 private:
     /**
@@ -70,8 +71,6 @@ private:
 
     Status unloadInternal(const std::string &soname, const std::vector<std::string> &funcs);
 
-    static std::unordered_map<std::string, std::vector<TypeSignature>> typeSignature_;
-
     struct FunctionAttributes final {
         size_t minArity_{0};
         size_t maxArity_{0};
@@ -81,7 +80,7 @@ private:
     struct FunctionAttr {
         std::string name;
         FunctionAttributes attributes;
-//        std::vector<TypeSignature> signatures;
+        std::vector<TypeSignature> signatures;
     };
 
     struct ScopedFunction {
@@ -100,11 +99,11 @@ private:
                     continue;
                 }
                 functions_.emplace_back();
-//                functionSignatures_.emplace_back();
+                functionSignatures_.emplace_back();
                 for (auto &function : scopedFunction.functions) {
                     functions_.back().emplace(function.name, std::move(function.attributes));
-//                    functionSignatures_.back().emplace(std::move(function.name),
-//                                                       std::move(function.signatures));
+                    functionSignatures_.back().emplace(std::move(function.name),
+                                                       std::move(function.signatures));
                 }
                 functionScopedIndexes_.emplace(scopedFunction.scope, functions_.size() - 1);
             }
@@ -119,9 +118,27 @@ private:
             const auto &functions = functions_[scopedIndex->second];
             const auto function = functions.find(name);
             if (function == functions.end()) {
-                return Status::Error("No function named `%s'.", name.c_str());
+                return Status::Error("No function named `%s' in scope `%s'.",
+                                     name.c_str(),
+                                     scope.c_str());
             }
             return function;
+        }
+
+        StatusOr<std::unordered_map<std::string, std::vector<TypeSignature>>::const_iterator>
+        findSignature(const std::string &scope, const std::string &name) const {
+            const auto scopedIndex = functionScopedIndexes_.find(scope);
+            if (scopedIndex == functionScopedIndexes_.end()) {
+                return Status::Error("No function scoped named `%s'.", scope.c_str());
+            }
+            const auto &functionSignatures = functionSignatures_[scopedIndex->second];
+            const auto functionSignature = functionSignatures.find(name);
+            if (functionSignature == functionSignatures.end()) {
+                return Status::Error("No function named `%s' in scope `%s'.",
+                                     name.c_str(),
+                                     scope.c_str());
+            }
+            return functionSignature;
         }
 
     private:

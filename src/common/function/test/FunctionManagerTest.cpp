@@ -483,7 +483,7 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result =
             FunctionManager::getReturnType("noexist", {Value::Type::INT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Function `noexist' not defined");
+        EXPECT_EQ(result.status().toString(), "No function named `noexist' in scope `'.");
     }
     {
         auto result =
