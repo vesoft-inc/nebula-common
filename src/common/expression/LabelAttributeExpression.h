@@ -53,18 +53,11 @@ public:
 
 private:
     void writeTo(Encoder &encoder) const override {
-        encoder << kind_;
-        encoder << *lhs_;
-        encoder << *rhs_;
+        LOG(FATAL) << "LabelAttributeExpression not supporte to encode.";
     }
 
     void resetFrom(Decoder &decoder) override {
-        auto *lhs = decoder.readExpression().release();
-        auto *rhs = decoder.readExpression().release();
-        DCHECK(lhs->kind() == Kind::kLabel);
-        DCHECK(rhs->kind() == Kind::kLabel);
-        lhs_.reset(static_cast<LabelExpression*>(lhs));
-        rhs_.reset(static_cast<LabelExpression*>(rhs));
+        LOG(FATAL) << "LabelAttributeExpression not supporte to decode.";
     }
 
 private:
