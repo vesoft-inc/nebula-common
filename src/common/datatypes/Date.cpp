@@ -99,12 +99,12 @@ Date Date::operator-(int64_t days) const {
 
 
 std::string Date::toString() const {
-    // TODO(sye) The format should depend on the locale
+    // TODO(shylock) The format should depend on the locale
     return folly::stringPrintf("%d/%02d/%02d", year, month, day);
 }
 
 std::string Time::toString() const {
-    // TODO(sye) The format should depend on the locale
+    // TODO(shylock) The format should depend on the locale
     return folly::stringPrintf("%02d:%02d:%02d.%06d",
                                hour,
                                minute,
@@ -114,7 +114,7 @@ std::string Time::toString() const {
 
 
 std::string DateTime::toString() const {
-    // TODO(sye) The format should depend on the locale
+    // TODO(shylock) The format should depend on the locale
     return folly::stringPrintf("%d/%02d/%02d %02d:%02d:%02d.%06d",
                                year,
                                month,
