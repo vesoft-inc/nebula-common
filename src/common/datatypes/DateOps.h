@@ -250,9 +250,6 @@ struct TccStructTraits<nebula::Time> {
         } else if (_fname == "microsec") {
             fid = 4;
             _ftype = apache::thrift::protocol::T_I32;
-        } else if (_fname == "timezone") {
-            fid = 5;
-            _ftype = apache::thrift::protocol::T_I32;
         }
     }
 };
@@ -296,11 +293,6 @@ uint32_t Cpp2Ops<nebula::Time>::write(Protocol* proto, nebula::Time const* obj) 
     xfer += proto->writeFieldBegin("microsec", apache::thrift::protocol::T_I32, 4);
     xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
         ::write(*proto, obj->microsec);
-    xfer += proto->writeFieldEnd();
-
-    xfer += proto->writeFieldBegin("timezone", apache::thrift::protocol::T_I32, 5);
-    xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
-        ::write(*proto, obj->timezone);
     xfer += proto->writeFieldEnd();
 
     xfer += proto->writeFieldStop();
@@ -359,16 +351,6 @@ _readField_microsec:
         goto _loop;
     }
 
-_readField_timezone:
-    {
-        detail::pm::protocol_methods<type_class::integral, int32_t>
-            ::read(*proto, obj->timezone);
-    }
-
-    if (UNLIKELY(!readState.advanceToNextField(proto, 5, 0, protocol::T_STOP))) {
-        goto _loop;
-    }
-
 _end:
     readState.readStructEnd(proto);
 
@@ -417,14 +399,6 @@ _loop:
                 goto _skip;
             }
         }
-        case 5:
-        {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I32)) {
-                goto _readField_timezone;
-            } else {
-                goto _skip;
-            }
-        }
         default:
         {
 _skip:
@@ -460,10 +434,6 @@ uint32_t Cpp2Ops<nebula::Time>::serializedSize(Protocol const* proto,
     xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
         ::serializedSize<false>(*proto, obj->microsec);
 
-    xfer += proto->serializedFieldSize("timezone", apache::thrift::protocol::T_I32, 5);
-    xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
-        ::serializedSize<false>(*proto, obj->timezone);
-
     xfer += proto->serializedSizeStop();
     return xfer;
 }
@@ -491,10 +461,6 @@ uint32_t Cpp2Ops<nebula::Time>::serializedSizeZC(Protocol const* proto,
     xfer += proto->serializedFieldSize("microsec", apache::thrift::protocol::T_I32, 4);
     xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
         ::serializedSize<false>(*proto, obj->microsec);
-
-    xfer += proto->serializedFieldSize("timezone", apache::thrift::protocol::T_I32, 5);
-    xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
-        ::serializedSize<false>(*proto, obj->timezone);
 
     xfer += proto->serializedSizeStop();
     return xfer;
@@ -533,9 +499,6 @@ struct TccStructTraits<nebula::DateTime> {
             _ftype = apache::thrift::protocol::T_BYTE;
         } else if (_fname == "microsec") {
             fid = 7;
-            _ftype = apache::thrift::protocol::T_I32;
-        } else if (_fname == "timezone") {
-            fid = 8;
             _ftype = apache::thrift::protocol::T_I32;
         }
     }
@@ -595,11 +558,6 @@ uint32_t Cpp2Ops<nebula::DateTime>::write(Protocol* proto, nebula::DateTime cons
     xfer += proto->writeFieldBegin("microsec", apache::thrift::protocol::T_I32, 7);
     xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
         ::write(*proto, obj->microsec);
-    xfer += proto->writeFieldEnd();
-
-    xfer += proto->writeFieldBegin("timezone", apache::thrift::protocol::T_I32, 8);
-    xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
-        ::write(*proto, obj->timezone);
     xfer += proto->writeFieldEnd();
 
     xfer += proto->writeFieldStop();
@@ -685,16 +643,6 @@ _readField_microsec:
         goto _loop;
     }
 
-_readField_timezone:
-    {
-        detail::pm::protocol_methods<type_class::integral, int32_t>
-            ::read(*proto, obj->timezone);
-    }
-
-    if (UNLIKELY(!readState.advanceToNextField(proto, 8, 0, protocol::T_STOP))) {
-        goto _loop;
-    }
-
 _end:
     readState.readStructEnd(proto);
 
@@ -767,14 +715,6 @@ _loop:
                 goto _skip;
             }
         }
-        case 8:
-        {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I32)) {
-                goto _readField_timezone;
-            } else {
-                goto _skip;
-            }
-        }
         default:
         {
 _skip:
@@ -822,10 +762,6 @@ uint32_t Cpp2Ops<nebula::DateTime>::serializedSize(Protocol const* proto,
     xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
         ::serializedSize<false>(*proto, obj->microsec);
 
-    xfer += proto->serializedFieldSize("timezone", apache::thrift::protocol::T_I32, 8);
-    xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
-        ::serializedSize<false>(*proto, obj->timezone);
-
     xfer += proto->serializedSizeStop();
     return xfer;
 }
@@ -865,10 +801,6 @@ uint32_t Cpp2Ops<nebula::DateTime>::serializedSizeZC(Protocol const* proto,
     xfer += proto->serializedFieldSize("microsec", apache::thrift::protocol::T_I32, 7);
     xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
         ::serializedSize<false>(*proto, obj->microsec);
-
-    xfer += proto->serializedFieldSize("timezone", apache::thrift::protocol::T_I32, 8);
-    xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
-        ::serializedSize<false>(*proto, obj->timezone);
 
     xfer += proto->serializedSizeStop();
     return xfer;

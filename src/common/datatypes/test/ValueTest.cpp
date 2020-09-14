@@ -585,10 +585,10 @@ TEST(Value, DecodeEncode) {
         Value(Date(2019, 12, 1)),
 
         // time
-        Value(Time{1, 2, 3, 4, 5}),
+        Value(Time{1, 2, 3, 4}),
 
         // datatime
-        Value(DateTime{1, 2, 3, 4, 5, 6, 7, 8}),
+        Value(DateTime{1, 2, 3, 4, 5, 6, 7}),
 
         // vertex
         Value(Vertex({"Vid", {

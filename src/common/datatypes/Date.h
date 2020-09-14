@@ -13,6 +13,9 @@
 
 namespace nebula {
 
+// In nebula only store UTC time, and the interpretion of time value based on the
+// timezone configuration in current system.
+
 struct Date {
     FRIEND_TEST(Date, DaysConversion);
 
@@ -77,22 +80,19 @@ struct Time {
     int8_t minute;
     int8_t sec;
     int32_t microsec;
-    int32_t timezone;
 
     void clear() {
         hour = 0;
         minute = 0;
         sec = 0;
         microsec = 0;
-        timezone = 0;
     }
 
     bool operator==(const Time& rhs) const {
         return hour == rhs.hour &&
                minute == rhs.minute &&
                sec == rhs.sec &&
-               microsec == rhs.microsec &&
-               timezone == rhs.timezone;
+               microsec == rhs.microsec;
     }
 
     std::string toString() const;
@@ -111,7 +111,6 @@ struct DateTime {
     int8_t minute;
     int8_t sec;
     int32_t microsec;
-    int32_t timezone;
 
     void clear() {
         year = 0;
@@ -121,7 +120,6 @@ struct DateTime {
         minute = 0;
         sec = 0;
         microsec = 0;
-        timezone = 0;
     }
 
     bool operator==(const DateTime& rhs) const {
@@ -131,8 +129,7 @@ struct DateTime {
                hour == rhs.hour &&
                minute == rhs.minute &&
                sec == rhs.sec &&
-               microsec == rhs.microsec &&
-               timezone == rhs.timezone;
+               microsec == rhs.microsec;
     }
 
     std::string toString() const;
@@ -175,12 +172,9 @@ struct hash<nebula::Time> {
         hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.sec),
                                     sizeof(h.sec),
                                     hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.microsec),
+        return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.microsec),
                                     sizeof(h.microsec),
                                     hv);
-        return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.timezone),
-                                      sizeof(h.timezone),
-                                      hv);
     }
 };
 
@@ -204,12 +198,9 @@ struct hash<nebula::DateTime> {
         hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.sec),
                                     sizeof(h.sec),
                                     hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.microsec),
+        return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.microsec),
                                     sizeof(h.microsec),
                                     hv);
-        return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.timezone),
-                                      sizeof(h.timezone),
-                                      hv);
     }
 };
 

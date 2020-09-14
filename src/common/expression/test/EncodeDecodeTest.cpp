@@ -26,8 +26,8 @@ TEST(ExpressionEncodeDecode, ConstantExpression) {
     ConstantExpression val2("Hello world");
     ConstantExpression val3(true);
     ConstantExpression val4(3.14159);
-    ConstantExpression val5(Time{1, 2, 3, 4, 5});
-    ConstantExpression val6(DateTime{1, 2, 3, 4, 5, 6, 7, 8});
+    ConstantExpression val5(Time{1, 2, 3, 4});
+    ConstantExpression val6(DateTime{1, 2, 3, 4, 5, 6, 7});
 
     std::string encoded = Expression::encode(val1);
     auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
