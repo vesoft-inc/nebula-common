@@ -227,7 +227,7 @@ uint32_t Cpp2Ops<nebula::Date>::serializedSizeZC(Protocol const* proto,
 
 /**************************************
  *
- * Ops for class DateTime
+ * Ops for class Time
  *
  *************************************/
 namespace detail {
