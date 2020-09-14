@@ -10,8 +10,36 @@
 
 namespace nebula {
 TEST(Edge, Format) {
+    {
+        Edge edge("1", "2", -1, "e1", 0, {});
+        edge.format();
+
+        Edge expect("2", "1", 1, "e1", 0, {});
+        EXPECT_EQ(expect, edge);
+    }
+    {
+        Edge edge("1", "2", 1, "e1", 0, {});
+        edge.format();
+
+        Edge expect("1", "2", 1, "e1", 0, {});
+        EXPECT_EQ(expect, edge);
+    }
 }
 
 TEST(Edge, Reverse) {
+    {
+        Edge edge("1", "2", -1, "e1", 0, {});
+        edge.reverse();
+
+        Edge expect("2", "1", 1, "e1", 0, {});
+        EXPECT_EQ(expect, edge);
+    }
+    {
+        Edge edge("1", "2", 1, "e1", 0, {});
+        edge.reverse();
+
+        Edge expect("2", "1", -1, "e1", 0, {});
+        EXPECT_EQ(expect, edge);
+    }
 }
 }  // namespace nebula
