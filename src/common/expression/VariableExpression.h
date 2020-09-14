@@ -39,11 +39,11 @@ public:
     }
 
 private:
-    void writeTo(Encoder& encoder) const override {
+    void writeTo(Encoder&) const override {
         LOG(FATAL) << "VariableExpression not support to encode.";
     }
 
-    void resetFrom(Decoder& decoder) override {
+    void resetFrom(Decoder&) override {
         LOG(FATAL) << "VariableExpression not support to decode.";
     }
 
@@ -91,11 +91,11 @@ public:
     }
 
 private:
-    void writeTo(Encoder& encoder) const override {
+    void writeTo(Encoder&) const override {
         LOG(FATAL) << "VersionedVairableExpression not support to encode.";
     }
 
-    void resetFrom(Decoder& decoder) override {
+    void resetFrom(Decoder&) override {
         LOG(FATAL) << "VersionedVairableExpression not support to decode.";
     }
 

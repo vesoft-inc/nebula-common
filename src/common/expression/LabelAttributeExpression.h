@@ -52,11 +52,11 @@ public:
     std::string toString() const override;
 
 private:
-    void writeTo(Encoder &encoder) const override {
+    void writeTo(Encoder&) const override {
         LOG(FATAL) << "LabelAttributeExpression not supporte to encode.";
     }
 
-    void resetFrom(Decoder &decoder) override {
+    void resetFrom(Decoder&) override {
         LOG(FATAL) << "LabelAttributeExpression not supporte to decode.";
     }
 
