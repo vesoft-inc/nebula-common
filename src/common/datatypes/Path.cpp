@@ -24,7 +24,7 @@ bool Path::append(Path path) {
     if (src != path.src && steps.back().dst != path.src) {
         return false;
     }
-    steps.reserve(path.steps.size());
+    steps.reserve(steps.size() + path.steps.size());
     steps.insert(steps.end(),
                  std::make_move_iterator(path.steps.begin()),
                  std::make_move_iterator(path.steps.end()));
