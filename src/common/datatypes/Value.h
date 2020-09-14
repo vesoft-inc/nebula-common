@@ -323,7 +323,7 @@ private:
         double                      fVal;
         std::string                 sVal;
         Date                        dVal;
-        Time                        tmVal;
+        Time                        tVal;
         DateTime                    dtVal;
         std::unique_ptr<Vertex>     vVal;
         std::unique_ptr<Edge>       eVal;
@@ -363,11 +363,11 @@ private:
     void setD(const Date& v);
     void setD(Date&& v);
     // Date value
-    void setTm(const Time& v);
-    void setTm(Time&& v);
+    void setT(const Time& v);
+    void setT(Time&& v);
     // DateTime value
-    void setDt(const DateTime& v);
-    void setDt(DateTime&& v);
+    void setDT(const DateTime& v);
+    void setDT(DateTime&& v);
     // Vertex value
     void setV(const std::unique_ptr<Vertex>& v);
     void setV(std::unique_ptr<Vertex>&& v);

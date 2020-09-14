@@ -127,12 +127,12 @@ Value::Value(Value&& rhs) noexcept : type_(Value::Type::__EMPTY__) {
         }
         case Type::TIME:
         {
-            setTm(std::move(rhs.value_.tmVal));
+            setT(std::move(rhs.value_.tVal));
             break;
         }
         case Type::DATETIME:
         {
-            setDt(std::move(rhs.value_.dtVal));
+            setDT(std::move(rhs.value_.dtVal));
             break;
         }
         case Type::VERTEX:
@@ -216,12 +216,12 @@ Value::Value(const Value& rhs) : type_(Value::Type::__EMPTY__) {
         }
         case Type::TIME:
         {
-            setTm(rhs.value_.tmVal);
+            setT(rhs.value_.tVal);
             break;
         }
         case Type::DATETIME:
         {
-            setDt(rhs.value_.dtVal);
+            setDT(rhs.value_.dtVal);
             break;
         }
         case Type::VERTEX:
@@ -348,19 +348,19 @@ Value::Value(Date&& v) {
 }
 
 Value::Value(const Time& v) {
-    setTm(v);
+    setT(v);
 }
 
 Value::Value(Time&& v) {
-    setTm(std::move(v));
+    setT(std::move(v));
 }
 
 Value::Value(const DateTime& v) {
-    setDt(v);
+    setDT(v);
 }
 
 Value::Value(DateTime&& v) {
-    setDt(std::move(v));
+    setDT(std::move(v));
 }
 
 Value::Value(const Vertex& v) {
@@ -571,22 +571,22 @@ void Value::setDate(Date&& v) {
 
 void Value::setTime(const Time& v) {
     clear();
-    setTm(v);
+    setT(v);
 }
 
 void Value::setTime(Time&& v) {
     clear();
-    setTm(std::move(v));
+    setT(std::move(v));
 }
 
 void Value::setDateTime(const DateTime& v) {
     clear();
-    setDt(v);
+    setDT(v);
 }
 
 void Value::setDateTime(DateTime&& v) {
     clear();
-    setDt(std::move(v));
+    setDT(std::move(v));
 }
 
 void Value::setVertex(const Vertex& v) {
@@ -727,7 +727,7 @@ const Date& Value::getDate() const {
 
 const Time& Value::getTime() const {
     CHECK_EQ(type_, Type::TIME);
-    return value_.tmVal;
+    return value_.tVal;
 }
 
 const DateTime& Value::getDateTime() const {
@@ -838,7 +838,7 @@ Date& Value::mutableDate() {
 
 Time& Value::mutableTime() {
     CHECK_EQ(type_, Type::TIME);
-    return value_.tmVal;
+    return value_.tVal;
 }
 
 DateTime& Value::mutableDateTime() {
@@ -926,7 +926,7 @@ Date Value::moveDate() {
 
 Time Value::moveTime() {
     CHECK_EQ(type_, Type::TIME);
-    Time v = std::move(value_.tmVal);
+    Time v = std::move(value_.tVal);
     clear();
     return v;
 }
@@ -1025,7 +1025,7 @@ void Value::clear() {
         }
         case Type::TIME:
         {
-            destruct(value_.tmVal);
+            destruct(value_.tVal);
             break;
         }
         case Type::DATETIME:
@@ -1110,12 +1110,12 @@ Value& Value::operator=(Value&& rhs) noexcept {
         }
         case Type::TIME:
         {
-            setTm(std::move(rhs.value_.tmVal));
+            setT(std::move(rhs.value_.tVal));
             break;
         }
         case Type::DATETIME:
         {
-            setDt(std::move(rhs.value_.dtVal));
+            setDT(std::move(rhs.value_.dtVal));
             break;
         }
         case Type::VERTEX:
@@ -1201,12 +1201,12 @@ Value& Value::operator=(const Value& rhs) {
         }
         case Type::TIME:
         {
-            setTm(rhs.value_.tmVal);
+            setT(rhs.value_.tVal);
             break;
         }
         case Type::DATETIME:
         {
-            setDt(rhs.value_.dtVal);
+            setDT(rhs.value_.dtVal);
             break;
         }
         case Type::VERTEX:
@@ -1325,22 +1325,22 @@ void Value::setD(Date&& v) {
     new (std::addressof(value_.dVal)) Date(std::move(v));
 }
 
-void Value::setTm(const Time& v) {
+void Value::setT(const Time& v) {
     type_ = Type::TIME;
-    new (std::addressof(value_.tmVal)) Time(v);
+    new (std::addressof(value_.tVal)) Time(v);
 }
 
-void Value::setTm(Time&& v) {
+void Value::setT(Time&& v) {
     type_ = Type::TIME;
-    new (std::addressof(value_.tmVal)) Time(std::move(v));
+    new (std::addressof(value_.tVal)) Time(std::move(v));
 }
 
-void Value::setDt(const DateTime& v) {
+void Value::setDT(const DateTime& v) {
     type_ = Type::DATETIME;
     new (std::addressof(value_.dtVal)) DateTime(v);
 }
 
-void Value::setDt(DateTime&& v) {
+void Value::setDT(DateTime&& v) {
     type_ = Type::DATETIME;
     new (std::addressof(value_.dtVal)) DateTime(std::move(v));
 }

@@ -53,7 +53,7 @@ struct TccStructTraits<nebula::Value> {
         } else if (_fname == "dVal") {
             fid = 6;
             _ftype = apache::thrift::protocol::T_STRUCT;
-        } else if (_fname == "tmVal") {
+        } else if (_fname == "tVal") {
             fid = 7;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "dtVal") {
@@ -154,7 +154,7 @@ uint32_t Cpp2Ops<nebula::Value>::write(Protocol* proto, nebula::Value const* obj
         }
         case nebula::Value::Type::TIME:
         {
-            xfer += proto->writeFieldBegin("tmVal", protocol::T_STRUCT, 7);
+            xfer += proto->writeFieldBegin("tVal", protocol::T_STRUCT, 7);
             xfer += Cpp2Ops<nebula::Time>::write(proto, &obj->getTime());
             xfer += proto->writeFieldEnd();
             break;
@@ -525,7 +525,7 @@ uint32_t Cpp2Ops<nebula::Value>::serializedSize(Protocol const* proto,
         }
         case nebula::Value::Type::TIME:
         {
-            xfer += proto->serializedFieldSize("tmVal", protocol::T_STRUCT, 7);
+            xfer += proto->serializedFieldSize("tVal", protocol::T_STRUCT, 7);
             xfer += Cpp2Ops<nebula::Time>::serializedSize(proto, &obj->getTime());
             break;
         }
@@ -674,7 +674,7 @@ uint32_t Cpp2Ops<nebula::Value>::serializedSizeZC(Protocol const* proto,
         }
         case nebula::Value::Type::TIME:
         {
-            xfer += proto->serializedFieldSize("tmVal", protocol::T_STRUCT, 7);
+            xfer += proto->serializedFieldSize("tVal", protocol::T_STRUCT, 7);
             xfer += Cpp2Ops<nebula::Time>
                 ::serializedSizeZC(proto, &obj->getTime());
             break;
