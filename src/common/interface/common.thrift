@@ -54,6 +54,15 @@ struct Date {
     3: byte day;      // Calendar day: 1 -31
 } (cpp.type = "nebula::Date")
 
+// !! Struct DateTime has a shadow data type defined in the ThriftTypes.h
+// So any change here needs to be reflected to the shadow type there
+struct Time {
+    4: byte hour;         // Hour: 0 - 23
+    5: byte minute;       // Minute: 0 - 59
+    6: byte sec;          // Second: 0 - 59
+    7: i32 microsec;    // Micro-second: 0 - 999,999
+    8: i32 timezone;    // Time difference in seconds
+} (cpp.type = "nebula::Time")
 
 // !! Struct DateTime has a shadow data type defined in the ThriftTypes.h
 // So any change here needs to be reflected to the shadow type there
@@ -89,14 +98,15 @@ union Value {
     4: double                                   fVal;
     5: binary                                   sVal;
     6: Date                                     dVal;
-    7: DateTime                                 tVal;
-    8: Vertex (cpp.type = "nebula::Vertex")     vVal (cpp.ref_type = "unique");
-    9: Edge (cpp.type = "nebula::Edge")         eVal (cpp.ref_type = "unique");
-    10: Path (cpp.type = "nebula::Path")        pVal (cpp.ref_type = "unique");
-    11: List (cpp.type = "nebula::List")        lVal (cpp.ref_type = "unique");
-    12: Map (cpp.type = "nebula::Map")          mVal (cpp.ref_type = "unique");
-    13: Set (cpp.type = "nebula::Set")          uVal (cpp.ref_type = "unique");
-    14: DataSet (cpp.type = "nebula::DataSet")  gVal (cpp.ref_type = "unique");
+    7: Time                                     tmVal;
+    8: DateTime                                 dtVal;
+    9: Vertex (cpp.type = "nebula::Vertex")     vVal (cpp.ref_type = "unique");
+    10: Edge (cpp.type = "nebula::Edge")        eVal (cpp.ref_type = "unique");
+    11: Path (cpp.type = "nebula::Path")        pVal (cpp.ref_type = "unique");
+    12: List (cpp.type = "nebula::List")        lVal (cpp.ref_type = "unique");
+    13: Map (cpp.type = "nebula::Map")          mVal (cpp.ref_type = "unique");
+    14: Set (cpp.type = "nebula::Set")          uVal (cpp.ref_type = "unique");
+    15: DataSet (cpp.type = "nebula::DataSet")  gVal (cpp.ref_type = "unique");
 } (cpp.type = "nebula::Value")
 
 

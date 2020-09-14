@@ -72,6 +72,37 @@ inline std::ostream &operator<<(std::ostream& os, const Date& d) {
     return os;
 }
 
+struct Time {
+    int8_t hour;
+    int8_t minute;
+    int8_t sec;
+    int32_t microsec;
+    int32_t timezone;
+
+    void clear() {
+        hour = 0;
+        minute = 0;
+        sec = 0;
+        microsec = 0;
+        timezone = 0;
+    }
+
+    bool operator==(const Time& rhs) const {
+        return hour == rhs.hour &&
+               minute == rhs.minute &&
+               sec == rhs.sec &&
+               microsec == rhs.microsec &&
+               timezone == rhs.timezone;
+    }
+
+    std::string toString() const;
+};
+
+inline std::ostream &operator<<(std::ostream& os, const Time& d) {
+    os << d.toString();
+    return os;
+}
+
 struct DateTime {
     int16_t year;
     int8_t month;
@@ -133,6 +164,25 @@ struct hash<nebula::Date> {
     }
 };
 
+template<>
+struct hash<nebula::Time> {
+    std::size_t operator()(const nebula::Time& h) const noexcept {
+        std::size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.hour),
+                                                sizeof(h.hour));
+        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.minute),
+                                    sizeof(h.minute),
+                                    hv);
+        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.sec),
+                                    sizeof(h.sec),
+                                    hv);
+        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.microsec),
+                                    sizeof(h.microsec),
+                                    hv);
+        return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.timezone),
+                                      sizeof(h.timezone),
+                                      hv);
+    }
+};
 
 template<>
 struct hash<nebula::DateTime> {

@@ -103,6 +103,18 @@ std::string Date::toString() const {
     return folly::stringPrintf("%d/%02d/%02d", year, month, day);
 }
 
+std::string Time::toString() const {
+    // TODO(sye) The format should depend on the locale
+    return folly::stringPrintf("%02d:%02d:%02d.%06d %c%d.%02d",
+                               hour,
+                               minute,
+                               sec,
+                               microsec,
+                               timezone > 0 ? '+' : '-',
+                               timezone / 3600,
+                               (timezone % 3600) / 60);
+}
+
 
 std::string DateTime::toString() const {
     // TODO(sye) The format should depend on the locale
