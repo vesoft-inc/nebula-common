@@ -53,29 +53,32 @@ struct TccStructTraits<nebula::Value> {
         } else if (_fname == "dVal") {
             fid = 6;
             _ftype = apache::thrift::protocol::T_STRUCT;
-        } else if (_fname == "dtVal") {
+        } else if (_fname == "tmVal") {
             fid = 7;
             _ftype = apache::thrift::protocol::T_STRUCT;
+        } else if (_fname == "dtVal") {
+            fid = 8;
+            _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "vVal") {
-             fid = 8;
+             fid = 9;
             _ftype = apache::thrift::protocol::T_STRUCT;
         } else if (_fname == "eVal") {
-            fid = 9;
-            _ftype = apache::thrift::protocol::T_STRUCT;
-        } else if (_fname == "pVal") {
             fid = 10;
             _ftype = apache::thrift::protocol::T_STRUCT;
-        } else if (_fname == "lVal") {
+        } else if (_fname == "pVal") {
             fid = 11;
             _ftype = apache::thrift::protocol::T_STRUCT;
-        } else if (_fname == "mVal") {
+        } else if (_fname == "lVal") {
             fid = 12;
             _ftype = apache::thrift::protocol::T_STRUCT;
-        } else if (_fname == "uVal") {
+        } else if (_fname == "mVal") {
             fid = 13;
             _ftype = apache::thrift::protocol::T_STRUCT;
-        } else if (_fname == "gVal") {
+        } else if (_fname == "uVal") {
             fid = 14;
+            _ftype = apache::thrift::protocol::T_STRUCT;
+        } else if (_fname == "gVal") {
+            fid = 15;
             _ftype = apache::thrift::protocol::T_STRUCT;
         }
     }
@@ -354,8 +357,8 @@ void Cpp2Ops<nebula::Value>::read(Protocol* proto, nebula::Value* obj) {
             case 7:
             {
                 if (readState.fieldType == apache::thrift::protocol::T_STRUCT) {
-                    obj->setDateTime(nebula::DateTime());
-                    Cpp2Ops<nebula::DateTime>::read(proto, &obj->mutableDateTime());
+                    obj->setTime(nebula::Time());
+                    Cpp2Ops<nebula::Time>::read(proto, &obj->mutableTime());
                 } else {
                     proto->skip(readState.fieldType);
                 }

@@ -239,19 +239,19 @@ struct TccStructTraits<nebula::Time> {
             MAYBE_UNUSED int16_t& fid,
             MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
         if (_fname == "hour") {
-            fid = 4;
+            fid = 1;
             _ftype = apache::thrift::protocol::T_BYTE;
         } else if (_fname == "minute") {
-            fid = 5;
+            fid = 2;
             _ftype = apache::thrift::protocol::T_BYTE;
         } else if (_fname == "sec") {
-            fid = 6;
+            fid = 3;
             _ftype = apache::thrift::protocol::T_BYTE;
         } else if (_fname == "microsec") {
-            fid = 7;
+            fid = 4;
             _ftype = apache::thrift::protocol::T_I32;
         } else if (_fname == "timezone") {
-            fid = 8;
+            fid = 5;
             _ftype = apache::thrift::protocol::T_I32;
         }
     }
@@ -278,27 +278,27 @@ uint32_t Cpp2Ops<nebula::Time>::write(Protocol* proto, nebula::Time const* obj) 
     uint32_t xfer = 0;
     xfer += proto->writeStructBegin("Time");
 
-    xfer += proto->writeFieldBegin("hour", apache::thrift::protocol::T_BYTE, 4);
+    xfer += proto->writeFieldBegin("hour", apache::thrift::protocol::T_BYTE, 1);
     xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
         ::write(*proto, obj->hour);
     xfer += proto->writeFieldEnd();
 
-    xfer += proto->writeFieldBegin("minute", apache::thrift::protocol::T_BYTE, 5);
+    xfer += proto->writeFieldBegin("minute", apache::thrift::protocol::T_BYTE, 2);
     xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
         ::write(*proto, obj->minute);
     xfer += proto->writeFieldEnd();
 
-    xfer += proto->writeFieldBegin("sec", apache::thrift::protocol::T_BYTE, 6);
+    xfer += proto->writeFieldBegin("sec", apache::thrift::protocol::T_BYTE, 3);
     xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
         ::write(*proto, obj->sec);
     xfer += proto->writeFieldEnd();
 
-    xfer += proto->writeFieldBegin("microsec", apache::thrift::protocol::T_I32, 7);
+    xfer += proto->writeFieldBegin("microsec", apache::thrift::protocol::T_I32, 4);
     xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
         ::write(*proto, obj->microsec);
     xfer += proto->writeFieldEnd();
 
-    xfer += proto->writeFieldBegin("timezone", apache::thrift::protocol::T_I32, 8);
+    xfer += proto->writeFieldBegin("timezone", apache::thrift::protocol::T_I32, 5);
     xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
         ::write(*proto, obj->timezone);
     xfer += proto->writeFieldEnd();
@@ -327,7 +327,7 @@ _readField_hour:
         detail::pm::protocol_methods<type_class::integral, int8_t>::read(*proto, obj->hour);
     }
 
-    if (UNLIKELY(!readState.advanceToNextField(proto, 4, 5, protocol::T_BYTE))) {
+    if (UNLIKELY(!readState.advanceToNextField(proto, 1, 2, protocol::T_BYTE))) {
         goto _loop;
     }
 
@@ -336,7 +336,7 @@ _readField_minute:
         detail::pm::protocol_methods<type_class::integral, int8_t>::read(*proto, obj->minute);
     }
 
-    if (UNLIKELY(!readState.advanceToNextField(proto, 5, 6, protocol::T_BYTE))) {
+    if (UNLIKELY(!readState.advanceToNextField(proto, 2, 3, protocol::T_BYTE))) {
         goto _loop;
     }
 
@@ -345,7 +345,7 @@ _readField_sec:
         detail::pm::protocol_methods<type_class::integral, int8_t>::read(*proto, obj->sec);
     }
 
-    if (UNLIKELY(!readState.advanceToNextField(proto, 6, 7, protocol::T_I32))) {
+    if (UNLIKELY(!readState.advanceToNextField(proto, 3, 4, protocol::T_I32))) {
         goto _loop;
     }
 
@@ -355,7 +355,7 @@ _readField_microsec:
             ::read(*proto, obj->microsec);
     }
 
-    if (UNLIKELY(!readState.advanceToNextField(proto, 7, 8, protocol::T_I32))) {
+    if (UNLIKELY(!readState.advanceToNextField(proto, 4, 5, protocol::T_I32))) {
         goto _loop;
     }
 
@@ -365,7 +365,7 @@ _readField_timezone:
             ::read(*proto, obj->timezone);
     }
 
-    if (UNLIKELY(!readState.advanceToNextField(proto, 8, 0, protocol::T_STOP))) {
+    if (UNLIKELY(!readState.advanceToNextField(proto, 5, 0, protocol::T_STOP))) {
         goto _loop;
     }
 
@@ -444,23 +444,23 @@ uint32_t Cpp2Ops<nebula::Time>::serializedSize(Protocol const* proto,
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("Time");
 
-    xfer += proto->serializedFieldSize("hour", apache::thrift::protocol::T_BYTE, 4);
+    xfer += proto->serializedFieldSize("hour", apache::thrift::protocol::T_BYTE, 1);
     xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
         ::serializedSize<false>(*proto, obj->hour);
 
-    xfer += proto->serializedFieldSize("minute", apache::thrift::protocol::T_BYTE, 5);
+    xfer += proto->serializedFieldSize("minute", apache::thrift::protocol::T_BYTE, 2);
     xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
         ::serializedSize<false>(*proto, obj->minute);
 
-    xfer += proto->serializedFieldSize("sec", apache::thrift::protocol::T_BYTE, 6);
+    xfer += proto->serializedFieldSize("sec", apache::thrift::protocol::T_BYTE, 3);
     xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
         ::serializedSize<false>(*proto, obj->sec);
 
-    xfer += proto->serializedFieldSize("microsec", apache::thrift::protocol::T_I32, 7);
+    xfer += proto->serializedFieldSize("microsec", apache::thrift::protocol::T_I32, 4);
     xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
         ::serializedSize<false>(*proto, obj->microsec);
 
-    xfer += proto->serializedFieldSize("timezone", apache::thrift::protocol::T_I32, 8);
+    xfer += proto->serializedFieldSize("timezone", apache::thrift::protocol::T_I32, 5);
     xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
         ::serializedSize<false>(*proto, obj->timezone);
 
@@ -476,23 +476,23 @@ uint32_t Cpp2Ops<nebula::Time>::serializedSizeZC(Protocol const* proto,
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("Time");
 
-    xfer += proto->serializedFieldSize("hour", apache::thrift::protocol::T_BYTE, 4);
+    xfer += proto->serializedFieldSize("hour", apache::thrift::protocol::T_BYTE, 1);
     xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
         ::serializedSize<false>(*proto, obj->hour);
 
-    xfer += proto->serializedFieldSize("minute", apache::thrift::protocol::T_BYTE, 5);
+    xfer += proto->serializedFieldSize("minute", apache::thrift::protocol::T_BYTE, 2);
     xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
         ::serializedSize<false>(*proto, obj->minute);
 
-    xfer += proto->serializedFieldSize("sec", apache::thrift::protocol::T_BYTE, 6);
+    xfer += proto->serializedFieldSize("sec", apache::thrift::protocol::T_BYTE, 3);
     xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
         ::serializedSize<false>(*proto, obj->sec);
 
-    xfer += proto->serializedFieldSize("microsec", apache::thrift::protocol::T_I32, 7);
+    xfer += proto->serializedFieldSize("microsec", apache::thrift::protocol::T_I32, 4);
     xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
         ::serializedSize<false>(*proto, obj->microsec);
 
-    xfer += proto->serializedFieldSize("timezone", apache::thrift::protocol::T_I32, 8);
+    xfer += proto->serializedFieldSize("timezone", apache::thrift::protocol::T_I32, 5);
     xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
         ::serializedSize<false>(*proto, obj->timezone);
 
