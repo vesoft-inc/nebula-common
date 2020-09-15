@@ -57,11 +57,11 @@ struct Date {
 // !! Struct DateTime has a shadow data type defined in the ThriftTypes.h
 // So any change here needs to be reflected to the shadow type there
 struct Time {
-    4: byte hour;         // Hour: 0 - 23
-    5: byte minute;       // Minute: 0 - 59
-    6: byte sec;          // Second: 0 - 59
-    7: i32 microsec;    // Micro-second: 0 - 999,999
-    8: i32 timezone;    // Time difference in seconds
+    1: byte hour;         // Hour: 0 - 23
+    2: byte minute;       // Minute: 0 - 59
+    3: byte sec;          // Second: 0 - 59
+    4: i32 microsec;    // Micro-second: 0 - 999,999
+    5: i32 timezone;    // Time difference in seconds
 } (cpp.type = "nebula::Time")
 
 // !! Struct DateTime has a shadow data type defined in the ThriftTypes.h
