@@ -61,7 +61,6 @@ struct Time {
     2: byte minute;       // Minute: 0 - 59
     3: byte sec;          // Second: 0 - 59
     4: i32 microsec;    // Micro-second: 0 - 999,999
-    5: i32 timezone;    // Time difference in seconds
 } (cpp.type = "nebula::Time")
 
 // !! Struct DateTime has a shadow data type defined in the Date.h
@@ -74,7 +73,6 @@ struct DateTime {
     5: byte minute;       // Minute: 0 - 59
     6: byte sec;          // Second: 0 - 59
     7: i32 microsec;    // Micro-second: 0 - 999,999
-    8: i32 timezone;    // Time difference in seconds
 } (cpp.type = "nebula::DateTime")
 
 
