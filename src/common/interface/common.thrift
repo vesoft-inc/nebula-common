@@ -46,7 +46,7 @@ typedef i32 (cpp.type = "nebula::IndexID") IndexID
 
 typedef i32 (cpp.type = "nebula::Port") Port
 
-// !! Struct Date has a shadow data type defined in the ThriftTypes.h
+// !! Struct Date has a shadow data type defined in the Date.h
 // So any change here needs to be reflected to the shadow type there
 struct Date {
     1: i16 year;    // Calendar year, such as 2019
@@ -54,7 +54,7 @@ struct Date {
     3: byte day;      // Calendar day: 1 -31
 } (cpp.type = "nebula::Date")
 
-// !! Struct DateTime has a shadow data type defined in the ThriftTypes.h
+// !! Struct Time has a shadow data type defined in the Date.h
 // So any change here needs to be reflected to the shadow type there
 struct Time {
     1: byte hour;         // Hour: 0 - 23
@@ -64,7 +64,7 @@ struct Time {
     5: i32 timezone;    // Time difference in seconds
 } (cpp.type = "nebula::Time")
 
-// !! Struct DateTime has a shadow data type defined in the ThriftTypes.h
+// !! Struct DateTime has a shadow data type defined in the Date.h
 // So any change here needs to be reflected to the shadow type there
 struct DateTime {
     1: i16 year;
