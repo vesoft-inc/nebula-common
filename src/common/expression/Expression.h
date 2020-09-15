@@ -101,9 +101,12 @@ public:
 
     virtual void accept(ExprVisitor* visitor) = 0;
 
-    static std::string encode(const Expression& exp);
+    // Deep copy
+    virtual std::unique_ptr<Expression> clone() const = 0;
 
     std::string encode() const;
+
+    static std::string encode(const Expression& exp);
 
     static std::unique_ptr<Expression> decode(folly::StringPiece encoded);
 

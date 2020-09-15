@@ -12,7 +12,7 @@
 namespace nebula {
 class VariableExpression final : public Expression {
 public:
-    explicit VariableExpression(std::string* var)
+    explicit VariableExpression(std::string* var = nullptr)
         : Expression(Kind::kVar) {
         var_.reset(var);
     }
@@ -34,6 +34,10 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
+    std::unique_ptr<Expression> clone() const override {
+        return std::make_unique<VariableExpression>(new std::string(var()));
+    }
+
 private:
     void writeTo(Encoder& encoder) const override {
         encoder << kind();
@@ -53,7 +57,7 @@ private:
  */
 class VersionedVariableExpression final : public Expression {
 public:
-    VersionedVariableExpression(std::string* var, Expression* version)
+    explicit VersionedVariableExpression(std::string* var = nullptr, Expression* version = nullptr)
         : Expression(Kind::kVersionedVar) {
         var_.reset(var);
         version_.reset(version);
@@ -81,6 +85,11 @@ public:
     std::string toString() const override;
 
     void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        return std::make_unique<VersionedVariableExpression>(new std::string(var()),
+                                                             version_->clone().release());
+    }
 
 private:
     void writeTo(Encoder& encoder) const override {
