@@ -14,6 +14,9 @@ namespace nebula {
 class ExpressionList final {
 public:
     ExpressionList() = default;
+    explicit ExpressionList(size_t sz) {
+        items_.reserve(sz);
+    }
 
     ExpressionList& add(Expression *expr) {
         items_.emplace_back(expr);
@@ -32,6 +35,9 @@ private:
 class MapItemList final {
 public:
     MapItemList() = default;
+    explicit MapItemList(size_t sz) {
+        items_.reserve(sz);
+    }
 
     MapItemList& add(std::string *key, Expression *value) {
         items_.emplace_back(key, value);
@@ -88,6 +94,14 @@ public:
 
     void accept(ExprVisitor *visitor) override;
 
+    std::unique_ptr<Expression> clone() const override {
+        auto items = new ExpressionList(items_.size());
+        for (auto &item : items_) {
+            items->add(item->clone().release());
+        }
+        return std::make_unique<ListExpression>(items);
+    }
+
 private:
     void writeTo(Encoder &encoder) const override;
 
@@ -138,6 +152,14 @@ public:
     std::string toString() const override;
 
     void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        auto items = new ExpressionList(items_.size());
+        for (auto &item : items_) {
+            items->add(item->clone().release());
+        }
+        return std::make_unique<SetExpression>(items);
+    }
 
 private:
     void writeTo(Encoder &encoder) const override;
@@ -190,6 +212,14 @@ public:
     std::string toString() const override;
 
     void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        auto items = new MapItemList(items_.size());
+        for (auto &item : items_) {
+            items->add(new std::string(*item.first), item.second->clone().release());
+        }
+        return std::make_unique<MapExpression>(items);
+    }
 
 private:
     void writeTo(Encoder &encoder) const override;

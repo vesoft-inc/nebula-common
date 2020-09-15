@@ -26,6 +26,8 @@ TEST(ExpressionEncodeDecode, ConstantExpression) {
     ConstantExpression val2("Hello world");
     ConstantExpression val3(true);
     ConstantExpression val4(3.14159);
+    ConstantExpression val5(Time{1, 2, 3, 4});
+    ConstantExpression val6(DateTime{1, 2, 3, 4, 5, 6, 7});
 
     std::string encoded = Expression::encode(val1);
     auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
@@ -42,23 +44,21 @@ TEST(ExpressionEncodeDecode, ConstantExpression) {
     encoded = Expression::encode(val4);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(val4, *decoded);
+
+    encoded = Expression::encode(val5);
+    decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
+    EXPECT_EQ(val5, *decoded);
+
+    encoded = Expression::encode(val6);
+    decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
+    EXPECT_EQ(val6, *decoded);
 }
 
 
 TEST(ExpressionEncodeDecode, SymbolPropertyExpression) {
-    InputPropertyExpression inputEx(new std::string("prop"));
-    auto encoded = Expression::encode(inputEx);
-    auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
-    EXPECT_EQ(inputEx, *decoded);
-
-    VariablePropertyExpression varEx(new std::string("var"), new std::string("prop"));
-    encoded = Expression::encode(varEx);
-    decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
-    EXPECT_EQ(varEx, *decoded);
-
     SourcePropertyExpression spEx(new std::string("tag"), new std::string("prop"));
-    encoded = Expression::encode(spEx);
-    decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
+    auto encoded = Expression::encode(spEx);
+    auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(spEx, *decoded);
 
     DestPropertyExpression dpEx(new std::string("tag"), new std::string("prop"));
@@ -330,4 +330,3 @@ int main(int argc, char** argv) {
 
     return RUN_ALL_TESTS();
 }
-
