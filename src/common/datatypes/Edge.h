@@ -88,10 +88,7 @@ struct Edge {
 
     void format() {
         if (type < 0) {
-            type = -type;
-            auto tmp = std::move(src);
-            src = std::move(dst);
-            dst = std::move(tmp);
+            reverse();
         }
     }
 
