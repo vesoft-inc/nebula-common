@@ -80,7 +80,7 @@ uint32_t Cpp2Ops<nebula::Step>::write(Protocol* proto, nebula::Step const* obj) 
     auto type = obj->type;
     (type != 0 && type > 0) ? type = 1 : type = -1;
     xfer += detail::pm::protocol_methods<type_class::integral, nebula::EdgeType>
-        ::write(*proto, obj->type);
+        ::write(*proto, type);
     xfer += proto->writeFieldEnd();
 
     xfer += proto->writeFieldBegin("name", apache::thrift::protocol::T_STRING, 3);
