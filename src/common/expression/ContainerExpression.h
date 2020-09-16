@@ -80,8 +80,8 @@ public:
         items_[index].reset(item);
     }
 
-    std::vector<std::unique_ptr<Expression>> itemsPtr() const {
-        return items_;
+    std::vector<std::unique_ptr<Expression>> itemsPtr() {
+        return std::move(items_);
     }
 
     void setItems(std::vector<std::unique_ptr<Expression>> items) {
@@ -143,8 +143,8 @@ public:
         items_[index].reset(item);
     }
 
-    std::vector<std::unique_ptr<Expression>> itemsPtr() const {
-        return items_;
+    std::vector<std::unique_ptr<Expression>> itemsPtr() {
+        return std::move(items_);
     }
 
     void setItems(std::vector<std::unique_ptr<Expression>> items) {
@@ -211,8 +211,8 @@ public:
         items_[index] = std::move(item);
     }
 
-    std::vector<Item> itemsPtr() const {
-        return items_;
+    std::vector<Item> itemsPtr() {
+        return std::move(items_);
     }
 
     size_t size() const {
