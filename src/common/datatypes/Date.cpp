@@ -8,9 +8,9 @@
 
 namespace nebula {
 
-static const int64_t daysSoFar[] =
+const int64_t daysSoFar[] =
     {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
-static const int64_t leapDaysSoFar[] =
+const int64_t leapDaysSoFar[] =
     {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
 
 
@@ -99,12 +99,12 @@ Date Date::operator-(int64_t days) const {
 
 
 std::string Date::toString() const {
-    // TODO(shylock) The format should depend on the locale
+    // It's in current timezone already
     return folly::stringPrintf("%d/%02d/%02d", year, month, day);
 }
 
 std::string Time::toString() const {
-    // TODO(shylock) The format should depend on the locale
+    // It's in current timezone already
     return folly::stringPrintf("%02d:%02d:%02d.%06d",
                                hour,
                                minute,
@@ -114,7 +114,7 @@ std::string Time::toString() const {
 
 
 std::string DateTime::toString() const {
-    // TODO(shylock) The format should depend on the locale
+    // It's in current timezone already
     return folly::stringPrintf("%d/%02d/%02d %02d:%02d:%02d.%06d",
                                year,
                                month,

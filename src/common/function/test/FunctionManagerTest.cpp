@@ -200,6 +200,86 @@ TEST_F(FunctionManagerTest, functionCall) {
         auto res = std::move(result).value()({true});
         EXPECT_EQ(res, Value::kNullBadType);
     }
+    // date
+    {
+        auto result = FunctionManager::get("date", 0);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({});
+        EXPECT_EQ(res.type(), Value::Type::DATE);
+    }
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({true});
+        EXPECT_EQ(res, Value::kNullBadType);
+    }
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({"2020-09-15"});
+        EXPECT_EQ(res, Value(Date(2020, 9, 15)));
+    }
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 2020}, {"month", 9}, {"day", 15}})});
+        EXPECT_EQ(res, Value(Date(2020, 9, 15)));
+    }
+    // time
+    {
+        auto result = FunctionManager::get("time", 0);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({});
+        EXPECT_EQ(res.type(), Value::Type::TIME);
+    }
+    {
+        auto result = FunctionManager::get("time", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({true});
+        EXPECT_EQ(res, Value::kNullBadType);
+    }
+    {
+        auto result = FunctionManager::get("time", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({"20:09:15"});
+        EXPECT_EQ(res, Value(Time(20, 9, 15, 0)));
+    }
+    {
+        auto result = FunctionManager::get("time", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"hour", 20}, {"minute", 9}, {"second", 15}})});
+        EXPECT_EQ(res, Value(Time(20, 9, 15, 0)));
+    }
+    // datetime
+    {
+        auto result = FunctionManager::get("datetime", 0);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({});
+        EXPECT_EQ(res.type(), Value::Type::DATETIME);
+    }
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({true});
+        EXPECT_EQ(res, Value::kNullBadType);
+    }
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({"2020-09-15 20:09:15"});
+        EXPECT_EQ(res, Value(DateTime(2020, 9, 15, 20, 9, 15, 0)));
+    }
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 2020},
+                                                   {"month", 9},
+                                                   {"day", 15},
+                                                   {"hour", 20},
+                                                   {"minute", 9},
+                                                   {"second", 15}})});
+        EXPECT_EQ(res, Value(DateTime(2020, 9, 15, 20, 9, 15, 0)));
+    }
 }
 
 TEST_F(FunctionManagerTest, returnType) {
@@ -532,6 +612,81 @@ TEST_F(FunctionManagerTest, returnType) {
             FunctionManager::getReturnType("size", {Value::Type::BOOL});
         ASSERT_FALSE(result.ok());
         EXPECT_EQ(result.status().toString(), "Parameter's type error");
+    }
+    // time
+    {
+        auto result =
+            FunctionManager::getReturnType("time", {Value::Type::BOOL});
+        ASSERT_FALSE(result.ok());
+        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+    }
+    {
+        auto result =
+            FunctionManager::getReturnType("time", {});
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(result.value(), Value::Type::TIME);
+    }
+    {
+        auto result =
+            FunctionManager::getReturnType("time", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(result.value(), Value::Type::TIME);
+    }
+    {
+        auto result =
+            FunctionManager::getReturnType("time", {Value::Type::MAP});
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(result.value(), Value::Type::TIME);
+    }
+    // date
+    {
+        auto result =
+            FunctionManager::getReturnType("date", {Value::Type::INT});
+        ASSERT_FALSE(result.ok());
+        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+    }
+    {
+        auto result =
+            FunctionManager::getReturnType("date", {});
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(result.value(), Value::Type::DATE);
+    }
+    {
+        auto result =
+            FunctionManager::getReturnType("date", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(result.value(), Value::Type::DATE);
+    }
+    {
+        auto result =
+            FunctionManager::getReturnType("date", {Value::Type::MAP});
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(result.value(), Value::Type::DATE);
+    }
+    // datetime
+    {
+        auto result =
+            FunctionManager::getReturnType("datetime", {Value::Type::FLOAT});
+        ASSERT_FALSE(result.ok());
+        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+    }
+    {
+        auto result =
+            FunctionManager::getReturnType("datetime", {});
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(result.value(), Value::Type::DATETIME);
+    }
+    {
+        auto result =
+            FunctionManager::getReturnType("datetime", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(result.value(), Value::Type::DATETIME);
+    }
+    {
+        auto result =
+            FunctionManager::getReturnType("datetime", {Value::Type::MAP});
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(result.value(), Value::Type::DATETIME);
     }
 }
 

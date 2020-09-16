@@ -12,6 +12,7 @@
 #include "common/datatypes/Map.h"
 #include "common/datatypes/Set.h"
 #include "common/datatypes/DataSet.h"
+#include "common/time/Time.h"
 
 namespace nebula {
 
@@ -131,6 +132,15 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
               TypeSignature({Value::Type::SET}, Value::Type::INT),
               TypeSignature({Value::Type::DATASET}, Value::Type::INT),
              }},
+    {"time", {TypeSignature({}, Value::Type::TIME),
+              TypeSignature({Value::Type::STRING}, Value::Type::TIME),
+              TypeSignature({Value::Type::MAP}, Value::Type::TIME)}},
+    {"date", {TypeSignature({}, Value::Type::DATE),
+              TypeSignature({Value::Type::STRING}, Value::Type::DATE),
+              TypeSignature({Value::Type::MAP}, Value::Type::DATE)}},
+    {"datetime", {TypeSignature({}, Value::Type::DATETIME),
+              TypeSignature({Value::Type::STRING}, Value::Type::DATETIME),
+              TypeSignature({Value::Type::MAP}, Value::Type::DATETIME)}},
 };
 
 // static
@@ -768,6 +778,117 @@ FunctionManager::FunctionManager() {
                 default:
                     LOG(ERROR) << "size() has not been implemented for " << args[0].type();
                     return Value::kNullBadType;
+            }
+        };
+    }
+    {
+        auto &attr = functions_["date"];
+        // 0 for corrent time
+        // 1 for string or map
+        attr.minArity_ = 0;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            switch (args.size()) {
+            case 0: {
+                auto result = time::localDate();
+                if (!result.ok()) {
+                    return Value(NullType::__NULL__);
+                }
+                return Value(std::move(result).value());
+            }
+            case 1: {
+                if (args[0].isStr()) {
+                    auto result = time::parseDate(args[0].getStr());
+                    if (!result.ok()) {
+                        return Value(NullType::__NULL__);
+                    }
+                    return result.value();
+                } else if (args[0].isMap()) {
+                    auto result = time::dateFromMap(args[0].getMap());
+                    if (!result.ok()) {
+                        return Value(NullType::__NULL__);
+                    }
+                    return result.value();
+                } else {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+            default:
+                return Value(NullType::OUT_OF_RANGE);
+            }
+        };
+    }
+    {
+        auto &attr = functions_["time"];
+        // 0 for corrent time
+        // 1 for string or map
+        attr.minArity_ = 0;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            switch (args.size()) {
+            case 0: {
+                auto result = time::localTime();
+                if (!result.ok()) {
+                    return Value(NullType::__NULL__);
+                }
+                return Value(std::move(result).value());
+            }
+            case 1: {
+                if (args[0].isStr()) {
+                    auto result = time::parseTime(args[0].getStr());
+                    if (!result.ok()) {
+                        return Value(NullType::__NULL__);
+                    }
+                    return result.value();
+                } else if (args[0].isMap()) {
+                    auto result = time::timeFromMap(args[0].getMap());
+                    if (!result.ok()) {
+                        return Value(NullType::__NULL__);
+                    }
+                    return result.value();
+                } else {
+                    return Value(NullType::BAD_TYPE);
+                }
+            }
+            default:
+                return Value(NullType::OUT_OF_RANGE);
+            }
+        };
+    }
+    {
+        auto &attr = functions_["datetime"];
+        // 0 for corrent time
+        // 1 for string or map
+        attr.minArity_ = 0;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            switch (args.size()) {
+            case 0: {
+                auto result = time::localDateTime();
+                if (!result.ok()) {
+                    return Value(NullType::__NULL__);
+                }
+                return Value(std::move(result).value());
+            }
+            case 1: {
+                if (args[0].isStr()) {
+                    auto result = time::parseDateTime(args[0].getStr());
+                    if (!result.ok()) {
+                        return Value(NullType::__NULL__);
+                    }
+                    return result.value();
+                } else if (args[0].isMap()) {
+                    auto result = time::dateTimeFromMap(args[0].getMap());
+                    if (!result.ok()) {
+                        return Value(NullType::__NULL__);
+                    }
+                    return result.value();
+                } else {
+                    return Value(NullType::__NULL__);
+                }
+            }
+            default:
+                return Value(NullType::OUT_OF_RANGE);
             }
         };
     }

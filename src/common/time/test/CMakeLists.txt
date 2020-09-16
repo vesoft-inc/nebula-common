@@ -28,6 +28,20 @@ nebula_add_test(
         gtest
 )
 
+nebula_add_test(
+    NAME
+        time_test
+    SOURCES
+        TimeTest.cpp
+    OBJECTS
+        $<TARGET_OBJECTS:time_obj>
+        $<TARGET_OBJECTS:thread_obj>
+        $<TARGET_OBJECTS:datatypes_obj>
+        $<TARGET_OBJECTS:base_obj>
+    LIBRARIES
+        gtest
+)
+
 nebula_add_executable(
     NAME
         duration_bm

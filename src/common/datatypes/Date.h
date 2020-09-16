@@ -16,6 +16,9 @@ namespace nebula {
 // In nebula only store UTC time, and the interpretion of time value based on the
 // timezone configuration in current system.
 
+extern const int64_t daysSoFar[];
+extern const int64_t leapDaysSoFar[];
+
 struct Date {
     FRIEND_TEST(Date, DaysConversion);
 
@@ -23,7 +26,10 @@ struct Date {
     int8_t month;   // 1 - 12
     int8_t day;     // 1 - 31
 
-    Date() : year{0}, month{1}, day{1} {}
+    Date() : year{0}, month{1}, day{1} {
+        DCHECK_LE(month, 12);
+        DCHECK_LE(day, 31);
+    }
     Date(int16_t y, int8_t m, int8_t d) : year{y}, month{m}, day{d} {}
     // Tak the number of days since -32768/1/1, and convert to the real date
     explicit Date(uint64_t days);
@@ -81,6 +87,15 @@ struct Time {
     int8_t sec;
     int32_t microsec;
 
+    Time() : hour{0}, minute{0}, sec{0}, microsec{0} {}
+    Time(int8_t h, int8_t min, int8_t s, int32_t us)
+        : hour{h}, minute{min}, sec{s}, microsec{us} {
+        DCHECK_LT(hour, 24);
+        DCHECK_LT(minute, 60);
+        DCHECK_LT(sec, 60);
+        DCHECK_LT(microsec, 1000000);
+    }
+
     void clear() {
         hour = 0;
         minute = 0;
@@ -93,6 +108,19 @@ struct Time {
                minute == rhs.minute &&
                sec == rhs.sec &&
                microsec == rhs.microsec;
+    }
+
+    bool operator<(const Time &rhs) const {
+        if (!(hour == rhs.hour)) {
+            return hour < rhs.hour;
+        }
+        if (!(minute == rhs.minute)) {
+            return minute < rhs.minute;
+        }
+        if (!(sec == rhs.sec)) {
+            return sec < rhs.sec;
+        }
+        return false;
     }
 
     std::string toString() const;
@@ -112,10 +140,21 @@ struct DateTime {
     int8_t sec;
     int32_t microsec;
 
+    DateTime() : year{0}, month{1}, day{1}, hour{0}, minute{0}, sec{0}, microsec{0} {}
+    DateTime(int16_t y, int8_t m, int8_t d, int8_t h, int8_t min, int8_t s, int32_t us)
+        : year{y}, month{m}, day{d}, hour{h}, minute{min}, sec{s}, microsec{us} {
+        DCHECK_LE(month, 12);
+        DCHECK_LE(day, 31);
+        DCHECK_LT(hour, 24);
+        DCHECK_LT(minute, 60);
+        DCHECK_LT(sec, 60);
+        DCHECK_LT(microsec, 1000000);
+    }
+
     void clear() {
         year = 0;
-        month = 0;
-        day = 0;
+        month = 1;
+        day = 1;
         hour = 0;
         minute = 0;
         sec = 0;
@@ -130,6 +169,28 @@ struct DateTime {
                minute == rhs.minute &&
                sec == rhs.sec &&
                microsec == rhs.microsec;
+    }
+
+    bool operator<(const DateTime &rhs) const {
+        if (!(year == rhs.year)) {
+            return year < rhs.year;
+        }
+        if (!(month == rhs.month)) {
+            return month < rhs.month;
+        }
+        if (!(day == rhs.day)) {
+            return day < rhs.day;
+        }
+        if (!(hour == rhs.hour)) {
+            return hour < rhs.hour;
+        }
+        if (!(minute == rhs.minute)) {
+            return minute < rhs.minute;
+        }
+        if (!(sec == rhs.sec)) {
+            return sec < rhs.sec;
+        }
+        return false;
     }
 
     std::string toString() const;
