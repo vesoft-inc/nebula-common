@@ -8,11 +8,11 @@
 
 #include "common/time/Time.h"
 
-namespace nebula {
-namespace time {
-
 // If it's invalid timezone the service initialize will failed.
 DEFINE_string(timezone_name, "Etc/UTC", "The name of timezone used in current system");
+
+namespace nebula {
+namespace time {
 
 }  // time
 }  // nebula

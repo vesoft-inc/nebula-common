@@ -16,22 +16,20 @@
 #include "common/datatypes/Date.h"
 #include "common/datatypes/Map.h"
 
+DECLARE_string(timezone_name);
+
 namespace nebula {
 namespace time {
 
 // In nebula only store UTC time, and the interpretion of time value based on the
 // timezone configuration in current system.
 
-DECLARE_string(timezone_name);
-
+// TODO(shylock) Get Timzone info(I.E. GMT offset) directly from IANA tzdb
 static inline Status initializeGlobalTimezone() {
     if (::setenv("TZ", FLAGS_timezone_name.c_str(), true) != 0) {
         return Status::Error("Set timezone failed: %s", ::strerror(errno));
     }
     ::tzset();
-    if (tzname[0] != FLAGS_timezone_name) {
-        return Status::Error("`%s' is not a valid timezone.", FLAGS_timezone_name.c_str());
-    }
     return Status::OK();
 }
 
@@ -109,23 +107,6 @@ static inline StatusOr<DateTime> dateTimeFromMap(const Map &m) {
             return Status::Error("Invlaid parameter `%s'.", kv.first.c_str());
         }
     }
-    return dt;
-}
-
-
-static inline StatusOr<DateTime> localDateTime() {
-    DateTime dt;
-    auto result = localTM();
-    NG_RETURN_IF_ERROR(result);
-    const std::tm *ptm = result.value();
-
-    dt.year = ptm->tm_year + 1900;
-    dt.month = ptm->tm_mon + 1;
-    dt.day = ptm->tm_mday;
-    dt.hour = ptm->tm_hour;
-    dt.minute = ptm->tm_min;
-    dt.sec = ptm->tm_sec;
-    dt.microsec = 0;
     return dt;
 }
 
@@ -217,11 +198,20 @@ static inline DateTime dateTimeShift(const DateTime &dateTime, int64_t offsetSec
 }
 
 static inline DateTime dateTimeToUTC(const DateTime &dateTime) {
-    return dateTimeShift(dateTime, -timezone);
+    return dateTimeShift(dateTime, timezone);
 }
 
 static inline DateTime utcToDateTime(const DateTime &dateTime) {
-    return dateTimeShift(dateTime, timezone);
+    return dateTimeShift(dateTime, -timezone);
+}
+
+static inline StatusOr<DateTime> localDateTime() {
+    DateTime dt;
+    time_t unixTime = std::time(NULL);
+    if (unixTime == -1) {
+        return Status::Error("Get unix time failed: %s.", std::strerror(errno));
+    }
+    return secondsToDateTime(unixTime - timezone);
 }
 
 static inline StatusOr<Date> dateFromMap(const Map &m) {
@@ -260,18 +250,6 @@ static inline StatusOr<Date> parseDate(const std::string &str) {
     d.year = tm.tm_year + 1900;
     d.month = tm.tm_mon + 1;
     d.day = tm.tm_mday;
-    return d;
-}
-
-static inline StatusOr<Date> localDate() {
-    Date d;
-    auto result = localTM();
-    NG_RETURN_IF_ERROR(result);
-    const std::tm *ptm = result.value();
-
-    d.year = ptm->tm_year + 1900;
-    d.month = ptm->tm_mon + 1;
-    d.day = ptm->tm_mday;
     return d;
 }
 
@@ -338,11 +316,20 @@ static inline Date dateShift(const Date &date, int64_t offsetSeconds) {
 }
 
 static inline Date dateToUTC(const Date &date) {
-    return dateShift(date, -timezone);
+    return dateShift(date, timezone);
 }
 
 static inline Date utcToDate(const Date &date) {
-    return dateShift(date, timezone);
+    return dateShift(date, -timezone);
+}
+
+static inline StatusOr<Date> localDate() {
+    Date d;
+    time_t unixTime = std::time(NULL);
+    if (unixTime == -1) {
+        return Status::Error("Get unix time failed: %s.", std::strerror(errno));
+    }
+    return secondsToDate(unixTime - timezone);
 }
 
 static inline StatusOr<Time> timeFromMap(const Map &m) {
@@ -393,19 +380,6 @@ static inline StatusOr<Time> parseTime(const std::string &str) {
     return t;
 }
 
-static inline StatusOr<Time> localTime() {
-    Time dt;
-    auto result = localTM();
-    NG_RETURN_IF_ERROR(result);
-    const std::tm *ptm = result.value();
-
-    dt.hour = ptm->tm_hour;
-    dt.minute = ptm->tm_min;
-    dt.sec = ptm->tm_sec;
-    dt.microsec = 0;
-    return dt;
-}
-
 // unix time
 static inline int64_t timeToSeconds(const Time &time) {
     int64_t seconds = time.sec;
@@ -416,11 +390,10 @@ static inline int64_t timeToSeconds(const Time &time) {
 
 static inline Time secondsToTime(int64_t seconds) {
     Time t;
-    t.hour = seconds / (60 * 60);
-    seconds -= (t.hour * 60 * 60);
-    t.minute = seconds / 60;
-    seconds -= (t.minute * 60);
-    t.sec = seconds;
+    auto dt = secondsToDateTime(seconds);
+    t.hour = dt.hour;
+    t.minute = dt.minute;
+    t.sec = dt.sec;
     return t;
 }
 
@@ -433,11 +406,20 @@ static inline Time timeShift(const Time &time, int64_t offsetSeconds) {
 }
 
 static inline Time timeToUTC(const Time &time) {
-    return timeShift(time, -timezone);
+    return timeShift(time, timezone);
 }
 
 static inline Time utcToTime(const Time &time) {
-    return timeShift(time, timezone);
+    return timeShift(time, -timezone);
+}
+
+static inline StatusOr<Time> localTime() {
+    Time dt;
+    time_t unixTime = std::time(NULL);
+    if (unixTime == -1) {
+        return Status::Error("Get unix time failed: %s.", std::strerror(errno));
+    }
+    return secondsToTime(unixTime - timezone);
 }
 
 }  // namespace time
