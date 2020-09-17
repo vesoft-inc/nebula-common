@@ -61,6 +61,8 @@ public:
     // get all version of all edge schema
     virtual StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID space) = 0;
 
+    StatusOr<std::pair<bool, int32_t>>
+    getSchemaIDByName(GraphSpaceID space, folly::StringPiece schemaName);
 
 protected:
     SchemaManager() = default;
