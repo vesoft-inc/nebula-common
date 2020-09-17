@@ -114,6 +114,10 @@ static inline bool isLeapYear(int16_t year) {
 static constexpr int kDayOfLeapYear = 366;
 static constexpr int kDayOfCommonYear = 365;
 
+static constexpr int64_t kSecondsOfMinute = 60;
+static constexpr int64_t kSecondsOfHour = 60 * kSecondsOfMinute;
+static constexpr int64_t kSecondsOfDay = 24 * kSecondsOfHour;
+
 static const DateTime kEpoch(1970, 1, 1, 0, 0, 0, 0);
 
 static inline int64_t shr(int64_t a, int b) {
@@ -160,20 +164,20 @@ static inline DateTime secondsToDateTime(int64_t seconds) {
     int64_t days, rem, y;
     const int64_t *ip;
 
-    days = seconds / (60 * 60 * 24);
-    rem = seconds % (60 * 60 * 24);
+    days = seconds / kSecondsOfDay;
+    rem = seconds % kSecondsOfDay;
     while (rem < 0) {
-        rem += (60 * 60 * 24);
+        rem += kSecondsOfDay;
         --days;
     }
-    while (rem >= (60 * 60 * 24)) {
-        rem -= (60 * 60 * 24);
+    while (rem >= kSecondsOfDay) {
+        rem -= kSecondsOfDay;
         ++days;
     }
-    dt.hour = rem / (60 * 60);
-    rem %= (60 * 60);
-    dt.minute = rem / 60;
-    dt.sec = rem % 60;
+    dt.hour = rem / kSecondsOfHour;
+    rem %= kSecondsOfHour;
+    dt.minute = rem / kSecondsOfMinute;
+    dt.sec = rem % kSecondsOfMinute;
     y = 1970;
 
 #define DIV(a, b) ((a) / (b) - ((a) % (b) < 0))
@@ -357,8 +361,8 @@ static inline StatusOr<Time> parseTime(const std::string &str) {
 // unix time
 static inline int64_t timeToSeconds(const Time &time) {
     int64_t seconds = time.sec;
-    seconds += (time.minute * 60);
-    seconds += (time.hour * 60 * 60);
+    seconds += (time.minute * kSecondsOfMinute);
+    seconds += (time.hour * kSecondsOfHour);
     return seconds;
 }
 
