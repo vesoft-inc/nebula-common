@@ -44,3 +44,20 @@ nebula_add_test(
         gtest
         ${THRIFT_LIBRARIES}
 )
+
+
+nebula_add_test(
+    NAME
+        structral_value_test
+    SOURCES
+        PathTest.cpp
+        EdgeTest.cpp
+    OBJECTS
+        $<TARGET_OBJECTS:base_obj>
+        $<TARGET_OBJECTS:datatypes_obj>
+        $<TARGET_OBJECTS:function_manager_obj>
+        $<TARGET_OBJECTS:time_obj>
+    LIBRARIES
+        gtest
+        ${THRIFT_LIBRARIES}
+)

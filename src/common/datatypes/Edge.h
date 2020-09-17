@@ -37,11 +37,11 @@ struct Edge {
         , name(v.name)
         , ranking(v.ranking)
         , props(v.props) {}
-    Edge(VertexID&& s,
-         VertexID&& d,
-         EdgeType&& t,
-         std::string&& n,
-         EdgeRanking&& r,
+    Edge(VertexID s,
+         VertexID d,
+         EdgeType t,
+         std::string n,
+         EdgeRanking r,
          std::unordered_map<std::string, Value>&& p)
         : src(std::move(s))
         , dst(std::move(d))
@@ -62,7 +62,7 @@ struct Edge {
     std::string toString() const {
         std::stringstream os;
         os << "(" << src << ")"
-            << "-" << "[" << name << "]" << "->"
+            << "-" << "[" << name << "(" << type << ")]" << "->"
             << "(" << dst << ")"
             << "@" << ranking;
         if (!props.empty()) {
@@ -84,6 +84,19 @@ struct Edge {
                type == rhs.type &&
                ranking == rhs.ranking &&
                props == rhs.props;
+    }
+
+    void format() {
+        if (type < 0) {
+            reverse();
+        }
+    }
+
+    void reverse() {
+        type = -type;
+        auto tmp = std::move(src);
+        src = std::move(dst);
+        dst = std::move(tmp);
     }
 };
 
