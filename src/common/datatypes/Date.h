@@ -150,6 +150,9 @@ struct DateTime {
         DCHECK_LT(sec, 60);
         DCHECK_LT(microsec, 1000000);
     }
+    explicit DateTime(const Date &date)
+        : year{date.year}, month{date.month}, day{date.day},
+          hour{0}, minute{0}, sec{0}, microsec{0} {}
 
     void clear() {
         year = 0;

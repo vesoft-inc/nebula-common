@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#ifndef COMMON_TIME_TIMEZONE_H_
-#define COMMON_TIME_TIMEZONE_H_
+#ifndef COMMON_TIME_TIME_H_
+#define COMMON_TIME_TIME_H_
 
 #include <gflags/gflags_declare.h>
 #include <iomanip>
@@ -25,6 +25,7 @@ namespace time {
 // timezone configuration in current system.
 
 // TODO(shylock) Get Timzone info(I.E. GMT offset) directly from IANA tzdb
+// to support non-global timezone configuration
 static inline Status initializeGlobalTimezone() {
     if (::setenv("TZ", FLAGS_timezone_name.c_str(), true) != 0) {
         return Status::Error("Set timezone failed: %s", ::strerror(errno));
@@ -33,20 +34,7 @@ static inline Status initializeGlobalTimezone() {
     return Status::OK();
 }
 
-static inline StatusOr<std::tm*> localTM() {
-    time_t unixTime = std::time(NULL);
-    if (unixTime == -1) {
-        return Status::Error("Get unix time failed: %s.", std::strerror(errno));
-    }
-    // TODO(shylock) support accept timezone to convert to localtime if require nonglobal timezone
-    // configuration
-    struct std::tm *ptm = std::localtime(&unixTime);
-    if (ptm == nullptr) {
-        return Status::Error("Get local time failed: %s.", std::strerror(errno));
-    }
-    return ptm;
-}
-
+// TODO(shylock) support more format
 static inline StatusOr<DateTime> parseDateTime(const std::string &str) {
     std::tm tm;
     std::istringstream ss(str);
@@ -126,68 +114,96 @@ static inline bool isLeapYear(int16_t year) {
 static constexpr int kDayOfLeapYear = 366;
 static constexpr int kDayOfCommonYear = 365;
 
+static const DateTime kEpoch(1970, 1, 1, 0, 0, 0, 0);
+
+static inline int64_t shr(int64_t a, int b) {
+    int64_t one = 1;
+    return (-one >> 1 == -1 ? a >> b : (a + (a < 0)) / (one << b) - (a < 0));
+}
+
+static inline int64_t dateTimeDiffSeconds(const DateTime &dateTime0, const DateTime &dateTime1) {
+    static_assert(-1 / 2 == 0, "");
+    // Year Base Verification
+    static_assert(0 % 100 == 0, "");
+
+    // Compute intervening leap days correctly even if year is negative.
+    // take care to avoid integer overflow here.
+    int a4 = shr(dateTime0.year, 2) + shr(0, 2) - !(dateTime0.year & 3);
+    int b4 = shr(dateTime1.year, 2) + shr(0, 2) - !(dateTime1.year & 3);
+    int a100 = (a4 + (a4 < 0)) / 25 - (a4 < 0);
+    int b100 = (b4 + (b4 < 0)) / 25 - (b4 < 0);
+    int a400 = shr(a100, 2);
+    int b400 = shr(b100, 2);
+    int intervening_leap_days = (a4 - b4) - (a100 - b100) + (a400 - b400);
+
+    /* Compute the desired time without overflowing.  */
+    int64_t years = dateTime0.year - dateTime1.year;
+    int64_t days = 365 * years +
+                   (isLeapYear(dateTime0.year) ? leapDaysSoFar[dateTime0.month - 1]
+                                               : daysSoFar[dateTime0.month - 1]) -
+                   (isLeapYear(dateTime1.year) ? leapDaysSoFar[dateTime1.month - 1]
+                                               : daysSoFar[dateTime1.month - 1]) +
+                   dateTime0.day - dateTime1.day + intervening_leap_days;
+    int64_t hours = 24 * days + dateTime0.hour - dateTime1.hour;
+    int64_t minutes = 60 * hours + dateTime0.minute - dateTime1.minute;
+    int64_t seconds = 60 * minutes + dateTime0.sec - dateTime1.sec;
+    return seconds;
+}
+
 // unix time
 static inline int64_t dateTimeToSeconds(const DateTime &dateTime) {
-    int64_t seconds = dateTime.sec;
-    seconds += (dateTime.minute * 60);
-    seconds += (dateTime.hour * 60 * 60);
-    seconds += ((dateTime.day -1) * 60 * 60 * 24);
-    if (isLeapYear(dateTime.year)) {
-        seconds += (60 * 60 * 24 * leapDaysSoFar[dateTime.month - 1]);
-    } else {
-        seconds += (60 * 60 * 24 * daysSoFar[dateTime.month - 1]);
-    }
-    for (int64_t i = dateTime.year - 1; i >= 1970; --i) {
-        if (isLeapYear(i)) {
-            seconds += (60 * 60 * 24 * kDayOfLeapYear);
-        } else {
-            seconds += (60 * 60 * 24 * kDayOfCommonYear);
-        }
-    }
-    return seconds;
+    return dateTimeDiffSeconds(dateTime, kEpoch);
 }
 
 static inline DateTime secondsToDateTime(int64_t seconds) {
     DateTime dt;
-    int16_t year = 1970;
-    for (; year < std::numeric_limits<int16_t>::max(); ++year) {
-        if (isLeapYear(year)) {
-            if (seconds < (60 * 60 * 24 * kDayOfLeapYear)) {
-                break;
-            }
-            seconds -= (60 * 60 * 24 * kDayOfLeapYear);
-        } else {
-            if (seconds < (60 * 60 * 24 * kDayOfCommonYear)) {
-                break;
-            }
-            seconds -= (60 * 60 * 24 * kDayOfCommonYear);
-        }
+    int64_t days, rem, y;
+    const int64_t *ip;
+
+    days = seconds / (60 * 60 * 24);
+    rem = seconds % (60 * 60 * 24);
+    while (rem < 0) {
+        rem += (60 * 60 * 24);
+        --days;
     }
-    dt.year = year;
-    int8_t month = 1;
-    for (; month <= 12; ++month) {
-        if (isLeapYear(dt.year)) {
-            if (seconds < (60 * 60 * 24 * leapDaysSoFar[month])) {
-                seconds -= (60 * 60 * 24 * leapDaysSoFar[month - 1]);
-                break;
-            }
-        } else {
-            if (seconds < (60 * 60 * 24 * daysSoFar[month])) {
-                seconds -= (60 * 60 * 24 * daysSoFar[month - 1]);
-                break;
-            }
-        }
+    while (rem >= (60 * 60 * 24)) {
+        rem -= (60 * 60 * 24);
+        ++days;
     }
-    dt.month = month;
-    dt.day = seconds / (60 * 60 * 24) + 1;
-    seconds -= ((dt.day - 1) * 60 * 60 * 24);
-    dt.hour = seconds / (60 * 60);
-    seconds -= (dt.hour * 60 * 60);
-    dt.minute = seconds / 60;
-    seconds -= (dt.minute * 60);
-    dt.sec = seconds;
+    dt.hour = rem / (60 * 60);
+    rem %= (60 * 60);
+    dt.minute = rem / 60;
+    dt.sec = rem % 60;
+    y = 1970;
+
+#define DIV(a, b) ((a) / (b) - ((a) % (b) < 0))
+#define LEAPS_THRU_END_OF(y) (DIV(y, 4) - DIV(y, 100) + DIV(y, 400))
+
+    while (days < 0 || days >= (isLeapYear(y) ? kDayOfLeapYear : kDayOfCommonYear)) {
+        /* Guess a corrected year, assuming 365 days per year.  */
+        int64_t yg = y + days / kDayOfCommonYear - (days % kDayOfCommonYear < 0);
+
+        /* Adjust DAYS and Y to match the guessed year.  */
+        days -=
+            ((yg - y) * kDayOfCommonYear + LEAPS_THRU_END_OF(yg - 1) - LEAPS_THRU_END_OF(y - 1));
+        y = yg;
+    }
+    dt.year = y;
+    if (dt.year != y) {
+        // overflow
+    }
+    ip = (isLeapYear(y) ? leapDaysSoFar : daysSoFar);
+    for (y = 11; days < ip[y]; --y) {
+        continue;
+    }
+    days -= ip[y];
+    dt.month = y + 1;
+    dt.day = days + 1;
     return dt;
 }
+
+#undef DIV
+#undef LEAPS_THRU_END_OF
 
 // Shift the DateTime in timezone space
 static inline DateTime dateTimeShift(const DateTime &dateTime, int64_t offsetSeconds) {
@@ -239,6 +255,7 @@ static inline StatusOr<Date> dateFromMap(const Map &m) {
     return d;
 }
 
+// TODO(shylock) support more format
 static inline StatusOr<Date> parseDate(const std::string &str) {
     std::tm tm;
     std::istringstream ss(str);
@@ -255,56 +272,12 @@ static inline StatusOr<Date> parseDate(const std::string &str) {
 
 // unix time
 static inline int64_t dateToSeconds(const Date &date) {
-    int64_t seconds = ((date.day -1) * 60 * 60 * 24);
-    if (isLeapYear(date.year)) {
-        seconds += (60 * 60 * 24 * leapDaysSoFar[date.month - 1]);
-    } else {
-        seconds += (60 * 60 * 24 * daysSoFar[date.month - 1]);
-    }
-    for (int64_t i = date.year - 1; i >= 1970; --i) {
-        if (isLeapYear(i)) {
-            seconds += (60 * 60 * 24 * kDayOfLeapYear);
-        } else {
-            seconds += (60 * 60 * 24 * kDayOfCommonYear);
-        }
-    }
-    return seconds;
+    return dateTimeDiffSeconds(DateTime(date), kEpoch);
 }
 
 static inline Date secondsToDate(int64_t seconds) {
-    Date d;
-    int16_t year = 1970;
-    for (; year < std::numeric_limits<int16_t>::max(); ++year) {
-        if (isLeapYear(year)) {
-            if (seconds < (60 * 60 * 24 * kDayOfLeapYear)) {
-                break;
-            }
-            seconds -= (60 * 60 * 24 * kDayOfLeapYear);
-        } else {
-            if (seconds < (60 * 60 * 24 * kDayOfCommonYear)) {
-                break;
-            }
-            seconds -= (60 * 60 * 24 * kDayOfCommonYear);
-        }
-    }
-    d.year = year;
-    int8_t month = 1;
-    for (; month <= 12; ++month) {
-        if (isLeapYear(d.year)) {
-            if (seconds < (60 * 60 * 24 * leapDaysSoFar[month])) {
-                seconds -= (60 * 60 * 24 * leapDaysSoFar[month - 1]);
-                break;
-            }
-        } else {
-            if (seconds < (60 * 60 * 24 * daysSoFar[month])) {
-                seconds -= (60 * 60 * 24 * daysSoFar[month - 1]);
-                break;
-            }
-        }
-    }
-    d.month = month;
-    d.day = seconds / (60 * 60 * 24) + 1;
-    return d;
+    auto dateTime = secondsToDateTime(seconds);
+    return Date(dateTime.year, dateTime.month, dateTime.day);
 }
 
 // Shift the DateTime in timezone space
@@ -365,6 +338,7 @@ static inline StatusOr<Time> timeFromMap(const Map &m) {
     return t;
 }
 
+// TODO(shylock) support more format
 static inline StatusOr<Time> parseTime(const std::string &str) {
     std::tm tm;
     std::istringstream ss(str);
@@ -422,7 +396,7 @@ static inline StatusOr<Time> localTime() {
     return secondsToTime(unixTime - timezone);
 }
 
-}  // namespace time
-}  // namespace nebula
+}   // namespace time
+}   // namespace nebula
 
-#endif  // COMMON_TIME_TIMEZONE_H_
+#endif   // COMMON_TIME_TIME_H_
