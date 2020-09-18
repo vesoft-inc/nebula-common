@@ -30,9 +30,9 @@ nebula_add_test(
 
 nebula_add_test(
     NAME
-        time_test
+        time_utils_test
     SOURCES
-        TimeTest.cpp
+        TimeUtilsTest.cpp
     OBJECTS
         $<TARGET_OBJECTS:time_obj>
         $<TARGET_OBJECTS:thread_obj>

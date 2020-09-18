@@ -12,7 +12,7 @@
 #include "common/datatypes/Map.h"
 #include "common/datatypes/Set.h"
 #include "common/datatypes/DataSet.h"
-#include "common/time/Time.h"
+#include "common/time/TimeUtils.h"
 
 namespace nebula {
 

@@ -7,7 +7,7 @@
 #include <folly/Random.h>
 #include <gtest/gtest.h>
 
-#include "common/time/Time.h"
+#include "common/time/TimeUtils.h"
 
 namespace nebula {
 

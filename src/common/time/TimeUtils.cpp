@@ -6,7 +6,7 @@
 
 #include "gflags/gflags.h"
 
-#include "common/time/Time.h"
+#include "common/time/TimeUtils.h"
 
 // If it's invalid timezone the service initialize will failed.
 // Empty for system default configuration

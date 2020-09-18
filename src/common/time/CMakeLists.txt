@@ -8,7 +8,7 @@ nebula_add_library(
     detail/TscHelper.cpp
     Duration.cpp
     WallClock.cpp
-    Time.cpp
+    TimeUtils.cpp
 )
 
 nebula_add_subdirectory(test)
