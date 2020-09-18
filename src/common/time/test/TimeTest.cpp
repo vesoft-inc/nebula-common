@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     folly::init(&argc, &argv, true);
     google::SetStderrLogging(google::INFO);
-    FLAGS_timezone_name = "Asia/Shanghai";
+    FLAGS_timezone_name = ":Asia/Shanghai";
     auto result = nebula::time::initializeGlobalTimezone();
     if (!result.ok()) {
         LOG(FATAL) << result;

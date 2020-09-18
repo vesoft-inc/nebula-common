@@ -7,14 +7,17 @@
 #ifndef COMMON_TIME_TIME_H_
 #define COMMON_TIME_TIME_H_
 
-#include <gflags/gflags_declare.h>
 #include <iomanip>
 #include <limits>
+#include <vector>
+
+#include <gflags/gflags_declare.h>
 
 #include "common/base/Status.h"
 #include "common/base/StatusOr.h"
 #include "common/datatypes/Date.h"
 #include "common/datatypes/Map.h"
+#include "common/fs/FileUtils.h"
 
 DECLARE_string(timezone_name);
 
@@ -24,9 +27,37 @@ namespace time {
 // In nebula only store UTC time, and the interpretion of time value based on the
 // timezone configuration in current system.
 
+static constexpr char kTZdir[] = "/usr/share/zoneinfo";
+
 // TODO(shylock) Get Timzone info(I.E. GMT offset) directly from IANA tzdb
 // to support non-global timezone configuration
+// See the timezone format from https://man7.org/linux/man-pages/man3/tzset.3.html
 static inline Status initializeGlobalTimezone() {
+    if (FLAGS_timezone_name.front() == ':') {
+        // means timezone information from file
+        std::vector<std::string> parts;
+        folly::split('/', FLAGS_timezone_name, parts, true);
+        std::stringstream fss;
+        switch (parts.size()) {
+            case 1: {
+                fss << kTZdir << "/" << parts[0].c_str() + 1;
+            }
+            case 2: {
+                fss << "/" << parts[1];
+                break;
+            }
+            default: {
+                return Status::Error("Invalid timezone format `%s'.", FLAGS_timezone_name.c_str());
+            }
+            auto file = fss.str();
+            if (fs::FileUtils::fileType(file.c_str()) != fs::FileType::REGULAR) {
+                return Status::Error("Not exists timezone file `%s'.", file.c_str());
+            }
+        }
+    } else {
+        // TODO(shylock) support the other format
+        return Status::Error("Invalid timezone format.");
+    }
     if (::setenv("TZ", FLAGS_timezone_name.c_str(), true) != 0) {
         return Status::Error("Set timezone failed: %s", ::strerror(errno));
     }
