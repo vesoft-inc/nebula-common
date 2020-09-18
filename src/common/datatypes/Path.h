@@ -88,6 +88,13 @@ struct Step {
                ranking == rhs.ranking &&
                props == rhs.props;
     }
+
+    bool operator<(const Step& rhs) const {
+        return dst < rhs.dst &&
+               type < rhs.type &&
+               ranking < rhs.ranking &&
+               props.size() < rhs.props.size();
+    }
 };
 
 
@@ -130,6 +137,10 @@ struct Path {
     // Append a path to another one.
     // 5->4>3 appended by 3->2->1 => 5->4->3->2->1
     bool append(Path path);
+
+    bool operator<(const Path& rhs) const {
+        return src < rhs.src && steps < rhs.steps;
+    }
 };
 
 inline void swap(Step& a, Step& b) {

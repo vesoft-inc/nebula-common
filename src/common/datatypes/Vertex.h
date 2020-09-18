@@ -118,6 +118,10 @@ struct Vertex {
     bool operator==(const Vertex& rhs) const {
         return vid == rhs.vid && tags == rhs.tags;
     }
+
+    bool operator<(const Vertex& rhs) const {
+        return vid < rhs.vid && tags.size() < rhs.tags.size();
+    }
 };
 
 

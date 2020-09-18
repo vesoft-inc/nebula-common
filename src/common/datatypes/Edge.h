@@ -98,6 +98,11 @@ struct Edge {
         src = std::move(dst);
         dst = std::move(tmp);
     }
+
+    bool operator<(const Edge& rhs) const {
+        return src < rhs.src && dst < rhs.dst && type < rhs.type && ranking < rhs.ranking &&
+               props.size() < rhs.props.size();
+    }
 };
 
 inline std::ostream &operator<<(std::ostream& os, const Edge& v) {
