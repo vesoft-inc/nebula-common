@@ -131,7 +131,7 @@ constexpr char TimeUtils::kTZdir[];
     return seconds;
 }
 
-/*static*/ DateTime TimeUtils::secondsToDateTime(int64_t seconds) {
+/*static*/ DateTime TimeUtils::unixSecondsToDateTime(int64_t seconds) {
     DateTime dt;
     int64_t days, rem, y;
     const int64_t *ip;

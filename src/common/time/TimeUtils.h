@@ -73,18 +73,18 @@ public:
     static int64_t dateTimeDiffSeconds(const DateTime &dateTime0, const DateTime &dateTime1);
 
     // unix time
-    static int64_t dateTimeToSeconds(const DateTime &dateTime) {
+    static int64_t dateTimeToUnixSeconds(const DateTime &dateTime) {
         return dateTimeDiffSeconds(dateTime, kEpoch);
     }
 
-    static DateTime secondsToDateTime(int64_t seconds);
+    static DateTime unixSecondsToDateTime(int64_t seconds);
 
     // Shift the DateTime in timezone space
     static DateTime dateTimeShift(const DateTime &dateTime, int64_t offsetSeconds) {
         if (offsetSeconds == 0) {
             return dateTime;
         }
-        return secondsToDateTime(dateTimeToSeconds(dateTime) + offsetSeconds);
+        return unixSecondsToDateTime(dateTimeToUnixSeconds(dateTime) + offsetSeconds);
     }
 
     static DateTime dateTimeToUTC(const DateTime &dateTime) {
@@ -101,7 +101,7 @@ public:
         if (unixTime == -1) {
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
-        return secondsToDateTime(unixTime - timezone);
+        return unixSecondsToDateTime(unixTime - timezone);
     }
 
     static StatusOr<Date> dateFromMap(const Map &m);
@@ -122,12 +122,12 @@ public:
     }
 
     // unix time
-    static int64_t dateToSeconds(const Date &date) {
+    static int64_t dateToUnixSeconds(const Date &date) {
         return dateTimeDiffSeconds(DateTime(date), kEpoch);
     }
 
-    static Date secondsToDate(int64_t seconds) {
-        auto dateTime = secondsToDateTime(seconds);
+    static Date unixSecondsToDate(int64_t seconds) {
+        auto dateTime = unixSecondsToDateTime(seconds);
         return Date(dateTime.year, dateTime.month, dateTime.day);
     }
 
@@ -136,7 +136,7 @@ public:
         if (offsetSeconds == 0) {
             return date;
         }
-        return secondsToDate(dateToSeconds(date) + offsetSeconds);
+        return unixSecondsToDate(dateToUnixSeconds(date) + offsetSeconds);
     }
 
     static Date dateToUTC(const Date &date) {
@@ -153,7 +153,7 @@ public:
         if (unixTime == -1) {
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
-        return secondsToDate(unixTime - timezone);
+        return unixSecondsToDate(unixTime - timezone);
     }
 
     static StatusOr<Time> timeFromMap(const Map &m);
@@ -182,9 +182,9 @@ public:
         return seconds;
     }
 
-    static Time secondsToTime(int64_t seconds) {
+    static Time unixSecondsToTime(int64_t seconds) {
         Time t;
-        auto dt = secondsToDateTime(seconds);
+        auto dt = unixSecondsToDateTime(seconds);
         t.hour = dt.hour;
         t.minute = dt.minute;
         t.sec = dt.sec;
@@ -196,7 +196,7 @@ public:
         if (offsetSeconds == 0) {
             return time;
         }
-        return secondsToTime(timeToSeconds(time) + offsetSeconds);
+        return unixSecondsToTime(timeToSeconds(time) + offsetSeconds);
     }
 
     static Time timeToUTC(const Time &time) {
@@ -213,7 +213,7 @@ public:
         if (unixTime == -1) {
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
-        return secondsToTime(unixTime - timezone);
+        return unixSecondsToTime(unixTime - timezone);
     }
 
 private:

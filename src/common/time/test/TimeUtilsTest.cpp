@@ -27,8 +27,9 @@ TEST(Time, secondsTimeCovertion) {
                          0));
         }
         for (const auto &dt : values) {
-            EXPECT_EQ(dt,
-                      time::TimeUtils::secondsToDateTime(time::TimeUtils::dateTimeToSeconds(dt)));
+            EXPECT_EQ(
+                dt,
+                time::TimeUtils::unixSecondsToDateTime(time::TimeUtils::dateTimeToUnixSeconds(dt)));
         }
     }
     {
@@ -39,8 +40,8 @@ TEST(Time, secondsTimeCovertion) {
         };
         for (std::size_t i = 0; i < dateTimeSeconds.size(); ++i) {
             EXPECT_EQ(dateTimeSeconds[i].second,
-                      time::TimeUtils::dateTimeToSeconds(dateTimeSeconds[i].first));
-            EXPECT_EQ(time::TimeUtils::secondsToDateTime(dateTimeSeconds[i].second),
+                      time::TimeUtils::dateTimeToUnixSeconds(dateTimeSeconds[i].first));
+            EXPECT_EQ(time::TimeUtils::unixSecondsToDateTime(dateTimeSeconds[i].second),
                       dateTimeSeconds[i].first);
         }
     }
@@ -55,7 +56,7 @@ TEST(Time, secondsTimeCovertion) {
                      folly::Random::rand32(1, 29)));
         }
         for (const auto &d : values) {
-            EXPECT_EQ(d, time::TimeUtils::secondsToDate(time::TimeUtils::dateToSeconds(d)));
+            EXPECT_EQ(d, time::TimeUtils::unixSecondsToDate(time::TimeUtils::dateToUnixSeconds(d)));
         }
     }
     {
@@ -63,8 +64,10 @@ TEST(Time, secondsTimeCovertion) {
                                                            {Date(1970, 1, 1), 0},
                                                            {Date(2003, 3, 4), 1046736000}}};
         for (std::size_t i = 0; i < dateSeconds.size(); ++i) {
-            EXPECT_EQ(dateSeconds[i].second, time::TimeUtils::dateToSeconds(dateSeconds[i].first));
-            EXPECT_EQ(time::TimeUtils::secondsToDate(dateSeconds[i].second), dateSeconds[i].first);
+            EXPECT_EQ(dateSeconds[i].second,
+                      time::TimeUtils::dateToUnixSeconds(dateSeconds[i].first));
+            EXPECT_EQ(time::TimeUtils::unixSecondsToDate(dateSeconds[i].second),
+                      dateSeconds[i].first);
         }
     }
     // Time
@@ -77,7 +80,7 @@ TEST(Time, secondsTimeCovertion) {
                                      0));
         }
         for (const auto &t : values) {
-            EXPECT_EQ(t, time::TimeUtils::secondsToTime(time::TimeUtils::timeToSeconds(t)));
+            EXPECT_EQ(t, time::TimeUtils::unixSecondsToTime(time::TimeUtils::timeToSeconds(t)));
         }
     }
     {
@@ -85,7 +88,8 @@ TEST(Time, secondsTimeCovertion) {
             {{Time(0, 0, 0, 0), 0}, {Time(14, 2, 4, 0), 50524}}};
         for (std::size_t i = 0; i < timeSeconds.size(); ++i) {
             EXPECT_EQ(timeSeconds[i].second, time::TimeUtils::timeToSeconds(timeSeconds[i].first));
-            EXPECT_EQ(time::TimeUtils::secondsToTime(timeSeconds[i].second), timeSeconds[i].first);
+            EXPECT_EQ(time::TimeUtils::unixSecondsToTime(timeSeconds[i].second),
+                      timeSeconds[i].first);
         }
     }
 }
