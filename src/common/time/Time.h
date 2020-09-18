@@ -35,35 +35,37 @@ public:
     // to support non-global timezone configuration
     // See the timezone format from https://man7.org/linux/man-pages/man3/tzset.3.html
     static Status initializeGlobalTimezone() {
-        if (FLAGS_timezone_name.front() == ':') {
-            // means timezone information from file
-            std::vector<std::string> parts;
-            folly::split('/', FLAGS_timezone_name, parts, true);
-            std::stringstream fss;
-            switch (parts.size()) {
-                case 1: {
-                    fss << kTZdir << "/" << parts[0].c_str() + 1;
-                }
-                // fallthrough
-                case 2: {
-                    fss << "/" << parts[1];
-                    break;
-                }
-                default: {
-                    return Status::Error("Invalid timezone format `%s'.",
-                                         FLAGS_timezone_name.c_str());
-                }
-                    auto file = fss.str();
-                    if (fs::FileUtils::fileType(file.c_str()) != fs::FileType::REGULAR) {
-                        return Status::Error("Not exists timezone file `%s'.", file.c_str());
+        if (FLAGS_timezone_name != "") {
+            if (FLAGS_timezone_name.front() == ':') {
+                // means timezone information from file
+                std::vector<std::string> parts;
+                folly::split('/', FLAGS_timezone_name, parts, true);
+                std::stringstream fss;
+                switch (parts.size()) {
+                    case 1: {
+                        fss << kTZdir << "/" << parts[0].c_str() + 1;
                     }
+                    // fallthrough
+                    case 2: {
+                        fss << "/" << parts[1];
+                        break;
+                    }
+                    default: {
+                        return Status::Error("Invalid timezone format `%s'.",
+                                            FLAGS_timezone_name.c_str());
+                    }
+                        auto file = fss.str();
+                        if (fs::FileUtils::fileType(file.c_str()) != fs::FileType::REGULAR) {
+                            return Status::Error("Not exists timezone file `%s'.", file.c_str());
+                        }
+                }
+            } else {
+                // TODO(shylock) support the other format
+                return Status::Error("Invalid timezone format.");
             }
-        } else {
-            // TODO(shylock) support the other format
-            return Status::Error("Invalid timezone format.");
-        }
-        if (::setenv("TZ", FLAGS_timezone_name.c_str(), true) != 0) {
-            return Status::Error("Set timezone failed: %s", ::strerror(errno));
+            if (::setenv("TZ", FLAGS_timezone_name.c_str(), true) != 0) {
+                return Status::Error("Set timezone failed: %s", ::strerror(errno));
+            }
         }
         ::tzset();
         return Status::OK();

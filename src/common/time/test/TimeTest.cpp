@@ -96,11 +96,14 @@ int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     folly::init(&argc, &argv, true);
     google::SetStderrLogging(google::INFO);
-    FLAGS_timezone_name = ":Asia/Shanghai";
     auto result = nebula::time::TimeUtils::initializeGlobalTimezone();
     if (!result.ok()) {
         LOG(FATAL) << result;
     }
+
+    DLOG(INFO) << "Timezone: " << tzname[0];
+    DLOG(INFO) << "Timezone: " << tzname[1];
+    DLOG(INFO) << "Timezone offset: " << timezone;
 
     return RUN_ALL_TESTS();
 }
