@@ -789,32 +789,32 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
             switch (args.size()) {
-            case 0: {
-                auto result = time::TimeUtils::localDate();
-                if (!result.ok()) {
-                    return Value::kNullBadData;
-                }
-                return Value(std::move(result).value());
-            }
-            case 1: {
-                if (args[0].isStr()) {
-                    auto result = time::TimeUtils::parseDate(args[0].getStr());
+                case 0: {
+                    auto result = time::TimeUtils::localDate();
                     if (!result.ok()) {
                         return Value::kNullBadData;
                     }
-                    return result.value();
-                } else if (args[0].isMap()) {
-                    auto result = time::TimeUtils::dateFromMap(args[0].getMap());
-                    if (!result.ok()) {
-                        return Value::kNullBadData;
-                    }
-                    return result.value();
-                } else {
-                    return Value::kNullBadType;
+                    return Value(std::move(result).value());
                 }
-            }
-            default:
-                return Value::kNullOutOfRange;
+                case 1: {
+                    if (args[0].isStr()) {
+                        auto result = time::TimeUtils::parseDate(args[0].getStr());
+                        if (!result.ok()) {
+                            return Value::kNullBadData;
+                        }
+                        return result.value();
+                    } else if (args[0].isMap()) {
+                        auto result = time::TimeUtils::dateFromMap(args[0].getMap());
+                        if (!result.ok()) {
+                            return Value::kNullBadData;
+                        }
+                        return result.value();
+                    } else {
+                        return Value::kNullBadType;
+                    }
+                }
+                default:
+                    return Value::kNullOutOfRange;
             }
         };
     }
@@ -826,32 +826,32 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
             switch (args.size()) {
-            case 0: {
-                auto result = time::TimeUtils::localTime();
-                if (!result.ok()) {
-                    return Value::kNullBadData;
-                }
-                return Value(std::move(result).value());
-            }
-            case 1: {
-                if (args[0].isStr()) {
-                    auto result = time::TimeUtils::parseTime(args[0].getStr());
+                case 0: {
+                    auto result = time::TimeUtils::localTime();
                     if (!result.ok()) {
                         return Value::kNullBadData;
                     }
-                    return result.value();
-                } else if (args[0].isMap()) {
-                    auto result = time::TimeUtils::timeFromMap(args[0].getMap());
-                    if (!result.ok()) {
-                        return Value::kNullBadData;
-                    }
-                    return result.value();
-                } else {
-                    return Value::kNullBadType;
+                    return Value(std::move(result).value());
                 }
-            }
-            default:
-                return Value::kNullOutOfRange;
+                case 1: {
+                    if (args[0].isStr()) {
+                        auto result = time::TimeUtils::parseTime(args[0].getStr());
+                        if (!result.ok()) {
+                            return Value::kNullBadData;
+                        }
+                        return result.value();
+                    } else if (args[0].isMap()) {
+                        auto result = time::TimeUtils::timeFromMap(args[0].getMap());
+                        if (!result.ok()) {
+                            return Value::kNullBadData;
+                        }
+                        return result.value();
+                    } else {
+                        return Value::kNullBadType;
+                    }
+                }
+                default:
+                    return Value::kNullOutOfRange;
             }
         };
     }
@@ -863,32 +863,32 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
             switch (args.size()) {
-            case 0: {
-                auto result = time::TimeUtils::localDateTime();
-                if (!result.ok()) {
-                    return Value::kNullBadData;
-                }
-                return Value(std::move(result).value());
-            }
-            case 1: {
-                if (args[0].isStr()) {
-                    auto result = time::TimeUtils::parseDateTime(args[0].getStr());
+                case 0: {
+                    auto result = time::TimeUtils::localDateTime();
                     if (!result.ok()) {
                         return Value::kNullBadData;
                     }
-                    return result.value();
-                } else if (args[0].isMap()) {
-                    auto result = time::TimeUtils::dateTimeFromMap(args[0].getMap());
-                    if (!result.ok()) {
+                    return Value(std::move(result).value());
+                }
+                case 1: {
+                    if (args[0].isStr()) {
+                        auto result = time::TimeUtils::parseDateTime(args[0].getStr());
+                        if (!result.ok()) {
+                            return Value::kNullBadData;
+                        }
+                        return result.value();
+                    } else if (args[0].isMap()) {
+                        auto result = time::TimeUtils::dateTimeFromMap(args[0].getMap());
+                        if (!result.ok()) {
+                            return Value::kNullBadData;
+                        }
+                        return result.value();
+                    } else {
                         return Value::kNullBadData;
                     }
-                    return result.value();
-                } else {
-                    return Value::kNullBadData;
                 }
-            }
-            default:
-                return Value::kNullOutOfRange;
+                default:
+                    return Value::kNullOutOfRange;
             }
         };
     }
