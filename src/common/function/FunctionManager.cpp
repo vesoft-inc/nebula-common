@@ -792,7 +792,7 @@ FunctionManager::FunctionManager() {
             case 0: {
                 auto result = time::TimeUtils::localDate();
                 if (!result.ok()) {
-                    return Value(NullType::__NULL__);
+                    return Value::kNullBadData;
                 }
                 return Value(std::move(result).value());
             }
@@ -800,21 +800,21 @@ FunctionManager::FunctionManager() {
                 if (args[0].isStr()) {
                     auto result = time::TimeUtils::parseDate(args[0].getStr());
                     if (!result.ok()) {
-                        return Value(NullType::__NULL__);
+                        return Value::kNullBadData;
                     }
                     return result.value();
                 } else if (args[0].isMap()) {
                     auto result = time::TimeUtils::dateFromMap(args[0].getMap());
                     if (!result.ok()) {
-                        return Value(NullType::__NULL__);
+                        return Value::kNullBadData;
                     }
                     return result.value();
                 } else {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
             default:
-                return Value(NullType::OUT_OF_RANGE);
+                return Value::kNullOutOfRange;
             }
         };
     }
@@ -829,7 +829,7 @@ FunctionManager::FunctionManager() {
             case 0: {
                 auto result = time::TimeUtils::localTime();
                 if (!result.ok()) {
-                    return Value(NullType::__NULL__);
+                    return Value::kNullBadData;
                 }
                 return Value(std::move(result).value());
             }
@@ -837,21 +837,21 @@ FunctionManager::FunctionManager() {
                 if (args[0].isStr()) {
                     auto result = time::TimeUtils::parseTime(args[0].getStr());
                     if (!result.ok()) {
-                        return Value(NullType::__NULL__);
+                        return Value::kNullBadData;
                     }
                     return result.value();
                 } else if (args[0].isMap()) {
                     auto result = time::TimeUtils::timeFromMap(args[0].getMap());
                     if (!result.ok()) {
-                        return Value(NullType::__NULL__);
+                        return Value::kNullBadData;
                     }
                     return result.value();
                 } else {
-                    return Value(NullType::BAD_TYPE);
+                    return Value::kNullBadType;
                 }
             }
             default:
-                return Value(NullType::OUT_OF_RANGE);
+                return Value::kNullOutOfRange;
             }
         };
     }
@@ -866,7 +866,7 @@ FunctionManager::FunctionManager() {
             case 0: {
                 auto result = time::TimeUtils::localDateTime();
                 if (!result.ok()) {
-                    return Value(NullType::__NULL__);
+                    return Value::kNullBadData;
                 }
                 return Value(std::move(result).value());
             }
@@ -874,21 +874,21 @@ FunctionManager::FunctionManager() {
                 if (args[0].isStr()) {
                     auto result = time::TimeUtils::parseDateTime(args[0].getStr());
                     if (!result.ok()) {
-                        return Value(NullType::__NULL__);
+                        return Value::kNullBadData;
                     }
                     return result.value();
                 } else if (args[0].isMap()) {
                     auto result = time::TimeUtils::dateTimeFromMap(args[0].getMap());
                     if (!result.ok()) {
-                        return Value(NullType::__NULL__);
+                        return Value::kNullBadData;
                     }
                     return result.value();
                 } else {
-                    return Value(NullType::__NULL__);
+                    return Value::kNullBadData;
                 }
             }
             default:
-                return Value(NullType::OUT_OF_RANGE);
+                return Value::kNullOutOfRange;
             }
         };
     }
