@@ -790,7 +790,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             switch (args.size()) {
             case 0: {
-                auto result = time::localDate();
+                auto result = time::TimeUtils::localDate();
                 if (!result.ok()) {
                     return Value(NullType::__NULL__);
                 }
@@ -798,13 +798,13 @@ FunctionManager::FunctionManager() {
             }
             case 1: {
                 if (args[0].isStr()) {
-                    auto result = time::parseDate(args[0].getStr());
+                    auto result = time::TimeUtils::parseDate(args[0].getStr());
                     if (!result.ok()) {
                         return Value(NullType::__NULL__);
                     }
                     return result.value();
                 } else if (args[0].isMap()) {
-                    auto result = time::dateFromMap(args[0].getMap());
+                    auto result = time::TimeUtils::dateFromMap(args[0].getMap());
                     if (!result.ok()) {
                         return Value(NullType::__NULL__);
                     }
@@ -827,7 +827,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             switch (args.size()) {
             case 0: {
-                auto result = time::localTime();
+                auto result = time::TimeUtils::localTime();
                 if (!result.ok()) {
                     return Value(NullType::__NULL__);
                 }
@@ -835,13 +835,13 @@ FunctionManager::FunctionManager() {
             }
             case 1: {
                 if (args[0].isStr()) {
-                    auto result = time::parseTime(args[0].getStr());
+                    auto result = time::TimeUtils::parseTime(args[0].getStr());
                     if (!result.ok()) {
                         return Value(NullType::__NULL__);
                     }
                     return result.value();
                 } else if (args[0].isMap()) {
-                    auto result = time::timeFromMap(args[0].getMap());
+                    auto result = time::TimeUtils::timeFromMap(args[0].getMap());
                     if (!result.ok()) {
                         return Value(NullType::__NULL__);
                     }
@@ -864,7 +864,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             switch (args.size()) {
             case 0: {
-                auto result = time::localDateTime();
+                auto result = time::TimeUtils::localDateTime();
                 if (!result.ok()) {
                     return Value(NullType::__NULL__);
                 }
@@ -872,13 +872,13 @@ FunctionManager::FunctionManager() {
             }
             case 1: {
                 if (args[0].isStr()) {
-                    auto result = time::parseDateTime(args[0].getStr());
+                    auto result = time::TimeUtils::parseDateTime(args[0].getStr());
                     if (!result.ok()) {
                         return Value(NullType::__NULL__);
                     }
                     return result.value();
                 } else if (args[0].isMap()) {
-                    auto result = time::dateTimeFromMap(args[0].getMap());
+                    auto result = time::TimeUtils::dateTimeFromMap(args[0].getMap());
                     if (!result.ok()) {
                         return Value(NullType::__NULL__);
                     }

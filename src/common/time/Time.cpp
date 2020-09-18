@@ -10,3 +10,13 @@
 
 // If it's invalid timezone the service initialize will failed.
 DEFINE_string(timezone_name, "Etc/UTC", "The name of timezone used in current system");
+
+namespace nebula {
+namespace time {
+
+const DateTime TimeUtils::kEpoch(1970, 1, 1, 0, 0, 0, 0);
+
+constexpr char TimeUtils::kTZdir[];
+
+}   // namespace time
+}   // namespace nebula
