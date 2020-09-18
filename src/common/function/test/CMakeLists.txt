@@ -12,6 +12,7 @@ nebula_add_test(
         $<TARGET_OBJECTS:function_manager_obj>
         $<TARGET_OBJECTS:base_obj>
         $<TARGET_OBJECTS:datatypes_obj>
+        $<TARGET_OBJECTS:time_utils_obj>
         $<TARGET_OBJECTS:time_obj>
     LIBRARIES
         gtest

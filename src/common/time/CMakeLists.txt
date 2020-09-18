@@ -8,6 +8,10 @@ nebula_add_library(
     detail/TscHelper.cpp
     Duration.cpp
     WallClock.cpp
+)
+
+nebula_add_library(
+    time_utils_obj OBJECT
     TimeUtils.cpp
 )
 

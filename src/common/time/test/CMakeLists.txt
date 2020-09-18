@@ -34,7 +34,7 @@ nebula_add_test(
     SOURCES
         TimeUtilsTest.cpp
     OBJECTS
-        $<TARGET_OBJECTS:time_obj>
+        $<TARGET_OBJECTS:time_utils_obj>
         $<TARGET_OBJECTS:thread_obj>
         $<TARGET_OBJECTS:datatypes_obj>
         $<TARGET_OBJECTS:base_obj>
@@ -59,6 +59,7 @@ nebula_add_executable(
 nebula_add_executable(
     NAME wallclock_bm
     SOURCES WallClockBenchmark.cpp
-    OBJECTS $<TARGET_OBJECTS:time_obj>
+    OBJECTS
+        $<TARGET_OBJECTS:time_obj>
     LIBRARIES follybenchmark boost_regex
 )
