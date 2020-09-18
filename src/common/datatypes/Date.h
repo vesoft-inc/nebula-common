@@ -26,11 +26,13 @@ struct Date {
     int8_t month;   // 1 - 12
     int8_t day;     // 1 - 31
 
-    Date() : year{0}, month{1}, day{1} {
+    Date() : year{0}, month{1}, day{1} {}
+    Date(int16_t y, int8_t m, int8_t d) : year{y}, month{m}, day{d} {
+        DCHECK_GT(month, 0);
         DCHECK_LE(month, 12);
+        DCHECK_GT(day, 0);
         DCHECK_LE(day, 31);
     }
-    Date(int16_t y, int8_t m, int8_t d) : year{y}, month{m}, day{d} {}
     // Tak the number of days since -32768/1/1, and convert to the real date
     explicit Date(uint64_t days);
 
@@ -90,9 +92,13 @@ struct Time {
     Time() : hour{0}, minute{0}, sec{0}, microsec{0} {}
     Time(int8_t h, int8_t min, int8_t s, int32_t us)
         : hour{h}, minute{min}, sec{s}, microsec{us} {
+        DCHECK_GE(hour, 0);
         DCHECK_LT(hour, 24);
+        DCHECK_GE(minute, 0);
         DCHECK_LT(minute, 60);
+        DCHECK_GE(sec, 0);
         DCHECK_LT(sec, 60);
+        DCHECK_GE(microsec, 0);
         DCHECK_LT(microsec, 1000000);
     }
 
@@ -143,11 +149,17 @@ struct DateTime {
     DateTime() : year{0}, month{1}, day{1}, hour{0}, minute{0}, sec{0}, microsec{0} {}
     DateTime(int16_t y, int8_t m, int8_t d, int8_t h, int8_t min, int8_t s, int32_t us)
         : year{y}, month{m}, day{d}, hour{h}, minute{min}, sec{s}, microsec{us} {
+        DCHECK_GT(month, 0);
         DCHECK_LE(month, 12);
+        DCHECK_GT(day, 0);
         DCHECK_LE(day, 31);
+        DCHECK_GE(hour, 0);
         DCHECK_LT(hour, 24);
+        DCHECK_GE(minute, 0);
         DCHECK_LT(minute, 60);
+        DCHECK_GE(sec, 0);
         DCHECK_LT(sec, 60);
+        DCHECK_GE(microsec, 0);
         DCHECK_LT(microsec, 1000000);
     }
     explicit DateTime(const Date &date)
