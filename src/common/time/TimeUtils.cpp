@@ -106,7 +106,7 @@ constexpr char TimeUtils::kTZdir[];
     }
     auto result = validateDate(dt);
     if (!result.ok()) {
-        return std::move(result);
+        return result;
     }
     return dt;
 }
@@ -219,7 +219,7 @@ constexpr char TimeUtils::kTZdir[];
     }
     auto result = validateDate(d);
     if (!result.ok()) {
-        return std::move(result);
+        return result;
     }
     return d;
 }
