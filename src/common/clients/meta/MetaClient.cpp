@@ -200,7 +200,7 @@ bool MetaClient::loadData() {
 
         auto spaceCache = std::make_shared<SpaceInfoCache>();
         auto partsAlloc = r.value();
-        spaceCache->spaceName = space.second;
+        auto& spaceName = space.second;
         spaceCache->partsOnHost_ = reverse(partsAlloc);
         spaceCache->partsAlloc_ = std::move(partsAlloc);
         VLOG(2) << "Load space " << spaceId
@@ -226,13 +226,13 @@ bool MetaClient::loadData() {
         }
 
         // get space properties
-        auto resp = getSpace(spaceCache->spaceName).get();
+        auto resp = getSpace(spaceName).get();
         if (!resp.ok()) {
             LOG(ERROR) << "Get space properties failed for space " << spaceId;
             return false;
         }
-        const auto& properties = resp.value().get_properties();
-        spaceCache->vertexIdLen_ = properties.get_vid_size();
+        auto properties = resp.value().get_properties();
+        spaceCache->spaceDesc_ = std::move(properties);
 
         cache.emplace(spaceId, spaceCache);
         spaceIndexByName.emplace(space.second, spaceId);
@@ -291,12 +291,13 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     for (auto& tagIt : tagItemVec) {
         // meta will return the different version from new to old
         auto schema = std::make_shared<NebulaSchemaProvider>(tagIt.version);
-        for (auto colIt : tagIt.schema.get_columns()) {
+        for (auto &colIt : tagIt.schema.get_columns()) {
             bool hasDef = colIt.__isset.default_value;
-            size_t len = colIt.__isset.type_length ? *colIt.get_type_length() : 0;
+            auto& colType = colIt.get_type();
+            size_t len = colType.__isset.type_length ? *colType.get_type_length() : 0;
             bool nullable = colIt.__isset.nullable ? *colIt.get_nullable() : false;
             schema->addField(colIt.get_name(),
-                             colIt.get_type(),
+                             colType.get_type(),
                              len,
                              nullable,
                              hasDef ? *colIt.get_default_value() : Value());
@@ -331,12 +332,13 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     for (auto& edgeIt : edgeItemVec) {
         // meta will return the different version from new to old
         auto schema = std::make_shared<NebulaSchemaProvider>(edgeIt.version);
-        for (auto col : edgeIt.schema.get_columns()) {
+        for (auto &col : edgeIt.schema.get_columns()) {
             bool hasDef = col.__isset.default_value;
-            size_t len = col.__isset.type_length ? *col.get_type_length() : 0;
+            auto& colType = col.get_type();
+            size_t len = colType.__isset.type_length ? *colType.get_type_length() : 0;
             bool nullable = col.__isset.nullable ? *col.get_nullable() : false;
             schema->addField(col.get_name(),
-                             col.get_type(),
+                             colType.get_type(),
                              len,
                              nullable,
                              hasDef ? *col.get_default_value() : Value());
@@ -531,9 +533,8 @@ void MetaClient::getResponse(Request req,
                     return;
                 } else {
                     LOG(ERROR) << "Send request to " << host << ", exceed retry limit";
-                    pro.setValue(
-                        Status::Error(folly::stringPrintf("RPC failure in MetaClient: %s",
-                                                          t.exception().what().c_str())));
+                    pro.setValue(Status::Error("RPC failure in MetaClient: %s",
+                                               t.exception().what().c_str()));
                 }
                 return;
             }
@@ -760,19 +761,10 @@ MetaClient::submitJob(cpp2::AdminJobOp op, cpp2::AdminCmd cmd, std::vector<std::
     return future;
 }
 
-
-folly::Future<StatusOr<GraphSpaceID>> MetaClient::createSpace(SpaceDesc spaceDesc,
+folly::Future<StatusOr<GraphSpaceID>> MetaClient::createSpace(meta::cpp2::SpaceDesc spaceDesc,
                                                               bool ifNotExists) {
-    cpp2::SpaceProperties properties;
-    properties.set_space_name(std::move(spaceDesc.spaceName_));
-    properties.set_partition_num(spaceDesc.partNum_);
-    properties.set_replica_factor(spaceDesc.replicaFactor_);
-    properties.set_vid_size(spaceDesc.vidSize_);
-    properties.set_charset_name(std::move(spaceDesc.charsetName_));
-    properties.set_collate_name(std::move(spaceDesc.collationName_));
-
     cpp2::CreateSpaceReq req;
-    req.set_properties(std::move(properties));
+    req.set_properties(std::move(spaceDesc));
     req.set_if_not_exists(ifNotExists);
     folly::Promise<StatusOr<GraphSpaceID>> promise;
     auto future = promise.getFuture();
@@ -787,7 +779,6 @@ folly::Future<StatusOr<GraphSpaceID>> MetaClient::createSpace(SpaceDesc spaceDes
                 true);
     return future;
 }
-
 
 folly::Future<StatusOr<std::vector<SpaceIdName>>> MetaClient::listSpaces() {
     cpp2::ListSpacesReq req;
@@ -860,7 +851,7 @@ MetaClient::listHosts(cpp2::ListHostType tp) {
 folly::Future<StatusOr<std::vector<cpp2::PartItem>>>
 MetaClient::listParts(GraphSpaceID spaceId, std::vector<PartitionID> partIds) {
     cpp2::ListPartsReq req;
-    req.set_space_id(std::move(spaceId));
+    req.set_space_id(spaceId);
     req.set_part_ids(std::move(partIds));
     folly::Promise<StatusOr<std::vector<cpp2::PartItem>>> promise;
     auto future = promise.getFuture();
@@ -920,9 +911,7 @@ StatusOr<TagID> MetaClient::getTagIDByNameFromCache(const GraphSpaceID& space,
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = spaceTagIndexByName_.find(std::make_pair(space, name));
     if (it == spaceTagIndexByName_.end()) {
-        std::string error = folly::stringPrintf("TagName `%s'  is nonexistent",
-                                                name.c_str());
-        return Status::Error(std::move(error));
+        return Status::Error("TagName `%s'  is nonexistent", name.c_str());
     }
     return it->second;
 }
@@ -936,8 +925,7 @@ StatusOr<std::string> MetaClient::getTagNameByIdFromCache(const GraphSpaceID& sp
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = spaceTagIndexById_.find(std::make_pair(space, tagId));
     if (it == spaceTagIndexById_.end()) {
-        std::string error = folly::stringPrintf("TagID `%d'  is nonexistent", tagId);
-        return Status::Error(std::move(error));
+        return Status::Error("TagID `%d'  is nonexistent", tagId);
     }
     return it->second;
 }
@@ -951,9 +939,7 @@ StatusOr<EdgeType> MetaClient::getEdgeTypeByNameFromCache(const GraphSpaceID& sp
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = spaceEdgeIndexByName_.find(std::make_pair(space, name));
     if (it == spaceEdgeIndexByName_.end()) {
-        std::string error = folly::stringPrintf("EdgeName `%s'  is nonexistent",
-                                                name.c_str());
-        return Status::Error(std::move(error));
+        return Status::Error("EdgeName `%s'  is nonexistent", name.c_str());
     }
     return it->second;
 }
@@ -967,8 +953,7 @@ StatusOr<std::string> MetaClient::getEdgeNameByTypeFromCache(const GraphSpaceID&
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = spaceEdgeIndexByType_.find(std::make_pair(space, edgeType));
     if (it == spaceEdgeIndexByType_.end()) {
-        std::string error = folly::stringPrintf("EdgeType `%d'  is nonexistent", edgeType);
-        return Status::Error(std::move(error));
+        return Status::Error("EdgeType `%d'  is nonexistent", edgeType);
     }
     return it->second;
 }
@@ -982,8 +967,7 @@ MetaClient::getAllEdgeFromCache(const GraphSpaceID& space) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = spaceAllEdgeMap_.find(space);
     if (it == spaceAllEdgeMap_.end()) {
-        std::string error = folly::stringPrintf("SpaceId `%d'  is nonexistent", space);
-        return Status::Error(std::move(error));
+        return Status::Error("SpaceId `%d'  is nonexistent", space);
     }
     return it->second;
 }
@@ -1217,7 +1201,7 @@ folly::Future<StatusOr<TagID>> MetaClient::createTagSchema(GraphSpaceID spaceId,
                                                            cpp2::Schema schema,
                                                            bool ifNotExists) {
     cpp2::CreateTagReq req;
-    req.set_space_id(std::move(spaceId));
+    req.set_space_id(spaceId);
     req.set_tag_name(std::move(name));
     req.set_schema(std::move(schema));
     req.set_if_not_exists(ifNotExists);
@@ -1242,7 +1226,7 @@ MetaClient::alterTagSchema(GraphSpaceID spaceId,
                            std::vector<cpp2::AlterSchemaItem> items,
                            cpp2::SchemaProp schemaProp) {
     cpp2::AlterTagReq req;
-    req.set_space_id(std::move(spaceId));
+    req.set_space_id(spaceId);
     req.set_tag_name(std::move(name));
     req.set_tag_items(std::move(items));
     req.set_schema_prop(std::move(schemaProp));
@@ -1264,7 +1248,7 @@ MetaClient::alterTagSchema(GraphSpaceID spaceId,
 folly::Future<StatusOr<std::vector<cpp2::TagItem>>>
 MetaClient::listTagSchemas(GraphSpaceID spaceId) {
     cpp2::ListTagsReq req;
-    req.set_space_id(std::move(spaceId));
+    req.set_space_id(spaceId);
     folly::Promise<StatusOr<std::vector<cpp2::TagItem>>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
@@ -1325,7 +1309,7 @@ folly::Future<StatusOr<EdgeType>> MetaClient::createEdgeSchema(GraphSpaceID spac
                                                                cpp2::Schema schema,
                                                                bool ifNotExists) {
     cpp2::CreateEdgeReq req;
-    req.set_space_id(std::move(spaceId));
+    req.set_space_id(spaceId);
     req.set_edge_name(std::move(name));
     req.set_schema(schema);
     req.set_if_not_exists(ifNotExists);
@@ -1351,7 +1335,7 @@ MetaClient::alterEdgeSchema(GraphSpaceID spaceId,
                             std::vector<cpp2::AlterSchemaItem> items,
                             cpp2::SchemaProp schemaProp) {
     cpp2::AlterEdgeReq req;
-    req.set_space_id(std::move(spaceId));
+    req.set_space_id(spaceId);
     req.set_edge_name(std::move(name));
     req.set_edge_items(std::move(items));
     req.set_schema_prop(std::move(schemaProp));
@@ -1373,7 +1357,7 @@ MetaClient::alterEdgeSchema(GraphSpaceID spaceId,
 folly::Future<StatusOr<std::vector<cpp2::EdgeItem>>>
 MetaClient::listEdgeSchemas(GraphSpaceID spaceId) {
     cpp2::ListEdgesReq req;
-    req.set_space_id(std::move(spaceId));
+    req.set_space_id(spaceId);
     folly::Promise<StatusOr<std::vector<cpp2::EdgeItem>>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
@@ -1391,7 +1375,7 @@ MetaClient::listEdgeSchemas(GraphSpaceID spaceId) {
 folly::Future<StatusOr<cpp2::Schema>>
 MetaClient::getEdgeSchema(GraphSpaceID spaceId, std::string name, SchemaVer version) {
     cpp2::GetEdgeReq req;
-    req.set_space_id(std::move(spaceId));
+    req.set_space_id(spaceId);
     req.set_edge_name(std::move(name));
     req.set_version(version);
     folly::Promise<StatusOr<cpp2::Schema>> promise;
@@ -1411,7 +1395,7 @@ MetaClient::getEdgeSchema(GraphSpaceID spaceId, std::string name, SchemaVer vers
 folly::Future<StatusOr<bool>>
 MetaClient::dropEdgeSchema(GraphSpaceID spaceId, std::string name, const bool ifExists) {
     cpp2::DropEdgeReq req;
-    req.set_space_id(std::move(spaceId));
+    req.set_space_id(spaceId);
     req.set_edge_name(std::move(name));
     req.set_if_exists(ifExists);
     folly::Promise<StatusOr<bool>> promise;
@@ -1431,8 +1415,8 @@ MetaClient::dropEdgeSchema(GraphSpaceID spaceId, std::string name, const bool if
 
 folly::Future<StatusOr<IndexID>>
 MetaClient::createTagIndex(GraphSpaceID spaceID,
-                           std::string  indexName,
-                           std::string  tagName,
+                           std::string indexName,
+                           std::string tagName,
                            std::vector<std::string> fields,
                            bool ifNotExists) {
     cpp2::CreateTagIndexReq req;
@@ -1460,7 +1444,7 @@ MetaClient::createTagIndex(GraphSpaceID spaceID,
 folly::Future<StatusOr<bool>>
 MetaClient::dropTagIndex(GraphSpaceID spaceID, std::string name, bool ifExists) {
     cpp2::DropTagIndexReq req;
-    req.set_space_id(std::move(spaceID));
+    req.set_space_id(spaceID);
     req.set_index_name(std::move(name));
     req.set_if_exists(ifExists);
 
@@ -1482,7 +1466,7 @@ MetaClient::dropTagIndex(GraphSpaceID spaceID, std::string name, bool ifExists) 
 folly::Future<StatusOr<cpp2::IndexItem>>
 MetaClient::getTagIndex(GraphSpaceID spaceID, std::string name) {
     cpp2::GetTagIndexReq req;
-    req.set_space_id(std::move(spaceID));
+    req.set_space_id(spaceID);
     req.set_index_name(std::move(name));
 
     folly::Promise<StatusOr<cpp2::IndexItem>> promise;
@@ -1500,9 +1484,9 @@ MetaClient::getTagIndex(GraphSpaceID spaceID, std::string name) {
 
 
 folly::Future<StatusOr<std::vector<cpp2::IndexItem>>>
-MetaClient::listTagIndexes(GraphSpaceID spaceID) {
+MetaClient::listTagIndexes(GraphSpaceID spaceId) {
     cpp2::ListTagIndexesReq req;
-    req.set_space_id(std::move(spaceID));
+    req.set_space_id(spaceId);
 
     folly::Promise<StatusOr<std::vector<cpp2::IndexItem>>> promise;
     auto future = promise.getFuture();
@@ -1561,8 +1545,8 @@ MetaClient::listTagIndexStatus(GraphSpaceID spaceID) {
 
 folly::Future<StatusOr<IndexID>>
 MetaClient::createEdgeIndex(GraphSpaceID spaceID,
-                            std::string  indexName,
-                            std::string  edgeName,
+                            std::string indexName,
+                            std::string edgeName,
                             std::vector<std::string> fields,
                             bool ifNotExists) {
     cpp2::CreateEdgeIndexReq req;
@@ -1589,9 +1573,9 @@ MetaClient::createEdgeIndex(GraphSpaceID spaceID,
 
 
 folly::Future<StatusOr<bool>>
-MetaClient::dropEdgeIndex(GraphSpaceID spaceID, std::string name, bool ifExists) {
+MetaClient::dropEdgeIndex(GraphSpaceID spaceId, std::string name, bool ifExists) {
     cpp2::DropEdgeIndexReq req;
-    req.set_space_id(std::move(spaceID));
+    req.set_space_id(spaceId);
     req.set_index_name(std::move(name));
     req.set_if_exists(ifExists);
 
@@ -1611,9 +1595,9 @@ MetaClient::dropEdgeIndex(GraphSpaceID spaceID, std::string name, bool ifExists)
 
 
 folly::Future<StatusOr<cpp2::IndexItem>>
-MetaClient::getEdgeIndex(GraphSpaceID spaceID, std::string name) {
+MetaClient::getEdgeIndex(GraphSpaceID spaceId, std::string name) {
     cpp2::GetEdgeIndexReq req;
-    req.set_space_id(std::move(spaceID));
+    req.set_space_id(spaceId);
     req.set_index_name(std::move(name));
 
     folly::Promise<StatusOr<cpp2::IndexItem>> promise;
@@ -1631,9 +1615,9 @@ MetaClient::getEdgeIndex(GraphSpaceID spaceID, std::string name) {
 
 
 folly::Future<StatusOr<std::vector<cpp2::IndexItem>>>
-MetaClient::listEdgeIndexes(GraphSpaceID spaceID) {
+MetaClient::listEdgeIndexes(GraphSpaceID spaceId) {
     cpp2::ListEdgeIndexesReq req;
-    req.set_space_id(std::move(spaceID));
+    req.set_space_id(spaceId);
 
     folly::Promise<StatusOr<std::vector<cpp2::IndexItem>>> promise;
     auto future = promise.getFuture();
@@ -1655,13 +1639,46 @@ StatusOr<int32_t> MetaClient::getSpaceVidLen(const GraphSpaceID& spaceId) {
     auto spaceIt = localCache_.find(spaceId);
     if (spaceIt == localCache_.end()) {
         LOG(ERROR) << "Space " << spaceId << " not found!";
-        return Status::Error(folly::stringPrintf("Space %d not found", spaceId));
+        return Status::Error("Space %d not found", spaceId);
     }
-    auto vIdLen = spaceIt->second->vertexIdLen_;
+    auto vIdLen = spaceIt->second->spaceDesc_.vid_size;
     if (vIdLen <= 0) {
-        return Status::Error(folly::stringPrintf("Space %d vertexId length invalid", spaceId));
+        return Status::Error("Space %d vertexId length invalid", spaceId);
     }
     return vIdLen;
+}
+
+StatusOr<cpp2::PropertyType> MetaClient::getSpaceVidType(const GraphSpaceID& spaceId) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        LOG(ERROR) << "Space " << spaceId << " not found!";
+        return Status::Error("Space %d not found", spaceId);
+    }
+    auto vIdType = spaceIt->second->spaceDesc_.vid_type;
+    if (vIdType != cpp2::PropertyType::INT64 && vIdType != cpp2::PropertyType::FIXED_STRING) {
+        std::stringstream ss;
+        ss << "Space " << spaceId << ", vertexId type invalid: "
+            << meta::cpp2::_PropertyType_VALUES_TO_NAMES.at(vIdType);
+        return Status::Error(ss.str());
+    }
+    return vIdType;
+}
+
+StatusOr<cpp2::SpaceDesc> MetaClient::getSpaceDesc(const GraphSpaceID& space) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(space);
+    if (spaceIt == localCache_.end()) {
+        LOG(ERROR) << "Space " << space << " not found!";
+        return Status::Error("Space %d not found", space);
+    }
+    return spaceIt->second->spaceDesc_;
 }
 
 StatusOr<std::shared_ptr<const NebulaSchemaProvider>>
@@ -1721,7 +1738,7 @@ StatusOr<TagSchemas> MetaClient::getAllVerTagSchema(GraphSpaceID spaceId) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = localCache_.find(spaceId);
     if (iter == localCache_.end()) {
-        return Status::Error(folly::stringPrintf("Space not %d found", spaceId));
+        return Status::Error("Space not %d found", spaceId);
     }
     return iter->second->tagSchemas_;
 }
@@ -1734,7 +1751,7 @@ StatusOr<EdgeSchemas> MetaClient::getAllVerEdgeSchema(GraphSpaceID spaceId) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = localCache_.find(spaceId);
     if (iter == localCache_.end()) {
-        return Status::Error(folly::stringPrintf("Space not %d found", spaceId));
+        return Status::Error("Space not %d found", spaceId);
     }
     return iter->second->edgeSchemas_;
 }

@@ -304,6 +304,16 @@ TEST_F(ExpressionTest, Constant) {
         EXPECT_EQ(eval, Date(1234));
     }
     {
+        Time time;
+        time.hour = 3;
+        time.minute = 33;
+        time.sec = 3;
+        ConstantExpression timeExpr(time);
+        auto eval = Expression::eval(&timeExpr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::TIME);
+        EXPECT_EQ(eval, time);
+    }
+    {
         DateTime dateTime;
         dateTime.year = 1900;
         dateTime.month = 2;
@@ -969,7 +979,7 @@ TEST_F(ExpressionTest, toStringTest) {
     }
     {
         ConstantExpression ep(Edge("100", "102", 2, "like", 3, {{"likeness", 95}}));
-        EXPECT_EQ(ep.toString(), "(100)-[like]->(102)@3 likeness:95");
+        EXPECT_EQ(ep.toString(), "(100)-[like(2)]->(102)@3 likeness:95");
     }
     {
         ConstantExpression ep(Vertex("100", {Tag("player", {{"name", "jame"}})}));
