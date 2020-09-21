@@ -4,6 +4,7 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include <limits>
 #include "gflags/gflags.h"
 
 #include "common/time/TimeUtils.h"
@@ -57,12 +58,18 @@ constexpr char TimeUtils::kTZdir[];
 }
 
 /*static*/ StatusOr<DateTime> TimeUtils::dateTimeFromMap(const Map &m) {
+    // TODO(shylock) support timezone parameter
+    // TODO(shylock) check the date validation for example 2019-02-31
     DateTime dt;
     for (const auto &kv : m.kvs) {
         if (!kv.second.isInt()) {
             return Status::Error("Invalid value type.");
         }
         if (kv.first == "year") {
+            if (kv.second.getInt() < std::numeric_limits<int16_t>::min() ||
+                kv.second.getInt() > std::numeric_limits<int16_t>::max()) {
+                return Status::Error("Out of range year `%ld'.", kv.second.getInt());
+            }
             dt.year = kv.second.getInt();
         } else if (kv.first == "month") {
             if (kv.second.getInt() <= 0 || kv.second.getInt() > 12) {
@@ -188,6 +195,10 @@ constexpr char TimeUtils::kTZdir[];
             return Status::Error("Invalid value type.");
         }
         if (kv.first == "year") {
+            if (kv.second.getInt() < std::numeric_limits<int16_t>::min() ||
+                kv.second.getInt() > std::numeric_limits<int16_t>::max()) {
+                return Status::Error("Out of range year `%ld'.", kv.second.getInt());
+            }
             d.year = kv.second.getInt();
         } else if (kv.first == "month") {
             if (kv.second.getInt() <= 0 || kv.second.getInt() > 12) {

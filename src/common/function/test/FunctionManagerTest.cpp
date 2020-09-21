@@ -11,6 +11,7 @@
 #include "common/datatypes/Map.h"
 #include "common/datatypes/Set.h"
 #include "common/datatypes/DataSet.h"
+#include "common/time/TimeUtils.h"
 
 namespace nebula {
 
@@ -217,13 +218,69 @@ TEST_F(FunctionManagerTest, functionCall) {
         auto result = FunctionManager::get("date", 1);
         ASSERT_TRUE(result.ok());
         auto res = std::move(result).value()({"2020-09-15"});
-        EXPECT_EQ(res, Value(Date(2020, 9, 15)));
+        EXPECT_EQ(res, Value(time::TimeUtils::dateToUTC(Date(2020, 9, 15))));
     }
     {
         auto result = FunctionManager::get("date", 1);
         ASSERT_TRUE(result.ok());
-        auto res = std::move(result).value()({Map({{"year", 2020}, {"month", 9}, {"day", 15}})});
-        EXPECT_EQ(res, Value(Date(2020, 9, 15)));
+        auto res = std::move(result).value()({Map({{"year", 2020}, {"month", 12}, {"day", 31}})});
+        EXPECT_EQ(res, Value(time::TimeUtils::dateToUTC(Date(2020, 12, 31))));
+    }
+    // range [(−32,768, 1, 1), (32,767, 12, 31)]
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", std::numeric_limits<int16_t>::min()},
+                                                  {"month", 1}, {"day", 1}})});
+        EXPECT_EQ(res, Value(time::TimeUtils::dateToUTC(Date(std::numeric_limits<int16_t>::min(),
+                                                             1, 1))));
+    }
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", std::numeric_limits<int16_t>::max()},
+                                                  {"month", 12}, {"day", 31}})});
+        EXPECT_EQ(res, Value(time::TimeUtils::dateToUTC(Date(std::numeric_limits<int16_t>::max(),
+                                                             12, 31))));
+    }
+    // year
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", -32769}, {"month", 12}, {"day", 15}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32768}, {"month", 12}, {"day", 31}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    // month
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", -32768}, {"month", 13}, {"day", 15}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767}, {"month", 0}, {"day", 31}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    // day
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", -32768}, {"month", 11}, {"day", 0}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767}, {"month", 1}, {"day", 32}})});
+        EXPECT_EQ(res, Value::kNullBadData);
     }
     // time
     {
@@ -242,13 +299,65 @@ TEST_F(FunctionManagerTest, functionCall) {
         auto result = FunctionManager::get("time", 1);
         ASSERT_TRUE(result.ok());
         auto res = std::move(result).value()({"20:09:15"});
-        EXPECT_EQ(res, Value(Time(20, 9, 15, 0)));
+        EXPECT_EQ(res, Value(time::TimeUtils::timeToUTC(Time(20, 9, 15, 0))));
     }
     {
         auto result = FunctionManager::get("time", 1);
         ASSERT_TRUE(result.ok());
         auto res = std::move(result).value()({Map({{"hour", 20}, {"minute", 9}, {"second", 15}})});
-        EXPECT_EQ(res, Value(Time(20, 9, 15, 0)));
+        EXPECT_EQ(res, Value(time::TimeUtils::timeToUTC(Time(20, 9, 15, 0))));
+    }
+    // range [(0, 0, 0, 0), (23, 59, 59, 999999)]
+    {
+        auto result = FunctionManager::get("time", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"hour", 0}, {"minute", 0}, {"second", 0}})});
+        EXPECT_EQ(res, Value(time::TimeUtils::timeToUTC(Time(0, 0, 0, 0))));
+    }
+    {
+        auto result = FunctionManager::get("time", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"hour", 23}, {"minute", 59}, {"second", 59}})});
+        EXPECT_EQ(res, Value(time::TimeUtils::timeToUTC(Time(23, 59, 59, 0))));
+    }
+    // hour
+    {
+        auto result = FunctionManager::get("time", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"hour", -1}, {"minute", 9}, {"second", 15}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    {
+        auto result = FunctionManager::get("time", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"hour", 24}, {"minute", 9}, {"second", 15}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    // minute
+    {
+        auto result = FunctionManager::get("time", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"hour", 23}, {"minute", -1}, {"second", 15}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    {
+        auto result = FunctionManager::get("time", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"hour", 23}, {"minute", 60}, {"second", 15}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    // second
+    {
+        auto result = FunctionManager::get("time", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"hour", 23}, {"minute", 59}, {"second", -1}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    {
+        auto result = FunctionManager::get("time", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"hour", 23}, {"minute", 59}, {"second", 60}})});
+        EXPECT_EQ(res, Value::kNullBadData);
     }
     // datetime
     {
@@ -267,7 +376,7 @@ TEST_F(FunctionManagerTest, functionCall) {
         auto result = FunctionManager::get("datetime", 1);
         ASSERT_TRUE(result.ok());
         auto res = std::move(result).value()({"2020-09-15 20:09:15"});
-        EXPECT_EQ(res, Value(DateTime(2020, 9, 15, 20, 9, 15, 0)));
+        EXPECT_EQ(res, Value(time::TimeUtils::dateTimeToUTC(DateTime(2020, 9, 15, 20, 9, 15, 0))));
     }
     {
         auto result = FunctionManager::get("datetime", 1);
@@ -278,7 +387,180 @@ TEST_F(FunctionManagerTest, functionCall) {
                                                    {"hour", 20},
                                                    {"minute", 9},
                                                    {"second", 15}})});
-        EXPECT_EQ(res, Value(DateTime(2020, 9, 15, 20, 9, 15, 0)));
+        EXPECT_EQ(res, Value(time::TimeUtils::dateTimeToUTC(DateTime(2020, 9, 15, 20, 9, 15, 0))));
+    }
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 2020},
+                                                   {"month", 9},
+                                                   {"day", 15},
+                                                   {"hour", 20},
+                                                   {"minute", 9},
+                                                   {"second", 15}})});
+        EXPECT_EQ(res, Value(time::TimeUtils::dateTimeToUTC(DateTime(2020, 9, 15, 20, 9, 15, 0))));
+    }
+    // range [(−32,768, 1, 1, 0, 0, 0, 0), (32,767, 12, 31, 23, 59, 59, 999999)]
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", -32768},
+                                                   {"month", 1},
+                                                   {"day", 1},
+                                                   {"hour", 0},
+                                                   {"minute", 0},
+                                                   {"second", 0}})});
+        EXPECT_EQ(res, Value(time::TimeUtils::dateTimeToUTC(DateTime(-32768, 1, 1, 0, 0, 0, 0))));
+    }
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767},
+                                                   {"month", 12},
+                                                   {"day", 31},
+                                                   {"hour", 23},
+                                                   {"minute", 59},
+                                                   {"second", 59}})});
+        EXPECT_EQ(res, Value(time::TimeUtils::dateTimeToUTC(DateTime(32767,
+                                                                     12, 31, 23, 59, 59, 0))));
+    }
+    // year
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 3276700},
+                                                   {"month", 12},
+                                                   {"day", 31},
+                                                   {"hour", 23},
+                                                   {"minute", 59},
+                                                   {"second", 59}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", -3276700},
+                                                   {"month", 12},
+                                                   {"day", 31},
+                                                   {"hour", 23},
+                                                   {"minute", 59},
+                                                   {"second", 59}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    // month
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767},
+                                                   {"month", 13},
+                                                   {"day", 31},
+                                                   {"hour", 23},
+                                                   {"minute", 59},
+                                                   {"second", 59}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767},
+                                                   {"month", 0},
+                                                   {"day", 31},
+                                                   {"hour", 23},
+                                                   {"minute", 59},
+                                                   {"second", 59}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    // day
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767},
+                                                   {"month", 1},
+                                                   {"day", 32},
+                                                   {"hour", 23},
+                                                   {"minute", 59},
+                                                   {"second", 59}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767},
+                                                   {"month", 1},
+                                                   {"day", 0},
+                                                   {"hour", 23},
+                                                   {"minute", 59},
+                                                   {"second", 59}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    // hour
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767},
+                                                   {"month", 1},
+                                                   {"day", 1},
+                                                   {"hour", 24},
+                                                   {"minute", 59},
+                                                   {"second", 59}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767},
+                                                   {"month", 1},
+                                                   {"day", 1},
+                                                   {"hour", -1},
+                                                   {"minute", 59},
+                                                   {"second", 59}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    // minute
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767},
+                                                   {"month", 1},
+                                                   {"day", 1},
+                                                   {"hour", 1},
+                                                   {"minute", 60},
+                                                   {"second", 59}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767},
+                                                   {"month", 1},
+                                                   {"day", 1},
+                                                   {"hour", 1},
+                                                   {"minute", -1},
+                                                   {"second", 59}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    // second
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767},
+                                                   {"month", 1},
+                                                   {"day", 1},
+                                                   {"hour", 1},
+                                                   {"minute", 1},
+                                                   {"second", -1}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    {
+        auto result = FunctionManager::get("datetime", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 32767},
+                                                   {"month", 1},
+                                                   {"day", 1},
+                                                   {"hour", 1},
+                                                   {"minute", 1},
+                                                   {"second", 60}})});
+        EXPECT_EQ(res, Value::kNullBadData);
     }
 }
 

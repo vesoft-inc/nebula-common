@@ -104,6 +104,15 @@ public:
         return unixSecondsToDateTime(unixTime - timezone);
     }
 
+    static StatusOr<DateTime> utcDateTime() {
+        DateTime dt;
+        time_t unixTime = std::time(NULL);
+        if (unixTime == -1) {
+            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
+        }
+        return unixSecondsToDateTime(unixTime);
+    }
+
     static StatusOr<Date> dateFromMap(const Map &m);
 
     // TODO(shylock) support more format
@@ -154,6 +163,15 @@ public:
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
         return unixSecondsToDate(unixTime - timezone);
+    }
+
+    static StatusOr<Date> utcDate() {
+        Date d;
+        time_t unixTime = std::time(NULL);
+        if (unixTime == -1) {
+            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
+        }
+        return unixSecondsToDate(unixTime);
     }
 
     static StatusOr<Time> timeFromMap(const Map &m);
@@ -214,6 +232,15 @@ public:
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
         return unixSecondsToTime(unixTime - timezone);
+    }
+
+    static StatusOr<Time> utcTime() {
+        Time dt;
+        time_t unixTime = std::time(NULL);
+        if (unixTime == -1) {
+            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
+        }
+        return unixSecondsToTime(unixTime);
     }
 
 private:

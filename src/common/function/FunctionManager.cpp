@@ -790,7 +790,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             switch (args.size()) {
                 case 0: {
-                    auto result = time::TimeUtils::localDate();
+                    auto result = time::TimeUtils::utcDate();
                     if (!result.ok()) {
                         return Value::kNullBadData;
                     }
@@ -802,13 +802,13 @@ FunctionManager::FunctionManager() {
                         if (!result.ok()) {
                             return Value::kNullBadData;
                         }
-                        return result.value();
+                        return time::TimeUtils::dateToUTC(result.value());
                     } else if (args[0].isMap()) {
                         auto result = time::TimeUtils::dateFromMap(args[0].getMap());
                         if (!result.ok()) {
                             return Value::kNullBadData;
                         }
-                        return result.value();
+                        return time::TimeUtils::dateToUTC(result.value());
                     } else {
                         return Value::kNullBadType;
                     }
@@ -827,7 +827,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             switch (args.size()) {
                 case 0: {
-                    auto result = time::TimeUtils::localTime();
+                    auto result = time::TimeUtils::utcTime();
                     if (!result.ok()) {
                         return Value::kNullBadData;
                     }
@@ -839,13 +839,13 @@ FunctionManager::FunctionManager() {
                         if (!result.ok()) {
                             return Value::kNullBadData;
                         }
-                        return result.value();
+                        return time::TimeUtils::timeToUTC(result.value());
                     } else if (args[0].isMap()) {
                         auto result = time::TimeUtils::timeFromMap(args[0].getMap());
                         if (!result.ok()) {
                             return Value::kNullBadData;
                         }
-                        return result.value();
+                        return time::TimeUtils::timeToUTC(result.value());
                     } else {
                         return Value::kNullBadType;
                     }
@@ -864,7 +864,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             switch (args.size()) {
                 case 0: {
-                    auto result = time::TimeUtils::localDateTime();
+                    auto result = time::TimeUtils::utcDateTime();
                     if (!result.ok()) {
                         return Value::kNullBadData;
                     }
@@ -876,13 +876,13 @@ FunctionManager::FunctionManager() {
                         if (!result.ok()) {
                             return Value::kNullBadData;
                         }
-                        return result.value();
+                        return time::TimeUtils::dateTimeToUTC(result.value());
                     } else if (args[0].isMap()) {
                         auto result = time::TimeUtils::dateTimeFromMap(args[0].getMap());
                         if (!result.ok()) {
                             return Value::kNullBadData;
                         }
-                        return result.value();
+                        return time::TimeUtils::dateTimeToUTC(result.value());
                     } else {
                         return Value::kNullBadData;
                     }
