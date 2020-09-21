@@ -293,11 +293,11 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
         auto schema = std::make_shared<NebulaSchemaProvider>(tagIt.version);
         for (auto &colIt : tagIt.schema.get_columns()) {
             bool hasDef = colIt.__isset.default_value;
-            size_t len =
-                colIt.get_type().__isset.type_length ? *colIt.get_type().get_type_length() : 0;
+            auto& colType = colIt.get_type();
+            size_t len = colType.__isset.type_length ? *colType.get_type_length() : 0;
             bool nullable = colIt.__isset.nullable ? *colIt.get_nullable() : false;
             schema->addField(colIt.get_name(),
-                             colIt.get_type().get_type(),
+                             colType.get_type(),
                              len,
                              nullable,
                              hasDef ? *colIt.get_default_value() : Value());
@@ -334,10 +334,11 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
         auto schema = std::make_shared<NebulaSchemaProvider>(edgeIt.version);
         for (auto &col : edgeIt.schema.get_columns()) {
             bool hasDef = col.__isset.default_value;
-            size_t len = col.get_type().__isset.type_length ? *col.get_type().get_type_length() : 0;
+            auto& colType = col.get_type();
+            size_t len = colType.__isset.type_length ? *colType.get_type_length() : 0;
             bool nullable = col.__isset.nullable ? *col.get_nullable() : false;
             schema->addField(col.get_name(),
-                             col.get_type().get_type(),
+                             colType.get_type(),
                              len,
                              nullable,
                              hasDef ? *col.get_default_value() : Value());
