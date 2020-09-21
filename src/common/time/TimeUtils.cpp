@@ -59,7 +59,6 @@ constexpr char TimeUtils::kTZdir[];
 
 /*static*/ StatusOr<DateTime> TimeUtils::dateTimeFromMap(const Map &m) {
     // TODO(shylock) support timezone parameter
-    // TODO(shylock) check the date validation for example 2019-02-31
     DateTime dt;
     for (const auto &kv : m.kvs) {
         if (!kv.second.isInt()) {
@@ -104,6 +103,10 @@ constexpr char TimeUtils::kTZdir[];
         } else {
             return Status::Error("Invlaid parameter `%s'.", kv.first.c_str());
         }
+    }
+    auto result = validateDate(dt);
+    if (!result.ok()) {
+        return std::move(result);
     }
     return dt;
 }
@@ -213,6 +216,10 @@ constexpr char TimeUtils::kTZdir[];
         } else {
             return Status::Error("Invlaid parameter `%s'.", kv.first.c_str());
         }
+    }
+    auto result = validateDate(d);
+    if (!result.ok()) {
+        return std::move(result);
     }
     return d;
 }

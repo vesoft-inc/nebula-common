@@ -36,6 +36,19 @@ public:
     // See the timezone format from https://man7.org/linux/man-pages/man3/tzset.3.html
     static Status initializeGlobalTimezone();
 
+    // check the validation of date
+    // not check range limit in here
+    // I.E. 2019-02-31
+    template <typename D, typename = std::enable_if_t<std::is_same<D, Date>::value ||
+                                                      std::is_same<D, DateTime>::value>>
+    static Status validateDate(const D &date) {
+        const int64_t *p = isLeapYear(date.year) ? leapDaysSoFar : daysSoFar;
+        if ((p[date.month] - p[date.month - 1]) < date.day) {
+            return Status::Error("`%s' is not a valid date.", date.toString().c_str());
+        }
+        return Status::OK();
+    }
+
     // TODO(shylock) support more format
     static StatusOr<DateTime> parseDateTime(const std::string &str) {
         std::tm tm;

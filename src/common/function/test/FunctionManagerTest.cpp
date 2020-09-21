@@ -226,6 +226,34 @@ TEST_F(FunctionManagerTest, functionCall) {
         auto res = std::move(result).value()({Map({{"year", 2020}, {"month", 12}, {"day", 31}})});
         EXPECT_EQ(res, Value(time::TimeUtils::dateToUTC(Date(2020, 12, 31))));
     }
+    // leap year February days
+    {
+        // 2020 is leap
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 2020}, {"month", 2}, {"day", 29}})});
+        EXPECT_EQ(res, Value(time::TimeUtils::dateToUTC(Date(2020, 2, 29))));
+    }
+    {
+        // 2021 is not leap
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 2021}, {"month", 2}, {"day", 29}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
+    // month different days
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 2021}, {"month", 1}, {"day", 31}})});
+        EXPECT_EQ(res, Value(time::TimeUtils::dateToUTC(Date(2021, 1, 31))));
+    }
+    {
+        auto result = FunctionManager::get("date", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({Map({{"year", 2021}, {"month", 4}, {"day", 31}})});
+        EXPECT_EQ(res, Value::kNullBadData);
+    }
     // range [(−32,768, 1, 1), (32,767, 12, 31)]
     {
         auto result = FunctionManager::get("date", 1);
