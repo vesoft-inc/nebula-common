@@ -268,6 +268,11 @@ private:
 
     static const DateTime kEpoch;
 
+    // The result of a right-shift of a signed negative number is implementation-dependent
+    // (UB. see https://en.cppreference.com/w/cpp/language/operator_arithmetic).
+    // So make sure the result is what we expected, if right shift not filled highest bit by the
+    // sign bit that the process will falls back to procedure which fill hightest bit by the sign
+    // bit value.
     static int64_t shr(int64_t a, int b) {
         int64_t one = 1;
         return (-one >> 1 == -1 ? a >> b : (a + (a < 0)) / (one << b) - (a < 0));
