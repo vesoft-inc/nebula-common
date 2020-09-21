@@ -113,6 +113,8 @@ constexpr char TimeUtils::kTZdir[];
 
 /*static*/ int64_t TimeUtils::dateTimeDiffSeconds(const DateTime &dateTime0,
                                                   const DateTime &dateTime1) {
+    // check the negative divide result, it's used in the negative year number
+    // computing.
     static_assert(-1 / 2 == 0, "");
     // Year Base Verification
     static_assert(0 % 100 == 0, "");
