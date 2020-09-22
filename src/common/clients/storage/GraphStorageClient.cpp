@@ -529,6 +529,66 @@ GraphStorageClient::lookupAndTraverse(GraphSpaceID space,
                            });
 }
 
+folly::SemiFuture<StorageRpcResponse<cpp2::GetStatisResponse>>
+GraphStorageClient::getVerticesStatis(GraphSpaceID space,
+                                      IndexID indexId,
+                                      folly::EventBase* evb) {
+    auto status = getHostParts(space);
+    if (!status.ok()) {
+        return folly::makeFuture<StorageRpcResponse<cpp2::GetStatisResponse>>(
+            std::runtime_error(status.status().toString()));
+    }
+
+    auto& clusters = status.value();
+    std::unordered_map<HostAddr, cpp2::GetVerticesStatisRequest> requests;
+    for (auto& c : clusters) {
+        auto& host = c.first;
+        auto& req = requests[host];
+        req.set_space_id(space);
+        req.set_parts(std::move(c.second));
+        req.set_index(std::move(indexId));
+    }
+
+    return collectResponse(evb,
+                           std::move(requests),
+                           [] (cpp2::GraphStorageServiceAsyncClient* client,
+                               const cpp2::GetVerticesStatisRequest& r) {
+                               return client->future_getVerticesStatis(r); },
+                           [] (const PartitionID& part) {
+                               return part;
+                           });
+}
+
+folly::SemiFuture<StorageRpcResponse<cpp2::GetStatisResponse>>
+GraphStorageClient::getEdgesStatis(GraphSpaceID space,
+                                   IndexID indexId,
+                                   folly::EventBase* evb) {
+    auto status = getHostParts(space);
+    if (!status.ok()) {
+        return folly::makeFuture<StorageRpcResponse<cpp2::GetStatisResponse>>(
+            std::runtime_error(status.status().toString()));
+    }
+
+    auto& clusters = status.value();
+    std::unordered_map<HostAddr, cpp2::GetEdgesStatisRequest> requests;
+    for (auto& c : clusters) {
+        auto& host = c.first;
+        auto& req = requests[host];
+        req.set_space_id(space);
+        req.set_parts(std::move(c.second));
+        req.set_index(std::move(indexId));
+    }
+
+    return collectResponse(evb,
+                           std::move(requests),
+                           [] (cpp2::GraphStorageServiceAsyncClient* client,
+                               const cpp2::GetEdgesStatisRequest& r) {
+                               return client->future_getEdgesStatis(r); },
+                           [] (const PartitionID& part) {
+                               return part;
+                           });
+}
+
 StatusOr<std::function<const VertexID&(const Row&)>> GraphStorageClient::getIdFromRow(
     GraphSpaceID space) const {
     auto vidTypeStatus = metaClient_->getSpaceVidType(space);
@@ -679,5 +739,6 @@ StatusOr<std::function<const VertexID&(const Value&)>> GraphStorageClient::getId
     }
     return cb;
 }
+
 }   // namespace storage
 }   // namespace nebula

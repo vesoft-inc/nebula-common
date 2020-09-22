@@ -38,7 +38,7 @@ using TagSchemas = std::unordered_map<TagID,
 using EdgeSchemas = std::unordered_map<EdgeType,
                                        std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
-// Space and Schema Name => IndexID
+// Space and index Name => IndexID
 // Get IndexID via space ID and index name
 using NameIndexMap = std::unordered_map<std::pair<GraphSpaceID, std::string>, IndexID>;
 
@@ -238,6 +238,7 @@ public:
     // Operations for index
     folly::Future<StatusOr<IndexID>>
     createTagIndex(GraphSpaceID spaceID,
+                   cpp2::IndexType indexType,
                    std::string indexName,
                    std::string tagName,
                    std::vector<std::string> fields,
@@ -261,6 +262,7 @@ public:
 
     folly::Future<StatusOr<IndexID>>
     createEdgeIndex(GraphSpaceID spaceID,
+                    cpp2::IndexType indexType,
                     std::string indexName,
                     std::string edgeName,
                     std::vector<std::string> fields,
@@ -433,14 +435,14 @@ public:
                                            const std::string& indexName);
 
     StatusOr<std::vector<std::shared_ptr<cpp2::IndexItem>>>
-    getTagIndexesFromCache(GraphSpaceID spaceId);
+    getTagIndexesFromCache(GraphSpaceID spaceId, cpp2::IndexType indexType);
 
     StatusOr<std::vector<std::shared_ptr<cpp2::IndexItem>>>
-    getEdgeIndexesFromCache(GraphSpaceID spaceId);
+    getEdgeIndexesFromCache(GraphSpaceID spaceId, cpp2::IndexType indexType);
 
-    Status checkTagIndexed(GraphSpaceID space, TagID tagID);
+    Status checkTagIndexed(GraphSpaceID space, IndexID indexID);
 
-    Status checkEdgeIndexed(GraphSpaceID space, EdgeType edgeType);
+    Status checkEdgeIndexed(GraphSpaceID space, IndexID indexID);
 
     const std::vector<HostAddr>& getAddresses();
 

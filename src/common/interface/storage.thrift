@@ -521,7 +521,7 @@ struct GetUUIDResp {
 
 
 /*
- * Start of Index section
+ * Start of Normal Index section
  */
 struct LookupIndexResp {
     1: required ResponseCommon          result,
@@ -604,7 +604,32 @@ struct LookupAndTraverseRequest {
 }
 
 /*
- * End of Index section
+ * End of Normal Index section
+ */
+
+/*
+ * Start of Statistics Index section
+ */
+struct GetVerticesStatisRequest {
+    1: required common.GraphSpaceID         space_id,
+    2: required list<common.PartitionID>    parts,
+    // Return the statistical value of one index_id
+    3: required common.IndexID              index,
+}
+
+struct GetEdgesStatisRequest {
+    1: required common.GraphSpaceID         space_id,
+    2: required list<common.PartitionID>    parts,
+    // Return the statistical value of one index_id
+    3: required common.IndexID              index,
+}
+
+struct GetStatisResponse {
+    1: required ResponseCommon              result,
+    2: required i64                         count,
+}
+/*
+ * End of Statistics Index section
  */
 
 struct ScanVertexRequest {
@@ -710,6 +735,9 @@ service GraphStorageService {
     LookupIndexResp lookupIndex(1: LookupIndexRequest req);
 
     GetNeighborsResponse lookupAndTraverse(1: LookupAndTraverseRequest req);
+
+    GetStatisResponse getVerticesStatis(1: GetVerticesStatisRequest req);
+    GetStatisResponse getEdgesStatis(1: GetEdgesStatisRequest req);
 }
 
 

@@ -86,7 +86,7 @@ public:
         std::vector<Value> ids,
         folly::EventBase* evb = nullptr);
 
-    folly::Future<StatusOr<storage::cpp2::UpdateResponse>> updateVertex(
+    folly::Future<StatusOr<cpp2::UpdateResponse>> updateVertex(
         GraphSpaceID space,
         Value vertexId,
         TagID tagId,
@@ -96,7 +96,7 @@ public:
         std::string condition,
         folly::EventBase* evb = nullptr);
 
-    folly::Future<StatusOr<storage::cpp2::UpdateResponse>> updateEdge(
+    folly::Future<StatusOr<cpp2::UpdateResponse>> updateEdge(
         GraphSpaceID space,
         storage::cpp2::EdgeKey edgeKey,
         std::vector<cpp2::UpdatedProp> updatedProps,
@@ -122,6 +122,16 @@ public:
         GraphSpaceID space,
         cpp2::IndexSpec indexSpec,
         cpp2::TraverseSpec traverseSpec,
+        folly::EventBase* evb = nullptr);
+
+    folly::SemiFuture<StorageRpcResponse<cpp2::GetStatisResponse>> getVerticesStatis(
+        GraphSpaceID space,
+        IndexID indexId,
+        folly::EventBase* evb = nullptr);
+
+    folly::SemiFuture<StorageRpcResponse<cpp2::GetStatisResponse>> getEdgesStatis(
+        GraphSpaceID space,
+        IndexID indexId,
         folly::EventBase* evb = nullptr);
 
 private:
