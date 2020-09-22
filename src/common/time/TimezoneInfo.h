@@ -22,7 +22,7 @@ public:
         if (it == tzdb.end()) {
             return Status::Error("Not supported timezone `%s'.", name_.c_str());
         }
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
         valid_ = true;
 #endif
         return Status::OK();
@@ -46,7 +46,7 @@ private:
 
     static const std::unordered_map<std::string, TimezoneInfo> tzdb;
 
-#ifndef NDEBUG
+#if DCHECK_IS_ON()
     bool valid_{false};
 #endif
 
