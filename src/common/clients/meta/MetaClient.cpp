@@ -422,12 +422,12 @@ bool MetaClient::loadIndexes(GraphSpaceID spaceId,
 }
 
 
-Status MetaClient::checkTagIndexed(GraphSpaceID space, TagID tagID) {
+Status MetaClient::checkTagIndexed(GraphSpaceID spaceId, IndexID indexID) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
-    auto it = localCache_.find(space);
+    auto it = localCache_.find(spaceId);
     if (it != localCache_.end()) {
-        auto tagIt = it->second->tagIndexes_.find(tagID);
-        if (tagIt != it->second->tagIndexes_.end()) {
+        auto indexIt = it->second->tagIndexes_.find(indexID);
+        if (indexIt != it->second->tagIndexes_.end()) {
             return Status::OK();
         } else {
             return Status::IndexNotFound();
@@ -437,12 +437,12 @@ Status MetaClient::checkTagIndexed(GraphSpaceID space, TagID tagID) {
 }
 
 
-Status MetaClient::checkEdgeIndexed(GraphSpaceID space, EdgeType edgeType) {
+Status MetaClient::checkEdgeIndexed(GraphSpaceID spaceId, IndexID indexID) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
-    auto it = localCache_.find(space);
+    auto it = localCache_.find(spaceId);
     if (it != localCache_.end()) {
-        auto edgeIt = it->second->edgeIndexes_.find(edgeType);
-        if (edgeIt != it->second->edgeIndexes_.end()) {
+        auto indexIt = it->second->edgeIndexes_.find(indexID);
+        if (indexIt != it->second->edgeIndexes_.end()) {
             return Status::OK();
         } else {
             return Status::IndexNotFound();
@@ -1415,12 +1415,14 @@ MetaClient::dropEdgeSchema(GraphSpaceID spaceId, std::string name, const bool if
 
 folly::Future<StatusOr<IndexID>>
 MetaClient::createTagIndex(GraphSpaceID spaceID,
+                           cpp2::IndexType indexType,
                            std::string indexName,
                            std::string tagName,
                            std::vector<std::string> fields,
                            bool ifNotExists) {
     cpp2::CreateTagIndexReq req;
     req.set_space_id(spaceID);
+    req.set_index_type(std::move(indexType));
     req.set_index_name(std::move(indexName));
     req.set_tag_name(std::move(tagName));
     req.set_fields(std::move(fields));
@@ -1545,12 +1547,14 @@ MetaClient::listTagIndexStatus(GraphSpaceID spaceID) {
 
 folly::Future<StatusOr<IndexID>>
 MetaClient::createEdgeIndex(GraphSpaceID spaceID,
+                            cpp2::IndexType indexType,
                             std::string indexName,
                             std::string edgeName,
                             std::vector<std::string> fields,
                             bool ifNotExists) {
     cpp2::CreateEdgeIndexReq req;
     req.set_space_id(spaceID);
+    req.set_index_type(std::move(indexType));
     req.set_index_name(std::move(indexName));
     req.set_edge_name(std::move(edgeName));
     req.set_fields(std::move(fields));
@@ -1917,7 +1921,7 @@ MetaClient::getRelatedEdgeTypeByIndexNameFromCache(const GraphSpaceID space,
 
 
 StatusOr<std::vector<std::shared_ptr<cpp2::IndexItem>>>
-MetaClient::getTagIndexesFromCache(GraphSpaceID spaceId) {
+MetaClient::getTagIndexesFromCache(GraphSpaceID spaceId, cpp2::IndexType indexType) {
     if (!ready_) {
         return Status::Error("Not ready!");
     }
@@ -1931,9 +1935,19 @@ MetaClient::getTagIndexesFromCache(GraphSpaceID spaceId) {
         auto tagIndexes = spaceIt->second->tagIndexes_;
         auto iter = tagIndexes.begin();
         std::vector<std::shared_ptr<cpp2::IndexItem>> items;
-        while (iter != tagIndexes.end()) {
-            items.emplace_back(iter->second);
-            iter++;
+        if (indexType == cpp2::IndexType::ALL) {
+            while (iter != tagIndexes.end()) {
+                items.emplace_back(iter->second);
+                iter++;
+            }
+        } else {
+            while (iter != tagIndexes.end()) {
+                auto indexItem = iter->second;
+                if (indexItem->get_index_type() == indexType) {
+                    items.emplace_back(indexItem);
+                }
+                iter++;
+            }
         }
         return items;
     }
@@ -1941,7 +1955,7 @@ MetaClient::getTagIndexesFromCache(GraphSpaceID spaceId) {
 
 
 StatusOr<std::vector<std::shared_ptr<cpp2::IndexItem>>>
-MetaClient::getEdgeIndexesFromCache(GraphSpaceID spaceId) {
+MetaClient::getEdgeIndexesFromCache(GraphSpaceID spaceId, cpp2::IndexType indexType) {
     if (!ready_) {
         return Status::Error("Not ready!");
     }
@@ -1955,9 +1969,19 @@ MetaClient::getEdgeIndexesFromCache(GraphSpaceID spaceId) {
         auto edgeIndexes = spaceIt->second->edgeIndexes_;
         auto iter = edgeIndexes.begin();
         std::vector<std::shared_ptr<cpp2::IndexItem>> items;
-        while (iter != edgeIndexes.end()) {
-            items.emplace_back(iter->second);
-            iter++;
+        if (indexType == cpp2::IndexType::ALL) {
+            while (iter != edgeIndexes.end()) {
+                items.emplace_back(iter->second);
+                iter++;
+            }
+        } else {
+            while (iter != edgeIndexes.end()) {
+                auto indexItem = iter->second;
+                if (indexItem->get_index_type() == indexType) {
+                    items.emplace_back(iter->second);
+                }
+                iter++;
+            }
         }
         return items;
     }

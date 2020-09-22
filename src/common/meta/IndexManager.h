@@ -13,6 +13,7 @@
 
 namespace nebula {
 namespace meta {
+
 using IndexItem = cpp2::IndexItem;
 
 class IndexManager {
@@ -30,10 +31,10 @@ public:
     getEdgeIndex(GraphSpaceID space, IndexID index) = 0;
 
     virtual StatusOr<std::vector<std::shared_ptr<IndexItem>>>
-    getTagIndexes(GraphSpaceID space) = 0;
+    getTagIndexes(GraphSpaceID space, cpp2::IndexType indexType) = 0;
 
     virtual StatusOr<std::vector<std::shared_ptr<IndexItem>>>
-    getEdgeIndexes(GraphSpaceID space) = 0;
+    getEdgeIndexes(GraphSpaceID space, cpp2::IndexType indexType) = 0;
 
     virtual StatusOr<IndexID>
     toTagIndexID(GraphSpaceID space, std::string tagName) = 0;
@@ -41,9 +42,9 @@ public:
     virtual StatusOr<IndexID>
     toEdgeIndexID(GraphSpaceID space, std::string edgeName) = 0;
 
-    virtual Status checkTagIndexed(GraphSpaceID space, TagID tagID) = 0;
+    virtual Status checkTagIndexed(GraphSpaceID space, IndexID index) = 0;
 
-    virtual Status checkEdgeIndexed(GraphSpaceID space, EdgeType edgeType) = 0;
+    virtual Status checkEdgeIndexed(GraphSpaceID space, IndexID index) = 0;
 
 protected:
     IndexManager() = default;

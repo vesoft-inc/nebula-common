@@ -206,11 +206,12 @@ union SchemaID {
 }
 
 struct IndexItem {
-    1: common.IndexID      index_id,
-    2: binary              index_name,
-    3: SchemaID            schema_id
-    4: binary              schema_name,
-    5: list<ColumnDef>     fields,
+    1: common.IndexID       index_id,
+    2: IndexType            index_type,
+    3: binary               index_name,
+    4: SchemaID             schema_id
+    5: binary               schema_name,
+    6: list<ColumnDef>      fields,
 }
 
 enum HostStatus {
@@ -574,12 +575,22 @@ struct HBReq {
     5: binary     git_info_sha
 }
 
+enum IndexType {
+    ALL            = 0x01, // all tag indextype or all edge indextype
+    NORMAL         = 0x02,
+    VERTEX         = 0x03,
+    EDGE           = 0x04,
+    VERTEX_COUNT   = 0x05,
+    EDGE_COUNT     = 0x06,
+}
+
 struct CreateTagIndexReq {
     1: common.GraphSpaceID  space_id,
-    2: binary               index_name,
-    3: binary               tag_name,
-    4: list<binary>			fields,
-    5: bool                 if_not_exists,
+    2: IndexType            index_type,
+    3: binary               index_name,
+    4: binary               tag_name,
+    5: list<binary>         fields,
+    6: bool                 if_not_exists,
 }
 
 struct DropTagIndexReq {
@@ -594,9 +605,9 @@ struct GetTagIndexReq {
 }
 
 struct GetTagIndexResp {
-    1: ErrorCode			code,
+    1: ErrorCode            code,
     2: common.HostAddr      leader,
-    3: IndexItem           	item,
+    3: IndexItem            item,
 }
 
 struct ListTagIndexesReq {
@@ -606,15 +617,16 @@ struct ListTagIndexesReq {
 struct ListTagIndexesResp {
     1: ErrorCode            code,
     2: common.HostAddr      leader,
-    3: list<IndexItem>		items,
+    3: list<IndexItem>      items,
 }
 
 struct CreateEdgeIndexReq {
-    1: common.GraphSpaceID 	space_id,
-    2: binary              	index_name,
-    3: binary              	edge_name,
-    4: list<binary>			fields,
-    5: bool                	if_not_exists,
+    1: common.GraphSpaceID  space_id,
+    2: IndexType            index_type,
+    3: binary               index_name,
+    4: binary               edge_name,
+    5: list<binary>         fields,
+    6: bool                 if_not_exists,
 }
 
 struct DropEdgeIndexReq {
@@ -631,7 +643,7 @@ struct GetEdgeIndexReq {
 struct GetEdgeIndexResp {
     1: ErrorCode            code,
     2: common.HostAddr      leader,
-    3: IndexItem          	item,
+    3: IndexItem            item,
 }
 
 struct ListEdgeIndexesReq {
@@ -641,7 +653,7 @@ struct ListEdgeIndexesReq {
 struct ListEdgeIndexesResp {
     1: ErrorCode            code,
     2: common.HostAddr      leader,
-    3: list<IndexItem>    	items,
+    3: list<IndexItem>      items,
 }
 
 struct RebuildIndexReq {

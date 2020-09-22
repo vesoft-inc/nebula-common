@@ -32,13 +32,13 @@ ServerBasedIndexManager::getEdgeIndex(GraphSpaceID space, IndexID index) {
 }
 
 StatusOr<std::vector<std::shared_ptr<IndexItem>>>
-ServerBasedIndexManager::getTagIndexes(GraphSpaceID space) {
-    return metaClient_->getTagIndexesFromCache(space);
+ServerBasedIndexManager::getTagIndexes(GraphSpaceID space, cpp2::IndexType indexType) {
+    return metaClient_->getTagIndexesFromCache(space, indexType);
 }
 
 StatusOr<std::vector<std::shared_ptr<IndexItem>>>
-ServerBasedIndexManager::getEdgeIndexes(GraphSpaceID space) {
-    return metaClient_->getEdgeIndexesFromCache(space);
+ServerBasedIndexManager::getEdgeIndexes(GraphSpaceID space, cpp2::IndexType indexType) {
+    return metaClient_->getEdgeIndexesFromCache(space, indexType);
 }
 
 StatusOr<IndexID>
@@ -59,12 +59,12 @@ ServerBasedIndexManager::toEdgeIndexID(GraphSpaceID space, std::string edgeName)
     return status.value()->get_index_id();
 }
 
-Status ServerBasedIndexManager::checkTagIndexed(GraphSpaceID space, TagID tagID) {
-    return metaClient_->checkTagIndexed(space, tagID);
+Status ServerBasedIndexManager::checkTagIndexed(GraphSpaceID space, IndexID index) {
+    return metaClient_->checkTagIndexed(space, index);
 }
 
-Status ServerBasedIndexManager::checkEdgeIndexed(GraphSpaceID space, EdgeType edgeType) {
-    return metaClient_->checkEdgeIndexed(space, edgeType);
+Status ServerBasedIndexManager::checkEdgeIndexed(GraphSpaceID space, IndexID index) {
+    return metaClient_->checkEdgeIndexed(space, index);
 }
 
 }  // namespace meta

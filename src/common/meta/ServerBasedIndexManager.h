@@ -24,10 +24,10 @@ public:
     getEdgeIndex(GraphSpaceID space, IndexID index) override;
 
     StatusOr<std::vector<std::shared_ptr<IndexItem>>>
-    getTagIndexes(GraphSpaceID space) override;
+    getTagIndexes(GraphSpaceID space, cpp2::IndexType indexType) override;
 
     StatusOr<std::vector<std::shared_ptr<IndexItem>>>
-    getEdgeIndexes(GraphSpaceID space) override;
+    getEdgeIndexes(GraphSpaceID space, cpp2::IndexType indexType) override;
 
     StatusOr<IndexID>
     toTagIndexID(GraphSpaceID space, std::string tagName) override;
@@ -35,9 +35,9 @@ public:
     StatusOr<IndexID>
     toEdgeIndexID(GraphSpaceID space, std::string edgeName) override;
 
-    Status checkTagIndexed(GraphSpaceID space, TagID tagID) override;
+    Status checkTagIndexed(GraphSpaceID space, IndexID index) override;
 
-    Status checkEdgeIndexed(GraphSpaceID space, EdgeType edgeType) override;
+    Status checkEdgeIndexed(GraphSpaceID space, IndexID index) override;
 
     void init(MetaClient *client) override;
 
