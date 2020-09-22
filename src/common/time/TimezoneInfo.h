@@ -7,7 +7,6 @@
 #ifndef COMMON_TIME_TIMEZONEINFO_H_
 #define COMMON_TIME_TIMEZONEINFO_H_
 
-#include <bits/stdint-intn.h>
 #include "common/base/Base.h"
 #include "common/base/Status.h"
 
