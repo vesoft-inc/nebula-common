@@ -29,12 +29,16 @@ public:
     }
 
     const std::string &abbreviation() const {
-        DCHECK(valid_);
+#if DCHECK_IS_ON()
+        CHECK(valid_);
+#endif
         return info_.abbreviation;
     }
 
     int32_t utcOffset() const {
-        DCHECK(valid_);
+#if DCHECK_IS_ON()
+        CHECK(valid_);
+#endif
         return info_.utcOffset;
     }
 
