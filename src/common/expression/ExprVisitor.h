@@ -66,6 +66,21 @@ public:
     // vertex/edge expression
     virtual void visit(VertexExpression *expr) = 0;
     virtual void visit(EdgeExpression *expr) = 0;
+
+    virtual const std::string name() = 0;
+
+    void reportError(const Expression* expr) {
+        std::stringstream ss;
+        ss << "Not supported expression `" << expr->toString() << name();
+        status_ = Status::SemanticError(ss.str());
+    }
+
+    const Status& status() const {
+        return status_;
+    }
+
+private:
+    Status status_;
 };
 
 }   // namespace nebula
