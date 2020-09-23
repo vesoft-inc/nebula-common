@@ -79,7 +79,6 @@ public:
         return status_;
     }
 
-private:
     Status status_;
 };
 
