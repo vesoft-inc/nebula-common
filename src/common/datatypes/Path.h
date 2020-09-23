@@ -90,10 +90,19 @@ struct Step {
     }
 
     bool operator<(const Step& rhs) const {
-        return dst < rhs.dst &&
-               type < rhs.type &&
-               ranking < rhs.ranking &&
-               props.size() < rhs.props.size();
+        if (dst != rhs.dst) {
+            return dst < rhs.dst;
+        }
+        if (type != rhs.dst) {
+            return type < rhs.type;
+        }
+        if (ranking != rhs.ranking) {
+            return ranking < rhs.ranking;
+        }
+        if (props.size() != rhs.props.size()) {
+            return props.size() < rhs.props.size();
+        }
+        return false;
     }
 };
 
@@ -139,7 +148,13 @@ struct Path {
     bool append(Path path);
 
     bool operator<(const Path& rhs) const {
-        return src < rhs.src && steps < rhs.steps;
+        if (src != rhs.src) {
+            return src < rhs.src;
+        }
+        if (steps != rhs.steps) {
+            return steps < rhs.steps;
+        }
+        return false;
     }
 };
 

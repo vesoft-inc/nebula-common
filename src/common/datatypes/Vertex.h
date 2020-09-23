@@ -120,7 +120,13 @@ struct Vertex {
     }
 
     bool operator<(const Vertex& rhs) const {
-        return vid < rhs.vid && tags.size() < rhs.tags.size();
+        if (vid != rhs.vid) {
+            return vid < rhs.vid;
+        }
+        if (tags.size() != rhs.tags.size()) {
+            return tags.size() < rhs.tags.size();
+        }
+        return false;
     }
 };
 

@@ -100,8 +100,22 @@ struct Edge {
     }
 
     bool operator<(const Edge& rhs) const {
-        return src < rhs.src && dst < rhs.dst && type < rhs.type && ranking < rhs.ranking &&
-               props.size() < rhs.props.size();
+        if (src != rhs.src) {
+            return src < rhs.src;
+        }
+        if (dst != rhs.dst) {
+            return dst < rhs.dst;
+        }
+        if (type != rhs.type) {
+            return type < rhs.type;
+        }
+        if (ranking != rhs.ranking) {
+            return ranking < rhs.ranking;
+        }
+        if (props.size() != rhs.props.size()) {
+            return props.size() < rhs.props.size();
+        }
+        return false;
     }
 };
 
