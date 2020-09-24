@@ -9,6 +9,7 @@ nebula_add_test(
     SOURCES
         BarrierTest.cpp LatchTest.cpp
     OBJECTS
+        $<TARGET_OBJECTS:base_obj>
         $<TARGET_OBJECTS:concurrent_obj>
         $<TARGET_OBJECTS:thread_obj>
         $<TARGET_OBJECTS:time_obj>
