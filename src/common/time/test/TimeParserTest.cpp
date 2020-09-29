@@ -53,6 +53,12 @@ TEST(TimeParser, DateTime) {
 }
 
 TEST(TimeParser, DateTimeFailed) {
+    // only time
+    {
+        nebula::time::TimeParser parser;
+        auto result = parser.parseDateTime("22:22:3.2333");
+        EXPECT_FALSE(result.ok()) << result.status();
+    }
     // with unexpected character
     {
         nebula::time::TimeParser parser;
