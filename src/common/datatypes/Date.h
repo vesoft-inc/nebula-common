@@ -82,7 +82,7 @@ struct Time {
     int32_t microsec;
 
     Time() : hour{0}, minute{0}, sec{0}, microsec{0} {}
-    Time(int8_t h, int8_t m, int8_t s, int32_t ms) : hour{h}, minute{m}, sec{s}, microsec{ms} {}
+    Time(int8_t h, int8_t m, int8_t s, int32_t us) : hour{h}, minute{m}, sec{s}, microsec{us} {}
 
     void clear() {
         hour = 0;
@@ -132,8 +132,8 @@ struct DateTime {
     int32_t microsec;
 
     DateTime() : year{0}, month{1}, day{1}, hour{0}, minute{0}, sec{0}, microsec{0} {}
-    DateTime(int16_t y, int8_t mon, int8_t d, int8_t h, int8_t m, int8_t s, int32_t ms) :
-        year{y}, month{mon}, day{d}, hour{h}, minute{m}, sec{s}, microsec{ms} {}
+    DateTime(int16_t y, int8_t mon, int8_t d, int8_t h, int8_t m, int8_t s, int32_t us) :
+        year{y}, month{mon}, day{d}, hour{h}, minute{m}, sec{s}, microsec{us} {}
 
     void clear() {
         year = 0;
