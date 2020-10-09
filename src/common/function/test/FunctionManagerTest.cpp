@@ -403,7 +403,7 @@ TEST_F(FunctionManagerTest, functionCall) {
     {
         auto result = FunctionManager::get("datetime", 1);
         ASSERT_TRUE(result.ok());
-        auto res = std::move(result).value()({"2020-09-15 20:09:15"});
+        auto res = std::move(result).value()({"2020-09-15T20:09:15"});
         EXPECT_EQ(res, Value(time::TimeUtils::dateTimeToUTC(DateTime(2020, 9, 15, 20, 9, 15, 0))));
     }
     {
