@@ -507,10 +507,10 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             os << "Contains";
             break;
         case Expression::Kind::kStartsWith:
-            os << "kStartsWith";
+            os << "StartsWith";
             break;
         case Expression::Kind::kEndsWith:
-            os << "kEndsWith";
+            os << "EndsWith";
             break;
         case Expression::Kind::kSubscript:
             os << "Subscript";

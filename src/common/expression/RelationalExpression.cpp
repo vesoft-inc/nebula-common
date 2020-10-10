@@ -128,8 +128,14 @@ std::string RelationalExpression::toString() const {
         case Kind::kContains:
             op = " CONTAINS ";
             break;
+        case Kind::kStartsWith:
+            op = " STARTS WITH ";
+            break;
+        case Kind::kEndsWith:
+            op = " ENDS WITH ";
+            break;
         default:
-            op = "illegal symbol ";
+            op = " illegal symbol ";
     }
     std::stringstream out;
     out << "(" << lhs_->toString() << op << rhs_->toString() << ")";
