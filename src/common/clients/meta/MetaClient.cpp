@@ -1723,17 +1723,19 @@ MetaClient::listTagIndexes(GraphSpaceID spaceId) {
 
 
 folly::Future<StatusOr<bool>>
-MetaClient::rebuildTagIndex(GraphSpaceID spaceID,
-                            std::string name) {
-    cpp2::RebuildIndexReq req;
+MetaClient::rebuildTagIndexes(GraphSpaceID spaceID,
+                              std::vector<std::string> names) {
+    std::string joinedNames;
+    folly::join(",", std::move(names), joinedNames);
+    cpp2::RebuildIndexesReq req;
     req.set_space_id(spaceID);
-    req.set_index_name(std::move(name));
+    req.set_index_names(std::move(joinedNames));
 
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
-                    return client->future_rebuildTagIndex(request);
+                    return client->future_rebuildTagIndexes(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
@@ -1971,17 +1973,19 @@ StatusOr<EdgeSchemas> MetaClient::getAllVerEdgeSchema(GraphSpaceID spaceId) {
 
 
 folly::Future<StatusOr<bool>>
-MetaClient::rebuildEdgeIndex(GraphSpaceID spaceID,
-                             std::string name) {
+MetaClient::rebuildEdgeIndexes(GraphSpaceID spaceID,
+                               std::vector<std::string> names) {
+    std::string joinedNames;
+    folly::join(",", std::move(names), joinedNames);
     cpp2::RebuildIndexReq req;
     req.set_space_id(spaceID);
-    req.set_index_name(std::move(name));
+    req.set_index_names(std::move(joinedNames));
 
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
-                    return client->future_rebuildEdgeIndex(request);
+                    return client->future_rebuildEdgeIndexes(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
