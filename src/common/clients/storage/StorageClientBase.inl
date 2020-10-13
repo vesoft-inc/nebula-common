@@ -155,15 +155,27 @@ void StorageClientBase<ClientType>::invalidLeader(GraphSpaceID spaceId,
     }
 }
 
+template<typename ClientType>
+void StorageClientBase<ClientType>::invalidLeader(GraphSpaceID spaceId,
+                                                 std::vector<PartitionID> &partsId) {
+    folly::RWSpinLock::WriteHolder wh(leadersLock_);
+    for (const auto &partId : partsId) {
+        LOG(INFO) << "Invalidate the leader for [" << spaceId << ", " << partId << "]";
+        auto it = leaders_.find(std::make_pair(spaceId, partId));
+        if (it != leaders_.end()) {
+            leaders_.erase(it);
+        }
+    }
+}
+
 
 template<typename ClientType>
-template<class Request, class RemoteFunc, class GetPartIDFunc, class Response>
+template<class Request, class RemoteFunc, class Response>
 folly::SemiFuture<StorageRpcResponse<Response>>
 StorageClientBase<ClientType>::collectResponse(
         folly::EventBase* evb,
         std::unordered_map<HostAddr, Request> requests,
         RemoteFunc&& remoteFunc,
-        GetPartIDFunc getPartIDFunc,
         std::size_t retry,
         std::size_t retryLimit) {
     auto context = std::make_shared<ResponseContext<Request, RemoteFunc, Response>>(
@@ -186,7 +198,6 @@ StorageClientBase<ClientType>::collectResponse(
                          host,
                          spaceId,
                          res,
-                         getPartIDFunc,
                          remoteFunc = std::move(remoteFunc),
                          retry,
                          retryLimit] () mutable {
@@ -204,7 +215,6 @@ StorageClientBase<ClientType>::collectResponse(
                             context,
                             host,
                             spaceId,
-                            getPartIDFunc,
                             start,
                             evb,
                             remoteFunc = std::move(remoteFunc),
@@ -214,13 +224,9 @@ StorageClientBase<ClientType>::collectResponse(
                 if (val.hasException()) {
                     LOG(ERROR) << "Request to " << host
                                << " failed: " << val.exception().what();
-                    for (auto& part : r.parts) {
-                        auto partId = getPartIDFunc(part);
-                        VLOG(3) << "Exception! Failed part " << partId;
-                        context->resp.emplaceFailedPart(partId,
-                                                        storage::cpp2::ErrorCode::E_RPC_FAILURE);
-                        invalidLeader(spaceId, partId);
-                    }
+                    auto parts = getReqPartsId(r);
+                    context->resp.appendFailedParts(parts, storage::cpp2::ErrorCode::E_RPC_FAILURE);
+                    invalidLeader(spaceId, parts);
                     context->resp.markFailure();
                 } else {
                     auto resp = std::move(val.value());

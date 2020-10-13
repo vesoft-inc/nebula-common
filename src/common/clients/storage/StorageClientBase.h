@@ -66,6 +66,13 @@ public:
         failedParts_.emplace(partId, errorCode);
     }
 
+    void appendFailedParts(std::vector<PartitionID> partsId, storage::cpp2::ErrorCode errorCode) {
+        failedParts_.reserve(failedParts_.size() + partsId.size());
+        for (const auto &partId : partsId) {
+            emplaceFailedPart(partId, errorCode);
+        }
+    }
+
     std::vector<Response>& responses() {
         return responses_;
     }
@@ -100,10 +107,10 @@ protected:
     const HostAddr getLeader(const meta::PartHosts& partHosts) const;
     void updateLeader(GraphSpaceID spaceId, PartitionID partId, const HostAddr& leader);
     void invalidLeader(GraphSpaceID spaceId, PartitionID partId);
+    void invalidLeader(GraphSpaceID spaceId, std::vector<PartitionID> &partsId);
 
     template<class Request,
              class RemoteFunc,
-             class GetPartIDFunc,
              class Response =
                 typename std::result_of<
                     RemoteFunc(ClientType*, const Request&)
@@ -113,7 +120,6 @@ protected:
         folly::EventBase* evb,
         std::unordered_map<HostAddr, Request> requests,
         RemoteFunc&& remoteFunc,
-        GetPartIDFunc getPartIDFunc,
         std::size_t retry = 0,
         std::size_t retryLimit = 3);
 
