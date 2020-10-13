@@ -185,17 +185,14 @@ protected:
         return getReqPartsIdFromContainer(req.get_parts());
     }
 
-    template<>
     std::vector<PartitionID> getReqPartsId(const cpp2::UpdateVertexRequest &req) const {
         return {req.get_part_id()};
     }
 
-    template<>
     std::vector<PartitionID> getReqPartsId(const cpp2::UpdateEdgeRequest &req) const {
         return {req.get_part_id()};
     }
 
-    template<>
     std::vector<PartitionID> getReqPartsId(const cpp2::GetUUIDReq &req) const {
         return {req.get_part_id()};
     }

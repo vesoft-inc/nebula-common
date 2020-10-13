@@ -254,10 +254,10 @@ StorageClientBase<ClientType>::collectResponse(
                                             retry + 1,
                                             retryLimit)
                                     .thenValue([leader = *leader,
-                                                           context, start](auto &&result) {
-                                        if (result.ok()) {
+                                                           context, start](auto &&retryResult) {
+                                        if (retryResult.ok()) {
                                             // Adjust the latency
-                                            auto latency = result.value()
+                                            auto latency = retryResult.value()
                                                             .get_result()
                                                             .get_latency_in_us();
                                             context->resp.setLatency(
@@ -268,7 +268,7 @@ StorageClientBase<ClientType>::collectResponse(
                                             // Keep the response
                                             context->resp
                                                 .responses()
-                                                .emplace_back(std::move(result).value());
+                                                .emplace_back(std::move(retryResult).value());
                                         } else {
                                             context->resp.markFailure();
                                         }
