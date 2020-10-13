@@ -66,7 +66,8 @@ public:
         failedParts_.emplace(partId, errorCode);
     }
 
-    void appendFailedParts(std::vector<PartitionID> partsId, storage::cpp2::ErrorCode errorCode) {
+    void appendFailedParts(const std::vector<PartitionID> &partsId,
+                           storage::cpp2::ErrorCode errorCode) {
         failedParts_.reserve(failedParts_.size() + partsId.size());
         for (const auto &partId : partsId) {
             emplaceFailedPart(partId, errorCode);
