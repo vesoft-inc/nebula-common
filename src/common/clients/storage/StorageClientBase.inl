@@ -246,28 +246,29 @@ StorageClientBase<ClientType>::collectResponse(
                                             std::move(remoteFunc),
                                             folly::Promise<StatusOr<Response>>(),
                                             retry + 1,
-                                            retryLimit).thenValue([leader = *leader,
-                                                                   context, start](auto &&result) {
-                                                if (result.ok()) {
-                                                    // Adjust the latency
-                                                    auto latency = result.value()
-                                                                    .get_result()
-                                                                    .get_latency_in_us();
-                                                    context->resp.setLatency(
-                                                        leader,
-                                                        latency,
-                                                        time::WallClock::fastNowInMicroSec()-start);
+                                            retryLimit)
+                                    .thenValue([leader = *leader,
+                                                           context, start](auto &&result) {
+                                        if (result.ok()) {
+                                            // Adjust the latency
+                                            auto latency = result.value()
+                                                            .get_result()
+                                                            .get_latency_in_us();
+                                            context->resp.setLatency(
+                                                leader,
+                                                latency,
+                                                time::WallClock::fastNowInMicroSec() - start);
 
-                                                    // Keep the response
-                                                    context->resp
-                                                        .responses()
-                                                        .emplace_back(std::move(result).value());
-                                                } else {
-                                                    context->resp.markFailure();
-                                                }
-                                            }).thenError([context](auto&&) {
-                                                context->resp.markFailure();
-                                            });
+                                            // Keep the response
+                                            context->resp
+                                                .responses()
+                                                .emplace_back(std::move(result).value());
+                                        } else {
+                                            context->resp.markFailure();
+                                        }
+                                    }).thenError([context](auto&&) {
+                                        context->resp.markFailure();
+                                    });
                             } else {
                                 // retry failed
                                 context->resp.markFailure();
