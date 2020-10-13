@@ -548,22 +548,13 @@ void MetaClient::getResponse(Request req,
             } else if (resp.code == cpp2::ErrorCode::E_LEADER_CHANGED) {
                 updateLeader(resp.get_leader());
                 if (retry < retryLimit) {
-                    evb->runAfterDelay([req = std::move(req),
-                                        remoteFunc = std::move(remoteFunc),
-                                        respGen = std::move(respGen),
-                                        pro = std::move(pro),
-                                        toLeader,
-                                        retry,
-                                        retryLimit,
-                                        this] () mutable {
-                        getResponse(std::move(req),
-                                    std::move(remoteFunc),
-                                    std::move(respGen),
-                                    std::move(pro),
-                                    toLeader,
-                                    retry + 1,
-                                    retryLimit);
-                    }, FLAGS_meta_client_retry_interval_secs * 1000);
+                    getResponse(std::move(req),
+                                std::move(remoteFunc),
+                                std::move(respGen),
+                                std::move(pro),
+                                toLeader,
+                                retry + 1,
+                                retryLimit);
                     return;
                 }
             }

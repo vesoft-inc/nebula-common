@@ -113,7 +113,9 @@ protected:
         folly::EventBase* evb,
         std::unordered_map<HostAddr, Request> requests,
         RemoteFunc&& remoteFunc,
-        GetPartIDFunc getPartIDFunc);
+        GetPartIDFunc getPartIDFunc,
+        std::size_t retry = 0,
+        std::size_t retryLimit = 3);
 
     template<class Request,
              class RemoteFunc,
@@ -125,7 +127,10 @@ protected:
     folly::Future<StatusOr<Response>> getResponse(
             folly::EventBase* evb,
             std::pair<HostAddr, Request> request,
-            RemoteFunc remoteFunc);
+            RemoteFunc remoteFunc,
+            folly::Promise<StatusOr<Response>> pro = folly::Promise<StatusOr<Response>>(),
+            std::size_t retry = 0,
+            std::size_t retryLimit = 3);
 
     // Cluster given ids into the host they belong to
     // The method returns a map
@@ -151,6 +156,43 @@ protected:
 
     virtual StatusOr<std::unordered_map<HostAddr, std::vector<PartitionID>>>
     getHostParts(GraphSpaceID spaceId) const;
+
+    // from map
+    template <typename K>
+    std::vector<PartitionID> getReqPartsIdFromContainer(
+        const std::unordered_map<PartitionID, K> &t) const {
+        std::vector<PartitionID> partsId;
+        partsId.reserve(t.size());
+        for (const auto &part : t) {
+            partsId.emplace_back(part.first);
+        }
+        return partsId;
+    }
+
+    // from list
+    std::vector<PartitionID> getReqPartsIdFromContainer(const std::vector<PartitionID> &t) const {
+        return t;
+    }
+
+    template <typename Request>
+    std::vector<PartitionID> getReqPartsId(const Request &req) const {
+        return getReqPartsIdFromContainer(req.get_parts());
+    }
+
+    template<>
+    std::vector<PartitionID> getReqPartsId(const cpp2::UpdateVertexRequest &req) const {
+        return {req.get_part_id()};
+    }
+
+    template<>
+    std::vector<PartitionID> getReqPartsId(const cpp2::UpdateEdgeRequest &req) const {
+        return {req.get_part_id()};
+    }
+
+    template<>
+    std::vector<PartitionID> getReqPartsId(const cpp2::GetUUIDReq &req) const {
+        return {req.get_part_id()};
+    }
 
 protected:
     meta::MetaClient* metaClient_{nullptr};

@@ -163,7 +163,9 @@ StorageClientBase<ClientType>::collectResponse(
         folly::EventBase* evb,
         std::unordered_map<HostAddr, Request> requests,
         RemoteFunc&& remoteFunc,
-        GetPartIDFunc getPartIDFunc) {
+        GetPartIDFunc getPartIDFunc,
+        std::size_t retry,
+        std::size_t retryLimit) {
     auto context = std::make_shared<ResponseContext<Request, RemoteFunc, Response>>(
         requests.size(), std::move(remoteFunc));
 
@@ -184,7 +186,10 @@ StorageClientBase<ClientType>::collectResponse(
                          host,
                          spaceId,
                          res,
-                         getPartIDFunc] () mutable {
+                         getPartIDFunc,
+                         remoteFunc = std::move(remoteFunc),
+                         retry,
+                         retryLimit] () mutable {
             auto client = clientsMan_->client(host,
                                               evb,
                                               false,
@@ -200,7 +205,11 @@ StorageClientBase<ClientType>::collectResponse(
                             host,
                             spaceId,
                             getPartIDFunc,
-                            start] (folly::Try<Response>&& val) {
+                            start,
+                            evb,
+                            remoteFunc = std::move(remoteFunc),
+                            retry,
+                            retryLimit] (folly::Try<Response>&& val) {
                 auto& r = context->findRequest(host);
                 if (val.hasException()) {
                     LOG(ERROR) << "Request to " << host
@@ -229,6 +238,39 @@ StorageClientBase<ClientType>::collectResponse(
                                 updateLeader(spaceId, code.get_part_id(), *leader);
                             } else {
                                 invalidLeader(spaceId, code.get_part_id());
+                            }
+                            if (retry < retryLimit) {
+                                getResponse(evb,
+                                            std::pair<HostAddr, Request>(*leader,
+                                                                        std::move(r)),
+                                            std::move(remoteFunc),
+                                            folly::Promise<StatusOr<Response>>(),
+                                            retry + 1,
+                                            retryLimit).thenValue([leader = *leader,
+                                                                   context, start](auto &&result) {
+                                                if (result.ok()) {
+                                                    // Adjust the latency
+                                                    auto latency = result.value()
+                                                                    .get_result()
+                                                                    .get_latency_in_us();
+                                                    context->resp.setLatency(
+                                                        leader,
+                                                        latency,
+                                                        time::WallClock::fastNowInMicroSec()-start);
+
+                                                    // Keep the response
+                                                    context->resp
+                                                        .responses()
+                                                        .emplace_back(std::move(result).value());
+                                                } else {
+                                                    context->resp.markFailure();
+                                                }
+                                            }).thenError([context](auto&&) {
+                                                context->resp.markFailure();
+                                            });
+                            } else {
+                                // retry failed
+                                context->resp.markFailure();
                             }
                         } else if (code.get_code() == cpp2::ErrorCode::E_PART_NOT_FOUND
                                 || code.get_code() == cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
@@ -274,24 +316,31 @@ template<class Request, class RemoteFunc, class Response>
 folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
         folly::EventBase* evb,
         std::pair<HostAddr, Request> request,
-        RemoteFunc remoteFunc) {
+        RemoteFunc remoteFunc,
+        folly::Promise<StatusOr<Response>> pro,
+        std::size_t retry,
+        std::size_t retryLimit) {
     if (evb == nullptr) {
         DCHECK(!!ioThreadPool_);
         evb = ioThreadPool_->getEventBase();
     }
-    folly::Promise<StatusOr<Response>> pro;
     auto f = pro.getFuture();
     folly::via(evb, [evb, request = std::move(request), remoteFunc = std::move(remoteFunc),
-                     pro = std::move(pro), this] () mutable {
+                     pro = std::move(pro), retry, retryLimit, this] () mutable {
         auto host = request.first;
         auto client = clientsMan_->client(host, evb, false, FLAGS_storage_client_timeout_ms);
         auto spaceId = request.second.get_space_id();
-        auto partId = request.second.get_part_id();
+        auto partsId = getReqPartsId(request.second);
         LOG(INFO) << "Send request to storage " << host;
         remoteFunc(client.get(), std::move(request.second)).via(evb)
              .then([spaceId,
-                    partId,
+                    partsId = std::move(partsId),
                     p = std::move(pro),
+                    request = std::move(request),
+                    remoteFunc = std::move(remoteFunc),
+                    evb,
+                    retry,
+                    retryLimit,
                     this] (folly::Try<Response>&& t) mutable {
             // exception occurred during RPC
             if (t.hasException()) {
@@ -299,7 +348,9 @@ folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
                     Status::Error(
                         folly::stringPrintf("RPC failure in StorageClient: %s",
                                             t.exception().what().c_str())));
-                invalidLeader(spaceId, partId);
+                for (const auto &partId : partsId) {
+                    invalidLeader(spaceId, partId);
+                }
                 return;
             }
             auto&& resp = std::move(t.value());
@@ -316,6 +367,19 @@ folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
                         updateLeader(spaceId, code.get_part_id(), *leader);
                     } else {
                         invalidLeader(spaceId, code.get_part_id());
+                    }
+                    if (retry < retryLimit) {
+                        getResponse(evb,
+                                    std::pair<HostAddr, Request>(*leader,
+                                                                  std::move(request.second)),
+                                    std::move(remoteFunc),
+                                    std::move(p),
+                                    retry + 1,
+                                    retryLimit);
+                        return;
+                    } else {
+                        p.setValue(Status::Error("Request to storage retry failed."));
+                        return;
                     }
                 } else if (code.get_code() == storage::cpp2::ErrorCode::E_PART_NOT_FOUND ||
                            code.get_code() == storage::cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
