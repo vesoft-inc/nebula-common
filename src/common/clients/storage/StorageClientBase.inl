@@ -355,9 +355,7 @@ folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
                     Status::Error(
                         folly::stringPrintf("RPC failure in StorageClient: %s",
                                             t.exception().what().c_str())));
-                for (const auto &partId : partsId) {
-                    invalidLeader(spaceId, partId);
-                }
+                invalidLeader(spaceId, partsId);
                 return;
             }
             auto&& resp = std::move(t.value());
