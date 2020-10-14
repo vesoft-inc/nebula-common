@@ -134,6 +134,16 @@ public:
         IndexID indexId,
         folly::EventBase* evb = nullptr);
 
+    folly::SemiFuture<StorageRpcResponse<cpp2::GetTagVerticesResponse>> getTagVertices(
+        GraphSpaceID space,
+        IndexID indexId,
+        folly::EventBase* evb = nullptr);
+
+    folly::SemiFuture<StorageRpcResponse<cpp2::GetEdgetypeEdgesResponse>> getEdgetypeEdges(
+        GraphSpaceID space,
+        IndexID indexId,
+        folly::EventBase* evb = nullptr);
+
 private:
     StatusOr<std::function<const VertexID&(const Row&)>>
         getIdFromRow(GraphSpaceID space) const;

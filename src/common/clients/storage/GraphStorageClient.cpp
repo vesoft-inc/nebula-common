@@ -589,6 +589,66 @@ GraphStorageClient::getEdgesStatis(GraphSpaceID space,
                            });
 }
 
+folly::SemiFuture<StorageRpcResponse<cpp2::GetTagVerticesResponse>>
+GraphStorageClient::getTagVertices(GraphSpaceID space,
+                                   IndexID indexId,
+                                   folly::EventBase* evb) {
+    auto status = getHostParts(space);
+    if (!status.ok()) {
+        return folly::makeFuture<StorageRpcResponse<cpp2::GetTagVerticesResponse>>(
+            std::runtime_error(status.status().toString()));
+    }
+
+    auto& clusters = status.value();
+    std::unordered_map<HostAddr, cpp2::GetTagVerticesRequest> requests;
+    for (auto& c : clusters) {
+        auto& host = c.first;
+        auto& req = requests[host];
+        req.set_space_id(space);
+        req.set_parts(std::move(c.second));
+        req.set_index(std::move(indexId));
+    }
+
+    return collectResponse(evb,
+                           std::move(requests),
+                           [] (cpp2::GraphStorageServiceAsyncClient* client,
+                               const cpp2::GetTagVerticesRequest& r) {
+                               return client->future_getTagVertices(r); },
+                           [] (const PartitionID& part) {
+                               return part;
+                           });
+}
+
+folly::SemiFuture<StorageRpcResponse<cpp2::GetEdgetypeEdgesResponse>>
+GraphStorageClient::getEdgetypeEdges(GraphSpaceID space,
+                                     IndexID indexId,
+                                     folly::EventBase* evb) {
+    auto status = getHostParts(space);
+    if (!status.ok()) {
+        return folly::makeFuture<StorageRpcResponse<cpp2::GetEdgetypeEdgesResponse>>(
+            std::runtime_error(status.status().toString()));
+    }
+
+    auto& clusters = status.value();
+    std::unordered_map<HostAddr, cpp2::GetEdgetypeEdgesRequest> requests;
+    for (auto& c : clusters) {
+        auto& host = c.first;
+        auto& req = requests[host];
+        req.set_space_id(space);
+        req.set_parts(std::move(c.second));
+        req.set_index(std::move(indexId));
+    }
+
+    return collectResponse(evb,
+                           std::move(requests),
+                           [] (cpp2::GraphStorageServiceAsyncClient* client,
+                               const cpp2::GetEdgetypeEdgesRequest& r) {
+                               return client->future_getEdgetypeEdges(r); },
+                           [] (const PartitionID& part) {
+                               return part;
+                           });
+}
+
 StatusOr<std::function<const VertexID&(const Row&)>> GraphStorageClient::getIdFromRow(
     GraphSpaceID space) const {
     auto vidTypeStatus = metaClient_->getSpaceVidType(space);

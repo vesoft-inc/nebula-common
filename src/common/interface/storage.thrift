@@ -632,6 +632,36 @@ struct GetStatisResponse {
  * End of Statistics Index section
  */
 
+/*
+ * Start of Statistics tag vertices or edgetype edges section
+ */
+struct GetTagVerticesRequest {
+    1: required common.GraphSpaceID         space_id,
+    2: required list<common.PartitionID>    parts,
+    // Tag VERTEX index id
+    3: required common.IndexID              index,
+}
+
+struct GetEdgetypeEdgesRequest {
+    1: required common.GraphSpaceID         space_id,
+    2: required list<common.PartitionID>    parts,
+    // EdgeType EDGE index id
+    3: required common.IndexID              index,
+}
+
+struct GetTagVerticesResponse {
+    1: required ResponseCommon              result,
+    2: list<common.Value>                   vertices,
+}
+
+struct GetEdgetypeEdgesResponse {
+    1: required ResponseCommon              result,
+    2: common.DataSet                       edges,
+}
+/*
+ * End of Statistics tag vertices or edgetype edges section
+ */
+
 struct ScanVertexRequest {
     1: common.GraphSpaceID                  space_id,
     2: common.PartitionID                   part_id,
@@ -738,6 +768,9 @@ service GraphStorageService {
 
     GetStatisResponse getVerticesStatis(1: GetVerticesStatisRequest req);
     GetStatisResponse getEdgesStatis(1: GetEdgesStatisRequest req);
+
+    GetTagVerticesResponse getTagVertices(1: GetTagVerticesRequest req);
+    GetEdgetypeEdgesResponse getEdgetypeEdges(1: GetEdgetypeEdgesRequest req);
 }
 
 
