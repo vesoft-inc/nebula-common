@@ -2160,6 +2160,16 @@ TEST_F(ExpressionTest, RelationEndsWith) {
         EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
         EXPECT_EQ(eval, Value::kNullBadType);
     }
+    {
+        // "steve jobs" ends with "jobs"
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression("steve jobs"),
+                new ConstantExpression("jobs"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
 }
 
 TEST_F(ExpressionTest, RelationNotEndsWith) {
@@ -2276,16 +2286,16 @@ TEST_F(ExpressionTest, ContainsToString) {
     }
 }
 
-// TEST_F(ExpressionTest, NotContainsToString) {
-//     {
-//         // "abc" contains "a"
-//         RelationalExpression expr(
-//                 Expression::Kind::kNotContains,
-//                 new ConstantExpression("abc"),
-//                 new ConstantExpression("a"));
-//         ASSERT_EQ("(abc CONTAINS a)", expr.toString());
-//     }
-// }
+TEST_F(ExpressionTest, NotContainsToString) {
+    {
+        // "abc" not contains "a"
+        RelationalExpression expr(
+                Expression::Kind::kNotContains,
+                new ConstantExpression("abc"),
+                new ConstantExpression("a"));
+        ASSERT_EQ("(abc NOT CONTAINS a)", expr.toString());
+    }
+}
 
 TEST_F(ExpressionTest, LabelExprToString) {
     LabelExpression expr(new std::string("name"));
