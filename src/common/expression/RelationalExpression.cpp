@@ -103,6 +103,9 @@ const Value& RelationalExpression::eval(ExpressionContext& ctx) {
         }
         case Kind::kEndsWith: {
             if (lhs.isStr() && rhs.isStr()) {
+                LOG(INFO) << "left length: " << lhs.getStr().size()
+                    << "right length: " << rhs.getStr().size() << std::endl;
+                LOG(INFO) << "left: " << lhs.getStr() << "right: " << rhs.getStr();
                 result_ = lhs.getStr().size() >= rhs.getStr().size() &&
                     lhs.getStr().compare(lhs.getStr().size() - rhs.getStr().size(),
                     rhs.getStr().size(), rhs.getStr()) == 0;
