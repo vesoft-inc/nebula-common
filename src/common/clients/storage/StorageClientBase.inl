@@ -378,13 +378,18 @@ folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
                         invalidLeader(spaceId, code.get_part_id());
                     }
                     if (retry < retryLimit) {
-                        getResponse(evb,
-                                    std::pair<HostAddr, Request>(*leader,
-                                                                  std::move(request.second)),
-                                    std::move(remoteFunc),
-                                    std::move(p),
-                                    retry + 1,
-                                    retryLimit);
+                        evb->runAfterDelay([this, evb, leader = *leader,
+                                            req = std::move(request.second),
+                                            remoteFunc = std::move(remoteFunc), p = std::move(p),
+                                            retry, retryLimit] () mutable {
+                            getResponse(evb,
+                                        std::pair<HostAddr, Request>(std::move(leader),
+                                                                     std::move(req)),
+                                        std::move(remoteFunc),
+                                        std::move(p),
+                                        retry + 1,
+                                        retryLimit);
+                        }, FLAGS_storage_client_retry_interval_secs * 1000);
                         return;
                     } else {
                         p.setValue(Status::Error("Request to storage retry failed."));
