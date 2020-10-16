@@ -172,6 +172,11 @@ bool MetaClient::loadData() {
         return false;
     }
 
+    if (!loadFulltextHosts()) {
+        LOG(ERROR) << "Load fulltext services Failed";
+        return false;
+    }
+
     auto ret = listSpaces().get();
     if (!ret.ok()) {
         LOG(ERROR) << "List space failed, status:" << ret.status();
@@ -396,6 +401,13 @@ bool MetaClient::loadIndexes(GraphSpaceID spaceId,
         return false;
     }
 
+    auto ftIndicesRet = listFTIndices(spaceId).get();
+    if (!ftIndicesRet.ok()) {
+        LOG(ERROR) << "Get fulltext indices failed for spaceId " << spaceId
+                   << ", " << ftIndicesRet.status();
+        return false;
+    }
+
     Indexes tagIndexes;
     for (auto tagIndex : tagIndexesRet.value()) {
         auto indexName = tagIndex.get_index_name();
@@ -417,6 +429,33 @@ bool MetaClient::loadIndexes(GraphSpaceID spaceId,
         edgeIndexes.emplace(indexID, edgeIndexPtr);
     }
     cache->edgeIndexes_ = std::move(edgeIndexes);
+
+    FTIndex edgeFTIndex, tagFTIndex;
+    for (auto& index : ftIndicesRet.value()) {
+        if (index.get_index_type() == cpp2::FTIndexType::EDGE) {
+            edgeFTIndex = std::make_shared<cpp2::FTIndexItem>(index);
+        } else {
+            tagFTIndex = std::make_shared<cpp2::FTIndexItem>(index);
+        }
+    }
+    cache->fulltextEdgeIndex_ = std::move(edgeFTIndex);
+    cache->fulltextTagIndex_ = std::move(tagFTIndex);
+    return true;
+}
+
+
+bool MetaClient::loadFulltextHosts() {
+    auto ftRet = listFTHosts().get();
+    if (!ftRet.ok()) {
+        LOG(ERROR) << "List fulltext services failed, status:" << ftRet.status();
+        return false;
+    }
+    decltype(fulltextHostMap_)    serviceHostsMap;
+    serviceHostsMap = ftRet.value();
+    {
+        folly::RWSpinLock::WriteHolder holder(localCacheLock_);
+        fulltextHostMap_ = std::move(serviceHostsMap);
+    }
     return true;
 }
 

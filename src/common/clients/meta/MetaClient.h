@@ -46,6 +46,8 @@ using NameIndexMap = std::unordered_map<std::pair<GraphSpaceID, std::string>, In
 // Get Index Structure by indexID
 using Indexes = std::unordered_map<IndexID, std::shared_ptr<cpp2::IndexItem>>;
 
+using FTIndex = std::shared_ptr<cpp2::FTIndexItem>;
+
 struct SpaceInfoCache {
     cpp2::SpaceDesc spaceDesc_;
     PartsAlloc partsAlloc_;
@@ -54,6 +56,8 @@ struct SpaceInfoCache {
     EdgeSchemas edgeSchemas_;
     Indexes tagIndexes_;
     Indexes edgeIndexes_;
+    FTIndex fulltextTagIndex_;
+    FTIndex fulltextEdgeIndex_;
 };
 
 using LocalCache = std::unordered_map<GraphSpaceID, std::shared_ptr<SpaceInfoCache>>;
@@ -87,6 +91,8 @@ using UserPasswordMap = std::unordered_map<std::string, std::string>;
 // config cahce, get config via module and name
 using MetaConfigMap = std::unordered_map<std::pair<cpp2::ConfigModule, std::string>,
                                          cpp2::ConfigItem>;
+// get fulltext services
+using FulltextHostsMap = std::unordered_map<std::string, std::vector<cpp2::FTHost>>;
 
 class MetaChangedListener {
 public:
@@ -358,6 +364,29 @@ public:
 
     folly::Future<StatusOr<std::vector<cpp2::Snapshot>>> listSnapshots();
 
+    // Operations for fulltext services
+    folly::Future<StatusOr<bool>>
+    addFTHosts(const std::string& name, const std::vector<cpp2::FTHost>& hosts);
+
+    folly::Future<StatusOr<bool>> removeFTHosts(const std::string& name);
+
+    folly::Future<StatusOr<std::unordered_map<std::string, std::vector<cpp2::FTHost>>>>
+    listFTHosts();
+
+    folly::Future<StatusOr<bool>> createFTIndex(GraphSpaceID spaceId,
+                                                const cpp2::FTIndexItem& index);
+
+    folly::Future<StatusOr<bool>> dropFTIndex(GraphSpaceID spaceId,
+                                              const cpp2::FTIndexItem& index);
+
+    folly::Future<StatusOr<std::vector<cpp2::FTIndexItem>>> listFTIndices(GraphSpaceID spaceId);
+
+    StatusOr<std::vector<cpp2::FTHost>> getFTHostsFromCache(const std::string& name);
+
+    StatusOr<std::string> getFTEdgeIndexNameBySpaceId(GraphSpaceID spaceId);
+
+    StatusOr<std::string> getFTTagIndexNameBySpaceId(GraphSpaceID spaceId);
+
     // Opeartions for cache.
     StatusOr<GraphSpaceID> getSpaceIdByNameFromCache(const std::string& name);
 
@@ -527,6 +556,8 @@ protected:
     bool loadIndexes(GraphSpaceID spaceId,
                      std::shared_ptr<SpaceInfoCache> cache);
 
+    bool loadFulltextHosts();
+
     folly::Future<StatusOr<bool>> heartbeat();
 
     std::unordered_map<HostAddr, std::vector<PartitionID>> reverse(const PartsAlloc& parts);
@@ -604,6 +635,7 @@ private:
 
     NameIndexMap          tagNameIndexMap_;
     NameIndexMap          edgeNameIndexMap_;
+    FulltextHostsMap      fulltextHostMap_;
 
     mutable folly::RWSpinLock     localCacheLock_;
     MetaChangedListener*  listener_{nullptr};
