@@ -246,35 +246,39 @@ StorageClientBase<ClientType>::collectResponse(
                                 invalidLeader(spaceId, code.get_part_id());
                             }
                             if (retry < retryLimit) {
-                                getResponse(evb,
-                                            std::pair<HostAddr, Request>(*leader,
-                                                                        std::move(r)),
-                                            std::move(remoteFunc),
-                                            folly::Promise<StatusOr<Response>>(),
-                                            retry + 1,
-                                            retryLimit)
-                                    .thenValue([leader = *leader,
-                                                           context, start](auto &&retryResult) {
-                                        if (retryResult.ok()) {
-                                            // Adjust the latency
-                                            auto latency = retryResult.value()
-                                                            .get_result()
-                                                            .get_latency_in_us();
-                                            context->resp.setLatency(
-                                                leader,
-                                                latency,
-                                                time::WallClock::fastNowInMicroSec() - start);
+                                evb->runAfterDelay([this, evb, leader = *leader, r = std::move(r),
+                                                    remoteFunc = std::move(remoteFunc), context,
+                                                    start, retry, retryLimit] () {
+                                    getResponse(evb,
+                                                std::pair<HostAddr, Request>(leader,
+                                                                            std::move(r)),
+                                                std::move(remoteFunc),
+                                                folly::Promise<StatusOr<Response>>(),
+                                                retry + 1,
+                                                retryLimit)
+                                        .thenValue([leader = leader,
+                                                            context, start](auto &&retryResult) {
+                                            if (retryResult.ok()) {
+                                                // Adjust the latency
+                                                auto latency = retryResult.value()
+                                                                .get_result()
+                                                                .get_latency_in_us();
+                                                context->resp.setLatency(
+                                                    leader,
+                                                    latency,
+                                                    time::WallClock::fastNowInMicroSec() - start);
 
-                                            // Keep the response
-                                            context->resp
-                                                .responses()
-                                                .emplace_back(std::move(retryResult).value());
-                                        } else {
+                                                // Keep the response
+                                                context->resp
+                                                    .responses()
+                                                    .emplace_back(std::move(retryResult).value());
+                                            } else {
+                                                context->resp.markFailure();
+                                            }
+                                        }).thenError([context](auto&&) {
                                             context->resp.markFailure();
-                                        }
-                                    }).thenError([context](auto&&) {
-                                        context->resp.markFailure();
-                                    });
+                                        });
+                                    }, FLAGS_storage_client_retry_interval_secs * 1000);
                             } else {
                                 // retry failed
                                 context->resp.markFailure();
