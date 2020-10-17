@@ -16,6 +16,24 @@
 namespace nebula {
 namespace plugin {
 
+TEST(FulltextPluginTest, ESCreateIndexTest) {
+    HostAddr localHost_{"127.0.0.1", 9200};
+    HttpClient client(localHost_);
+    auto ret = ESMetaAdapter().createIndexCmd(client, "test_index");
+    auto expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
+                    "-XPUT \"http://127.0.0.1:9200/test_index\"";
+    ASSERT_EQ(expected, ret);
+}
+
+TEST(FulltextPluginTest, ESDropIndexTest) {
+    HostAddr localHost_{"127.0.0.1", 9200};
+    HttpClient client(localHost_);
+    auto ret = ESMetaAdapter().dropIndexCmd(client, "test_index");
+    auto expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
+                    "-XDELETE \"http://127.0.0.1:9200/test_index\"";
+    ASSERT_EQ(expected, ret);
+}
+
 TEST(FulltextPluginTest, ESPutTest) {
     HostAddr localHost_{"127.0.0.1", 9200};
     HttpClient hc(localHost_);

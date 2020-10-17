@@ -39,6 +39,7 @@ bool ESStorageAdapter::checkPut(const std::string& ret, const std::string& cmd) 
     //        "_version": 1
     //    }
     if (ret.empty()) {
+        LOG(ERROR) << "command failed : " << cmd;
         return false;
     }
     auto root = folly::parseJson(ret);
@@ -105,6 +106,7 @@ bool ESStorageAdapter::checkBulk(const std::string& ret) const {
     //        }]
     //    }
     if (ret.empty()) {
+        LOG(ERROR) << "Bulk insert command error";
         return false;
     }
     auto root = folly::parseJson(ret);

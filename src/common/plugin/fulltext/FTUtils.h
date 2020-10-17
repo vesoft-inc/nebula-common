@@ -16,6 +16,7 @@
 #define XPUT " -XPUT"
 #define XPOST " -XPOST"
 #define XGET " -XGET"
+#define XDELETE " -XDELETE"
 #define MAX_VALUE_LEN 255
 #define CURL_CONTENT_JSON " -H \"Content-Type: application/json; charset=utf-8\""
 #define CURL_CONTENT_NDJSON " -H \"Content-Type: application/x-ndjson; charset=utf-8\""

@@ -21,7 +21,7 @@ public:
 
     virtual bool createIndex(const HttpClient& client,
                              const std::string& index,
-                             const std::string& indexTemplate) const = 0;
+                             const std::string& indexTemplate = "") const = 0;
 
     virtual bool dropIndex(const HttpClient& client,
                            const std::string& index) const = 0;
@@ -29,10 +29,11 @@ public:
     virtual bool activeNode(const HttpClient& client,
                             std::vector<std::string>& nodes) const = 0;
 
-    virtual bool indexExist(const HttpClient& client,
-                            const std::string& index) const = 0;
+    virtual bool isExistsIndex(const HttpClient& client,
+                               const std::string& index) const = 0;
 
-    virtual bool listIndexes(const HttpClient& client, folly::dynamic& indexes) const = 0;
+    virtual bool listIndices(const HttpClient& client,
+                             std::vector<std::string>& indices) const = 0;
 };
 
 }  // namespace plugin
