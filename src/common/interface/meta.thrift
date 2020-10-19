@@ -920,16 +920,20 @@ struct ListGroupsResp {
     3: list<Group>      groups,
 }
 
-struct FTHost {
-    1: required common.HostAddr    host,
-    2: optional binary             user,
-    3: optional binary             pwd,
-}
+enum FTServiceType {
+    ELASTICSEARCH = 0x01,
+} (cpp.enum_strict)
 
 enum FTIndexType {
     TAG    = 0x01,
     EDGE   = 0x02,
 } (cpp.enum_strict)
+
+struct FTClient {
+    1: required common.HostAddr    host,
+    2: optional binary             user,
+    3: optional binary             pwd,
+}
 
 struct FTIndexItem {
     1: required binary              index_name,
@@ -937,23 +941,21 @@ struct FTIndexItem {
     3: required FTIndexType         index_type,
 }
 
-struct AddFTHostsReq {
-    1: binary            name,
-    2: list<FTHost>      hosts,
+struct SignInFTServiceReq {
+    1: FTServiceType                type,
+    2: list<FTClient>               clients,
 }
 
-struct RemoveFTHostsReq {
-    1: binary            name,
+struct SignOutFTServiceReq {
 }
 
-struct ListFTHostsReq {
+struct ListFTClientsReq {
 }
 
-struct ListFTHostsResp {
-    1: ErrorCode                            code,
-    2: common.HostAddr                      leader,
-    3: map<binary, list<FTHost>>
-       (cpp.template = "std::unordered_map") services,
+struct ListFTClientsResp {
+    1: ErrorCode           code,
+    2: common.HostAddr     leader,
+    3: list<FTClient>      clients,
 }
 
 struct CreateFTIndexReq {
@@ -963,7 +965,7 @@ struct CreateFTIndexReq {
 
 struct DropFTIndexReq {
     1: common.GraphSpaceID space_id,
-    2: FTIndexItem         index,
+    2: FTIndexType         type,
 }
 
 struct ListFTIndicesReq {
@@ -1059,9 +1061,9 @@ service MetaService {
     GetGroupResp   getGroup(1: GetGroupReq req);
     ListGroupsResp listGroups(1: ListGroupsReq req);
 
-    ExecResp addFTHosts(1: AddFTHostsReq req);
-    ExecResp removeFTHosts(1: RemoveFTHostsReq req);
-    ListFTHostsResp listFTHosts(1: ListFTHostsReq req);
+    ExecResp signInFTService(1: SignInFTServiceReq req);
+    ExecResp signOutFTService(1: SignOutFTServiceReq req);
+    ListFTClientsResp listFTClients(1: ListFTClientsReq req);
     ExecResp createFTIndex(1: CreateFTIndexReq req);
     ExecResp dropFTIndex(1: DropFTIndexReq req);
     ListFTIndicesResp listFTIndices(1: ListFTIndicesReq req);

@@ -172,7 +172,7 @@ bool MetaClient::loadData() {
         return false;
     }
 
-    if (!loadFulltextHosts()) {
+    if (!loadFulltextClients()) {
         LOG(ERROR) << "Load fulltext services Failed";
         return false;
     }
@@ -444,17 +444,17 @@ bool MetaClient::loadIndexes(GraphSpaceID spaceId,
 }
 
 
-bool MetaClient::loadFulltextHosts() {
-    auto ftRet = listFTHosts().get();
+bool MetaClient::loadFulltextClients() {
+    auto ftRet = listFTClients().get();
     if (!ftRet.ok()) {
         LOG(ERROR) << "List fulltext services failed, status:" << ftRet.status();
         return false;
     }
-    decltype(fulltextHostMap_)    serviceHostsMap;
-    serviceHostsMap = ftRet.value();
+    decltype(fulltextClientList_)    serviceClients;
+    serviceClients = ftRet.value();
     {
         folly::RWSpinLock::WriteHolder holder(localCacheLock_);
-        fulltextHostMap_ = std::move(serviceHostsMap);
+        fulltextClientList_ = std::move(serviceClients);
     }
     return true;
 }
@@ -2948,5 +2948,156 @@ MetaClient::listGroups() {
     return future;
 }
 
+
+folly::Future<StatusOr<bool>> MetaClient::signInFTService(
+    cpp2::FTServiceType type, const std::vector<cpp2::FTClient>& clients) {
+    cpp2::SignInFTServiceReq req;
+    req.set_type(type);
+    req.set_clients(clients);
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_signInFTService(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+
+folly::Future<StatusOr<bool>> MetaClient::signOutFTService() {
+    cpp2::SignOutFTServiceReq req;
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_signOutFTService(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+
+folly::Future<StatusOr<std::vector<cpp2::FTClient>>>
+MetaClient::listFTClients() {
+    cpp2::ListFTClientsReq req;
+    folly::Promise<StatusOr<std::vector<cpp2::FTClient>>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_listFTClients(request);
+                },
+                [] (cpp2::ListFTClientsResp&& resp) -> decltype(auto){
+                    return std::move(resp).get_clients();
+                },
+                std::move(promise));
+    return future;
+}
+
+
+folly::Future<StatusOr<bool>> MetaClient::createFTIndex(GraphSpaceID spaceId,
+                                                        const cpp2::FTIndexItem& index) {
+    cpp2::CreateFTIndexReq req;
+    req.set_space_id(spaceId);
+    req.set_index(index);
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_createFTIndex(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+
+folly::Future<StatusOr<bool>> MetaClient::dropFTIndex(GraphSpaceID spaceId,
+                                                      cpp2::FTIndexType type) {
+    cpp2::DropFTIndexReq req;
+    req.set_space_id(spaceId);
+    req.set_type(type);
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_dropFTIndex(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+
+folly::Future<StatusOr<std::vector<cpp2::FTIndexItem>>>
+MetaClient::listFTIndices(GraphSpaceID spaceId) {
+    cpp2::ListFTIndicesReq req;
+    req.set_space_id(spaceId);
+    folly::Promise<StatusOr<std::vector<cpp2::FTIndexItem>>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_listFTIndices(request);
+                },
+                [] (cpp2::ListFTIndicesResp&& resp) -> decltype(auto){
+                    return std::move(resp).get_indices();
+                },
+                std::move(promise));
+    return future;
+}
+
+
+StatusOr<std::string> MetaClient::getFTEdgeIndexNameBySpaceId(GraphSpaceID spaceId) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        VLOG(3) << "Space " << spaceId << " not found!";
+        return Status::SpaceNotFound();
+    } else if (spaceIt->second->fulltextEdgeIndex_ != nullptr) {
+        return spaceIt->second->fulltextEdgeIndex_->get_index_name();
+    }
+    return Status::IndexNotFound("fulltext edge index not found");
+}
+
+
+StatusOr<std::string> MetaClient::getFTTagIndexNameBySpaceId(GraphSpaceID spaceId) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        VLOG(3) << "Space " << spaceId << " not found!";
+        return Status::SpaceNotFound();
+    } else if (spaceIt->second->fulltextTagIndex_ != nullptr) {
+        return spaceIt->second->fulltextTagIndex_->get_index_name();
+    }
+    return Status::IndexNotFound("fulltext edge index not found");
+}
+
+
+StatusOr<std::vector<cpp2::FTClient>> MetaClient::getFTClientsFromCache() {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    return fulltextClientList_;
+}
 }  // namespace meta
 }  // namespace nebula

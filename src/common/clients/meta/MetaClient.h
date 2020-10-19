@@ -92,7 +92,7 @@ using UserPasswordMap = std::unordered_map<std::string, std::string>;
 using MetaConfigMap = std::unordered_map<std::pair<cpp2::ConfigModule, std::string>,
                                          cpp2::ConfigItem>;
 // get fulltext services
-using FulltextHostsMap = std::unordered_map<std::string, std::vector<cpp2::FTHost>>;
+using FulltextClientsList = std::vector<cpp2::FTClient>;
 
 class MetaChangedListener {
 public:
@@ -366,22 +366,20 @@ public:
 
     // Operations for fulltext services
     folly::Future<StatusOr<bool>>
-    addFTHosts(const std::string& name, const std::vector<cpp2::FTHost>& hosts);
+    signInFTService(cpp2::FTServiceType type, const std::vector<cpp2::FTClient>& clients);
 
-    folly::Future<StatusOr<bool>> removeFTHosts(const std::string& name);
+    folly::Future<StatusOr<bool>> signOutFTService();
 
-    folly::Future<StatusOr<std::unordered_map<std::string, std::vector<cpp2::FTHost>>>>
-    listFTHosts();
+    folly::Future<StatusOr<std::vector<cpp2::FTClient>>> listFTClients();
 
     folly::Future<StatusOr<bool>> createFTIndex(GraphSpaceID spaceId,
                                                 const cpp2::FTIndexItem& index);
 
-    folly::Future<StatusOr<bool>> dropFTIndex(GraphSpaceID spaceId,
-                                              const cpp2::FTIndexItem& index);
+    folly::Future<StatusOr<bool>> dropFTIndex(GraphSpaceID spaceId, cpp2::FTIndexType type);
 
     folly::Future<StatusOr<std::vector<cpp2::FTIndexItem>>> listFTIndices(GraphSpaceID spaceId);
 
-    StatusOr<std::vector<cpp2::FTHost>> getFTHostsFromCache(const std::string& name);
+    StatusOr<std::vector<cpp2::FTClient>> getFTClientsFromCache();
 
     StatusOr<std::string> getFTEdgeIndexNameBySpaceId(GraphSpaceID spaceId);
 
@@ -556,7 +554,7 @@ protected:
     bool loadIndexes(GraphSpaceID spaceId,
                      std::shared_ptr<SpaceInfoCache> cache);
 
-    bool loadFulltextHosts();
+    bool loadFulltextClients();
 
     folly::Future<StatusOr<bool>> heartbeat();
 
@@ -635,7 +633,7 @@ private:
 
     NameIndexMap          tagNameIndexMap_;
     NameIndexMap          edgeNameIndexMap_;
-    FulltextHostsMap      fulltextHostMap_;
+    FulltextClientsList   fulltextClientList_;
 
     mutable folly::RWSpinLock     localCacheLock_;
     MetaChangedListener*  listener_{nullptr};
