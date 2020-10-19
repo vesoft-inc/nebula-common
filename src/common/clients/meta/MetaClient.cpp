@@ -290,9 +290,9 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
 
     auto addSchemaField = [] (NebulaSchemaProvider *schema, cpp2::ColumnDef &col) {
         bool hasDef = col.__isset.default_value;
-        auto& colType = colIt.get_type();
+        auto& colType = col.get_type();
         size_t len = colType.__isset.type_length ? *colType.get_type_length() : 0;
-        bool nullable = colType.__isset.nullable ? *colType.get_nullable() : false;
+        bool nullable = col.__isset.nullable ? *col.get_nullable() : false;
         std::unique_ptr<Expression> defaultValueExpr;
         if (hasDef) {
             defaultValueExpr = Expression::decode(*col.get_default_value());
@@ -303,7 +303,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
         }
 
         schema->addField(col.get_name(),
-                         col.get_type(),
+                         colType.get_type(),
                          len,
                          nullable,
                          hasDef ? defaultValueExpr.release() : nullptr);
