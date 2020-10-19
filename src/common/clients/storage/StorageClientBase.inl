@@ -392,7 +392,7 @@ folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
                         }, FLAGS_storage_client_retry_interval_secs * 1000);
                         return;
                     } else {
-                        p.setValue(Status::Error("Request to storage retry failed."));
+                        p.setValue(Status::LeaderChanged("Request to storage retry failed."));
                         return;
                     }
                 } else if (code.get_code() == storage::cpp2::ErrorCode::E_PART_NOT_FOUND ||
