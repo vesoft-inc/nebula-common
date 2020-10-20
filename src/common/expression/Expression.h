@@ -81,6 +81,10 @@ public:
         kMap,
 
         kLabel,
+
+        kSimpleCase,
+        kGenericCase,
+        kConditionalCase,
     };
 
     explicit Expression(Kind kind) : kind_(kind) {}

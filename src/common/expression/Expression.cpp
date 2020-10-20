@@ -24,6 +24,7 @@
 #include "common/expression/LabelExpression.h"
 #include "common/expression/VertexExpression.h"
 #include "common/expression/EdgeExpression.h"
+#include "common/expression/CaseExpression.h"
 
 namespace nebula {
 
@@ -452,12 +453,26 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kSimpleCase: {
+            exp = std::make_unique<CaseExpression>(Expression::Kind::kSimpleCase);
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kGenericCase: {
+            exp = std::make_unique<CaseExpression>(Expression::Kind::kGenericCase);
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kConditionalCase: {
+            exp = std::make_unique<CaseExpression>(Expression::Kind::kConditionalCase);
+            exp->resetFrom(decoder);
+            return exp;
+        }
         // no default so the compiler will warning when lack
     }
 
     LOG(FATAL) << "Unknown expression: " << decoder.getHexStr();
 }
-
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
     switch (kind) {
@@ -616,6 +631,15 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             break;
         case Expression::Kind::kLabel:
             os << "Label";
+            break;
+        case Expression::Kind::kSimpleCase:
+            os << "SimpleCase";
+            break;
+        case Expression::Kind::kGenericCase:
+            os << "GenericCase";
+            break;
+        case Expression::Kind::kConditionalCase:
+            os << "Conditional";
             break;
     }
     return os;
