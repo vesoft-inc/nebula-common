@@ -288,7 +288,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     EdgeSchemas edgeSchemas;
     TagID lastTagId = -1;
 
-    auto addSchemaField = [] (NebulaSchemaProvider *schema, cpp2::ColumnDef &col) {
+    auto addSchemaField = [] (NebulaSchemaProvider *schema, const cpp2::ColumnDef &col) {
         bool hasDef = col.__isset.default_value;
         auto& colType = col.get_type();
         size_t len = colType.__isset.type_length ? *colType.get_type_length() : 0;
@@ -312,7 +312,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     for (auto& tagIt : tagItemVec) {
         // meta will return the different version from new to old
         auto schema = std::make_shared<NebulaSchemaProvider>(tagIt.version);
-        for (auto colIt : tagIt.schema.get_columns()) {
+        for (const auto& colIt : tagIt.schema.get_columns()) {
             addSchemaField(schema.get(), colIt);
         }
         // handle schema property
@@ -345,7 +345,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     for (auto& edgeIt : edgeItemVec) {
         // meta will return the different version from new to old
         auto schema = std::make_shared<NebulaSchemaProvider>(edgeIt.version);
-        for (auto col : edgeIt.schema.get_columns()) {
+        for (const auto& col : edgeIt.schema.get_columns()) {
             addSchemaField(schema.get(), col);
         }
         // handle shcem property
