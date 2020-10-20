@@ -569,7 +569,9 @@ struct IndexQueryContext {
     // Used for secondary filtering from a result set
     2: binary                   filter,
     // There are two types of scan: 1, range scan; 2, match scan (prefix);
-    // The columns_hints are not allowed to be empty, At least one index column must be hit.
+    // When the field size of index_id IndexItem is not zero, the columns_hints are not allowed
+    //    to be empty, At least one index column must be hit.
+    // When the field size of index_id IndexItem is zero, the columns_hints must be empty.
     3: list<IndexColumnHint>    column_hints,
 }
 
