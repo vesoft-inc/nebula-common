@@ -32,7 +32,7 @@ public:
             , type_(std::move(type))
             , nullable_(nullable)
             , hasDefault_(hasDefault)
-            , defaultValue_(defaultValue)
+            , defaultValue_(std::move(defaultValue))
             , size_(size)
             , offset_(offset)
             , nullFlagPos_(nullFlagPos) {}
