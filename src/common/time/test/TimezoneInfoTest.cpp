@@ -9,15 +9,30 @@
 #include "common/time/TimezoneInfo.h"
 
 TEST(TimezoneInfo, PosixTimezone) {
-    const std::string posixTimezone = "EST-05:00:00EDT+01:00:00,M4.1.0/02:00:00,M10.5.0/02:00:00";
-    nebula::time::Timezone tz;
-    ASSERT_TRUE(tz.parsePosixTimezone(posixTimezone).ok());
+    {
+        const std::string posixTimezone =
+            "EST-05:00:00EDT+01:00:00,M4.1.0/02:00:00,M10.5.0/02:00:00";
+        nebula::time::Timezone tz;
+        ASSERT_TRUE(tz.parsePosixTimezone(posixTimezone).ok());
 
-    // std zonename
-    EXPECT_EQ("EST", tz.stdZoneName());
+        // std zonename
+        EXPECT_EQ("EST", tz.stdZoneName());
 
-    // std offset
-    EXPECT_EQ(-5 * 60 * 60, tz.utcOffset());
+        // std offset
+        EXPECT_EQ(-5 * 60 * 60, tz.utcOffset());
+    }
+    {
+        // short case
+        const std::string posixTimezone = "EST-05:00:00";
+        nebula::time::Timezone tz;
+        ASSERT_TRUE(tz.parsePosixTimezone(posixTimezone).ok());
+
+        // std zonename
+        EXPECT_EQ("EST", tz.stdZoneName());
+
+        // std offset
+        EXPECT_EQ(-5 * 60 * 60, tz.utcOffset());
+    }
 }
 
 TEST(TimezoneInfo, PosixTimezoneInvalid) {
