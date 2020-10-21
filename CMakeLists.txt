@@ -72,4 +72,5 @@ macro(nebula_add_library name type)
     )
 endmacro()
 
+add_subdirectory(share)
 add_subdirectory(src/common)

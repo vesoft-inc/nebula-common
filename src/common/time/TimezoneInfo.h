@@ -7,6 +7,8 @@
 #ifndef COMMON_TIME_TIMEZONEINFO_H_
 #define COMMON_TIME_TIMEZONEINFO_H_
 
+#include <boost/date_time/local_time/local_time.hpp>
+
 #include "common/base/Base.h"
 #include "common/base/Status.h"
 
@@ -17,45 +19,34 @@ class Timezone {
 public:
     explicit Timezone(const std::string &name) : name_(name) {}
 
-    MUST_USE_RESULT Status load() {
-        const auto &it = tzdb.find(name_);
-        if (it == tzdb.end()) {
-            return Status::Error("Not supported timezone `%s'.", name_.c_str());
+    static MUST_USE_RESULT Status init() {
+        try {
+            tzdb.load_from_file(kTzDbFile);
+        } catch (const std::exception &e) {
+            return Status::Error("%s", e.what());
         }
-#if DCHECK_IS_ON()
-        valid_ = true;
-#endif
         return Status::OK();
     }
 
-    const std::string &abbreviation() const {
-#if DCHECK_IS_ON()
-        CHECK(valid_);
-#endif
-        return info_.abbreviation;
+    MUST_USE_RESULT Status load() {
+        zoneInfo_ = tzdb.time_zone_from_region(name_);
+        if (zoneInfo_ == nullptr) {
+            return Status::Error("Not supported timezone `%s'.", name_.c_str());
+        }
+        return Status::OK();
     }
 
-    int32_t utcOffset() const {
-#if DCHECK_IS_ON()
-        CHECK(valid_);
-#endif
-        return info_.utcOffset;
+    // offset in seconds
+    uint32_t utcOffset() const {
+        return zoneInfo_->base_utc_offset().total_seconds();
     }
 
 private:
-    struct TimezoneInfo {
-        std::string abbreviation;
-        int32_t utcOffset;   // utc/gmt offset in seconds
-    };
+    static constexpr char kTzDbFile[] = "share/resources/date_time_zonespec.csv";
+    static ::boost::local_time::tz_database tzdb;
 
-    static const std::unordered_map<std::string, TimezoneInfo> tzdb;
-
-#if DCHECK_IS_ON()
-    bool valid_{false};
-#endif
-
-    std::string name_;
-    TimezoneInfo info_;
+    const std::string                                          name_;
+    ::boost::shared_ptr<::boost::local_time::custom_time_zone> zoneInfo_{nullptr};
 };
 
 }   // namespace time

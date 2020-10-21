@@ -3,11 +3,13 @@
 # This source code is licensed under Apache 2.0 License,
 # attached with Common Clause Condition 1.0, found in the LICENSES directory.
 
-nebula_add_library(
-    time_obj OBJECT
-    detail/TscHelper.cpp
-    Duration.cpp
-    WallClock.cpp
+install(
+    FILES
+        date_time_zonespec.csv
+    PERMISSIONS
+        OWNER_WRITE OWNER_READ
+        GROUP_READ
+        WORLD_READ
+    DESTINATION
+        share/resources
 )
-
-nebula_add_subdirectory(test)
