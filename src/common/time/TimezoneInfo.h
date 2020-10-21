@@ -47,12 +47,12 @@ public:
     }
 
     std::string stdZoneName() const {
-        return zoneInfo_->std_zone_name();
+        return DCHECK_NOTNULL(zoneInfo_)->std_zone_name();
     }
 
     // offset in seconds
     int32_t utcOffset() const {
-        return zoneInfo_->base_utc_offset().total_seconds();
+        return DCHECK_NOTNULL(zoneInfo_)->base_utc_offset().total_seconds();
     }
 
 private:
