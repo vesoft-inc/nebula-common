@@ -12,6 +12,8 @@
 #include "common/datatypes/Map.h"
 #include "common/datatypes/Set.h"
 #include "common/datatypes/DataSet.h"
+#include "common/datatypes/Edge.h"
+#include "common/datatypes/Vertex.h"
 
 namespace nebula {
 
@@ -130,6 +132,20 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
               TypeSignature({Value::Type::MAP}, Value::Type::INT),
               TypeSignature({Value::Type::SET}, Value::Type::INT),
               TypeSignature({Value::Type::DATASET}, Value::Type::INT),
+             }},
+    {"id", {TypeSignature({Value::Type::VERTEX}, Value::Type::STRING),
+             }},
+    {"tags", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
+             }},
+    {"labels", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
+             }},
+    {"type", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
+             }},
+    {"src", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
+             }},
+    {"dst", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
+             }},
+    {"rank", {TypeSignature({Value::Type::EDGE}, Value::Type::INT),
              }},
 };
 
@@ -769,6 +785,91 @@ FunctionManager::FunctionManager() {
                     LOG(ERROR) << "size() has not been implemented for " << args[0].type();
                     return Value::kNullBadType;
             }
+        };
+    }
+    {
+        auto &attr = functions_["id"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].type() != Value::Type::VERTEX) {
+                return Value::kNullBadType;
+            }
+            return args[0].getVertex().vid;
+        };
+    }
+    {
+        auto &attr = functions_["tags"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].type() != Value::Type::VERTEX) {
+                return Value::kNullBadType;
+            }
+            List tags;
+            for (auto &tag : args[0].getVertex().tags) {
+                tags.emplace_back(tag.name);
+            }
+            return tags;
+        };
+    }
+    {
+        auto &attr = functions_["labels"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].type() != Value::Type::VERTEX) {
+                return Value::kNullBadType;
+            }
+            List tags;
+            for (auto &tag : args[0].getVertex().tags) {
+                tags.emplace_back(tag.name);
+            }
+            return tags;
+        };
+    }
+    {
+        auto &attr = functions_["type"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].type() != Value::Type::EDGE) {
+                return Value::kNullBadType;
+            }
+            return args[0].getEdge().name;
+        };
+    }
+    {
+        auto &attr = functions_["src"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].type() != Value::Type::EDGE) {
+                return Value::kNullBadType;
+            }
+            return args[0].getEdge().src;
+        };
+    }
+    {
+        auto &attr = functions_["dst"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].type() != Value::Type::EDGE) {
+                return Value::kNullBadType;
+            }
+            return args[0].getEdge().dst;
+        };
+    }
+    {
+        auto &attr = functions_["rank"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].type() != Value::Type::EDGE) {
+                return Value::kNullBadType;
+            }
+            return args[0].getEdge().ranking;
         };
     }
 }   // NOLINT

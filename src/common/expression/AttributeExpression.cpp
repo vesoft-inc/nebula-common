@@ -21,6 +21,10 @@ const Value& AttributeExpression::eval(ExpressionContext &ctx) {
     if (lvalue.isMap()) {
         return lvalue.getMap().at(rvalue.getStr());
     } else if (lvalue.isVertex()) {
+        if (rvalue.getStr() == "_vid") {
+            result_ = lvalue.getVertex().vid;
+            return result_;
+        }
         for (auto &tag : lvalue.getVertex().tags) {
             auto iter = tag.props.find(rvalue.getStr());
             if (iter != tag.props.end()) {
@@ -29,6 +33,18 @@ const Value& AttributeExpression::eval(ExpressionContext &ctx) {
         }
         return Value::kNullValue;
     } else if (lvalue.isEdge()) {
+        if (rvalue.getStr()[0] == '_') {
+            if (rvalue.getStr() == "_src") {
+                result_ = lvalue.getEdge().src;
+            } else if (rvalue.getStr() == "_dst") {
+                result_ = lvalue.getEdge().dst;
+            } else if (rvalue.getStr() == "_rank") {
+                result_ = lvalue.getEdge().ranking;
+            } else if (rvalue.getStr() == "_type") {
+                result_ = lvalue.getEdge().type;
+            }
+            return result_;
+        }
         auto iter = lvalue.getEdge().props.find(rvalue.getStr());
         if (iter == lvalue.getEdge().props.end()) {
             return Value::kNullValue;
