@@ -20,6 +20,12 @@ TEST(TimezoneInfo, PosixTimezone) {
     EXPECT_EQ(-5 * 60 * 60, tz.utcOffset());
 }
 
+TEST(TimezoneInfo, PosixTimezoneInvalid) {
+    const std::string posixTimezone = "233333333333";
+    nebula::time::Timezone tz;
+    ASSERT_FALSE(tz.parsePosixTimezone(posixTimezone).ok());
+}
+
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

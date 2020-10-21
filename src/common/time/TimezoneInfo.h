@@ -8,6 +8,7 @@
 #define COMMON_TIME_TIMEZONEINFO_H_
 
 #include <boost/date_time/local_time/local_time.hpp>
+#include <exception>
 
 #include "common/base/Base.h"
 #include "common/base/Status.h"
@@ -38,10 +39,10 @@ public:
 
     // see the posix timezone literal format in https://man7.org/linux/man-pages/man3/tzset.3.html
     MUST_USE_RESULT Status parsePosixTimezone(const std::string &posixTimezone) {
-        zoneInfo_.reset(new ::boost::local_time::posix_time_zone(posixTimezone));
-        if (zoneInfo_ == nullptr) {
-            return Status::Error("Not supported timezone literal format `%s'.",
-                                 posixTimezone.c_str());
+        try {
+            zoneInfo_.reset(new ::boost::local_time::posix_time_zone(posixTimezone));
+        } catch (const std::exception &e) {
+            return Status::Error("%s", e.what());
         }
         return Status::OK();
     }
