@@ -17,7 +17,7 @@ namespace time {
 
 class Timezone {
 public:
-    explicit Timezone(const std::string &name) : name_(name) {}
+    Timezone() = default;
 
     static MUST_USE_RESULT Status init() {
         try {
@@ -28,8 +28,16 @@ public:
         return Status::OK();
     }
 
-    MUST_USE_RESULT Status load() {
-        zoneInfo_ = tzdb.time_zone_from_region(name_);
+    MUST_USE_RESULT Status load_from_db(const std::string &region) {
+        zoneInfo_ = tzdb.time_zone_from_region(region);
+        if (zoneInfo_ == nullptr) {
+            return Status::Error("Not supported timezone `%s'.", name_.c_str());
+        }
+        return Status::OK();
+    }
+
+    MUST_USE_RESULT Status parse_posix_timezone(const std::string &posixTimezone) {
+        zoneInfo_ = new ::boost::date_time::posix_time_zone(posixTimezone);
         if (zoneInfo_ == nullptr) {
             return Status::Error("Not supported timezone `%s'.", name_.c_str());
         }
@@ -37,7 +45,7 @@ public:
     }
 
     // offset in seconds
-    uint32_t utcOffset() const {
+    int32_t utcOffset() const {
         return zoneInfo_->base_utc_offset().total_seconds();
     }
 
@@ -45,7 +53,6 @@ private:
     static constexpr char kTzDbFile[] = "share/resources/date_time_zonespec.csv";
     static ::boost::local_time::tz_database tzdb;
 
-    const std::string                                          name_;
     ::boost::shared_ptr<::boost::local_time::custom_time_zone> zoneInfo_{nullptr};
 };
 
