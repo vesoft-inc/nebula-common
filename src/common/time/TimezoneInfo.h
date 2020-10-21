@@ -28,20 +28,26 @@ public:
         return Status::OK();
     }
 
-    MUST_USE_RESULT Status load_from_db(const std::string &region) {
+    MUST_USE_RESULT Status loadFromDb(const std::string &region) {
         zoneInfo_ = tzdb.time_zone_from_region(region);
         if (zoneInfo_ == nullptr) {
-            return Status::Error("Not supported timezone `%s'.", name_.c_str());
+            return Status::Error("Not supported timezone `%s'.", region.c_str());
         }
         return Status::OK();
     }
 
-    MUST_USE_RESULT Status parse_posix_timezone(const std::string &posixTimezone) {
-        zoneInfo_ = new ::boost::date_time::posix_time_zone(posixTimezone);
+    // see the posix timezone literal format in https://man7.org/linux/man-pages/man3/tzset.3.html
+    MUST_USE_RESULT Status parsePosixTimezone(const std::string &posixTimezone) {
+        zoneInfo_.reset(new ::boost::local_time::posix_time_zone(posixTimezone));
         if (zoneInfo_ == nullptr) {
-            return Status::Error("Not supported timezone `%s'.", name_.c_str());
+            return Status::Error("Not supported timezone literal format `%s'.",
+                                 posixTimezone.c_str());
         }
         return Status::OK();
+    }
+
+    std::string stdZoneName() const {
+        return zoneInfo_->std_zone_name();
     }
 
     // offset in seconds
@@ -53,7 +59,8 @@ private:
     static constexpr char kTzDbFile[] = "share/resources/date_time_zonespec.csv";
     static ::boost::local_time::tz_database tzdb;
 
-    ::boost::shared_ptr<::boost::local_time::custom_time_zone> zoneInfo_{nullptr};
+    ::boost::shared_ptr<::boost::date_time::time_zone_base<::boost::posix_time::ptime, char>>
+        zoneInfo_{nullptr};
 };
 
 }   // namespace time
