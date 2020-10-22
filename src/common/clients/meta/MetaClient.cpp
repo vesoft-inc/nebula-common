@@ -287,19 +287,33 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     TagSchemas tagSchemas;
     EdgeSchemas edgeSchemas;
     TagID lastTagId = -1;
+
+    auto addSchemaField = [] (NebulaSchemaProvider *schema, const cpp2::ColumnDef &col) {
+        bool hasDef = col.__isset.default_value;
+        auto& colType = col.get_type();
+        size_t len = colType.__isset.type_length ? *colType.get_type_length() : 0;
+        bool nullable = col.__isset.nullable ? *col.get_nullable() : false;
+        std::unique_ptr<Expression> defaultValueExpr;
+        if (hasDef) {
+            defaultValueExpr = Expression::decode(*col.get_default_value());
+            if (defaultValueExpr == nullptr) {
+                LOG(ERROR) << "Wrong expr default value for column name: " << col.get_name();
+                hasDef = false;
+            }
+        }
+
+        schema->addField(col.get_name(),
+                         colType.get_type(),
+                         len,
+                         nullable,
+                         hasDef ? defaultValueExpr.release() : nullptr);
+    };
+
     for (auto& tagIt : tagItemVec) {
         // meta will return the different version from new to old
         auto schema = std::make_shared<NebulaSchemaProvider>(tagIt.version);
-        for (auto &colIt : tagIt.schema.get_columns()) {
-            bool hasDef = colIt.__isset.default_value;
-            auto& colType = colIt.get_type();
-            size_t len = colType.__isset.type_length ? *colType.get_type_length() : 0;
-            bool nullable = colIt.__isset.nullable ? *colIt.get_nullable() : false;
-            schema->addField(colIt.get_name(),
-                             colType.get_type(),
-                             len,
-                             nullable,
-                             hasDef ? *colIt.get_default_value() : Value());
+        for (const auto& colIt : tagIt.schema.get_columns()) {
+            addSchemaField(schema.get(), colIt);
         }
         // handle schema property
         schema->setProp(tagIt.schema.get_schema_prop());
@@ -331,16 +345,8 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     for (auto& edgeIt : edgeItemVec) {
         // meta will return the different version from new to old
         auto schema = std::make_shared<NebulaSchemaProvider>(edgeIt.version);
-        for (auto &col : edgeIt.schema.get_columns()) {
-            bool hasDef = col.__isset.default_value;
-            auto& colType = col.get_type();
-            size_t len = colType.__isset.type_length ? *colType.get_type_length() : 0;
-            bool nullable = col.__isset.nullable ? *col.get_nullable() : false;
-            schema->addField(col.get_name(),
-                             colType.get_type(),
-                             len,
-                             nullable,
-                             hasDef ? *col.get_default_value() : Value());
+        for (const auto& col : edgeIt.schema.get_columns()) {
+            addSchemaField(schema.get(), col);
         }
         // handle shcem property
         schema->setProp(edgeIt.schema.get_schema_prop());
@@ -421,12 +427,12 @@ bool MetaClient::loadIndexes(GraphSpaceID spaceId,
 }
 
 
-Status MetaClient::checkTagIndexed(GraphSpaceID space, TagID tagID) {
+Status MetaClient::checkTagIndexed(GraphSpaceID space, IndexID indexID) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = localCache_.find(space);
     if (it != localCache_.end()) {
-        auto tagIt = it->second->tagIndexes_.find(tagID);
-        if (tagIt != it->second->tagIndexes_.end()) {
+        auto indexIt = it->second->tagIndexes_.find(indexID);
+        if (indexIt != it->second->tagIndexes_.end()) {
             return Status::OK();
         } else {
             return Status::IndexNotFound();
@@ -436,12 +442,12 @@ Status MetaClient::checkTagIndexed(GraphSpaceID space, TagID tagID) {
 }
 
 
-Status MetaClient::checkEdgeIndexed(GraphSpaceID space, EdgeType edgeType) {
+Status MetaClient::checkEdgeIndexed(GraphSpaceID space, IndexID indexID) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = localCache_.find(space);
     if (it != localCache_.end()) {
-        auto edgeIt = it->second->edgeIndexes_.find(edgeType);
-        if (edgeIt != it->second->edgeIndexes_.end()) {
+        auto indexIt = it->second->edgeIndexes_.find(indexID);
+        if (indexIt != it->second->edgeIndexes_.end()) {
             return Status::OK();
         } else {
             return Status::IndexNotFound();
