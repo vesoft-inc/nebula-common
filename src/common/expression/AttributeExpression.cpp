@@ -21,7 +21,7 @@ const Value& AttributeExpression::eval(ExpressionContext &ctx) {
     if (lvalue.isMap()) {
         return lvalue.getMap().at(rvalue.getStr());
     } else if (lvalue.isVertex()) {
-        if (rvalue.getStr() == "_vid") {
+        if (rvalue.getStr() == kVid) {
             result_ = lvalue.getVertex().vid;
             return result_;
         }
@@ -33,15 +33,16 @@ const Value& AttributeExpression::eval(ExpressionContext &ctx) {
         }
         return Value::kNullValue;
     } else if (lvalue.isEdge()) {
+        DCHECK(!rvalue.getStr().empty());
         if (rvalue.getStr()[0] == '_') {
-            if (rvalue.getStr() == "_src") {
+            if (rvalue.getStr() == kSrc) {
                 result_ = lvalue.getEdge().src;
-            } else if (rvalue.getStr() == "_dst") {
+            } else if (rvalue.getStr() == kDst) {
                 result_ = lvalue.getEdge().dst;
-            } else if (rvalue.getStr() == "_rank") {
+            } else if (rvalue.getStr() == kRank) {
                 result_ = lvalue.getEdge().ranking;
-            } else if (rvalue.getStr() == "_type") {
-                result_ = lvalue.getEdge().type;
+            } else if (rvalue.getStr() == kType) {
+                result_ = lvalue.getEdge().name;
             }
             return result_;
         }

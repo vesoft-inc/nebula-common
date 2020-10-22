@@ -139,6 +139,9 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
              }},
     {"labels", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
              }},
+    {"properties", {TypeSignature({Value::Type::VERTEX}, Value::Type::MAP),
+                    TypeSignature({Value::Type::EDGE}, Value::Type::MAP),
+             }},
     {"type", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
              }},
     {"src", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
@@ -812,20 +815,26 @@ FunctionManager::FunctionManager() {
             }
             return tags;
         };
+        functions_["labels"] = attr;
     }
     {
-        auto &attr = functions_["labels"];
+        auto &attr = functions_["properties"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].type() != Value::Type::VERTEX) {
+            if (args[0].type() == Value::Type::VERTEX) {
+                Map props;
+                for (auto &tag : args[0].getVertex().tags) {
+                    props.kvs.insert(tag.props.cbegin(), tag.props.cend());
+                }
+                return Value(std::move(props));
+            } else if (args[0].type() == Value::Type::EDGE) {
+                Map props;
+                props.kvs = args[0].getEdge().props;
+                return Value(std::move(props));
+            } else {
                 return Value::kNullBadType;
             }
-            List tags;
-            for (auto &tag : args[0].getVertex().tags) {
-                tags.emplace_back(tag.name);
-            }
-            return tags;
         };
     }
     {
