@@ -19,7 +19,7 @@ TEST(TimezoneInfo, PosixTimezone) {
         EXPECT_EQ("EST", tz.stdZoneName());
 
         // std offset
-        EXPECT_EQ(-5 * 60 * 60, tz.utcOffset());
+        EXPECT_EQ(-5 * 60 * 60, tz.utcOffsetSecs());
     }
     {
         // short case
@@ -31,7 +31,7 @@ TEST(TimezoneInfo, PosixTimezone) {
         EXPECT_EQ("EST", tz.stdZoneName());
 
         // std offset
-        EXPECT_EQ(-5 * 60 * 60, tz.utcOffset());
+        EXPECT_EQ(-5 * 60 * 60, tz.utcOffsetSecs());
     }
 }
 

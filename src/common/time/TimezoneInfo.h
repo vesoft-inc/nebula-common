@@ -52,7 +52,7 @@ public:
     }
 
     // offset in seconds
-    int32_t utcOffset() const {
+    int32_t utcOffsetSecs() const {
         return DCHECK_NOTNULL(zoneInfo_)->base_utc_offset().total_seconds();
     }
 
