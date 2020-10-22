@@ -113,6 +113,22 @@ struct Time {
                microsec == rhs.microsec;
     }
 
+    bool operator<(const Time& rhs) const {
+        if (!(hour == rhs.hour)) {
+            return hour < rhs.hour;
+        }
+        if (!(minute == rhs.minute)) {
+            return minute < rhs.minute;
+        }
+        if (!(sec == rhs.sec)) {
+            return sec < rhs.sec;
+        }
+        if (!(microsec == rhs.microsec)) {
+            return microsec < rhs.microsec;
+        }
+        return false;
+    }
+
     std::string toString() const;
 };
 
@@ -149,8 +165,8 @@ struct DateTime {
 
     void clear() {
         year = 0;
-        month = 0;
-        day = 0;
+        month = 1;
+        day = 1;
         hour = 0;
         minute = 0;
         sec = 0;
@@ -165,6 +181,30 @@ struct DateTime {
                minute == rhs.minute &&
                sec == rhs.sec &&
                microsec == rhs.microsec;
+    }
+    bool operator<(const DateTime& rhs) const {
+        if (!(year == rhs.year)) {
+            return year < rhs.year;
+        }
+        if (!(month == rhs.month)) {
+            return month < rhs.month;
+        }
+        if (!(day == rhs.day)) {
+            return day < rhs.day;
+        }
+        if (!(hour == rhs.hour)) {
+            return hour < rhs.hour;
+        }
+        if (!(minute == rhs.minute)) {
+            return minute < rhs.minute;
+        }
+        if (!(sec == rhs.sec)) {
+            return sec < rhs.sec;
+        }
+        if (!(microsec == rhs.microsec)) {
+            return microsec < rhs.microsec;
+        }
+        return false;
     }
 
     std::string toString() const;

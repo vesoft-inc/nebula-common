@@ -539,11 +539,10 @@ struct LookupIndexResp {
     //
     // When returning the data for the edge index, it follows this convention:
     // 1. The name of the first column is "_src", it's the ID of the source vertex
-    // 2. The name of the second column is "_type", it's the edge type
-    // 3. The name of the third column is "_ranking", it's the edge ranking
-    // 4. The name of the fource column is "_dst", it's the ID of the destination
+    // 2. The name of the second column is "_ranking", it's the edge ranking
+    // 3. The name of the third column is "_dst", it's the ID of the destination
     //    vertex
-    // 5. Starting from the fifth column, it's the edge property, one column per
+    // 4. Starting from the fourth column, it's the edge property, one column per
     //    peoperty. The column name is in the form of "edge_type_name.prop_name".
     //    If the vertex does NOT have the given property, the value will be a NULL
     2: optional common.DataSet          data,
@@ -569,7 +568,9 @@ struct IndexQueryContext {
     // Used for secondary filtering from a result set
     2: binary                   filter,
     // There are two types of scan: 1, range scan; 2, match scan (prefix);
-    // The columns_hints are not allowed to be empty, At least one index column must be hit.
+    // When the field size of index_id IndexItem is not zero, the columns_hints are not allowed
+    //    to be empty, At least one index column must be hit.
+    // When the field size of index_id IndexItem is zero, the columns_hints must be empty.
     3: list<IndexColumnHint>    column_hints,
 }
 
@@ -607,6 +608,66 @@ struct LookupAndTraverseRequest {
  * End of Index section
  */
 
+struct ScanVertexRequest {
+    1: common.GraphSpaceID                  space_id,
+    2: common.PartitionID                   part_id,
+    // start key of this block
+    3: optional binary                      cursor,
+    4: list<VertexProp>                     return_columns,
+    // If no_columns is true, no properties of tags will be returned,
+    // no matter what property is defined in VertexProp
+    5: bool                                 no_columns,
+    // max row count of tag in this response
+    6: i32                                  limit,
+    // only return data in time range [start_time, end_time)
+    7: optional i64                         start_time,
+    8: optional i64                         end_time,
+}
+
+struct ScanVertexResponse {
+    1: required ResponseCommon              result,
+    // The data will return as a dataset. The format is as follows:
+    // 1. First column is vertex id
+    // 2. Second column is tag id
+    // 3. Starting from the third column, is the properties specified in request.
+    //    If no_columns is true, there are only the first two columns.
+    2: common.DataSet                       vertex_data,
+    3: bool                                 has_next,
+    // next start key of scan, only valid when has_next is true
+    4: optional binary                      next_cursor,
+}
+
+struct ScanEdgeRequest {
+    1: common.GraphSpaceID                  space_id,
+    2: common.PartitionID                   part_id,
+    // start key of this block
+    3: optional binary                      cursor,
+    4: list<EdgeProp>                       return_columns,
+    // If no_columns is true, no properties of edge will be returned,
+    // no matter what property is defined in EdgeProp
+    5: bool                                 no_columns,
+    // max row count of edge in this response
+    6: i32                                  limit,
+    // only return data in time range [start_time, end_time)
+    7: optional i64                         start_time,
+    8: optional i64                         end_time,
+}
+
+struct ScanEdgeResponse {
+    1: required ResponseCommon              result,
+    // The data will return as a dataset. The format is as follows:
+    // 1. First column is src id
+    // 2. Second column is edge type
+    // 3. Third column is edge rank
+    // 4. Fourth column is dst id
+    // 5. Starting from the fifth column, is the properties specified in request.
+    //    If no_columns is true, there are only the first four columns.
+    2: common.DataSet                       edge_data,
+    3: bool                                 has_next,
+    // next start key of scan, only valid when has_next is true
+    4: optional binary                      next_cursor,
+}
+
 struct TaskPara {
     1: common.GraphSpaceID                  space_id,
     2: optional list<common.PartitionID>    parts,
@@ -641,6 +702,9 @@ service GraphStorageService {
     UpdateResponse updateVertex(1: UpdateVertexRequest req);
     UpdateResponse updateEdge(1: UpdateEdgeRequest req);
 
+    ScanVertexResponse scanVertex(1: ScanVertexRequest req)
+    ScanEdgeResponse scanEdge(1: ScanEdgeRequest req)
+
     GetUUIDResp getUUID(1: GetUUIDReq req);
 
     // Interfaces for edge and vertex index scan
@@ -669,9 +733,10 @@ struct TransLeaderReq {
 
 
 struct AddPartReq {
-    1: common.GraphSpaceID space_id,
-    2: common.PartitionID  part_id,
-    3: bool                as_learner,
+    1: common.GraphSpaceID   space_id,
+    2: common.PartitionID    part_id,
+    3: bool                  as_learner,
+    4: list<common.HostAddr> peers,
 }
 
 
