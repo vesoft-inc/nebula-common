@@ -795,7 +795,7 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].type() != Value::Type::VERTEX) {
+            if (!args[0].isVertex()) {
                 return Value::kNullBadType;
             }
             return args[0].getVertex().vid;
@@ -806,7 +806,7 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].type() != Value::Type::VERTEX) {
+            if (!args[0].isVertex()) {
                 return Value::kNullBadType;
             }
             List tags;
@@ -822,13 +822,13 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].type() == Value::Type::VERTEX) {
+            if (args[0].isVertex()) {
                 Map props;
                 for (auto &tag : args[0].getVertex().tags) {
                     props.kvs.insert(tag.props.cbegin(), tag.props.cend());
                 }
                 return Value(std::move(props));
-            } else if (args[0].type() == Value::Type::EDGE) {
+            } else if (args[0].isEdge()) {
                 Map props;
                 props.kvs = args[0].getEdge().props;
                 return Value(std::move(props));
@@ -842,7 +842,7 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].type() != Value::Type::EDGE) {
+            if (!args[0].isEdge()) {
                 return Value::kNullBadType;
             }
             return args[0].getEdge().name;
@@ -853,7 +853,7 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].type() != Value::Type::EDGE) {
+            if (!args[0].isEdge()) {
                 return Value::kNullBadType;
             }
             return args[0].getEdge().src;
@@ -864,7 +864,7 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].type() != Value::Type::EDGE) {
+            if (!args[0].isEdge()) {
                 return Value::kNullBadType;
             }
             return args[0].getEdge().dst;
@@ -875,7 +875,7 @@ FunctionManager::FunctionManager() {
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].type() != Value::Type::EDGE) {
+            if (!args[0].isEdge()) {
                 return Value::kNullBadType;
             }
             return args[0].getEdge().ranking;

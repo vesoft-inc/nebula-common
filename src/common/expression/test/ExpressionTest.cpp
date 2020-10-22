@@ -1662,7 +1662,7 @@ TEST_F(ExpressionTest, EdgeAttribute) {
     }
     {
         auto *left = new ConstantExpression(Value(edge));
-        auto *right = new LabelExpression(new std::string("_type"));
+        auto *right = new LabelExpression(new std::string(kType));
         AttributeExpression expr(left, right);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
@@ -1670,7 +1670,7 @@ TEST_F(ExpressionTest, EdgeAttribute) {
     }
     {
         auto *left = new ConstantExpression(Value(edge));
-        auto *right = new LabelExpression(new std::string("_src"));
+        auto *right = new LabelExpression(new std::string(kSrc));
         AttributeExpression expr(left, right);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
@@ -1678,7 +1678,7 @@ TEST_F(ExpressionTest, EdgeAttribute) {
     }
     {
         auto *left = new ConstantExpression(Value(edge));
-        auto *right = new LabelExpression(new std::string("_dst"));
+        auto *right = new LabelExpression(new std::string(kDst));
         AttributeExpression expr(left, right);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
@@ -1686,7 +1686,7 @@ TEST_F(ExpressionTest, EdgeAttribute) {
     }
     {
         auto *left = new ConstantExpression(Value(edge));
-        auto *right = new LabelExpression(new std::string("_rank"));
+        auto *right = new LabelExpression(new std::string(kRank));
         AttributeExpression expr(left, right);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isInt());
