@@ -38,7 +38,7 @@ using TagSchemas = std::unordered_map<TagID,
 using EdgeSchemas = std::unordered_map<EdgeType,
                                        std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
-// Space and Schema Name => IndexID
+// Space and index Name => IndexID
 // Get IndexID via space ID and index name
 using NameIndexMap = std::unordered_map<std::pair<GraphSpaceID, std::string>, IndexID>;
 
@@ -438,9 +438,9 @@ public:
     StatusOr<std::vector<std::shared_ptr<cpp2::IndexItem>>>
     getEdgeIndexesFromCache(GraphSpaceID spaceId);
 
-    Status checkTagIndexed(GraphSpaceID space, TagID tagID);
+    Status checkTagIndexed(GraphSpaceID space, IndexID indexID);
 
-    Status checkEdgeIndexed(GraphSpaceID space, EdgeType edgeType);
+    Status checkEdgeIndexed(GraphSpaceID space, IndexID indexID);
 
     const std::vector<HostAddr>& getAddresses();
 
@@ -457,6 +457,45 @@ public:
     bool authCheckFromCache(const std::string& account, const std::string& password) const;
 
     bool checkShadowAccountFromCache(const std::string& account) const;
+
+    folly::Future<StatusOr<bool>>
+    addZone(std::string zoneName, std::vector<HostAddr> nodes);
+
+    folly::Future<StatusOr<bool>>
+    dropZone(std::string zoneName);
+
+    folly::Future<StatusOr<bool>>
+    addHostIntoZone(HostAddr node, std::string zoneName);
+
+    folly::Future<StatusOr<bool>>
+    dropHostFromZone(HostAddr node, std::string zoneName);
+
+    folly::Future<StatusOr<std::vector<HostAddr>>>
+    getZone(std::string zoneName);
+
+    folly::Future<StatusOr<std::vector<cpp2::Zone>>>
+    listZones();
+
+    folly::Future<StatusOr<bool>>
+    drainZone(std::string zoneName);
+
+    folly::Future<StatusOr<bool>>
+    addGroup(std::string groupName, std::vector<std::string> zoneNames);
+
+    folly::Future<StatusOr<bool>>
+    dropGroup(std::string groupName);
+
+    folly::Future<StatusOr<bool>>
+    addZoneIntoGroup(std::string zoneName, std::string groupName);
+
+    folly::Future<StatusOr<bool>>
+    dropZoneFromGroup(std::string zoneName, std::string groupName);
+
+    folly::Future<StatusOr<std::vector<std::string>>>
+    getGroup(std::string groupName);
+
+    folly::Future<StatusOr<std::vector<cpp2::Group>>>
+    listGroups();
 
     Status refreshCache();
 
