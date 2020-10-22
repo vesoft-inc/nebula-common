@@ -21,7 +21,7 @@ const DateTime TimeUtils::kEpoch(1970, 1, 1, 0, 0, 0, 0);
 constexpr char TimeUtils::kTZdir[];
 
 /*static*/ Status TimeUtils::initializeGlobalTimezone() {
-    if (FLAGS_timezone_name != "") {
+    if (!FLAGS_timezone_name.empty()) {
         if (FLAGS_timezone_name.front() == ':') {
             // means timezone information from file
             std::vector<std::string> parts;
