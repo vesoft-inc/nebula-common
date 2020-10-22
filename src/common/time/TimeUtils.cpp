@@ -40,10 +40,10 @@ constexpr char TimeUtils::kTZdir[];
                     return Status::Error("Invalid timezone format `%s'.",
                                          FLAGS_timezone_name.c_str());
                 }
-                    auto file = fss.str();
-                    if (fs::FileUtils::fileType(file.c_str()) != fs::FileType::REGULAR) {
-                        return Status::Error("Not exists timezone file `%s'.", file.c_str());
-                    }
+            }
+            auto file = fss.str();
+            if (fs::FileUtils::fileType(file.c_str()) != fs::FileType::REGULAR) {
+                return Status::Error("Not exists timezone file `%s'.", file.c_str());
             }
         } else {
             // TODO(shylock) support the other format
