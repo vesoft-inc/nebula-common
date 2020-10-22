@@ -814,7 +814,7 @@ FunctionManager::FunctionManager() {
                     }
                 }
                 default:
-                    return Value::kNullOutOfRange;
+                    LOG(FATAL) << "Unexpected arguments count " << args.size();
             }
         };
     }
@@ -851,7 +851,7 @@ FunctionManager::FunctionManager() {
                     }
                 }
                 default:
-                    return Value::kNullOutOfRange;
+                    LOG(FATAL) << "Unexpected arguments count " << args.size();
             }
         };
     }
@@ -888,7 +888,7 @@ FunctionManager::FunctionManager() {
                     }
                 }
                 default:
-                    return Value::kNullOutOfRange;
+                    LOG(FATAL) << "Unexpected arguments count " << args.size();
             }
         };
     }
