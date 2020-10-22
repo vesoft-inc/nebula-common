@@ -42,7 +42,7 @@ public:
     template <typename D, typename = std::enable_if_t<std::is_same<D, Date>::value ||
                                                       std::is_same<D, DateTime>::value>>
     static Status validateDate(const D &date) {
-        const int64_t *p = isLeapYear(date.year) ? leapDaysSoFar : daysSoFar;
+        const int64_t *p = isLeapYear(date.year) ? kLeapDaysSoFar : kDaysSoFar;
         if ((p[date.month] - p[date.month - 1]) < date.day) {
             return Status::Error("`%s' is not a valid date.", date.toString().c_str());
         }

@@ -132,10 +132,10 @@ constexpr char TimeUtils::kTZdir[];
     /* Compute the desired time without overflowing.  */
     int64_t years = dateTime0.year - dateTime1.year;
     int64_t days = 365 * years +
-                   (isLeapYear(dateTime0.year) ? leapDaysSoFar[dateTime0.month - 1]
-                                               : daysSoFar[dateTime0.month - 1]) -
-                   (isLeapYear(dateTime1.year) ? leapDaysSoFar[dateTime1.month - 1]
-                                               : daysSoFar[dateTime1.month - 1]) +
+                   (isLeapYear(dateTime0.year) ? kLeapDaysSoFar[dateTime0.month - 1]
+                                               : kDaysSoFar[dateTime0.month - 1]) -
+                   (isLeapYear(dateTime1.year) ? kLeapDaysSoFar[dateTime1.month - 1]
+                                               : kDaysSoFar[dateTime1.month - 1]) +
                    dateTime0.day - dateTime1.day + intervening_leap_days;
     int64_t hours = 24 * days + dateTime0.hour - dateTime1.hour;
     int64_t minutes = 60 * hours + dateTime0.minute - dateTime1.minute;
@@ -180,7 +180,7 @@ constexpr char TimeUtils::kTZdir[];
     if (dt.year != y) {
         // overflow
     }
-    ip = (isLeapYear(y) ? leapDaysSoFar : daysSoFar);
+    ip = (isLeapYear(y) ? kLeapDaysSoFar : kDaysSoFar);
     for (y = 11; days < ip[y]; --y) {
         continue;
     }

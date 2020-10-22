@@ -16,8 +16,8 @@ namespace nebula {
 // In nebula only store UTC time, and the interpretion of time value based on the
 // timezone configuration in current system.
 
-extern const int64_t daysSoFar[];
-extern const int64_t leapDaysSoFar[];
+extern const int64_t kDaysSoFar[];
+extern const int64_t kLeapDaysSoFar[];
 
 struct Date {
     FRIEND_TEST(Date, DaysConversion);
