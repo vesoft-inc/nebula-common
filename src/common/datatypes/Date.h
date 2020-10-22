@@ -116,7 +116,7 @@ struct Time {
                microsec == rhs.microsec;
     }
 
-    bool operator<(const Time &rhs) const {
+    bool operator<(const Time& rhs) const {
         if (!(hour == rhs.hour)) {
             return hour < rhs.hour;
         }
@@ -125,6 +125,9 @@ struct Time {
         }
         if (!(sec == rhs.sec)) {
             return sec < rhs.sec;
+        }
+        if (!(microsec == rhs.microsec)) {
+            return microsec < rhs.microsec;
         }
         return false;
     }
@@ -185,8 +188,7 @@ struct DateTime {
                sec == rhs.sec &&
                microsec == rhs.microsec;
     }
-
-    bool operator<(const DateTime &rhs) const {
+    bool operator<(const DateTime& rhs) const {
         if (!(year == rhs.year)) {
             return year < rhs.year;
         }
@@ -204,6 +206,9 @@ struct DateTime {
         }
         if (!(sec == rhs.sec)) {
             return sec < rhs.sec;
+        }
+        if (!(microsec == rhs.microsec)) {
+            return microsec < rhs.microsec;
         }
         return false;
     }
