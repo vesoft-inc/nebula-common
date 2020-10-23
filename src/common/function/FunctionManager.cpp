@@ -12,6 +12,9 @@
 #include "common/datatypes/Map.h"
 #include "common/datatypes/Set.h"
 #include "common/datatypes/DataSet.h"
+#include "common/time/TimeUtils.h"
+#include "common/datatypes/Edge.h"
+#include "common/datatypes/Vertex.h"
 
 namespace nebula {
 
@@ -130,6 +133,32 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
               TypeSignature({Value::Type::MAP}, Value::Type::INT),
               TypeSignature({Value::Type::SET}, Value::Type::INT),
               TypeSignature({Value::Type::DATASET}, Value::Type::INT),
+             }},
+    {"time", {TypeSignature({}, Value::Type::TIME),
+              TypeSignature({Value::Type::STRING}, Value::Type::TIME),
+              TypeSignature({Value::Type::MAP}, Value::Type::TIME)}},
+    {"date", {TypeSignature({}, Value::Type::DATE),
+              TypeSignature({Value::Type::STRING}, Value::Type::DATE),
+              TypeSignature({Value::Type::MAP}, Value::Type::DATE)}},
+    {"datetime", {TypeSignature({}, Value::Type::DATETIME),
+              TypeSignature({Value::Type::STRING}, Value::Type::DATETIME),
+              TypeSignature({Value::Type::MAP}, Value::Type::DATETIME)}},
+    {"id", {TypeSignature({Value::Type::VERTEX}, Value::Type::STRING),
+             }},
+    {"tags", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
+             }},
+    {"labels", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
+             }},
+    {"properties", {TypeSignature({Value::Type::VERTEX}, Value::Type::MAP),
+                    TypeSignature({Value::Type::EDGE}, Value::Type::MAP),
+             }},
+    {"type", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
+             }},
+    {"src", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
+             }},
+    {"dst", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
+             }},
+    {"rank", {TypeSignature({Value::Type::EDGE}, Value::Type::INT),
              }},
 };
 
@@ -769,6 +798,208 @@ FunctionManager::FunctionManager() {
                     LOG(ERROR) << "size() has not been implemented for " << args[0].type();
                     return Value::kNullBadType;
             }
+        };
+    }
+    {
+        auto &attr = functions_["date"];
+        // 0 for corrent time
+        // 1 for string or map
+        attr.minArity_ = 0;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            switch (args.size()) {
+                case 0: {
+                    auto result = time::TimeUtils::utcDate();
+                    if (!result.ok()) {
+                        return Value::kNullBadData;
+                    }
+                    return Value(std::move(result).value());
+                }
+                case 1: {
+                    if (args[0].isStr()) {
+                        auto result = time::TimeUtils::parseDate(args[0].getStr());
+                        if (!result.ok()) {
+                            return Value::kNullBadData;
+                        }
+                        return time::TimeUtils::dateToUTC(result.value());
+                    } else if (args[0].isMap()) {
+                        auto result = time::TimeUtils::dateFromMap(args[0].getMap());
+                        if (!result.ok()) {
+                            return Value::kNullBadData;
+                        }
+                        return time::TimeUtils::dateToUTC(result.value());
+                    } else {
+                        return Value::kNullBadType;
+                    }
+                }
+                default:
+                    LOG(FATAL) << "Unexpected arguments count " << args.size();
+            }
+        };
+    }
+    {
+        auto &attr = functions_["time"];
+        // 0 for corrent time
+        // 1 for string or map
+        attr.minArity_ = 0;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            switch (args.size()) {
+                case 0: {
+                    auto result = time::TimeUtils::utcTime();
+                    if (!result.ok()) {
+                        return Value::kNullBadData;
+                    }
+                    return Value(std::move(result).value());
+                }
+                case 1: {
+                    if (args[0].isStr()) {
+                        auto result = time::TimeUtils::parseTime(args[0].getStr());
+                        if (!result.ok()) {
+                            return Value::kNullBadData;
+                        }
+                        return time::TimeUtils::timeToUTC(result.value());
+                    } else if (args[0].isMap()) {
+                        auto result = time::TimeUtils::timeFromMap(args[0].getMap());
+                        if (!result.ok()) {
+                            return Value::kNullBadData;
+                        }
+                        return time::TimeUtils::timeToUTC(result.value());
+                    } else {
+                        return Value::kNullBadType;
+                    }
+                }
+                default:
+                    LOG(FATAL) << "Unexpected arguments count " << args.size();
+            }
+        };
+    }
+    {
+        auto &attr = functions_["datetime"];
+        // 0 for corrent time
+        // 1 for string or map
+        attr.minArity_ = 0;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            switch (args.size()) {
+                case 0: {
+                    auto result = time::TimeUtils::utcDateTime();
+                    if (!result.ok()) {
+                        return Value::kNullBadData;
+                    }
+                    return Value(std::move(result).value());
+                }
+                case 1: {
+                    if (args[0].isStr()) {
+                        auto result = time::TimeUtils::parseDateTime(args[0].getStr());
+                        if (!result.ok()) {
+                            return Value::kNullBadData;
+                        }
+                        return time::TimeUtils::dateTimeToUTC(result.value());
+                    } else if (args[0].isMap()) {
+                        auto result = time::TimeUtils::dateTimeFromMap(args[0].getMap());
+                        if (!result.ok()) {
+                            return Value::kNullBadData;
+                        }
+                        return time::TimeUtils::dateTimeToUTC(result.value());
+                    } else {
+                        return Value::kNullBadData;
+                    }
+                }
+                default:
+                    LOG(FATAL) << "Unexpected arguments count " << args.size();
+            }
+        };
+    }
+    {
+        auto &attr = functions_["id"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isVertex()) {
+                return Value::kNullBadType;
+            }
+            return args[0].getVertex().vid;
+        };
+    }
+    {
+        auto &attr = functions_["tags"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isVertex()) {
+                return Value::kNullBadType;
+            }
+            List tags;
+            for (auto &tag : args[0].getVertex().tags) {
+                tags.emplace_back(tag.name);
+            }
+            return tags;
+        };
+        functions_["labels"] = attr;
+    }
+    {
+        auto &attr = functions_["properties"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isVertex()) {
+                Map props;
+                for (auto &tag : args[0].getVertex().tags) {
+                    props.kvs.insert(tag.props.cbegin(), tag.props.cend());
+                }
+                return Value(std::move(props));
+            } else if (args[0].isEdge()) {
+                Map props;
+                props.kvs = args[0].getEdge().props;
+                return Value(std::move(props));
+            } else {
+                return Value::kNullBadType;
+            }
+        };
+    }
+    {
+        auto &attr = functions_["type"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isEdge()) {
+                return Value::kNullBadType;
+            }
+            return args[0].getEdge().name;
+        };
+    }
+    {
+        auto &attr = functions_["src"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isEdge()) {
+                return Value::kNullBadType;
+            }
+            return args[0].getEdge().src;
+        };
+    }
+    {
+        auto &attr = functions_["dst"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isEdge()) {
+                return Value::kNullBadType;
+            }
+            return args[0].getEdge().dst;
+        };
+    }
+    {
+        auto &attr = functions_["rank"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isEdge()) {
+                return Value::kNullBadType;
+            }
+            return args[0].getEdge().ranking;
         };
     }
 }   // NOLINT

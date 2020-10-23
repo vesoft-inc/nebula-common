@@ -1642,24 +1642,61 @@ TEST_F(ExpressionTest, MapAttribute) {
 }
 
 TEST_F(ExpressionTest, EdgeAttribute) {
+    Edge edge;
+    edge.name = "type";
+    edge.src = "src";
+    edge.dst = "dst";
+    edge.ranking = 123;
+    edge.props = {
+        {"Magill", "Nancy"},
+        {"Gideon", "Bible"},
+        {"Rocky", "Raccoon"},
+    };
     {
-        Edge edge;
-        edge.props = {
-            {"Magill", "Nancy"},
-            {"Gideon", "Bible"},
-            {"Rocky", "Raccoon"},
-        };
-        auto *left = new ConstantExpression(Value(std::move(edge)));
+        auto *left = new ConstantExpression(Value(edge));
         auto *right = new LabelExpression(new std::string("Rocky"));
         AttributeExpression expr(left, right);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
         ASSERT_EQ("Raccoon", value.getStr());
     }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string(kType));
+        AttributeExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("type", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string(kSrc));
+        AttributeExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("src", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string(kDst));
+        AttributeExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("dst", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string(kRank));
+        AttributeExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isInt());
+        ASSERT_EQ(123, value.getInt());
+    }
 }
 
 TEST_F(ExpressionTest, VertexAttribute) {
     Vertex vertex;
+    vertex.vid = "vid";
     vertex.tags.resize(2);
     vertex.tags[0].props = {
         {"Venus", "Mars"},
@@ -1693,6 +1730,14 @@ TEST_F(ExpressionTest, VertexAttribute) {
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
         ASSERT_EQ("Mars", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new LabelExpression(new std::string("_vid"));
+        AttributeExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("vid", value.getStr());
     }
 }
 
@@ -1873,6 +1918,408 @@ TEST_F(ExpressionTest, RelationContains) {
     }
 }
 
+TEST_F(ExpressionTest, RelationStartsWith) {
+    {
+        // "abc" starts with "a"
+        RelationalExpression expr(
+                Expression::Kind::kStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("a"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" starts with "ab"
+        RelationalExpression expr(
+                Expression::Kind::kStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("ab"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "1234"" starts with "12"
+        RelationalExpression expr(
+                Expression::Kind::kStartsWith,
+                new ConstantExpression("1234"),
+                new ConstantExpression("12"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "1234"" starts with "34"
+        RelationalExpression expr(
+                Expression::Kind::kStartsWith,
+                new ConstantExpression("1234"),
+                new ConstantExpression("34"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" starts with "bc"
+        RelationalExpression expr(
+                Expression::Kind::kStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("bc"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" starts with "ac"
+        RelationalExpression expr(
+                Expression::Kind::kStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("ac"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" starts with "AB"
+        RelationalExpression expr(
+                Expression::Kind::kStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("AB"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" starts with 1
+        RelationalExpression expr(
+                Expression::Kind::kStartsWith,
+                new ConstantExpression("abc1"),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        // 1234 starts with 1
+        RelationalExpression expr(
+                Expression::Kind::kStartsWith,
+                new ConstantExpression(1234),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+}
+
+TEST_F(ExpressionTest, RelationNotStartsWith) {
+    {
+        // "abc" not starts with "a"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("a"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" not starts with "ab"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("ab"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "1234"" not starts with "12"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("1234"),
+                new ConstantExpression("12"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "1234"" not starts with "34"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("1234"),
+                new ConstantExpression("34"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not starts with "bc"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("bc"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not starts with "ac"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("ac"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not starts with "AB"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("AB"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not starts with 1
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("abc1"),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        // 1234 not starts with 1
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression(1234),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+}
+
+TEST_F(ExpressionTest, RelationEndsWith) {
+    {
+        // "abc" ends with "a"
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("a"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" ends with "ab"
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("ab"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "1234"" ends with "12"
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression("1234"),
+                new ConstantExpression("12"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "1234"" ends with "34"
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression("1234"),
+                new ConstantExpression("34"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" ends with "bc"
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("bc"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" ends with "ac"
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("ac"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" ends with "AB"
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("AB"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" ends with "BC"
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("BC"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" ends with 1
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression("abc1"),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        // 1234 ends with 1
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression(1234),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        // "steve jobs" ends with "jobs"
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression("steve jobs"),
+                new ConstantExpression("jobs"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+}
+
+TEST_F(ExpressionTest, RelationNotEndsWith) {
+    {
+        // "abc" not ends with "a"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("a"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not ends with "ab"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("ab"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "1234"" not ends with "12"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("1234"),
+                new ConstantExpression("12"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "1234"" not ends with "34"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("1234"),
+                new ConstantExpression("34"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" not ends with "bc"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("bc"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" not ends with "ac"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("ac"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not ends with "AB"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("AB"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not ends with "BC"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("BC"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not ends with 1
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc1"),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        // 1234 not ends with 1
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression(1234),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+}
+
 TEST_F(ExpressionTest, ContainsToString) {
     {
         // "abc" contains "a"
@@ -1881,6 +2328,17 @@ TEST_F(ExpressionTest, ContainsToString) {
                 new ConstantExpression("abc"),
                 new ConstantExpression("a"));
         ASSERT_EQ("(abc CONTAINS a)", expr.toString());
+    }
+}
+
+TEST_F(ExpressionTest, NotContainsToString) {
+    {
+        // "abc" not contains "a"
+        RelationalExpression expr(
+                Expression::Kind::kNotContains,
+                new ConstantExpression("abc"),
+                new ConstantExpression("a"));
+        ASSERT_EQ("(abc NOT CONTAINS a)", expr.toString());
     }
 }
 

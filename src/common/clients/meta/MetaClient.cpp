@@ -23,7 +23,6 @@ DEFINE_int32(meta_client_timeout_ms, 60 * 1000,
              "meta client timeout");
 DEFINE_string(cluster_id_path, "cluster.id",
               "file path saved clusterId");
-DECLARE_string(gflags_mode_json);
 
 
 namespace nebula {
@@ -288,19 +287,33 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     TagSchemas tagSchemas;
     EdgeSchemas edgeSchemas;
     TagID lastTagId = -1;
+
+    auto addSchemaField = [] (NebulaSchemaProvider *schema, const cpp2::ColumnDef &col) {
+        bool hasDef = col.__isset.default_value;
+        auto& colType = col.get_type();
+        size_t len = colType.__isset.type_length ? *colType.get_type_length() : 0;
+        bool nullable = col.__isset.nullable ? *col.get_nullable() : false;
+        std::unique_ptr<Expression> defaultValueExpr;
+        if (hasDef) {
+            defaultValueExpr = Expression::decode(*col.get_default_value());
+            if (defaultValueExpr == nullptr) {
+                LOG(ERROR) << "Wrong expr default value for column name: " << col.get_name();
+                hasDef = false;
+            }
+        }
+
+        schema->addField(col.get_name(),
+                         colType.get_type(),
+                         len,
+                         nullable,
+                         hasDef ? defaultValueExpr.release() : nullptr);
+    };
+
     for (auto& tagIt : tagItemVec) {
         // meta will return the different version from new to old
         auto schema = std::make_shared<NebulaSchemaProvider>(tagIt.version);
-        for (auto &colIt : tagIt.schema.get_columns()) {
-            bool hasDef = colIt.__isset.default_value;
-            auto& colType = colIt.get_type();
-            size_t len = colType.__isset.type_length ? *colType.get_type_length() : 0;
-            bool nullable = colIt.__isset.nullable ? *colIt.get_nullable() : false;
-            schema->addField(colIt.get_name(),
-                             colType.get_type(),
-                             len,
-                             nullable,
-                             hasDef ? *colIt.get_default_value() : Value());
+        for (const auto& colIt : tagIt.schema.get_columns()) {
+            addSchemaField(schema.get(), colIt);
         }
         // handle schema property
         schema->setProp(tagIt.schema.get_schema_prop());
@@ -332,16 +345,8 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     for (auto& edgeIt : edgeItemVec) {
         // meta will return the different version from new to old
         auto schema = std::make_shared<NebulaSchemaProvider>(edgeIt.version);
-        for (auto &col : edgeIt.schema.get_columns()) {
-            bool hasDef = col.__isset.default_value;
-            auto& colType = col.get_type();
-            size_t len = colType.__isset.type_length ? *colType.get_type_length() : 0;
-            bool nullable = col.__isset.nullable ? *col.get_nullable() : false;
-            schema->addField(col.get_name(),
-                             colType.get_type(),
-                             len,
-                             nullable,
-                             hasDef ? *col.get_default_value() : Value());
+        for (const auto& col : edgeIt.schema.get_columns()) {
+            addSchemaField(schema.get(), col);
         }
         // handle shcem property
         schema->setProp(edgeIt.schema.get_schema_prop());
@@ -422,12 +427,12 @@ bool MetaClient::loadIndexes(GraphSpaceID spaceId,
 }
 
 
-Status MetaClient::checkTagIndexed(GraphSpaceID space, TagID tagID) {
+Status MetaClient::checkTagIndexed(GraphSpaceID space, IndexID indexID) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = localCache_.find(space);
     if (it != localCache_.end()) {
-        auto tagIt = it->second->tagIndexes_.find(tagID);
-        if (tagIt != it->second->tagIndexes_.end()) {
+        auto indexIt = it->second->tagIndexes_.find(indexID);
+        if (indexIt != it->second->tagIndexes_.end()) {
             return Status::OK();
         } else {
             return Status::IndexNotFound();
@@ -437,12 +442,12 @@ Status MetaClient::checkTagIndexed(GraphSpaceID space, TagID tagID) {
 }
 
 
-Status MetaClient::checkEdgeIndexed(GraphSpaceID space, EdgeType edgeType) {
+Status MetaClient::checkEdgeIndexed(GraphSpaceID space, IndexID indexID) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto it = localCache_.find(space);
     if (it != localCache_.end()) {
-        auto edgeIt = it->second->edgeIndexes_.find(edgeType);
-        if (edgeIt != it->second->edgeIndexes_.end()) {
+        auto indexIt = it->second->edgeIndexes_.find(indexID);
+        if (indexIt != it->second->edgeIndexes_.end()) {
             return Status::OK();
         } else {
             return Status::IndexNotFound();
@@ -543,7 +548,6 @@ void MetaClient::getResponse(Request req,
             if (resp.code == cpp2::ErrorCode::SUCCEEDED) {
                 // succeeded
                 pro.setValue(respGen(std::move(resp)));
-
                 return;
             } else if (resp.code == cpp2::ErrorCode::E_LEADER_CHANGED) {
                 updateLeader(resp.get_leader());
@@ -589,46 +593,82 @@ Status MetaClient::handleResponse(const RESP& resp) {
     switch (resp.get_code()) {
         case cpp2::ErrorCode::SUCCEEDED:
             return Status::OK();
+        case cpp2::ErrorCode::E_DISCONNECTED:
+            return Status::Error("disconnected!");
+        case cpp2::ErrorCode::E_FAIL_TO_CONNECT:
+            return Status::Error("fail to connect!");
+        case cpp2::ErrorCode::E_RPC_FAILURE:
+            return Status::Error("rpc failure!");
+        case cpp2::ErrorCode::E_LEADER_CHANGED:
+            return Status::LeaderChanged("Leader changed!");
+        case cpp2::ErrorCode::E_NO_HOSTS:
+            return Status::Error("no hosts!");
         case cpp2::ErrorCode::E_EXISTED:
             return Status::Error("existed!");
         case cpp2::ErrorCode::E_NOT_FOUND:
             return Status::Error("not existed!");
-        case cpp2::ErrorCode::E_NO_HOSTS:
-            return Status::Error("no hosts!");
-        case cpp2::ErrorCode::E_CONFIG_IMMUTABLE:
-            return Status::Error("Config immutable");
-        case cpp2::ErrorCode::E_CONFLICT:
-            return Status::Error("conflict!");
-        case cpp2::ErrorCode::E_WRONGCLUSTER:
-            return Status::Error("wrong cluster!");
-        case cpp2::ErrorCode::E_LEADER_CHANGED:
-            return Status::LeaderChanged("Leader changed!");
-        case cpp2::ErrorCode::E_BALANCED:
-            return Status::Error("The cluster is balanced!");
+        case cpp2::ErrorCode::E_INVALID_HOST:
+            return Status::Error("invalid host!");
+        case cpp2::ErrorCode::E_UNSUPPORTED:
+            return Status::Error("unsupported!");
+        case cpp2::ErrorCode::E_NOT_DROP:
+            return Status::Error("not drop!");
         case cpp2::ErrorCode::E_BALANCER_RUNNING:
             return Status::Error("The balancer is running!");
+        case cpp2::ErrorCode::E_CONFIG_IMMUTABLE:
+            return Status::Error("Config immutable!");
+        case cpp2::ErrorCode::E_CONFLICT:
+            return Status::Error("conflict!");
+        case cpp2::ErrorCode::E_INVALID_PARM:
+            return Status::Error("invalid parm!");
+        case cpp2::ErrorCode::E_WRONGCLUSTER:
+            return Status::Error("wrong cluster!");
+        case cpp2::ErrorCode::E_STORE_FAILURE:
+            return Status::Error("store failure!");
+        case cpp2::ErrorCode::E_STORE_SEGMENT_ILLEGAL:
+            return Status::Error("store segment illegal!");
         case cpp2::ErrorCode::E_BAD_BALANCE_PLAN:
             return Status::Error("Bad balance plan!");
+        case cpp2::ErrorCode::E_BALANCED:
+            return Status::Error("The cluster is balanced!");
         case cpp2::ErrorCode::E_NO_RUNNING_BALANCE_PLAN:
             return Status::Error("No running balance plan!");
         case cpp2::ErrorCode::E_NO_VALID_HOST:
-            return Status::Error("No valid host hold the partition");
+            return Status::Error("No valid host hold the partition!");
         case cpp2::ErrorCode::E_CORRUPTTED_BALANCE_PLAN:
-            return Status::Error("No corrupted blance plan");
-        case cpp2::ErrorCode::E_INVALID_PARTITION_NUM:
-            return Status::Error("No valid partition_num");
-        case cpp2::ErrorCode::E_INVALID_REPLICA_FACTOR:
-            return Status::Error("No valid replica_factor");
-        case cpp2::ErrorCode::E_INVALID_CHARSET:
-            return Status::Error("No valid charset");
-        case cpp2::ErrorCode::E_INVALID_COLLATE:
-            return Status::Error("No valid collate");
-        case cpp2::ErrorCode::E_CHARSET_COLLATE_NOT_MATCH:
-            return Status::Error("Charset and collate not match");
+            return Status::Error("No corrupted blance plan!");
         case cpp2::ErrorCode::E_INVALID_PASSWORD:
-            return Status::Error("Invalid password");
+            return Status::Error("Invalid password!");
         case cpp2::ErrorCode::E_IMPROPER_ROLE:
-            return Status::Error("Improper role");
+            return Status::Error("Improper role!");
+        case cpp2::ErrorCode::E_INVALID_PARTITION_NUM:
+            return Status::Error("No valid partition_num!");
+        case cpp2::ErrorCode::E_INVALID_REPLICA_FACTOR:
+            return Status::Error("No valid replica_factor!");
+        case cpp2::ErrorCode::E_INVALID_CHARSET:
+            return Status::Error("No valid charset!");
+        case cpp2::ErrorCode::E_INVALID_COLLATE:
+            return Status::Error("No valid collate!");
+        case cpp2::ErrorCode::E_CHARSET_COLLATE_NOT_MATCH:
+            return Status::Error("Charset and collate not match!");
+        case cpp2::ErrorCode::E_SNAPSHOT_FAILURE:
+            return Status::Error("snapshot failure!");
+        case cpp2::ErrorCode::E_BLOCK_WRITE_FAILURE:
+            return Status::Error("block write failure!");
+        case cpp2::ErrorCode::E_REBUILD_INDEX_FAILURE:
+            return Status::Error("rebuild index failure!");
+        case cpp2::ErrorCode::E_INDEX_WITH_TTL:
+            return Status::Error("index with ttl!");
+        case cpp2::ErrorCode::E_ADD_JOB_FAILURE:
+            return Status::Error("add job failure!");
+        case cpp2::ErrorCode::E_STOP_JOB_FAILURE:
+            return Status::Error("stop job failure!");
+        case cpp2::ErrorCode::E_SAVE_JOB_FAILURE:
+            return Status::Error("save job failure!");
+        case cpp2::ErrorCode::E_BALANCER_FAILURE:
+            return Status::Error("balancer failure!");
+        case cpp2::ErrorCode::E_UNKNOWN:
+            return Status::Error("unknown!");
         default:
             return Status::Error("Unknown code %d", static_cast<int32_t>(resp.get_code()));
     }
@@ -757,7 +797,7 @@ MetaClient::submitJob(cpp2::AdminJobOp op, cpp2::AdminCmd cmd, std::vector<std::
                     return client->future_runAdminJob(request);
                 }, [] (cpp2::AdminJobResp&& resp) -> decltype(auto) {
                     return resp.get_result();
-                }, std::move(promise));
+                }, std::move(promise), true);
     return future;
 }
 
@@ -1641,7 +1681,8 @@ StatusOr<int32_t> MetaClient::getSpaceVidLen(const GraphSpaceID& spaceId) {
         LOG(ERROR) << "Space " << spaceId << " not found!";
         return Status::Error("Space %d not found", spaceId);
     }
-    auto vIdLen = spaceIt->second->spaceDesc_.vid_size;
+    auto& vidType = spaceIt->second->spaceDesc_.vid_type;
+    auto vIdLen = vidType.__isset.type_length ? *vidType.get_type_length() : 0;
     if (vIdLen <= 0) {
         return Status::Error("Space %d vertexId length invalid", spaceId);
     }
@@ -1658,7 +1699,7 @@ StatusOr<cpp2::PropertyType> MetaClient::getSpaceVidType(const GraphSpaceID& spa
         LOG(ERROR) << "Space " << spaceId << " not found!";
         return Status::Error("Space %d not found", spaceId);
     }
-    auto vIdType = spaceIt->second->spaceDesc_.vid_type;
+    auto vIdType = spaceIt->second->spaceDesc_.vid_type.get_type();
     if (vIdType != cpp2::PropertyType::INT64 && vIdType != cpp2::PropertyType::FIXED_STRING) {
         std::stringstream ss;
         ss << "Space " << spaceId << ", vertexId type invalid: "
@@ -2427,7 +2468,7 @@ MetaClient::setConfig(const cpp2::ConfigModule& module,
                 [] (auto client, auto request) {
                     return client->future_setConfig(request);
                 },
-                [] (cpp2::ExecResp&& resp) -> decltype(auto) {
+                [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
@@ -2497,7 +2538,7 @@ folly::Future<StatusOr<std::vector<cpp2::Snapshot>>> MetaClient::listSnapshots()
                 [] (auto client, auto request) {
                     return client->future_listSnapshots(request);
                 },
-                [] (cpp2::ListSnapshotsResp&& resp) -> decltype(auto){
+                [] (cpp2::ListSnapshotsResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_snapshots();
                 },
                 std::move(promise));
@@ -2627,6 +2668,251 @@ StatusOr<LeaderMap> MetaClient::loadLeader() {
     }
     LOG(INFO) << "Load leader ok";
     return leaderMap;
+}
+
+folly::Future<StatusOr<bool>>
+MetaClient::addZone(std::string zoneName, std::vector<HostAddr> nodes) {
+    cpp2::AddZoneReq req;
+    req.set_zone_name(std::move(zoneName));
+    req.set_nodes(std::move(nodes));
+
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_addZone(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+folly::Future<StatusOr<bool>>
+MetaClient::dropZone(std::string zoneName) {
+    cpp2::DropZoneReq req;
+    req.set_zone_name(std::move(zoneName));
+
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_dropZone(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+folly::Future<StatusOr<bool>>
+MetaClient::addHostIntoZone(HostAddr node, std::string zoneName) {
+    cpp2::AddHostIntoZoneReq req;
+    req.set_node(node);
+    req.set_zone_name(zoneName);
+
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_addHostIntoZone(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+folly::Future<StatusOr<bool>>
+MetaClient::dropHostFromZone(HostAddr node, std::string zoneName) {
+    cpp2::DropHostFromZoneReq req;
+    req.set_node(node);
+    req.set_zone_name(zoneName);
+
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_dropHostFromZone(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+folly::Future<StatusOr<bool>>
+MetaClient::drainZone(std::string zoneName) {
+    cpp2::DrainZoneReq req;
+    req.set_zone_name(std::move(zoneName));
+
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_drainZone(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+folly::Future<StatusOr<std::vector<HostAddr>>>
+MetaClient::getZone(std::string zoneName) {
+    cpp2::GetZoneReq req;
+    req.set_zone_name(std::move(zoneName));
+
+    folly::Promise<StatusOr<std::vector<HostAddr>>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_getZone(request);
+                },
+                [] (cpp2::GetZoneResp&& resp) -> decltype(auto) {
+                    return resp.get_hosts();
+                },
+                std::move(promise));
+    return future;
+}
+
+folly::Future<StatusOr<std::vector<cpp2::Zone>>>
+MetaClient::listZones() {
+    cpp2::ListZonesReq req;
+    folly::Promise<StatusOr<std::vector<cpp2::Zone>>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_listZones(request);
+                },
+                [] (cpp2::ListZonesResp&& resp) -> decltype(auto) {
+                    return resp.get_zones();
+                },
+                std::move(promise));
+    return future;
+}
+
+folly::Future<StatusOr<bool>>
+MetaClient::addGroup(std::string groupName, std::vector<std::string> zoneNames) {
+    cpp2::AddGroupReq req;
+    req.set_group_name(std::move(groupName));
+    req.set_zone_names(std::move(zoneNames));
+
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_addGroup(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+folly::Future<StatusOr<bool>>
+MetaClient::dropGroup(std::string groupName) {
+    cpp2::DropGroupReq req;
+    req.set_group_name(std::move(groupName));
+
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_dropGroup(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+folly::Future<StatusOr<bool>>
+MetaClient::addZoneIntoGroup(std::string zoneName, std::string groupName) {
+    cpp2::AddZoneIntoGroupReq req;
+    req.set_zone_name(zoneName);
+    req.set_group_name(groupName);
+
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_addZoneIntoGroup(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+folly::Future<StatusOr<bool>>
+MetaClient::dropZoneFromGroup(std::string zoneName, std::string groupName) {
+    cpp2::DropZoneFromGroupReq req;
+    req.set_zone_name(zoneName);
+    req.set_group_name(groupName);
+
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_dropZoneFromGroup(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+folly::Future<StatusOr<std::vector<std::string>>>
+MetaClient::getGroup(std::string groupName) {
+    cpp2::GetGroupReq req;
+    req.set_group_name(std::move(groupName));
+
+    folly::Promise<StatusOr<std::vector<std::string>>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_getGroup(request);
+                },
+                [] (cpp2::GetGroupResp&& resp) -> decltype(auto) {
+                    return resp.get_zone_names();
+                },
+                std::move(promise));
+    return future;
+}
+
+folly::Future<StatusOr<std::vector<cpp2::Group>>>
+MetaClient::listGroups() {
+    cpp2::ListGroupsReq req;
+    folly::Promise<StatusOr<std::vector<cpp2::Group>>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_listGroups(request);
+                },
+                [] (cpp2::ListGroupsResp&& resp) -> decltype(auto) {
+                    return resp.get_groups();
+                },
+                std::move(promise));
+    return future;
 }
 
 }  // namespace meta

@@ -71,7 +71,7 @@ struct Step {
         return *this;
     }
 
-    Step& operator=(Step& rhs) noexcept {
+    Step& operator=(const Step& rhs) noexcept {
         if (&rhs != this) {
             dst = rhs.dst;
             type = rhs.type;
@@ -87,6 +87,22 @@ struct Step {
                type == rhs.type &&
                ranking == rhs.ranking &&
                props == rhs.props;
+    }
+
+    bool operator<(const Step& rhs) const {
+        if (dst != rhs.dst) {
+            return dst < rhs.dst;
+        }
+        if (type != rhs.dst) {
+            return type < rhs.type;
+        }
+        if (ranking != rhs.ranking) {
+            return ranking < rhs.ranking;
+        }
+        if (props.size() != rhs.props.size()) {
+            return props.size() < rhs.props.size();
+        }
+        return false;
     }
 };
 
@@ -116,6 +132,22 @@ struct Path {
         return os.str();
     }
 
+    Path& operator=(Path&& rhs) noexcept {
+        if (&rhs != this) {
+            src = std::move(rhs.src);
+            steps = std::move(rhs.steps);
+        }
+        return *this;
+    }
+
+    Path& operator=(const Path& rhs) noexcept {
+        if (&rhs != this) {
+            src = rhs.src;
+            steps = rhs.steps;
+        }
+        return *this;
+    }
+
     bool operator==(const Path& rhs) const {
         return src == rhs.src &&
                steps == rhs.steps;
@@ -130,6 +162,16 @@ struct Path {
     // Append a path to another one.
     // 5->4>3 appended by 3->2->1 => 5->4->3->2->1
     bool append(Path path);
+
+    bool operator<(const Path& rhs) const {
+        if (src != rhs.src) {
+            return src < rhs.src;
+        }
+        if (steps != rhs.steps) {
+            return steps < rhs.steps;
+        }
+        return false;
+    }
 };
 
 inline void swap(Step& a, Step& b) {
