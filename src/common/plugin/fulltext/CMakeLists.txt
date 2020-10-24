@@ -9,11 +9,6 @@ nebula_add_library(
 )
 
 nebula_add_library(
-    ft_es_meta_adapter_obj OBJECT
-    elasticsearch/ESMetaAdapter.cpp
-)
-
-nebula_add_library(
     ft_es_storage_adapter_obj OBJECT
     elasticsearch/ESStorageAdapter.cpp
 )

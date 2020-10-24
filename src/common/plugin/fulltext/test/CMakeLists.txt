@@ -16,7 +16,6 @@ nebula_add_test(
         $<TARGET_OBJECTS:process_obj>
         $<TARGET_OBJECTS:ft_es_storage_adapter_obj>
         $<TARGET_OBJECTS:ft_es_graph_adapter_obj>
-        $<TARGET_OBJECTS:ft_es_meta_adapter_obj>
     LIBRARIES
         ${THRIFT_LIBRARIES}
         proxygenlib

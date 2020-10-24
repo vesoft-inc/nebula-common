@@ -13,14 +13,7 @@ namespace plugin {
 std::unique_ptr<FTGraphAdapter> ESGraphAdapter::kAdapter =
     std::unique_ptr<ESGraphAdapter>(new ESGraphAdapter());
 
-bool ESGraphAdapter::result(const std::string& ret,
-                            const std::string& cmd,
-                            std::vector<std::string>& rows) const {
-    if (ret.empty()) {
-        LOG(ERROR) << "command failed : " << cmd;
-        LOG(ERROR) << ret;
-        return false;
-    }
+bool ESGraphAdapter::result(const std::string& ret, std::vector<std::string>& rows) const {
     auto root = folly::parseJson(ret);
     auto rootHits = root.find("hits");
     if (rootHits != root.items().end()) {
@@ -42,67 +35,73 @@ bool ESGraphAdapter::result(const std::string& ret,
         }
         return true;
     }
-    LOG(ERROR) << "command failed : " << cmd;
+    LOG(ERROR) << "error reason : " << ret;
     LOG(ERROR) << ret;
     return false;
 }
 
-bool ESGraphAdapter::prefix(const HttpClient& client,
-                            const DocItem& item,
-                            const LimitItem& limit,
-                            std::vector<std::string>& rows) const {
+StatusOr<bool> ESGraphAdapter::prefix(const HttpClient& client,
+                                      const DocItem& item,
+                                      const LimitItem& limit,
+                                      std::vector<std::string>& rows) const {
     std::string cmd = header(client, item, limit) +
                       body(item, limit.maxRows_, FT_SEARCH_OP::kPrefix);
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
-    if (!ret.ok()) {
-        LOG(ERROR) << "Http PUT Failed: " << cmd;
-        return false;
+    if (!ret.ok() || ret.value().empty()) {
+        LOG(ERROR) << "command failed : " << cmd;
+        return Status::Error("command failed : %s", cmd.c_str());
     }
-    return result(ret.value(), cmd, rows);
+    return result(ret.value(), rows);
 }
 
-bool ESGraphAdapter::wildcard(const HttpClient& client,
+StatusOr<bool> ESGraphAdapter::wildcard(const HttpClient& client,
                               const DocItem& item,
                               const LimitItem& limit,
                               std::vector<std::string>& rows) const {
     std::string cmd = header(client, item, limit) +
                       body(item, limit.maxRows_, FT_SEARCH_OP::kWildcard);
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
-    if (!ret.ok()) {
+    if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http PUT Failed: " << cmd;
-        return false;
+        return Status::Error("command failed : %s", cmd.c_str());
     }
-    return result(ret.value(), cmd, rows);
+    return result(ret.value(), rows);
 }
 
-bool ESGraphAdapter::regexp(const HttpClient& client,
-                            const DocItem& item,
-                            const LimitItem& limit,
-                            std::vector<std::string>& rows) const {
+StatusOr<bool> ESGraphAdapter::regexp(const HttpClient& client,
+                                      const DocItem& item,
+                                      const LimitItem& limit,
+                                      std::vector<std::string>& rows) const {
     std::string cmd = header(client, item, limit) +
                       body(item, limit.maxRows_, FT_SEARCH_OP::kRegexp);
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
-    if (!ret.ok()) {
+    if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http PUT Failed: " << cmd;
-        return false;
+        return Status::Error("command failed : %s", cmd.c_str());
     }
-    return result(ret.value(), cmd, rows);
+    return result(ret.value(), rows);
 }
 
-bool ESGraphAdapter::fuzzy(const HttpClient& client,
-                           const DocItem& item,
-                           const LimitItem& limit,
-                           const folly::dynamic& fuzziness,
-                           const std::string& op,
-                           std::vector<std::string>& rows) const {
+StatusOr<bool> ESGraphAdapter::fuzzy(const HttpClient& client,
+                                     const DocItem& item,
+                                     const LimitItem& limit,
+                                     const folly::dynamic& fuzziness,
+                                     const std::string& op,
+                                     std::vector<std::string>& rows) const {
     std::string cmd = header(client, item, limit) +
                       body(item, limit.maxRows_, FT_SEARCH_OP::kFuzzy, fuzziness, op);
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
-    if (!ret.ok()) {
+    if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http PUT Failed: " << cmd;
-        return false;
+        return Status::Error("command failed : %s", cmd.c_str());
     }
-    return result(ret.value(), cmd, rows);
+    return result(ret.value(), rows);
+}
+
+std::string ESGraphAdapter::header() const noexcept {
+    std::stringstream os;
+    os << CURL << CURL_CONTENT_JSON;
+    return os.str();
 }
 
 std::string ESGraphAdapter::header(const HttpClient& client,
@@ -194,5 +193,86 @@ folly::dynamic ESGraphAdapter::fuzzyBody(const std::string& regexp,
     return folly::dynamic::object("match", value);
 }
 
+
+StatusOr<bool> ESGraphAdapter::createIndex(const HttpClient& client,
+                                           const std::string& index,
+                                           const std::string&) const {
+    // curl -H "Content-Type: application/json; charset=utf-8"
+    //      -XPUT "http://127.0.0.1:9200/index_exist"
+    std::string cmd = createIndexCmd(client, index);
+    auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
+    if (!ret.ok() || ret.value().empty()) {
+        LOG(ERROR) << "Http PUT Failed: " << cmd;
+        return Status::Error("command failed : %s", cmd.c_str());
+    }
+    return statusCheck(ret.value());
+}
+
+std::string ESGraphAdapter::createIndexCmd(const HttpClient& client,
+    const std::string& index, const std::string&) const noexcept {
+    std::stringstream os;
+    os << header() << XPUT << client.toString() << index << "\"";
+    return os.str();
+}
+
+StatusOr<bool> ESGraphAdapter::dropIndex(const HttpClient& client,
+                                         const std::string& index) const {
+    // curl -H "Content-Type: application/json; charset=utf-8"
+    //      -XPUT "http://127.0.0.1:9200/index_exist"
+    std::string cmd = dropIndexCmd(client, index);
+    auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
+    if (!ret.ok() || ret.value().empty()) {
+        LOG(ERROR) << "Http PUT Failed: " << cmd;
+        return Status::Error("command failed : %s", cmd.c_str());
+    }
+    return statusCheck(ret.value());
+}
+
+std::string ESGraphAdapter::dropIndexCmd(const HttpClient& client,
+    const std::string& index) const noexcept {
+    std::stringstream os;
+    os << header() << XDELETE << client.toString() << index << "\"";
+    return os.str();
+}
+
+StatusOr<bool> ESGraphAdapter::indexExists(const HttpClient& client,
+                                           const std::string& index) const {
+    // curl -H "Content-Type: application/json; charset=utf-8"
+    // -XGET "http://127.0.0.1:9200/_cat/indices/index_exist?format=json"
+    std::string cmd = indexExistsCmd(client, index);
+    auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
+    if (!ret.ok() || ret.value().empty()) {
+        LOG(ERROR) << "Http GET Failed: " << cmd;
+        return Status::Error("command failed : %s", cmd.c_str());
+    }
+    return indexCheck(ret.value());
+}
+
+std::string ESGraphAdapter::indexExistsCmd(const HttpClient& client,
+                                           const std::string& index) const noexcept {
+    std::stringstream os;
+    os << header() << XGET << client.toString()
+    << "_cat/indices/" << index << "?format=json" << "\"";
+    return os.str();
+}
+
+bool ESGraphAdapter::statusCheck(const std::string& ret) const {
+    auto root = folly::parseJson(ret);
+    auto result = root.find("acknowledged");
+    if (result != root.items().end() && result->second.isBool() && result->second.getBool()) {
+        return true;
+    }
+    LOG(ERROR) << "error reason : " << ret;
+    return false;
+}
+
+bool ESGraphAdapter::indexCheck(const std::string& ret) const {
+    auto root = folly::parseJson(ret);
+    auto exists = root.find("index");
+    if (exists != root.items().end()) {
+        return true;
+    }
+    return false;
+}
 }  // namespace plugin
 }  // namespace nebula

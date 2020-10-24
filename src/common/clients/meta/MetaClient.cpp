@@ -173,6 +173,11 @@ bool MetaClient::loadData() {
         return false;
     }
 
+    if (!loadFulltextClients()) {
+        LOG(ERROR) << "Load fulltext services Failed";
+        return false;
+    }
+
     auto ret = listSpaces().get();
     if (!ret.ok()) {
         LOG(ERROR) << "List space failed, status:" << ret.status();
@@ -448,6 +453,22 @@ bool MetaClient::loadListeners(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCa
     cache->listeners_ = std::move(listeners);
     return true;
 }
+
+bool MetaClient::loadFulltextClients() {
+     auto ftRet = listFTClients().get();
+     if (!ftRet.ok()) {
+         LOG(ERROR) << "List fulltext services failed, status:" << ftRet.status();
+         return false;
+     }
+     decltype(fulltextClientList_)    serviceClients;
+     serviceClients = ftRet.value();
+     {
+         folly::RWSpinLock::WriteHolder holder(localCacheLock_);
+         fulltextClientList_ = std::move(serviceClients);
+     }
+     return true;
+ }
+
 
 Status MetaClient::checkTagIndexed(GraphSpaceID space, IndexID indexID) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
@@ -3224,9 +3245,70 @@ MetaClient::getStatis(GraphSpaceID spaceId) {
                 [] (cpp2::GetStatisResp&& resp) -> cpp2::StatisItem {
                     return std::move(resp).get_statis();
                 },
+                std::move(promise),
+                true);
+    return future;
+}
+		    
+folly::Future<StatusOr<bool>> MetaClient::signInFTService(
+    cpp2::FTServiceType type, const std::vector<cpp2::FTClient>& clients) {
+    cpp2::SignInFTServiceReq req;
+    req.set_type(type);
+    req.set_clients(clients);
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_signInFTService(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+
+folly::Future<StatusOr<bool>> MetaClient::signOutFTService() {
+    cpp2::SignOutFTServiceReq req;
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_signOutFTService(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+
+folly::Future<StatusOr<std::vector<cpp2::FTClient>>>
+MetaClient::listFTClients() {
+    cpp2::ListFTClientsReq req;
+    folly::Promise<StatusOr<std::vector<cpp2::FTClient>>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_listFTClients(request);
+                },
+                [] (cpp2::ListFTClientsResp&& resp) -> decltype(auto){
+                    return std::move(resp).get_clients();
+                },
                 std::move(promise));
     return future;
 }
 
+
+StatusOr<std::vector<cpp2::FTClient>> MetaClient::getFTClientsFromCache() {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    return fulltextClientList_;
+}
 }  // namespace meta
 }  // namespace nebula

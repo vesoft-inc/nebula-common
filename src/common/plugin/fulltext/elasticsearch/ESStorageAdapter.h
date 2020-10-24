@@ -20,9 +20,9 @@ class ESStorageAdapter final : public FTStorageAdapter {
 public:
     static std::unique_ptr<FTStorageAdapter> kAdapter;
 
-    bool put(const HttpClient& client, const DocItem& item) const override;
+    StatusOr<bool> put(const HttpClient& client, const DocItem& item) const override;
 
-    bool bulk(const HttpClient& client, const std::vector<DocItem>& items) const override;
+    StatusOr<bool> bulk(const HttpClient& client, const std::vector<DocItem>& items) const override;
 
 private:
     ESStorageAdapter() {}

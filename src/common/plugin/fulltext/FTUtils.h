@@ -36,6 +36,7 @@ struct HttpClient {
     std::string user;
     std::string password;
 
+    HttpClient() = default;
     ~HttpClient() = default;
 
     HttpClient(HttpClient&& v) noexcept
@@ -112,6 +113,24 @@ struct DocItem {
 
     DocItem(std::string&& idx,
             std::string&& col,
+            int32_t&& sc,
+            std::string&& v)
+    : index(std::move(idx))
+    , column(std::move(col))
+    , schema(std::move(sc))
+    , val(std::move(v)) {}
+
+    DocItem(const std::string& idx,
+            const std::string& col,
+            const int32_t& sc,
+            const std::string& v)
+        : index(idx)
+        , column(col)
+        , schema(sc)
+        , val(v) {}
+
+    DocItem(std::string&& idx,
+            std::string&& col,
             int32_t&& p,
             int32_t&& sc,
             std::string&& v)
@@ -173,6 +192,11 @@ struct DocIDTraits {
     }
 };
 
+struct IndexTraits {
+    static std::string indexName(const std::string& space, bool isEdge) {
+        return folly::stringPrintf("nebula_%s_%s", space.c_str(), (isEdge ? "edge" : "tag"));
+    }
+};
 }  // namespace plugin
 }  // namespace nebula
 

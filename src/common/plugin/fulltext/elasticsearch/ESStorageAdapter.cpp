@@ -38,18 +38,14 @@ bool ESStorageAdapter::checkPut(const std::string& ret, const std::string& cmd) 
     //        "_index": "index1",
     //        "_version": 1
     //    }
-    if (ret.empty()) {
-        LOG(ERROR) << "command failed : " << cmd;
-        return false;
-    }
+
     auto root = folly::parseJson(ret);
     auto result = root.find("result");
     if (result != root.items().end() &&
         (result->second.getString() == "created" || result->second.getString() == "updated")) {
         return true;
     }
-    LOG(ERROR) << "command failed : " << cmd;
-    LOG(ERROR) << ret;
+    VLOG(3) << "Command : " <<cmd << "failed : " << ret;
     return false;
 }
 
@@ -105,37 +101,35 @@ bool ESStorageAdapter::checkBulk(const std::string& ret) const {
     //            }
     //        }]
     //    }
-    if (ret.empty()) {
-        LOG(ERROR) << "Bulk insert command error";
-        return false;
-    }
+
     auto root = folly::parseJson(ret);
     auto result = root.find("errors");
     if (result != root.items().end() && result->second.isBool() && !result->second.getBool()) {
         return true;
     }
-    LOG(ERROR) << "Bulk insert failed : ";
-    LOG(ERROR) << ret;
+    VLOG(3) << "Bulk insert failed";
+    VLOG(3) << ret;
     return false;
 }
 
-bool ESStorageAdapter::put(const HttpClient& client, const DocItem& item) const {
+StatusOr<bool> ESStorageAdapter::put(const HttpClient& client, const DocItem& item) const {
     auto command = putCmd(client, item);
     auto ret = nebula::ProcessUtils::runCommand(command.c_str());
-    if (!ret.ok()) {
+    if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http PUT Failed: " << command;
         return false;
     }
     return checkPut(ret.value(), command);
 }
 
-bool ESStorageAdapter::bulk(const HttpClient& client, const std::vector<DocItem>& items) const {
+StatusOr<bool> ESStorageAdapter::bulk(const HttpClient& client,
+                                      const std::vector<DocItem>& items) const {
     auto command = bulkCmd(client, items);
     if (command.empty()) {
         return true;
     }
     auto ret = nebula::ProcessUtils::runCommand(command.c_str());
-    if (!ret.ok()) {
+    if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http PUT Failed: " << command;
         return false;
     }

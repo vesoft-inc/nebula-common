@@ -11,15 +11,23 @@
 #include "common/plugin/fulltext/FTUtils.h"
 #include "common/plugin/fulltext/elasticsearch/ESStorageAdapter.h"
 #include "common/plugin/fulltext/elasticsearch/ESGraphAdapter.h"
-#include "common/plugin/fulltext/elasticsearch/ESMetaAdapter.h"
 
 namespace nebula {
 namespace plugin {
 
+TEST(FulltextPluginTest, ESIndexCheckTest) {
+    HostAddr localHost_{"127.0.0.1", 9200};
+    HttpClient client(localHost_);
+    auto ret = ESGraphAdapter().createIndexCmd(client, "test_index");
+    auto expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
+                    "-XGET \"http://127.0.0.1:9200/_cat/indices/test_index?format=json\"";
+    ASSERT_EQ(expected, ret);
+}
+
 TEST(FulltextPluginTest, ESCreateIndexTest) {
     HostAddr localHost_{"127.0.0.1", 9200};
     HttpClient client(localHost_);
-    auto ret = ESMetaAdapter().createIndexCmd(client, "test_index");
+    auto ret = ESGraphAdapter().createIndexCmd(client, "test_index");
     auto expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
                     "-XPUT \"http://127.0.0.1:9200/test_index\"";
     ASSERT_EQ(expected, ret);
@@ -28,7 +36,7 @@ TEST(FulltextPluginTest, ESCreateIndexTest) {
 TEST(FulltextPluginTest, ESDropIndexTest) {
     HostAddr localHost_{"127.0.0.1", 9200};
     HttpClient client(localHost_);
-    auto ret = ESMetaAdapter().dropIndexCmd(client, "test_index");
+    auto ret = ESGraphAdapter().dropIndexCmd(client, "test_index");
     auto expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
                     "-XDELETE \"http://127.0.0.1:9200/test_index\"";
     ASSERT_EQ(expected, ret);
@@ -129,7 +137,7 @@ TEST(FulltextPluginTest, ESResultTest) {
         HostAddr localHost_{"127.0.0.1", 9200};
         HttpClient hc(localHost_);
         std::vector<std::string> rows;
-        auto ret = ESGraphAdapter().result(json, "", rows);
+        auto ret = ESGraphAdapter().result(json, rows);
         ASSERT_TRUE(ret);
         std::vector<std::string> expect = {"aaa", "bbb"};
         ASSERT_EQ(expect, rows);
@@ -161,7 +169,7 @@ TEST(FulltextPluginTest, ESResultTest) {
         HostAddr localHost_{"127.0.0.1", 9200};
         HttpClient hc(localHost_);
         std::vector<std::string> rows;
-        auto ret = ESGraphAdapter().result(json, "", rows);
+        auto ret = ESGraphAdapter().result(json, rows);
         ASSERT_TRUE(ret);
         ASSERT_EQ(0, rows.size());
     }
@@ -191,7 +199,7 @@ TEST(FulltextPluginTest, ESResultTest) {
         HostAddr localHost_{"127.0.0.1", 9200};
         HttpClient hc(localHost_);
         std::vector<std::string> rows;
-        auto ret = ESGraphAdapter().result(json, "", rows);
+        auto ret = ESGraphAdapter().result(json, rows);
         ASSERT_FALSE(ret);
     }
 }

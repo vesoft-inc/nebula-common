@@ -177,6 +177,7 @@ struct SpaceDesc {
     5: binary               collate_name,
     6: ColumnTypeDef        vid_type = {"type": PropertyType.FIXED_STRING, "type_length": 8},
     7: optional binary      group_name,
+    8: bool                 text_search = false,
 }
 
 struct SpaceItem {
@@ -984,6 +985,33 @@ struct GetStatisResp {
     3: StatisItem       statis,
 }
 
+enum FTServiceType {
+    ELASTICSEARCH = 0x01,
+} (cpp.enum_strict)
+
+struct FTClient {
+    1: required common.HostAddr    host,
+    2: optional binary             user,
+    3: optional binary             pwd,
+}
+
+struct SignInFTServiceReq {
+    1: FTServiceType                type,
+    2: list<FTClient>               clients,
+}
+
+struct SignOutFTServiceReq {
+}
+
+struct ListFTClientsReq {
+}
+
+struct ListFTClientsResp {
+    1: ErrorCode           code,
+    2: common.HostAddr     leader,
+    3: list<FTClient>      clients,
+}
+
 service MetaService {
     ExecResp createSpace(1: CreateSpaceReq req);
     ExecResp dropSpace(1: DropSpaceReq req);
@@ -1071,4 +1099,7 @@ service MetaService {
     ListListenerResp listListener(1: ListListenerReq req);
 
     GetStatisResp  getStatis(1: GetStatisReq req);
+    ExecResp signInFTService(1: SignInFTServiceReq req);
+    ExecResp signOutFTService(1: SignOutFTServiceReq req);
+    ListFTClientsResp listFTClients(1: ListFTClientsReq req);
 }
