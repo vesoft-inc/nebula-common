@@ -16,6 +16,9 @@ namespace nebula {
 // In nebula only store UTC time, and the interpretion of time value based on the
 // timezone configuration in current system.
 
+extern const int64_t kDaysSoFar[];
+extern const int64_t kLeapDaysSoFar[];
+
 struct Date {
     FRIEND_TEST(Date, DaysConversion);
 
@@ -82,7 +85,8 @@ struct Time {
     int32_t microsec;
 
     Time() : hour{0}, minute{0}, sec{0}, microsec{0} {}
-    Time(int8_t h, int8_t m, int8_t s, int32_t us) : hour{h}, minute{m}, sec{s}, microsec{us} {}
+    Time(int8_t h, int8_t min, int8_t s, int32_t us)
+        : hour{h}, minute{min}, sec{s}, microsec{us} {}
 
     void clear() {
         hour = 0;
@@ -132,8 +136,11 @@ struct DateTime {
     int32_t microsec;
 
     DateTime() : year{0}, month{1}, day{1}, hour{0}, minute{0}, sec{0}, microsec{0} {}
-    DateTime(int16_t y, int8_t mon, int8_t d, int8_t h, int8_t m, int8_t s, int32_t us) :
-        year{y}, month{mon}, day{d}, hour{h}, minute{m}, sec{s}, microsec{us} {}
+    DateTime(int16_t y, int8_t m, int8_t d, int8_t h, int8_t min, int8_t s, int32_t us)
+        : year{y}, month{m}, day{d}, hour{h}, minute{min}, sec{s}, microsec{us} {}
+    explicit DateTime(const Date &date)
+        : year{date.year}, month{date.month}, day{date.day},
+          hour{0}, minute{0}, sec{0}, microsec{0} {}
 
     void clear() {
         year = 0;
