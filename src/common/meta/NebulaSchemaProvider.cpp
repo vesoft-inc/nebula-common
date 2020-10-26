@@ -4,7 +4,6 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include <bits/c++config.h>
 #include "common/base/Base.h"
 #include "common/meta/NebulaSchemaProvider.h"
 
