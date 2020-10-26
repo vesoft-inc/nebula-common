@@ -2008,9 +2008,12 @@ const std::vector<HostAddr>& MetaClient::getAddresses() {
     return addrs_;
 }
 
-
 std::vector<cpp2::RoleItem>
 MetaClient::getRolesByUserFromCache(const std::string& user) const {
+    if (!ready_) {
+        return std::vector<cpp2::RoleItem>(0);
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = userRolesMap_.find(user);
     if (iter == userRolesMap_.end()) {
         return std::vector<cpp2::RoleItem>(0);
@@ -2020,6 +2023,10 @@ MetaClient::getRolesByUserFromCache(const std::string& user) const {
 
 
 bool MetaClient::authCheckFromCache(const std::string& account, const std::string& password) const {
+    if (!ready_) {
+        return false;
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = userPasswordMap_.find(account);
     if (iter == userPasswordMap_.end()) {
         return false;
@@ -2028,6 +2035,10 @@ bool MetaClient::authCheckFromCache(const std::string& account, const std::strin
 }
 
 bool MetaClient::checkShadowAccountFromCache(const std::string& account) const {
+    if (!ready_) {
+        return false;
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = userPasswordMap_.find(account);
     if (iter != userPasswordMap_.end()) {
         return true;
