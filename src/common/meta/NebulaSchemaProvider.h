@@ -9,7 +9,6 @@
 
 #include "common/base/Base.h"
 #include "common/base/StatusOr.h"
-#include <bits/c++config.h>
 #include <folly/RWSpinLock.h>
 #include "common/meta/SchemaProviderIf.h"
 
