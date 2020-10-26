@@ -18,6 +18,7 @@
 #include "common/datatypes/Date.h"
 #include "common/datatypes/Map.h"
 #include "common/fs/FileUtils.h"
+#include "common/time/TimeParser.h"
 
 DECLARE_string(timezone_name);
 
@@ -49,23 +50,9 @@ public:
         return Status::OK();
     }
 
-    // TODO(shylock) support more format
     static StatusOr<DateTime> parseDateTime(const std::string &str) {
-        std::tm tm;
-        std::istringstream ss(str);
-        ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
-        if (ss.fail()) {
-            return Status::Error();
-        }
-        DateTime dt;
-        dt.year = tm.tm_year + 1900;
-        dt.month = tm.tm_mon + 1;
-        dt.day = tm.tm_mday;
-        dt.hour = tm.tm_hour;
-        dt.minute = tm.tm_min;
-        dt.sec = tm.tm_sec;
-        dt.microsec = 0;
-        return dt;
+        TimeParser p;
+        return p.parseDateTime(str);
     }
 
     static StatusOr<DateTime> dateTimeFromMap(const Map &m);
@@ -128,19 +115,9 @@ public:
 
     static StatusOr<Date> dateFromMap(const Map &m);
 
-    // TODO(shylock) support more format
     static StatusOr<Date> parseDate(const std::string &str) {
-        std::tm tm;
-        std::istringstream ss(str);
-        ss >> std::get_time(&tm, "%Y-%m-%d");
-        if (ss.fail()) {
-            return Status::Error();
-        }
-        Date d;
-        d.year = tm.tm_year + 1900;
-        d.month = tm.tm_mon + 1;
-        d.day = tm.tm_mday;
-        return d;
+        TimeParser p;
+        return p.parseDate(str);
     }
 
     // unix time
@@ -189,20 +166,9 @@ public:
 
     static StatusOr<Time> timeFromMap(const Map &m);
 
-    // TODO(shylock) support more format
     static StatusOr<Time> parseTime(const std::string &str) {
-        std::tm tm;
-        std::istringstream ss(str);
-        ss >> std::get_time(&tm, "%H:%M:%S");
-        if (ss.fail()) {
-            return Status::Error();
-        }
-        Time t;
-        t.hour = tm.tm_hour;
-        t.minute = tm.tm_min;
-        t.sec = tm.tm_sec;
-        t.microsec = 0;
-        return t;
+        TimeParser p;
+        return p.parseTime(str);
     }
 
     // unix time
