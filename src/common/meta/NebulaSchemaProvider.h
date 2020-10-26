@@ -9,6 +9,7 @@
 
 #include "common/base/Base.h"
 #include "common/base/StatusOr.h"
+#include <bits/c++config.h>
 #include <folly/RWSpinLock.h>
 #include "common/meta/SchemaProviderIf.h"
 
@@ -106,6 +107,8 @@ public:
                   size_t fixedStrLen = 0,
                   bool nullable = false,
                   Expression* defaultValue = nullptr);
+
+    static std::size_t fieldSize(cpp2::PropertyType type, std::size_t fixedStrLimit);
 
     void setProp(cpp2::SchemaProp schemaProp);
 
