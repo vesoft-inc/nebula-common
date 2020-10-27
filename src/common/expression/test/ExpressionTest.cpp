@@ -53,7 +53,7 @@ static std::vector<std::string> InfixToSuffix(const std::vector<std::string> &ex
     std::stack<std::string> operators;
     std::unordered_map<std::string, int8_t> priority = {{"OR", 1},
                                                         {"AND", 2},
-                                                        {"^", 3},
+                                                        {"XOR", 3},
                                                         {"==", 4},
                                                         {"!=", 4},
                                                         {">=", 5},
@@ -111,7 +111,7 @@ private:
 protected:
     Expression *ExpressionCalu(const std::vector<std::string> &expr) {
         std::vector<std::string> relationOp = {">", ">=", "<", "<=", "==", "!="};
-        std::vector<std::string> logicalOp = {"AND", "OR", "^"};
+        std::vector<std::string> logicalOp = {"AND", "OR", "XOR"};
         std::vector<std::string> arithmeticOp = {"+", "-", "*", "/", "%"};
 
         std::vector<std::string> symbol = InfixToSuffix(expr);
@@ -205,7 +205,7 @@ std::unordered_map<std::string, Expression::Kind> ExpressionTest::op_ = {
     {"%", Expression::Kind::kMod},
     {"OR", Expression::Kind::kLogicalOr},
     {"AND", Expression::Kind::kLogicalAnd},
-    {"^", Expression::Kind::kLogicalXor},
+    {"XOR", Expression::Kind::kLogicalXor},
     {">", Expression::Kind::kRelGT},
     {"<", Expression::Kind::kRelLT},
     {">=", Expression::Kind::kRelGE},
@@ -428,17 +428,17 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(false, false);
     }
     {
-        TEST_EXPR(true ^ true, false);
-        TEST_EXPR(true ^ false, true);
-        TEST_EXPR(false ^ false, false);
-        TEST_EXPR(false ^ true, true);
+        TEST_EXPR(true XOR true, false);
+        TEST_EXPR(true XOR false, true);
+        TEST_EXPR(false XOR false, false);
+        TEST_EXPR(false XOR true, true);
     }
     {
         TEST_EXPR(true AND true AND true, true);
         TEST_EXPR(true AND true OR false, true);
         TEST_EXPR(true AND true AND false, false);
         TEST_EXPR(true OR false AND true OR false, true);
-        TEST_EXPR(true ^ true ^ false, false);
+        TEST_EXPR(true XOR true XOR false, false);
     }
     {
         // AND
