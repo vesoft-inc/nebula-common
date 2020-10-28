@@ -2650,6 +2650,25 @@ MetaClient::getListenersBySpaceHostFromCache(GraphSpaceID spaceId, const HostAdd
     }
 }
 
+StatusOr<std::map<GraphSpaceID, std::vector<std::pair<PartitionID, cpp2::ListenerType>>>>
+MetaClient::getListenersByHostFromCache(const HostAddr& host) {
+        if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    std::map<GraphSpaceID, std::vector<std::pair<PartitionID, cpp2::ListenerType>>> items;
+    for (const auto& space : localCache_) {
+        for (const auto& listener : space.second.get()->listeners_) {
+            if (listener.first == host) {
+                items[space.first].insert(items[space.first].end(),
+                                          listener.second.begin(),
+                                          listener.second.end());
+            }
+        }
+    }
+    return items;
+}
+
 StatusOr<std::vector<HostAddr>>
 MetaClient::getListenerHostsBySpacePartType(GraphSpaceID spaceId,
                                     PartitionID partId,

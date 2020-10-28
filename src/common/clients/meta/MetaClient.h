@@ -376,6 +376,9 @@ public:
     StatusOr<std::vector<std::pair<PartitionID, cpp2::ListenerType>>>
     getListenersBySpaceHostFromCache(GraphSpaceID spaceId, const HostAddr& host);
 
+    StatusOr<std::map<GraphSpaceID, std::vector<std::pair<PartitionID, cpp2::ListenerType>>>>
+    getListenersByHostFromCache(const HostAddr& host);
+
     StatusOr<std::vector<HostAddr>>
     getListenerHostsBySpacePartType(GraphSpaceID spaceId,
                                     PartitionID partId,
