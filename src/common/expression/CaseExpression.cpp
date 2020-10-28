@@ -152,11 +152,11 @@ void CaseExpression::resetFrom(Decoder& decoder) {
     bool hasDefault = decoder.readValue().getBool();
     auto num = decoder.readSize();
     if (hasCondition) {
-        condition_ = std::move(decoder.readExpression());
+        condition_ = decoder.readExpression();
         CHECK(!!condition_);
     }
     if (hasDefault) {
-        default_ = std::move(decoder.readExpression());
+        default_ = decoder.readExpression();
         CHECK(!!default_);
     }
     cases_.reserve(num);
