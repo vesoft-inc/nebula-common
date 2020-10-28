@@ -2650,29 +2650,38 @@ MetaClient::getListenersBySpaceHostFromCache(GraphSpaceID spaceId, const HostAdd
     }
 }
 
-StatusOr<std::map<GraphSpaceID, std::vector<std::pair<PartitionID, cpp2::ListenerType>>>>
-MetaClient::getListenersByHostFromCache(const HostAddr& host) {
-        if (!ready_) {
+StatusOr<ListenersMap> MetaClient::getListenersByHostFromCache(const HostAddr& host) {
+    if (!ready_) {
         return Status::Error("Not ready!");
     }
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
-    std::map<GraphSpaceID, std::vector<std::pair<PartitionID, cpp2::ListenerType>>> items;
+    ListenersMap listenersMap;
     for (const auto& space : localCache_) {
-        for (const auto& listener : space.second.get()->listeners_) {
-            if (listener.first == host) {
-                items[space.first].insert(items[space.first].end(),
-                                          listener.second.begin(),
-                                          listener.second.end());
+        auto spaceId = space.first;
+        for (const auto& listener : space.second->listeners_) {
+            if (host != listener.first) {
+                continue;
+            }
+            for (const auto& part : listener.second) {
+                auto partId = part.first;
+                auto type = part.second;
+                auto partIter = space.second->partsAlloc_.find(partId);
+                if (partIter != space.second->partsAlloc_.end()) {
+                    auto peers = partIter->second;
+                    listenersMap[spaceId][partId].emplace_back(std::move(type), std::move(peers));
+                } else {
+                    FLOG_WARN("%s has listener of [%d, %d], but can't find part peers",
+                              host.toString().c_str(), spaceId, partId);
+                }
             }
         }
     }
-    return items;
+    return listenersMap;
 }
 
-StatusOr<std::vector<HostAddr>>
-MetaClient::getListenerHostsBySpacePartType(GraphSpaceID spaceId,
-                                    PartitionID partId,
-                                    cpp2::ListenerType type) {
+StatusOr<HostAddr> MetaClient::getListenerHostsBySpacePartType(GraphSpaceID spaceId,
+                                                               PartitionID partId,
+                                                               cpp2::ListenerType type) {
     if (!ready_) {
         return Status::Error("Not ready!");
     }
@@ -2682,21 +2691,17 @@ MetaClient::getListenerHostsBySpacePartType(GraphSpaceID spaceId,
         VLOG(3) << "Space " << spaceId << " not found!";
         return Status::SpaceNotFound();
     }
-    std::vector<HostAddr> hosts;
     for (const auto& host : spaceIt->second->listeners_) {
         for (const auto& l : host.second) {
             if (l.first == partId && l.second == type) {
-                hosts.emplace_back(host.first);
+                return host.first;
             }
         }
     }
-    if (hosts.empty()) {
-        return Status::HostNotFound();
-    }
-    return hosts;
+    return Status::ListenerNotFound();
 }
 
-StatusOr<std::vector<std::pair<HostAddr, cpp2::ListenerType>>>
+StatusOr<std::vector<RemoteListnerInfo>>
 MetaClient::getListenerHostTypeBySpacePartType(GraphSpaceID spaceId, PartitionID partId) {
     if (!ready_) {
         return Status::Error("Not ready!");
@@ -2707,7 +2712,7 @@ MetaClient::getListenerHostTypeBySpacePartType(GraphSpaceID spaceId, PartitionID
         VLOG(3) << "Space " << spaceId << " not found!";
         return Status::SpaceNotFound();
     }
-    std::vector<std::pair<HostAddr, cpp2::ListenerType>> items;
+    std::vector<RemoteListnerInfo> items;
     for (const auto& host : spaceIt->second->listeners_) {
         for (const auto& l : host.second) {
             if (l.first == partId) {
@@ -2716,7 +2721,7 @@ MetaClient::getListenerHostTypeBySpacePartType(GraphSpaceID spaceId, PartitionID
         }
     }
     if (items.empty()) {
-        return Status::HostNotFound();
+        return Status::ListenerNotFound();
     }
     return items;
 }
