@@ -934,7 +934,8 @@ struct ListGroupsResp {
 }
 
 enum ListenerType {
-    ELASTICSEARCH = 0x00,
+    UNKNOWN       = 0x00,
+    ELASTICSEARCH = 0x01,
 } (cpp.enum_strict)
 
 struct AddListenerReq {
