@@ -5,6 +5,7 @@
  */
 
 #include "common/expression/CaseExpression.h"
+#include "common/expression/ConstantExpression.h"
 #include "common/datatypes/List.h"
 #include "common/datatypes/Map.h"
 #include "common/datatypes/Set.h"
@@ -134,13 +135,13 @@ void CaseExpression::writeTo(Encoder& encoder) const {
     encoder << Value(hasCondition());
     encoder << Value(hasDefault());
     encoder << numCases();
-    if (condition_ != nullptr) {
+    if (hasCondition()) {
         encoder << *condition_;
     }
-    if (default_ != nullptr) {
+    if (hasDefault()) {
         encoder << *default_;
     }
-    for (auto& whenThen : cases_) {
+    for (const auto& whenThen : cases_) {
         encoder << *whenThen.when;
         encoder << *whenThen.then;
     }
@@ -151,16 +152,20 @@ void CaseExpression::resetFrom(Decoder& decoder) {
     bool hasDefault = decoder.readValue().getBool();
     auto num = decoder.readSize();
     if (hasCondition) {
-        condition_ = decoder.readExpression();
+        condition_ = std::move(decoder.readExpression());
+        CHECK(!!condition_);
     }
     if (hasDefault) {
-        default_ = decoder.readExpression();
+        default_ = std::move(decoder.readExpression());
+        CHECK(!!default_);
     }
     cases_.reserve(num);
     for (auto i = 0u; i < num; i++) {
         auto when = decoder.readExpression();
+        CHECK(!!when);
         auto then = decoder.readExpression();
-        cases_.emplace_back(std::move(when).get(), std::move(then).get());
+        CHECK(!!then);
+        cases_.emplace_back(when.release(), then.release());
     }
 }
 

@@ -61,14 +61,14 @@ public:
         cases_ = std::move(items);
     }
 
-    void setWhen(size_t index, std::unique_ptr<Expression> when) {
+    void setWhen(size_t index, Expression* when) {
         DCHECK_LT(index, cases_.size());
-        cases_[index].when = std::move(when);
+        cases_[index].when.reset(when);
     }
 
-    void setThen(size_t index, std::unique_ptr<Expression> then) {
+    void setThen(size_t index, Expression* then) {
         DCHECK_LT(index, cases_.size());
-        cases_[index].then = std::move(then);
+        cases_[index].then.reset(then);
     }
 
     bool hasCondition() const {

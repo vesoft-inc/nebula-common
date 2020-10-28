@@ -639,7 +639,7 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             os << "GenericCase";
             break;
         case Expression::Kind::kConditionalCase:
-            os << "Conditional";
+            os << "ConditionalCase";
             break;
     }
     return os;
