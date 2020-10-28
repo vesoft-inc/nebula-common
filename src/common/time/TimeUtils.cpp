@@ -37,7 +37,6 @@ const DateTime TimeUtils::kEpoch(1970, 1, 1, 0, 0, 0, 0);
             return globalTimezone.loadFromDb(
                 std::string(FLAGS_timezone_name.begin() + 1, FLAGS_timezone_name.end()));
         } else {
-            DLOG(ERROR) << "DEBUG POINT: " << FLAGS_timezone_name;
             return globalTimezone.parsePosixTimezone(FLAGS_timezone_name);
         }
     } else {
