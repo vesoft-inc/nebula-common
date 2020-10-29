@@ -28,7 +28,9 @@ public:
         try {
             tzdb.load_from_file(FLAGS_timezone_file);
         } catch (const std::exception &e) {
-            return Status::Error("%s", e.what());
+            return Status::Error("Invalid timezone file `%s', exception: `%s'.",
+                                 FLAGS_timezone_file.c_str(),
+                                 e.what());
         }
         return Status::OK();
     }
@@ -46,7 +48,9 @@ public:
         try {
             zoneInfo_.reset(new ::boost::local_time::posix_time_zone(posixTimezone));
         } catch (const std::exception &e) {
-            return Status::Error("Malformed timezone format: `%s'.", posixTimezone.c_str());
+            return Status::Error("Malformed timezone format: `%s', exception: `%s'.",
+                                 posixTimezone.c_str(),
+                                 e.what());
         }
         return Status::OK();
     }
