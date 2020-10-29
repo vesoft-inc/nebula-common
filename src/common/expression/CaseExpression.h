@@ -38,9 +38,11 @@ private:
 
 class CaseExpression final : public Expression {
 public:
-    explicit CaseExpression(Kind kind) : Expression(kind) {}
+    CaseExpression() : Expression(Kind::kCase), isGeneric_(true) {}
 
-    explicit CaseExpression(Kind kind, CaseList* cases) : Expression(kind) {
+    explicit CaseExpression(CaseList* cases,
+                            bool isGeneric = true)
+            : Expression(Kind::kCase), isGeneric_(isGeneric) {
         cases_ = std::move(*cases).items();
         delete cases;
     }
@@ -48,6 +50,10 @@ public:
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext& ctx) override;
+
+    void setGeneric(bool isGeneric = true) {
+        isGeneric_ = isGeneric;
+    }
 
     void setCondition(Expression* cond) {
         condition_.reset(cond);
@@ -57,8 +63,9 @@ public:
         default_.reset(defaultResult);
     }
 
-    void setCases(std::vector<CaseList::Item> items) {
-        cases_ = std::move(items);
+    void setCases(CaseList* cases) {
+        cases_ = std::move(*cases).items();
+        delete cases;
     }
 
     void setWhen(size_t index, Expression* when) {
@@ -83,6 +90,10 @@ public:
         return cases_.size();
     }
 
+    bool isGeneric() const {
+        return isGeneric_;
+    }
+
     Expression* condition() const {
         return condition_.get();
     }
@@ -104,13 +115,11 @@ public:
         for (const auto& whenThen : cases_) {
             caseList->add(whenThen.when->clone().release(), whenThen.then->clone().release());
         }
-        auto expr = std::make_unique<CaseExpression>(kind_, caseList);
-        if (hasCondition()) {
-            expr->setCondition(condition_->clone().release());
-        }
-        if (hasDefault()) {
-            expr->setDefault(default_->clone().release());
-        }
+        auto expr = std::make_unique<CaseExpression>(caseList, isGeneric_);
+        auto cond = condition_ != nullptr ? condition_->clone().release() : nullptr;
+        auto defaultResult = default_ != nullptr ? default_->clone().release() : nullptr;
+        expr->setCondition(cond);
+        expr->setDefault(defaultResult);
         return expr;
     }
 
@@ -119,9 +128,10 @@ private:
 
     void resetFrom(Decoder& decoder) override;
 
+    bool isGeneric_;
+    std::vector<CaseList::Item> cases_;
     std::unique_ptr<Expression> condition_{nullptr};
     std::unique_ptr<Expression> default_{nullptr};
-    std::vector<CaseList::Item> cases_;
     Value result_;
 };
 

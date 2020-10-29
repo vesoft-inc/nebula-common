@@ -82,9 +82,7 @@ public:
 
         kLabel,
 
-        kSimpleCase,
-        kGenericCase,
-        kConditionalCase,
+        kCase,
     };
 
     explicit Expression(Kind kind) : kind_(kind) {}

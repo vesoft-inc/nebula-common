@@ -453,18 +453,8 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
-        case Expression::Kind::kSimpleCase: {
-            exp = std::make_unique<CaseExpression>(Expression::Kind::kSimpleCase);
-            exp->resetFrom(decoder);
-            return exp;
-        }
-        case Expression::Kind::kGenericCase: {
-            exp = std::make_unique<CaseExpression>(Expression::Kind::kGenericCase);
-            exp->resetFrom(decoder);
-            return exp;
-        }
-        case Expression::Kind::kConditionalCase: {
-            exp = std::make_unique<CaseExpression>(Expression::Kind::kConditionalCase);
+        case Expression::Kind::kCase: {
+            exp = std::make_unique<CaseExpression>();
             exp->resetFrom(decoder);
             return exp;
         }
@@ -632,14 +622,8 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Kind::kLabel:
             os << "Label";
             break;
-        case Expression::Kind::kSimpleCase:
-            os << "SimpleCase";
-            break;
-        case Expression::Kind::kGenericCase:
-            os << "GenericCase";
-            break;
-        case Expression::Kind::kConditionalCase:
-            os << "ConditionalCase";
+        case Expression::Kind::kCase:
+            os << "Case";
             break;
     }
     return os;

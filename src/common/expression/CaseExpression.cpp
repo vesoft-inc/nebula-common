@@ -18,7 +18,10 @@ bool CaseExpression::operator==(const Expression& rhs) const {
         return false;
     }
 
-    auto& expr = static_cast<const CaseExpression&>(rhs);
+    const auto& expr = static_cast<const CaseExpression&>(rhs);
+    if (isGeneric() != expr.isGeneric()) {
+        return false;
+    }
     if (hasCondition() != expr.hasCondition()) {
         return false;
     }
@@ -51,48 +54,30 @@ bool CaseExpression::operator==(const Expression& rhs) const {
 }
 
 const Value& CaseExpression::eval(ExpressionContext& ctx) {
-    switch (kind_) {
-        case Kind::kSimpleCase: {
-            auto cond = condition_->eval(ctx);
-            for (const auto& whenThen : cases_) {
-                auto when = whenThen.when->eval(ctx);
-                auto then = whenThen.then->eval(ctx);
-                if (cond == when) {
-                    result_ = then;
-                    return result_;
-                }
+    auto cond = condition_ != nullptr ? condition_->eval(ctx) : Value();
+    for (const auto& whenThen : cases_) {
+        auto when = whenThen.when->eval(ctx);
+        if (condition_ != nullptr) {
+            if (cond == when) {
+                result_ = whenThen.then->eval(ctx);
+                return result_;
             }
-            if (default_) {
-                result_ = default_->eval(ctx);
-            } else {
-                result_ = Value::kNullValue;
+        } else {
+            if (!when.isBool()) {
+                return Value::kNullBadType;
             }
-            break;
-        }
-        case Kind::kGenericCase:
-        case Kind::kConditionalCase: {
-            for (const auto& whenThen : cases_) {
-                auto when = whenThen.when->eval(ctx);
-                auto then = whenThen.then->eval(ctx);
-                if (!when.isBool()) {
-                    return Value::kNullBadType;
-                }
-                if (when.getBool()) {
-                    result_ = then;
-                    return result_;
-                }
+            if (when.getBool()) {
+                result_ = whenThen.then->eval(ctx);
+                return result_;
             }
-            if (default_) {
-                result_ = default_->eval(ctx);
-            } else {
-                result_ = Value::kNullValue;
-            }
-            break;
-        }
-        default: {
-            LOG(FATAL) << "Unknown type: " << kind_;
         }
     }
+    if (default_ != nullptr) {
+        result_ = default_->eval(ctx);
+    } else {
+        result_ = Value::kNullValue;
+    }
+
     return result_;
 }
 
@@ -100,9 +85,9 @@ std::string CaseExpression::toString() const {
     std::string buf;
     buf.reserve(256);
 
-    if (kind_ == Kind::kSimpleCase || kind_ == Kind::kGenericCase) {
+    if (isGeneric_) {
         buf += "CASE";
-        if (hasCondition()) {
+        if (condition_ != nullptr) {
             buf += " ";
             buf += condition_->toString();
         }
@@ -112,7 +97,7 @@ std::string CaseExpression::toString() const {
             buf += " THEN ";
             buf += whenThen.then->toString();
         }
-        if (hasDefault()) {
+        if (default_ != nullptr) {
             buf += " ELSE ";
             buf += default_->toString();
         }
@@ -132,13 +117,14 @@ std::string CaseExpression::toString() const {
 
 void CaseExpression::writeTo(Encoder& encoder) const {
     encoder << kind_;
-    encoder << Value(hasCondition());
-    encoder << Value(hasDefault());
-    encoder << numCases();
-    if (hasCondition()) {
+    encoder << Value(isGeneric_);
+    encoder << Value(condition_ != nullptr);
+    encoder << Value(default_ != nullptr);
+    encoder << cases_.size();
+    if (condition_ != nullptr) {
         encoder << *condition_;
     }
-    if (hasDefault()) {
+    if (default_ != nullptr) {
         encoder << *default_;
     }
     for (const auto& whenThen : cases_) {
@@ -148,9 +134,12 @@ void CaseExpression::writeTo(Encoder& encoder) const {
 }
 
 void CaseExpression::resetFrom(Decoder& decoder) {
+    bool isGeneric = decoder.readValue().getBool();
     bool hasCondition = decoder.readValue().getBool();
     bool hasDefault = decoder.readValue().getBool();
-    auto num = decoder.readSize();
+    auto numCases = decoder.readSize();
+
+    isGeneric_ = isGeneric;
     if (hasCondition) {
         condition_ = decoder.readExpression();
         CHECK(!!condition_);
@@ -159,8 +148,8 @@ void CaseExpression::resetFrom(Decoder& decoder) {
         default_ = decoder.readExpression();
         CHECK(!!default_);
     }
-    cases_.reserve(num);
-    for (auto i = 0u; i < num; i++) {
+    cases_.reserve(numCases);
+    for (auto i = 0u; i < numCases; i++) {
         auto when = decoder.readExpression();
         CHECK(!!when);
         auto then = decoder.readExpression();
