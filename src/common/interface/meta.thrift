@@ -75,6 +75,11 @@ enum ErrorCode {
     E_SAVE_JOB_FAILURE       = -57,
     E_BALANCER_FAILURE       = -58,
 
+    // Backup Failure
+    E_BACKUP_FAILURE = -60,
+    E_BACKUP_BUILDING_INDEX = -61,
+    E_BACKUP_SPACE_NOT_FOUND = -62,
+
     E_UNKNOWN        = -99,
 } (cpp.enum_strict)
 
@@ -921,6 +926,36 @@ struct ListGroupsResp {
     3: list<Group>      groups,
 }
 
+struct CheckpointInfo {
+    1: common.HostAddr host,
+    2: binary          checkpoint_dir,
+}
+
+struct SpaceBackupInfo {
+    1: SpaceDesc                    space,
+    2: common.PartitionBackupInfo   partition_info,
+    // storage checkpoint directory name
+    3: list<CheckpointInfo>         backup_name,
+}
+
+struct BackupMeta {
+    // space_name => SpaceBackupInfo
+    1: map<common.GraphSpaceID, SpaceBackupInfo> (cpp.template = "std::unordered_map")  backup_info,
+    // sst file
+    2: list<binary>                               meta_files,
+}
+
+struct CreateBackupReq {
+    // null means all spaces
+    1: optional list<binary>  space_name,
+}
+
+struct CreateBackupResp {
+    1: ErrorCode          code,
+    2: common.HostAddr    leader,
+    3: BackupMeta         meta,
+}
+
 service MetaService {
     ExecResp createSpace(1: CreateSpaceReq req);
     ExecResp dropSpace(1: DropSpaceReq req);
@@ -1003,4 +1038,6 @@ service MetaService {
     ExecResp       dropZoneFromGroup(1: DropZoneFromGroupReq req);
     GetGroupResp   getGroup(1: GetGroupReq req);
     ListGroupsResp listGroups(1: ListGroupsReq req);
+
+    CreateBackupResp createBackup(1: CreateBackupReq req);
 }

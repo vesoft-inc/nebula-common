@@ -572,6 +572,10 @@ protected:
 
     PartsMap doGetPartsMap(const HostAddr& host, const LocalCache& localCache);
 
+    // backup/restore
+    folly::Future<StatusOr<cpp2::CreateBackupResp>> createBackup(
+        const std::vector<std::string> spaces);
+
 private:
     std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool_;
     std::shared_ptr<thrift::ThriftClientManager<cpp2::MetaServiceAsyncClient>> clientsMan_;
