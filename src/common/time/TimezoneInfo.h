@@ -42,7 +42,7 @@ public:
         try {
             zoneInfo_.reset(new ::boost::local_time::posix_time_zone(posixTimezone));
         } catch (const std::exception &e) {
-            return Status::Error("%s", e.what());
+            return Status::Error("Malformed timezone format: `%s'.", posixTimezone.c_str());
         }
         return Status::OK();
     }
