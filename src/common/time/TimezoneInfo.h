@@ -8,10 +8,14 @@
 #define COMMON_TIME_TIMEZONEINFO_H_
 
 #include <boost/date_time/local_time/local_time.hpp>
+#include <gflags/gflags_declare.h>
+
 #include <exception>
 
 #include "common/base/Base.h"
 #include "common/base/Status.h"
+
+DECLARE_string(timezone_file);
 
 namespace nebula {
 namespace time {
@@ -22,7 +26,7 @@ public:
 
     static MUST_USE_RESULT Status init() {
         try {
-            tzdb.load_from_file(kTzDbFile);
+            tzdb.load_from_file(FLAGS_timezone_file);
         } catch (const std::exception &e) {
             return Status::Error("%s", e.what());
         }
@@ -57,7 +61,6 @@ public:
     }
 
 private:
-    static constexpr char kTzDbFile[] = "share/resources/date_time_zonespec.csv";
     static ::boost::local_time::tz_database tzdb;
 
     ::boost::shared_ptr<::boost::date_time::time_zone_base<::boost::posix_time::ptime, char>>
