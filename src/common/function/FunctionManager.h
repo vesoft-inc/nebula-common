@@ -38,7 +38,7 @@ public:
      */
     static StatusOr<Function> get(const std::string &func, size_t arity);
 
-    static StatusOr<bool> getStateless(const std::string &func, size_t arity);
+    static StatusOr<bool> getIsPure(const std::string &func, size_t arity);
 
     /**
      * To load a set of functions from a shared object dynamically.
@@ -60,8 +60,8 @@ private:
     struct FunctionAttributes final {
         size_t minArity_{0};
         size_t maxArity_{0};
-        // Stateless means same input same result
-        bool     stateless_{true};
+        // pure means same input same result
+        bool     isPure_{true};
         Function body_;
     };
 
