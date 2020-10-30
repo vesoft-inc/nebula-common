@@ -1323,7 +1323,7 @@ MetaClient::listTagSchemas(GraphSpaceID spaceId) {
 
 
 folly::Future<StatusOr<bool>>
-MetaClient::dropTagSchema(int32_t spaceId, std::string tagName, const bool ifExists) {
+MetaClient::dropTagSchema(GraphSpaceID spaceId, std::string tagName, const bool ifExists) {
     cpp2::DropTagReq req;
     req.set_space_id(spaceId);
     req.set_tag_name(std::move(tagName));
@@ -1344,7 +1344,7 @@ MetaClient::dropTagSchema(int32_t spaceId, std::string tagName, const bool ifExi
 
 
 folly::Future<StatusOr<cpp2::Schema>>
-MetaClient::getTagSchema(int32_t spaceId, std::string name, int64_t version) {
+MetaClient::getTagSchema(GraphSpaceID spaceId, std::string name, int64_t version) {
     cpp2::GetTagReq req;
     req.set_space_id(spaceId);
     req.set_tag_name(std::move(name));
@@ -2914,25 +2914,6 @@ MetaClient::dropHostFromZone(HostAddr node, std::string zoneName) {
     return future;
 }
 
-folly::Future<StatusOr<bool>>
-MetaClient::drainZone(std::string zoneName) {
-    cpp2::DrainZoneReq req;
-    req.set_zone_name(std::move(zoneName));
-
-    folly::Promise<StatusOr<bool>> promise;
-    auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_drainZone(request);
-                },
-                [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
-                },
-                std::move(promise),
-                true);
-    return future;
-}
-
 folly::Future<StatusOr<std::vector<HostAddr>>>
 MetaClient::getZone(std::string zoneName) {
     cpp2::GetZoneReq req;
@@ -3075,6 +3056,23 @@ MetaClient::listGroups() {
                 },
                 [] (cpp2::ListGroupsResp&& resp) -> decltype(auto) {
                     return resp.get_groups();
+                },
+                std::move(promise));
+    return future;
+}
+
+folly::Future<StatusOr<cpp2::StatisItem>>
+MetaClient::getStatis(GraphSpaceID spaceId) {
+    cpp2::GetStatisReq req;
+    req.set_space_id(spaceId);
+    folly::Promise<StatusOr<cpp2::StatisItem>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_getStatis(request);
+                },
+                [] (cpp2::GetStatisResp&& resp) -> cpp2::StatisItem {
+                    return std::move(resp).get_statis();
                 },
                 std::move(promise));
     return future;
