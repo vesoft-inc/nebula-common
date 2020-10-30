@@ -258,6 +258,7 @@ bool MetaClient::loadData() {
     }
 
     diff(oldCache, localCache_);
+    listenerDiff(oldCache, localCache_);
     ready_ = true;
     return true;
 }
@@ -780,6 +781,109 @@ void MetaClient::diff(const LocalCache& oldCache, const LocalCache& newCache) {
     }
 }
 
+void MetaClient::listenerDiff(const LocalCache& oldCache, const LocalCache& newCache) {
+    folly::RWSpinLock::WriteHolder holder(listenerLock_);
+    if (listener_ == nullptr) {
+        VLOG(3) << "Listener is null!";
+        return;
+    }
+    auto newMap = doGetListenersMap(options_.localHost_, newCache);
+    auto oldMap = doGetListenersMap(options_.localHost_, oldCache);
+    if (newMap == oldMap) {
+        return;
+    }
+
+    VLOG(1) << "Let's check if any listeners parts added for " << options_.localHost_;
+    for (auto& spaceEntry : newMap) {
+        auto spaceId = spaceEntry.first;
+        auto oldSpaceIter = oldMap.find(spaceId);
+        if (oldSpaceIter == oldMap.end()) {
+            // new space is added
+            VLOG(1) << "[Listener] SpaceId " << spaceId << " was added!";
+            listener_->onSpaceAdded(spaceId, true);
+            for (const auto& partEntry : spaceEntry.second) {
+                auto partId = partEntry.first;
+                for (const auto& info : partEntry.second) {
+                    VLOG(1) << "[Listener] SpaceId " << spaceId << ", partId " << partId
+                            << " was added!";
+                    listener_->onListenerAdded(spaceId, partId, info);
+                }
+            }
+        } else {
+            // check if new part listener is added
+            for (auto& partEntry : spaceEntry.second) {
+                auto partId = partEntry.first;
+                auto oldPartIter = oldSpaceIter->second.find(partId);
+                if (oldPartIter == oldSpaceIter->second.end()) {
+                    for (const auto& info : partEntry.second) {
+                        VLOG(1) << "[Listener] SpaceId " << spaceId << ", partId " << partId
+                                << " was added!";
+                        listener_->onListenerAdded(spaceId, partId, info);
+                    }
+                } else {
+                    std::sort(partEntry.second.begin(), partEntry.second.end());
+                    std::sort(oldPartIter->second.begin(), oldPartIter->second.end());
+                    std::vector<ListenerHosts> diff;
+                    std::set_difference(partEntry.second.begin(),
+                                        partEntry.second.end(),
+                                        oldPartIter->second.begin(),
+                                        oldPartIter->second.end(),
+                                        std::back_inserter(diff));
+                    for (const auto& info : diff) {
+                        VLOG(1) << "[Listener] SpaceId " << spaceId << ", partId " << partId
+                                << " was added!";
+                        listener_->onListenerAdded(spaceId, partId, info);
+                    }
+                }
+            }
+        }
+    }
+
+    VLOG(1) << "Let's check if any old listeners removed....";
+    for (auto& spaceEntry : oldMap) {
+        auto spaceId = spaceEntry.first;
+        auto newSpaceIter = newMap.find(spaceId);
+        if (newSpaceIter == newMap.end()) {
+            // remove old space
+            for (const auto& partEntry : spaceEntry.second) {
+                auto partId = partEntry.first;
+                for (const auto& info : partEntry.second) {
+                    VLOG(1) << "SpaceId " << spaceId << ", partId " << partId << " was removed!";
+                    listener_->onListenerRemoved(spaceId, partId, info.type_);
+                }
+            }
+            listener_->onSpaceRemoved(spaceId, true);
+            VLOG(1) << "[Listener] SpaceId " << spaceId << " was removed!";
+        } else {
+            // check if part listener is removed
+            for (auto& partEntry : spaceEntry.second) {
+                auto partId = partEntry.first;
+                auto newPartIter = newSpaceIter->second.find(partId);
+                if (newPartIter == newSpaceIter->second.end()) {
+                    for (const auto& info : partEntry.second) {
+                        VLOG(1) << "[Listener] SpaceId " << spaceId << ", partId " << partId
+                                << " was removed!";
+                        listener_->onListenerRemoved(spaceId, partId, info.type_);
+                    }
+                } else {
+                    std::sort(partEntry.second.begin(), partEntry.second.end());
+                    std::sort(newPartIter->second.begin(), newPartIter->second.end());
+                    std::vector<ListenerHosts> diff;
+                    std::set_difference(partEntry.second.begin(),
+                                        partEntry.second.end(),
+                                        newPartIter->second.begin(),
+                                        newPartIter->second.end(),
+                                        std::back_inserter(diff));
+                    for (const auto& info : diff) {
+                        VLOG(1) << "[Listener] SpaceId " << spaceId << ", partId " << partId
+                                << " was removed!";
+                        listener_->onListenerRemoved(spaceId, partId, info.type_);
+                    }
+                }
+            }
+        }
+    }
+}
 
 /// ================================== public methods =================================
 
@@ -2655,8 +2759,12 @@ StatusOr<ListenersMap> MetaClient::getListenersByHostFromCache(const HostAddr& h
         return Status::Error("Not ready!");
     }
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    return doGetListenersMap(host, localCache_);
+}
+
+ListenersMap MetaClient::doGetListenersMap(const HostAddr& host, const LocalCache& localCache) {
     ListenersMap listenersMap;
-    for (const auto& space : localCache_) {
+    for (const auto& space : localCache) {
         auto spaceId = space.first;
         for (const auto& listener : space.second->listeners_) {
             if (host != listener.first) {
@@ -2701,7 +2809,7 @@ StatusOr<HostAddr> MetaClient::getListenerHostsBySpacePartType(GraphSpaceID spac
     return Status::ListenerNotFound();
 }
 
-StatusOr<std::vector<RemoteListnerInfo>>
+StatusOr<std::vector<RemoteListenerInfo>>
 MetaClient::getListenerHostTypeBySpacePartType(GraphSpaceID spaceId, PartitionID partId) {
     if (!ready_) {
         return Status::Error("Not ready!");
@@ -2712,7 +2820,7 @@ MetaClient::getListenerHostTypeBySpacePartType(GraphSpaceID spaceId, PartitionID
         VLOG(3) << "Space " << spaceId << " not found!";
         return Status::SpaceNotFound();
     }
-    std::vector<RemoteListnerInfo> items;
+    std::vector<RemoteListenerInfo> items;
     for (const auto& host : spaceIt->second->listeners_) {
         for (const auto& l : host.second) {
             if (l.first == partId) {

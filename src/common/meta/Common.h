@@ -35,6 +35,17 @@ struct ListenerHosts {
         : type_(std::move(type)), peers_(std::move(peers)) {
     }
 
+    bool operator==(const ListenerHosts& rhs) const {
+        return this->type_ == rhs.type_ && this->peers_ == rhs.peers_;
+    }
+
+    bool operator<(const ListenerHosts& rhs) const {
+        if (this->type_ == rhs.type_) {
+            return this->peers_ < rhs.peers_;
+        }
+        return this->type_ < rhs.type_;
+    }
+
     cpp2::ListenerType      type_;
     // peers is the part peers which would send logs to the listener
     std::vector<HostAddr>   peers_;
@@ -43,10 +54,10 @@ struct ListenerHosts {
 using PartsMap = std::unordered_map<GraphSpaceID, std::unordered_map<PartitionID, PartHosts>>;
 using ListenersMap =
     std::unordered_map<GraphSpaceID, std::unordered_map<PartitionID, std::vector<ListenerHosts>>>;
-using RemoteListnerInfo = std::pair<HostAddr, cpp2::ListenerType>;
+using RemoteListenerInfo = std::pair<HostAddr, cpp2::ListenerType>;
 using RemoteListeners =
     std::unordered_map<GraphSpaceID,
-                       std::unordered_map<PartitionID, std::vector<RemoteListnerInfo>>>;
+                       std::unordered_map<PartitionID, std::vector<RemoteListenerInfo>>>;
 
 inline bool checkSegment(const std::string& segment) {
     static const std::regex pattern("^[0-9a-zA-Z]+$");
