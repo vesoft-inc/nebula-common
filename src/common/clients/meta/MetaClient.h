@@ -118,13 +118,13 @@ public:
 struct MetaClientOptions {
     MetaClientOptions() = default;
     MetaClientOptions(const MetaClientOptions& opt)
-        : localHost_(opt.localHost_),
-          clusterId_(opt.clusterId_.load()),
-          inStoraged_(opt.inStoraged_),
-          serviceName_(opt.serviceName_),
-          skipConfig_(opt.skipConfig_),
-          role_(opt.role_),
-          gitInfoSHA_(opt.gitInfoSHA_) {}
+        : localHost_(opt.localHost_)
+        , clusterId_(opt.clusterId_.load())
+        , inStoraged_(opt.inStoraged_)
+        , serviceName_(opt.serviceName_)
+        , skipConfig_(opt.skipConfig_)
+        , role_(opt.role_)
+        , gitInfoSHA_(opt.gitInfoSHA_) {}
 
     // Current host address
     HostAddr localHost_{"", 0};
