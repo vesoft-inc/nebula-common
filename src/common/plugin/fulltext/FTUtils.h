@@ -11,6 +11,7 @@
 #include "common/base/Base.h"
 #include "common/datatypes/HostAddr.h"
 #include "common/encryption/MD5Utils.h"
+#include "common/encryption/Base64.h"
 
 #define CURL "/usr/bin/curl"
 #define XPUT " -XPUT"
@@ -185,9 +186,16 @@ struct DocIDTraits {
     static std::string docId(const DocItem& item) {
         // partId_schemaId_column_value,
         // The value length limit is 255 bytes
+        // docId structure : partId(10bytes) + schemaId(10Bytes) +
+        //                   columnName(32bytes) + encoded_val(max 344bytes)
+        // the max length of docId is 512 bytes, still have about 100 bytes reserved
+        auto encoded = encryption::Base64::encode((item.val.size() > MAX_VALUE_LEN)
+                                                   ? item.val.substr(0, MAX_VALUE_LEN)
+                                                   : item.val);
+        std::replace(encoded.begin(), encoded.end(), '/', '_');
         std::stringstream ss;
-        ss << id(item.part) << "_" << id(item.schema) << "_" << column(item.column) << "_";
-        ss << ((item.val.size() > MAX_VALUE_LEN) ? item.val.substr(0, MAX_VALUE_LEN) : item.val);
+        ss << id(item.part) << id(item.schema) << column(item.column);
+        ss << encoded;
         return ss.str();
     }
 };

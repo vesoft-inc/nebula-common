@@ -18,7 +18,7 @@ namespace plugin {
 TEST(FulltextPluginTest, ESIndexCheckTest) {
     HostAddr localHost_{"127.0.0.1", 9200};
     HttpClient client(localHost_);
-    auto ret = ESGraphAdapter().createIndexCmd(client, "test_index");
+    auto ret = ESGraphAdapter().indexExistsCmd(client, "test_index");
     auto expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
                     "-XGET \"http://127.0.0.1:9200/_cat/indices/test_index?format=json\"";
     ASSERT_EQ(expected, ret);
@@ -49,7 +49,7 @@ TEST(FulltextPluginTest, ESPutTest) {
     auto ret = ESStorageAdapter().putCmd(hc, item);
     auto expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
                     "-XPUT \"http://127.0.0.1:9200/index1/_doc/"
-                    "0000000001_0000000002_8c43de7b01bca674276c43e09b3ec5ba_aaaa\" "
+                    "000000000100000000028c43de7b01bca674276c43e09b3ec5baYWFhYQ==\" "
                     "-d'{\"value\":\"aaaa\",\"tag_id\":2,\"column_id\""
                     ":\"8c43de7b01bca674276c43e09b3ec5ba\"}'";
     ASSERT_EQ(expected, ret);
@@ -69,11 +69,11 @@ TEST(FulltextPluginTest, ESBulkTest) {
     auto expected = "/usr/bin/curl -H \"Content-Type: application/x-ndjson; charset=utf-8\" "
                     "-XPOST \"http://127.0.0.1:9200/_bulk\" "
                     "-d '\n{\"index\":{\"_index\":\"index1\","
-                    "\"_id\":\"0000000001_0000000002_8c43de7b01bca674276c43e09b3ec5ba_aaaa\"}}\n"
+                    "\"_id\":\"000000000100000000028c43de7b01bca674276c43e09b3ec5baYWFhYQ==\"}}\n"
                     "{\"value\":\"aaaa\",\"tag_id\":2,\"column_id\":"
                     "\"8c43de7b01bca674276c43e09b3ec5ba\"}\n{\"index\":"
                     "{\"_index\":\"index1\",\"_id\":"
-                    "\"0000000001_0000000002_8c43de7b01bca674276c43e09b3ec5ba_bbbb\"}}\n"
+                    "\"000000000100000000028c43de7b01bca674276c43e09b3ec5baYmJiYg==\"}}\n"
                     "{\"value\":\"bbbb\",\"tag_id\":2,\"column_id\":"
                     "\"8c43de7b01bca674276c43e09b3ec5ba\"}\n'";
     ASSERT_EQ(expected, ret);

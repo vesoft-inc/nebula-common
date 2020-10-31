@@ -3249,7 +3249,7 @@ MetaClient::getStatis(GraphSpaceID spaceId) {
                 true);
     return future;
 }
-		    
+
 folly::Future<StatusOr<bool>> MetaClient::signInFTService(
     cpp2::FTServiceType type, const std::vector<cpp2::FTClient>& clients) {
     cpp2::SignInFTServiceReq req;

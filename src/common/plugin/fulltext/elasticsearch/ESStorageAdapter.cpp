@@ -117,7 +117,7 @@ StatusOr<bool> ESStorageAdapter::put(const HttpClient& client, const DocItem& it
     auto ret = nebula::ProcessUtils::runCommand(command.c_str());
     if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http PUT Failed: " << command;
-        return false;
+        return Status::Error("command failed : %s", command.c_str());
     }
     return checkPut(ret.value(), command);
 }
@@ -130,8 +130,8 @@ StatusOr<bool> ESStorageAdapter::bulk(const HttpClient& client,
     }
     auto ret = nebula::ProcessUtils::runCommand(command.c_str());
     if (!ret.ok() || ret.value().empty()) {
-        LOG(ERROR) << "Http PUT Failed: " << command;
-        return false;
+        LOG(ERROR) << "Http PUT Failed";
+        return Status::Error("bulk command failed");
     }
     return checkBulk(ret.value());
 }

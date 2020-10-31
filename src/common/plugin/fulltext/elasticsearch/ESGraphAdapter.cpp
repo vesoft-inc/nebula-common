@@ -36,7 +36,6 @@ bool ESGraphAdapter::result(const std::string& ret, std::vector<std::string>& ro
         return true;
     }
     LOG(ERROR) << "error reason : " << ret;
-    LOG(ERROR) << ret;
     return false;
 }
 
@@ -48,7 +47,7 @@ StatusOr<bool> ESGraphAdapter::prefix(const HttpClient& client,
                       body(item, limit.maxRows_, FT_SEARCH_OP::kPrefix);
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
-        LOG(ERROR) << "command failed : " << cmd;
+        LOG(ERROR) << "Http GET Failed: " << cmd;
         return Status::Error("command failed : %s", cmd.c_str());
     }
     return result(ret.value(), rows);
@@ -62,7 +61,7 @@ StatusOr<bool> ESGraphAdapter::wildcard(const HttpClient& client,
                       body(item, limit.maxRows_, FT_SEARCH_OP::kWildcard);
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
-        LOG(ERROR) << "Http PUT Failed: " << cmd;
+        LOG(ERROR) << "Http GET Failed: " << cmd;
         return Status::Error("command failed : %s", cmd.c_str());
     }
     return result(ret.value(), rows);
@@ -76,7 +75,7 @@ StatusOr<bool> ESGraphAdapter::regexp(const HttpClient& client,
                       body(item, limit.maxRows_, FT_SEARCH_OP::kRegexp);
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
-        LOG(ERROR) << "Http PUT Failed: " << cmd;
+        LOG(ERROR) << "Http GET Failed: " << cmd;
         return Status::Error("command failed : %s", cmd.c_str());
     }
     return result(ret.value(), rows);
@@ -92,7 +91,7 @@ StatusOr<bool> ESGraphAdapter::fuzzy(const HttpClient& client,
                       body(item, limit.maxRows_, FT_SEARCH_OP::kFuzzy, fuzziness, op);
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
-        LOG(ERROR) << "Http PUT Failed: " << cmd;
+        LOG(ERROR) << "Http GET Failed: " << cmd;
         return Status::Error("command failed : %s", cmd.c_str());
     }
     return result(ret.value(), rows);
