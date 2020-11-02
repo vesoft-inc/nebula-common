@@ -134,7 +134,8 @@ void NebulaSchemaProvider::addField(folly::StringPiece name,
                             static_cast<int64_t>(fields_.size() - 1));
 }
 
-/*static*/ std::size_t fieldSize(cpp2::PropertyType type, std::size_t fixedStrLimit) {
+/*static*/
+std::size_t NebulaSchemaProvider::fieldSize(cpp2::PropertyType type, std::size_t fixedStrLimit) {
     switch (type) {
         case cpp2::PropertyType::BOOL:
             return 1;
