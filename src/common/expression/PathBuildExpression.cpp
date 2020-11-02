@@ -8,8 +8,52 @@
 
 namespace nebula {
 const Value& PathBuildExpression::eval(ExpressionContext& ctx) {
-    UNUSED(ctx);
+    Path path;
+    for (size_t i = 0; i < items_.size(); ++i) {
+        auto& val = items_[i]->eval(ctx);
+        if ((i & 1) == 1) {
+            if (!getEdge(val, path.steps.back())) {
+                return Value::kNullBadType;
+            }
+        } else {
+            path.steps.emplace_back();
+            if (i == 0 && !getVertex(val, path.src)) {
+                return Value::kNullBadType;
+            } else if (!getVertex(val, path.steps.back().dst)) {
+                return Value::kNullBadType;
+            }
+        }
+    }
+    result_ = path;
     return result_;
+}
+
+bool PathBuildExpression::getVertex(const Value& value, Vertex& vertex) const {
+    if (value.isStr()) {
+        vertex = Vertex(value.getStr(), {});
+        return true;
+    }
+    if (value.isVertex()) {
+        vertex = Vertex(value.getVertex());
+        return true;
+    }
+    if (value.isInt()) {
+        // TODO:
+    }
+    return false;
+}
+
+bool PathBuildExpression::getEdge(const Value& value, Step& step) const {
+    if (value.isEdge()) {
+        const auto& edge = value.getEdge();
+        step.type = edge.type;
+        step.name = edge.name;
+        step.ranking = edge.ranking;
+        step.props = edge.props;
+        return true;
+    }
+
+    return false;
 }
 
 bool PathBuildExpression::operator==(const Expression& rhs) const {

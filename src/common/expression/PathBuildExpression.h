@@ -7,6 +7,9 @@
 #ifndef COMMON_EXPRESSION_PATHBUILDEXPRESSION_H_
 #define COMMON_EXPRESSION_PATHBUILDEXPRESSION_H_
 
+#include "common/datatypes/Edge.h"
+#include "common/datatypes/Path.h"
+#include "common/datatypes/Vertex.h"
 #include "common/expression/Expression.h"
 
 namespace nebula {
@@ -34,6 +37,10 @@ private:
     void writeTo(Encoder &encoder) const override;
 
     void resetFrom(Decoder &decoder) override;
+
+    bool getVertex(const Value& value, Vertex& vertex) const;
+
+    bool getEdge(const Value& value, Step& step) const;
 
 private:
     std::vector<std::unique_ptr<Expression>>    items_;
