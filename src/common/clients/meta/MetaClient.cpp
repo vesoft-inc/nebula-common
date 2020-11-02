@@ -224,6 +224,11 @@ bool MetaClient::loadData() {
             return false;
         }
 
+        if (!loadListeners(spaceId, spaceCache)) {
+            LOG(ERROR) << "Load Listeners Failed";
+            return false;
+        }
+
         // get space properties
         auto resp = getSpace(spaceName).get();
         if (!resp.ok()) {
@@ -426,6 +431,20 @@ bool MetaClient::loadIndexes(GraphSpaceID spaceId,
     return true;
 }
 
+bool MetaClient::loadListeners(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCache> cache) {
+    auto listenerRet = listListener(spaceId).get();
+    if (!listenerRet.ok()) {
+        LOG(ERROR) << "Get listeners failed for spaceId " << spaceId
+                   << ", " << listenerRet.status();
+        return false;
+    }
+    Listeners listeners;
+    for (auto& listener : listenerRet.value()) {
+        listeners[listener.host].emplace_back(std::make_pair(listener.part_id, listener.type));
+    }
+    cache->listeners_ = std::move(listeners);
+    return true;
+}
 
 Status MetaClient::checkTagIndexed(GraphSpaceID space, IndexID indexID) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
@@ -1304,7 +1323,7 @@ MetaClient::listTagSchemas(GraphSpaceID spaceId) {
 
 
 folly::Future<StatusOr<bool>>
-MetaClient::dropTagSchema(int32_t spaceId, std::string tagName, const bool ifExists) {
+MetaClient::dropTagSchema(GraphSpaceID spaceId, std::string tagName, const bool ifExists) {
     cpp2::DropTagReq req;
     req.set_space_id(spaceId);
     req.set_tag_name(std::move(tagName));
@@ -1325,7 +1344,7 @@ MetaClient::dropTagSchema(int32_t spaceId, std::string tagName, const bool ifExi
 
 
 folly::Future<StatusOr<cpp2::Schema>>
-MetaClient::getTagSchema(int32_t spaceId, std::string name, int64_t version) {
+MetaClient::getTagSchema(GraphSpaceID spaceId, std::string name, int64_t version) {
     cpp2::GetTagReq req;
     req.set_space_id(spaceId);
     req.set_tag_name(std::move(name));
@@ -2545,6 +2564,62 @@ folly::Future<StatusOr<std::vector<cpp2::Snapshot>>> MetaClient::listSnapshots()
     return future;
 }
 
+folly::Future<StatusOr<bool>> MetaClient::addListener(GraphSpaceID spaceId,
+                                                      cpp2::ListenerType type,
+                                                      std::vector<HostAddr> hosts) {
+    cpp2::AddListenerReq req;
+    req.set_space_id(spaceId);
+    req.set_type(type);
+    req.set_hosts(std::move(hosts));
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_addListener(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+folly::Future<StatusOr<bool>> MetaClient::removeListener(GraphSpaceID spaceId,
+                                                         cpp2::ListenerType type) {
+    cpp2::RemoveListenerReq req;
+    req.set_space_id(spaceId);
+    req.set_type(type);
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_removeListener(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+folly::Future<StatusOr<std::vector<cpp2::ListenerInfo>>>
+MetaClient::listListener(GraphSpaceID spaceId) {
+    cpp2::ListListenerReq req;
+    req.set_space_id(spaceId);
+    folly::Promise<StatusOr<std::vector<cpp2::ListenerInfo>>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_listListener(request);
+                },
+                [] (cpp2::ListListenerResp&& resp) -> decltype(auto) {
+                    return std::move(resp).get_listeners();
+                },
+                std::move(promise));
+    return future;
+}
 
 bool MetaClient::registerCfg() {
     auto ret = regConfig(gflagsDeclared_).get();
@@ -2555,6 +2630,96 @@ bool MetaClient::registerCfg() {
     return configReady_;
 }
 
+StatusOr<std::vector<std::pair<PartitionID, cpp2::ListenerType>>>
+MetaClient::getListenersBySpaceHostFromCache(GraphSpaceID spaceId, const HostAddr& host) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        VLOG(3) << "Space " << spaceId << " not found!";
+        return Status::SpaceNotFound();
+    }
+    auto iter = spaceIt->second->listeners_.find(host);
+    if (iter == spaceIt->second->listeners_.end()) {
+        VLOG(3) << "Space " << spaceId << ", Listener on host " << host.toString() << " not found!";
+        return Status::ListenerNotFound();
+    } else {
+        return iter->second;
+    }
+}
+
+StatusOr<std::map<GraphSpaceID, std::vector<std::pair<PartitionID, cpp2::ListenerType>>>>
+MetaClient::getListenersByHostFromCache(const HostAddr& host) {
+        if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    std::map<GraphSpaceID, std::vector<std::pair<PartitionID, cpp2::ListenerType>>> items;
+    for (const auto& space : localCache_) {
+        for (const auto& listener : space.second.get()->listeners_) {
+            if (listener.first == host) {
+                items[space.first].insert(items[space.first].end(),
+                                          listener.second.begin(),
+                                          listener.second.end());
+            }
+        }
+    }
+    return items;
+}
+
+StatusOr<std::vector<HostAddr>>
+MetaClient::getListenerHostsBySpacePartType(GraphSpaceID spaceId,
+                                    PartitionID partId,
+                                    cpp2::ListenerType type) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        VLOG(3) << "Space " << spaceId << " not found!";
+        return Status::SpaceNotFound();
+    }
+    std::vector<HostAddr> hosts;
+    for (const auto& host : spaceIt->second->listeners_) {
+        for (const auto& l : host.second) {
+            if (l.first == partId && l.second == type) {
+                hosts.emplace_back(host.first);
+            }
+        }
+    }
+    if (hosts.empty()) {
+        return Status::HostNotFound();
+    }
+    return hosts;
+}
+
+StatusOr<std::vector<std::pair<HostAddr, cpp2::ListenerType>>>
+MetaClient::getListenerHostTypeBySpacePartType(GraphSpaceID spaceId, PartitionID partId) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        VLOG(3) << "Space " << spaceId << " not found!";
+        return Status::SpaceNotFound();
+    }
+    std::vector<std::pair<HostAddr, cpp2::ListenerType>> items;
+    for (const auto& host : spaceIt->second->listeners_) {
+        for (const auto& l : host.second) {
+            if (l.first == partId) {
+                items.emplace_back(std::make_pair(host.first, l.second));
+            }
+        }
+    }
+    if (items.empty()) {
+        return Status::HostNotFound();
+    }
+    return items;
+}
 
 bool MetaClient::loadCfg() {
     if (!configReady_ && !registerCfg()) {
@@ -2749,25 +2914,6 @@ MetaClient::dropHostFromZone(HostAddr node, std::string zoneName) {
     return future;
 }
 
-folly::Future<StatusOr<bool>>
-MetaClient::drainZone(std::string zoneName) {
-    cpp2::DrainZoneReq req;
-    req.set_zone_name(std::move(zoneName));
-
-    folly::Promise<StatusOr<bool>> promise;
-    auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_drainZone(request);
-                },
-                [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
-                },
-                std::move(promise),
-                true);
-    return future;
-}
-
 folly::Future<StatusOr<std::vector<HostAddr>>>
 MetaClient::getZone(std::string zoneName) {
     cpp2::GetZoneReq req;
@@ -2910,6 +3056,23 @@ MetaClient::listGroups() {
                 },
                 [] (cpp2::ListGroupsResp&& resp) -> decltype(auto) {
                     return resp.get_groups();
+                },
+                std::move(promise));
+    return future;
+}
+
+folly::Future<StatusOr<cpp2::StatisItem>>
+MetaClient::getStatis(GraphSpaceID spaceId) {
+    cpp2::GetStatisReq req;
+    req.set_space_id(spaceId);
+    folly::Promise<StatusOr<cpp2::StatisItem>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_getStatis(request);
+                },
+                [] (cpp2::GetStatisResp&& resp) -> cpp2::StatisItem {
+                    return std::move(resp).get_statis();
                 },
                 std::move(promise));
     return future;
