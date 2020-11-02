@@ -80,6 +80,9 @@ enum ErrorCode {
     E_BACKUP_BUILDING_INDEX = -61,
     E_BACKUP_SPACE_NOT_FOUND = -62,
 
+    // RESTORE Failure
+    E_RESTORE_FAILURE = -70,
+
     E_UNKNOWN        = -99,
 } (cpp.enum_strict)
 
@@ -956,6 +959,16 @@ struct CreateBackupResp {
     3: BackupMeta         meta,
 }
 
+struct HostPair {
+    1: common.HostAddr   from_host,
+    2: common.HostAddr   to_host,
+}
+
+struct RestoreMetaReq {
+    1: list<binary>     files,
+    2: list<HostPair>   hosts,
+}
+
 service MetaService {
     ExecResp createSpace(1: CreateSpaceReq req);
     ExecResp dropSpace(1: DropSpaceReq req);
@@ -1040,4 +1053,5 @@ service MetaService {
     ListGroupsResp listGroups(1: ListGroupsReq req);
 
     CreateBackupResp createBackup(1: CreateBackupReq req);
+    ExecResp      restoreMeta(1: RestoreMetaReq req);
 }
