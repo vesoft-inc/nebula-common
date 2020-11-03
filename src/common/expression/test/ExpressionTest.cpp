@@ -2673,6 +2673,15 @@ TEST_F(ExpressionTest, TestExprClone) {
     caseExpr.setCondition(new ConstantExpression(2));
     caseExpr.setDefault(new ConstantExpression(8));
     ASSERT_EQ(caseExpr, *caseExpr.clone());
+
+    PathBuildExpression pathBuild;
+    pathBuild.add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                            new std::string("path_src")))
+        .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                            new std::string("path_edge1")))
+        .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_v1")));
+    ASSERT_EQ(pathBuild, *pathBuild.clone());
 }
 
 TEST_F(ExpressionTest, PathBuild) {
