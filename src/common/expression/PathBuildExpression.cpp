@@ -95,10 +95,19 @@ std::unique_ptr<Expression> PathBuildExpression::clone() const {
 }
 
 void PathBuildExpression::writeTo(Encoder &encoder) const {
-    UNUSED(encoder);
+    encoder << kind();
+    encoder << size();
+    for (auto& item : items_) {
+        encoder << *item;
+    }
 }
 
 void PathBuildExpression::resetFrom(Decoder &decoder) {
-    UNUSED(decoder);
+    auto size = decoder.readSize();
+    items_.reserve(size);
+    for (auto i = 0u; i < size; ++i) {
+        auto item = decoder.readExpression();
+        items_.emplace_back(std::move(item));
+    }
 }
 }  // namespace nebula
