@@ -2742,6 +2742,19 @@ TEST_F(ExpressionTest, PathBuild) {
     }
 }
 
+TEST_F(ExpressionTest, PathBuildToString) {
+    {
+        PathBuildExpression expr;
+        expr.add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_src")))
+            .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_edge1")))
+            .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_v1")));
+        EXPECT_EQ(expr.toString(), "PathBuild[$var1.path_src,$var1.path_edge1,$var1.path_v1]");
+    }
+}
+
 }  // namespace nebula
 
 int main(int argc, char** argv) {

@@ -85,7 +85,16 @@ bool PathBuildExpression::operator==(const Expression& rhs) const {
 }
 
 std::string PathBuildExpression::toString() const {
-    return "";
+    std::string buf;
+    buf.reserve(256);
+
+    buf += "PathBuild[";
+    for (auto& item : items_) {
+        buf += item->toString();
+        buf += ",";
+    }
+    buf.back() = ']';
+    return buf;
 }
 
 void PathBuildExpression::accept(ExprVisitor* visitor) {
