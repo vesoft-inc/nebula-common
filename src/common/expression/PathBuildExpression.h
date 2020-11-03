@@ -33,6 +33,11 @@ public:
         return *this;
     }
 
+    void setItem(size_t index, std::unique_ptr<Expression> item) {
+        DCHECK_LT(index, items_.size());
+        items_[index] = std::move(item);
+    }
+
     size_t size() const {
         return items_.size();
     }
