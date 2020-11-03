@@ -87,7 +87,11 @@ void PathBuildExpression::accept(ExprVisitor* visitor) {
 }
 
 std::unique_ptr<Expression> PathBuildExpression::clone() const {
-    return nullptr;
+    auto pathBuild = std::make_unique<PathBuildExpression>();
+    for (auto& item : items_) {
+        pathBuild->add(item->clone());
+    }
+    return pathBuild;
 }
 
 void PathBuildExpression::writeTo(Encoder &encoder) const {
