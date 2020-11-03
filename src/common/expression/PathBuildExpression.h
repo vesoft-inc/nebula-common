@@ -33,6 +33,14 @@ public:
         return *this;
     }
 
+    size_t size() const {
+        return items_.size();
+    }
+
+    size_t length() const {
+        return size() - 1;
+    }
+
 private:
     void writeTo(Encoder &encoder) const override;
 

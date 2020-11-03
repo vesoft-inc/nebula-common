@@ -8,6 +8,9 @@
 
 namespace nebula {
 const Value& PathBuildExpression::eval(ExpressionContext& ctx) {
+    if ((items_.size() & 1) != 1) {
+        return Value::kNullValue;
+    }
     Path path;
     for (size_t i = 0; i < items_.size(); ++i) {
         auto& val = items_[i]->eval(ctx);
@@ -57,8 +60,22 @@ bool PathBuildExpression::getEdge(const Value& value, Step& step) const {
 }
 
 bool PathBuildExpression::operator==(const Expression& rhs) const {
-    UNUSED(rhs);
-    return false;
+    if (kind() != rhs.kind()) {
+        return false;
+    }
+
+    auto& pathBuild = static_cast<const PathBuildExpression&>(rhs);
+    if (length() != pathBuild.length()) {
+        return false;
+    }
+
+    for (size_t i = 0; i < size(); ++i) {
+        if (*items_[i] != *pathBuild.items_[i]) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 std::string PathBuildExpression::toString() const {
