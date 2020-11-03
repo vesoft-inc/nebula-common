@@ -41,6 +41,10 @@ public:
         return size() - 1;
     }
 
+    const auto& items() const {
+        return items_;
+    }
+
 private:
     void writeTo(Encoder &encoder) const override;
 
