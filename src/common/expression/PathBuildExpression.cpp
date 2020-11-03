@@ -19,11 +19,17 @@ const Value& PathBuildExpression::eval(ExpressionContext& ctx) {
                 return Value::kNullBadType;
             }
         } else {
-            path.steps.emplace_back();
-            if (i == 0 && !getVertex(val, path.src)) {
-                return Value::kNullBadType;
-            } else if (!getVertex(val, path.steps.back().dst)) {
-                return Value::kNullBadType;
+            if (i == 0) {
+                if (!getVertex(val, path.src)) {
+                    return Value::kNullBadType;
+                }
+            } else {
+                if (!getVertex(val, path.steps.back().dst)) {
+                    return Value::kNullBadType;
+                }
+            }
+            if (i < (items_.size() - 1)) {
+                path.steps.emplace_back();
             }
         }
     }
