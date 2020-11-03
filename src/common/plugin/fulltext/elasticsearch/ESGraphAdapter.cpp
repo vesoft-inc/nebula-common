@@ -217,11 +217,11 @@ std::string ESGraphAdapter::createIndexCmd(const HttpClient& client,
 StatusOr<bool> ESGraphAdapter::dropIndex(const HttpClient& client,
                                          const std::string& index) const {
     // curl -H "Content-Type: application/json; charset=utf-8"
-    //      -XPUT "http://127.0.0.1:9200/index_exist"
+    //      -XDELETE "http://127.0.0.1:9200/index_exist"
     std::string cmd = dropIndexCmd(client, index);
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
-        LOG(ERROR) << "Http PUT Failed: " << cmd;
+        LOG(ERROR) << "Http DELETE Failed: " << cmd;
         return Status::Error("command failed : %s", cmd.c_str());
     }
     return statusCheck(ret.value());
@@ -251,7 +251,7 @@ std::string ESGraphAdapter::indexExistsCmd(const HttpClient& client,
                                            const std::string& index) const noexcept {
     std::stringstream os;
     os << header() << XGET << client.toString()
-    << "_cat/indices/" << index << "?format=json" << "\"";
+       << "_cat/indices/" << index << "?format=json" << "\"";
     return os.str();
 }
 

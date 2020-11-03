@@ -179,7 +179,6 @@ struct DocIDTraits {
     }
 
     static std::string val(const std::string &v) {
-        // normalized column name is 32 bytes
         return ((v.size() > MAX_VALUE_LEN) ? v.substr(0, MAX_VALUE_LEN) : v);
     }
 
@@ -194,8 +193,7 @@ struct DocIDTraits {
                                                    : item.val);
         std::replace(encoded.begin(), encoded.end(), '/', '_');
         std::stringstream ss;
-        ss << id(item.part) << id(item.schema) << column(item.column);
-        ss << encoded;
+        ss << id(item.part) << id(item.schema) << column(item.column) << encoded;
         return ss.str();
     }
 };
