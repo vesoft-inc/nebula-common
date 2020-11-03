@@ -678,7 +678,8 @@ struct TaskPara {
 }
 
 struct AddAdminTaskRequest {
-    1: meta.AdminCmd                        cmd        // rebuild index / flush / compact
+    // rebuild index / flush / compact / statis
+    1: meta.AdminCmd                        cmd
     2: i32                                  job_id
     3: i32                                  task_id
     4: TaskPara                             para
@@ -724,7 +725,8 @@ service GraphStorageService {
 //////////////////////////////////////////////////////////
 // Common response for admin methods
 struct AdminExecResp {
-    1: required ResponseCommon result,
+    1: required ResponseCommon   result,
+    2: optional meta.StatisItem  statis,
 }
 
 

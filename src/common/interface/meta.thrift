@@ -74,6 +74,7 @@ enum ErrorCode {
     E_STOP_JOB_FAILURE       = -56,
     E_SAVE_JOB_FAILURE       = -57,
     E_BALANCER_FAILURE       = -58,
+    E_JOB_NOT_FINISHED       = -59,
 
     // Backup Failure
     E_BACKUP_FAILURE = -60,
@@ -247,7 +248,7 @@ struct HostItem {
 }
 
 struct UserItem {
-    1: binary account;
+    1: binary account,
     // Disable user if lock status is true.
     2: bool   is_lock,
     // The number of queries an account can issue per hour
@@ -280,7 +281,7 @@ enum AdminJobOp {
     SHOW_All    = 0x02,
     SHOW        = 0x03,
     STOP        = 0x04,
-    RECOVER     = 0x05
+    RECOVER     = 0x05,
 } (cpp.enum_strict)
 
 struct AdminJobReq {
@@ -290,12 +291,13 @@ struct AdminJobReq {
 }
 
 enum AdminCmd {
-    COMPACT             = 0
-    FLUSH               = 1
-    REBUILD_TAG_INDEX   = 2
-    REBUILD_EDGE_INDEX  = 3
-    UNKNOWN             = 4
-}
+    COMPACT             = 0,
+    FLUSH               = 1,
+    REBUILD_TAG_INDEX   = 2,
+    REBUILD_EDGE_INDEX  = 3,
+    STATIS              = 4,
+    UNKNOWN             = 5,
+} (cpp.enum_strict)
 
 enum JobStatus {
     QUEUE           = 0x01,
@@ -344,6 +346,20 @@ struct AdminJobResp {
     1: ErrorCode                    code
     2: common.HostAddr              leader
     3: AdminJobResult               result
+}
+
+struct StatisItem {
+    // The number of vertices of tagId
+    1: map<common.TagID, i64>
+        (cpp.template = "std::unordered_map") tag_vertices,
+    // The number of out edges of edgetype
+    2: map<common.EdgeType, i64>
+        (cpp.template = "std::unordered_map") edges,
+    // The number of vertices of current space
+    3: i64                                    space_vertices,
+    // The number of edges of current space
+    4: i64                                    space_edges,
+    5: JobStatus                              status,
 }
 
 // Graph space related operations.
@@ -882,10 +898,6 @@ struct ListZonesResp {
     3: list<Zone>       zones,
 }
 
-struct DrainZoneReq {
-    1: binary        zone_name,
-}
-
 struct AddGroupReq {
     1: binary        group_name,
     2: list<binary>  zone_names,
@@ -927,6 +939,48 @@ struct ListGroupsResp {
     1: ErrorCode        code,
     2: common.HostAddr  leader,
     3: list<Group>      groups,
+}
+
+enum ListenerType {
+    ELASTICSEARCH = 0x00,
+} (cpp.enum_strict)
+
+struct AddListenerReq {
+    1: common.GraphSpaceID     space_id,
+    2: ListenerType            type,
+    3: list<common.HostAddr>   hosts,
+}
+
+struct RemoveListenerReq {
+    1: common.GraphSpaceID     space_id,
+    2: ListenerType            type,
+}
+
+struct ListListenerReq {
+    1: common.GraphSpaceID     space_id,
+}
+
+struct ListenerInfo {
+    1: ListenerType            type,
+    2: common.HostAddr         host,
+    3: common.PartitionID      part_id,
+}
+
+struct ListListenerResp {
+    1: ErrorCode               code,
+    2: common.HostAddr         leader,
+    3: list<ListenerInfo>      listeners,
+}
+
+struct GetStatisReq {
+    1: common.GraphSpaceID     space_id,
+}
+
+struct GetStatisResp {
+    1: ErrorCode        code,
+    // Valid if ret equals E_LEADER_CHANGED.
+    2: common.HostAddr  leader,
+    3: StatisItem       statis,
 }
 
 struct CheckpointInfo {
@@ -1043,7 +1097,6 @@ service MetaService {
     ExecResp       dropHostFromZone(1: DropHostFromZoneReq req);
     GetZoneResp    getZone(1: GetZoneReq req);
     ListZonesResp  listZones(1: ListZonesReq req);
-    ExecResp       drainZone(1: DrainZoneReq req);
 
     ExecResp       addGroup(1: AddGroupReq req);
     ExecResp       dropGroup(1: DropGroupReq req);
@@ -1054,4 +1107,9 @@ service MetaService {
 
     CreateBackupResp createBackup(1: CreateBackupReq req);
     ExecResp      restoreMeta(1: RestoreMetaReq req);
+    ExecResp       addListener(1: AddListenerReq req);
+    ExecResp       removeListener(1: RemoveListenerReq req);
+    ListListenerResp listListener(1: ListListenerReq req);
+
+    GetStatisResp  getStatis(1: GetStatisReq req);
 }
