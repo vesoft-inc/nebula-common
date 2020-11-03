@@ -451,12 +451,9 @@ TEST(ExpressionEncodeDecode, CaseExpression) {
 TEST(ExpressionEncodeDecode, PathBuildExpression) {
     auto origin = std::make_unique<PathBuildExpression>();
     (*origin)
-        .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
-                                                          new std::string("path_src")))
-        .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
-                                                          new std::string("path_edge1")))
-        .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
-                                                          new std::string("path_v1")));
+        .add(std::make_unique<LabelExpression>(new std::string("path_src")))
+        .add(std::make_unique<LabelExpression>(new std::string("path_edge1")))
+        .add(std::make_unique<LabelExpression>(new std::string("path_v1")));
     auto decoded = Expression::decode(Expression::encode(*origin));
     ASSERT_EQ(*origin, *decoded);
 }

@@ -6,6 +6,8 @@
 
 #include "common/expression/PathBuildExpression.h"
 
+#include "common/expression/ExprVisitor.h"
+
 namespace nebula {
 const Value& PathBuildExpression::eval(ExpressionContext& ctx) {
     if ((items_.size() & 1) != 1) {
@@ -98,7 +100,7 @@ std::string PathBuildExpression::toString() const {
 }
 
 void PathBuildExpression::accept(ExprVisitor* visitor) {
-    UNUSED(visitor);
+    visitor->visit(this);
 }
 
 std::unique_ptr<Expression> PathBuildExpression::clone() const {
