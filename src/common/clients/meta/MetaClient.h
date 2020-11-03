@@ -112,6 +112,9 @@ public:
     virtual void onListenerRemoved(GraphSpaceID spaceId,
                                    PartitionID partId,
                                    cpp2::ListenerType type) = 0;
+    virtual void onCheckRemoteListeners(GraphSpaceID spaceId,
+                                        PartitionID partId,
+                                        const std::vector<HostAddr>& remoteListeners) = 0;
 };
 
 
@@ -583,6 +586,9 @@ protected:
     void diff(const LocalCache& oldCache, const LocalCache& newCache);
 
     void listenerDiff(const LocalCache& oldCache, const LocalCache& newCache);
+
+    // add remote listener as part peers
+    void loadRemoteListeners();
 
     template<typename RESP>
     Status handleResponse(const RESP& resp);

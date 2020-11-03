@@ -259,6 +259,7 @@ bool MetaClient::loadData() {
 
     diff(oldCache, localCache_);
     listenerDiff(oldCache, localCache_);
+    loadRemoteListeners();
     ready_ = true;
     return true;
 }
@@ -880,6 +881,24 @@ void MetaClient::listenerDiff(const LocalCache& oldCache, const LocalCache& newC
                         listener_->onListenerRemoved(spaceId, partId, info.type_);
                     }
                 }
+            }
+        }
+    }
+}
+
+void MetaClient::loadRemoteListeners() {
+    auto partsMap = getPartsMapFromCache(options_.localHost_);
+    for (const auto& spaceEntry : partsMap) {
+        auto spaceId = spaceEntry.first;
+        for (const auto& partEntry : spaceEntry.second) {
+            auto partId = partEntry.first;
+            auto listeners = getListenerHostTypeBySpacePartType(spaceId, partId);
+            if (listeners.ok()) {
+                std::vector<HostAddr> remoteListeners;
+                for (const auto& listener : listeners.value()) {
+                    remoteListeners.emplace_back(listener.first);
+                }
+                listener_->onCheckRemoteListeners(spaceId, partId, remoteListeners);
             }
         }
     }
