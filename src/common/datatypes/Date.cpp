@@ -4,6 +4,11 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include <cstdint>
+
+#include <folly/hash/Hash.h>
+#include <folly/String.h>
+
 #include "common/datatypes/Date.h"
 
 namespace nebula {
@@ -126,3 +131,56 @@ std::string DateTime::toString() const {
 }
 
 }  // namespace nebula
+
+namespace std {
+
+// Inject a customized hash function
+std::size_t hash<nebula::Date>::operator()(const nebula::Date& h) const noexcept {
+    size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year),
+                                        sizeof(h.year));
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.month),
+                                sizeof(h.month),
+                                hv);
+    return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.day),
+                                    sizeof(h.day),
+                                    hv);
+}
+
+std::size_t hash<nebula::Time>::operator()(const nebula::Time& h) const noexcept {
+    std::size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.hour),
+                                            sizeof(h.hour));
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.minute),
+                                sizeof(h.minute),
+                                hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.sec),
+                                sizeof(h.sec),
+                                hv);
+    return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.microsec),
+                                sizeof(h.microsec),
+                                hv);
+}
+
+std::size_t hash<nebula::DateTime>::operator()(const nebula::DateTime& h) const noexcept {
+    size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year),
+                                        sizeof(h.year));
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.month),
+                                sizeof(h.month),
+                                hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.day),
+                                sizeof(h.day),
+                                hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.hour),
+                                sizeof(h.hour),
+                                hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.minute),
+                                sizeof(h.minute),
+                                hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.sec),
+                                sizeof(h.sec),
+                                hv);
+    return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.microsec),
+                                sizeof(h.microsec),
+                                hv);
+}
+
+}  // namespace std

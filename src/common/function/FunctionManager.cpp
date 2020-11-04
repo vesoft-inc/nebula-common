@@ -567,7 +567,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
-                return folly::trimWhitespace(value);
+                return folly::trimWhitespace(value).toString();
             }
             return Value::kNullBadType;
         };
@@ -580,7 +580,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
-                return folly::ltrimWhitespace(value);
+                return folly::ltrimWhitespace(value).toString();
             }
             return Value::kNullBadType;
         };
@@ -593,7 +593,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
-                return folly::rtrimWhitespace(value);
+                return folly::rtrimWhitespace(value).toString();
             }
             return Value::kNullBadType;
         };
