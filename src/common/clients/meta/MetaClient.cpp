@@ -893,13 +893,13 @@ void MetaClient::loadRemoteListeners() {
         for (const auto& partEntry : spaceEntry.second) {
             auto partId = partEntry.first;
             auto listeners = getListenerHostTypeBySpacePartType(spaceId, partId);
+            std::vector<HostAddr> remoteListeners;
             if (listeners.ok()) {
-                std::vector<HostAddr> remoteListeners;
                 for (const auto& listener : listeners.value()) {
                     remoteListeners.emplace_back(listener.first);
                 }
-                listener_->onCheckRemoteListeners(spaceId, partId, remoteListeners);
             }
+            listener_->onCheckRemoteListeners(spaceId, partId, remoteListeners);
         }
     }
 }
