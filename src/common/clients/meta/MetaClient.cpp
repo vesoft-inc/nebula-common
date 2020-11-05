@@ -887,6 +887,11 @@ void MetaClient::listenerDiff(const LocalCache& oldCache, const LocalCache& newC
 }
 
 void MetaClient::loadRemoteListeners() {
+    folly::RWSpinLock::WriteHolder holder(listenerLock_);
+    if (listener_ == nullptr) {
+        VLOG(3) << "Listener is null!";
+        return;
+    }
     auto partsMap = getPartsMapFromCache(options_.localHost_);
     for (const auto& spaceEntry : partsMap) {
         auto spaceId = spaceEntry.first;
