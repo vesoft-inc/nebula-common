@@ -30,6 +30,7 @@ struct PartHosts {
     }
 };
 
+// ListenerHosts saves the listener type and the peers of the data replica
 struct ListenerHosts {
     ListenerHosts(cpp2::ListenerType type, std::vector<HostAddr> peers)
         : type_(std::move(type)), peers_(std::move(peers)) {
@@ -52,9 +53,12 @@ struct ListenerHosts {
 };
 
 using PartsMap = std::unordered_map<GraphSpaceID, std::unordered_map<PartitionID, PartHosts>>;
+// ListenersMap is used for listener replica to get its peers of data replica
 using ListenersMap =
     std::unordered_map<GraphSpaceID, std::unordered_map<PartitionID, std::vector<ListenerHosts>>>;
+// RemoteListenerInfo is pair of <listener host, listener type>
 using RemoteListenerInfo = std::pair<HostAddr, cpp2::ListenerType>;
+// RemoteListeners is used for data replica to check if some part has remote listener
 using RemoteListeners =
     std::unordered_map<GraphSpaceID,
                        std::unordered_map<PartitionID, std::vector<RemoteListenerInfo>>>;

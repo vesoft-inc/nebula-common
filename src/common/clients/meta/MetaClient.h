@@ -46,6 +46,7 @@ using NameIndexMap = std::unordered_map<std::pair<GraphSpaceID, std::string>, In
 // Get Index Structure by indexID
 using Indexes = std::unordered_map<IndexID, std::shared_ptr<cpp2::IndexItem>>;
 
+// Listeners is a map of ListenerHost => <PartId + type>, used to add/remove listener on local host
 using Listeners = std::unordered_map<HostAddr,
                                      std::vector<std::pair<PartitionID, cpp2::ListenerType>>>;
 
