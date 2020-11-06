@@ -10,6 +10,7 @@
 #include "common/datatypes/Edge.h"
 #include "common/datatypes/List.h"
 #include "common/datatypes/Map.h"
+#include "common/datatypes/Path.h"
 #include "common/datatypes/Set.h"
 #include "common/datatypes/Vertex.h"
 #include "common/expression/ArithmeticExpression.h"
@@ -21,6 +22,7 @@
 #include "common/expression/LabelAttributeExpression.h"
 #include "common/expression/LabelExpression.h"
 #include "common/expression/LogicalExpression.h"
+#include "common/expression/PathBuildExpression.h"
 #include "common/expression/PropertyExpression.h"
 #include "common/expression/RelationalExpression.h"
 #include "common/expression/SubscriptExpression.h"
@@ -29,6 +31,7 @@
 #include "common/expression/UnaryExpression.h"
 #include "common/expression/VariableExpression.h"
 #include "common/expression/VertexExpression.h"
+#include "common/expression/CaseExpression.h"
 #include "common/expression/test/ExpressionContextMock.h"
 
 nebula::ExpressionContextMock gExpCtxt;
@@ -51,9 +54,9 @@ static void InsertSpace(std::string &str) {
 static std::vector<std::string> InfixToSuffix(const std::vector<std::string> &expr) {
     std::vector<std::string> values;
     std::stack<std::string> operators;
-    std::unordered_map<std::string, int8_t> priority = {{"||", 1},
-                                                        {"&&", 2},
-                                                        {"^", 3},
+    std::unordered_map<std::string, int8_t> priority = {{"OR", 1},
+                                                        {"AND", 2},
+                                                        {"XOR", 3},
                                                         {"==", 4},
                                                         {"!=", 4},
                                                         {">=", 5},
@@ -111,7 +114,7 @@ private:
 protected:
     Expression *ExpressionCalu(const std::vector<std::string> &expr) {
         std::vector<std::string> relationOp = {">", ">=", "<", "<=", "==", "!="};
-        std::vector<std::string> logicalOp = {"&&", "||", "^"};
+        std::vector<std::string> logicalOp = {"AND", "OR", "XOR"};
         std::vector<std::string> arithmeticOp = {"+", "-", "*", "/", "%"};
 
         std::vector<std::string> symbol = InfixToSuffix(expr);
@@ -203,9 +206,9 @@ std::unordered_map<std::string, Expression::Kind> ExpressionTest::op_ = {
     {"*", Expression::Kind::kMultiply},
     {"/", Expression::Kind::kDivision},
     {"%", Expression::Kind::kMod},
-    {"||", Expression::Kind::kLogicalOr},
-    {"&&", Expression::Kind::kLogicalAnd},
-    {"^", Expression::Kind::kLogicalXor},
+    {"OR", Expression::Kind::kLogicalOr},
+    {"AND", Expression::Kind::kLogicalAnd},
+    {"XOR", Expression::Kind::kLogicalXor},
     {">", Expression::Kind::kRelGT},
     {"<", Expression::Kind::kRelLT},
     {">=", Expression::Kind::kRelGE},
@@ -428,76 +431,76 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(false, false);
     }
     {
-        TEST_EXPR(true ^ true, false);
-        TEST_EXPR(true ^ false, true);
-        TEST_EXPR(false ^ false, false);
-        TEST_EXPR(false ^ true, true);
+        TEST_EXPR(true XOR true, false);
+        TEST_EXPR(true XOR false, true);
+        TEST_EXPR(false XOR false, false);
+        TEST_EXPR(false XOR true, true);
     }
     {
-        TEST_EXPR(true && true && true, true);
-        TEST_EXPR(true && true || false, true);
-        TEST_EXPR(true && true && false, false);
-        TEST_EXPR(true || false && true || false, true);
-        TEST_EXPR(true ^ true ^ false, false);
+        TEST_EXPR(true AND true AND true, true);
+        TEST_EXPR(true AND true OR false, true);
+        TEST_EXPR(true AND true AND false, false);
+        TEST_EXPR(true OR false AND true OR false, true);
+        TEST_EXPR(true XOR true XOR false, false);
     }
     {
         // AND
-        TEST_EXPR(true && true, true);
-        TEST_EXPR(true && false, false);
-        TEST_EXPR(false && true, false);
-        TEST_EXPR(false && false, false);
+        TEST_EXPR(true AND true, true);
+        TEST_EXPR(true AND false, false);
+        TEST_EXPR(false AND true, false);
+        TEST_EXPR(false AND false, false);
 
         // AND AND  ===  (AND) AND
-        TEST_EXPR(true && true && true, true);
-        TEST_EXPR(true && true && false, false);
-        TEST_EXPR(true && false && true, false);
-        TEST_EXPR(true && false && false, false);
-        TEST_EXPR(false && true && true, false);
-        TEST_EXPR(false && true && false, false);
-        TEST_EXPR(false && false && true, false);
-        TEST_EXPR(false && false && false, false);
+        TEST_EXPR(true AND true AND true, true);
+        TEST_EXPR(true AND true AND false, false);
+        TEST_EXPR(true AND false AND true, false);
+        TEST_EXPR(true AND false AND false, false);
+        TEST_EXPR(false AND true AND true, false);
+        TEST_EXPR(false AND true AND false, false);
+        TEST_EXPR(false AND false AND true, false);
+        TEST_EXPR(false AND false AND false, false);
 
         // OR
-        TEST_EXPR(true || true, true);
-        TEST_EXPR(true || false, true);
-        TEST_EXPR(false || true, true);
-        TEST_EXPR(false || false, false);
+        TEST_EXPR(true OR true, true);
+        TEST_EXPR(true OR false, true);
+        TEST_EXPR(false OR true, true);
+        TEST_EXPR(false OR false, false);
 
         // OR OR  ===  (OR) OR
-        TEST_EXPR(true || true || true, true);
-        TEST_EXPR(true || true || false, true);
-        TEST_EXPR(true || false || true, true);
-        TEST_EXPR(true || false || false, true);
-        TEST_EXPR(false || true || true, true);
-        TEST_EXPR(false || true || false, true);
-        TEST_EXPR(false || false || true, true);
-        TEST_EXPR(false || false || false, false);
+        TEST_EXPR(true OR true OR true, true);
+        TEST_EXPR(true OR true OR false, true);
+        TEST_EXPR(true OR false OR true, true);
+        TEST_EXPR(true OR false OR false, true);
+        TEST_EXPR(false OR true OR true, true);
+        TEST_EXPR(false OR true OR false, true);
+        TEST_EXPR(false OR false OR true, true);
+        TEST_EXPR(false OR false OR false, false);
 
         // AND OR  ===  (AND) OR
-        TEST_EXPR(true && true || true, true);
-        TEST_EXPR(true && true || false, true);
-        TEST_EXPR(true && false || true, true);
-        TEST_EXPR(true && false || false, false);
-        TEST_EXPR(false && true || true, true);
-        TEST_EXPR(false && true || false, false);
-        TEST_EXPR(false && false || true, true);
-        TEST_EXPR(false && false || false, false);
+        TEST_EXPR(true AND true OR true, true);
+        TEST_EXPR(true AND true OR false, true);
+        TEST_EXPR(true AND false OR true, true);
+        TEST_EXPR(true AND false OR false, false);
+        TEST_EXPR(false AND true OR true, true);
+        TEST_EXPR(false AND true OR false, false);
+        TEST_EXPR(false AND false OR true, true);
+        TEST_EXPR(false AND false OR false, false);
 
         // OR AND  === OR (AND)
-        TEST_EXPR(true || true && true, true);
-        TEST_EXPR(true || true && false, true);
-        TEST_EXPR(true || false && true, true);
-        TEST_EXPR(true || false && false, true);
-        TEST_EXPR(false || true && true, true);
-        TEST_EXPR(false || true && false, false);
-        TEST_EXPR(false || false && true, false);
-        TEST_EXPR(false || false && false, false);
+        TEST_EXPR(true OR true AND true, true);
+        TEST_EXPR(true OR true AND false, true);
+        TEST_EXPR(true OR false AND true, true);
+        TEST_EXPR(true OR false AND false, true);
+        TEST_EXPR(false OR true AND true, true);
+        TEST_EXPR(false OR true AND false, false);
+        TEST_EXPR(false OR false AND true, false);
+        TEST_EXPR(false OR false AND false, false);
     }
     {
-        TEST_EXPR(2 > 1 && 3 > 2, true);
-        TEST_EXPR(2 <= 1 && 3 > 2, false);
-        TEST_EXPR(2 > 1 && 3 < 2, false);
-        TEST_EXPR(2 < 1 && 3 < 2, false);
+        TEST_EXPR(2 > 1 AND 3 > 2, true);
+        TEST_EXPR(2 <= 1 AND 3 > 2, false);
+        TEST_EXPR(2 > 1 AND 3 < 2, false);
+        TEST_EXPR(2 < 1 AND 3 < 2, false);
     }
 }
 
@@ -1014,10 +1017,10 @@ TEST_F(ExpressionTest, toStringTest) {
     }
     {
         TEST_TOSTRING(2 + 2 - 3, "((2+2)-3)");
-        TEST_TOSTRING(true || true, "(true||true)");
-        TEST_TOSTRING(true && false || false, "((true&&false)||false)");
+        TEST_TOSTRING(true OR true, "(true OR true)");
+        TEST_TOSTRING(true AND false OR false, "((true AND false) OR false)");
         TEST_TOSTRING(true == 2, "(true==2)");
-        TEST_TOSTRING(2 > 1 && 3 > 2, "((2>1)&&(3>2))");
+        TEST_TOSTRING(2 > 1 AND 3 > 2, "((2>1) AND (3>2))");
         TEST_TOSTRING((3 + 5) * 3 / (6 - 2), "(((3+5)*3)/(6-2))");
         TEST_TOSTRING(76 - 100 / 20 * 4, "(76-((100/20)*4))");
         TEST_TOSTRING(8 % 2 + 1 == 1, "(((8%2)+1)==1)");
@@ -1642,24 +1645,61 @@ TEST_F(ExpressionTest, MapAttribute) {
 }
 
 TEST_F(ExpressionTest, EdgeAttribute) {
+    Edge edge;
+    edge.name = "type";
+    edge.src = "src";
+    edge.dst = "dst";
+    edge.ranking = 123;
+    edge.props = {
+        {"Magill", "Nancy"},
+        {"Gideon", "Bible"},
+        {"Rocky", "Raccoon"},
+    };
     {
-        Edge edge;
-        edge.props = {
-            {"Magill", "Nancy"},
-            {"Gideon", "Bible"},
-            {"Rocky", "Raccoon"},
-        };
-        auto *left = new ConstantExpression(Value(std::move(edge)));
+        auto *left = new ConstantExpression(Value(edge));
         auto *right = new LabelExpression(new std::string("Rocky"));
         AttributeExpression expr(left, right);
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
         ASSERT_EQ("Raccoon", value.getStr());
     }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string(kType));
+        AttributeExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("type", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string(kSrc));
+        AttributeExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("src", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string(kDst));
+        AttributeExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("dst", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string(kRank));
+        AttributeExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isInt());
+        ASSERT_EQ(123, value.getInt());
+    }
 }
 
 TEST_F(ExpressionTest, VertexAttribute) {
     Vertex vertex;
+    vertex.vid = "vid";
     vertex.tags.resize(2);
     vertex.tags[0].props = {
         {"Venus", "Mars"},
@@ -1693,6 +1733,14 @@ TEST_F(ExpressionTest, VertexAttribute) {
         auto value = Expression::eval(&expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
         ASSERT_EQ("Mars", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new LabelExpression(new std::string("_vid"));
+        AttributeExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("vid", value.getStr());
     }
 }
 
@@ -1966,6 +2014,99 @@ TEST_F(ExpressionTest, RelationStartsWith) {
     }
 }
 
+TEST_F(ExpressionTest, RelationNotStartsWith) {
+    {
+        // "abc" not starts with "a"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("a"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" not starts with "ab"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("ab"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "1234"" not starts with "12"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("1234"),
+                new ConstantExpression("12"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "1234"" not starts with "34"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("1234"),
+                new ConstantExpression("34"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not starts with "bc"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("bc"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not starts with "ac"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("ac"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not starts with "AB"
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("AB"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not starts with 1
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression("abc1"),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        // 1234 not starts with 1
+        RelationalExpression expr(
+                Expression::Kind::kNotStartsWith,
+                new ConstantExpression(1234),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+}
+
 TEST_F(ExpressionTest, RelationEndsWith) {
     {
         // "abc" ends with "a"
@@ -1978,7 +2119,7 @@ TEST_F(ExpressionTest, RelationEndsWith) {
         EXPECT_EQ(eval, false);
     }
     {
-        // "abc" starts with "ab"
+        // "abc" ends with "ab"
         RelationalExpression expr(
                 Expression::Kind::kEndsWith,
                 new ConstantExpression("abc"),
@@ -2048,7 +2189,7 @@ TEST_F(ExpressionTest, RelationEndsWith) {
         EXPECT_EQ(eval, false);
     }
     {
-        // "abc" starts with 1
+        // "abc" ends with 1
         RelationalExpression expr(
                 Expression::Kind::kEndsWith,
                 new ConstantExpression("abc1"),
@@ -2058,9 +2199,122 @@ TEST_F(ExpressionTest, RelationEndsWith) {
         EXPECT_EQ(eval, Value::kNullBadType);
     }
     {
-        // 1234 starts with 1
+        // 1234 ends with 1
         RelationalExpression expr(
                 Expression::Kind::kEndsWith,
+                new ConstantExpression(1234),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        // "steve jobs" ends with "jobs"
+        RelationalExpression expr(
+                Expression::Kind::kEndsWith,
+                new ConstantExpression("steve jobs"),
+                new ConstantExpression("jobs"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+}
+
+TEST_F(ExpressionTest, RelationNotEndsWith) {
+    {
+        // "abc" not ends with "a"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("a"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not ends with "ab"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("ab"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "1234"" not ends with "12"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("1234"),
+                new ConstantExpression("12"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "1234"" not ends with "34"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("1234"),
+                new ConstantExpression("34"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" not ends with "bc"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("bc"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        // "abc" not ends with "ac"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("ac"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not ends with "AB"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("AB"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not ends with "BC"
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc"),
+                new ConstantExpression("BC"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        // "abc" not ends with 1
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
+                new ConstantExpression("abc1"),
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        // 1234 not ends with 1
+        RelationalExpression expr(
+                Expression::Kind::kNotEndsWith,
                 new ConstantExpression(1234),
                 new ConstantExpression(1));
         auto eval = Expression::eval(&expr, gExpCtxt);
@@ -2080,6 +2334,17 @@ TEST_F(ExpressionTest, ContainsToString) {
     }
 }
 
+TEST_F(ExpressionTest, NotContainsToString) {
+    {
+        // "abc" not contains "a"
+        RelationalExpression expr(
+                Expression::Kind::kNotContains,
+                new ConstantExpression("abc"),
+                new ConstantExpression("a"));
+        ASSERT_EQ("(abc NOT CONTAINS a)", expr.toString());
+    }
+}
+
 TEST_F(ExpressionTest, LabelExprToString) {
     LabelExpression expr(new std::string("name"));
     ASSERT_EQ("name", expr.toString());
@@ -2090,6 +2355,231 @@ TEST_F(ExpressionTest, LabelEvaluate) {
     auto value = Expression::eval(&expr, gExpCtxt);
     ASSERT_TRUE(value.isStr());
     ASSERT_EQ("name", value.getStr());
+}
+
+TEST_F(ExpressionTest, CaseExprToString) {
+    {
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(24), new ConstantExpression(1));
+        CaseExpression expr(cases);
+        expr.setCondition(new ConstantExpression(23));
+        ASSERT_EQ("CASE 23 WHEN 24 THEN 1 END", expr.toString());
+    }
+    {
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(24), new ConstantExpression(1));
+        CaseExpression expr(cases);
+        expr.setCondition(new ConstantExpression(23));
+        expr.setDefault(new ConstantExpression(2));
+        ASSERT_EQ("CASE 23 WHEN 24 THEN 1 ELSE 2 END", expr.toString());
+    }
+    {
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(false), new ConstantExpression(1));
+        cases->add(new ConstantExpression(true), new ConstantExpression(2));
+        CaseExpression expr(cases);
+        expr.setCondition(new RelationalExpression(Expression::Kind::kStartsWith,
+                                                   new ConstantExpression("nebula"),
+                                                   new ConstantExpression("nebu")));
+        expr.setDefault(new ConstantExpression(3));
+        ASSERT_EQ(
+            "CASE (nebula STARTS WITH nebu) WHEN false THEN 1 WHEN true THEN 2 ELSE 3 END",
+            expr.toString());
+    }
+    {
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(7), new ConstantExpression(1));
+        cases->add(new ConstantExpression(8), new ConstantExpression(2));
+        cases->add(new ConstantExpression(8), new ConstantExpression("jack"));
+        CaseExpression expr(cases);
+        expr.setCondition(new ArithmeticExpression(
+            Expression::Kind::kAdd, new ConstantExpression(3), new ConstantExpression(5)));
+        expr.setDefault(new ConstantExpression(false));
+        ASSERT_EQ("CASE (3+5) WHEN 7 THEN 1 WHEN 8 THEN 2 WHEN 8 THEN jack ELSE false END",
+                  expr.toString());
+    }
+    {
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(false), new ConstantExpression(18));
+        CaseExpression expr(cases);
+        ASSERT_EQ("CASE WHEN false THEN 18 END", expr.toString());
+    }
+    {
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(false), new ConstantExpression(18));
+        CaseExpression expr(cases);
+        expr.setDefault(new ConstantExpression("ok"));
+        ASSERT_EQ("CASE WHEN false THEN 18 ELSE ok END", expr.toString());
+    }
+    {
+        auto *cases = new CaseList();
+        cases->add(new RelationalExpression(Expression::Kind::kStartsWith,
+                                            new ConstantExpression("nebula"),
+                                            new ConstantExpression("nebu")),
+                   new ConstantExpression("yes"));
+        CaseExpression expr(cases);
+        expr.setDefault(new ConstantExpression(false));
+        ASSERT_EQ("CASE WHEN (nebula STARTS WITH nebu) THEN yes ELSE false END",
+                  expr.toString());
+    }
+    {
+        auto *cases = new CaseList();
+        cases->add(
+            new RelationalExpression(
+                Expression::Kind::kRelLT, new ConstantExpression(23), new ConstantExpression(17)),
+            new ConstantExpression(1));
+        cases->add(
+            new RelationalExpression(
+                Expression::Kind::kRelEQ, new ConstantExpression(37), new ConstantExpression(37)),
+            new ConstantExpression(2));
+        cases->add(
+            new RelationalExpression(
+                Expression::Kind::kRelNE, new ConstantExpression(45), new ConstantExpression(99)),
+            new ConstantExpression(3));
+        CaseExpression expr(cases);
+        expr.setDefault(new ConstantExpression(4));
+        ASSERT_EQ("CASE WHEN (23<17) THEN 1 WHEN (37==37) THEN 2 WHEN (45!=99) THEN 3 ELSE 4 END",
+                  expr.toString());
+    }
+    {
+        auto *cases = new CaseList();
+        cases->add(
+            new RelationalExpression(
+                Expression::Kind::kRelLT, new ConstantExpression(23), new ConstantExpression(17)),
+            new ConstantExpression(1));
+        CaseExpression expr(cases, false);
+        expr.setDefault(new ConstantExpression(2));
+        ASSERT_EQ("((23<17) ? 1 : 2)", expr.toString());
+    }
+    {
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(false), new ConstantExpression(1));
+        CaseExpression expr(cases, false);
+        expr.setDefault(new ConstantExpression("ok"));
+        ASSERT_EQ("(false ? 1 : ok)", expr.toString());
+    }
+}
+
+TEST_F(ExpressionTest, CaseEvaluate) {
+    {
+        // CASE 23 WHEN 24 THEN 1 END
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(24), new ConstantExpression(1));
+        CaseExpression expr(cases);
+        expr.setCondition(new ConstantExpression(23));
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_EQ(value, Value::kNullValue);
+    }
+    {
+        // CASE 23 WHEN 24 THEN 1 ELSE false END
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(24), new ConstantExpression(1));
+        CaseExpression expr(cases);
+        expr.setCondition(new ConstantExpression(23));
+        expr.setDefault(new ConstantExpression(false));
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isBool());
+        ASSERT_EQ(value.getBool(), false);
+    }
+    {
+        // CASE ("nebula" STARTS WITH "nebu") WHEN false THEN 1 WHEN true THEN 2 ELSE 3 END
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(false), new ConstantExpression(1));
+        cases->add(new ConstantExpression(true), new ConstantExpression(2));
+        CaseExpression expr(cases);
+        expr.setCondition(new RelationalExpression(Expression::Kind::kStartsWith,
+                                                   new ConstantExpression("nebula"),
+                                                   new ConstantExpression("nebu")));
+        expr.setDefault(new ConstantExpression(3));
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isInt());
+        ASSERT_EQ(2, value.getInt());
+    }
+    {
+        // CASE (3+5) WHEN 7 THEN 1 WHEN 8 THEN 2 WHEN 8 THEN "jack" ELSE "no" END
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(7), new ConstantExpression(1));
+        cases->add(new ConstantExpression(8), new ConstantExpression(2));
+        cases->add(new ConstantExpression(8), new ConstantExpression("jack"));
+        CaseExpression expr(cases);
+        expr.setCondition(new ArithmeticExpression(
+            Expression::Kind::kAdd, new ConstantExpression(3), new ConstantExpression(5)));
+        expr.setDefault(new ConstantExpression("no"));
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isInt());
+        ASSERT_EQ(2, value.getInt());
+    }
+    {
+        // CASE WHEN false THEN 18 END
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(false), new ConstantExpression(18));
+        CaseExpression expr(cases);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_EQ(value, Value::kNullValue);
+    }
+    {
+        // CASE WHEN false THEN 18 ELSE ok END
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(false), new ConstantExpression(18));
+        CaseExpression expr(cases);
+        expr.setDefault(new ConstantExpression("ok"));
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("ok", value.getStr());
+    }
+    {
+        // CASE WHEN "invalid when" THEN "no" ELSE 3 END
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression("invalid when"), new ConstantExpression("no"));
+        CaseExpression expr(cases);
+        expr.setDefault(new ConstantExpression(3));
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_EQ(value, Value::kNullBadType);
+    }
+    {
+        // CASE WHEN (23<17) THEN 1 WHEN (37==37) THEN 2 WHEN (45!=99) THEN 3 ELSE 4 END
+        auto *cases = new CaseList();
+        cases->add(
+            new RelationalExpression(
+                Expression::Kind::kRelLT, new ConstantExpression(23), new ConstantExpression(17)),
+            new ConstantExpression(1));
+        cases->add(
+            new RelationalExpression(
+                Expression::Kind::kRelEQ, new ConstantExpression(37), new ConstantExpression(37)),
+            new ConstantExpression(2));
+        cases->add(
+            new RelationalExpression(
+                Expression::Kind::kRelNE, new ConstantExpression(45), new ConstantExpression(99)),
+            new ConstantExpression(3));
+        CaseExpression expr(cases);
+        expr.setDefault(new ConstantExpression(4));
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isInt());
+        ASSERT_EQ(2, value.getInt());
+    }
+    {
+        // ((23<17) ? 1 : 2)
+        auto *cases = new CaseList();
+        cases->add(
+            new RelationalExpression(
+                Expression::Kind::kRelLT, new ConstantExpression(23), new ConstantExpression(17)),
+            new ConstantExpression(1));
+        CaseExpression expr(cases, false);
+        expr.setDefault(new ConstantExpression(2));
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isInt());
+        ASSERT_EQ(2, value.getInt());
+    }
+    {
+        // (false ? 1 : "ok")
+        auto *cases = new CaseList();
+        cases->add(new ConstantExpression(false), new ConstantExpression(1));
+        CaseExpression expr(cases, false);
+        expr.setDefault(new ConstantExpression("ok"));
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("ok", value.getStr());
+    }
 }
 
 TEST_F(ExpressionTest, TestExprClone) {
@@ -2176,6 +2666,93 @@ TEST_F(ExpressionTest, TestExprClone) {
 
     VersionedVariableExpression verVarExpr(new std::string("VARNAME"), new ConstantExpression(0));
     ASSERT_EQ(*verVarExpr.clone(), verVarExpr);
+
+    auto *cases = new CaseList();
+    cases->add(new ConstantExpression(3), new ConstantExpression(9));
+    CaseExpression caseExpr(cases);
+    caseExpr.setCondition(new ConstantExpression(2));
+    caseExpr.setDefault(new ConstantExpression(8));
+    ASSERT_EQ(caseExpr, *caseExpr.clone());
+
+    PathBuildExpression pathBuild;
+    pathBuild.add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                            new std::string("path_src")))
+        .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                            new std::string("path_edge1")))
+        .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_v1")));
+    ASSERT_EQ(pathBuild, *pathBuild.clone());
+}
+
+TEST_F(ExpressionTest, PathBuild) {
+    {
+        PathBuildExpression expr;
+        expr.add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_src")))
+            .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_edge1")))
+            .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_v1")));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::PATH);
+        Path expected;
+        expected.src = Vertex("1", {});
+        expected.steps.emplace_back(Step(Vertex("2", {}), 1, "edge", 0, {}));
+        EXPECT_EQ(eval.getPath(), expected);
+    }
+    {
+        PathBuildExpression expr;
+        expr.add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_src")))
+            .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_edge1")))
+            .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_v1")))
+            .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_edge2")))
+            .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_v2")));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::PATH);
+        Path expected;
+        expected.src = Vertex("1", {});
+        expected.steps.emplace_back(Step(Vertex("2", {}), 1, "edge", 0, {}));
+        expected.steps.emplace_back(Step(Vertex("3", {}), 1, "edge", 0, {}));
+        EXPECT_EQ(eval.getPath(), expected);
+    }
+    {
+        PathBuildExpression expr;
+        expr.add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_src")));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::PATH);
+        Path expected;
+        expected.src = Vertex("1", {});
+        EXPECT_EQ(eval.getPath(), expected);
+    }
+    {
+        PathBuildExpression expr;
+        expr.add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_src")))
+            .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_edge1")));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval, Value::kNullValue);
+    }
+}
+
+TEST_F(ExpressionTest, PathBuildToString) {
+    {
+        PathBuildExpression expr;
+        expr.add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_src")))
+            .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_edge1")))
+            .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                              new std::string("path_v1")));
+        EXPECT_EQ(expr.toString(), "PathBuild[$var1.path_src,$var1.path_edge1,$var1.path_v1]");
+    }
 }
 
 }  // namespace nebula

@@ -5,25 +5,29 @@
  */
 
 #include "common/expression/Expression.h"
+
 #include <thrift/lib/cpp2/protocol/Serializer.h>
+
 #include "common/datatypes/ValueOps.h"
-#include "common/expression/PropertyExpression.h"
 #include "common/expression/ArithmeticExpression.h"
+#include "common/expression/AttributeExpression.h"
 #include "common/expression/ConstantExpression.h"
+#include "common/expression/ContainerExpression.h"
+#include "common/expression/EdgeExpression.h"
 #include "common/expression/FunctionCallExpression.h"
+#include "common/expression/LabelAttributeExpression.h"
+#include "common/expression/LabelExpression.h"
 #include "common/expression/LogicalExpression.h"
+#include "common/expression/PathBuildExpression.h"
+#include "common/expression/PropertyExpression.h"
 #include "common/expression/RelationalExpression.h"
 #include "common/expression/SubscriptExpression.h"
-#include "common/expression/AttributeExpression.h"
-#include "common/expression/LabelAttributeExpression.h"
 #include "common/expression/TypeCastingExpression.h"
 #include "common/expression/UUIDExpression.h"
 #include "common/expression/UnaryExpression.h"
 #include "common/expression/VariableExpression.h"
-#include "common/expression/ContainerExpression.h"
-#include "common/expression/LabelExpression.h"
 #include "common/expression/VertexExpression.h"
-#include "common/expression/EdgeExpression.h"
+#include "common/expression/CaseExpression.h"
 
 namespace nebula {
 
@@ -296,13 +300,28 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kNotContains: {
+            exp = std::make_unique<RelationalExpression>(Expression::Kind::kNotContains);
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kStartsWith: {
             exp = std::make_unique<RelationalExpression>(Expression::Kind::kStartsWith);
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kNotStartsWith: {
+            exp = std::make_unique<RelationalExpression>(Expression::Kind::kNotStartsWith);
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kEndsWith: {
             exp = std::make_unique<RelationalExpression>(Expression::Kind::kEndsWith);
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kNotEndsWith: {
+            exp = std::make_unique<RelationalExpression>(Expression::Kind::kNotEndsWith);
             exp->resetFrom(decoder);
             return exp;
         }
@@ -437,12 +456,21 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kCase: {
+            exp = std::make_unique<CaseExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kPathBuild: {
+            exp = std::make_unique<PathBuildExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
         // no default so the compiler will warning when lack
     }
 
     LOG(FATAL) << "Unknown expression: " << decoder.getHexStr();
 }
-
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
     switch (kind) {
@@ -506,11 +534,20 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Kind::kContains:
             os << "Contains";
             break;
+        case Expression::Kind::kNotContains:
+            os << "NotContains";
+            break;
         case Expression::Kind::kStartsWith:
             os << "StartsWith";
             break;
+        case Expression::Kind::kNotStartsWith:
+            os << "NotStartsWith";
+            break;
         case Expression::Kind::kEndsWith:
             os << "EndsWith";
+            break;
+        case Expression::Kind::kNotEndsWith:
+            os << "NotEndsWith";
             break;
         case Expression::Kind::kSubscript:
             os << "Subscript";
@@ -592,6 +629,12 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             break;
         case Expression::Kind::kLabel:
             os << "Label";
+            break;
+        case Expression::Kind::kCase:
+            os << "Case";
+            break;
+        case Expression::Kind::kPathBuild:
+            os << "PathBuild";
             break;
     }
     return os;

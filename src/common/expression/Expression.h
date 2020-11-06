@@ -41,8 +41,11 @@ public:
         kRelIn,
         kRelNotIn,
         kContains,
+        kNotContains,
         kStartsWith,
+        kNotStartsWith,
         kEndsWith,
+        kNotEndsWith,
         kSubscript,
         kAttribute,
         kLabelAttribute,
@@ -78,6 +81,10 @@ public:
         kMap,
 
         kLabel,
+
+        kCase,
+
+        kPathBuild,
     };
 
     explicit Expression(Kind kind) : kind_(kind) {}

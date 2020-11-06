@@ -78,6 +78,10 @@ const char *Status::toString(Code code) {
             return "TagNotFound: ";
         case kEdgeNotFound:
             return "EdgeNotFound: ";
+        case kGroupNotFound:
+            return "GroupNotFound: ";
+        case kZoneNotFound:
+            return "ZoneNotFound: ";
         case kUserNotFound:
             return "UserNotFound: ";
         case kLeaderChanged:
@@ -90,6 +94,8 @@ const char *Status::toString(Code code) {
             return "PartNotFound: ";
         case kPermissionError:
             return "PermissionError: ";
+        case kListenerNotFound:
+            return "ListenerNotFound";
     }
     DLOG(FATAL) << "Invalid status code: " << static_cast<uint16_t>(code);
     return "";
