@@ -13,32 +13,6 @@ namespace plugin {
 std::unique_ptr<FTGraphAdapter> ESGraphAdapter::kAdapter =
     std::unique_ptr<ESGraphAdapter>(new ESGraphAdapter());
 
-bool ESGraphAdapter::result(const std::string& ret, std::vector<std::string>& rows) const {
-    auto root = folly::parseJson(ret);
-    auto rootHits = root.find("hits");
-    if (rootHits != root.items().end()) {
-        auto subHits = rootHits->second.find("hits");
-        if (subHits != rootHits->second.items().end()) {
-            for (auto& item : subHits->second) {
-                auto s = item.find("_source");
-                if (s != item.items().end()) {
-                    auto v = s->second.find("value");
-                    if (v != s->second.items().end()) {
-                        rows.emplace_back(v->second.getString());
-                    } else {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-            }
-        }
-        return true;
-    }
-    LOG(ERROR) << "error reason : " << ret;
-    return false;
-}
-
 StatusOr<bool> ESGraphAdapter::prefix(const HttpClient& client,
                                       const DocItem& item,
                                       const LimitItem& limit,
@@ -242,7 +216,7 @@ StatusOr<bool> ESGraphAdapter::indexExists(const HttpClient& client,
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http GET Failed: " << cmd;
-        return Status::Error("command failed : %s", cmd.c_str());
+        return Status::Error("Http GET Failed: : %s", cmd.c_str());
     }
     return indexCheck(ret.value());
 }
@@ -255,22 +229,70 @@ std::string ESGraphAdapter::indexExistsCmd(const HttpClient& client,
     return os.str();
 }
 
-bool ESGraphAdapter::statusCheck(const std::string& ret) const {
-    auto root = folly::parseJson(ret);
-    auto result = root.find("acknowledged");
-    if (result != root.items().end() && result->second.isBool() && result->second.getBool()) {
-        return true;
+bool ESGraphAdapter::result(const std::string& ret, std::vector<std::string>& rows) const {
+    try {
+        auto root = folly::parseJson(ret);
+        auto rootHits = root.find("hits");
+        if (rootHits != root.items().end()) {
+            auto subHits = rootHits->second.find("hits");
+            if (subHits != rootHits->second.items().end()) {
+                for (auto& item : subHits->second) {
+                    auto s = item.find("_source");
+                    if (s != item.items().end()) {
+                        auto v = s->second.find("value");
+                        if (v != s->second.items().end()) {
+                            rows.emplace_back(v->second.getString());
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
+                }
+            }
+            return true;
+        }
+    } catch (std::exception &e) {
+        LOG(ERROR) << "result error : " << e.what();
     }
     LOG(ERROR) << "error reason : " << ret;
     return false;
 }
 
-bool ESGraphAdapter::indexCheck(const std::string& ret) const {
-    auto root = folly::parseJson(ret);
-    auto exists = root.find("index");
-    if (exists != root.items().end()) {
-        return true;
+bool ESGraphAdapter::statusCheck(const std::string& ret) const {
+    try {
+        auto root = folly::parseJson(ret);
+        if (root.isArray()) {
+            return false;
+        }
+        auto result = root.find("acknowledged");
+        if (result != root.items().end() && result->second.isBool() && result->second.getBool()) {
+            return true;
+        }
+    } catch (const std::exception& ex) {
+        LOG(ERROR) << "result error : " << ex.what();
     }
+
+    LOG(ERROR) << "error reason : " << ret;
+    return false;
+}
+
+bool ESGraphAdapter::indexCheck(const std::string& ret) const {
+    try {
+        auto root = folly::parseJson(ret);
+        if (!root.isArray()) {
+            return false;
+        }
+        for (auto& entry : root) {
+            auto exists = entry.find("index");
+            if (exists != entry.items().end()) {
+                return true;
+            }
+        }
+    } catch (std::exception &e) {
+        LOG(ERROR) << "result error : " << e.what();
+    }
+    LOG(ERROR) << "error reason : " << ret;
     return false;
 }
 }  // namespace plugin

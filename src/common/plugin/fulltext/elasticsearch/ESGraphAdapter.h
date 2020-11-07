@@ -60,8 +60,6 @@ public:
 private:
     ESGraphAdapter() {}
 
-    bool result(const std::string& ret, std::vector<std::string>& rows) const;
-
     std::string header() const noexcept;
 
     std::string header(const HttpClient& client,
@@ -87,6 +85,8 @@ private:
     folly::dynamic fuzzyBody(const std::string& regexp,
                              const folly::dynamic& fuzziness,
                              const std::string& op) const noexcept;
+
+    bool result(const std::string& ret, std::vector<std::string>& rows) const;
 
     bool statusCheck(const std::string& ret) const;
 

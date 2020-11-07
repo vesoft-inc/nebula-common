@@ -177,7 +177,6 @@ struct SpaceDesc {
     5: binary               collate_name,
     6: ColumnTypeDef        vid_type = {"type": PropertyType.FIXED_STRING, "type_length": 8},
     7: optional binary      group_name,
-    8: bool                 text_search = false,
 }
 
 struct SpaceItem {

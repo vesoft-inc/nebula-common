@@ -20,9 +20,8 @@ bool TextSearchArgument::operator==(const TextSearchArgument& rhs) const {
 std::string TextSearchArgument::toString() const {
     std::string buf;
     buf.reserve(64);
-    if (val_ != nullptr) {
-        buf = "\"" + *val_ + "\"";
-    }
+    buf = *from_ + "." + *prop_ + ", ";
+    buf += "\"" + *val_ + "\"";
     if (fuzziness_ == -1) {
         buf += " AUTO, ";
         buf += ((*op_ == "or") ? "OR" : "AND");

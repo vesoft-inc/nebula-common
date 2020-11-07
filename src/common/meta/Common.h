@@ -63,6 +63,16 @@ using RemoteListeners =
     std::unordered_map<GraphSpaceID,
                        std::unordered_map<PartitionID, std::vector<RemoteListenerInfo>>>;
 
+// ListenersMap is used for listener replica to get its peers of data replica
+using ListenersMap =
+    std::unordered_map<GraphSpaceID, std::unordered_map<PartitionID, std::vector<ListenerHosts>>>;
+// RemoteListenerInfo is pair of <listener host, listener type>
+using RemoteListenerInfo = std::pair<HostAddr, cpp2::ListenerType>;
+// RemoteListeners is used for data replica to check if some part has remote listener
+using RemoteListeners =
+    std::unordered_map<GraphSpaceID,
+                       std::unordered_map<PartitionID, std::vector<RemoteListenerInfo>>>;
+
 inline bool checkSegment(const std::string& segment) {
     static const std::regex pattern("^[0-9a-zA-Z]+$");
     if (!segment.empty() && std::regex_match(segment, pattern)) {

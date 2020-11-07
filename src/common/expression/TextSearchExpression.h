@@ -79,9 +79,9 @@ private:
     std::unique_ptr<std::string>                prop_{nullptr};
     std::unique_ptr<std::string>                val_{nullptr};
     std::unique_ptr<std::string>                op_{nullptr};
-    int32_t                                     fuzziness_{-1};
-    int32_t                                     limit_{-1};
-    int32_t                                     timeout_{-1};
+    int32_t                                     fuzziness_{-2};
+    int32_t                                     limit_{100};
+    int32_t                                     timeout_{200};
 };
 
 class TextSearchExpression : public Expression {

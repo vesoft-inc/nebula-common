@@ -1112,6 +1112,18 @@ MetaClient::getSpaceIdByNameFromCache(const std::string& name) {
     return Status::SpaceNotFound();
 }
 
+StatusOr<std::string> MetaClient::getSpaceNameByIdFromCache(GraphSpaceID spaceId) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        LOG(ERROR) << "Space " << spaceId << " not found!";
+        return Status::Error("Space %d not found", spaceId);
+    }
+    return spaceIt->second->spaceDesc_.space_name;
+}
 
 StatusOr<TagID> MetaClient::getTagIDByNameFromCache(const GraphSpaceID& space,
                                                     const std::string& name) {
@@ -2825,21 +2837,21 @@ ListenersMap MetaClient::doGetListenersMap(const HostAddr& host, const LocalCach
     for (const auto& space : localCache) {
         auto spaceId = space.first;
         for (const auto& listener : space.second->listeners_) {
-            if (host != listener.first) {
-                continue;
-            }
-            for (const auto& part : listener.second) {
-                auto partId = part.first;
-                auto type = part.second;
-                auto partIter = space.second->partsAlloc_.find(partId);
-                if (partIter != space.second->partsAlloc_.end()) {
-                    auto peers = partIter->second;
-                    listenersMap[spaceId][partId].emplace_back(std::move(type), std::move(peers));
-                } else {
-                    FLOG_WARN("%s has listener of [%d, %d], but can't find part peers",
-                              host.toString().c_str(), spaceId, partId);
-                }
-            }
+             if (host != listener.first) {
+                 continue;
+             }
+             for (const auto& part : listener.second) {
+                 auto partId = part.first;
+                 auto type = part.second;
+                 auto partIter = space.second->partsAlloc_.find(partId);
+                 if (partIter != space.second->partsAlloc_.end()) {
+                     auto peers = partIter->second;
+                     listenersMap[spaceId][partId].emplace_back(std::move(type), std::move(peers));
+                 } else {
+                     FLOG_WARN("%s has listener of [%d, %d], but can't find part peers",
+                               host.toString().c_str(), spaceId, partId);
+                 }
+             }
         }
     }
     return listenersMap;
