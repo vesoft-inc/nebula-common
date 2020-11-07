@@ -10,12 +10,19 @@
 #include "common/expression/BinaryExpression.h"
 
 namespace nebula {
-class LogicalExpression final : public BinaryExpression {
+class LogicalExpression final : public Expression {
 public:
     LogicalExpression(Kind kind,
                       Expression* lhs = nullptr,
                       Expression* rhs = nullptr)
-        : BinaryExpression(kind, lhs, rhs) {}
+        : Expression(kind) {
+        operands_.emplace_back(lhs);
+        operands_.emplace_back(rhs);
+    }
+
+    void addOperand(Expression *expr) {
+        operands_.emplace_back(expr);
+    }
 
     const Value& eval(ExpressionContext& ctx) override;
 
@@ -24,12 +31,76 @@ public:
     void accept(ExprVisitor* visitor) override;
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<LogicalExpression>(
-            kind(), left()->clone().release(), right()->clone().release());
+        auto copy = std::make_unique<LogicalExpression>(kind());
+        copy->operands_.resize(operands_.size());
+        for (auto i = 0u; i < operands_.size(); i++) {
+            copy->operands_[i] = operands_[i]->clone();
+        }
+        return copy;
+    }
+
+    bool operator==(const Expression &rhs) const override;
+
+    auto& operands() {
+        return operands_;
+    }
+
+    const auto& operands() const {
+        return operands_;
+    }
+
+    auto* operand(size_t index) {
+        return operands_[index].get();
+    }
+
+    const auto* operand(size_t index) const {
+        return operands_[index].get();
+    }
+
+    auto* left() {
+        DCHECK_EQ(operands_.size(), 2UL);
+        return operand(0);
+    }
+
+    const auto* left() const {
+        DCHECK_EQ(operands_.size(), 2UL);
+        return operand(0);
+    }
+
+    auto* right() {
+        DCHECK_EQ(operands_.size(), 2UL);
+        return operand(1);
+    }
+
+    const auto* right() const {
+        DCHECK_EQ(operands_.size(), 2UL);
+        return operand(1);
+    }
+
+    void setLeft(Expression *left) {
+        DCHECK_EQ(operands_.size(), 2UL);
+        operands_[0].reset(left);
+    }
+
+    void setRight(Expression *right) {
+        DCHECK_EQ(operands_.size(), 2UL);
+        operands_[1].reset(right);
+    }
+
+    void setOperand(size_t i, Expression *operand) {
+        operands_[i].reset(operand);
     }
 
 private:
+    void writeTo(Encoder &encoder) const override;
+    void resetFrom(Decoder &decoder) override;
+    const Value& evalAnd(ExpressionContext &ctx);
+    const Value& evalOr(ExpressionContext &ctx);
+    const Value& evalXor(ExpressionContext &ctx);
+
+private:
     Value                                       result_;
+    std::vector<std::unique_ptr<Expression>>    operands_;
 };
 
 }   // namespace nebula
