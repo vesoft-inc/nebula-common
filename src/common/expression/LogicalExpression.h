@@ -12,16 +12,12 @@
 namespace nebula {
 class LogicalExpression final : public Expression {
 public:
-    LogicalExpression(Kind kind,
-                      Expression* lhs = nullptr,
-                      Expression* rhs = nullptr)
+    explicit LogicalExpression(Kind kind) : Expression(kind) {}
+
+    LogicalExpression(Kind kind, Expression* lhs, Expression* rhs)
         : Expression(kind) {
         operands_.emplace_back(lhs);
         operands_.emplace_back(rhs);
-    }
-
-    void addOperand(Expression *expr) {
-        operands_.emplace_back(expr);
     }
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -57,37 +53,12 @@ public:
         return operands_[index].get();
     }
 
-    auto* left() {
-        DCHECK_EQ(operands_.size(), 2UL);
-        return operand(0);
-    }
-
-    const auto* left() const {
-        DCHECK_EQ(operands_.size(), 2UL);
-        return operand(0);
-    }
-
-    auto* right() {
-        DCHECK_EQ(operands_.size(), 2UL);
-        return operand(1);
-    }
-
-    const auto* right() const {
-        DCHECK_EQ(operands_.size(), 2UL);
-        return operand(1);
-    }
-
-    void setLeft(Expression *left) {
-        DCHECK_EQ(operands_.size(), 2UL);
-        operands_[0].reset(left);
-    }
-
-    void setRight(Expression *right) {
-        DCHECK_EQ(operands_.size(), 2UL);
-        operands_[1].reset(right);
+    void addOperand(Expression *expr) {
+        operands_.emplace_back(expr);
     }
 
     void setOperand(size_t i, Expression *operand) {
+        DCHECK_LT(i, operands_.size());
         operands_[i].reset(operand);
     }
 
