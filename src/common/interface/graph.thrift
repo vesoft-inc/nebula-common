@@ -55,6 +55,9 @@ enum ErrorCode {
 
     // semantic error
     E_SEMANTIC_ERROR = -12,
+
+    // Exceeding the maximum number of connections
+    E_OUT_OF_MAX_CONNECTIONS = -13,
 } (cpp.enum_strict)
 
 
