@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include <folly/hash/Hash.h>
 #include <folly/String.h>
+#include <folly/hash/Hash.h>
 
 #include <common/datatypes/Edge.h>
 
@@ -14,9 +14,11 @@ namespace nebula {
 std::string Edge::toString() const {
     std::stringstream os;
     os << "(" << src << ")"
-        << "-" << "[" << name << "(" << type << ")]" << "->"
-        << "(" << dst << ")"
-        << "@" << ranking;
+       << "-"
+       << "[" << name << "(" << type << ")]"
+       << "->"
+       << "(" << dst << ")"
+       << "@" << ranking;
     if (!props.empty()) {
         std::vector<std::string> value(props.size());
         std::transform(
@@ -30,8 +32,7 @@ std::string Edge::toString() const {
     return os.str();
 }
 
-}  // namespace nebula
-
+}   // namespace nebula
 
 namespace std {
 
@@ -39,12 +40,8 @@ namespace std {
 std::size_t hash<nebula::Edge>::operator()(const nebula::Edge& h) const noexcept {
     size_t hv = folly::hash::fnv64(h.src);
     hv = folly::hash::fnv64(h.dst, hv);
-    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.type),
-                                sizeof(h.type),
-                                hv);
-    return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.ranking),
-                                    sizeof(h.ranking),
-                                    hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.type), sizeof(h.type), hv);
+    return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.ranking), sizeof(h.ranking), hv);
 }
 
-}  // namespace std
+}   // namespace std
