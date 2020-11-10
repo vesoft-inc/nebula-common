@@ -24,6 +24,8 @@ nebula_add_library(
     LabelExpression.cpp
     VertexExpression.cpp
     EdgeExpression.cpp
+    CaseExpression.cpp
+    PathBuildExpression.cpp
 )
 
 nebula_add_subdirectory(test)
