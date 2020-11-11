@@ -20,11 +20,11 @@ public:
 
     // Authenticate the user
     nebula::ErrorCode connect(const std::string& username,
-                            const std::string& password);
+                              const std::string& password);
     void disconnect();
 
     nebula::ErrorCode execute(folly::StringPiece stmt,
-                            nebula::ExecutionResponse& resp);
+                              nebula::ExecutionResponse& resp);
 
 private:
     std::unique_ptr<cpp2::GraphServiceAsyncClient> client_;

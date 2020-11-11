@@ -29,7 +29,7 @@ GraphClient::~GraphClient() {
 
 
 nebula::ErrorCode GraphClient::connect(const std::string& username,
-                                     const std::string& password) {
+                                       const std::string& password) {
     using apache::thrift::async::TAsyncSocket;
     using apache::thrift::HeaderClientChannel;
 
@@ -75,7 +75,7 @@ void GraphClient::disconnect() {
 
 
 nebula::ErrorCode GraphClient::execute(folly::StringPiece stmt,
-                                     nebula::ExecutionResponse& resp) {
+                                       nebula::ExecutionResponse& resp) {
     if (!client_) {
         LOG(ERROR) << "Disconnected from the server";
         return nebula::ErrorCode::E_DISCONNECTED;
