@@ -999,7 +999,7 @@ struct BackupMeta {
     // space_name => SpaceBackupInfo
     1: map<common.GraphSpaceID, SpaceBackupInfo> (cpp.template = "std::unordered_map")  backup_info,
     // sst file
-    2: list<binary>                               meta_files,
+    2: list<string>                               meta_files,
 }
 
 struct CreateBackupReq {
