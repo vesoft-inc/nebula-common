@@ -90,11 +90,11 @@ struct ProfilingStats {
     }
 
     // How many rows being processed in an executor.
-    int64_t rows;
+    int64_t rows{0};
     // Duration spent in an executor.
-    int64_t exec_duration_in_us;
+    int64_t exec_duration_in_us{0};
     // Total duration spent in an executor, contains schedule time
-    int64_t total_duration_in_us;
+    int64_t total_duration_in_us{0};
     // Other profiling stats data map
     std::unique_ptr<std::unordered_map<std::string, std::string>> other_stats;
 };
@@ -111,9 +111,9 @@ struct PlanNodeBranchInfo {
     }
 
     // True if loop body or then branch of select
-    bool  is_do_branch;
+    bool  is_do_branch{0};
     // select/loop node id
-    int64_t  condition_node_id;
+    int64_t  condition_node_id{-1};
 };
 
 struct Pair {
@@ -144,15 +144,15 @@ struct PlanNodeDescription {
     bool operator==(const PlanNodeDescription &rhs) const;
 
     std::string                                   name;
-    int64_t                                       id;
+    int64_t                                       id{-1};
     std::string                                   output_var;
     // other description of an executor
-    std::unique_ptr<std::vector<Pair>>            description;
+    std::unique_ptr<std::vector<Pair>>            description{nullptr};
     // If an executor would be executed multi times,
     // the profiling statistics should be multi-versioned.
-    std::unique_ptr<std::vector<ProfilingStats>>   profiles;
-    std::unique_ptr<PlanNodeBranchInfo>            branch_info;
-    std::unique_ptr<std::vector<int64_t>>          dependencies;
+    std::unique_ptr<std::vector<ProfilingStats>>   profiles{nullptr};
+    std::unique_ptr<PlanNodeBranchInfo>            branch_info{nullptr};
+    std::unique_ptr<std::vector<int64_t>>          dependencies{nullptr};
 };
 
 struct PlanDescription {
