@@ -65,13 +65,13 @@ uint32_t Cpp2Ops<::nebula::PlanDescription>::write(Protocol* proto,
     xfer += proto->writeFieldBegin("plan_node_descs", apache::thrift::protocol::T_LIST, 1);
     xfer += ::apache::thrift::detail::pm::protocol_methods<
         ::apache::thrift::type_class::list<::apache::thrift::type_class::structure>,
-        std::vector<::nebula::PlanNodeDescription>>::write(*proto, obj->plan_node_descs);
+        std::vector<::nebula::PlanNodeDescription>>::write(*proto, obj->planNodeDescs);
     xfer += proto->writeFieldEnd();
     xfer += proto->writeFieldBegin("node_index_map", apache::thrift::protocol::T_MAP, 2);
     xfer += ::apache::thrift::detail::pm::protocol_methods<
         ::apache::thrift::type_class::map<::apache::thrift::type_class::integral,
                                           ::apache::thrift::type_class::integral>,
-        std::unordered_map<int64_t, int64_t>>::write(*proto, obj->node_index_map);
+        std::unordered_map<int64_t, int64_t>>::write(*proto, obj->nodeIndexMap);
     xfer += proto->writeFieldEnd();
     xfer += proto->writeFieldBegin("format", apache::thrift::protocol::T_STRING, 3);
     xfer += proto->writeBinary(obj->format);
@@ -99,10 +99,10 @@ void Cpp2Ops<::nebula::PlanDescription>::read(Protocol* proto, ::nebula::PlanDes
     }
 _readField_plan_node_descs:
     {
-        obj->plan_node_descs = std::vector<::nebula::PlanNodeDescription>();
+        obj->planNodeDescs = std::vector<::nebula::PlanNodeDescription>();
         ::apache::thrift::detail::pm::protocol_methods<
             ::apache::thrift::type_class::list<::apache::thrift::type_class::structure>,
-            std::vector<::nebula::PlanNodeDescription>>::read(*proto, obj->plan_node_descs);
+            std::vector<::nebula::PlanNodeDescription>>::read(*proto, obj->planNodeDescs);
         isset_plan_node_descs = true;
     }
 
@@ -111,11 +111,11 @@ _readField_plan_node_descs:
     }
 _readField_node_index_map:
     {
-        obj->node_index_map = std::unordered_map<int64_t, int64_t>();
+        obj->nodeIndexMap = std::unordered_map<int64_t, int64_t>();
         ::apache::thrift::detail::pm::protocol_methods<
             ::apache::thrift::type_class::map<::apache::thrift::type_class::integral,
                                               ::apache::thrift::type_class::integral>,
-            std::unordered_map<int64_t, int64_t>>::read(*proto, obj->node_index_map);
+            std::unordered_map<int64_t, int64_t>>::read(*proto, obj->nodeIndexMap);
         isset_node_index_map = true;
     }
 
@@ -197,12 +197,12 @@ uint32_t Cpp2Ops<::nebula::PlanDescription>::serializedSize(Protocol const* prot
     xfer += ::apache::thrift::detail::pm::protocol_methods<
         ::apache::thrift::type_class::list<::apache::thrift::type_class::structure>,
         std::vector<::nebula::PlanNodeDescription>>::serializedSize<false>(*proto,
-                                                                           obj->plan_node_descs);
+                                                                           obj->planNodeDescs);
     xfer += proto->serializedFieldSize("node_index_map", apache::thrift::protocol::T_MAP, 2);
     xfer += ::apache::thrift::detail::pm::protocol_methods<
         ::apache::thrift::type_class::map<::apache::thrift::type_class::integral,
                                           ::apache::thrift::type_class::integral>,
-        std::unordered_map<int64_t, int64_t>>::serializedSize<false>(*proto, obj->node_index_map);
+        std::unordered_map<int64_t, int64_t>>::serializedSize<false>(*proto, obj->nodeIndexMap);
     xfer += proto->serializedFieldSize("format", apache::thrift::protocol::T_STRING, 3);
     xfer += proto->serializedSizeBinary(obj->format);
     xfer += proto->serializedSizeStop();
@@ -220,12 +220,12 @@ uint32_t Cpp2Ops<::nebula::PlanDescription>::serializedSizeZC(
     xfer += ::apache::thrift::detail::pm::protocol_methods<
         ::apache::thrift::type_class::list<::apache::thrift::type_class::structure>,
         std::vector<::nebula::PlanNodeDescription>>::serializedSize<false>(*proto,
-                                                                           obj->plan_node_descs);
+                                                                           obj->planNodeDescs);
     xfer += proto->serializedFieldSize("node_index_map", apache::thrift::protocol::T_MAP, 2);
     xfer += ::apache::thrift::detail::pm::protocol_methods<
         ::apache::thrift::type_class::map<::apache::thrift::type_class::integral,
                                           ::apache::thrift::type_class::integral>,
-        std::unordered_map<int64_t, int64_t>>::serializedSize<false>(*proto, obj->node_index_map);
+        std::unordered_map<int64_t, int64_t>>::serializedSize<false>(*proto, obj->nodeIndexMap);
     xfer += proto->serializedFieldSize("format", apache::thrift::protocol::T_STRING, 3);
     xfer += proto->serializedSizeZCBinary(obj->format);
     xfer += proto->serializedSizeStop();

@@ -85,7 +85,7 @@ uint32_t Cpp2Ops<::nebula::PlanNodeDescription>::write(Protocol* proto,
                                                            int64_t>::write(*proto, obj->id);
     xfer += proto->writeFieldEnd();
     xfer += proto->writeFieldBegin("output_var", apache::thrift::protocol::T_STRING, 3);
-    xfer += proto->writeBinary(obj->output_var);
+    xfer += proto->writeBinary(obj->outputVar);
     xfer += proto->writeFieldEnd();
     if (obj->description != nullptr) {
         xfer += proto->writeFieldBegin("description", apache::thrift::protocol::T_LIST, 4);
@@ -101,10 +101,10 @@ uint32_t Cpp2Ops<::nebula::PlanNodeDescription>::write(Protocol* proto,
             std::vector<::nebula::ProfilingStats>>::write(*proto, *obj->profiles);
         xfer += proto->writeFieldEnd();
     }
-    if (obj->branch_info != nullptr) {
+    if (obj->branchInfo != nullptr) {
         xfer += proto->writeFieldBegin("branch_info", apache::thrift::protocol::T_STRUCT, 6);
         xfer += ::apache::thrift::Cpp2Ops<::nebula::PlanNodeBranchInfo>::write(
-            proto, obj->branch_info.get());
+            proto, obj->branchInfo.get());
         xfer += proto->writeFieldEnd();
     }
     if (obj->dependencies != nullptr) {
@@ -157,7 +157,7 @@ _readField_id:
     }
 _readField_output_var:
     {
-        proto->readBinary(obj->output_var);
+        proto->readBinary(obj->outputVar);
         isset_output_var = true;
     }
 
@@ -190,9 +190,9 @@ _readField_profiles:
     }
 _readField_branch_info:
     {
-        obj->branch_info = std::make_unique<nebula::PlanNodeBranchInfo>();
+        obj->branchInfo = std::make_unique<nebula::PlanNodeBranchInfo>();
         ::apache::thrift::Cpp2Ops<::nebula::PlanNodeBranchInfo>::read(proto,
-                                                                      obj->branch_info.get());
+                                                                      obj->branchInfo.get());
         //    this->__isset.branch_info = true;
     }
 
@@ -309,7 +309,7 @@ uint32_t Cpp2Ops<::nebula::PlanNodeDescription>::serializedSize(
                                                            int64_t>::serializedSize<false>(*proto,
                                                                                            obj->id);
     xfer += proto->serializedFieldSize("output_var", apache::thrift::protocol::T_STRING, 3);
-    xfer += proto->serializedSizeBinary(obj->output_var);
+    xfer += proto->serializedSizeBinary(obj->outputVar);
     if (obj->description != nullptr) {
         xfer += proto->serializedFieldSize("description", apache::thrift::protocol::T_LIST, 4);
         xfer += ::apache::thrift::detail::pm::protocol_methods<
@@ -322,10 +322,10 @@ uint32_t Cpp2Ops<::nebula::PlanNodeDescription>::serializedSize(
             ::apache::thrift::type_class::list<::apache::thrift::type_class::structure>,
             std::vector<::nebula::ProfilingStats>>::serializedSize<false>(*proto, *obj->profiles);
     }
-    if (obj->branch_info != nullptr) {
+    if (obj->branchInfo != nullptr) {
         xfer += proto->serializedFieldSize("branch_info", apache::thrift::protocol::T_STRUCT, 6);
         xfer += ::apache::thrift::Cpp2Ops<::nebula::PlanNodeBranchInfo>::serializedSize(
-            proto, obj->branch_info.get());
+            proto, obj->branchInfo.get());
     }
     if (obj->dependencies != nullptr) {
         xfer += proto->serializedFieldSize("dependencies", apache::thrift::protocol::T_LIST, 7);
@@ -351,7 +351,7 @@ uint32_t Cpp2Ops<::nebula::PlanNodeDescription>::serializedSizeZC(
                                                            int64_t>::serializedSize<false>(*proto,
                                                                                            obj->id);
     xfer += proto->serializedFieldSize("output_var", apache::thrift::protocol::T_STRING, 3);
-    xfer += proto->serializedSizeZCBinary(obj->output_var);
+    xfer += proto->serializedSizeZCBinary(obj->outputVar);
     if (obj->description != nullptr) {
         xfer += proto->serializedFieldSize("description", apache::thrift::protocol::T_LIST, 4);
         xfer += ::apache::thrift::detail::pm::protocol_methods<
@@ -364,10 +364,10 @@ uint32_t Cpp2Ops<::nebula::PlanNodeDescription>::serializedSizeZC(
             ::apache::thrift::type_class::list<::apache::thrift::type_class::structure>,
             std::vector<::nebula::ProfilingStats>>::serializedSize<false>(*proto, *obj->profiles);
     }
-    if (obj->branch_info != nullptr) {
+    if (obj->branchInfo != nullptr) {
         xfer += proto->serializedFieldSize("branch_info", apache::thrift::protocol::T_STRUCT, 6);
         xfer += ::apache::thrift::Cpp2Ops<::nebula::PlanNodeBranchInfo>::serializedSizeZC(
-            proto, obj->branch_info.get());
+            proto, obj->branchInfo.get());
     }
     if (obj->dependencies != nullptr) {
         xfer += proto->serializedFieldSize("dependencies", apache::thrift::protocol::T_LIST, 7);

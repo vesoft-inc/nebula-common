@@ -81,32 +81,32 @@ uint32_t Cpp2Ops<::nebula::ExecutionResponse>::write(Protocol* proto,
     xfer +=
         ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::enumeration,
                                                        ::nebula::ErrorCode>::write(*proto,
-                                                                                   obj->error_code);
+                                                                                   obj->errorCode);
     xfer += proto->writeFieldEnd();
     xfer += proto->writeFieldBegin("latency_in_us", apache::thrift::protocol::T_I32, 2);
     xfer +=
         ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::integral,
-                                                       int32_t>::write(*proto, obj->latency_in_us);
+                                                       int32_t>::write(*proto, obj->latencyInUs);
     xfer += proto->writeFieldEnd();
     if (obj->data != nullptr) {
         xfer += proto->writeFieldBegin("data", apache::thrift::protocol::T_STRUCT, 3);
         xfer += ::apache::thrift::Cpp2Ops<nebula::DataSet>::write(proto, obj->data.get());
         xfer += proto->writeFieldEnd();
     }
-    if (obj->space_name != nullptr) {
+    if (obj->spaceName != nullptr) {
         xfer += proto->writeFieldBegin("space_name", apache::thrift::protocol::T_STRING, 4);
-        xfer += proto->writeBinary(*obj->space_name);
+        xfer += proto->writeBinary(*obj->spaceName);
         xfer += proto->writeFieldEnd();
     }
-    if (obj->error_msg != nullptr) {
+    if (obj->errorMsg != nullptr) {
         xfer += proto->writeFieldBegin("error_msg", apache::thrift::protocol::T_STRING, 5);
-        xfer += proto->writeBinary(*obj->error_msg);
+        xfer += proto->writeBinary(*obj->errorMsg);
         xfer += proto->writeFieldEnd();
     }
-    if (obj->plan_desc != nullptr) {
+    if (obj->planDesc != nullptr) {
         xfer += proto->writeFieldBegin("plan_desc", apache::thrift::protocol::T_STRUCT, 6);
         xfer += ::apache::thrift::Cpp2Ops<::nebula::PlanDescription>::write(proto,
-                                                                            obj->plan_desc.get());
+                                                                            obj->planDesc.get());
         xfer += proto->writeFieldEnd();
     }
     if (obj->comment != nullptr) {
@@ -138,7 +138,7 @@ _readField_error_code:
     {
         ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::enumeration,
                                                       ::nebula::ErrorCode>::read(*proto,
-                                                                                  obj->error_code);
+                                                                                  obj->errorCode);
         isset_error_code = true;
     }
 
@@ -148,7 +148,7 @@ _readField_error_code:
 _readField_latency_in_us:
     {
         ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::integral,
-                                                      int32_t>::read(*proto, obj->latency_in_us);
+                                                      int32_t>::read(*proto, obj->latencyInUs);
         isset_latency_in_us = true;
     }
 
@@ -167,8 +167,8 @@ _readField_data:
     }
 _readField_space_name:
     {
-        obj->space_name = std::make_unique<std::string>();
-        proto->readBinary(*obj->space_name);
+        obj->spaceName = std::make_unique<std::string>();
+        proto->readBinary(*obj->spaceName);
         //    this->__isset.space_name = true;
     }
 
@@ -177,8 +177,8 @@ _readField_space_name:
     }
 _readField_error_msg:
     {
-        obj->error_msg = std::make_unique<std::string>();
-        proto->readBinary(*obj->error_msg);
+        obj->errorMsg = std::make_unique<std::string>();
+        proto->readBinary(*obj->errorMsg);
         //    this->__isset.error_msg = true;
     }
 
@@ -187,8 +187,8 @@ _readField_error_msg:
     }
 _readField_plan_desc:
     {
-        obj->plan_desc = std::make_unique<::nebula::PlanDescription>();
-        ::apache::thrift::Cpp2Ops<::nebula::PlanDescription>::read(proto, obj->plan_desc.get());
+        obj->planDesc = std::make_unique<::nebula::PlanDescription>();
+        ::apache::thrift::Cpp2Ops<::nebula::PlanDescription>::read(proto, obj->planDesc.get());
         //    this->__isset.plan_desc = true;
     }
 
@@ -296,27 +296,27 @@ uint32_t Cpp2Ops<::nebula::ExecutionResponse>::serializedSize(
     xfer += proto->serializedFieldSize("error_code", apache::thrift::protocol::T_I32, 1);
     xfer += ::apache::thrift::detail::pm::protocol_methods<
         ::apache::thrift::type_class::enumeration,
-        ::nebula::ErrorCode>::serializedSize<false>(*proto, obj->error_code);
+        ::nebula::ErrorCode>::serializedSize<false>(*proto, obj->errorCode);
     xfer += proto->serializedFieldSize("latency_in_us", apache::thrift::protocol::T_I32, 2);
     xfer += ::apache::thrift::detail::pm::
         protocol_methods<::apache::thrift::type_class::integral, int32_t>::serializedSize<false>(
-            *proto, obj->latency_in_us);
+            *proto, obj->latencyInUs);
     if (obj->data != nullptr) {
         xfer += proto->serializedFieldSize("data", apache::thrift::protocol::T_STRUCT, 3);
         xfer += ::apache::thrift::Cpp2Ops<nebula::DataSet>::serializedSize(proto, obj->data.get());
     }
-    if (obj->space_name != nullptr) {
+    if (obj->spaceName != nullptr) {
         xfer += proto->serializedFieldSize("space_name", apache::thrift::protocol::T_STRING, 4);
-        xfer += proto->serializedSizeBinary(obj->space_name);
+        xfer += proto->serializedSizeBinary(obj->spaceName);
     }
-    if (obj->error_msg != nullptr) {
+    if (obj->errorMsg != nullptr) {
         xfer += proto->serializedFieldSize("error_msg", apache::thrift::protocol::T_STRING, 5);
-        xfer += proto->serializedSizeBinary(obj->error_msg);
+        xfer += proto->serializedSizeBinary(obj->errorMsg);
     }
-    if (obj->plan_desc != nullptr) {
+    if (obj->planDesc != nullptr) {
         xfer += proto->serializedFieldSize("plan_desc", apache::thrift::protocol::T_STRUCT, 6);
         xfer += ::apache::thrift::Cpp2Ops<::nebula::PlanDescription>::serializedSize(
-            proto, obj->plan_desc.get());
+            proto, obj->planDesc.get());
     }
     if (obj->comment != nullptr) {
         xfer += proto->serializedFieldSize("comment", apache::thrift::protocol::T_STRING, 7);
@@ -336,28 +336,28 @@ uint32_t Cpp2Ops<::nebula::ExecutionResponse>::serializedSizeZC(
     xfer += proto->serializedFieldSize("error_code", apache::thrift::protocol::T_I32, 1);
     xfer += ::apache::thrift::detail::pm::protocol_methods<
         ::apache::thrift::type_class::enumeration,
-        ::nebula::ErrorCode>::serializedSize<false>(*proto, obj->error_code);
+        ::nebula::ErrorCode>::serializedSize<false>(*proto, obj->errorCode);
     xfer += proto->serializedFieldSize("latency_in_us", apache::thrift::protocol::T_I32, 2);
     xfer += ::apache::thrift::detail::pm::
         protocol_methods<::apache::thrift::type_class::integral, int32_t>::serializedSize<false>(
-            *proto, obj->latency_in_us);
+            *proto, obj->latencyInUs);
     if (obj->data != nullptr) {
         xfer += proto->serializedFieldSize("data", apache::thrift::protocol::T_STRUCT, 3);
         xfer +=
             ::apache::thrift::Cpp2Ops<nebula::DataSet>::serializedSizeZC(proto, obj->data.get());
     }
-    if (obj->space_name != nullptr) {
+    if (obj->spaceName != nullptr) {
         xfer += proto->serializedFieldSize("space_name", apache::thrift::protocol::T_STRING, 4);
-        xfer += proto->serializedSizeZCBinary(*obj->space_name);
+        xfer += proto->serializedSizeZCBinary(*obj->spaceName);
     }
-    if (obj->error_msg != nullptr) {
+    if (obj->errorMsg != nullptr) {
         xfer += proto->serializedFieldSize("error_msg", apache::thrift::protocol::T_STRING, 5);
-        xfer += proto->serializedSizeZCBinary(*obj->error_msg);
+        xfer += proto->serializedSizeZCBinary(*obj->errorMsg);
     }
-    if (obj->plan_desc != nullptr) {
+    if (obj->planDesc != nullptr) {
         xfer += proto->serializedFieldSize("plan_desc", apache::thrift::protocol::T_STRUCT, 6);
         xfer += ::apache::thrift::Cpp2Ops<::nebula::PlanDescription>::serializedSizeZC(
-            proto, obj->plan_desc.get());
+            proto, obj->planDesc.get());
     }
     if (obj->comment != nullptr) {
         xfer += proto->serializedFieldSize("comment", apache::thrift::protocol::T_STRING, 7);

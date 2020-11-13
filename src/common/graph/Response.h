@@ -47,73 +47,73 @@ bool inline checkPointer(const T *lhs, const T *rhs) {
 
 struct AuthResponse {
     void clear() {
-        error_code = ErrorCode::SUCCEEDED;
-        session_id = nullptr;
-        error_msg = nullptr;
+        errorCode = ErrorCode::SUCCEEDED;
+        sessionId = nullptr;
+        errorMsg = nullptr;
     }
 
     bool operator==(const AuthResponse &rhs) const {
-        if (error_code != rhs.error_code) {
+        if (errorCode != rhs.errorCode) {
             return false;
         }
-        if (!checkPointer(session_id.get(), rhs.session_id.get())) {
+        if (!checkPointer(sessionId.get(), rhs.sessionId.get())) {
             return false;
         }
-        return checkPointer(error_msg.get(), rhs.error_msg.get());
+        return checkPointer(errorMsg.get(), rhs.errorMsg.get());
     }
 
-    ErrorCode error_code{ErrorCode::SUCCEEDED};
-    std::unique_ptr<int64_t> session_id{nullptr};
-    std::unique_ptr<std::string> error_msg{nullptr};
+    ErrorCode errorCode{ErrorCode::SUCCEEDED};
+    std::unique_ptr<int64_t> sessionId{nullptr};
+    std::unique_ptr<std::string> errorMsg{nullptr};
 };
 
 
 struct ProfilingStats {
     void clear() {
         rows = 0;
-        exec_duration_in_us = 0;
-        total_duration_in_us = 0;
-        other_stats = nullptr;
+        execDurationInUs = 0;
+        totalDurationInUs = 0;
+        otherStats = nullptr;
     }
 
     bool operator==(const ProfilingStats &rhs) const {
         if (rows != rhs.rows) {
             return false;
         }
-        if (exec_duration_in_us != rhs.exec_duration_in_us) {
+        if (execDurationInUs != rhs.execDurationInUs) {
             return false;
         }
-        if (total_duration_in_us != rhs.total_duration_in_us) {
+        if (totalDurationInUs != rhs.totalDurationInUs) {
             return false;
         }
-        return checkPointer(other_stats.get(), rhs.other_stats.get());
+        return checkPointer(otherStats.get(), rhs.otherStats.get());
     }
 
     // How many rows being processed in an executor.
     int64_t rows{0};
     // Duration spent in an executor.
-    int64_t exec_duration_in_us{0};
+    int64_t execDurationInUs{0};
     // Total duration spent in an executor, contains schedule time
-    int64_t total_duration_in_us{0};
+    int64_t totalDurationInUs{0};
     // Other profiling stats data map
-    std::unique_ptr<std::unordered_map<std::string, std::string>> other_stats;
+    std::unique_ptr<std::unordered_map<std::string, std::string>> otherStats;
 };
 
 // The info used for select/loop.
 struct PlanNodeBranchInfo {
     void clear() {
-        is_do_branch = false;
-        condition_node_id = -1;
+        isDoBranch = false;
+        conditionNodeId = -1;
     }
 
     bool operator==(const PlanNodeBranchInfo &rhs) const {
-        return is_do_branch == rhs.is_do_branch && condition_node_id == rhs.condition_node_id;
+        return isDoBranch == rhs.isDoBranch && conditionNodeId == rhs.conditionNodeId;
     }
 
     // True if loop body or then branch of select
-    bool  is_do_branch{0};
+    bool  isDoBranch{0};
     // select/loop node id
-    int64_t  condition_node_id{-1};
+    int64_t  conditionNodeId{-1};
 };
 
 struct Pair {
@@ -134,10 +134,10 @@ struct PlanNodeDescription {
     void clear() {
         name.clear();
         id = -1;
-        output_var.clear();
+        outputVar.clear();
         description = nullptr;
         profiles = nullptr;
-        branch_info = nullptr;
+        branchInfo = nullptr;
         dependencies = nullptr;
     }
 
@@ -145,75 +145,75 @@ struct PlanNodeDescription {
 
     std::string                                   name;
     int64_t                                       id{-1};
-    std::string                                   output_var;
+    std::string                                   outputVar;
     // other description of an executor
     std::unique_ptr<std::vector<Pair>>            description{nullptr};
     // If an executor would be executed multi times,
     // the profiling statistics should be multi-versioned.
     std::unique_ptr<std::vector<ProfilingStats>>   profiles{nullptr};
-    std::unique_ptr<PlanNodeBranchInfo>            branch_info{nullptr};
+    std::unique_ptr<PlanNodeBranchInfo>            branchInfo{nullptr};
     std::unique_ptr<std::vector<int64_t>>          dependencies{nullptr};
 };
 
 struct PlanDescription {
     void clear() {
-        plan_node_descs.clear();
-        node_index_map.clear();
+        planNodeDescs.clear();
+        nodeIndexMap.clear();
         format.clear();
     }
 
     bool operator==(const PlanDescription &rhs) const {
-        return plan_node_descs == rhs.plan_node_descs &&
-            node_index_map == rhs.node_index_map &&
+        return planNodeDescs == rhs.planNodeDescs &&
+            nodeIndexMap == rhs.nodeIndexMap &&
             format == rhs.format;
     }
 
-    std::vector<PlanNodeDescription>     plan_node_descs;
+    std::vector<PlanNodeDescription>     planNodeDescs;
     // map from node id to index of list
-    std::unordered_map<int64_t, int64_t> node_index_map;
+    std::unordered_map<int64_t, int64_t> nodeIndexMap;
     // the print format of exec plan, lowercase string like `dot'
     std::string                          format;
 };
 
 struct ExecutionResponse {
     void clear() {
-        error_code = ErrorCode::SUCCEEDED;
-        latency_in_us = 0;
+        errorCode = ErrorCode::SUCCEEDED;
+        latencyInUs = 0;
         data = nullptr;
-        space_name = nullptr;
-        error_msg = nullptr;
-        plan_desc = nullptr;
+        spaceName = nullptr;
+        errorMsg = nullptr;
+        planDesc = nullptr;
         comment = nullptr;
     }
 
     bool operator==(const ExecutionResponse &rhs) const {
-        if (error_code != rhs.error_code) {
+        if (errorCode != rhs.errorCode) {
             return false;
         }
-        if (latency_in_us != rhs.latency_in_us) {
+        if (latencyInUs != rhs.latencyInUs) {
             return false;
         }
         if (!checkPointer(data.get(), rhs.data.get())) {
             return false;
         }
-        if (!checkPointer(space_name.get(), rhs.space_name.get())) {
+        if (!checkPointer(spaceName.get(), rhs.spaceName.get())) {
             return false;
         }
-        if (!checkPointer(error_msg.get(), rhs.error_msg.get())) {
+        if (!checkPointer(errorMsg.get(), rhs.errorMsg.get())) {
             return false;
         }
-        if (!checkPointer(plan_desc.get(), rhs.plan_desc.get())) {
+        if (!checkPointer(planDesc.get(), rhs.planDesc.get())) {
             return false;
         }
         return checkPointer(comment.get(), rhs.comment.get());
     }
 
-    ErrorCode error_code{ErrorCode::SUCCEEDED};
-    int32_t latency_in_us{0};
+    ErrorCode errorCode{ErrorCode::SUCCEEDED};
+    int32_t latencyInUs{0};
     std::unique_ptr<nebula::DataSet> data{nullptr};
-    std::unique_ptr<std::string> space_name{nullptr};
-    std::unique_ptr<std::string> error_msg{nullptr};
-    std::unique_ptr<PlanDescription> plan_desc{nullptr};
+    std::unique_ptr<std::string> spaceName{nullptr};
+    std::unique_ptr<std::string> errorMsg{nullptr};
+    std::unique_ptr<PlanDescription> planDesc{nullptr};
     std::unique_ptr<std::string> comment{nullptr};
 };
 

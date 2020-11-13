@@ -74,20 +74,20 @@ uint32_t Cpp2Ops<::nebula::ProfilingStats>::write(Protocol* proto,
     xfer +=
         ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::integral,
                                                        int64_t>::write(*proto,
-                                                                       obj->exec_duration_in_us);
+                                                                       obj->execDurationInUs);
     xfer += proto->writeFieldEnd();
     xfer += proto->writeFieldBegin("total_duration_in_us", apache::thrift::protocol::T_I64, 3);
     xfer +=
         ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::integral,
                                                        int64_t>::write(*proto,
-                                                                       obj->total_duration_in_us);
+                                                                       obj->totalDurationInUs);
     xfer += proto->writeFieldEnd();
-    if (obj->other_stats != nullptr) {
+    if (obj->otherStats != nullptr) {
         xfer += proto->writeFieldBegin("other_stats", apache::thrift::protocol::T_MAP, 4);
         xfer += ::apache::thrift::detail::pm::protocol_methods<
             ::apache::thrift::type_class::map<::apache::thrift::type_class::binary,
                                               ::apache::thrift::type_class::binary>,
-            std::unordered_map<std::string, std::string>>::write(*proto, *obj->other_stats);
+            std::unordered_map<std::string, std::string>>::write(*proto, *obj->otherStats);
         xfer += proto->writeFieldEnd();
     }
     xfer += proto->writeFieldStop();
@@ -125,7 +125,7 @@ _readField_exec_duration_in_us:
     {
         ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::integral,
                                                        int64_t>::read(*proto,
-                                                                       obj->exec_duration_in_us);
+                                                                       obj->execDurationInUs);
         isset_exec_duration_in_us = true;
     }
 
@@ -136,7 +136,7 @@ _readField_total_duration_in_us:
     {
         ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::integral,
                                                       int64_t>::read(*proto,
-                                                                      obj->total_duration_in_us);
+                                                                      obj->totalDurationInUs);
         isset_total_duration_in_us = true;
     }
 
@@ -145,11 +145,11 @@ _readField_total_duration_in_us:
     }
 _readField_other_stats:
     {
-        obj->other_stats = std::make_unique<std::unordered_map<std::string, std::string>>();
+        obj->otherStats = std::make_unique<std::unordered_map<std::string, std::string>>();
         ::apache::thrift::detail::pm::protocol_methods<
             ::apache::thrift::type_class::map<::apache::thrift::type_class::binary,
                                               ::apache::thrift::type_class::binary>,
-            std::unordered_map<std::string, std::string>>::read(*proto, *obj->other_stats);
+            std::unordered_map<std::string, std::string>>::read(*proto, *obj->otherStats);
         //    this->__isset.other_stats = true;
     }
 
@@ -233,18 +233,18 @@ uint32_t Cpp2Ops<::nebula::ProfilingStats>::serializedSize(Protocol const* proto
     xfer += proto->serializedFieldSize("exec_duration_in_us", apache::thrift::protocol::T_I64, 2);
     xfer += ::apache::thrift::detail::pm::
         protocol_methods<::apache::thrift::type_class::integral, int64_t>::serializedSize<false>(
-            *proto, obj->exec_duration_in_us);
+            *proto, obj->execDurationInUs);
     xfer += proto->serializedFieldSize("total_duration_in_us", apache::thrift::protocol::T_I64, 3);
     xfer += ::apache::thrift::detail::pm::
         protocol_methods<::apache::thrift::type_class::integral, int64_t>::serializedSize<false>(
-            *proto, obj->total_duration_in_us);
-    if (obj->other_stats != nullptr) {
+            *proto, obj->totalDurationInUs);
+    if (obj->otherStats != nullptr) {
         xfer += proto->serializedFieldSize("other_stats", apache::thrift::protocol::T_MAP, 4);
         xfer += ::apache::thrift::detail::pm::protocol_methods<
             ::apache::thrift::type_class::map<::apache::thrift::type_class::binary,
                                               ::apache::thrift::type_class::binary>,
             std::unordered_map<std::string, std::string>>::serializedSize<false>(*proto,
-                                                                                 *obj->other_stats);
+                                                                                 *obj->otherStats);
     }
     xfer += proto->serializedSizeStop();
     return xfer;
@@ -264,18 +264,18 @@ uint32_t Cpp2Ops<::nebula::ProfilingStats>::serializedSizeZC(Protocol const* pro
     xfer += proto->serializedFieldSize("exec_duration_in_us", apache::thrift::protocol::T_I64, 2);
     xfer += ::apache::thrift::detail::pm::
         protocol_methods<::apache::thrift::type_class::integral, int64_t>::serializedSize<false>(
-            *proto, obj->exec_duration_in_us);
+            *proto, obj->execDurationInUs);
     xfer += proto->serializedFieldSize("total_duration_in_us", apache::thrift::protocol::T_I64, 3);
     xfer += ::apache::thrift::detail::pm::
         protocol_methods<::apache::thrift::type_class::integral, int64_t>::serializedSize<false>(
-            *proto, obj->total_duration_in_us);
-    if (obj->other_stats != nullptr) {
+            *proto, obj->totalDurationInUs);
+    if (obj->otherStats != nullptr) {
         xfer += proto->serializedFieldSize("other_stats", apache::thrift::protocol::T_MAP, 4);
         xfer += ::apache::thrift::detail::pm::protocol_methods<
             ::apache::thrift::type_class::map<::apache::thrift::type_class::binary,
                                               ::apache::thrift::type_class::binary>,
             std::unordered_map<std::string, std::string>>::serializedSize<false>(*proto,
-                                                                                 *obj->other_stats);
+                                                                                 *obj->otherStats);
     }
     xfer += proto->serializedSizeStop();
     return xfer;

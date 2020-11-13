@@ -67,19 +67,19 @@ uint32_t Cpp2Ops<::nebula::AuthResponse>::write(Protocol* proto,
     xfer +=
         ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::enumeration,
                                                        ::nebula::ErrorCode>::write(*proto,
-                                                                                   obj->error_code);
+                                                                                   obj->errorCode);
     xfer += proto->writeFieldEnd();
-    if (obj->error_msg != nullptr) {
+    if (obj->errorMsg != nullptr) {
         xfer += proto->writeFieldBegin("error_msg", apache::thrift::protocol::T_STRING, 2);
-        xfer += proto->writeBinary(*obj->error_msg);
+        xfer += proto->writeBinary(*obj->errorMsg);
         xfer += proto->writeFieldEnd();
     }
-    if (obj->session_id != nullptr) {
+    if (obj->sessionId != nullptr) {
         xfer += proto->writeFieldBegin("session_id", apache::thrift::protocol::T_I64, 3);
         xfer +=
             ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::integral,
                                                            int64_t>::write(*proto,
-                                                                           *obj->session_id);
+                                                                           *obj->sessionId);
         xfer += proto->writeFieldEnd();
     }
     xfer += proto->writeFieldStop();
@@ -105,7 +105,7 @@ _readField_error_code:
     {
         ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::enumeration,
                                                       ::nebula::ErrorCode>::read(*proto,
-                                                                                  obj->error_code);
+                                                                                  obj->errorCode);
         isset_error_code = true;
     }
 
@@ -114,8 +114,8 @@ _readField_error_code:
     }
 _readField_error_msg:
     {
-        obj->error_msg = std::make_unique<std::string>();
-        proto->readBinary(*obj->error_msg);
+        obj->errorMsg = std::make_unique<std::string>();
+        proto->readBinary(*obj->errorMsg);
         //    this->__isset.error_msg = true;
     }
 
@@ -124,9 +124,9 @@ _readField_error_msg:
     }
 _readField_session_id:
     {
-        obj->session_id = std::make_unique<int64_t>(-1);
+        obj->sessionId = std::make_unique<int64_t>(-1);
         ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::integral,
-                                                      int64_t>::read(*proto, *obj->session_id);
+                                                      int64_t>::read(*proto, *obj->sessionId);
         //    this->__isset.session_id = true;
     }
 
@@ -192,16 +192,16 @@ uint32_t Cpp2Ops<::nebula::AuthResponse>::serializedSize(Protocol const* proto,
     xfer += proto->serializedFieldSize("error_code", apache::thrift::protocol::T_I32, 1);
     xfer += ::apache::thrift::detail::pm::protocol_methods<
         ::apache::thrift::type_class::enumeration,
-        ::nebula::ErrorCode>::serializedSize<false>(*proto, obj->error_code);
-    if (obj->error_msg != nullptr) {
+        ::nebula::ErrorCode>::serializedSize<false>(*proto, obj->errorCode);
+    if (obj->errorMsg != nullptr) {
         xfer += proto->serializedFieldSize("error_msg", apache::thrift::protocol::T_STRING, 2);
-        xfer += proto->serializedSizeBinary(*obj->error_msg);
+        xfer += proto->serializedSizeBinary(*obj->errorMsg);
     }
-    if (obj->session_id != nullptr) {
+    if (obj->sessionId != nullptr) {
         xfer += proto->serializedFieldSize("session_id", apache::thrift::protocol::T_I64, 3);
         xfer += ::apache::thrift::detail::pm::protocol_methods<
             ::apache::thrift::type_class::integral,
-            int64_t>::serializedSize<false>(*proto, *obj->session_id);
+            int64_t>::serializedSize<false>(*proto, *obj->sessionId);
     }
     xfer += proto->serializedSizeStop();
     return xfer;
@@ -216,16 +216,16 @@ uint32_t Cpp2Ops<::nebula::AuthResponse>::serializedSizeZC(Protocol const* proto
     xfer += proto->serializedFieldSize("error_code", apache::thrift::protocol::T_I32, 1);
     xfer += ::apache::thrift::detail::pm::protocol_methods<
         ::apache::thrift::type_class::enumeration,
-        ::nebula::ErrorCode>::serializedSize<false>(*proto, obj->error_code);
-    if (obj->error_msg != nullptr) {
+        ::nebula::ErrorCode>::serializedSize<false>(*proto, obj->errorCode);
+    if (obj->errorMsg != nullptr) {
         xfer += proto->serializedFieldSize("error_msg", apache::thrift::protocol::T_STRING, 2);
-        xfer += proto->serializedSizeZCBinary(*obj->error_msg);
+        xfer += proto->serializedSizeZCBinary(*obj->errorMsg);
     }
-    if (obj->session_id != nullptr) {
+    if (obj->sessionId != nullptr) {
         xfer += proto->serializedFieldSize("session_id", apache::thrift::protocol::T_I64, 3);
         xfer += ::apache::thrift::detail::pm::protocol_methods<
             ::apache::thrift::type_class::integral,
-            int64_t>::serializedSize<false>(*proto, *obj->session_id);
+            int64_t>::serializedSize<false>(*proto, *obj->sessionId);
     }
     xfer += proto->serializedSizeStop();
     return xfer;

@@ -61,12 +61,12 @@ uint32_t Cpp2Ops<::nebula::PlanNodeBranchInfo>::write(Protocol* proto,
     uint32_t xfer = 0;
     xfer += proto->writeStructBegin("nebula::PlanNodeBranchInfo");
     xfer += proto->writeFieldBegin("is_do_branch", apache::thrift::protocol::T_BOOL, 1);
-    xfer += proto->writeBool(obj->is_do_branch);
+    xfer += proto->writeBool(obj->isDoBranch);
     xfer += proto->writeFieldEnd();
     xfer += proto->writeFieldBegin("condition_node_id", apache::thrift::protocol::T_I64, 2);
     xfer += ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::integral,
                                                            int64_t>::write(*proto,
-                                                                           obj->condition_node_id);
+                                                                           obj->conditionNodeId);
     xfer += proto->writeFieldEnd();
     xfer += proto->writeFieldStop();
     xfer += proto->writeStructEnd();
@@ -91,7 +91,7 @@ void Cpp2Ops<::nebula::PlanNodeBranchInfo>::read(Protocol* proto,
     }
 _readField_is_do_branch:
     {
-        proto->readBool(obj->is_do_branch);
+        proto->readBool(obj->isDoBranch);
         isset_is_do_branch = true;
     }
 
@@ -102,7 +102,7 @@ _readField_condition_node_id:
     {
         ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::integral,
                                                        int64_t>::read(*proto,
-                                                                       obj->condition_node_id);
+                                                                       obj->conditionNodeId);
         isset_condition_node_id = true;
     }
 
@@ -164,11 +164,11 @@ uint32_t Cpp2Ops<::nebula::PlanNodeBranchInfo>::serializedSize(
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("nebula::PlanNodeBranchInfo");
     xfer += proto->serializedFieldSize("is_do_branch", apache::thrift::protocol::T_BOOL, 1);
-    xfer += proto->serializedSizeBool(obj->is_do_branch);
+    xfer += proto->serializedSizeBool(obj->isDoBranch);
     xfer += proto->serializedFieldSize("condition_node_id", apache::thrift::protocol::T_I64, 2);
     xfer += ::apache::thrift::detail::pm::
         protocol_methods<::apache::thrift::type_class::integral, int64_t>::serializedSize<false>(
-            *proto, obj->condition_node_id);
+            *proto, obj->conditionNodeId);
     xfer += proto->serializedSizeStop();
     return xfer;
 }
@@ -181,11 +181,11 @@ uint32_t Cpp2Ops<::nebula::PlanNodeBranchInfo>::serializedSizeZC(
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("nebula::PlanNodeBranchInfo");
     xfer += proto->serializedFieldSize("is_do_branch", apache::thrift::protocol::T_BOOL, 1);
-    xfer += proto->serializedSizeBool(obj->is_do_branch);
+    xfer += proto->serializedSizeBool(obj->isDoBranch);
     xfer += proto->serializedFieldSize("condition_node_id", apache::thrift::protocol::T_I64, 2);
     xfer += ::apache::thrift::detail::pm::
         protocol_methods<::apache::thrift::type_class::integral, int64_t>::serializedSize<false>(
-            *proto, obj->condition_node_id);
+            *proto, obj->conditionNodeId);
     xfer += proto->serializedSizeStop();
     return xfer;
 }

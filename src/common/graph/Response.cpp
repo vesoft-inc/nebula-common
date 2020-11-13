@@ -21,7 +21,7 @@ bool PlanNodeDescription::operator==(const PlanNodeDescription &rhs) const {
     if (!checkPointer(profiles.get(), rhs.profiles.get())) {
         return false;
     }
-    if (!checkPointer(branch_info.get(), rhs.branch_info.get())) {
+    if (!checkPointer(branchInfo.get(), rhs.branchInfo.get())) {
         return false;
     }
     return checkPointer(dependencies.get(), rhs.dependencies.get());

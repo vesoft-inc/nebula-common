@@ -45,19 +45,19 @@ nebula::ErrorCode GraphClient::connect(const std::string& username,
     nebula::AuthResponse resp;
     try {
         client_->sync_authenticate(resp, username, password);
-        if (resp.error_code != nebula::ErrorCode::SUCCEEDED) {
+        if (resp.errorCode != nebula::ErrorCode::SUCCEEDED) {
             LOG(ERROR) << "Failed to authenticate \"" << username << "\": ";
 // TODO(sye) In order to support multi-language, a separate module will e provided
 //           for looking up the error messages
 //                       << resp.get_error_msg();
-            return resp.error_code;
+            return resp.errorCode;
         }
     } catch (const std::exception& ex) {
         LOG(ERROR) << "Thrift rpc call failed: " << ex.what();
         return nebula::ErrorCode::E_RPC_FAILURE;
     }
 
-    sessionId_ = *resp.session_id;
+    sessionId_ = *resp.sessionId;
     return nebula::ErrorCode::SUCCEEDED;
 }
 
@@ -88,7 +88,7 @@ nebula::ErrorCode GraphClient::execute(folly::StringPiece stmt,
         return nebula::ErrorCode::E_RPC_FAILURE;
     }
 
-    return resp.error_code;
+    return resp.errorCode;
 }
 
 }  // namespace graph
