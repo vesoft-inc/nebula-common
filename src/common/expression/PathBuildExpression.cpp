@@ -6,35 +6,52 @@
 
 #include "common/expression/PathBuildExpression.h"
 
+#include "common/datatypes/Path.h"
 #include "common/expression/ExprVisitor.h"
+#include "common/thrift/ThriftTypes.h"
 
 namespace nebula {
 const Value& PathBuildExpression::eval(ExpressionContext& ctx) {
-    if ((items_.size() & 1) != 1) {
+    if (items_.empty()) {
         return Value::kNullValue;
     }
     Path path;
-    for (size_t i = 0; i < items_.size(); ++i) {
-        auto& val = items_[i]->eval(ctx);
-        if ((i & 1) == 1) {
-            if (!getEdge(val, path.steps.back())) {
-                return Value::kNullBadType;
+    auto& val = items_.front()->eval(ctx);
+    if (!getVertex(val, path.src)) {
+        return Value::kNullBadType;
+    }
+
+    for (size_t i = 1; i < items_.size(); ++i) {
+        auto& value = items_[i]->eval(ctx);
+        if (value.isEdge()) {
+            const auto& lastStep = path.steps.back();
+            const auto& edge = value.getEdge();
+            if (lastStep.dst.vid != edge.src) {
+                return Value::kNullBadData;
             }
+            Step step;
+            getEdge(value, step);
+            path.steps.emplace_back(std::move(step));
+        } else if (value.isVertex()) {
+            auto& lastStep = path.steps.back();
+            const auto& vert = value.getVertex();
+            if (lastStep.dst.vid != vert.vid) {
+                return Value::kNullBadData;
+            }
+            getVertex(value, lastStep.dst);
+        } else if (value.isPath()) {
+            auto& lastStep = path.steps.back();
+            const auto& p = value.getPath();
+            if (lastStep.dst.vid != p.src.vid) {
+                return Value::kNullBadData;
+            }
+            lastStep.dst = p.src;
+            path.steps.insert(path.steps.begin(), p.steps.begin(), p.steps.end());
         } else {
-            if (i == 0) {
-                if (!getVertex(val, path.src)) {
-                    return Value::kNullBadType;
-                }
-            } else {
-                if (!getVertex(val, path.steps.back().dst)) {
-                    return Value::kNullBadType;
-                }
-            }
-            if (i < (items_.size() - 1)) {
-                path.steps.emplace_back();
-            }
+            return Value::kNullBadData;
         }
     }
+
     result_ = path;
     return result_;
 }
@@ -61,6 +78,7 @@ bool PathBuildExpression::getEdge(const Value& value, Step& step) const {
         step.name = edge.name;
         step.ranking = edge.ranking;
         step.props = edge.props;
+        step.dst.vid = edge.dst;
         return true;
     }
 

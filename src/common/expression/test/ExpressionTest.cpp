@@ -2732,6 +2732,7 @@ TEST_F(ExpressionTest, PathBuild) {
     }
     {
         PathBuildExpression expr;
+
         expr.add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
                                                               new std::string("path_src")))
             .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
@@ -2739,6 +2740,49 @@ TEST_F(ExpressionTest, PathBuild) {
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
         EXPECT_EQ(eval, Value::kNullValue);
+    }
+
+    auto varPropExpr = [](const std::string &name) {
+        return std::make_unique<VariablePropertyExpression>(new std::string("var1"),
+                                                            new std::string(name));
+    };
+
+    {
+        auto expr0 = std::make_unique<PathBuildExpression>();
+        expr0->add(varPropExpr("path_src"));
+        auto expr1 = std::make_unique<PathBuildExpression>();
+        expr1->add(varPropExpr("path_v1"));
+        auto expr = std::make_unique<PathBuildExpression>();
+        expr->add(std::move(expr0));
+        expr->add(varPropExpr("path_edge1"));
+
+        {
+            auto result = Expression::eval(expr.get(), gExpCtxt);
+            EXPECT_EQ(result.type(), Value::Type::PATH);
+            const auto &path = result.getPath();
+            EXPECT_EQ(path.steps.size(), 1);
+            EXPECT_EQ(path.steps.back().dst.vid, "2");
+        }
+
+        expr->add(std::move(expr1));
+
+        {
+            auto result = Expression::eval(expr.get(), gExpCtxt);
+            EXPECT_EQ(result.type(), Value::Type::PATH);
+            const auto &path = result.getPath();
+            EXPECT_EQ(path.steps.size(), 1);
+            EXPECT_EQ(path.steps.back().dst.vid, "2");
+        }
+
+        expr->add(varPropExpr("path_edge2"));
+
+        {
+            auto result = Expression::eval(expr.get(), gExpCtxt);
+            EXPECT_EQ(result.type(), Value::Type::PATH);
+            const auto &path = result.getPath();
+            EXPECT_EQ(path.steps.size(), 2);
+            EXPECT_EQ(path.steps.back().dst.vid, "3");
+        }
     }
 }
 
