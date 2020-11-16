@@ -5,6 +5,7 @@
  */
 #include <memory>
 #include <string>
+#include <utility>
 
 #include <folly/hash/Hash.h>
 #include <folly/String.h>
@@ -1549,79 +1550,79 @@ std::string Value::toString() const {
     LOG(FATAL) << "Unknown value type " << static_cast<int>(type_);
 }
 
-std::unique_ptr<bool> Value::toBool() {
+std::pair<bool, bool> Value::toBool() {
     switch (type_) {
         // Type::__EMPTY__ is always false
         case Value::Type::__EMPTY__: {
-            return std::make_unique<bool>(false);
+            return std::make_pair(false, true);
         }
         // Type::NULLVALUE is always false
         case Value::Type::NULLVALUE: {
-            return std::make_unique<bool>(false);
+            return std::make_pair(false, true);
         }
         case Value::Type::BOOL: {
-            return std::make_unique<bool>(getBool());
+            return std::make_pair(getBool(), true);
         }
         case Value::Type::INT: {
-            return std::make_unique<bool>(getInt() != 0);
+            return std::make_pair(getInt() != 0, true);
         }
         case Value::Type::FLOAT: {
-            return std::make_unique<bool>(std::abs(getFloat()) > kEpsilon);
+            return std::make_pair(std::abs(getFloat()) > kEpsilon, true);
         }
         case Value::Type::STRING: {
-            return std::make_unique<bool>(!getStr().empty());
+            return std::make_pair(!getStr().empty(), true);
         }
         case Value::Type::DATE: {
-            return std::make_unique<bool>(getDate().toInt() != 0);
+            return std::make_pair(getDate().toInt() != 0, true);
         }
         default: {
-            return nullptr;
+            return std::make_pair(bool{}, false);
         }
     }
 }
 
-std::unique_ptr<double> Value::toFloat() {
+std::pair<double, bool> Value::toFloat() {
     switch (type_) {
         case Value::Type::INT: {
-            return std::make_unique<double>(static_cast<double>(getInt()));
+            return std::make_pair(static_cast<double>(getInt()), true);
         }
         case Value::Type::FLOAT: {
-            return std::make_unique<double>(getFloat());
+            return std::make_pair(getFloat(), true);
         }
         case Value::Type::STRING: {
             const auto& str = getStr();
             char *pEnd;
             double val = strtod(str.c_str(), &pEnd);
             if (*pEnd != '\0') {
-                return nullptr;
+                return std::make_pair(double{}, false);
             }
-            return std::make_unique<double>(val);
+            return std::make_pair(val, true);
         }
         default: {
-            return nullptr;
+            return std::make_pair(double{}, false);
         }
     }
 }
 
-std::unique_ptr<int64_t> Value::toInt() {
+std::pair<int64_t, bool> Value::toInt() {
     switch (type_) {
         case Value::Type::INT: {
-            return std::make_unique<int64_t>(getInt());
+            return std::make_pair(getInt(), true);
         }
         case Value::Type::FLOAT: {
-            return std::make_unique<int64_t>(static_cast<int64_t>(getFloat()));
+            return std::make_pair(static_cast<int64_t>(getFloat()), true);
         }
         case Value::Type::STRING: {
             const auto& str = getStr();
             char *pEnd;
             double val = strtod(str.c_str(), &pEnd);
             if (*pEnd != '\0') {
-                return nullptr;
+                return std::make_pair(int64_t{}, false);
             }
-            return std::make_unique<int64_t>(static_cast<int64_t>(val));
+            return std::make_pair(static_cast<int64_t>(val), true);
         }
         default: {
-            return nullptr;
+            return std::make_pair(int64_t{}, false);
         }
     }
 }

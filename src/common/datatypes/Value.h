@@ -305,12 +305,12 @@ struct Value {
 
     std::string toString() const;
 
-    // TODO(shylock) try optional when c++17
-    std::unique_ptr<bool> toBool();
+    // The second means is this casting valid, check it before access the value
+    std::pair<bool, bool> toBool();
 
-    std::unique_ptr<double> toFloat();
+    std::pair<double, bool> toFloat();
 
-    std::unique_ptr<int64_t> toInt();
+    std::pair<int64_t, bool> toInt();
 
 private:
     Type type_;

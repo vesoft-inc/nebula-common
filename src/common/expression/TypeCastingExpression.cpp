@@ -65,26 +65,26 @@ const Value& TypeCastingExpression::eval(ExpressionContext& ctx) {
     switch (vType_) {
         case Value::Type::BOOL: {
             auto result = val.toBool();
-            if (result == nullptr) {
+            if (!result.second) {
                 return Value::kNullValue;
             }
-            result_.setBool(*result);
+            result_.setBool(result.first);
             break;
         }
         case Value::Type::INT: {
             auto result = val.toInt();
-            if (result == nullptr) {
+            if (!result.second) {
                 return Value::kNullValue;
             }
-            result_.setInt(*result);
+            result_.setInt(result.first);
             break;
         }
         case Value::Type::FLOAT: {
             auto result = val.toFloat();
-            if (result == nullptr) {
+            if (!result.second) {
                 return Value::kNullValue;
             }
-            result_.setFloat(*result);
+            result_.setFloat(result.first);
             break;
         }
         case Value::Type::STRING: {
