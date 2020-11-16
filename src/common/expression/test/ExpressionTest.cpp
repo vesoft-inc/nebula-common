@@ -6,6 +6,7 @@
 
 #include <gtest/gtest.h>
 #include <boost/algorithm/string.hpp>
+#include <memory>
 #include "common/datatypes/DataSet.h"
 #include "common/datatypes/Edge.h"
 #include "common/datatypes/List.h"
@@ -2738,25 +2739,24 @@ TEST_F(ExpressionTest, PathBuild) {
             .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
                                                               new std::string("path_edge1")));
         auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-        EXPECT_EQ(eval, Value::kNullValue);
+        EXPECT_EQ(eval.type(), Value::Type::PATH);
     }
 
     auto varPropExpr = [](const std::string &name) {
-        return std::make_unique<VariablePropertyExpression>(new std::string("var1"),
-                                                            new std::string(name));
+        auto var1 = std::make_unique<std::string>("var1");
+        auto prop = std::make_unique<std::string>(name);
+        return std::make_unique<VariablePropertyExpression>(var1.release(), prop.release());
     };
 
     {
         auto expr0 = std::make_unique<PathBuildExpression>();
         expr0->add(varPropExpr("path_src"));
-        auto expr1 = std::make_unique<PathBuildExpression>();
-        expr1->add(varPropExpr("path_v1"));
         auto expr = std::make_unique<PathBuildExpression>();
         expr->add(std::move(expr0));
         expr->add(varPropExpr("path_edge1"));
 
         {
+            // Test: Path + Edge
             auto result = Expression::eval(expr.get(), gExpCtxt);
             EXPECT_EQ(result.type(), Value::Type::PATH);
             const auto &path = result.getPath();
@@ -2764,9 +2764,12 @@ TEST_F(ExpressionTest, PathBuild) {
             EXPECT_EQ(path.steps.back().dst.vid, "2");
         }
 
+        auto expr1 = std::make_unique<PathBuildExpression>();
+        expr1->add(varPropExpr("path_v1"));
         expr->add(std::move(expr1));
 
         {
+            // Test: Path + Edge + Path
             auto result = Expression::eval(expr.get(), gExpCtxt);
             EXPECT_EQ(result.type(), Value::Type::PATH);
             const auto &path = result.getPath();
@@ -2777,11 +2780,29 @@ TEST_F(ExpressionTest, PathBuild) {
         expr->add(varPropExpr("path_edge2"));
 
         {
+            // Test: Path + Edge + Path + Edge
             auto result = Expression::eval(expr.get(), gExpCtxt);
             EXPECT_EQ(result.type(), Value::Type::PATH);
             const auto &path = result.getPath();
             EXPECT_EQ(path.steps.size(), 2);
             EXPECT_EQ(path.steps.back().dst.vid, "3");
+        }
+
+        auto pathExpr2 = std::make_unique<PathBuildExpression>();
+        pathExpr2->add(varPropExpr("path_v2"));
+        pathExpr2->add(varPropExpr("path_edge3"));
+
+        auto pathExpr3 = std::make_unique<PathBuildExpression>();
+        pathExpr3->add(std::move(expr));
+        pathExpr3->add(std::move(pathExpr2));
+
+        {
+            // Test: Path + Path
+            auto result = Expression::eval(pathExpr3.get(), gExpCtxt);
+            EXPECT_EQ(result.type(), Value::Type::PATH);
+            const auto &path = result.getPath();
+            EXPECT_EQ(path.steps.size(), 3);
+            EXPECT_EQ(path.steps.back().dst.vid, "4");
         }
     }
 }
