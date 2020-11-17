@@ -14,13 +14,6 @@ namespace py nebula2.graph
 
 include "common.thrift"
 
-/*
- *
- *  Note: In order to support multiple languages, all string
- *        have to be defined as **binary** in the thrift file
- *
- */
-
 enum ErrorCode {
     SUCCEEDED = 0,
 
@@ -58,7 +51,7 @@ struct ProfilingStats {
     // Total duration spent in an executor, contains schedule time
     3: required i64  total_duration_in_us;
     // Other profiling stats data map
-    4: optional map<binary, binary>
+    4: optional map<string, string>
         (cpp.template = "std::unordered_map") other_stats;
 }
 
@@ -71,14 +64,14 @@ struct PlanNodeBranchInfo {
 }
 
 struct Pair {
-    1: required binary key;
-    2: required binary value;
+    1: required string key;
+    2: required string value;
 }
 
 struct PlanNodeDescription {
-    1: required binary                          name;
+    1: required string                          name;
     2: required i64                             id;
-    3: required binary                          output_var;
+    3: required string                          output_var;
     // other description of an executor
     4: optional list<Pair>                      description;
     // If an executor would be executed multi times,
@@ -94,7 +87,7 @@ struct PlanDescription {
     2: required map<i64, i64>
         (cpp.template = "std::unordered_map") node_index_map;
     // the print format of exec plan, lowercase string like `dot'
-    3: required binary                        format;
+    3: required string                        format;
 }
 
 
@@ -102,27 +95,27 @@ struct ExecutionResponse {
     1: required ErrorCode               error_code;
     2: required i32                     latency_in_us;  // Execution time on server
     3: optional common.DataSet          data;
-    4: optional binary                  space_name;
-    5: optional binary                  error_msg;
+    4: optional string                  space_name;
+    5: optional string                  error_msg;
     6: optional PlanDescription         plan_desc;
-    7: optional binary                  comment;        // Supplementary instruction
+    7: optional string                  comment;        // Supplementary instruction
 }
 
 
 struct AuthResponse {
     1: required ErrorCode   error_code;
-    2: optional binary      error_msg;
+    2: optional string      error_msg;
     3: optional i64         session_id;
 }
 
 
 service GraphService {
-    AuthResponse authenticate(1: binary username, 2: binary password)
+    AuthResponse authenticate(1: string username, 2: string password)
 
     oneway void signout(1: i64 sessionId)
 
-    ExecutionResponse execute(1: i64 sessionId, 2: binary stmt)
+    ExecutionResponse execute(1: i64 sessionId, 2: string stmt)
 
     // Same as execute(), but response will be a json string
-    binary executeJson(1: i64 sessionId, 2: binary stmt)
+    string executeJson(1: i64 sessionId, 2: string stmt)
 }
