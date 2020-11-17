@@ -992,7 +992,7 @@ struct SpaceBackupInfo {
     1: SpaceDesc                    space,
     2: common.PartitionBackupInfo   partition_info,
     // storage checkpoint directory name
-    3: list<CheckpointInfo>         backup_name,
+    3: list<CheckpointInfo>         cp_dirs,
 }
 
 struct BackupMeta {
@@ -1000,6 +1000,8 @@ struct BackupMeta {
     1: map<common.GraphSpaceID, SpaceBackupInfo> (cpp.template = "std::unordered_map")  backup_info,
     // sst file
     2: list<string>                               meta_files,
+    // backup
+    3: string                                     backup_name,
 }
 
 struct CreateBackupReq {
