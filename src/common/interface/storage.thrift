@@ -64,6 +64,7 @@ enum ErrorCode {
     E_TRANSFER_LEADER_FAILED = -46,
     E_INVALID_STAT_TYPE      = -47,
     E_INVALID_VID            = -48,
+    E_NO_TRANSFORMED         = -49,
 
     // meta client failed
     E_LOAD_META_FAILED       = -51,
@@ -675,7 +676,8 @@ struct TaskPara {
 }
 
 struct AddAdminTaskRequest {
-    1: meta.AdminCmd                        cmd        // rebuild index / flush / compact
+    // rebuild index / flush / compact / statis
+    1: meta.AdminCmd                        cmd
     2: i32                                  job_id
     3: i32                                  task_id
     4: TaskPara                             para
@@ -721,7 +723,8 @@ service GraphStorageService {
 //////////////////////////////////////////////////////////
 // Common response for admin methods
 struct AdminExecResp {
-    1: required ResponseCommon result,
+    1: required ResponseCommon   result,
+    2: optional meta.StatisItem  statis,
 }
 
 

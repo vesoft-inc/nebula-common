@@ -46,6 +46,9 @@ using NameIndexMap = std::unordered_map<std::pair<GraphSpaceID, std::string>, In
 // Get Index Structure by indexID
 using Indexes = std::unordered_map<IndexID, std::shared_ptr<cpp2::IndexItem>>;
 
+using Listeners = std::unordered_map<HostAddr,
+                                     std::vector<std::pair<PartitionID, cpp2::ListenerType>>>;
+
 struct SpaceInfoCache {
     cpp2::SpaceDesc spaceDesc_;
     PartsAlloc partsAlloc_;
@@ -54,6 +57,7 @@ struct SpaceInfoCache {
     EdgeSchemas edgeSchemas_;
     Indexes tagIndexes_;
     Indexes edgeIndexes_;
+    Listeners listeners_;
 };
 
 using LocalCache = std::unordered_map<GraphSpaceID, std::shared_ptr<SpaceInfoCache>>;
@@ -208,11 +212,11 @@ public:
     listTagSchemas(GraphSpaceID spaceId);
 
     folly::Future<StatusOr<bool>>
-    dropTagSchema(int32_t spaceId, std::string name, bool ifExists = false);
+    dropTagSchema(GraphSpaceID spaceId, std::string name, bool ifExists = false);
 
     // Return the latest schema when ver = -1
     folly::Future<StatusOr<cpp2::Schema>>
-    getTagSchema(int32_t spaceId, std::string name, SchemaVer version = -1);
+    getTagSchema(GraphSpaceID spaceId, std::string name, SchemaVer version = -1);
 
     folly::Future<StatusOr<EdgeType>> createEdgeSchema(GraphSpaceID spaceId,
                                                        std::string name,
@@ -240,7 +244,7 @@ public:
     createTagIndex(GraphSpaceID spaceID,
                    std::string indexName,
                    std::string tagName,
-                   std::vector<std::string> fields,
+                   std::vector<cpp2::IndexFieldDef> fields,
                    bool ifNotExists = false);
 
     // Remove the define of tag index
@@ -263,7 +267,7 @@ public:
     createEdgeIndex(GraphSpaceID spaceID,
                     std::string indexName,
                     std::string edgeName,
-                    std::vector<std::string> fields,
+                    std::vector<cpp2::IndexFieldDef> fields,
                     bool ifNotExists = false);
 
     // Remove the definition of edge index
@@ -357,6 +361,31 @@ public:
     folly::Future<StatusOr<bool>> dropSnapshot(const std::string& name);
 
     folly::Future<StatusOr<std::vector<cpp2::Snapshot>>> listSnapshots();
+
+    // Opeartions for listener.
+
+    folly::Future<StatusOr<bool>> addListener(GraphSpaceID spaceId,
+                                              cpp2::ListenerType type,
+                                              std::vector<HostAddr> hosts);
+
+    folly::Future<StatusOr<bool>> removeListener(GraphSpaceID spaceId,
+                                                 cpp2::ListenerType type);
+
+    folly::Future<StatusOr<std::vector<cpp2::ListenerInfo>>> listListener(GraphSpaceID spaceId);
+
+    StatusOr<std::vector<std::pair<PartitionID, cpp2::ListenerType>>>
+    getListenersBySpaceHostFromCache(GraphSpaceID spaceId, const HostAddr& host);
+
+    StatusOr<std::map<GraphSpaceID, std::vector<std::pair<PartitionID, cpp2::ListenerType>>>>
+    getListenersByHostFromCache(const HostAddr& host);
+
+    StatusOr<std::vector<HostAddr>>
+    getListenerHostsBySpacePartType(GraphSpaceID spaceId,
+                                    PartitionID partId,
+                                    cpp2::ListenerType type);
+
+    StatusOr<std::vector<std::pair<HostAddr, cpp2::ListenerType>>>
+    getListenerHostTypeBySpacePartType(GraphSpaceID spaceId, PartitionID partId);
 
     // Opeartions for cache.
     StatusOr<GraphSpaceID> getSpaceIdByNameFromCache(const std::string& name);
@@ -477,9 +506,6 @@ public:
     listZones();
 
     folly::Future<StatusOr<bool>>
-    drainZone(std::string zoneName);
-
-    folly::Future<StatusOr<bool>>
     addGroup(std::string groupName, std::vector<std::string> zoneNames);
 
     folly::Future<StatusOr<bool>>
@@ -500,6 +526,9 @@ public:
     Status refreshCache();
 
     StatusOr<LeaderMap> loadLeader();
+
+    folly::Future<StatusOr<cpp2::StatisItem>>
+    getStatis(GraphSpaceID spaceId);
 
 protected:
     // Return true if load succeeded.
@@ -524,8 +553,9 @@ protected:
 
     bool loadUsersAndRoles();
 
-    bool loadIndexes(GraphSpaceID spaceId,
-                     std::shared_ptr<SpaceInfoCache> cache);
+    bool loadIndexes(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCache> cache);
+
+    bool loadListeners(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCache> cache);
 
     folly::Future<StatusOr<bool>> heartbeat();
 

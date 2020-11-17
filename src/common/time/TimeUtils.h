@@ -19,6 +19,7 @@
 #include "common/datatypes/Map.h"
 #include "common/fs/FileUtils.h"
 #include "common/time/TimeParser.h"
+#include "common/time/TimezoneInfo.h"
 
 DECLARE_string(timezone_name);
 
@@ -40,8 +41,9 @@ public:
     // check the validation of date
     // not check range limit in here
     // I.E. 2019-02-31
-    template <typename D, typename = std::enable_if_t<std::is_same<D, Date>::value ||
-                                                      std::is_same<D, DateTime>::value>>
+    template <typename D,
+              typename = std::enable_if_t<std::is_same<D, Date>::value ||
+                                          std::is_same<D, DateTime>::value>>
     static Status validateDate(const D &date) {
         const int64_t *p = isLeapYear(date.year) ? kLeapDaysSoFar : kDaysSoFar;
         if ((p[date.month] - p[date.month - 1]) < date.day) {
@@ -88,11 +90,11 @@ public:
     }
 
     static DateTime dateTimeToUTC(const DateTime &dateTime) {
-        return dateTimeShift(dateTime, timezone);
+        return dateTimeShift(dateTime, getGlobalTimezone().utcOffsetSecs());
     }
 
     static DateTime utcToDateTime(const DateTime &dateTime) {
-        return dateTimeShift(dateTime, -timezone);
+        return dateTimeShift(dateTime, -getGlobalTimezone().utcOffsetSecs());
     }
 
     static StatusOr<DateTime> localDateTime() {
@@ -101,7 +103,7 @@ public:
         if (unixTime == -1) {
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
-        return unixSecondsToDateTime(unixTime - timezone);
+        return unixSecondsToDateTime(unixTime - getGlobalTimezone().utcOffsetSecs());
     }
 
     static StatusOr<DateTime> utcDateTime() {
@@ -139,11 +141,11 @@ public:
     }
 
     static Date dateToUTC(const Date &date) {
-        return dateShift(date, timezone);
+        return dateShift(date, getGlobalTimezone().utcOffsetSecs());
     }
 
     static Date utcToDate(const Date &date) {
-        return dateShift(date, -timezone);
+        return dateShift(date, -getGlobalTimezone().utcOffsetSecs());
     }
 
     static StatusOr<Date> localDate() {
@@ -152,7 +154,7 @@ public:
         if (unixTime == -1) {
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
-        return unixSecondsToDate(unixTime - timezone);
+        return unixSecondsToDate(unixTime - getGlobalTimezone().utcOffsetSecs());
     }
 
     static StatusOr<Date> utcDate() {
@@ -197,11 +199,11 @@ public:
     }
 
     static Time timeToUTC(const Time &time) {
-        return timeShift(time, timezone);
+        return timeShift(time, getGlobalTimezone().utcOffsetSecs());
     }
 
     static Time utcToTime(const Time &time) {
-        return timeShift(time, -timezone);
+        return timeShift(time, getGlobalTimezone().utcOffsetSecs());
     }
 
     static StatusOr<Time> localTime() {
@@ -210,7 +212,7 @@ public:
         if (unixTime == -1) {
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
-        return unixSecondsToTime(unixTime - timezone);
+        return unixSecondsToTime(unixTime - getGlobalTimezone().utcOffsetSecs());
     }
 
     static StatusOr<Time> utcTime() {
@@ -222,9 +224,11 @@ public:
         return unixSecondsToTime(unixTime);
     }
 
-private:
-    static constexpr char kTZdir[] = "/usr/share/zoneinfo";
+    static Timezone &getGlobalTimezone() {
+        return globalTimezone;
+    }
 
+private:
     static constexpr int kDayOfLeapYear = 366;
     static constexpr int kDayOfCommonYear = 365;
 
@@ -233,6 +237,8 @@ private:
     static constexpr int64_t kSecondsOfDay = 24 * kSecondsOfHour;
 
     static const DateTime kEpoch;
+
+    static Timezone globalTimezone;
 
     // The result of a right-shift of a signed negative number is implementation-dependent
     // (UB. see https://en.cppreference.com/w/cpp/language/operator_arithmetic).
