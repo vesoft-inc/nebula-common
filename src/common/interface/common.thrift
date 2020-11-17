@@ -26,19 +26,13 @@ cpp_include "common/datatypes/DataSetOps.h"
 cpp_include "common/datatypes/KeyValueOps.h"
 cpp_include "common/datatypes/HostAddrOps.h"
 
-/*
- *
- *  Note: In order to support multiple languages, all strings
- *        have to be defined as **binary** in the thrift file
- *
- */
 
 typedef i32 (cpp.type = "nebula::GraphSpaceID") GraphSpaceID
 typedef i32 (cpp.type = "nebula::PartitionID") PartitionID
 typedef i32 (cpp.type = "nebula::TagID") TagID
 typedef i32 (cpp.type = "nebula::EdgeType") EdgeType
 typedef i64 (cpp.type = "nebula::EdgeRanking") EdgeRanking
-typedef binary (cpp.type = "nebula::VertexID") VertexID
+typedef string (cpp.type = "nebula::VertexID") VertexID
 
 typedef i64 (cpp.type = "nebula::Timestamp") Timestamp
 
@@ -94,7 +88,7 @@ union Value {
     2: bool                                     bVal;
     3: i64                                      iVal;
     4: double                                   fVal;
-    5: binary                                   sVal;
+    5: string                                   sVal;
     6: Date                                     dVal;
     7: Time                                     tVal;
     8: DateTime                                 dtVal;
@@ -116,7 +110,7 @@ struct List {
 
 // Unordered key/values pairs
 struct Map {
-    1: map<binary, Value> (cpp.template = "std::unordered_map") kvs;
+    1: map<string, Value> (cpp.template = "std::unordered_map") kvs;
 } (cpp.type = "nebula::Map")
 
 
@@ -132,15 +126,15 @@ struct Row {
 
 
 struct DataSet {
-    1: list<binary>    column_names;   // Column names
+    1: list<string>    column_names;   // Column names
     2: list<Row>       rows;
 } (cpp.type = "nebula::DataSet")
 
 
 struct Tag {
-    1: binary name,
+    1: string name,
     // List of <prop_name, prop_value>
-    2: map<binary, Value> (cpp.template = "std::unordered_map") props,
+    2: map<string, Value> (cpp.template = "std::unordered_map") props,
 } (cpp.type = "nebula::Tag")
 
 
@@ -154,19 +148,19 @@ struct Edge {
     1: VertexID src,
     2: VertexID dst,
     3: EdgeType type,
-    4: binary name,
+    4: string name,
     5: EdgeRanking ranking,
     // List of <prop_name, prop_value>
-    6: map<binary, Value> (cpp.template = "std::unordered_map") props,
+    6: map<string, Value> (cpp.template = "std::unordered_map") props,
 } (cpp.type = "nebula::Edge")
 
 
 struct Step {
     1: Vertex dst,
     2: EdgeType type,
-    3: binary name,
+    3: string name,
     4: EdgeRanking ranking,
-    5: map<binary, Value> (cpp.template = "std::unordered_map") props,
+    5: map<string, Value> (cpp.template = "std::unordered_map") props,
 } (cpp.type = "nebula::Step")
 
 
@@ -185,6 +179,6 @@ struct HostAddr {
 
 
 struct KeyValue {
-    1: binary key,
-    2: binary value,
+    1: string key,
+    2: string value,
 } (cpp.type = "nebula::KeyValue")
