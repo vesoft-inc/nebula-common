@@ -47,6 +47,9 @@ std::unordered_map<std::string, std::vector<Value>> FunctionManagerTest::args_ =
     {"string", {"AbcDeFG"}},
     {"trim", {" abc  "}},
     {"substr", {"abcdefghi", 2, 4}},
+    {"replace", {"abcdefghi", "cde", "ZZZ"}},
+    {"reverse", {"qwerty"}},
+    {"split", {"nebula//graph//database", "//"}},
     {"side", {"abcdefghijklmnopq", 5}},
     {"neg_side", {"abcdefghijklmnopq", -2}},
     {"pad", {"abcdefghijkl", 16, "123"}},
@@ -104,6 +107,10 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(lpad, args_["pad"], "1231abcdefghijkl");
         TEST_FUNCTION(rpad, args_["pad"], "abcdefghijkl1231");
         TEST_FUNCTION(udf_is_in, args_["udf_is_in"], true);
+
+        TEST_FUNCTION(replace, args_["replace"], "abZZZfghi");
+        TEST_FUNCTION(reverse, args_["reverse"], "ytrewq");
+        TEST_FUNCTION(split, args_["split"], List({"nebula", "graph", "database"}));
     }
     {
         auto result = FunctionManager::get("rand32", args_["rand"].size());
@@ -813,6 +820,41 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result = FunctionManager::getReturnType("ltrim", {Value::Type::STRING});
         ASSERT_TRUE(result.ok());
         EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    {
+        auto result = FunctionManager::getReturnType("replace",
+                    {Value::Type::STRING, Value::Type::STRING, Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    {
+        auto result = FunctionManager::getReturnType("replace",
+                    {Value::Type::STRING, Value::Type::STRING,
+                    Value::Type::STRING, Value::Type::STRING});
+        ASSERT_FALSE(result.ok());
+        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+    }
+    {
+        auto result = FunctionManager::getReturnType("reverse", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    {
+        auto result = FunctionManager::getReturnType("reverse", {Value::Type::INT});
+        ASSERT_FALSE(result.ok());
+        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+    }
+    {
+        auto result = FunctionManager::getReturnType("split",
+            {Value::Type::STRING, Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::LIST);
+    }
+    {
+        auto result = FunctionManager::getReturnType("split",
+            {Value::Type::STRING, Value::Type::INT});
+        ASSERT_FALSE(result.ok());
+        EXPECT_EQ(result.status().toString(), "Parameter's type error");
     }
     {
         auto result = FunctionManager::getReturnType("strcasecmp",

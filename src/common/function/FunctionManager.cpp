@@ -107,6 +107,10 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"rtrim", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
     {"left", {TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
     {"right", {TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
+    {"replace", {TypeSignature({Value::Type::STRING,
+            Value::Type::STRING, Value::Type::STRING}, Value::Type::STRING)}},
+    {"reverse", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
+    {"split", {TypeSignature({Value::Type::STRING, Value::Type::STRING}, Value::Type::LIST)}},
     {"lpad",
      {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::STRING},
                     Value::Type::STRING)}},
@@ -656,6 +660,59 @@ FunctionManager::FunctionManager() {
                     length = value.size();
                 }
                 return value.substr(value.size() - length);
+            }
+            return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["replace"];
+        attr.minArity_ = 3;
+        attr.maxArity_ = 3;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isStr() && args[1].isStr() && args[2].isStr()) {
+                std::string origStr(args[0].getStr());
+                std::string search(args[1].getStr());
+                std::string newStr(args[2].getStr());
+                return boost::replace_all_copy(origStr, search, newStr);
+            }
+            return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["reverse"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isStr()) {
+                std::string origStr(args[0].getStr());
+                std::reverse(origStr.begin(), origStr.end());
+                return origStr;
+            }
+            return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["split"];
+        attr.minArity_ = 2;
+        attr.maxArity_ = 2;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isStr(), args[1].isStr()) {
+                std::string origStr(args[0].getStr());
+                std::string delim(args[1].getStr());
+                List res;
+                size_t pos = 0;
+                std::string token;
+
+                while ((pos = origStr.find(delim)) != std::string::npos) {
+                    token = origStr.substr(0, pos);
+                    res.emplace_back(token);
+                    origStr.erase(0, pos + delim.length());
+                }
+                res.emplace_back(origStr);
+                return res;
             }
             return Value::kNullBadType;
         };
