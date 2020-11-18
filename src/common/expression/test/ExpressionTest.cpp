@@ -244,17 +244,27 @@ static std::unordered_map<std::string, std::vector<Value>> args_ = {
 #define TEST_EXPR(expr, expected)                                                                  \
     do {                                                                                           \
         testExpr(#expr, expected);                                                                 \
-    } while (0);
+    } while (0)
 
 #define TEST_FUNCTION(expr, args, expected)                                                        \
     do {                                                                                           \
         testFunction(#expr, args, expected);                                                       \
-    } while (0);
+    } while (0)
 
 #define TEST_TOSTRING(expr, expected)                                                              \
     do {                                                                                           \
         testToString(#expr, expected);                                                             \
-    } while (0);
+    } while (0)
+
+#define STEP(DST, NAME, RANKING, TYPE)                                                             \
+    do {                                                                                           \
+        Step step;                                                                                 \
+        step.dst.vid = DST;                                                                        \
+        step.name = NAME;                                                                          \
+        step.ranking = RANKING;                                                                    \
+        step.type = TYPE;                                                                          \
+        path.steps.emplace_back(std::move(step));                                                  \
+    } while (0)
 
 TEST_F(ExpressionTest, Constant) {
     {
@@ -651,6 +661,44 @@ TEST_F(ExpressionTest, FunctionCallTest) {
         TEST_FUNCTION(lpad, args_["pad"], "1231abcdefghijkl");
         TEST_FUNCTION(rpad, args_["pad"], "abcdefghijkl1231");
         TEST_FUNCTION(udf_is_in, args_["udf_is_in"], true);
+    }
+    {
+        // cyclePath
+        Path path;
+        path.src.vid = "1";
+        STEP("2", "edge", 0, 1);
+        STEP("1", "edge", 0, -1);
+        TEST_FUNCTION(cyclePath, {path}, true);
+    }
+    {
+        // cyclePath
+        Path path;
+        path.src.vid = "0";
+        Step step1, step2, step3;
+        STEP("2", "edge", 0, 1);
+        STEP("1", "edge", 0, -1);
+        STEP("2", "edge", 0, 1);
+        TEST_FUNCTION(cyclePath, {path}, true);
+    }
+    {
+        // cyclePath
+        Path path;
+        path.src.vid = "0";
+        Step step1, step2, step3;
+        STEP("2", "edge", 0, 1);
+        STEP("1", "edge", 0, 1);
+        STEP("2", "edge", 0, 1);
+        TEST_FUNCTION(cyclePath, {path}, false);
+    }
+    {
+        // cyclePath
+        Path path;
+        path.src.vid = "0";
+        Step step1, step2, step3;
+        STEP("2", "edge", 0, 1);
+        STEP("1", "edge", 0, -1);
+        STEP("2", "edge", 1, 1);
+        TEST_FUNCTION(cyclePath, {path}, false);
     }
 }
 

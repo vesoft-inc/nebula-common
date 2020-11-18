@@ -7,6 +7,7 @@
 #include "FunctionManager.h"
 #include "common/base/Base.h"
 #include "common/expression/Expression.h"
+#include "common/thrift/ThriftTypes.h"
 #include "common/time/WallClock.h"
 #include "common/datatypes/List.h"
 #include "common/datatypes/Map.h"
@@ -170,6 +171,7 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"head", {TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
     {"last", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
     {"coalesce", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
+    {"cyclePath", { TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
 };
 
 // static
@@ -1180,6 +1182,32 @@ FunctionManager::FunctionManager() {
                 result.values.emplace_back(std::move(edge));
             }
             return result;
+        };
+    }
+    {
+        auto &attr = functions_["cyclePath"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isPath()) {
+                return Value::kNullBadType;
+            }
+            auto &path = args[0].getPath();
+            if (path.steps.size() < 2) {
+                return false;
+            }
+            auto src = path.src.vid;
+            for (size_t i = 0, e = path.steps.size() - 1; i < e; ++i) {
+                const auto &prev = path.steps[i];
+                const auto &next = path.steps[i + 1];
+                if (next.dst.vid == src && prev.type == -next.type && prev.name == next.name &&
+                    prev.ranking == next.ranking) {
+                    return true;
+                }
+                src = prev.dst.vid;
+            }
+            return false;
         };
     }
 }   // NOLINT
