@@ -814,11 +814,14 @@ MetaClient::submitJob(cpp2::AdminJobOp op, cpp2::AdminCmd cmd, std::vector<std::
     req.set_paras(std::move(paras));
     folly::Promise<StatusOr<cpp2::AdminJobResult>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req), [] (auto client, auto request) {
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
                     return client->future_runAdminJob(request);
                 }, [] (cpp2::AdminJobResp&& resp) -> decltype(auto) {
                     return resp.get_result();
-                }, std::move(promise), true);
+                },
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -852,7 +855,8 @@ folly::Future<StatusOr<std::vector<SpaceIdName>>> MetaClient::listSpaces() {
                 [this] (cpp2::ListSpacesResp&& resp) -> decltype(auto) {
                     return this->toSpaceIdName(resp.get_spaces());
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -862,11 +866,14 @@ folly::Future<StatusOr<cpp2::SpaceItem>> MetaClient::getSpace(std::string name) 
     req.set_space_name(std::move(name));
     folly::Promise<StatusOr<cpp2::SpaceItem>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req), [] (auto client, auto request) {
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
                     return client->future_getSpace(request);
                 }, [] (cpp2::GetSpaceResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_item();
-                }, std::move(promise));
+                },
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -905,7 +912,8 @@ MetaClient::listHosts(cpp2::ListHostType tp) {
                 [] (cpp2::ListHostsResp&& resp) -> decltype(auto) {
                     return resp.hosts;
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -923,7 +931,8 @@ MetaClient::listParts(GraphSpaceID spaceId, std::vector<PartitionID> partIds) {
                 [] (cpp2::ListPartsResp&& resp) -> decltype(auto) {
                     return resp.parts;
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -945,7 +954,8 @@ MetaClient::getPartsAlloc(GraphSpaceID spaceId) {
                     }
                     return parts;
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1081,7 +1091,8 @@ MetaClient::get(std::string segment, std::string key) {
                 [] (cpp2::GetResp&& resp) -> std::string {
                     return resp.get_value();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1104,7 +1115,8 @@ MetaClient::multiGet(std::string segment, std::vector<std::string> keys) {
                 [] (cpp2::MultiGetResp&& resp) -> std::vector<std::string> {
                     return resp.get_values();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1128,7 +1140,8 @@ MetaClient::scan(std::string segment, std::string start, std::string end) {
                 [] (cpp2::ScanResp&& resp) -> std::vector<std::string> {
                     return resp.get_values();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1319,7 +1332,8 @@ MetaClient::listTagSchemas(GraphSpaceID spaceId) {
                 [] (cpp2::ListTagsResp&& resp) -> decltype(auto){
                     return std::move(resp).get_tags();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1360,7 +1374,8 @@ MetaClient::getTagSchema(GraphSpaceID spaceId, std::string name, int64_t version
                 [] (cpp2::GetTagResp&& resp) -> cpp2::Schema {
                     return std::move(resp).get_schema();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1428,7 +1443,8 @@ MetaClient::listEdgeSchemas(GraphSpaceID spaceId) {
                 [] (cpp2::ListEdgesResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_edges();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1448,7 +1464,8 @@ MetaClient::getEdgeSchema(GraphSpaceID spaceId, std::string name, SchemaVer vers
                 [] (cpp2::GetEdgeResp&& resp) -> cpp2::Schema {
                     return std::move(resp).get_schema();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1539,7 +1556,8 @@ MetaClient::getTagIndex(GraphSpaceID spaceID, std::string name) {
                 [] (cpp2::GetTagIndexResp&& resp) -> cpp2::IndexItem {
                     return std::move(resp).get_item();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1558,7 +1576,8 @@ MetaClient::listTagIndexes(GraphSpaceID spaceId) {
                 [] (cpp2::ListTagIndexesResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_items();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1599,7 +1618,8 @@ MetaClient::listTagIndexStatus(GraphSpaceID spaceID) {
                 [] (cpp2::ListIndexStatusResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_statuses();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1670,7 +1690,8 @@ MetaClient::getEdgeIndex(GraphSpaceID spaceId, std::string name) {
                 [] (cpp2::GetEdgeIndexResp&& resp) -> cpp2::IndexItem {
                     return std::move(resp).get_item();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1685,10 +1706,12 @@ MetaClient::listEdgeIndexes(GraphSpaceID spaceId) {
     getResponse(std::move(req),
                 [] (auto client, auto request) {
                     return client->future_listEdgeIndexes(request);
-                }, [] (cpp2::ListEdgeIndexesResp&& resp) -> decltype(auto) {
+                },
+                [] (cpp2::ListEdgeIndexesResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_items();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -1855,7 +1878,8 @@ MetaClient::listEdgeIndexStatus(GraphSpaceID spaceID) {
                 [] (cpp2::ListIndexStatusResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_statuses();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -2262,7 +2286,8 @@ MetaClient::listUsers() {
                 [] (cpp2::ListUsersResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_users();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -2280,7 +2305,8 @@ MetaClient::listRoles(GraphSpaceID space) {
                 [] (cpp2::ListRolesResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_roles();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -2321,7 +2347,8 @@ MetaClient::getUserRoles(std::string account) {
                 [] (cpp2::ListRolesResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_roles();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -2408,7 +2435,8 @@ folly::Future<StatusOr<std::string>> MetaClient::getTagDefaultValue(GraphSpaceID
                 [] (cpp2::GetResp&& resp) -> std::string {
                     return resp.get_value();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -2435,7 +2463,8 @@ MetaClient::getEdgeDefaultValue(GraphSpaceID spaceId,
                 [] (cpp2::GetResp&& resp) -> std::string {
                     return resp.get_value();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -2478,7 +2507,8 @@ MetaClient::getConfig(const cpp2::ConfigModule& module, const std::string& name)
                 [] (cpp2::GetConfigResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_items();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -2522,7 +2552,8 @@ MetaClient::listConfigs(const cpp2::ConfigModule& module) {
                 [] (cpp2::ListConfigsResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_items();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -2573,7 +2604,8 @@ folly::Future<StatusOr<std::vector<cpp2::Snapshot>>> MetaClient::listSnapshots()
                 [] (cpp2::ListSnapshotsResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_snapshots();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -2630,7 +2662,8 @@ MetaClient::listListener(GraphSpaceID spaceId) {
                 [] (cpp2::ListListenerResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_listeners();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -2941,7 +2974,8 @@ MetaClient::getZone(std::string zoneName) {
                 [] (cpp2::GetZoneResp&& resp) -> decltype(auto) {
                     return resp.get_hosts();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -2957,7 +2991,8 @@ MetaClient::listZones() {
                 [] (cpp2::ListZonesResp&& resp) -> decltype(auto) {
                     return resp.get_zones();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -3054,7 +3089,8 @@ MetaClient::getGroup(std::string groupName) {
                 [] (cpp2::GetGroupResp&& resp) -> decltype(auto) {
                     return resp.get_zone_names();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -3070,7 +3106,8 @@ MetaClient::listGroups() {
                 [] (cpp2::ListGroupsResp&& resp) -> decltype(auto) {
                     return resp.get_groups();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
@@ -3087,7 +3124,8 @@ MetaClient::getStatis(GraphSpaceID spaceId) {
                 [] (cpp2::GetStatisResp&& resp) -> cpp2::StatisItem {
                     return std::move(resp).get_statis();
                 },
-                std::move(promise));
+                std::move(promise),
+                true);
     return future;
 }
 
