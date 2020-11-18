@@ -51,7 +51,7 @@ std::unordered_map<std::string, std::vector<Value>> FunctionManagerTest::args_ =
     {"substring_outRange", {"abcdef", 10}},
     {"replace", {"abcdefghi", "cde", "ZZZ"}},
     {"reverse", {"qwerty"}},
-    {"split", {"nebula//graph//database", "//"}},
+    {"split", {"//nebula//graph//database//", "//"}},
     {"toString_bool", {true}},
     {"side", {"abcdefghijklmnopq", 5}},
     {"neg_side", {"abcdefghijklmnopq", -2}},
@@ -119,7 +119,7 @@ TEST_F(FunctionManagerTest, functionCall) {
 
         TEST_FUNCTION(replace, args_["replace"], "abZZZfghi");
         TEST_FUNCTION(reverse, args_["reverse"], "ytrewq");
-        TEST_FUNCTION(split, args_["split"], List({"nebula", "graph", "database"}));
+        TEST_FUNCTION(split, args_["split"], List({"", "nebula", "graph", "database", ""}));
         TEST_FUNCTION(toString, args_["int"], "4");
         TEST_FUNCTION(toString, args_["float"], "1.1");
         TEST_FUNCTION(toString, args_["toString_bool"], "true");

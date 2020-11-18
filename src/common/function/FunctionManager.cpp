@@ -714,19 +714,15 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 2;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].isStr(), args[1].isStr()) {
+            if (args[0].isStr() && args[1].isStr()) {
                 std::string origStr(args[0].getStr());
                 std::string delim(args[1].getStr());
                 List res;
-                size_t pos = 0;
-                std::string token;
-
-                while ((pos = origStr.find(delim)) != std::string::npos) {
-                    token = origStr.substr(0, pos);
-                    res.emplace_back(token);
-                    origStr.erase(0, pos + delim.length());
+                std::vector<folly::StringPiece> substrings;
+                folly::split<folly::StringPiece>(delim, origStr, substrings);
+                for (auto str : substrings) {
+                    res.emplace_back(str);
                 }
-                res.emplace_back(origStr);
                 return res;
             }
             return Value::kNullBadType;
