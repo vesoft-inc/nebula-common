@@ -965,6 +965,40 @@ FunctionManager::FunctionManager() {
         };
     }
     {
+        auto &attr = functions_["range"];
+        attr.minArity_ = 2;
+        attr.maxArity_ = 3;
+        attr.isPure_ = false;
+        attr.body_ = [](const auto &args) -> Value {
+            auto range=[](const Value& start,const Value& end,const Value& step=1){
+                //TODO : datatype check
+                List<Value> res;
+                for(auto i = start; i < end; i = i + step){
+                    res.emplace_back(i);
+                }
+                return Value(std::remove(res).value());
+            };
+            switch (args.size()) {
+                case 2: {
+                    auto result = range(args[0],args[1]);
+                    if (!result.ok()) {
+                        return Value::kNullBadData;
+                    }
+                    return Value(std::move(result).value());
+                }
+                case 3: {
+                    auto result = range(args[0],args[1],args[2]);
+                    if (!result.ok()) {
+                        return Value::kNullBadData;
+                    }
+                    return Value(std::move(result).value());
+                }
+                default:
+                    LOG(FATAL) << "Unexpected arguments count " << args.size();
+            }
+        };
+    }
+    {
         auto &attr = functions_["id"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
