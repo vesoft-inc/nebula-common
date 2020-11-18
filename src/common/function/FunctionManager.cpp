@@ -970,13 +970,13 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 3;
         attr.isPure_ = false;
         attr.body_ = [](const auto &args) -> Value {
-            auto range=[](const Value& start,const Value& end,const Value& step=1){
+            auto range=[](const Value& start,const Value& end,const Value& step=1) -> StatusOr<Value>{
                 //TODO : datatype check
-                List<Value> res;
+                List res;
                 for(auto i = start; i < end; i = i + step){
                     res.emplace_back(i);
                 }
-                return Value(std::remove(res).value());
+                return Value(res);
             };
             switch (args.size()) {
                 case 2: {

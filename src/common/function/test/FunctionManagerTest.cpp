@@ -84,8 +84,10 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(log2, args_["int"], 2);
     }
     {
-        TEST_FUNCTION(range,args_["range1"],true);
-        TEST_FUNCTION(range,args_["range2"],true);
+        auto x=Value(List(std::vector<Value>{1,2,3,4,5,6,7,8,9}));
+        auto y=Value(List(std::vector<Value>{1,3,5,7,9}));
+        TEST_FUNCTION(range,args_["range1"], x);
+        TEST_FUNCTION(range,args_["range2"], y);
     }
     {
         TEST_FUNCTION(lower, args_["string"], "abcdefg");
