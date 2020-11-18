@@ -125,9 +125,14 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"substring",
      {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT}, Value::Type::STRING),
             TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
-    // {"toString",
-    //  {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT},
-    //                 Value::Type::STRING)}},
+    {"toString", {TypeSignature({Value::Type::INT}, Value::Type::STRING),
+                  TypeSignature({Value::Type::FLOAT}, Value::Type::STRING),
+                  TypeSignature({Value::Type::STRING}, Value::Type::STRING),
+                  TypeSignature({Value::Type::BOOL}, Value::Type::STRING),
+                  TypeSignature({Value::Type::DATE}, Value::Type::STRING),
+                  TypeSignature({Value::Type::TIME}, Value::Type::STRING),
+                  TypeSignature({Value::Type::DATETIME}, Value::Type::STRING)
+                }},
     {"hash", {TypeSignature({Value::Type::INT}, Value::Type::INT),
               TypeSignature({Value::Type::FLOAT}, Value::Type::INT),
               TypeSignature({Value::Type::STRING}, Value::Type::INT),
@@ -725,6 +730,45 @@ FunctionManager::FunctionManager() {
                 return res;
             }
             return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["toString"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+             switch (args[0].type()) {
+                case Value::Type::NULLVALUE:
+                    return Value::kNullBadType;
+                case Value::Type::INT: {
+                    return std::to_string(args[0].getInt());
+                }
+                case Value::Type::FLOAT: {
+                    char f[24];
+                    snprintf(f, sizeof(f), "%.1f", args[0].getFloat());
+                    std::string res(f);
+                    return res;
+                }
+                case Value::Type::BOOL: {
+                    return args[0].getBool() ? "true" : "false";
+                }
+                case Value::Type::STRING: {
+                    return args[0].getStr();
+                }
+                case Value::Type::DATE: {
+                    return args[0].getDate().toString();
+                }
+                case Value::Type::TIME: {
+                    return args[0].getTime().toString();
+                }
+                case Value::Type::DATETIME: {
+                    return args[0].getDateTime().toString();
+                }
+                default:
+                    LOG(ERROR) << "toString has not been implemented for " << args[0].type();
+                    return Value::kNullBadType;
+            }
         };
     }
     {

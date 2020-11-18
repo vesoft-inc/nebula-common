@@ -115,7 +115,7 @@ std::string Time::toString() const {
 
 std::string DateTime::toString() const {
     // It's in current timezone already
-    return folly::stringPrintf("%d:%02d:%02dT%02d:%02d:%02d.%06d",
+    return folly::stringPrintf("%d-%02d-%02dT%02d:%02d:%02d.%d",
                                year,
                                month,
                                day,

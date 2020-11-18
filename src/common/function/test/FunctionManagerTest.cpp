@@ -52,11 +52,14 @@ std::unordered_map<std::string, std::vector<Value>> FunctionManagerTest::args_ =
     {"replace", {"abcdefghi", "cde", "ZZZ"}},
     {"reverse", {"qwerty"}},
     {"split", {"nebula//graph//database", "//"}},
+    {"toString_bool", {true}},
     {"side", {"abcdefghijklmnopq", 5}},
     {"neg_side", {"abcdefghijklmnopq", -2}},
     {"pad", {"abcdefghijkl", 16, "123"}},
     {"udf_is_in", {4, 1, 2, 8, 4, 3, 1, 0}},
     {"edge", {Edge("1", "2", -1, "e1", 0, {})}},
+    {"date", {Date(1984, 10, 11)}},
+    {"datetime", {DateTime(1984, 10, 11, 12, 31, 14,  341)}},
 };
 
 #define TEST_FUNCTION(expr, args, expected)                                                        \
@@ -117,6 +120,12 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(replace, args_["replace"], "abZZZfghi");
         TEST_FUNCTION(reverse, args_["reverse"], "ytrewq");
         TEST_FUNCTION(split, args_["split"], List({"nebula", "graph", "database"}));
+        TEST_FUNCTION(toString, args_["int"], "4");
+        TEST_FUNCTION(toString, args_["float"], "1.1");
+        TEST_FUNCTION(toString, args_["toString_bool"], "true");
+        TEST_FUNCTION(toString, args_["string"], "AbcDeFG");
+        TEST_FUNCTION(toString, args_["date"], "1984-10-11");
+        TEST_FUNCTION(toString, args_["datetime"], "1984-10-11T12:31:14.341");
     }
     {
         auto result = FunctionManager::get("rand32", args_["rand"].size());
@@ -889,12 +898,26 @@ TEST_F(FunctionManagerTest, returnType) {
         ASSERT_TRUE(result.ok());
         EXPECT_EQ(result.value(), Value::Type::STRING);
     }
-    // {
-    //     auto result = FunctionManager::getReturnType("substring_outRange",
-    //         {Value::Type::STRING, Value::Type::INT});
-    //     ASSERT_FALSE(result.ok());
-    //     EXPECT_EQ(result.status().toString(), "Parameter's type error");
-    // }
+    {
+        auto result = FunctionManager::getReturnType("toString", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toString", {Value::Type::FLOAT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toString", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toString", {Value::Type::DATE});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
     {
         auto result = FunctionManager::getReturnType("strcasecmp",
                                                      {Value::Type::STRING, Value::Type::STRING});
