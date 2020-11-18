@@ -721,7 +721,7 @@ FunctionManager::FunctionManager() {
                 std::vector<folly::StringPiece> substrings;
                 folly::split<folly::StringPiece>(delim, origStr, substrings);
                 for (auto str : substrings) {
-                    res.emplace_back(str);
+                    res.emplace_back(str.toString());
                 }
                 return res;
             }
