@@ -1021,7 +1021,7 @@ struct HostPair {
 }
 
 struct RestoreMetaReq {
-    1: list<binary>     files,
+    1: list<string>     files,
     2: list<HostPair>   hosts,
 }
 
