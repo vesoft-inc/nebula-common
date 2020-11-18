@@ -100,7 +100,7 @@ Date Date::operator-(int64_t days) const {
 
 std::string Date::toString() const {
     // It's in current timezone already
-    return folly::stringPrintf("%d/%02d/%02d", year, month, day);
+    return folly::stringPrintf("%d-%02d-%02d", year, month, day);
 }
 
 std::string Time::toString() const {
@@ -115,7 +115,7 @@ std::string Time::toString() const {
 
 std::string DateTime::toString() const {
     // It's in current timezone already
-    return folly::stringPrintf("%d/%02d/%02d %02d:%02d:%02d.%06d",
+    return folly::stringPrintf("%d:%02d:%02dT%02d:%02d:%02d.%06d",
                                year,
                                month,
                                day,

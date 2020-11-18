@@ -47,6 +47,8 @@ std::unordered_map<std::string, std::vector<Value>> FunctionManagerTest::args_ =
     {"string", {"AbcDeFG"}},
     {"trim", {" abc  "}},
     {"substr", {"abcdefghi", 2, 4}},
+    {"substring", {"abcdef", 2}},
+    {"substring_outRange", {"abcdef", 10}},
     {"replace", {"abcdefghi", "cde", "ZZZ"}},
     {"reverse", {"qwerty"}},
     {"split", {"nebula//graph//database", "//"}},
@@ -90,7 +92,9 @@ TEST_F(FunctionManagerTest, functionCall) {
     }
     {
         TEST_FUNCTION(lower, args_["string"], "abcdefg");
+        TEST_FUNCTION(toLower, args_["string"], "abcdefg");
         TEST_FUNCTION(upper, args_["string"], "ABCDEFG");
+        TEST_FUNCTION(toUpper, args_["string"], "ABCDEFG");
         TEST_FUNCTION(length, args_["string"], 7);
 
         TEST_FUNCTION(trim, args_["trim"], "abc");
@@ -98,7 +102,9 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(rtrim, args_["trim"], " abc");
     }
     {
-        TEST_FUNCTION(substr, args_["substr"], "bcde");
+        TEST_FUNCTION(substr, args_["substr"], "cdef");
+        TEST_FUNCTION(substring, args_["substring"], "cdef");
+        TEST_FUNCTION(substring, args_["substring_outRange"], "");
         TEST_FUNCTION(left, args_["side"], "abcde");
         TEST_FUNCTION(right, args_["side"], "mnopq");
         TEST_FUNCTION(left, args_["neg_side"], "");
@@ -776,12 +782,27 @@ TEST_F(FunctionManagerTest, returnType) {
         EXPECT_EQ(result.value(), Value::Type::STRING);
     }
     {
+        auto result = FunctionManager::getReturnType("toLower", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    {
         auto result = FunctionManager::getReturnType("upper", {Value::Type::STRING});
         ASSERT_TRUE(result.ok());
         EXPECT_EQ(result.value(), Value::Type::STRING);
     }
     {
         auto result = FunctionManager::getReturnType("upper", {Value::Type::BOOL});
+        ASSERT_FALSE(result.ok());
+        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+    }
+    {
+        auto result = FunctionManager::getReturnType("toUpper", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toUpper", {Value::Type::BOOL});
         ASSERT_FALSE(result.ok());
         EXPECT_EQ(result.status().toString(), "Parameter's type error");
     }
@@ -856,6 +877,24 @@ TEST_F(FunctionManagerTest, returnType) {
         ASSERT_FALSE(result.ok());
         EXPECT_EQ(result.status().toString(), "Parameter's type error");
     }
+    {
+        auto result = FunctionManager::getReturnType("substring",
+            {Value::Type::STRING, Value::Type::INT, Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    {
+        auto result = FunctionManager::getReturnType("substring",
+            {Value::Type::STRING, Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    // {
+    //     auto result = FunctionManager::getReturnType("substring_outRange",
+    //         {Value::Type::STRING, Value::Type::INT});
+    //     ASSERT_FALSE(result.ok());
+    //     EXPECT_EQ(result.status().toString(), "Parameter's type error");
+    // }
     {
         auto result = FunctionManager::getReturnType("strcasecmp",
                                                      {Value::Type::STRING, Value::Type::STRING});

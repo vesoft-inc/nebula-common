@@ -99,7 +99,9 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"strcasecmp",
      {TypeSignature({Value::Type::STRING, Value::Type::STRING}, Value::Type::STRING)}},
     {"lower", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
+    {"toLower", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
     {"upper", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
+    {"toUpper", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
     {"length", {TypeSignature({Value::Type::STRING}, Value::Type::INT),
                 TypeSignature({Value::Type::PATH}, Value::Type::INT), }},
     {"trim", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
@@ -118,8 +120,14 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
      {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::STRING},
                     Value::Type::STRING)}},
     {"substr",
-     {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT},
-                    Value::Type::STRING)}},
+     {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT}, Value::Type::STRING),
+            TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
+    {"substring",
+     {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT}, Value::Type::STRING),
+            TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
+    // {"toString",
+    //  {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT},
+    //                 Value::Type::STRING)}},
     {"hash", {TypeSignature({Value::Type::INT}, Value::Type::INT),
               TypeSignature({Value::Type::FLOAT}, Value::Type::INT),
               TypeSignature({Value::Type::STRING}, Value::Type::INT),
@@ -554,6 +562,7 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
+        functions_["toLower"] = attr;
     }
     {
         auto &attr = functions_["upper"];
@@ -570,6 +579,7 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
+        functions_["toUpper"] = attr;
     }
     {
         auto &attr = functions_["length"];
@@ -777,26 +787,53 @@ FunctionManager::FunctionManager() {
     }
     {
         auto &attr = functions_["substr"];
-        attr.minArity_ = 3;
+        attr.minArity_ = 2;
         attr.maxArity_ = 3;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].isStr() && args[1].isInt() && args[2].isInt()) {
-                auto value = args[0].getStr();
-                auto start = args[1].getInt();
-                auto length = args[2].getInt();
-                if (static_cast<size_t>(std::abs(start)) > value.size() || length <= 0 ||
-                    start == 0) {
-                    return std::string("");
-                }
-                if (start > 0) {
-                    return value.substr(start - 1, length);
-                } else {
-                    return value.substr(value.size() + start, length);
-                }
+            switch (args.size()) {
+                case 3:
+                    if (args[0].isStr() && args[1].isInt() && args[2].isInt()) {
+                        auto value = args[0].getStr();
+                        auto start = args[1].getInt();
+                        auto length = args[2].getInt();
+                        if (static_cast<size_t>(std::abs(start)) > value.size() || length == 0) {
+                            return std::string("");
+                        }
+                        if (start < 0) {
+                            LOG(ERROR) << "Invalid Start index " << start;
+                            return Value::kNullBadData;
+                        }
+                        if (start == 0) {
+                            return value;
+                        }
+                        return value.substr(start, length);
+                    }
+                    return Value::kNullBadType;
+
+                case 2:
+                    if (args[0].isStr() && args[1].isInt()) {
+                        auto value = args[0].getStr();
+                        auto start = args[1].getInt();
+                        auto length = value.size() - start;
+                        if (static_cast<size_t>(std::abs(start)) > value.size() || length == 0) {
+                            return std::string("");
+                        }
+                        if (start < 0) {
+                            LOG(ERROR) << "Invalid Start index " << start;
+                            return Value::kNullBadData;
+                        }
+                        if (start == 0) {
+                            return value;
+                        }
+                        return value.substr(start, length);
+                    }
+                    return Value::kNullBadType;
+                default:
+                    LOG(FATAL) << "Unexpected arguments count " << args.size();
             }
-            return Value::kNullBadType;
         };
+        functions_["substring"] = attr;
     }
     {
         // 64bit signed hash value
