@@ -17,6 +17,7 @@ option(ENABLE_PIC                       "Build with -fPIC" OFF)
 option(ENABLE_COMPRESSED_DEBUG_INFO     "Compress debug info to reduce binary size" ON)
 option(ENABLE_CLANG_TIDY                "Enable clang-tidy if present" OFF)
 option(ENABLE_GDB_SCRIPT_SECTION        "Add .debug_gdb_scripts section" OFF)
+option(ENABLE_PACK_ONE                  "Package all artifact to one." OFF)
 
 get_cmake_property(variable_list VARIABLES)
 foreach(_varname ${variable_list})
