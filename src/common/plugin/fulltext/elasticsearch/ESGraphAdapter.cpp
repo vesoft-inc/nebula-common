@@ -89,8 +89,8 @@ std::string ESGraphAdapter::header(const HttpClient& client,
 }
 
 folly::dynamic ESGraphAdapter::schemaBody(int32_t id) const noexcept {
-    // "term": {"tag_id": 1}
-    folly::dynamic itemTag = folly::dynamic::object("tag_id", id);
+    // "term": {"schema_id": 1}
+    folly::dynamic itemTag = folly::dynamic::object("schema_id", id);
     return folly::dynamic::object("term", itemTag);
 }
 

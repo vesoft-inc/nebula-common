@@ -21,7 +21,7 @@ bool ESStorageAdapter::checkPut(const std::string& ret, const std::string& cmd) 
     // Command should be :
     //    /usr/bin/curl -H "Content-Type: application/json; charset=utf-8"
     //    -XPUT "http://127.0.0.1:9200/index1/_doc/0000000001_0000000002_8c43de7b01bca674276c43e09b3ec5ba_aaaa"  // NOLINT
-    //    -d'{"value":"aaaa","tag_id":2,"column_id":"8c43de7b01bca674276c43e09b3ec5ba"}'
+    //    -d'{"value":"aaaa","schema_id":2,"column_id":"8c43de7b01bca674276c43e09b3ec5ba"}'
     //
     // If successful, the result is returned:
     //    {
@@ -61,9 +61,9 @@ bool ESStorageAdapter::checkBulk(const std::string& ret) const {
     // Command should be :
     //    curl  -H "Content-Type: application/x-ndjson" -XPOST localhost:9200/_bulk -d '
     //    { "index" : { "_index" : "bulk_index", "_id" : "1" } }
-    //    { "tag_id" : 1 , "column_id" : "col1", "value" : "row_1"}
+    //    { "schema_id" : 1 , "column_id" : "col1", "value" : "row_1"}
     //    { "index" : { "_index" : "bulk_index", "_id" : "2" } }
-    //    { "tag_id" : 1 , "column_id" : "col1", "value" : "row_2"}
+    //    { "schema_id" : 1 , "column_id" : "col1", "value" : "row_2"}
     //    '
     //
     // If successful, the result is returned:
@@ -153,8 +153,8 @@ std::string ESStorageAdapter::putHeader(const HttpClient& client,
 }
 
 std::string ESStorageAdapter::putBody(const DocItem& item) const noexcept {
-    //    -d'{"tag_id" : 4, "column_id" : "col4", "value" : "hello"}'
-    folly::dynamic d = folly::dynamic::object("tag_id", item.schema)
+    //    -d'{"schema_id" : 4, "column_id" : "col4", "value" : "hello"}'
+    folly::dynamic d = folly::dynamic::object("schema_id", item.schema)
                                              ("column_id", DocIDTraits::column(item.column))
                                              ("value", DocIDTraits::val(item.val));
     std::stringstream os;
@@ -180,9 +180,9 @@ std::string ESStorageAdapter::bulkHeader(const HttpClient& client) const noexcep
 std::string ESStorageAdapter::bulkBody(const std::vector<DocItem>& items) const noexcept {
     //    -d '
     //    { "index" : { "_index" : "bulk_index", "_id" : "1" } }
-    //    { "tag_id" : 1 , "column_id" : "col1", "value" : "row_1"}
+    //    { "schema_id" : 1 , "column_id" : "col1", "value" : "row_1"}
     //    { "index" : { "_index" : "bulk_index", "_id" : "2" } }
-    //    { "tag_id" : 1 , "column_id" : "col1", "value" : "row_2"}
+    //    { "schema_id" : 1 , "column_id" : "col1", "value" : "row_2"}
     //    '
     if (items.empty()) {
         return "";
@@ -190,12 +190,11 @@ std::string ESStorageAdapter::bulkBody(const std::vector<DocItem>& items) const 
     std::stringstream os;
     os << " -d '" << "\n";
     for (const auto& item : items) {
-        auto docId = DocIDTraits::docId(item);
         folly::dynamic meta = folly::dynamic::object("_id", DocIDTraits::docId(item))
                                                     ("_index", item.index);
         folly::dynamic data = folly::dynamic::object("value", DocIDTraits::val(item.val))
                                                     ("column_id", DocIDTraits::column(item.column))
-                                                    ("tag_id", item.schema);
+                                                    ("schema_id", item.schema);
         os << folly::toJson(folly::dynamic::object("index", meta)) << "\n";
         os << folly::toJson(data) << "\n";
     }

@@ -50,7 +50,7 @@ TEST(FulltextPluginTest, ESPutTest) {
     auto expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
                     "-XPUT \"http://127.0.0.1:9200/index1/_doc/"
                     "000000000100000000028c43de7b01bca674276c43e09b3ec5baYWFhYQ==\" "
-                    "-d'{\"value\":\"aaaa\",\"tag_id\":2,\"column_id\""
+                    "-d'{\"value\":\"aaaa\",\"schema_id\":2,\"column_id\""
                     ":\"8c43de7b01bca674276c43e09b3ec5ba\"}'";
     ASSERT_EQ(expected, ret);
 }
@@ -66,15 +66,15 @@ TEST(FulltextPluginTest, ESBulkTest) {
     std::vector<DocItem> items{DocItem("index1", "col1", 1, 2, "aaaa"),
                                DocItem("index1", "col1", 1, 2, "bbbb")};
     auto ret = ESStorageAdapter().bulkCmd(hc, items);
-    auto expected = "/usr/bin/curl -H \"Content-Type: application/x-ndjson; charset=utf-8\" "
-                    "-XPOST \"http://127.0.0.1:9200/_bulk\" "
-                    "-d '\n{\"index\":{\"_index\":\"index1\","
-                    "\"_id\":\"000000000100000000028c43de7b01bca674276c43e09b3ec5baYWFhYQ==\"}}\n"
-                    "{\"value\":\"aaaa\",\"tag_id\":2,\"column_id\":"
+    auto expected = "/usr/bin/curl -H \"Content-Type: application/x-ndjson; "
+                    "charset=utf-8\" -XPOST \"http://127.0.0.1:9200/_bulk\" "
+                    "-d '\n{\"index\":{\"_index\":\"index1\",\"_id\":"
+                    "\"000000000100000000028c43de7b01bca674276c43e09b3ec5baYWFhYQ==\"}}"
+                    "\n{\"schema_id\":2,\"value\":\"aaaa\",\"column_id\":"
                     "\"8c43de7b01bca674276c43e09b3ec5ba\"}\n{\"index\":"
                     "{\"_index\":\"index1\",\"_id\":"
-                    "\"000000000100000000028c43de7b01bca674276c43e09b3ec5baYmJiYg==\"}}\n"
-                    "{\"value\":\"bbbb\",\"tag_id\":2,\"column_id\":"
+                    "\"000000000100000000028c43de7b01bca674276c43e09b3ec5baYmJiYg=="
+                    "\"}}\n{\"schema_id\":2,\"value\":\"bbbb\",\"column_id\":"
                     "\"8c43de7b01bca674276c43e09b3ec5ba\"}\n'";
     ASSERT_EQ(expected, ret);
 }
@@ -213,7 +213,7 @@ TEST(FulltextPluginTest, ESPrefixTest) {
                       ESGraphAdapter().body(item, limit.maxRows_, FT_SEARCH_OP::kPrefix);
     std::string expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
                            "-XGET \"http://127.0.0.1:9200/index1/_search?timeout=10ms\" "
-                           "-d'{\"query\":{\"bool\":{\"must\":[{\"term\":{\"tag_id\":2}},"
+                           "-d'{\"query\":{\"bool\":{\"must\":[{\"term\":{\"schema_id\":2}},"
                            "{\"term\":{\"column_id\":\"8c43de7b01bca674276c43e09b3ec5ba\"}},"
                            "{\"prefix\":{\"value\":\"aa\"}}]}},\"from\":0,\"size\":100,"
                            "\"_source\":\"value\"}'";
@@ -229,7 +229,7 @@ TEST(FulltextPluginTest, ESWildcardTest) {
                       ESGraphAdapter().body(item, limit.maxRows_, FT_SEARCH_OP::kWildcard);
     std::string expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
                            "-XGET \"http://127.0.0.1:9200/index1/_search?timeout=10ms\" "
-                           "-d'{\"query\":{\"bool\":{\"must\":[{\"term\":{\"tag_id\":2}},"
+                           "-d'{\"query\":{\"bool\":{\"must\":[{\"term\":{\"schema_id\":2}},"
                            "{\"term\":{\"column_id\":\"8c43de7b01bca674276c43e09b3ec5ba\"}},"
                            "{\"wildcard\":{\"value\":\"a?a\"}}]}},\"from\":0,\"size\":100,"
                            "\"_source\":\"value\"}'";
@@ -245,7 +245,7 @@ TEST(FulltextPluginTest, ESRegexpTest) {
                       ESGraphAdapter().body(item, limit.maxRows_, FT_SEARCH_OP::kRegexp);
     std::string expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
                            "-XGET \"http://127.0.0.1:9200/index1/_search?timeout=10ms\" "
-                           "-d'{\"query\":{\"bool\":{\"must\":[{\"term\":{\"tag_id\":2}},"
+                           "-d'{\"query\":{\"bool\":{\"must\":[{\"term\":{\"schema_id\":2}},"
                            "{\"term\":{\"column_id\":\"8c43de7b01bca674276c43e09b3ec5ba\"}},"
                            "{\"regexp\":{\"value\":\"+a\"}}]}},\"from\":0,\"size\":100,"
                            "\"_source\":\"value\"}'";
@@ -266,7 +266,7 @@ TEST(FulltextPluginTest, ESFuzzyTest) {
                                                 "and");
         std::string expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
                                "-XGET \"http://127.0.0.1:9200/index1/_search?timeout=10ms\" "
-                               "-d'{\"query\":{\"bool\":{\"must\":[{\"term\":{\"tag_id\":2}},"
+                               "-d'{\"query\":{\"bool\":{\"must\":[{\"term\":{\"schema_id\":2}},"
                                "{\"term\":{\"column_id\":\"8c43de7b01bca674276c43e09b3ec5ba\"}},"
                                "{\"match\":{\"value\":{\"operator\":\"and\",\"query\":\"+a\","
                                "\"fuzziness\":\"AUTO\"}}}]}},"
@@ -282,7 +282,7 @@ TEST(FulltextPluginTest, ESFuzzyTest) {
                                                 "and");
         std::string expected = "/usr/bin/curl -H \"Content-Type: application/json; charset=utf-8\" "
                                "-XGET \"http://127.0.0.1:9200/index1/_search?timeout=10ms\" "
-                               "-d'{\"query\":{\"bool\":{\"must\":[{\"term\":{\"tag_id\":2}},"
+                               "-d'{\"query\":{\"bool\":{\"must\":[{\"term\":{\"schema_id\":2}},"
                                "{\"term\":{\"column_id\":\"8c43de7b01bca674276c43e09b3ec5ba\"}},"
                                "{\"match\":{\"value\":{\"operator\":\"and\",\"query\":\"+a\","
                                "\"fuzziness\":2}}}]}},"
@@ -291,7 +291,7 @@ TEST(FulltextPluginTest, ESFuzzyTest) {
     }
 }
 
-std::string esJsonDoc = R"({"query":{"bool":{"must":[{"match":{"tag_id":2}},{"match":{"column_id":"col2"}},{"prefix":{"value":"c"}}]}},"from":0,"size":1})";  // NOLINT
+std::string esJsonDoc = R"({"query":{"bool":{"must":[{"match":{"schema_id":2}},{"match":{"column_id":"col2"}},{"prefix":{"value":"c"}}]}},"from":0,"size":1})";  // NOLINT
 
 folly::dynamic mockJson() {
     //    {
@@ -300,7 +300,7 @@ folly::dynamic mockJson() {
     //                "must": [
     //                {
     //                    "match": {
-    //                        "tag_id": 2
+    //                        "schema_id": 2
     //                    }
     //                },
     //                {
@@ -324,7 +324,7 @@ folly::dynamic mockJson() {
     folly::dynamic itemPrefix = folly::dynamic::object("prefix", itemValue);
     folly::dynamic itemColumn = folly::dynamic::object("column_id", "col2");
     folly::dynamic itemMatchCol = folly::dynamic::object("match", itemColumn);
-    folly::dynamic itemTag = folly::dynamic::object("tag_id", 2);
+    folly::dynamic itemTag = folly::dynamic::object("schema_id", 2);
     folly::dynamic itemMatchTag = folly::dynamic::object("match", itemTag);
     auto itemArray = folly::dynamic::array(itemMatchTag, itemMatchCol, itemPrefix);
     folly::dynamic itemMust = folly::dynamic::object("must", itemArray);
