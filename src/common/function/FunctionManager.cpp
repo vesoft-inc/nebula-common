@@ -986,7 +986,7 @@ FunctionManager::FunctionManager() {
         auto &attr = functions_["range"];
         attr.minArity_ = 2;
         attr.maxArity_ = 3;
-        attr.isPure_ = false;
+        attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             auto range=[](const Value& start,const Value& end,const Value& step=1) -> StatusOr<Value>{
                 //TODO : datatype check
