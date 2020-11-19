@@ -988,11 +988,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             auto range=[](const Value& start, const Value& end, const Value& step = 1) -> StatusOr<Value>{
-                if (!start.IsInt() || !end.IsInt() || !step.IsInt()){
+                if (!start.isInt() || !end.isInt() || !step.isInt()){
                     return Status::Error("Incorrect parameter type.");
                 }
                 List res;
-                for(auto i = start; i < end; i = i + step){
+                for(auto i = start; i < end && step >= 0; i = i + step){
                     res.emplace_back(i);
                 }
                 return Value(res);
