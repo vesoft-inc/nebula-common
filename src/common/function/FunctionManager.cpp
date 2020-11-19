@@ -171,9 +171,8 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"last", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
     {"coalesce", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
     {"range",
-        {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::LIST),
-        TypeSignature({Value::Type::INT, Value::Type::INT, Value::Type::INT}, Value::Type::LIST)}
-    },
+     {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::LIST),
+      TypeSignature({Value::Type::INT, Value::Type::INT, Value::Type::INT}, Value::Type::LIST)}},
 };
 
 // static
@@ -988,7 +987,7 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 3;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
-            auto range=[](const Value& start,const Value& end,const Value& step=1) -> StatusOr<Value>{
+            auto range=[](const Value& start, const Value& end, const Value& step = 1) -> StatusOr<Value>{
                 if (!start.IsInt() || !end.IsInt() || !step.IsInt()){
                     return Status::Error("Incorrect parameter type.");
                 }
@@ -1000,14 +999,14 @@ FunctionManager::FunctionManager() {
             };
             switch (args.size()) {
                 case 2: {
-                    auto result = range(args[0],args[1]);
+                    auto result = range(args[0], args[1]);
                     if (!result.ok()) {
                         return Value::kNullBadData;
                     }
                     return Value(std::move(result).value());
                 }
                 case 3: {
-                    auto result = range(args[0],args[1],args[2]);
+                    auto result = range(args[0], args[1], args[2]);
                     if (!result.ok()) {
                         return Value::kNullBadData;
                     }
