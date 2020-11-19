@@ -5,18 +5,23 @@
  */
 
 #include "FunctionManager.h"
+
+#include <unordered_set>
+
+#include <folly/String.h>
+
 #include "common/base/Base.h"
-#include "common/expression/Expression.h"
-#include "common/thrift/ThriftTypes.h"
-#include "common/time/WallClock.h"
+#include "common/datatypes/DataSet.h"
+#include "common/datatypes/Edge.h"
 #include "common/datatypes/List.h"
 #include "common/datatypes/Map.h"
-#include "common/datatypes/Set.h"
-#include "common/datatypes/DataSet.h"
-#include "common/time/TimeUtils.h"
-#include "common/datatypes/Edge.h"
 #include "common/datatypes/Path.h"
+#include "common/datatypes/Set.h"
 #include "common/datatypes/Vertex.h"
+#include "common/expression/Expression.h"
+#include "common/thrift/ThriftTypes.h"
+#include "common/time/TimeUtils.h"
+#include "common/time/WallClock.h"
 
 namespace nebula {
 
@@ -1197,15 +1202,18 @@ FunctionManager::FunctionManager() {
             if (path.steps.size() < 2) {
                 return false;
             }
+            std::unordered_set<std::string> uniqueSet;
             auto src = path.src.vid;
-            for (size_t i = 0, e = path.steps.size() - 1; i < e; ++i) {
-                const auto &prev = path.steps[i];
-                const auto &next = path.steps[i + 1];
-                if (next.dst.vid == src && prev.type == -next.type && prev.name == next.name &&
-                    prev.ranking == next.ranking) {
+            for (const auto &step : path.steps) {
+                auto edgeSrc = step.type > 0 ? src : step.dst.vid;
+                auto edgeDst = step.type > 0 ? step.dst.vid : src;
+                auto edgeKey = folly::stringPrintf(
+                    "%s%s%s%ld", edgeSrc.c_str(), edgeDst.c_str(), step.name.c_str(), step.ranking);
+                auto res = uniqueSet.emplace(std::move(edgeKey));
+                if (!res.second) {
                     return true;
                 }
-                src = prev.dst.vid;
+                src = step.dst.vid;
             }
             return false;
         };
