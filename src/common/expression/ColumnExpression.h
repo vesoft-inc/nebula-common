@@ -17,7 +17,7 @@ namespace nebula {
  */
 class ColumnExpression final : public Expression {
 public:
-    explicit ColumnExpression(size_t index = 0) : Expression(Kind::kColumn), index_(index) {}
+    explicit ColumnExpression(int32_t index = 0) : Expression(Kind::kColumn), index_(index) {}
 
     const Value& eval(ExpressionContext &ctx) override;
 
@@ -44,7 +44,7 @@ private:
 
 private:
     Value                                   result_;
-    size_t                                  index_;
+    int32_t                                 index_;
 };
 
 }   // namespace nebula
