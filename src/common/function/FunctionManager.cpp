@@ -989,7 +989,9 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             auto range=[](const Value& start,const Value& end,const Value& step=1) -> StatusOr<Value>{
-                //TODO : datatype check
+                if (!start.IsInt() || !end.IsInt() || !step.IsInt()){
+                    return Status::Error("Incorrect parameter type.");
+                }
                 List res;
                 for(auto i = start; i < end; i = i + step){
                     res.emplace_back(i);
