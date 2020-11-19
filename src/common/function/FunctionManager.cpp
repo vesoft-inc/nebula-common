@@ -170,6 +170,10 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"head", {TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
     {"last", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
     {"coalesce", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
+    {"range",
+        {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::LIST),
+        TypeSignature({Value::Type::INT, Value::Type::INT, Value::Type::INT}, Value::Type::LIST}
+    },
 };
 
 // static
