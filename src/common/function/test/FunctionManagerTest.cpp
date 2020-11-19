@@ -48,6 +48,7 @@ std::unordered_map<std::string, std::vector<Value>> FunctionManagerTest::args_ =
     {"range2",{1, 5, 2}},
     {"range3",{1, 5, -2}},
     {"range4",{5, 1, 2}},
+    {"range5",{1, 5, 0}},
     {"string", {"AbcDeFG"}},
     {"trim", {" abc  "}},
     {"substr", {"abcdefghi", 2, 4}},
@@ -94,6 +95,7 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(range,args_["range2"], Value(List(std::vector<Value>{1,3})));
         TEST_FUNCTION(range,args_["range3"], Value(List(std::vector<Value>{})));
         TEST_FUNCTION(range,args_["range4"], Value(List(std::vector<Value>{})));
+        TEST_FUNCTION(range,args_["range5"], Value(List(std::vector<Value>{})));
     }
     {
         TEST_FUNCTION(lower, args_["string"], "abcdefg");
