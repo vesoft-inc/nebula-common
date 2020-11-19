@@ -45,4 +45,9 @@ std::unordered_map<std::string, Value> ExpressionContextMock::vals_ = {
     {"path_edge3", Value(Edge("3", "4", 1, "edge", 0, {}))},
 };
 
+Value ExpressionContextMock::getColumn(size_t index) const {
+    auto row = vals_["versioned_var"].getList().values;
+    return row[index];
+}
+
 }   // namespace nebula
