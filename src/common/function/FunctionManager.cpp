@@ -172,7 +172,7 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"coalesce", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
     {"range",
         {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::LIST),
-        TypeSignature({Value::Type::INT, Value::Type::INT, Value::Type::INT}, Value::Type::LIST}
+        TypeSignature({Value::Type::INT, Value::Type::INT, Value::Type::INT}, Value::Type::LIST)}
     },
 };
 
