@@ -987,34 +987,29 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 3;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
-            auto range=[](const Value& start, const Value& end, const Value& step = 1) -> StatusOr<Value>{
-                if (!start.isInt() || !end.isInt() || !step.isInt()){
-                    return Status::Error("Incorrect parameter type.");
-                }
-                List res;
-                for(auto i = start; step > 0 && i < end; i = i + step){
-                    res.emplace_back(i);
-                }
-                return Value(res);
-            };
-            switch (args.size()) {
-                case 2: {
-                    auto result = range(args[0], args[1]);
-                    if (!result.ok()) {
-                        return Value::kNullBadData;
-                    }
-                    return Value(std::move(result).value());
-                }
-                case 3: {
-                    auto result = range(args[0], args[1], args[2]);
-                    if (!result.ok()) {
-                        return Value::kNullBadData;
-                    }
-                    return Value(std::move(result).value());
-                }
-                default:
-                    LOG(FATAL) << "Unexpected arguments count " << args.size();
+            auto paramCount = args.size();
+            if(paramCount < 2 || paramCount > 3){
+                LOG(FATAL) << "Unexpected arguments count " << args.size();
             }
+            if(!args[0].isInt() || !args[1].isInt()){
+                return Value::kNullBadData;
+            }
+
+            int start = args[0].getInt();
+            int end = args[1].getInt();
+            int step = 1;
+            if(paramCount == 3){
+                if(!args[2].isInt()){
+                    return Value::kNullBadData;
+                }
+                step = args[2].getInt();
+            }
+
+            List res;
+            for(auto i = start; step > 0 && i < end; i = i + step){
+                res.emplace_back(i);
+            }
+            return Value(res);
         };
     }
     {
