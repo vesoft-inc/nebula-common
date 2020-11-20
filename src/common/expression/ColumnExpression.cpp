@@ -19,4 +19,13 @@ void ColumnExpression::accept(ExprVisitor *visitor) {
     visitor->visit(this);
 }
 
+void ColumnExpression::writeTo(Encoder &encoder) const {
+    encoder << kind_;
+    encoder << index_;
+}
+
+void ColumnExpression::resetFrom(Decoder &decoder) {
+    index_ = decoder.readValue();
+}
+
 }   // namespace nebula

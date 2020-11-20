@@ -13,7 +13,7 @@ namespace nebula {
 /**
  * This is an internal type of expression
  * It has no corresponding rules in parser.
- * you can get the corresponding value by column number
+ * you can get the corresponding value by column index
  */
 class ColumnExpression final : public Expression {
 public:
@@ -34,15 +34,16 @@ public:
     }
 
     bool operator==(const Expression &expr) const override {
-        return kind() == expr.kind();
+        if (kind_ != rhs.kind()) {
+            return false;
+        }
+        return index_ == expr.index_;
     }
 
 private:
-    void writeTo(Encoder &encoder) const override {
-        encoder << kind();
-    }
+    void writeTo(Encoder &encoder) const override;
 
-    void resetFrom(Decoder&) override {}
+    void resetFrom(Decoder&) override;
 
 private:
     Value                                   result_;
