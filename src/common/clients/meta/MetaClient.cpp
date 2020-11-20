@@ -5,6 +5,7 @@
  */
 
 #include "common/base/Base.h"
+#include "common/base/MurmurHash2.h"
 #include <folly/hash/Hash.h>
 #include "common/clients/meta/MetaClient.h"
 #include "common/network/NetworkUtils.h"
@@ -924,7 +925,8 @@ StatusOr<PartitionID> MetaClient::partId(GraphSpaceID spaceId, const VertexID id
     if (id.size() == 8) {
         memcpy(static_cast<void*>(&vid), id.data(), 8);
     } else {
-        vid = folly::hash::fnv64_buf(id.data(), id.size());
+        MurmurHash2 hash;
+        vid = hash(id.data());
     }
     PartitionID pId = vid % numParts + 1;
     CHECK_GT(pId, 0U);
@@ -2155,9 +2157,12 @@ const std::vector<HostAddr>& MetaClient::getAddresses() {
     return addrs_;
 }
 
-
 std::vector<cpp2::RoleItem>
 MetaClient::getRolesByUserFromCache(const std::string& user) const {
+    if (!ready_) {
+        return std::vector<cpp2::RoleItem>(0);
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = userRolesMap_.find(user);
     if (iter == userRolesMap_.end()) {
         return std::vector<cpp2::RoleItem>(0);
@@ -2167,6 +2172,10 @@ MetaClient::getRolesByUserFromCache(const std::string& user) const {
 
 
 bool MetaClient::authCheckFromCache(const std::string& account, const std::string& password) const {
+    if (!ready_) {
+        return false;
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = userPasswordMap_.find(account);
     if (iter == userPasswordMap_.end()) {
         return false;
@@ -2175,6 +2184,10 @@ bool MetaClient::authCheckFromCache(const std::string& account, const std::strin
 }
 
 bool MetaClient::checkShadowAccountFromCache(const std::string& account) const {
+    if (!ready_) {
+        return false;
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = userPasswordMap_.find(account);
     if (iter != userPasswordMap_.end()) {
         return true;
