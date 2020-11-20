@@ -23,7 +23,6 @@ fi
 url_base=https://oss-cdn.nebula-graph.com.cn/third-party
 this_dir=$(dirname $(readlink -f $0))
 cxx_cmd=${CXX:-g++}
-echo "DEBUG POINT: "${cxx_cmd}
 
 # We consider two derivatives: Red Hat and Debian
 # Place preset libc versions of each from newer to older
