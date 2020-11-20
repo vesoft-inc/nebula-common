@@ -992,7 +992,7 @@ FunctionManager::FunctionManager() {
                     return Status::Error("Incorrect parameter type.");
                 }
                 List res;
-                for(auto i = start; i < end && step > 0; i = i + step){
+                for(auto i = start; step > 0 && i < end; i = i + step){
                     res.emplace_back(i);
                 }
                 return Value(res);
