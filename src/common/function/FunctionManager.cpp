@@ -738,13 +738,15 @@ FunctionManager::FunctionManager() {
                 case Value::Type::NULLVALUE:
                     return Value::kNullBadType;
                 case Value::Type::INT: {
-                    return std::to_string(args[0].getInt());
+                    return folly::to<std::string>(args[0].getInt());
                 }
                 case Value::Type::FLOAT: {
-                    char f[24];
-                    snprintf(f, sizeof(f), "%.1f", args[0].getFloat());
-                    std::string res(f);
-                    return res;
+                    auto str = folly::to<std::string>(args[0].getFloat());
+                    std::size_t found = str.find('.');
+                    if (found == std::string::npos) {
+                        str += ".0";
+                    }
+                    return str;
                 }
                 case Value::Type::BOOL: {
                     return args[0].getBool() ? "true" : "false";
@@ -831,47 +833,33 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 3;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
-            switch (args.size()) {
-                case 3:
-                    if (args[0].isStr() && args[1].isInt() && args[2].isInt()) {
-                        auto value = args[0].getStr();
-                        auto start = args[1].getInt();
-                        auto length = args[2].getInt();
-                        if (static_cast<size_t>(std::abs(start)) > value.size() || length == 0) {
-                            return std::string("");
-                        }
-                        if (start < 0) {
-                            LOG(ERROR) << "Invalid Start index " << start;
-                            return Value::kNullBadData;
-                        }
-                        if (start == 0) {
-                            return value;
-                        }
-                        return value.substr(start, length);
-                    }
-                    return Value::kNullBadType;
-
-                case 2:
-                    if (args[0].isStr() && args[1].isInt()) {
-                        auto value = args[0].getStr();
-                        auto start = args[1].getInt();
-                        auto length = value.size() - start;
-                        if (static_cast<size_t>(std::abs(start)) > value.size() || length == 0) {
-                            return std::string("");
-                        }
-                        if (start < 0) {
-                            LOG(ERROR) << "Invalid Start index " << start;
-                            return Value::kNullBadData;
-                        }
-                        if (start == 0) {
-                            return value;
-                        }
-                        return value.substr(start, length);
-                    }
-                    return Value::kNullBadType;
-                default:
-                    LOG(FATAL) << "Unexpected arguments count " << args.size();
+            auto argSize = args.size();
+            if (argSize < 2 || argSize >3) {
+                LOG(ERROR) <<  "Unexpected arguments count " << args.size();
+                return Value::kNullBadData;
             }
+            auto value = args[0].getStr();
+            auto start = args[1].getInt();
+            auto length =  (args.size() == 2) ? value.size() - start : args[2].getInt();
+            if (args[0].isStr() && args[1].isInt()) {
+                if (argSize == 3) {
+                    if (!args[2].isInt()) {
+                        return Value::kNullBadType;
+                    }
+                }
+                if (static_cast<size_t>(std::abs(start)) > value.size() || length == 0) {
+                    return std::string("");
+                }
+                if (start < 0) {
+                    LOG(ERROR) << "Invalid Start index " << start;
+                    return Value::kNullBadData;
+                }
+                if (start == 0) {
+                    return value;
+                }
+                return value.substr(start, length);
+            }
+            return Value::kNullBadType;
         };
         functions_["substring"] = attr;
     }
