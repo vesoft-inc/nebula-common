@@ -28,7 +28,9 @@ public:
     }
 
     std::string toString() const override {
-        return "COLUMN";
+        std::stringstream out;
+        out << "COLUMN[" << index_ << "]";
+        return out.str();
     }
 
     bool operator==(const Expression &expr) const override {
