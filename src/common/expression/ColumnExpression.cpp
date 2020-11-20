@@ -23,6 +23,12 @@ bool ColumnExpression::operator==(const Expression &expr) const {
     return index_ == r.index_;
 }
 
+std::string ColumnExpression::toString() const {
+    std::stringstream out;
+    out << "COLUMN[" << index_ << "]";
+    return out.str();
+}
+
 void ColumnExpression::accept(ExprVisitor *visitor) {
     visitor->visit(this);
 }

@@ -27,11 +27,7 @@ public:
         return std::make_unique<ColumnExpression>(index_);
     }
 
-    std::string toString() const override {
-        std::stringstream out;
-        out << "COLUMN[" << index_ << "]";
-        return out.str();
-    }
+    std::string toString() const override;
 
     bool operator==(const Expression &expr) const override;
 
