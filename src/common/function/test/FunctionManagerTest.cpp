@@ -93,9 +93,9 @@ TEST_F(FunctionManagerTest, functionCall) {
     {
         TEST_FUNCTION(range,args_["range1"], Value(List({1,2,3,4})));
         TEST_FUNCTION(range,args_["range2"], Value(List({1,3})));
-        TEST_FUNCTION(range,args_["range3"], Value(List({})));
-        TEST_FUNCTION(range,args_["range4"], Value(List({})));
-        TEST_FUNCTION(range,args_["range5"], Value(List({})));
+        TEST_FUNCTION(range,args_["range3"], Value(List(std::vector<Value>{})));
+        TEST_FUNCTION(range,args_["range4"], Value(List(std::vector<Value>{})));
+        TEST_FUNCTION(range,args_["range5"], Value(List(std::vector<Value>{})));
     }
     {
         TEST_FUNCTION(lower, args_["string"], "abcdefg");
