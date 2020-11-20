@@ -15,6 +15,14 @@ const Value& ColumnExpression::eval(ExpressionContext &ctx) {
     return result_;
 }
 
+bool ColumnExpression::operator==(const Expression &expr) const {
+    if (kind_ != expr.kind()) {
+        return false;
+    }
+    const auto &r = dynamic_cast<const ColumnExpression &>(expr);
+    return index_ == r.index_;
+}
+
 void ColumnExpression::accept(ExprVisitor *visitor) {
     visitor->visit(this);
 }
@@ -25,7 +33,7 @@ void ColumnExpression::writeTo(Encoder &encoder) const {
 }
 
 void ColumnExpression::resetFrom(Decoder &decoder) {
-    index_ = decoder.readValue();
+    index_ = decoder.readValue().getInt();
 }
 
 }   // namespace nebula

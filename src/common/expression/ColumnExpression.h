@@ -33,12 +33,7 @@ public:
         return out.str();
     }
 
-    bool operator==(const Expression &expr) const override {
-        if (kind_ != rhs.kind()) {
-            return false;
-        }
-        return index_ == expr.index_;
-    }
+    bool operator==(const Expression &expr) const override;
 
 private:
     void writeTo(Encoder &encoder) const override;
