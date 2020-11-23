@@ -1008,14 +1008,14 @@ struct BackupMeta {
     // space_name => SpaceBackupInfo
     1: map<common.GraphSpaceID, SpaceBackupInfo> (cpp.template = "std::unordered_map")  backup_info,
     // sst file
-    2: list<string>                               meta_files,
+    2: list<binary>                               meta_files,
     // backup
-    3: string                                     backup_name,
+    3: binary                                     backup_name,
 }
 
 struct CreateBackupReq {
     // null means all spaces
-    1: optional list<binary>  space_name,
+    1: optional list<binary>  spaces_name,
 }
 
 struct CreateBackupResp {
@@ -1030,7 +1030,7 @@ struct HostPair {
 }
 
 struct RestoreMetaReq {
-    1: list<string>     files,
+    1: list<binary>     files,
     2: list<HostPair>   hosts,
 }
 
@@ -1117,7 +1117,7 @@ service MetaService {
     ListGroupsResp listGroups(1: ListGroupsReq req);
 
     CreateBackupResp createBackup(1: CreateBackupReq req);
-    ExecResp      restoreMeta(1: RestoreMetaReq req);
+    ExecResp       restoreMeta(1: RestoreMetaReq req);
     ExecResp       addListener(1: AddListenerReq req);
     ExecResp       removeListener(1: RemoveListenerReq req);
     ListListenerResp listListener(1: ListListenerReq req);
