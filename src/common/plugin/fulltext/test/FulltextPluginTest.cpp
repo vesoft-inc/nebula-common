@@ -63,8 +63,9 @@ TEST(FulltextPluginTest, ESBulkTest) {
     std::set<std::string> strs;
     strs.emplace("aaa");
     strs.emplace("bbb");
-    std::vector<DocItem> items{DocItem("index1", "col1", 1, 2, "aaaa"),
-                               DocItem("index1", "col1", 1, 2, "bbbb")};
+    std::vector<DocItem> items;
+    items.emplace_back(DocItem("index1", "col1", 1, 2, "aaaa"));
+    items.emplace_back(DocItem("index1", "col1", 1, 2, "bbbb"));
     auto ret = ESStorageAdapter().bulkCmd(hc, items);
     auto expected = "/usr/bin/curl -H \"Content-Type: application/x-ndjson; "
                     "charset=utf-8\" -XPOST \"http://127.0.0.1:9200/_bulk\" "
