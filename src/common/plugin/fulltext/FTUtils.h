@@ -40,7 +40,7 @@ struct HttpClient {
     HttpClient() = default;
     ~HttpClient() = default;
 
-    HttpClient(HttpClient&& v) noexcept
+    explicit HttpClient(HttpClient&& v) noexcept
         : host(std::move(v.host))
         , user(std::move(v.user))
         , password(std::move(v.password)) {}
@@ -98,7 +98,7 @@ struct DocItem {
 
     ~DocItem() = default;
 
-    DocItem(DocItem&& v) noexcept
+    explicit DocItem(DocItem&& v) noexcept
     : index(std::move(v.index))
     , column(std::move(v.column))
     , part(std::move(v.part))
