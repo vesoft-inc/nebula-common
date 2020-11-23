@@ -460,11 +460,9 @@ bool MetaClient::loadFulltextClients() {
          LOG(ERROR) << "List fulltext services failed, status:" << ftRet.status();
          return false;
      }
-     decltype(fulltextClientList_)    serviceClients;
-     serviceClients = ftRet.value();
      {
          folly::RWSpinLock::WriteHolder holder(localCacheLock_);
-         fulltextClientList_ = std::move(serviceClients);
+         fulltextClientList_ = std::move(ftRet).value();
      }
      return true;
  }
