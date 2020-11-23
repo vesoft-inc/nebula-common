@@ -176,7 +176,7 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"head", {TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
     {"last", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
     {"coalesce", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
-    {"cyclePath", { TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
+    {"hasSameEdgeInPath", { TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
 };
 
 // static
@@ -1190,7 +1190,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        auto &attr = functions_["cyclePath"];
+        auto &attr = functions_["hasSameEdgeInPath"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.isPure_ = true;

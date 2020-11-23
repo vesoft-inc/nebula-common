@@ -59,10 +59,7 @@ const Value& PathBuildExpression::eval(ExpressionContext& ctx) {
             }
             path.steps.insert(path.steps.end(), p.steps.begin(), p.steps.end());
         } else {
-            if ((i & 1) == 1) {
-                return Value::kNullBadData;
-            }
-            if (path.steps.empty() || !getVertex(value, path.steps.back().dst)) {
+            if ((i & 1) == 1 || path.steps.empty() || !getVertex(value, path.steps.back().dst)) {
                 return Value::kNullBadData;
             }
         }
