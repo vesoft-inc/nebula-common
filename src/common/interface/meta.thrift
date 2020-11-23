@@ -1015,7 +1015,7 @@ struct BackupMeta {
 
 struct CreateBackupReq {
     // null means all spaces
-    1: optional list<binary>  spaces_name,
+    1: optional list<binary>  spaces,
 }
 
 struct CreateBackupResp {

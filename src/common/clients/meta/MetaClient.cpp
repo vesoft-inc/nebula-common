@@ -3232,7 +3232,7 @@ folly::Future<StatusOr<cpp2::CreateBackupResp>> MetaClient::createBackup(
     const std::vector<std::string> spaces) {
     cpp2::CreateBackupReq req;
     if (!spaces.empty()) {
-        req.set_spaces_name(std::move(spaces));
+        req.set_spaces(std::move(spaces));
     }
     folly::Promise<StatusOr<cpp2::CreateBackupResp>> promise;
 
