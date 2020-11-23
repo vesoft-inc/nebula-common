@@ -663,42 +663,42 @@ TEST_F(ExpressionTest, FunctionCallTest) {
         TEST_FUNCTION(udf_is_in, args_["udf_is_in"], true);
     }
     {
-        // cyclePath
+        // hasSameEdgeInPath
         Path path;
         path.src.vid = "1";
         STEP("2", "edge", 0, 1);
         STEP("1", "edge", 0, -1);
-        TEST_FUNCTION(cyclePath, {path}, true);
+        TEST_FUNCTION(hasSameEdgeInPath, {path}, true);
     }
     {
-        // cyclePath
+        // hasSameEdgeInPath
         Path path;
         path.src.vid = "0";
         Step step1, step2, step3;
         STEP("2", "edge", 0, 1);
         STEP("1", "edge", 0, -1);
         STEP("2", "edge", 0, 1);
-        TEST_FUNCTION(cyclePath, {path}, true);
+        TEST_FUNCTION(hasSameEdgeInPath, {path}, true);
     }
     {
-        // cyclePath
+        // hasSameEdgeInPath
         Path path;
         path.src.vid = "0";
         Step step1, step2, step3;
         STEP("2", "edge", 0, 1);
         STEP("1", "edge", 0, 1);
         STEP("2", "edge", 0, 1);
-        TEST_FUNCTION(cyclePath, {path}, false);
+        TEST_FUNCTION(hasSameEdgeInPath, {path}, false);
     }
     {
-        // cyclePath
+        // hasSameEdgeInPath
         Path path;
         path.src.vid = "0";
         Step step1, step2, step3;
         STEP("2", "edge", 0, 1);
         STEP("1", "edge", 0, -1);
         STEP("2", "edge", 1, 1);
-        TEST_FUNCTION(cyclePath, {path}, false);
+        TEST_FUNCTION(hasSameEdgeInPath, {path}, false);
     }
 }
 
