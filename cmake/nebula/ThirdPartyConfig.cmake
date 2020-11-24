@@ -7,10 +7,8 @@ message(">>>> Configuring third party for '${PROJECT_NAME}' <<<<")
 #   5. At last, one copy will be downloaded and installed to ${CMAKE_BINARY_DIR}/third-party/install
 
 if(${DISABLE_CXX11_ABI})
-    if(EXISTS ${CMAKE_BINARY_DIR}/third-party-98/install)
-        SET(NEBULA_THIRDPARTY_ROOT ${CMAKE_BINARY_DIR}/third-party-98/install)
-    else()
-        SET(NEBULA_THIRDPARTY_ROOT ${CMAKE_BINARY_DIR}/third-party-98/install)
+    SET(NEBULA_THIRDPARTY_ROOT ${CMAKE_BINARY_DIR}/third-party-98/install)
+    if(NOT EXISTS ${CMAKE_BINARY_DIR}/third-party-98/install)
         message(STATUS "Install abi 98 third-party")
         include(InstallThirdParty)
     endif()
