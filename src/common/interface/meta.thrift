@@ -295,7 +295,7 @@ enum AdminCmd {
     FLUSH               = 1,
     REBUILD_TAG_INDEX   = 2,
     REBUILD_EDGE_INDEX  = 3,
-    STATIS              = 4,
+    STATS               = 4,
     UNKNOWN             = 5,
 } (cpp.enum_strict)
 
@@ -1034,6 +1034,33 @@ struct RestoreMetaReq {
     2: list<HostPair>   hosts,
 }
 
+enum FTServiceType {
+    ELASTICSEARCH = 0x01,
+} (cpp.enum_strict)
+
+struct FTClient {
+    1: required common.HostAddr    host,
+    2: optional binary             user,
+    3: optional binary             pwd,
+}
+
+struct SignInFTServiceReq {
+    1: FTServiceType                type,
+    2: list<FTClient>               clients,
+}
+
+struct SignOutFTServiceReq {
+}
+
+struct ListFTClientsReq {
+}
+
+struct ListFTClientsResp {
+    1: ErrorCode           code,
+    2: common.HostAddr     leader,
+    3: list<FTClient>      clients,
+}
+
 service MetaService {
     ExecResp createSpace(1: CreateSpaceReq req);
     ExecResp dropSpace(1: DropSpaceReq req);
@@ -1123,4 +1150,7 @@ service MetaService {
     ListListenerResp listListener(1: ListListenerReq req);
 
     GetStatisResp  getStatis(1: GetStatisReq req);
+    ExecResp signInFTService(1: SignInFTServiceReq req);
+    ExecResp signOutFTService(1: SignOutFTServiceReq req);
+    ListFTClientsResp listFTClients(1: ListFTClientsReq req);
 }
