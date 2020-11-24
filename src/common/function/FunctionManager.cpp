@@ -987,26 +987,25 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 3;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
-            auto paramCount = args.size();
-            if(paramCount < 2 || paramCount > 3){
-                LOG(FATAL) << "Unexpected arguments count " << args.size();
-            }
             if(!args[0].isInt() || !args[1].isInt()){
-                return Value::kNullBadData;
+                return Value::kNullBadType;
             }
 
-            int start = args[0].getInt();
-            int end = args[1].getInt();
-            int step = 1;
-            if(paramCount == 3){
+            int64_t start = args[0].getInt();
+            int64_t end = args[1].getInt();
+            int64_t step = 1;
+            if(args.size() == 3){
                 if(!args[2].isInt()){
-                    return Value::kNullBadData;
+                    return Value::kNullBadType;
                 }
                 step = args[2].getInt();
             }
+            if(step == 0){
+                return Value(List());
+            }
 
             List res;
-            for(auto i = start; step > 0 && i < end; i = i + step){
+            for(auto i = start; step>0?i<end:i>end; i = i + step){
                 res.emplace_back(i);
             }
             return Value(res);
