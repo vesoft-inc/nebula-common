@@ -19,7 +19,7 @@ bool ColumnExpression::operator==(const Expression &expr) const {
     if (kind_ != expr.kind()) {
         return false;
     }
-    const auto &r = dynamic_cast<const ColumnExpression &>(expr);
+    const auto &r = static_cast<const ColumnExpression &>(expr);
     return index_ == r.index_;
 }
 
