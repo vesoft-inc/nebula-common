@@ -1008,11 +1008,11 @@ FunctionManager::FunctionManager() {
                 step = args[2].getInt();
             }
             if(step == 0){
-                return Value(List());
+                return Value::kNullBadData;
             }
 
             List res;
-            for(auto i = start; step>0?i<end:i>end; i = i + step){
+            for(auto i = start; step > 0? i <= end : i >= end; i = i + step){
                 res.emplace_back(i);
             }
             return Value(res);

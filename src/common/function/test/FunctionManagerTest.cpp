@@ -92,12 +92,12 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(log2, args_["int"], 2);
     }
     {
-        TEST_FUNCTION(range,args_["range1"], Value(List({1, 2, 3, 4})));
-        TEST_FUNCTION(range,args_["range2"], Value(List({1, 3})));
-        TEST_FUNCTION(range,args_["range3"], Value(List({5, 3})));
+        TEST_FUNCTION(range,args_["range1"], Value(List({1, 2, 3, 4, 5})));
+        TEST_FUNCTION(range,args_["range2"], Value(List({1, 3, 5})));
+        TEST_FUNCTION(range,args_["range3"], Value(List({5, 3, 1})));
         TEST_FUNCTION(range,args_["range4"], Value(List(std::vector<Value>{})));
         TEST_FUNCTION(range,args_["range5"], Value(List(std::vector<Value>{})));
-        TEST_FUNCTION(range,args_["range6"], Value(List(std::vector<Value>{})));
+        TEST_FUNCTION(range,args_["range6"], Value::kNullBadData);
     }
     {
         TEST_FUNCTION(lower, args_["string"], "abcdefg");
@@ -1121,6 +1121,16 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result = FunctionManager::getReturnType("coalesce", {Value::Type::LIST});
         ASSERT_TRUE(result.ok()) << result.status();
         EXPECT_EQ(Value::Type::__EMPTY__, result.value());
+    }
+    {
+        auto result = FunctionManager::getReturnType("range", {Value::Type::INT, Value::Type::INT});
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(Value::Type::LIST, result.value());
+    }
+    {
+        auto result = FunctionManager::getReturnType("range", {Value::Type::INT, Value::Type::INT, Value::Type::INT});
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(Value::Type::LIST, result.value());
     }
 }
 
