@@ -63,6 +63,7 @@ struct DataSet {
             return col;
         }
         std::size_t index = std::distance(colNames.begin(), find);
+        col.reserve(rows.size());
         for (const auto &row : rows) {
             col.emplace_back(row.values[index]);
         }
@@ -86,16 +87,6 @@ struct DataSet {
 
     const_iterator end() const {
         return rows.end();
-    }
-
-    std::vector<std::pair<std::string, Value>> fields() const {
-        std::vector<std::pair<std::string, Value>> fs;
-        for (const auto &row : rows) {
-            for (std::size_t i = 0; i < colSize(); ++i) {
-                fs.emplace_back(std::make_pair(colNames[i], row[i]));
-            }
-        }
-        return fs;
     }
 
     template <typename T, typename = std::enable_if_t<std::is_convertible<T, Row>::value, T>>

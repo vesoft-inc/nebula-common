@@ -26,19 +26,6 @@ TEST(DataSetTest, Basic) {
         data2.emplace_back(it);
     }
     EXPECT_EQ(data, data2);
-
-    std::vector<std::pair<std::string, nebula::Value>> fields{
-        std::make_pair("col1", 1),
-        std::make_pair("col2", 2),
-        std::make_pair("col3", 3),
-        std::make_pair("col1", 4),
-        std::make_pair("col2", 5),
-        std::make_pair("col3", 6),
-        std::make_pair("col1", 7),
-        std::make_pair("col2", 8),
-        std::make_pair("col3", 9),
-    };
-    EXPECT_EQ(fields, data.fields());
 }
 
 
