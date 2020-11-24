@@ -64,7 +64,7 @@ std::string TextSearchExpression::toString() const {
             break;
         }
         case Kind::kTSRegexp: {
-            buf = "FUZZY(";
+            buf = "REGEXP(";
             break;
         }
         default: {
