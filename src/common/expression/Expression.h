@@ -49,6 +49,7 @@ public:
         kSubscript,
         kAttribute,
         kLabelAttribute,
+        kColumn,
 
         kLogicalAnd,
         kLogicalOr,
@@ -85,6 +86,11 @@ public:
         kCase,
 
         kPathBuild,
+        // text or key word search expression
+        kTSPrefix,
+        kTSWildcard,
+        kTSRegexp,
+        kTSFuzzy,
     };
 
     explicit Expression(Kind kind) : kind_(kind) {}

@@ -28,6 +28,7 @@
 #include "common/expression/VariableExpression.h"
 #include "common/expression/VertexExpression.h"
 #include "common/expression/CaseExpression.h"
+#include "common/expression/ColumnExpression.h"
 
 namespace nebula {
 
@@ -330,6 +331,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kColumn: {
+            exp = std::make_unique<ColumnExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kAttribute: {
             exp = std::make_unique<AttributeExpression>();
             exp->resetFrom(decoder);
@@ -466,6 +472,13 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kTSPrefix:
+        case Expression::Kind::kTSWildcard:
+        case Expression::Kind::kTSRegexp:
+        case Expression::Kind::kTSFuzzy: {
+            LOG(FATAL) << "Should not decode text search expression";
+            return exp;
+        }
         // no default so the compiler will warning when lack
     }
 
@@ -552,6 +565,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Kind::kSubscript:
             os << "Subscript";
             break;
+        case Expression::Kind::kColumn:
+            os << "Column";
+            break;
         case Expression::Kind::kAttribute:
             os << "Attribute";
             break;
@@ -635,6 +651,18 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             break;
         case Expression::Kind::kPathBuild:
             os << "PathBuild";
+            break;
+        case Expression::Kind::kTSPrefix:
+            os << "Prefix";
+            break;
+        case Expression::Kind::kTSWildcard:
+            os << "Wildcard";
+            break;
+        case Expression::Kind::kTSRegexp:
+            os << "Regexp";
+            break;
+        case Expression::Kind::kTSFuzzy:
+            os << "Fuzzy";
             break;
     }
     return os;
