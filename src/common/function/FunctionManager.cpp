@@ -1390,6 +1390,9 @@ FunctionManager::FunctionManager() {
                 return Value::kNullBadType;
             }
             auto& list = args[0].getList();
+            if (list.empty()) {
+                return List();
+            }
             List result(std::vector<Value>(list.values.begin()+1, list.values.end()));
             return result;
         };
