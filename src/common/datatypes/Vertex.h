@@ -111,8 +111,8 @@ struct Vertex {
         const auto find = std::find_if(tags.begin(), tags.end(), [&tagName](const auto &tag) {
             return tag.name == tagName;
         });
-        propsName.reserve(find->props.size());
         if (find != tags.end()) {
+            propsName.reserve(find->props.size());
             for (const auto &prop : find->props) {
                 propsName.emplace_back(prop.first);
             }
@@ -125,8 +125,8 @@ struct Vertex {
         const auto find = std::find_if(tags.begin(), tags.end(), [&tagName](const auto &tag) {
             return tag.name == tagName;
         });
-        values.reserve(find->props.size());
         if (find != tags.end()) {
+            values.reserve(find->props.size());
             for (const auto &prop : find->props) {
                 values.emplace_back(prop.second);
             }
