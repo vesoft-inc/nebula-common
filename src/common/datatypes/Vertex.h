@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 
 #include "common/thrift/ThriftTypes.h"
 #include "common/datatypes/Value.h"
@@ -76,6 +77,61 @@ struct Vertex {
     void clear() {
         vid.clear();
         tags.clear();
+    }
+
+    std::vector<std::string> tagNames() const {
+        std::vector<std::string> t;
+        t.reserve(tags.size());
+        for (const auto &tag : tags) {
+            t.emplace_back(tag.name);
+        }
+        return t;
+    }
+
+    bool hasTag(const std::string &tagName) const {
+        const auto find = std::find_if(tags.begin(), tags.end(), [&tagName](const auto &tag) {
+            return tag.name == tagName;
+        });
+        return find != tags.end();
+    }
+
+    const std::unordered_map<std::string, Value>& properties(const std::string &tagName) const {
+        static const std::unordered_map<std::string, Value> kEmpty;
+        const auto find = std::find_if(tags.begin(), tags.end(), [&tagName](const auto &tag) {
+            return tag.name == tagName;
+        });
+        if (find == tags.end()) {
+            return kEmpty;
+        }
+        return find->props;
+    }
+
+    std::vector<std::string> keys(const std::string &tagName) const {
+        std::vector<std::string> propsName;
+        const auto find = std::find_if(tags.begin(), tags.end(), [&tagName](const auto &tag) {
+            return tag.name == tagName;
+        });
+        propsName.reserve(find->props.size());
+        if (find != tags.end()) {
+            for (const auto &prop : find->props) {
+                propsName.emplace_back(prop.first);
+            }
+        }
+        return propsName;
+    }
+
+    std::vector<Value> values(const std::string &tagName) const {
+        std::vector<Value> values;
+        const auto find = std::find_if(tags.begin(), tags.end(), [&tagName](const auto &tag) {
+            return tag.name == tagName;
+        });
+        values.reserve(find->props.size());
+        if (find != tags.end()) {
+            for (const auto &prop : find->props) {
+                values.emplace_back(prop.second);
+            }
+        }
+        return values;
     }
 
     std::string toString() const {

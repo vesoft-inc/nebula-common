@@ -7,9 +7,12 @@
 #include "common/base/Base.h"
 #include <gtest/gtest.h>
 #include "common/datatypes/Edge.h"
+#include "common/datatypes/test/DataTest.h"
+
+class EdgeTest : public DataTest {};
 
 namespace nebula {
-TEST(Edge, Format) {
+TEST_F(EdgeTest, Format) {
     {
         Edge edge("1", "2", -1, "e1", 0, {});
         edge.format();
@@ -26,7 +29,7 @@ TEST(Edge, Format) {
     }
 }
 
-TEST(Edge, Reverse) {
+TEST_F(EdgeTest, Reverse) {
     {
         Edge edge("1", "2", -1, "e1", 0, {});
         edge.reverse();
@@ -42,4 +45,16 @@ TEST(Edge, Reverse) {
         EXPECT_EQ(expect, edge);
     }
 }
+
+TEST_F(EdgeTest, KeyValues) {
+    Edge edge("1", "2", -1, "e1", 0, {{"prop1", 1}, {"prop2", true}});
+
+    // keys
+    EXPECT_TRUE(verifyVectorWithoutOrder(edge.keys(),
+                std::vector<std::string>({"prop1", "prop2"})));
+
+    // values
+    EXPECT_TRUE(verifyVectorWithoutOrder(edge.values(), std::vector<Value>({1, true})));
+}
+
 }  // namespace nebula

@@ -8,6 +8,7 @@
 #define COMMON_DATATYPES_EDGE_H_
 
 #include <unordered_map>
+#include <vector>
 
 #include "common/thrift/ThriftTypes.h"
 #include "common/datatypes/Value.h"
@@ -42,7 +43,7 @@ struct Edge {
          EdgeType t,
          std::string n,
          EdgeRanking r,
-         std::unordered_map<std::string, Value>&& p)
+         std::unordered_map<std::string, Value> p)
         : src(std::move(s))
         , dst(std::move(d))
         , type(std::move(t))
@@ -67,6 +68,24 @@ struct Edge {
                type == rhs.type &&
                ranking == rhs.ranking &&
                props == rhs.props;
+    }
+
+    std::vector<std::string> keys() const {
+        std::vector<std::string> k;
+        k.reserve(props.size());
+        for (const auto &prop : props) {
+            k.emplace_back(prop.first);
+        }
+        return k;
+    }
+
+    std::vector<Value> values() const {
+        std::vector<Value> v;
+        v.reserve(props.size());
+        for (const auto &prop : props) {
+            v.emplace_back(prop.second);
+        }
+        return v;
     }
 
     void format() {

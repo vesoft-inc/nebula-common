@@ -4,8 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include "common/base/Base.h"
 #include <gtest/gtest.h>
+#include "common/base/Base.h"
 #include "common/datatypes/Path.h"
 
 namespace nebula {
@@ -135,8 +135,88 @@ TEST(Path, Base) {
         EXPECT_EQ(expected, path2);
     }
 }
-}  // namespace nebula
 
+TEST(Path, BasicManipulate) {
+    Path p;
+    // empty
+    {
+        EXPECT_EQ(p.length(), 0);
+
+        EXPECT_FALSE(p.contains(Vertex("0", {})));
+
+        EXPECT_FALSE(p.contains(Edge("src", "dst", 1, "edge", 0, {})));
+
+        EXPECT_EQ(p.startNode(), Vertex());
+        EXPECT_EQ(p.endNode(), Vertex());
+
+        EXPECT_EQ(p.nodes(), std::vector<Vertex>({Vertex()}));
+        EXPECT_EQ(p.relationships(), std::vector<Edge>());
+    }
+    // only src
+    {
+        p.src = Vertex("0", {});
+
+        EXPECT_EQ(p.length(), 0);
+
+        EXPECT_TRUE(p.contains(Vertex("0", {})));
+
+        EXPECT_FALSE(p.contains(Edge("src", "dst", 1, "edge", 0, {})));
+
+        EXPECT_EQ(p.startNode(), Vertex("0", {}));
+        EXPECT_EQ(p.endNode(), Vertex("0", {}));
+
+        EXPECT_EQ(p.nodes(), std::vector<Vertex>({Vertex("0", {})}));
+        EXPECT_EQ(p.relationships(), std::vector<Edge>());
+    }
+    // one step
+    {
+        p.addStep(Step(Vertex("1", {}), 1, "edge", 0, {}));
+
+        EXPECT_EQ(p.length(), 1);
+
+        EXPECT_TRUE(p.contains(Vertex("1", {})));
+        EXPECT_FALSE(p.contains(Vertex("3", {})));
+
+        EXPECT_TRUE(p.contains(Edge("0", "1", 1, "edge", 0, {})));
+        EXPECT_FALSE(p.contains(Edge("0", "1", 1, "edge", 2333333, {})));
+        EXPECT_FALSE(p.contains(Edge("src", "dst", 1, "edge", 0, {})));
+
+        EXPECT_EQ(p.startNode(), Vertex("0", {}));
+        EXPECT_EQ(p.endNode(), Vertex("1", {}));
+
+        EXPECT_EQ(p.nodes(), std::vector<Vertex>({Vertex("0", {}), Vertex("1", {})}));
+        EXPECT_EQ(p.relationships(), std::vector<Edge>({Edge("0", "1", 1, "edge", 0, {})}));
+    }
+    // multi steps
+    {
+        p.addStep(Step(Vertex("2", {}), 1, "edge", 0, {}));
+        p.addStep(Step(Vertex("3", {}), 1, "edge", 0, {}));
+
+        EXPECT_EQ(p.length(), 3);
+
+        EXPECT_TRUE(p.contains(Vertex("1", {})));
+        EXPECT_TRUE(p.contains(Vertex("3", {})));
+        EXPECT_FALSE(p.contains(Vertex("4", {})));
+
+        EXPECT_TRUE(p.contains(Edge("0", "1", 1, "edge", 0, {})));
+        EXPECT_TRUE(p.contains(Edge("2", "3", 1, "edge", 0, {})));
+        EXPECT_FALSE(p.contains(Edge("0", "1", 1, "edge", 2333333, {})));
+        EXPECT_FALSE(p.contains(Edge("src", "dst", 1, "edge", 0, {})));
+
+        EXPECT_EQ(p.startNode(), Vertex("0", {}));
+        EXPECT_EQ(p.endNode(), Vertex("3", {}));
+
+        EXPECT_EQ(p.nodes(),
+                  std::vector<Vertex>(
+                      {Vertex("0", {}), Vertex("1", {}), Vertex("2", {}), Vertex("3", {})}));
+        EXPECT_EQ(p.relationships(),
+                  std::vector<Edge>({Edge("0", "1", 1, "edge", 0, {}),
+                                     Edge("1", "2", 1, "edge", 0, {}),
+                                     Edge("2", "3", 1, "edge", 0, {})}));
+    }
+}
+
+}   // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

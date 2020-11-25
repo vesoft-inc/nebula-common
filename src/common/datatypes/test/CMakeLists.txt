@@ -65,3 +65,15 @@ nebula_add_test(
         gtest
         ${THRIFT_LIBRARIES}
 )
+
+nebula_add_test(
+    NAME
+        vertex_test
+    SOURCES
+        VertexTest.cpp
+    OBJECTS
+        $<TARGET_OBJECTS:base_obj>
+        $<TARGET_OBJECTS:datatypes_obj>
+    LIBRARIES
+        gtest
+)
