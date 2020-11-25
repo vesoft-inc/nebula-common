@@ -16,6 +16,9 @@ Base.h.gch
 .ccls-cache
 compile_commands.json
 
+# clangd cache
+.clangd/
+
 src/common/base/Base.h.gch
 gen-*
 

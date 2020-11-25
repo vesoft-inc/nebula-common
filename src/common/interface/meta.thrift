@@ -287,7 +287,7 @@ enum AdminCmd {
     FLUSH               = 1,
     REBUILD_TAG_INDEX   = 2,
     REBUILD_EDGE_INDEX  = 3,
-    STATIS              = 4,
+    STATS               = 4,
     UNKNOWN             = 5,
 } (cpp.enum_strict)
 
@@ -341,11 +341,11 @@ struct AdminJobResp {
 }
 
 struct StatisItem {
-    // The number of vertices of tagId
-    1: map<common.TagID, i64>
+    // The number of vertices of tagName
+    1: map<binary, i64>
         (cpp.template = "std::unordered_map") tag_vertices,
-    // The number of out edges of edgetype
-    2: map<common.EdgeType, i64>
+    // The number of out edges of edgeName
+    2: map<binary, i64>
         (cpp.template = "std::unordered_map") edges,
     // The number of vertices of current space
     3: i64                                    space_vertices,
@@ -582,7 +582,8 @@ enum HostRole {
     GRAPH       = 0x00,
     META        = 0x01,
     STORAGE     = 0x02,
-    UNKNOWN     = 0x03
+    LISTENER    = 0x03,
+    UNKNOWN     = 0x04
 } (cpp.enum_strict)
 
 struct HBReq {
@@ -940,7 +941,8 @@ struct ListGroupsResp {
 }
 
 enum ListenerType {
-    ELASTICSEARCH = 0x00,
+    UNKNOWN       = 0x00,
+    ELASTICSEARCH = 0x01,
 } (cpp.enum_strict)
 
 struct AddListenerReq {
@@ -962,6 +964,7 @@ struct ListenerInfo {
     1: ListenerType            type,
     2: common.HostAddr         host,
     3: common.PartitionID      part_id,
+    4: HostStatus              status,
 }
 
 struct ListListenerResp {
@@ -979,6 +982,33 @@ struct GetStatisResp {
     // Valid if ret equals E_LEADER_CHANGED.
     2: common.HostAddr  leader,
     3: StatisItem       statis,
+}
+
+enum FTServiceType {
+    ELASTICSEARCH = 0x01,
+} (cpp.enum_strict)
+
+struct FTClient {
+    1: required common.HostAddr    host,
+    2: optional binary             user,
+    3: optional binary             pwd,
+}
+
+struct SignInFTServiceReq {
+    1: FTServiceType                type,
+    2: list<FTClient>               clients,
+}
+
+struct SignOutFTServiceReq {
+}
+
+struct ListFTClientsReq {
+}
+
+struct ListFTClientsResp {
+    1: ErrorCode           code,
+    2: common.HostAddr     leader,
+    3: list<FTClient>      clients,
 }
 
 service MetaService {
@@ -1068,4 +1098,7 @@ service MetaService {
     ListListenerResp listListener(1: ListListenerReq req);
 
     GetStatisResp  getStatis(1: GetStatisReq req);
+    ExecResp signInFTService(1: SignInFTServiceReq req);
+    ExecResp signOutFTService(1: SignOutFTServiceReq req);
+    ListFTClientsResp listFTClients(1: ListFTClientsReq req);
 }

@@ -5,16 +5,23 @@
  */
 
 #include "FunctionManager.h"
+
+#include <unordered_set>
+
+#include <folly/String.h>
+
 #include "common/base/Base.h"
-#include "common/expression/Expression.h"
-#include "common/time/WallClock.h"
+#include "common/datatypes/DataSet.h"
+#include "common/datatypes/Edge.h"
 #include "common/datatypes/List.h"
 #include "common/datatypes/Map.h"
+#include "common/datatypes/Path.h"
 #include "common/datatypes/Set.h"
-#include "common/datatypes/DataSet.h"
-#include "common/time/TimeUtils.h"
-#include "common/datatypes/Edge.h"
 #include "common/datatypes/Vertex.h"
+#include "common/expression/Expression.h"
+#include "common/thrift/ThriftTypes.h"
+#include "common/time/TimeUtils.h"
+#include "common/time/WallClock.h"
 
 namespace nebula {
 
@@ -98,13 +105,20 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"strcasecmp",
      {TypeSignature({Value::Type::STRING, Value::Type::STRING}, Value::Type::STRING)}},
     {"lower", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
+    {"toLower", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
     {"upper", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
-    {"length", {TypeSignature({Value::Type::STRING}, Value::Type::INT)}},
+    {"toUpper", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
+    {"length", {TypeSignature({Value::Type::STRING}, Value::Type::INT),
+                TypeSignature({Value::Type::PATH}, Value::Type::INT), }},
     {"trim", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
     {"ltrim", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
     {"rtrim", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
     {"left", {TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
     {"right", {TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
+    {"replace", {TypeSignature({Value::Type::STRING,
+            Value::Type::STRING, Value::Type::STRING}, Value::Type::STRING)}},
+    {"reverse", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
+    {"split", {TypeSignature({Value::Type::STRING, Value::Type::STRING}, Value::Type::LIST)}},
     {"lpad",
      {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::STRING},
                     Value::Type::STRING)}},
@@ -112,8 +126,19 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
      {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::STRING},
                     Value::Type::STRING)}},
     {"substr",
-     {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT},
-                    Value::Type::STRING)}},
+     {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT}, Value::Type::STRING),
+            TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
+    {"substring",
+     {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT}, Value::Type::STRING),
+            TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
+    {"toString", {TypeSignature({Value::Type::INT}, Value::Type::STRING),
+                  TypeSignature({Value::Type::FLOAT}, Value::Type::STRING),
+                  TypeSignature({Value::Type::STRING}, Value::Type::STRING),
+                  TypeSignature({Value::Type::BOOL}, Value::Type::STRING),
+                  TypeSignature({Value::Type::DATE}, Value::Type::STRING),
+                  TypeSignature({Value::Type::TIME}, Value::Type::STRING),
+                  TypeSignature({Value::Type::DATETIME}, Value::Type::STRING)
+                }},
     {"hash", {TypeSignature({Value::Type::INT}, Value::Type::INT),
               TypeSignature({Value::Type::FLOAT}, Value::Type::INT),
               TypeSignature({Value::Type::STRING}, Value::Type::INT),
@@ -160,6 +185,18 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
              }},
     {"rank", {TypeSignature({Value::Type::EDGE}, Value::Type::INT),
              }},
+    {"startNode", {TypeSignature({Value::Type::EDGE}, Value::Type::VERTEX),
+                   TypeSignature({Value::Type::PATH}, Value::Type::VERTEX), }},
+    {"endNode", {TypeSignature({Value::Type::EDGE}, Value::Type::VERTEX),
+                 TypeSignature({Value::Type::PATH}, Value::Type::VERTEX), }},
+    {"relationships", {TypeSignature({Value::Type::PATH}, Value::Type::LIST), }},
+    {"head", {TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
+    {"last", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
+    {"coalesce", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
+    {"range",
+     {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::LIST),
+      TypeSignature({Value::Type::INT, Value::Type::INT, Value::Type::INT}, Value::Type::LIST)}},
+    {"hasSameEdgeInPath", { TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
 };
 
 // static
@@ -540,6 +577,7 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
+        functions_["toLower"] = attr;
     }
     {
         auto &attr = functions_["upper"];
@@ -556,6 +594,7 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
+        functions_["toUpper"] = attr;
     }
     {
         auto &attr = functions_["length"];
@@ -566,6 +605,10 @@ FunctionManager::FunctionManager() {
             if (args[0].isStr()) {
                 auto value = args[0].getStr();
                 return static_cast<int64_t>(value.length());
+            }
+            if (args[0].isPath()) {
+                auto path = args[0].getPath();
+                return static_cast<int64_t>(path.steps.size());
             }
             return Value::kNullBadType;
         };
@@ -578,7 +621,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
-                return folly::trimWhitespace(value);
+                return folly::trimWhitespace(value).toString();
             }
             return Value::kNullBadType;
         };
@@ -591,7 +634,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
-                return folly::ltrimWhitespace(value);
+                return folly::ltrimWhitespace(value).toString();
             }
             return Value::kNullBadType;
         };
@@ -604,7 +647,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
-                return folly::rtrimWhitespace(value);
+                return folly::rtrimWhitespace(value).toString();
             }
             return Value::kNullBadType;
         };
@@ -644,6 +687,96 @@ FunctionManager::FunctionManager() {
                 return value.substr(value.size() - length);
             }
             return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["replace"];
+        attr.minArity_ = 3;
+        attr.maxArity_ = 3;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isStr() && args[1].isStr() && args[2].isStr()) {
+                std::string origStr(args[0].getStr());
+                std::string search(args[1].getStr());
+                std::string newStr(args[2].getStr());
+                return boost::replace_all_copy(origStr, search, newStr);
+            }
+            return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["reverse"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isStr()) {
+                std::string origStr(args[0].getStr());
+                std::reverse(origStr.begin(), origStr.end());
+                return origStr;
+            }
+            return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["split"];
+        attr.minArity_ = 2;
+        attr.maxArity_ = 2;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isStr() && args[1].isStr()) {
+                std::string origStr(args[0].getStr());
+                std::string delim(args[1].getStr());
+                List res;
+                std::vector<folly::StringPiece> substrings;
+                folly::split<folly::StringPiece>(delim, origStr, substrings);
+                for (auto str : substrings) {
+                    res.emplace_back(str.toString());
+                }
+                return res;
+            }
+            return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["toString"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+             switch (args[0].type()) {
+                case Value::Type::NULLVALUE:
+                    return Value::kNullBadType;
+                case Value::Type::INT: {
+                    return folly::to<std::string>(args[0].getInt());
+                }
+                case Value::Type::FLOAT: {
+                    auto str = folly::to<std::string>(args[0].getFloat());
+                    std::size_t found = str.find('.');
+                    if (found == std::string::npos) {
+                        str += ".0";
+                    }
+                    return str;
+                }
+                case Value::Type::BOOL: {
+                    return args[0].getBool() ? "true" : "false";
+                }
+                case Value::Type::STRING: {
+                    return args[0].getStr();
+                }
+                case Value::Type::DATE: {
+                    return args[0].getDate().toString();
+                }
+                case Value::Type::TIME: {
+                    return args[0].getTime().toString();
+                }
+                case Value::Type::DATETIME: {
+                    return args[0].getDateTime().toString();
+                }
+                default:
+                    LOG(ERROR) << "toString has not been implemented for " << args[0].type();
+                    return Value::kNullBadType;
+            }
         };
     }
     {
@@ -706,26 +839,39 @@ FunctionManager::FunctionManager() {
     }
     {
         auto &attr = functions_["substr"];
-        attr.minArity_ = 3;
+        attr.minArity_ = 2;
         attr.maxArity_ = 3;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].isStr() && args[1].isInt() && args[2].isInt()) {
-                auto value = args[0].getStr();
-                auto start = args[1].getInt();
-                auto length = args[2].getInt();
-                if (static_cast<size_t>(std::abs(start)) > value.size() || length <= 0 ||
-                    start == 0) {
+            auto argSize = args.size();
+            if (argSize < 2 || argSize >3) {
+                LOG(ERROR) <<  "Unexpected arguments count " << args.size();
+                return Value::kNullBadData;
+            }
+            auto value = args[0].getStr();
+            auto start = args[1].getInt();
+            auto length =  (args.size() == 2) ? value.size() - start : args[2].getInt();
+            if (args[0].isStr() && args[1].isInt()) {
+                if (argSize == 3) {
+                    if (!args[2].isInt()) {
+                        return Value::kNullBadType;
+                    }
+                }
+                if (static_cast<size_t>(std::abs(start)) > value.size() || length == 0) {
                     return std::string("");
                 }
-                if (start > 0) {
-                    return value.substr(start - 1, length);
-                } else {
-                    return value.substr(value.size() + start, length);
+                if (start < 0) {
+                    LOG(ERROR) << "Invalid Start index " << start;
+                    return Value::kNullBadData;
                 }
+                if (start == 0) {
+                    return value;
+                }
+                return value.substr(start, length);
             }
             return Value::kNullBadType;
         };
+        functions_["substring"] = attr;
     }
     {
         // 64bit signed hash value
@@ -965,6 +1111,36 @@ FunctionManager::FunctionManager() {
         };
     }
     {
+        auto &attr = functions_["range"];
+        attr.minArity_ = 2;
+        attr.maxArity_ = 3;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isInt() || !args[1].isInt()) {
+                return Value::kNullBadType;
+            }
+
+            int64_t start = args[0].getInt();
+            int64_t end = args[1].getInt();
+            int64_t step = 1;
+            if (args.size() == 3) {
+                if (!args[2].isInt()) {
+                    return Value::kNullBadType;
+                }
+                step = args[2].getInt();
+            }
+            if (step == 0) {
+                return Value::kNullBadData;
+            }
+
+            List res;
+            for (auto i = start; step > 0? i <= end : i >= end; i = i + step) {
+                res.emplace_back(i);
+            }
+            return Value(res);
+        };
+    }
+    {
         auto &attr = functions_["id"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
@@ -1060,6 +1236,141 @@ FunctionManager::FunctionManager() {
                 return Value::kNullBadType;
             }
             return args[0].getEdge().ranking;
+        };
+    }
+    {
+        auto &attr = functions_["startNode"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isEdge()) {
+                return Vertex(args[0].getEdge().src, {});
+            }
+            if (args[0].isPath()) {
+                return args[0].getPath().src;
+            }
+            return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["endNode"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isEdge()) {
+                return Vertex(args[0].getEdge().dst, {});
+            }
+            if (args[0].isPath()) {
+                auto &path = args[0].getPath();
+                if (path.steps.empty()) {
+                    return path.src;
+                }
+                return path.steps.back().dst;
+            }
+            return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["head"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isList()) {
+                return Value::kNullBadType;
+            }
+            return args[0].getList().values.front();
+        };
+    }
+    {
+        auto &attr = functions_["last"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isList()) {
+                return Value::kNullBadType;
+            }
+            return args[0].getList().values.back();
+        };
+    }
+    {
+        auto &attr = functions_["coalesce"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isList()) {
+                return Value::kNullBadType;
+            }
+            auto& list = args[0].getList();
+            if (list.values.empty()) {
+                return Value::kNullValue;
+            }
+            for (auto& i : list.values) {
+                if (i != Value::kNullValue) {
+                    return i;
+                }
+            }
+            return Value::kNullValue;
+        };
+    }
+    {
+        auto &attr = functions_["relationships"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isPath()) {
+                return Value::kNullBadType;
+            }
+            auto& path = args[0].getPath();
+            List result;
+            auto src = path.src.vid;
+            for (size_t i = 0; i < path.steps.size(); ++i) {
+                Edge edge;
+                edge.src = src;
+                edge.dst = path.steps[i].dst.vid;
+                edge.type = path.steps[i].type;
+                edge.name = path.steps[i].name;
+                edge.ranking = path.steps[i].ranking;
+                edge.props = path.steps[i].props;
+
+                src = edge.dst;
+                result.values.emplace_back(std::move(edge));
+            }
+            return result;
+        };
+    }
+    {
+        auto &attr = functions_["hasSameEdgeInPath"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isPath()) {
+                return Value::kNullBadType;
+            }
+            auto &path = args[0].getPath();
+            if (path.steps.size() < 2) {
+                return false;
+            }
+            std::unordered_set<std::string> uniqueSet;
+            auto src = path.src.vid;
+            for (const auto &step : path.steps) {
+                auto edgeSrc = step.type > 0 ? src : step.dst.vid;
+                auto edgeDst = step.type > 0 ? step.dst.vid : src;
+                auto edgeKey = folly::stringPrintf(
+                    "%s%s%s%ld", edgeSrc.c_str(), edgeDst.c_str(), step.name.c_str(), step.ranking);
+                auto res = uniqueSet.emplace(std::move(edgeKey));
+                if (!res.second) {
+                    return true;
+                }
+                src = step.dst.vid;
+            }
+            return false;
         };
     }
 }   // NOLINT

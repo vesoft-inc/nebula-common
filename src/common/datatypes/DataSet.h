@@ -7,7 +7,9 @@
 #ifndef COMMON_DATATYPES_DATASET_H_
 #define COMMON_DATATYPES_DATASET_H_
 
-#include "common/base/Base.h"
+#include <iostream>
+#include <sstream>
+
 #include "common/datatypes/Value.h"
 #include "common/datatypes/List.h"
 
@@ -44,7 +46,8 @@ struct DataSet {
         return *this;
     }
 
-    template <typename T, typename = std::enable_if_t<std::is_convertible<T, Row>::value, T>>
+    template <typename T,
+              typename = typename std::enable_if<std::is_convertible<T, Row>::value, T>::type>
     bool emplace_back(T&& row) {
         if (row.size() != colNames.size()) {
             return false;

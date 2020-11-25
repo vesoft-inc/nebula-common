@@ -65,26 +65,26 @@ const Value& TypeCastingExpression::eval(ExpressionContext& ctx) {
     switch (vType_) {
         case Value::Type::BOOL: {
             auto result = val.toBool();
-            if (!result.ok()) {
+            if (!result.second) {
                 return Value::kNullValue;
             }
-            result_.setBool(result.value());
+            result_.setBool(result.first);
             break;
         }
         case Value::Type::INT: {
             auto result = val.toInt();
-            if (!result.ok()) {
+            if (!result.second) {
                 return Value::kNullValue;
             }
-            result_.setInt(result.value());
+            result_.setInt(result.first);
             break;
         }
         case Value::Type::FLOAT: {
             auto result = val.toFloat();
-            if (!result.ok()) {
+            if (!result.second) {
                 return Value::kNullValue;
             }
-            result_.setFloat(result.value());
+            result_.setFloat(result.first);
             break;
         }
         case Value::Type::STRING: {
@@ -105,7 +105,7 @@ bool TypeCastingExpression::operator==(const Expression& rhs) const {
         return false;
     }
 
-    const auto& r = dynamic_cast<const TypeCastingExpression&>(rhs);
+    const auto& r = static_cast<const TypeCastingExpression&>(rhs);
     return vType_ == r.vType_ && *operand_ == *(r.operand_);
 }
 
