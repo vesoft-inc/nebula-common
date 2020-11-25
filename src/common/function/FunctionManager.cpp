@@ -194,10 +194,6 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
               TypeSignature({Value::Type::EDGE}, Value::Type::LIST),
               TypeSignature({Value::Type::MAP}, Value::Type::LIST), }},
     {"nodes", {TypeSignature({Value::Type::PATH}, Value::Type::LIST), }},
-    // reduce needs List comprehension expression which is not ready now
-    // {"reduce", {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::LIST),
-    //            TypeSignature({Value::Type::INT, Value::Type::INT, Value::Type::LIST},
-    //                           Value::Type::LIST), }},
     {"tail", {TypeSignature({Value::Type::LIST}, Value::Type::LIST), }},
     {"relationships", {TypeSignature({Value::Type::PATH}, Value::Type::LIST), }},
     {"head", {TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
