@@ -33,6 +33,7 @@
 #include "common/expression/VariableExpression.h"
 #include "common/expression/VertexExpression.h"
 #include "common/expression/CaseExpression.h"
+#include "common/expression/ColumnExpression.h"
 #include "common/expression/test/ExpressionContextMock.h"
 
 nebula::ExpressionContextMock gExpCtxt;
@@ -652,7 +653,7 @@ TEST_F(ExpressionTest, FunctionCallTest) {
         TEST_FUNCTION(rtrim, args_["trim"], " abc");
     }
     {
-        TEST_FUNCTION(substr, args_["substr"], "bcde");
+        TEST_FUNCTION(substr, args_["substr"], "cdef");
         TEST_FUNCTION(left, args_["side"], "abcde");
         TEST_FUNCTION(right, args_["side"], "mnopq");
         TEST_FUNCTION(left, args_["neg_side"], "");
@@ -1027,7 +1028,7 @@ TEST_F(ExpressionTest, toStringTest) {
     }
     {
         ConstantExpression ep(Date(1234));
-        EXPECT_EQ(ep.toString(), "-32765/05/19");
+        EXPECT_EQ(ep.toString(), "-32765-05-19");
     }
     {
         ConstantExpression ep(Edge("100", "102", 2, "like", 3, {{"likeness", 95}}));
@@ -1914,6 +1915,117 @@ TEST_F(ExpressionTest, TypeCastTest) {
         TypeCastingExpression typeCast(Value::Type::INT, new ConstantExpression(Set()));
         auto eval = Expression::eval(&typeCast, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+    }
+}
+
+TEST_F(ExpressionTest, RelationRegexMatch) {
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("abcd\xA3g1234efgh\x49ijkl"),
+                new ConstantExpression("\\w{4}\xA3g12\\d*e\\w+\x49\\w+"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("Tony Parker"),
+                new ConstantExpression("T.*er"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("010-12345"),
+                new ConstantExpression("\\d{3}\\-\\d{3,8}"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("test_space_128"),
+                new ConstantExpression("[a-zA-Z_][0-9a-zA-Z_]{0,19}"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("2001-09-01 08:00:00"),
+                new ConstantExpression("\\d+\\-0\\d?\\-\\d+\\s\\d+:00:\\d+"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("jack138tom发."),
+                new ConstantExpression("j\\w*\\d+\\w+\u53d1\\."));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("jack138tom\u53d1.34数数数"),
+                new ConstantExpression("j\\w*\\d+\\w+发\\.34[\u4e00-\u9fa5]+"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("a good person"),
+                new ConstantExpression("a\\s\\w+"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("Tony Parker"),
+                new ConstantExpression("T\\w+\\s?\\P\\d+"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("010-12345"),
+                new ConstantExpression("\\d?\\-\\d{3,8}"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("test_space_128牛"),
+                new ConstantExpression("[a-zA-Z_][0-9a-zA-Z_]{0,19}"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("2001-09-01 08:00:00"),
+                new ConstantExpression("\\d+\\s\\d+:00:\\d+"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
     }
 }
 
@@ -2865,6 +2977,53 @@ TEST_F(ExpressionTest, PathBuildToString) {
             .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
                                                               new std::string("path_v1")));
         EXPECT_EQ(expr.toString(), "PathBuild[$var1.path_src,$var1.path_edge1,$var1.path_v1]");
+    }
+}
+
+TEST_F(ExpressionTest, ColumnExpression) {
+    {
+        ColumnExpression expr(2);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 3);
+    }
+    {
+        ColumnExpression expr(0);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 1);
+    }
+    {
+        ColumnExpression expr(-1);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 8);
+    }
+    {
+        ColumnExpression expr(-3);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 6);
+    }
+    {
+        ColumnExpression expr(8);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        ColumnExpression expr(-8);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        ColumnExpression expr(10);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        ColumnExpression expr(-10);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval, Value::kNullBadType);
     }
 }
 

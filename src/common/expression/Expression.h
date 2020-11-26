@@ -38,6 +38,7 @@ public:
         kRelLE,
         kRelGT,
         kRelGE,
+        kRelREG,
         kRelIn,
         kRelNotIn,
         kContains,
@@ -49,6 +50,7 @@ public:
         kSubscript,
         kAttribute,
         kLabelAttribute,
+        kColumn,
 
         kLogicalAnd,
         kLogicalOr,
