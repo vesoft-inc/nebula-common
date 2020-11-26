@@ -278,7 +278,7 @@ StorageClientBase<ClientType>::collectResponse(
                                         }).thenError([context](auto&&) {
                                             context->resp.markFailure();
                                         });
-                                    }, FLAGS_storage_client_retry_interval_secs * 1000);
+                                    }, FLAGS_storage_client_retry_interval_ms);
                             } else {
                                 // retry failed
                                 context->resp.markFailure();
@@ -389,7 +389,7 @@ folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
                                         std::move(p),
                                         retry + 1,
                                         retryLimit);
-                        }, FLAGS_storage_client_retry_interval_secs * 1000);
+                        }, FLAGS_storage_client_retry_interval_ms);
                         return;
                     } else {
                         p.setValue(Status::LeaderChanged("Request to storage retry failed."));

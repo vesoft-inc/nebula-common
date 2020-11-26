@@ -17,7 +17,7 @@
 #include "common/interface/gen-cpp2/storage_types.h"
 
 DECLARE_int32(storage_client_timeout_ms);
-DECLARE_uint32(storage_client_retry_interval_secs);
+DECLARE_uint32(storage_client_retry_interval_ms);
 
 
 namespace nebula {
