@@ -1912,7 +1912,8 @@ MetaClient::getTagSchemaFromCache(GraphSpaceID spaceId, TagID tagID, SchemaVer v
     if (spaceIt != localCache_.end()) {
         auto tagIt = spaceIt->second->tagSchemas_.find(tagID);
         if (tagIt != spaceIt->second->tagSchemas_.end() && !tagIt->second.empty()) {
-            if (tagIt->second.size() > static_cast<size_t>(ver)) {
+            size_t vNum = tagIt->second.size();
+            if (static_cast<SchemaVer>(vNum) > ver) {
                 return ver < 0 ? tagIt->second.back() : tagIt->second[ver];
             }
         }
@@ -1932,7 +1933,8 @@ MetaClient::getEdgeSchemaFromCache(GraphSpaceID spaceId, EdgeType edgeType, Sche
     if (spaceIt != localCache_.end()) {
         auto edgeIt = spaceIt->second->edgeSchemas_.find(edgeType);
         if (edgeIt != spaceIt->second->edgeSchemas_.end() && !edgeIt->second.empty()) {
-            if (edgeIt->second.size() > static_cast<size_t>(ver)) {
+            size_t vNum = edgeIt->second.size();
+            if (static_cast<SchemaVer>(vNum) > ver) {
                 return ver < 0 ? edgeIt->second.back() : edgeIt->second[ver];
             }
         }
