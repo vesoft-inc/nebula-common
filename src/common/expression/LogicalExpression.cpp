@@ -26,6 +26,9 @@ const Value& LogicalExpression::eval(ExpressionContext& ctx) {
 const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
     for (auto i = 0u; i < operands_.size(); i++) {
         result_ = operands_[i]->eval(ctx);
+        if (result_.isBadNull()) {
+            return result_;
+        }
         if (!result_.isBool()) {
             if (!result_.isNull()) {
                 result_ = Value::kNullValue;
@@ -43,11 +46,14 @@ const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
 const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
     for (auto i = 0u; i < operands_.size(); i++) {
         result_ = operands_[i]->eval(ctx);
+        if (result_.isBadNull()) {
+            return result_;
+        }
         if (!result_.isBool()) {
             if (!result_.isNull()) {
                 result_ = Value::kNullValue;
             }
-            break;
+            continue;
         }
         if (result_.getBool()) {
             break;
@@ -59,6 +65,9 @@ const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
 
 const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
     result_ = operands_[0]->eval(ctx);
+    if (result_.isBadNull()) {
+        return result_;
+    }
     if (!result_.isBool()) {
         if (!result_.isNull()) {
             result_ = Value::kNullValue;
