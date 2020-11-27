@@ -15,7 +15,7 @@ namespace nebula {
 class LabelAttributeExpression final : public Expression {
 public:
     explicit LabelAttributeExpression(LabelExpression *lhs = nullptr,
-                                      LabelExpression *rhs = nullptr)
+                                      Expression *rhs = nullptr)
         : Expression(Kind::kLabelAttribute) {
         lhs_.reset(lhs);
         rhs_.reset(rhs);
@@ -37,15 +37,14 @@ public:
 
     std::unique_ptr<Expression> clone() const override {
         return std::make_unique<LabelAttributeExpression>(
-            static_cast<LabelExpression *>(left()->clone().release()),
-            static_cast<LabelExpression *>(right()->clone().release()));
+            static_cast<LabelExpression *>(left()->clone().release()), right()->clone().release());
     }
 
     const LabelExpression* left() const {
         return lhs_.get();
     }
 
-    const LabelExpression* right() const {
+    const Expression* right() const {
         return rhs_.get();
     }
 
@@ -62,7 +61,7 @@ private:
 
 private:
     std::unique_ptr<LabelExpression>    lhs_;
-    std::unique_ptr<LabelExpression>    rhs_;
+    std::unique_ptr<Expression>         rhs_;
 };
 
 }   // namespace nebula
