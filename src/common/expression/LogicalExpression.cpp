@@ -65,9 +65,6 @@ const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
 
 const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
     result_ = operands_[0]->eval(ctx);
-    if (result_.isBadNull()) {
-        return result_;
-    }
     if (!result_.isBool()) {
         if (!result_.isNull()) {
             result_ = Value::kNullValue;

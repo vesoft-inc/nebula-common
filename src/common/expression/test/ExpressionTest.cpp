@@ -514,6 +514,26 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(2 > 1 AND 3 < 2, false);
         TEST_EXPR(2 < 1 AND 3 < 2, false);
     }
+    {
+        TEST_EXPR(2 / 0, Value::kNullValue);
+        TEST_EXPR(2 / 0 AND true, Value::kNullValue);
+        TEST_EXPR(2 / 0 AND false, Value::Value::kNullDivByZero);
+        TEST_EXPR(true AND 2 / 0, Value::kNullValue);
+        TEST_EXPR(false AND 2 / 0, false);
+        TEST_EXPR(2 / 0 AND 2 / 0, Value::kNullValue);
+
+        TEST_EXPR(2 / 0 OR true, Value::kNullValue);
+        TEST_EXPR(2 / 0 OR false, Value::kNullValue);
+        TEST_EXPR(true OR 2 / 0, true);
+        TEST_EXPR(false OR 2 / 0, Value::kNullValue);
+        TEST_EXPR(2 / 0 OR 2 / 0, Value::kNullValue);
+
+//        TEST_EXPR(2 / 0 XOR true, Value::kNullValue);
+//        TEST_EXPR(2 / 0 XOR false, Value::kNullValue);
+//        TEST_EXPR(true XOR 2 / 0, Value::kNullValue);
+//        TEST_EXPR(false XOR 2 / 0, Value::kNullValue);
+//        TEST_EXPR(2 / 0 XOR 2 / 0, Value::kNullValue);
+    }
 }
 
 TEST_F(ExpressionTest, LiteralConstantsRelational) {
