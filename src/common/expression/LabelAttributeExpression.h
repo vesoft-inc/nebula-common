@@ -17,16 +17,8 @@ namespace nebula {
 // label.label
 class LabelAttributeExpression final : public Expression {
 public:
-    LabelAttributeExpression(LabelExpression *lhs, LabelExpression *rhs)
-        : Expression(Kind::kLabelAttribute) {
-        lhs_.reset(lhs);
-        if (rhs != nullptr) {
-            rhs_ = std::make_unique<ConstantExpression>(*rhs->name());
-            delete rhs;
-        }
-    }
-
-    LabelAttributeExpression(LabelExpression *lhs, ConstantExpression *rhs)
+    explicit LabelAttributeExpression(LabelExpression *lhs = nullptr,
+                                      ConstantExpression *rhs = nullptr)
         : Expression(Kind::kLabelAttribute) {
         lhs_.reset(lhs);
         rhs_.reset(rhs);
