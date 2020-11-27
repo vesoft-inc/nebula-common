@@ -7,6 +7,9 @@
 #ifndef COMMON_EXPRESSION_LABELATTRIBUTEEXPRESSION_H_
 #define COMMON_EXPRESSION_LABELATTRIBUTEEXPRESSION_H_
 
+#include <memory>
+
+#include "common/expression/ConstantExpression.h"
 #include "common/expression/LabelExpression.h"
 
 namespace nebula {
@@ -14,8 +17,16 @@ namespace nebula {
 // label.label
 class LabelAttributeExpression final : public Expression {
 public:
-    explicit LabelAttributeExpression(LabelExpression *lhs = nullptr,
-                                      Expression *rhs = nullptr)
+    LabelAttributeExpression(LabelExpression *lhs, LabelExpression *rhs)
+        : Expression(Kind::kLabelAttribute) {
+        lhs_.reset(lhs);
+        if (rhs != nullptr) {
+            rhs_ = std::make_unique<ConstantExpression>(*rhs->name());
+            delete rhs;
+        }
+    }
+
+    LabelAttributeExpression(LabelExpression *lhs, ConstantExpression *rhs)
         : Expression(Kind::kLabelAttribute) {
         lhs_.reset(lhs);
         rhs_.reset(rhs);
@@ -37,14 +48,15 @@ public:
 
     std::unique_ptr<Expression> clone() const override {
         return std::make_unique<LabelAttributeExpression>(
-            static_cast<LabelExpression *>(left()->clone().release()), right()->clone().release());
+            static_cast<LabelExpression *>(left()->clone().release()),
+            static_cast<ConstantExpression *>(right()->clone().release()));
     }
 
     const LabelExpression* left() const {
         return lhs_.get();
     }
 
-    const Expression* right() const {
+    const ConstantExpression* right() const {
         return rhs_.get();
     }
 
@@ -61,7 +73,7 @@ private:
 
 private:
     std::unique_ptr<LabelExpression>    lhs_;
-    std::unique_ptr<Expression>         rhs_;
+    std::unique_ptr<ConstantExpression> rhs_;
 };
 
 }   // namespace nebula
