@@ -633,10 +633,6 @@ protected:
 
     PartsMap doGetPartsMap(const HostAddr& host, const LocalCache& localCache);
 
-    // backup/restore
-    folly::Future<StatusOr<cpp2::CreateBackupResp>> createBackup(
-        const std::vector<std::string> spaces);
-
     ListenersMap doGetListenersMap(const HostAddr& host, const LocalCache& localCache);
 
 private:

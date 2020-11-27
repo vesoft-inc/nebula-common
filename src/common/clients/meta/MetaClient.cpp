@@ -3305,23 +3305,6 @@ MetaClient::listFTClients() {
     return future;
 }
 
-folly::Future<StatusOr<cpp2::CreateBackupResp>> MetaClient::createBackup(
-    const std::vector<std::string> spaces) {
-    cpp2::CreateBackupReq req;
-    if (!spaces.empty()) {
-        req.set_spaces(std::move(spaces));
-    }
-    folly::Promise<StatusOr<cpp2::CreateBackupResp>> promise;
-
-    auto future = promise.getFuture();
-    getResponse(
-        std::move(req),
-        [](auto client, auto request) { return client->future_createBackup(request); },
-        [](cpp2::CreateBackupResp&& resp) -> decltype(auto) { return resp; },
-        std::move(promise));
-    return future;
-}
-
 StatusOr<std::vector<cpp2::FTClient>> MetaClient::getFTClientsFromCache() {
     if (!ready_) {
         return Status::Error("Not ready!");
