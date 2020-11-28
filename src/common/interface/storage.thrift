@@ -465,7 +465,7 @@ struct UpdateVertexRequest {
     4: required common.TagID        tag_id
     5: list<UpdatedProp>            updated_props,
     6: optional bool                insertable = false,
-    // A list of expressions
+    // A list of kSrcProperty expressions, support kVid and kTag
     7: optional list<binary>        return_props,
     // If provided, the update happens only when the condition evaluates true
     8: optional binary              condition,
@@ -484,7 +484,7 @@ struct UpdateEdgeRequest {
     3: EdgeKey                  edge_key,
     4: list<UpdatedProp>        updated_props,
     5: optional bool            insertable = false,
-    // A list of expressions
+    // A list of kEdgeProperty expressions, support kSrc, kType, kRank and kDst
     6: optional list<binary>    return_props,
     // If provided, the update happens only when the condition evaluates true
     7: optional binary          condition,
