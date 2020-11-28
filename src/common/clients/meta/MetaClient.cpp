@@ -1204,7 +1204,7 @@ MetaClient::multiPut(std::string segment,
     std::vector<nebula::KeyValue> data;
     for (auto& element : pairs) {
         data.emplace_back(std::move(element));
-                }
+    }
     req.set_segment(std::move(segment));
     req.set_pairs(std::move(data));
     folly::Promise<StatusOr<bool>> promise;
