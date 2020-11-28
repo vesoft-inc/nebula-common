@@ -1042,14 +1042,6 @@ folly::Future<StatusOr<std::vector<cpp2::HostItem>>>
 MetaClient::listHosts(cpp2::ListHostType tp) {
     cpp2::ListHostsReq req;
     req.set_type(tp);
-    // if (tp == cpp2::ListHostType::ALLOC) {
-    //     req.set_type(tp);
-    // } else {
-    //     switch (tp) {
-    //         case cpp2::ListHostType::ALLOC:
-    //             req.set
-    //     }
-    // }
 
     folly::Promise<StatusOr<std::vector<cpp2::HostItem>>> promise;
     auto future = promise.getFuture();
