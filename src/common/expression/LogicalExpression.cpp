@@ -78,10 +78,8 @@ const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
         if (!value.isBool()) {
             if (!value.isNull()) {
                 result_ = Value::kNullValue;
-            } else {
-                result_ = value;
             }
-            break;
+            return result_;
         }
         result = result ^ value.getBool();
     }

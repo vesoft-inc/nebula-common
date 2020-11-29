@@ -528,11 +528,11 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(false OR 2 / 0, Value::kNullValue);
         TEST_EXPR(2 / 0 OR 2 / 0, Value::kNullValue);
 
-//        TEST_EXPR(2 / 0 XOR true, Value::kNullValue);
-//        TEST_EXPR(2 / 0 XOR false, Value::kNullValue);
-//        TEST_EXPR(true XOR 2 / 0, Value::kNullValue);
-//        TEST_EXPR(false XOR 2 / 0, Value::kNullValue);
-//        TEST_EXPR(2 / 0 XOR 2 / 0, Value::kNullValue);
+        TEST_EXPR(2 / 0 XOR true, Value::kNullValue);
+        TEST_EXPR(2 / 0 XOR false, Value::kNullValue);
+        TEST_EXPR(true XOR 2 / 0, Value::kNullValue);
+        TEST_EXPR(false XOR 2 / 0, Value::kNullValue);
+        TEST_EXPR(2 / 0 XOR 2 / 0, Value::kNullValue);
     }
 }
 
