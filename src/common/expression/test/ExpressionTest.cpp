@@ -2851,7 +2851,7 @@ TEST_F(ExpressionTest, TestExprClone) {
     ASSERT_EQ(attrExpr, *attrExpr.clone());
 
     LabelAttributeExpression labelAttrExpr(new LabelExpression(new std::string("label")),
-                                           new LabelExpression(new std::string("prop")));
+                                           new ConstantExpression("prop"));
     ASSERT_EQ(labelAttrExpr, *labelAttrExpr.clone());
 
     TypeCastingExpression typeCastExpr(Value::Type::STRING, new ConstantExpression(100));
