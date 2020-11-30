@@ -20,6 +20,7 @@ public:
     explicit LabelAttributeExpression(LabelExpression *lhs = nullptr,
                                       ConstantExpression *rhs = nullptr)
         : Expression(Kind::kLabelAttribute) {
+        DCHECK(rhs == nullptr || rhs->value().isStr());
         lhs_.reset(lhs);
         rhs_.reset(rhs);
     }
