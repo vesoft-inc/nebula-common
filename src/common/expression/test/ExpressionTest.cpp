@@ -529,6 +529,12 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(false OR 2 / 0, Value::kNullDivByZero);
         TEST_EXPR(2 / 0 OR 2 / 0, Value::kNullDivByZero);
 
+        TEST_EXPR(2 / 0 XOR true, Value::kNullDivByZero);
+        TEST_EXPR(2 / 0 XOR false, Value::kNullDivByZero);
+        TEST_EXPR(true XOR 2 / 0, Value::kNullDivByZero);
+        TEST_EXPR(false XOR 2 / 0, Value::kNullDivByZero);
+        TEST_EXPR(2 / 0 XOR 2 / 0, Value::kNullDivByZero);
+
         // test normal null
         TEST_EXPR(2 AND true, Value::kNullValue);
         TEST_EXPR(2 AND false, false);
@@ -542,12 +548,11 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(false OR 2, Value::kNullValue);
         TEST_EXPR(2 OR 2, Value::kNullValue);
 
-
-//        TEST_EXPR(2 / 0 XOR true, Value::kNullValue);
-//        TEST_EXPR(2 / 0 XOR false, Value::kNullValue);
-//        TEST_EXPR(true XOR 2 / 0, Value::kNullValue);
-//        TEST_EXPR(false XOR 2 / 0, Value::kNullValue);
-//        TEST_EXPR(2 / 0 XOR 2 / 0, Value::kNullValue);
+        TEST_EXPR(2 XOR true, Value::kNullValue);
+        TEST_EXPR(2 XOR false, Value::kNullValue);
+        TEST_EXPR(true XOR 2, Value::kNullValue);
+        TEST_EXPR(false XOR 2, Value::kNullValue);
+        TEST_EXPR(2 XOR 2, Value::kNullValue);
     }
 }
 

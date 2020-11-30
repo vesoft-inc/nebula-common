@@ -81,20 +81,23 @@ const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
 
 const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
     result_ = operands_[0]->eval(ctx);
+    if (result_.isBadNull()) {
+        return result_;
+    }
     if (!result_.isBool()) {
-        if (!result_.isNull()) {
-            result_ = Value::kNullValue;
-        }
+        result_ = Value::kNullValue;
         return result_;
     }
     auto result = result_.getBool();
 
     for (auto i = 1u; i < operands_.size(); i++) {
         auto &value = operands_[i]->eval(ctx);
+        if (value.isBadNull()) {
+            result_ = value;
+            return result_;
+        }
         if (!value.isBool()) {
-            if (!value.isNull()) {
-                result_ = Value::kNullValue;
-            }
+            result_ = Value::kNullValue;
             return result_;
         }
         result = result ^ value.getBool();
