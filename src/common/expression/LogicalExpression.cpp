@@ -41,7 +41,7 @@ const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
             return result_;
         }
         if (!result.isBool()) {
-            if (result.empty()) {
+            if (result.empty() && !result_.isNull()) {
                 result_ = result;
             } else {
                 result_ = Value::kNullValue;
@@ -59,7 +59,8 @@ const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
 
 const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
     result_ = operands_[0]->eval(ctx);
-    if (result_.isBadNull() || (result_.isBool() && result_.getBool())) {
+    if (result_.isBadNull()
+        || (result_.isBool() && result_.getBool())) {
         return result_;
     }
     if (!result_.isBool()) {
@@ -68,14 +69,14 @@ const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
         }
     }
 
-    for (auto i = 0u; i < operands_.size(); i++) {
+    for (auto i = 1u; i < operands_.size(); i++) {
         auto result = operands_[i]->eval(ctx);
         if (result.isBadNull()) {
             result_ = result;
             return result_;
         }
         if (!result.isBool()) {
-            if (result.empty()) {
+            if (result.empty() && !result_.isNull()) {
                 result_ = result;
             } else {
                 result_ = Value::kNullValue;
@@ -92,17 +93,20 @@ const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
 }
 
 const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
+    auto hasEmpty = 0;
     result_ = operands_[0]->eval(ctx);
     if (result_.isBadNull()) {
         return result_;
     }
     if (!result_.isBool()) {
-        if (!result_.empty()) {
+        if (result_.empty()) {
+            hasEmpty = 1;
+        } else {
             result_ = Value::kNullValue;
+            return result_;
         }
-        return result_;
     }
-    auto result = result_.getBool();
+    auto result = result_;
 
     for (auto i = 1u; i < operands_.size(); i++) {
         auto &value = operands_[i]->eval(ctx);
@@ -112,15 +116,25 @@ const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
         }
         if (!value.isBool()) {
             if (value.empty()) {
-                result_ = value;
-            } else {
-                result_ = Value::kNullValue;
+                result = value;
+                hasEmpty = 1;
+                continue;
             }
+            result_ = Value::kNullValue;
             return result_;
         }
-        result = result ^ value.getBool();
+        if (!hasEmpty) {
+            bool bval = result.getBool() ^ value.getBool();
+            result = bval;
+            assert(result.isBool());
+        }
     }
-    result_ = result;
+
+    if (hasEmpty) {
+        result_ = result;
+    } else {
+        result_ = result.getBool();
+    }
 
     return result_;
 }
