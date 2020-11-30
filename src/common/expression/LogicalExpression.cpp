@@ -29,7 +29,9 @@ const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
         return result_;
     }
     if (!result_.isBool()) {
-        result_ = Value::kNullValue;
+        if (!result_.empty()) {
+            result_ = Value::kNullValue;
+        }
     }
 
     for (auto i = 1u; i < operands_.size(); i++) {
@@ -39,7 +41,11 @@ const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
             return result_;
         }
         if (!result.isBool()) {
-            result_ = Value::kNullValue;
+            if (result.empty()) {
+                result_ = result;
+            } else {
+                result_ = Value::kNullValue;
+            }
             continue;
         }
         if (!result.getBool()) {
@@ -57,7 +63,9 @@ const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
         return result_;
     }
     if (!result_.isBool()) {
-        result_ = Value::kNullValue;
+        if (!result_.empty()) {
+            result_ = Value::kNullValue;
+        }
     }
 
     for (auto i = 0u; i < operands_.size(); i++) {
@@ -67,7 +75,11 @@ const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
             return result_;
         }
         if (!result.isBool()) {
-            result_ = Value::kNullValue;
+            if (result.empty()) {
+                result_ = result;
+            } else {
+                result_ = Value::kNullValue;
+            }
             continue;
         }
         if (result.getBool()) {
@@ -85,7 +97,9 @@ const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
         return result_;
     }
     if (!result_.isBool()) {
-        result_ = Value::kNullValue;
+        if (!result_.empty()) {
+            result_ = Value::kNullValue;
+        }
         return result_;
     }
     auto result = result_.getBool();
@@ -97,7 +111,11 @@ const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
             return result_;
         }
         if (!value.isBool()) {
-            result_ = Value::kNullValue;
+            if (value.empty()) {
+                result_ = value;
+            } else {
+                result_ = Value::kNullValue;
+            }
             return result_;
         }
         result = result ^ value.getBool();
