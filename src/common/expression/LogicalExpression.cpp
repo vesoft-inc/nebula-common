@@ -124,9 +124,7 @@ const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
             return result_;
         }
         if (!hasEmpty) {
-            bool bval = result.getBool() ^ value.getBool();
-            result = bval;
-            assert(result.isBool());
+            result = static_cast<bool>(result.getBool() ^ value.getBool());
         }
     }
 
