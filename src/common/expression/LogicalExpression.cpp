@@ -24,18 +24,26 @@ const Value& LogicalExpression::eval(ExpressionContext& ctx) {
 }
 
 const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
-    for (auto i = 0u; i < operands_.size(); i++) {
-        result_ = operands_[i]->eval(ctx);
-        if (result_.isBadNull()) {
+    result_ = operands_[0]->eval(ctx);
+    if (result_.isBadNull() || (result_.isBool() && !result_.getBool())) {
+        return result_;
+    }
+    if (!result_.isBool()) {
+        result_ = Value::kNullValue;
+    }
+
+    for (auto i = 1u; i < operands_.size(); i++) {
+        auto result = operands_[i]->eval(ctx);
+        if (result.isBadNull()) {
+            result_ = result;
             return result_;
         }
-        if (!result_.isBool()) {
-            if (!result_.isNull()) {
-                result_ = Value::kNullValue;
-            }
-            break;
+        if (!result.isBool()) {
+            result_ = Value::kNullValue;
+            continue;
         }
-        if (!result_.getBool()) {
+        if (!result.getBool()) {
+            result_ = false;
             break;
         }
     }
@@ -44,18 +52,26 @@ const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
 }
 
 const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
+    result_ = operands_[0]->eval(ctx);
+    if (result_.isBadNull() || (result_.isBool() && result_.getBool())) {
+        return result_;
+    }
+    if (!result_.isBool()) {
+        result_ = Value::kNullValue;
+    }
+
     for (auto i = 0u; i < operands_.size(); i++) {
-        result_ = operands_[i]->eval(ctx);
-        if (result_.isBadNull()) {
+        auto result = operands_[i]->eval(ctx);
+        if (result.isBadNull()) {
+            result_ = result;
             return result_;
         }
-        if (!result_.isBool()) {
-            if (!result_.isNull()) {
-                result_ = Value::kNullValue;
-            }
+        if (!result.isBool()) {
+            result_ = Value::kNullValue;
             continue;
         }
-        if (result_.getBool()) {
+        if (result.getBool()) {
+            result_ = true;
             break;
         }
     }
