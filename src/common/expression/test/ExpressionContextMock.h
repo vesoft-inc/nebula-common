@@ -117,6 +117,8 @@ public:
         return Value();
     }
 
+    Value getColumn(int32_t index) const override;
+
     void setVar(const std::string& var, Value val) override {
         UNUSED(var);
         UNUSED(val);
@@ -124,5 +126,6 @@ public:
 
 private:
     static std::unordered_map<std::string, Value>      vals_;
+    std::unordered_map<std::string, std::regex>        regex_;
 };
 }  // namespace nebula
