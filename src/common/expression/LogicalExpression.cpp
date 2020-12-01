@@ -24,33 +24,20 @@ const Value& LogicalExpression::eval(ExpressionContext& ctx) {
 }
 
 const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
-    result_ = operands_[0]->eval(ctx);
-    if (result_.isBadNull() || (result_.isBool() && !result_.getBool())) {
-        return result_;
-    }
-    if (!result_.isBool()) {
-        if (!result_.empty()) {
-            result_ = Value::kNullValue;
-        }
-    }
-
-    for (auto i = 1u; i < operands_.size(); i++) {
-        auto result = operands_[i]->eval(ctx);
-        if (result.isBadNull()) {
-            result_ = result;
+    result_ = true;
+    for (auto i = 0u; i < operands_.size(); i++) {
+        auto& value = operands_[i]->eval(ctx);
+        if (value.isBadNull()
+            || (value.isBool() && !value.getBool())) {
+            result_ = value;
             return result_;
         }
-        if (!result.isBool()) {
-            if (result.empty() && !result_.isNull()) {
-                result_ = result;
+        if (!value.isBool()) {
+            if (value.empty() && !result_.isNull()) {
+                result_ = value;
             } else {
                 result_ = Value::kNullValue;
             }
-            continue;
-        }
-        if (!result.getBool()) {
-            result_ = false;
-            break;
         }
     }
 
@@ -58,34 +45,20 @@ const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
 }
 
 const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
-    result_ = operands_[0]->eval(ctx);
-    if (result_.isBadNull()
-        || (result_.isBool() && result_.getBool())) {
-        return result_;
-    }
-    if (!result_.isBool()) {
-        if (!result_.empty()) {
-            result_ = Value::kNullValue;
-        }
-    }
-
-    for (auto i = 1u; i < operands_.size(); i++) {
-        auto result = operands_[i]->eval(ctx);
-        if (result.isBadNull()) {
-            result_ = result;
+    result_ = false;
+    for (auto i = 0u; i < operands_.size(); i++) {
+        auto& value = operands_[i]->eval(ctx);
+        if (value.isBadNull()
+            || (value.isBool() && value.getBool())) {
+            result_ = value;
             return result_;
         }
-        if (!result.isBool()) {
-            if (result.empty() && !result_.isNull()) {
-                result_ = result;
+        if (!value.isBool()) {
+            if (value.empty() && !result_.isNull()) {
+                result_ = value;
             } else {
                 result_ = Value::kNullValue;
             }
-            continue;
-        }
-        if (result.getBool()) {
-            result_ = true;
-            break;
         }
     }
 
@@ -93,45 +66,30 @@ const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
 }
 
 const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
-    auto hasEmpty = 0;
-    result_ = operands_[0]->eval(ctx);
-    if (result_.isBadNull()) {
-        return result_;
-    }
-    if (!result_.isBool()) {
-        if (result_.empty()) {
-            hasEmpty = 1;
-        } else {
-            result_ = Value::kNullValue;
-            return result_;
-        }
-    }
-    auto result = result_;
-
-    for (auto i = 1u; i < operands_.size(); i++) {
+    auto hasEmpty = 0u;
+    auto firstBool = 1u;
+    for (auto i = 0u; i < operands_.size(); i++) {
         auto &value = operands_[i]->eval(ctx);
-        if (value.isBadNull()) {
+        if (value.isNull()) {
             result_ = value;
             return result_;
         }
         if (!value.isBool()) {
             if (value.empty()) {
-                result = value;
+                result_ = value;
                 hasEmpty = 1;
                 continue;
             }
             result_ = Value::kNullValue;
             return result_;
         }
-        if (!hasEmpty) {
-            result = static_cast<bool>(result.getBool() ^ value.getBool());
+        if (hasEmpty) continue;
+        if (firstBool) {
+            result_ = static_cast<bool>(value.getBool());
+            firstBool = 0u;
+        } else {
+            result_ = static_cast<bool>(result_.getBool() ^ value.getBool());
         }
-    }
-
-    if (hasEmpty) {
-        result_ = result;
-    } else {
-        result_ = result.getBool();
     }
 
     return result_;
