@@ -346,6 +346,9 @@ struct GetPropResponse {
     // Each column represents one peoperty. the column name is in the form of "tag_name.prop_alias"
     // or "edge_type_name.prop_alias" in the same order which specified in VertexProp or EdgeProp
     //
+    // If the request is to get tag prop, the first column will **always** be the vid,
+    // and the first column name is "_vid".
+    //
     // If the vertex or the edge does NOT have the given property, the value will be an empty value
     2: optional common.DataSet  props,
 }
