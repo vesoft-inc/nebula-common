@@ -161,8 +161,7 @@ GraphStorageClient::addEdges(GraphSpaceID space,
         [=](cpp2::GraphStorageServiceAsyncClient* client, const cpp2::AddEdgesRequest& r) {
             return useToss ? client->future_addEdgesAtomic(r)
                            : client->future_addEdges(r);
-        },
-        [](const std::pair<const PartitionID, std::vector<cpp2::NewEdge>>& p) { return p.first; });
+        });
 }
 
 folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>>
