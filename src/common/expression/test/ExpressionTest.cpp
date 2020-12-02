@@ -219,9 +219,11 @@ std::unordered_map<std::string, Expression::Kind> ExpressionTest::op_ = {
     {"!=", Expression::Kind::kRelNE},
     {"!", Expression::Kind::kUnaryNot}};
 
-std::unordered_map<std::string, Value> ExpressionTest::boolen_ = {{"true", Value(true)},
-                                                                  {"false", Value(false)},
-                                                                  {"empty", Value()}};
+std::unordered_map<std::string, Value>
+    ExpressionTest::boolen_ = {{"true", Value(true)},
+                               {"false", Value(false)},
+                               {"empty", Value()},
+                               {"null", Value(NullType::__NULL__)}};
 
 static std::unordered_map<std::string, std::vector<Value>> args_ = {
     {"null", {}},
@@ -530,36 +532,36 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(true OR 2 / 0, true);
         TEST_EXPR(false OR 2 / 0, Value::kNullDivByZero);
         TEST_EXPR(2 / 0 OR 2 / 0, Value::kNullDivByZero);
-        TEST_EXPR(empty OR 2 OR 2 / 0 OR empty, Value::kNullDivByZero);
+        TEST_EXPR(empty OR null OR 2 / 0 OR empty, Value::kNullDivByZero);
 
         TEST_EXPR(2 / 0 XOR true, Value::kNullDivByZero);
         TEST_EXPR(2 / 0 XOR false, Value::kNullDivByZero);
         TEST_EXPR(true XOR 2 / 0, Value::kNullDivByZero);
         TEST_EXPR(false XOR 2 / 0, Value::kNullDivByZero);
         TEST_EXPR(2 / 0 XOR 2 / 0, Value::kNullDivByZero);
-        TEST_EXPR(empty XOR 2 / 0 XOR 2 XOR empty, Value::kNullDivByZero);
+        TEST_EXPR(empty XOR 2 / 0 XOR null XOR empty, Value::kNullDivByZero);
 
         // test normal null
-        TEST_EXPR(2 AND true, Value::kNullValue);
-        TEST_EXPR(2 AND false, false);
-        TEST_EXPR(true AND 2, Value::kNullValue);
-        TEST_EXPR(false AND 2, false);
-        TEST_EXPR(2 AND 2, Value::kNullValue);
-        TEST_EXPR(empty AND 2 AND empty, Value::kNullValue);
+        TEST_EXPR(null AND true, Value::kNullValue);
+        TEST_EXPR(null AND false, false);
+        TEST_EXPR(true AND null, Value::kNullValue);
+        TEST_EXPR(false AND null, false);
+        TEST_EXPR(null AND null, Value::kNullValue);
+        TEST_EXPR(empty AND null AND empty, Value::kNullValue);
 
-        TEST_EXPR(2 OR true, true);
-        TEST_EXPR(2 OR false, Value::kNullValue);
-        TEST_EXPR(true OR 2, true);
-        TEST_EXPR(false OR 2, Value::kNullValue);
-        TEST_EXPR(2 OR 2, Value::kNullValue);
-        TEST_EXPR(empty OR 2 OR empty, Value::kNullValue);
+        TEST_EXPR(null OR true, true);
+        TEST_EXPR(null OR false, Value::kNullValue);
+        TEST_EXPR(true OR null, true);
+        TEST_EXPR(false OR null, Value::kNullValue);
+        TEST_EXPR(null OR null, Value::kNullValue);
+        TEST_EXPR(empty OR null OR empty, Value::kNullValue);
 
-        TEST_EXPR(2 XOR true, Value::kNullValue);
-        TEST_EXPR(2 XOR false, Value::kNullValue);
-        TEST_EXPR(true XOR 2, Value::kNullValue);
-        TEST_EXPR(false XOR 2, Value::kNullValue);
-        TEST_EXPR(2 XOR 2, Value::kNullValue);
-        TEST_EXPR(empty XOR 2 XOR empty, Value::kNullValue);
+        TEST_EXPR(null XOR true, Value::kNullValue);
+        TEST_EXPR(null XOR false, Value::kNullValue);
+        TEST_EXPR(true XOR null, Value::kNullValue);
+        TEST_EXPR(false XOR null, Value::kNullValue);
+        TEST_EXPR(null XOR null, Value::kNullValue);
+        TEST_EXPR(empty XOR null XOR empty, Value::kNullValue);
 
         // test empty
         TEST_EXPR(empty, Value::kEmpty);
@@ -568,8 +570,8 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(true AND empty, Value::kEmpty);
         TEST_EXPR(false AND empty, false);
         TEST_EXPR(empty AND empty, Value::kEmpty);
-        TEST_EXPR(empty AND 2, Value::kNullValue);
-        TEST_EXPR(2 AND empty, Value::kNullValue);
+        TEST_EXPR(empty AND null, Value::kNullValue);
+        TEST_EXPR(null AND empty, Value::kNullValue);
         TEST_EXPR(empty AND true AND empty, Value::kEmpty);
 
         TEST_EXPR(empty OR true, true);
@@ -577,8 +579,8 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(true OR empty, true);
         TEST_EXPR(false OR empty, Value::kEmpty);
         TEST_EXPR(empty OR empty, Value::kEmpty);
-        TEST_EXPR(empty OR 2, Value::kNullValue);
-        TEST_EXPR(2 OR empty, Value::kNullValue);
+        TEST_EXPR(empty OR null, Value::kNullValue);
+        TEST_EXPR(null OR empty, Value::kNullValue);
         TEST_EXPR(empty OR false OR empty, Value::kEmpty);
 
         TEST_EXPR(empty XOR true, Value::kEmpty);
@@ -586,18 +588,18 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(true XOR empty, Value::kEmpty);
         TEST_EXPR(false XOR empty, Value::kEmpty);
         TEST_EXPR(empty XOR empty, Value::kEmpty);
-        TEST_EXPR(empty XOR 2, Value::kNullValue);
-        TEST_EXPR(2 XOR empty, Value::kNullValue);
+        TEST_EXPR(empty XOR null, Value::kNullValue);
+        TEST_EXPR(null XOR empty, Value::kNullValue);
         TEST_EXPR(true XOR empty XOR false, Value::kEmpty);
 
-        TEST_EXPR(empty OR false AND true AND 2 XOR empty, Value::kEmpty);
+        TEST_EXPR(empty OR false AND true AND null XOR empty, Value::kEmpty);
         TEST_EXPR(empty OR false AND true XOR empty OR true, true);
-        TEST_EXPR((empty OR false) AND true XOR empty XOR 2 AND 2 / 0, Value::kNullValue);
+        TEST_EXPR((empty OR false) AND true XOR empty XOR null AND 2 / 0, Value::kNullValue);
         // empty OR false AND 2/0
-        TEST_EXPR(empty OR false AND true XOR empty XOR 2 AND 2 / 0, Value::kEmpty);
-        TEST_EXPR(empty AND true XOR empty XOR 2 AND 2 / 0, Value::kNullValue);
-        TEST_EXPR(empty OR false AND true XOR empty OR 2 AND 2 / 0, Value::kNullDivByZero);
-        TEST_EXPR(empty OR false AND empty XOR empty OR 2, Value::kNullValue);
+        TEST_EXPR(empty OR false AND true XOR empty XOR null AND 2 / 0, Value::kEmpty);
+        TEST_EXPR(empty AND true XOR empty XOR null AND 2 / 0, Value::kNullValue);
+        TEST_EXPR(empty OR false AND true XOR empty OR null AND 2 / 0, Value::kNullDivByZero);
+        TEST_EXPR(empty OR false AND empty XOR empty OR null, Value::kNullValue);
     }
 }
 

@@ -33,10 +33,13 @@ const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
             return result_;
         }
         if (!value.isBool()) {
-            if (value.empty() && !result_.isNull()) {
+            if (value.isNull()) {
+                result_ = value;
+            } else if (value.empty() && !result_.isNull()) {
                 result_ = value;
             } else {
-                result_ = Value::kNullValue;
+                result_ = Value::kNullBadType;
+                return result_;
             }
         }
     }
@@ -54,10 +57,13 @@ const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
             return result_;
         }
         if (!value.isBool()) {
-            if (value.empty() && !result_.isNull()) {
+            if (value.isNull()) {
+                result_ = value;
+            } else if (value.empty() && !result_.isNull()) {
                 result_ = value;
             } else {
-                result_ = Value::kNullValue;
+                result_ = Value::kNullBadType;
+                return result_;
             }
         }
     }
@@ -80,7 +86,7 @@ const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
                 hasEmpty = 1;
                 continue;
             }
-            result_ = Value::kNullValue;
+            result_ = Value::kNullBadType;
             return result_;
         }
         if (hasEmpty) continue;
