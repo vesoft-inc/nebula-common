@@ -23,6 +23,7 @@ const Value& LogicalExpression::eval(ExpressionContext& ctx) {
     }
 }
 
+// evalAnd short circuit logic: BADNULL == false > NULL >= EMPTY > true
 const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
     result_ = true;
     for (auto i = 0u; i < operands_.size(); i++) {
@@ -47,6 +48,7 @@ const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
     return result_;
 }
 
+// evalOr short circuit logic: BADNULL == true > NULL >= EMPTY > false
 const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
     result_ = false;
     for (auto i = 0u; i < operands_.size(); i++) {
@@ -71,6 +73,7 @@ const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
     return result_;
 }
 
+// evalXor short circuit logic: BADNULL == NULL > EMPTY > Bool
 const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
     auto hasEmpty = 0u;
     auto firstBool = 1u;
