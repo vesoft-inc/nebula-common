@@ -525,7 +525,7 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(true AND 2 / 0, Value::kNullDivByZero);
         TEST_EXPR(false AND 2 / 0, false);
         TEST_EXPR(2 / 0 AND 2 / 0, Value::kNullDivByZero);
-        TEST_EXPR(empty AND 2 AND 2 / 0 AND empty, Value::kNullDivByZero);
+        TEST_EXPR(empty AND null AND 2 / 0 AND empty, Value::kNullDivByZero);
 
         TEST_EXPR(2 / 0 OR true, Value::kNullDivByZero);
         TEST_EXPR(2 / 0 OR false, Value::kNullDivByZero);
