@@ -483,7 +483,6 @@ enum ListHostType {
 
 struct ListHostsReq {
     1: ListHostType      type
-    2: optional HostRole role
 }
 
 struct ListHostsResp {
