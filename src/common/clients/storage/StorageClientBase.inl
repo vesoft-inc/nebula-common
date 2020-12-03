@@ -245,7 +245,7 @@ StorageClientBase<ClientType>::collectResponse(
                             } else {
                                 invalidLeader(spaceId, code.get_part_id());
                             }
-                            if (retry < retryLimit) {
+                            if (retry < retryLimit && (leader != nullptr)) {
                                 evb->runAfterDelay([this, evb, leader = *leader, r = std::move(r),
                                                     remoteFunc = std::move(remoteFunc), context,
                                                     start, retry, retryLimit] () {
@@ -377,7 +377,7 @@ folly::Future<StatusOr<Response>> StorageClientBase<ClientType>::getResponse(
                     } else {
                         invalidLeader(spaceId, code.get_part_id());
                     }
-                    if (retry < retryLimit) {
+                    if (retry < retryLimit && (leader != nullptr)) {
                         evb->runAfterDelay([this, evb, leader = *leader,
                                             req = std::move(request.second),
                                             remoteFunc = std::move(remoteFunc), p = std::move(p),
