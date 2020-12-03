@@ -143,8 +143,8 @@ struct Expr {
 struct EdgeProp {
     // A valid edge type
     1: common.EdgeType  type,
-    // The list of property names. If it is empty, then all properties in both key and value will
-    // be returned. Support kSrc, kType, kRank and kDst as well.
+    // The list of property names. If it is empty, then all properties in value will be returned.
+    // Support kSrc, kType, kRank and kDst as well.
     2: list<binary>     props,
 }
 
@@ -153,8 +153,8 @@ struct EdgeProp {
 struct VertexProp {
     // A valid tag id
     1: common.TagID tag,
-    // The list of property names. If it is empty, then all properties in both key and value will
-    // be returned. Support kVid and kTag as well.
+    // The list of property names. If it is empty, then all properties in value will be returned.
+    // Support kVid and kTag as well.
     2: list<binary> props,
 }
 
@@ -613,7 +613,7 @@ struct ScanVertexRequest {
 struct ScanVertexResponse {
     1: required ResponseCommon              result,
     // The data will return as a dataset. The format is as follows:
-    // Each column represents one peoperty. the column name is in the form of "tag_name.prop_alias"
+    // Each column represents one property. the column name is in the form of "tag_name.prop_alias"
     // in the same order which specified in VertexProp in request.
     2: common.DataSet                       vertex_data,
     3: bool                                 has_next,
@@ -643,7 +643,7 @@ struct ScanEdgeRequest {
 struct ScanEdgeResponse {
     1: required ResponseCommon              result,
     // The data will return as a dataset. The format is as follows:
-    // Each column represents one peoperty. the column name is in the form of "tag_name.prop_alias"
+    // Each column represents one property. the column name is in the form of "edge_name.prop_alias"
     // in the same order which specified in EdgeProp in requesss.
     2: common.DataSet                       edge_data,
     3: bool                                 has_next,
