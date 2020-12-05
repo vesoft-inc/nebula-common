@@ -271,7 +271,7 @@ struct GetNeighborsResponse {
     //
     // The value of each tag column is a list of Values, which follows the order of the
     //   property names specified in the above column name. If a vertex does not have
-    //   the specific tag, the value will be NULL
+    //   the specific tag, the value will be empty value
     //
     // Columns after the tag columns are edge columns. One column per edge type. The
     //   column name is in the following format in the same order which specified in EdgeProp
