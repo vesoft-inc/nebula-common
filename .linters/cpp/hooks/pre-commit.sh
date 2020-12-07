@@ -6,6 +6,24 @@
 # attached with Common Clause Condition 1.0, found in the LICENSES directory.
 
 CPPLINT=`dirname $0`/../../.linters/cpp/cpplint.py
+if [ ! -f $CPPLINT ]; then
+    CPPLINT=$(dirname $0)/../../modules/common/.linters/cpp/cpplint.py
+fi
+
+if git remote -v | grep origin | grep nebula-graph > /dev/null ; then
+    CHECKKEYWORD=`dirname $0`/../../.linters/cpp/checkKeyword.py
+    if [ ! -f $CHECKKEYWORD ]; then
+        CHECKKEYWORD=$(dirname $0)/../../modules/common/.linters/cpp/checkKeyword.py
+    fi
+
+    echo "Performing checkout keyword..."
+    python3 $CHECKKEYWORD
+
+    if [ $? -ne 0 ]; then
+        echo "Checkout keyword failed"
+        exit 1
+    fi
+fi
 
 if [ $# -eq 0 ];then
     # Since cpplint.py could only apply on our working tree,
