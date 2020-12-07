@@ -52,6 +52,8 @@ include(GitInfoConfig)
 include(NebulaCustomTargets)
 include(ClangTidy)
 
+LintHook(${CMAKE_SOURCE_DIR})
+
 # Remove the target exporting file
 file(REMOVE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-config.cmake)
 
