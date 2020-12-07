@@ -96,10 +96,6 @@ const char *Status::toString(Code code) {
             return "PermissionError: ";
         case kListenerNotFound:
             return "ListenerNotFound";
-        case kConflictRequest:
-            return "ConflictRequest";
-        case kDataTypeMismatch:
-            return "DataTypeMismatch";
     }
     DLOG(FATAL) << "Invalid status code: " << static_cast<uint16_t>(code);
     return "";
