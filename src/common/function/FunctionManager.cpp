@@ -203,6 +203,7 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
      {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::LIST),
       TypeSignature({Value::Type::INT, Value::Type::INT, Value::Type::INT}, Value::Type::LIST)}},
     {"hasSameEdgeInPath", { TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
+    {"noloop", {TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
 };
 
 // static
@@ -1447,6 +1448,31 @@ FunctionManager::FunctionManager() {
                 src = step.dst.vid;
             }
             return false;
+        };
+    }
+    {
+        auto &attr = functions_["noloop"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isPath()) {
+                return Value::kNullBadType;
+            }
+            auto &path = args[0].getPath();
+            if (path.steps.empty()) {
+                return true;
+            }
+            std::unordered_set<std::string> uniqueVid;
+            auto src = path.src.vid;
+            uniqueVid.emplace(src);
+            for (const auto &step : path.steps) {
+                auto ret = uniqueVid.emplace(step.dst.vid);
+                if (!ret.second) {
+                    return false;
+                }
+            }
+            return true;
         };
     }
 }   // NOLINT

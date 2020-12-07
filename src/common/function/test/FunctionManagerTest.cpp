@@ -30,6 +30,15 @@ protected:
         EXPECT_EQ(result.value()(args), expect);
     }
 
+    Path createPath(const std::string& src, const std::vector<std::string>& steps) {
+        Path path;
+        path.src = Vertex(src, {});
+        for (auto& i : steps) {
+            path.steps.emplace_back(Step(Vertex(i, {}), 1, "edge1", 0, {}));
+        }
+        return path;
+    }
+
     static std::unordered_map<std::string, std::vector<Value>> args_;
 };
 
@@ -1477,6 +1486,39 @@ TEST_F(FunctionManagerTest, ListFunctionTest) {
                      {{"likeness", (i + 51)}}));
         }
         TEST_FUNCTION(relationships, args, expected);
+    }
+}
+
+TEST_F(FunctionManagerTest, noloop) {
+    {
+        Path path = createPath("0", {});
+        std::vector<Value> args = {path};
+        TEST_FUNCTION(noloop, args, true);
+    }
+    {
+        Path path = createPath("0", {"0"});
+        std::vector<Value> args = {path};
+        TEST_FUNCTION(noloop, args, false);
+    }
+    {
+        Path path = createPath("0", {"1"});
+        std::vector<Value> args = {path};
+        TEST_FUNCTION(noloop, args, true);
+    }
+    {
+        Path path = createPath("0", {"1", "2"});
+        std::vector<Value> args = {path};
+        TEST_FUNCTION(noloop, args, true);
+    }
+    {
+        Path path = createPath("0", {"1", "2", "1"});
+        std::vector<Value> args = {path};
+        TEST_FUNCTION(noloop, args, false);
+    }
+    {
+        Path path = createPath("0", {"1", "2", "3", "0"});
+        std::vector<Value> args = {path};
+        TEST_FUNCTION(noloop, args, false);
     }
 }
 
