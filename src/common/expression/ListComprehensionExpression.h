@@ -16,12 +16,14 @@ public:
     explicit ListComprehensionExpression(std::string* innerVar = nullptr,
                                          Expression* collection = nullptr,
                                          Expression* filter = nullptr,
-                                         Expression* mapping = nullptr)
+                                         Expression* mapping = nullptr,
+                                         bool needRewrite = false)
         : Expression(Kind::kListComprehension),
           innerVar_(innerVar),
           collection_(collection),
           filter_(filter),
-          mapping_(mapping) {}
+          mapping_(mapping),
+          needRewrite_(needRewrite) {}
 
     bool operator==(const Expression& rhs) const override;
 
@@ -32,13 +34,20 @@ public:
     void accept(ExprVisitor* visitor) override;
 
     std::unique_ptr<Expression> clone() const override {
-        auto expr = std::make_unique<ListComprehensionExpression>(new std::string(*innerVar_),
-                                                                  collection_->clone().release());
-        if (filter_ != nullptr) {
-            expr->setFilter(filter_->clone().release());
-        }
-        if (mapping_ != nullptr) {
-            expr->setMapping(mapping_->clone().release());
+        auto expr = std::make_unique<ListComprehensionExpression>(
+            new std::string(*innerVar_),
+            collection_->clone().release(),
+            filter_ != nullptr ? filter_->clone().release() : nullptr,
+            mapping_ != nullptr ? mapping_->clone().release() : nullptr,
+            needRewrite_);
+        if (needRewrite_) {
+            expr->setNewInnerVar(new std::string(*newInnerVar_));
+            if (filter_ != nullptr) {
+                expr->setNewFilter(newFilter_->clone().release());
+            }
+            if (mapping_ != nullptr) {
+                expr->setNewMapping(newMapping_->clone().release());
+            }
         }
         return expr;
     }
@@ -75,8 +84,8 @@ public:
         return mapping_.get();
     }
 
-    void setInnerVar(std::string* expr) {
-        innerVar_.reset(expr);
+    void setInnerVar(std::string* name) {
+        innerVar_.reset(name);
     }
 
     void setCollection(Expression* expr) {
@@ -89,6 +98,18 @@ public:
 
     void setMapping(Expression* expr) {
         mapping_.reset(expr);
+    }
+
+    void setNewInnerVar(std::string* name) {
+        newInnerVar_.reset(name);
+    }
+
+    void setNewFilter(Expression* expr) {
+        newFilter_.reset(expr);
+    }
+
+    void setNewMapping(Expression* expr) {
+        newMapping_.reset(expr);
     }
 
     bool hasFilter() const {
@@ -108,6 +129,10 @@ private:
     std::unique_ptr<Expression> collection_;
     std::unique_ptr<Expression> filter_;    // filter_ is optional
     std::unique_ptr<Expression> mapping_;   // mapping_ is optional
+    bool needRewrite_;
+    std::unique_ptr<std::string> newInnerVar_{nullptr};
+    std::unique_ptr<Expression> newFilter_{nullptr};
+    std::unique_ptr<Expression> newMapping_{nullptr};
     Value result_;
 };
 
