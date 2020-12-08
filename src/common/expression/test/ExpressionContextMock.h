@@ -120,7 +120,7 @@ public:
     Value getColumn(int32_t index) const override;
 
     void setVar(const std::string& var, Value val) override {
-        if (var == "n" || var == "p") {
+        if (var == "n" || var == "p") {   // used by tests of list comprehesion expression
             vals_.erase(var);
             vals_[var] = val;
         }

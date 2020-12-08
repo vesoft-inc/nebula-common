@@ -12,18 +12,23 @@
 namespace nebula {
 
 class ListComprehensionExpression final : public Expression {
+    friend class Expression;
+
 public:
     explicit ListComprehensionExpression(std::string* innerVar = nullptr,
                                          Expression* collection = nullptr,
                                          Expression* filter = nullptr,
                                          Expression* mapping = nullptr,
-                                         bool needRewrite = false)
+                                         bool saveOriginString = false)
         : Expression(Kind::kListComprehension),
           innerVar_(innerVar),
           collection_(collection),
           filter_(filter),
-          mapping_(mapping),
-          needRewrite_(needRewrite) {}
+          mapping_(mapping) {
+        if (saveOriginString) {
+            originString_.reset(new std::string(makeString()));
+        }
+    }
 
     bool operator==(const Expression& rhs) const override;
 
@@ -38,16 +43,9 @@ public:
             new std::string(*innerVar_),
             collection_->clone().release(),
             filter_ != nullptr ? filter_->clone().release() : nullptr,
-            mapping_ != nullptr ? mapping_->clone().release() : nullptr,
-            needRewrite_);
-        if (needRewrite_) {
-            expr->setNewInnerVar(new std::string(*newInnerVar_));
-            if (filter_ != nullptr) {
-                expr->setNewFilter(newFilter_->clone().release());
-            }
-            if (mapping_ != nullptr) {
-                expr->setNewMapping(newMapping_->clone().release());
-            }
+            mapping_ != nullptr ? mapping_->clone().release() : nullptr);
+        if (originString_ != nullptr) {
+            expr->setString(new std::string(*originString_));
         }
         return expr;
     }
@@ -100,16 +98,8 @@ public:
         mapping_.reset(expr);
     }
 
-    void setNewInnerVar(std::string* name) {
-        newInnerVar_.reset(name);
-    }
-
-    void setNewFilter(Expression* expr) {
-        newFilter_.reset(expr);
-    }
-
-    void setNewMapping(Expression* expr) {
-        newMapping_.reset(expr);
+    void setString(std::string* s) {
+        originString_.reset(s);
     }
 
     bool hasFilter() const {
@@ -125,14 +115,17 @@ private:
 
     void resetFrom(Decoder& decoder) override;
 
+    std::string makeString() const;
+
+    bool hasString() const {
+        return originString_ != nullptr;
+    }
+
     std::unique_ptr<std::string> innerVar_;
     std::unique_ptr<Expression> collection_;
     std::unique_ptr<Expression> filter_;    // filter_ is optional
     std::unique_ptr<Expression> mapping_;   // mapping_ is optional
-    bool needRewrite_;
-    std::unique_ptr<std::string> newInnerVar_{nullptr};
-    std::unique_ptr<Expression> newFilter_{nullptr};
-    std::unique_ptr<Expression> newMapping_{nullptr};
+    std::unique_ptr<std::string> originString_;
     Value result_;
 };
 
