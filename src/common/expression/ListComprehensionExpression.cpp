@@ -18,12 +18,14 @@ const Value& ListComprehensionExpression::eval(ExpressionContext& ctx) {
     }
     auto& list = listVal.getList();
 
-    bool hasFilterOrMapping = filter_ != nullptr || mapping_ != nullptr;
+    if  (filter_ == nullptr && mapping_ == nullptr) {
+        result_ = std::move(list);
+        return result_;
+    }
+
     for (size_t i = 0; i < list.size(); ++i) {
-        auto v = list[i];
-        if (hasFilterOrMapping) {
-            ctx.setVar(*innerVar_, v);
-        }
+        auto& v = list[i];
+        ctx.setVar(*innerVar_, v);
         if (filter_ != nullptr) {
             auto& filterVal = filter_->eval(ctx);
             if (!filterVal.empty() && !filterVal.isNull() && !filterVal.isBool()) {
@@ -35,10 +37,10 @@ const Value& ListComprehensionExpression::eval(ExpressionContext& ctx) {
         }
 
         if (mapping_ != nullptr) {
-            v = mapping_->eval(ctx);
+            ret.emplace_back(mapping_->eval(ctx));
+        } else {
+            ret.emplace_back(std::move(v));
         }
-
-        ret.emplace_back(std::move(v));
     }
 
     result_ = std::move(ret);
