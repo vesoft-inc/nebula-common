@@ -3401,7 +3401,6 @@ folly::Future<StatusOr<cpp2::ExecResp>> MetaClient::removeSession(SessionID sess
     return future;
 }
 
->>>>>>> add session
 }  // namespace meta
 }  // namespace nebula
 
