@@ -39,7 +39,7 @@ const Value& ListComprehensionExpression::eval(ExpressionContext& ctx) {
         if (mapping_ != nullptr) {
             ret.emplace_back(mapping_->eval(ctx));
         } else {
-            ret.emplace_back(std::move(v));
+            ret.emplace_back(v);
         }
     }
 
