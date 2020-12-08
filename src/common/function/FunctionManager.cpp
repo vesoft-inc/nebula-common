@@ -203,7 +203,7 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
      {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::LIST),
       TypeSignature({Value::Type::INT, Value::Type::INT, Value::Type::INT}, Value::Type::LIST)}},
     {"hasSameEdgeInPath", { TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
-    {"noloop", {TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
+    {"hasSameVertexInPath", {TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
 };
 
 // static
@@ -1451,7 +1451,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        auto &attr = functions_["noloop"];
+        auto &attr = functions_["hasSameVertexInPath"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.isPure_ = true;

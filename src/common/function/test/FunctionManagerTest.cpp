@@ -1489,36 +1489,36 @@ TEST_F(FunctionManagerTest, ListFunctionTest) {
     }
 }
 
-TEST_F(FunctionManagerTest, noloop) {
+TEST_F(FunctionManagerTest, hasSameVertexInPath) {
     {
         Path path = createPath("0", {});
         std::vector<Value> args = {path};
-        TEST_FUNCTION(noloop, args, true);
+        TEST_FUNCTION(hasSameVertexInPath, args, true);
     }
     {
         Path path = createPath("0", {"0"});
         std::vector<Value> args = {path};
-        TEST_FUNCTION(noloop, args, false);
+        TEST_FUNCTION(hasSameVertexInPath, args, false);
     }
     {
         Path path = createPath("0", {"1"});
         std::vector<Value> args = {path};
-        TEST_FUNCTION(noloop, args, true);
+        TEST_FUNCTION(hasSameVertexInPath, args, true);
     }
     {
         Path path = createPath("0", {"1", "2"});
         std::vector<Value> args = {path};
-        TEST_FUNCTION(noloop, args, true);
+        TEST_FUNCTION(hasSameVertexInPath, args, true);
     }
     {
         Path path = createPath("0", {"1", "2", "1"});
         std::vector<Value> args = {path};
-        TEST_FUNCTION(noloop, args, false);
+        TEST_FUNCTION(hasSameVertexInPath, args, false);
     }
     {
         Path path = createPath("0", {"1", "2", "3", "0"});
         std::vector<Value> args = {path};
-        TEST_FUNCTION(noloop, args, false);
+        TEST_FUNCTION(hasSameVertexInPath, args, false);
     }
 }
 
