@@ -3328,7 +3328,7 @@ MetaClient::createSession(const std::string &userName,
                     return client->future_createSession(request);
                 },
                 [] (cpp2::CreateSessionResp&& resp) -> decltype(auto){
-                    return resp;
+                    return std::move(resp);
                 },
                 std::move(promise),
                 true);
@@ -3346,7 +3346,7 @@ MetaClient::updateSessions(const std::vector<cpp2::Session>& sessions) {
                     return client->future_updateSessions(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> decltype(auto){
-                    return resp;
+                    return std::move(resp);
                 },
                 std::move(promise),
                 true);
@@ -3362,7 +3362,7 @@ folly::Future<StatusOr<cpp2::ListSessionsResp>> MetaClient::listSessions() {
                     return client->future_listSessions(request);
                 },
                 [] (cpp2::ListSessionsResp&& resp) -> decltype(auto){
-                    return resp;
+                    return std::move(resp);
                 },
                 std::move(promise));
     return future;
@@ -3378,7 +3378,7 @@ folly::Future<StatusOr<cpp2::GetSessionResp>> MetaClient::getSession(SessionID s
                     return client->future_getSession(request);
                 },
                 [] (cpp2::GetSessionResp&& resp) -> decltype(auto){
-                    return resp;
+                    return std::move(resp);
                 },
                 std::move(promise));
     return future;
@@ -3394,7 +3394,7 @@ folly::Future<StatusOr<cpp2::ExecResp>> MetaClient::removeSession(SessionID sess
                     return client->future_removeSession(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> decltype(auto){
-                    return resp;
+                    return std::move(resp);
                 },
                 std::move(promise),
                 true);
