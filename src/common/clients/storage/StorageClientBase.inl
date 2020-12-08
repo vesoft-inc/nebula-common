@@ -396,7 +396,7 @@ void StorageClientBase<ClientType>::getResponseImpl(
                                 req = std::move(request.second),
                                 remoteFunc = std::move(remoteFunc), p = std::move(p),
                                 retry, retryLimit] () mutable {
-                                getResponse(evb,
+                                getResponseImpl(evb,
                                         std::pair<HostAddr, Request>(std::move(leader),
                                             std::move(req)),
                                         std::move(remoteFunc),
