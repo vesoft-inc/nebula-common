@@ -6,10 +6,6 @@
 
 #include "FunctionManager.h"
 
-#include <unordered_set>
-
-#include <folly/String.h>
-
 #include "common/base/Base.h"
 #include "common/datatypes/DataSet.h"
 #include "common/datatypes/Edge.h"
@@ -1431,23 +1427,7 @@ FunctionManager::FunctionManager() {
                 return Value::kNullBadType;
             }
             auto &path = args[0].getPath();
-            if (path.steps.size() < 2) {
-                return false;
-            }
-            std::unordered_set<std::string> uniqueSet;
-            auto src = path.src.vid;
-            for (const auto &step : path.steps) {
-                auto edgeSrc = step.type > 0 ? src : step.dst.vid;
-                auto edgeDst = step.type > 0 ? step.dst.vid : src;
-                auto edgeKey = folly::stringPrintf(
-                    "%s%s%s%ld", edgeSrc.c_str(), edgeDst.c_str(), step.name.c_str(), step.ranking);
-                auto res = uniqueSet.emplace(std::move(edgeKey));
-                if (!res.second) {
-                    return true;
-                }
-                src = step.dst.vid;
-            }
-            return false;
+            return path.hasDuplicateEdges();
         };
     }
     {
@@ -1460,19 +1440,7 @@ FunctionManager::FunctionManager() {
                 return Value::kNullBadType;
             }
             auto &path = args[0].getPath();
-            if (path.steps.empty()) {
-                return true;
-            }
-            std::unordered_set<std::string> uniqueVid;
-            auto src = path.src.vid;
-            uniqueVid.emplace(src);
-            for (const auto &step : path.steps) {
-                auto ret = uniqueVid.emplace(step.dst.vid);
-                if (!ret.second) {
-                    return false;
-                }
-            }
-            return true;
+            return path.hasDuplicateVertices();
         };
     }
 }   // NOLINT
