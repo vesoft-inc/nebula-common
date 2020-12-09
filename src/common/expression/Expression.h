@@ -86,6 +86,8 @@ public:
 
         kCase,
 
+        kPredicate,
+
         kPathBuild,
         // text or key word search expression
         kTSPrefix,

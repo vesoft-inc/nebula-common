@@ -27,6 +27,7 @@
 #include "common/expression/VertexExpression.h"
 #include "common/expression/CaseExpression.h"
 #include "common/expression/ColumnExpression.h"
+#include "common/expression/PredicateExpression.h"
 
 namespace nebula {
 
@@ -75,6 +76,8 @@ public:
     virtual void visit(PathBuildExpression *expr) = 0;
     // column expression
     virtual void visit(ColumnExpression *expr) = 0;
+    // predicate expression
+    virtual void visit(PredicateExpression *expr) = 0;
 };
 
 }   // namespace nebula
