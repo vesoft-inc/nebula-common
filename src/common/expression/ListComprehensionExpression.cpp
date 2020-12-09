@@ -87,7 +87,7 @@ void ListComprehensionExpression::writeTo(Encoder& encoder) const {
     encoder << kind_;
     encoder << Value(hasFilter());
     encoder << Value(hasMapping());
-    encoder << Value(hasString());
+    encoder << Value(hasOriginString());
 
     encoder << innerVar_.get();
     encoder << *collection_;
@@ -97,7 +97,7 @@ void ListComprehensionExpression::writeTo(Encoder& encoder) const {
     if (hasMapping()) {
         encoder << *mapping_;
     }
-    if (hasString()) {
+    if (hasOriginString()) {
         encoder << originString_.get();
     }
 }

@@ -18,17 +18,12 @@ public:
     explicit ListComprehensionExpression(std::string* innerVar = nullptr,
                                          Expression* collection = nullptr,
                                          Expression* filter = nullptr,
-                                         Expression* mapping = nullptr,
-                                         bool saveOriginString = false)
+                                         Expression* mapping = nullptr)
         : Expression(Kind::kListComprehension),
           innerVar_(innerVar),
           collection_(collection),
           filter_(filter),
-          mapping_(mapping) {
-        if (saveOriginString) {
-            originString_.reset(new std::string(makeString()));
-        }
-    }
+          mapping_(mapping) {}
 
     bool operator==(const Expression& rhs) const override;
 
@@ -45,7 +40,7 @@ public:
             filter_ != nullptr ? filter_->clone().release() : nullptr,
             mapping_ != nullptr ? mapping_->clone().release() : nullptr);
         if (originString_ != nullptr) {
-            expr->setString(new std::string(*originString_));
+            expr->setOriginString(new std::string(*originString_));
         }
         return expr;
     }
@@ -98,10 +93,6 @@ public:
         mapping_.reset(expr);
     }
 
-    void setString(std::string* s) {
-        originString_.reset(s);
-    }
-
     bool hasFilter() const {
         return filter_ != nullptr;
     }
@@ -110,16 +101,20 @@ public:
         return mapping_ != nullptr;
     }
 
+    void setOriginString(std::string* s) {
+        originString_.reset(s);
+    }
+
+    std::string makeString() const;
+
+    bool hasOriginString() const {
+        return originString_ != nullptr;
+    }
+
 private:
     void writeTo(Encoder& encoder) const override;
 
     void resetFrom(Decoder& decoder) override;
-
-    std::string makeString() const;
-
-    bool hasString() const {
-        return originString_ != nullptr;
-    }
 
     std::unique_ptr<std::string> innerVar_;
     std::unique_ptr<Expression> collection_;
