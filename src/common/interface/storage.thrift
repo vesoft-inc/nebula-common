@@ -80,6 +80,10 @@ enum ErrorCode {
     E_FILTER_OUT             = -81,
     E_INVALID_DATA           = -82,
 
+    // transaction
+    E_MUTATE_EDGE_CONFLICT   = -85,
+    E_OUTDATED_LOCK          = -86,
+
     // task manager failed
     E_INVALID_TASK_PARA      = -90,
     E_USER_CANCEL            = -99,
@@ -413,6 +417,7 @@ struct AddEdgesRequest {
     // If true, it equals an upsert operation.
     4: bool                                     overwritable = true,
 }
+
 /*
  * End of AddVertices section
  */
@@ -695,6 +700,7 @@ service GraphStorageService {
     LookupIndexResp lookupIndex(1: LookupIndexRequest req);
 
     GetNeighborsResponse lookupAndTraverse(1: LookupAndTraverseRequest req);
+    ExecResponse addEdgesAtomic(1: AddEdgesRequest req);
 }
 
 
@@ -873,3 +879,35 @@ service GeneralStorageService {
     ExecResponse    remove(1: KVRemoveRequest req);
 }
 
+//////////////////////////////////////////////////////////
+//
+//  Requests, responses for the InternalStorageService
+//
+//////////////////////////////////////////////////////////
+
+// transaction request
+struct InternalTxnRequest {
+    1: i64                                  txn_id,
+    2: i32                                  space_id,
+    // need this(part_id) to satisfy getResponse
+    3: i32                                  part_id,
+    // position of chain
+    4: i32                                  position,
+    5: list<list<binary>>                   data
+}
+
+struct GetValueRequest {
+    1: common.GraphSpaceID space_id,
+    2: common.PartitionID part_id,
+    3: binary key
+}
+
+struct GetValueResponse {
+    1: required ResponseCommon result
+    2: binary value
+}
+
+service InternalStorageService {
+    GetValueResponse  getValue(1: GetValueRequest req);
+    ExecResponse    forwardTransaction(1: InternalTxnRequest req);
+}
