@@ -169,6 +169,11 @@ struct IdName {
     2: binary name,
 }
 
+enum IsolationLevel {
+    DEFAULT  = 0x00,    // allow add half edge(either in or out edge succeeded)
+    TOSS     = 0x01,    // add in and out edge atomic
+} (cpp.enum_strict)
+
 struct SpaceDesc {
     1: binary               space_name,
     2: i32                  partition_num = 0,
@@ -177,6 +182,7 @@ struct SpaceDesc {
     5: binary               collate_name,
     6: ColumnTypeDef        vid_type = {"type": PropertyType.FIXED_STRING, "type_length": 8},
     7: optional binary      group_name,
+    8: optional IsolationLevel  isolation_level
 }
 
 struct SpaceItem {
@@ -474,13 +480,15 @@ struct ListEdgesResp {
 }
 
 enum ListHostType {
-    ALLOC       = 0x00,
     // nebula 1.0 show hosts, show leader, partition info
+    ALLOC       = 0x00,
+    GRAPH       = 0x01,
+    META        = 0x02,
+    STORAGE     = 0x03,
 } (cpp.enum_strict)
 
 struct ListHostsReq {
     1: ListHostType      type
-    2: optional HostRole role
 }
 
 struct ListHostsResp {
