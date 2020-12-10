@@ -1275,11 +1275,7 @@ FunctionManager::FunctionManager() {
                 return Vertex(args[0].getEdge().dst, {});
             }
             if (args[0].isPath()) {
-                auto &path = args[0].getPath();
-                if (path.steps.empty()) {
-                    return path.src;
-                }
-                return path.steps.back().dst;
+                return args[0].getPath().endNode();
             }
             return Value::kNullBadType;
         };
