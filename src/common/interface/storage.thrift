@@ -80,6 +80,10 @@ enum ErrorCode {
     E_FILTER_OUT             = -81,
     E_INVALID_DATA           = -82,
 
+    // transaction
+    E_MUTATE_EDGE_CONFLICT   = -85,
+    E_OUTDATED_LOCK          = -86,
+
     // task manager failed
     E_INVALID_TASK_PARA      = -90,
     E_USER_CANCEL            = -99,
@@ -351,7 +355,7 @@ struct GetPropResponse {
     //
     // Each column represents one peoperty. When all properties are returned, the
     //   column name is in the form of
-    //   "<tag_name>:<prop_alias>" or "<edge_type_name>:<prop_alias>"
+    //   "tag_name.prop_alias" or "edge_type_name.prop_alias"
     //
     // If the vertex or the edge does NOT have the given property, the value will
     //   be a NULL
@@ -418,6 +422,7 @@ struct AddEdgesRequest {
     // If true, it equals an upsert operation.
     4: bool                                     overwritable = true,
 }
+
 /*
  * End of AddVertices section
  */
@@ -614,7 +619,7 @@ struct ScanVertexRequest {
     2: common.PartitionID                   part_id,
     // start key of this block
     3: optional binary                      cursor,
-    4: list<VertexProp>                     return_columns,
+    4: VertexProp                           return_columns,
     // If no_columns is true, no properties of tags will be returned,
     // no matter what property is defined in VertexProp
     5: bool                                 no_columns,
@@ -623,6 +628,12 @@ struct ScanVertexRequest {
     // only return data in time range [start_time, end_time)
     7: optional i64                         start_time,
     8: optional i64                         end_time,
+    9: optional binary                      filter,
+    // when storage enable multi versions and only_latest_version is true, only return latest version.
+    // when storage disable multi versions, just use the default value.
+    10: bool                                only_latest_version = false,
+    // if set to false, forbid follower read
+    11: bool                                enable_read_from_follower = true,
 }
 
 struct ScanVertexResponse {
@@ -643,7 +654,7 @@ struct ScanEdgeRequest {
     2: common.PartitionID                   part_id,
     // start key of this block
     3: optional binary                      cursor,
-    4: list<EdgeProp>                       return_columns,
+    4: EdgeProp                             return_columns,
     // If no_columns is true, no properties of edge will be returned,
     // no matter what property is defined in EdgeProp
     5: bool                                 no_columns,
@@ -652,6 +663,12 @@ struct ScanEdgeRequest {
     // only return data in time range [start_time, end_time)
     7: optional i64                         start_time,
     8: optional i64                         end_time,
+    9: optional binary                      filter,
+    // when storage enable multi versions and only_latest_version is true, only return latest version.
+    // when storage disable multi versions, just use the default value.
+    10: bool                                only_latest_version = false,
+    // if set to false, forbid follower read
+    11: bool                                enable_read_from_follower = true,
 }
 
 struct ScanEdgeResponse {
@@ -713,6 +730,7 @@ service GraphStorageService {
     LookupIndexResp lookupIndex(1: LookupIndexRequest req);
 
     GetNeighborsResponse lookupAndTraverse(1: LookupAndTraverseRequest req);
+    ExecResponse addEdgesAtomic(1: AddEdgesRequest req);
 }
 
 
@@ -891,3 +909,35 @@ service GeneralStorageService {
     ExecResponse    remove(1: KVRemoveRequest req);
 }
 
+//////////////////////////////////////////////////////////
+//
+//  Requests, responses for the InternalStorageService
+//
+//////////////////////////////////////////////////////////
+
+// transaction request
+struct InternalTxnRequest {
+    1: i64                                  txn_id,
+    2: i32                                  space_id,
+    // need this(part_id) to satisfy getResponse
+    3: i32                                  part_id,
+    // position of chain
+    4: i32                                  position,
+    5: list<list<binary>>                   data
+}
+
+struct GetValueRequest {
+    1: common.GraphSpaceID space_id,
+    2: common.PartitionID part_id,
+    3: binary key
+}
+
+struct GetValueResponse {
+    1: required ResponseCommon result
+    2: binary value
+}
+
+service InternalStorageService {
+    GetValueResponse  getValue(1: GetValueRequest req);
+    ExecResponse    forwardTransaction(1: InternalTxnRequest req);
+}

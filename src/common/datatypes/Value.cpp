@@ -3,10 +3,15 @@
  * This source code is licensed under Apache 2.0 License,
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
+#include <memory>
+#include <string>
+#include <utility>
+
+#include <folly/hash/Hash.h>
+#include <folly/String.h>
+#include <glog/logging.h>
 
 #include "common/datatypes/Value.h"
-#include <folly/hash/Hash.h>
-#include <string>
 #include "common/datatypes/List.h"
 #include "common/datatypes/Map.h"
 #include "common/datatypes/Set.h"
@@ -335,10 +340,6 @@ Value::Value(const char* v) {
     setS(v);
 }
 
-Value::Value(folly::StringPiece v) {
-    setS(v);
-}
-
 Value::Value(const Date& v) {
     setD(v);
 }
@@ -550,11 +551,6 @@ void Value::setStr(std::string&& v) {
 }
 
 void Value::setStr(const char* v) {
-    clear();
-    setS(v);
-}
-
-void Value::setStr(folly::StringPiece v) {
     clear();
     setS(v);
 }
@@ -1310,11 +1306,6 @@ void Value::setS(const char* v) {
     new (std::addressof(value_.sVal)) std::string(v);
 }
 
-void Value::setS(folly::StringPiece v) {
-    type_ = Type::STRING;
-    new (std::addressof(value_.sVal)) std::string(v.data(), v.size());
-}
-
 void Value::setD(const Date& v) {
     type_ = Type::DATE;
     new (std::addressof(value_.dVal)) Date(v);
@@ -1559,85 +1550,79 @@ std::string Value::toString() const {
     LOG(FATAL) << "Unknown value type " << static_cast<int>(type_);
 }
 
-StatusOr<bool> Value::toBool() {
+std::pair<bool, bool> Value::toBool() {
     switch (type_) {
         // Type::__EMPTY__ is always false
         case Value::Type::__EMPTY__: {
-            return false;
+            return std::make_pair(false, true);
         }
         // Type::NULLVALUE is always false
         case Value::Type::NULLVALUE: {
-            return false;
+            return std::make_pair(false, true);
         }
         case Value::Type::BOOL: {
-            return getBool();
+            return std::make_pair(getBool(), true);
         }
         case Value::Type::INT: {
-            return getInt() != 0;
+            return std::make_pair(getInt() != 0, true);
         }
         case Value::Type::FLOAT: {
-            return std::abs(getFloat()) > kEpsilon;
+            return std::make_pair(std::abs(getFloat()) > kEpsilon, true);
         }
         case Value::Type::STRING: {
-            return !getStr().empty();
+            return std::make_pair(!getStr().empty(), true);
         }
         case Value::Type::DATE: {
-            return getDate().toInt() != 0;
+            return std::make_pair(getDate().toInt() != 0, true);
         }
         default: {
-            std::stringstream ss;
-            ss << *this << "'s type " << type_ << " can not convert to Bool";
-            return Status::Error(ss.str());
+            return std::make_pair(bool{}, false);
         }
     }
 }
 
-StatusOr<double> Value::toFloat() {
+std::pair<double, bool> Value::toFloat() {
     switch (type_) {
         case Value::Type::INT: {
-            return static_cast<double>(getInt());
+            return std::make_pair(static_cast<double>(getInt()), true);
         }
         case Value::Type::FLOAT: {
-            return getFloat();
+            return std::make_pair(getFloat(), true);
         }
         case Value::Type::STRING: {
             const auto& str = getStr();
             char *pEnd;
             double val = strtod(str.c_str(), &pEnd);
             if (*pEnd != '\0') {
-                return Status::Error("%s can not convert to Float", str.c_str());
+                return std::make_pair(double{}, false);
             }
-            return val;
+            return std::make_pair(val, true);
         }
         default: {
-            std::stringstream ss;
-            ss << *this << "'s type " << type_ << " can not convert to Float";
-            return Status::Error(ss.str());
+            return std::make_pair(double{}, false);
         }
     }
 }
 
-StatusOr<int64_t> Value::toInt() {
+std::pair<int64_t, bool> Value::toInt() {
     switch (type_) {
         case Value::Type::INT: {
-            return getInt();
+            return std::make_pair(getInt(), true);
         }
         case Value::Type::FLOAT: {
-            return static_cast<int64_t>(getFloat());
+            return std::make_pair(static_cast<int64_t>(getFloat()), true);
         }
         case Value::Type::STRING: {
             const auto& str = getStr();
             char *pEnd;
             double val = strtod(str.c_str(), &pEnd);
             if (*pEnd != '\0') {
-                return Status::Error("%s can not convert to Int", str.c_str());
+                return std::make_pair(int64_t{}, false);
             }
-            return static_cast<int64_t>(val);
+            return std::make_pair(static_cast<int64_t>(val), true);
         }
         default: {
-            std::stringstream ss;
-            ss << *this << "'s type " << type_ << " can not convert to Int";
-            return Status::Error(ss.str());
+            return std::make_pair(int64_t{}, false);
         }
     }
 }
@@ -1724,12 +1709,11 @@ std::ostream& operator<<(std::ostream& os, const Value::Type& type) {
 }
 
 Value operator+(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
-
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     switch (lhs.type()) {
@@ -1859,12 +1843,11 @@ Value operator+(const Value& lhs, const Value& rhs) {
 
 
 Value operator-(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
-
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     switch (lhs.type()) {
@@ -1915,12 +1898,11 @@ Value operator-(const Value& lhs, const Value& rhs) {
 
 
 Value operator*(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
-
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     switch (lhs.type()) {
@@ -1958,12 +1940,11 @@ Value operator*(const Value& lhs, const Value& rhs) {
 
 
 Value operator/(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
-
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     switch (lhs.type()) {
@@ -2020,12 +2001,11 @@ Value operator/(const Value& lhs, const Value& rhs) {
 }
 
 Value operator%(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
-
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     switch (lhs.type()) {
@@ -2082,8 +2062,8 @@ Value operator%(const Value& lhs, const Value& rhs) {
 }
 
 Value operator-(const Value& rhs) {
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     switch (rhs.type()) {
@@ -2102,8 +2082,8 @@ Value operator-(const Value& rhs) {
 }
 
 Value operator!(const Value& rhs) {
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     if (rhs.type() != Value::Type::BOOL) {
@@ -2326,22 +2306,19 @@ Value operator||(const Value& lhs, const Value& rhs) {
 }
 
 Value operator&(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
 
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
-    if (lhs.type() != rhs.type()) {
+    if (!lhs.isInt() || lhs.type() != rhs.type()) {
         return Value::kNullBadType;
     }
 
     switch (lhs.type()) {
-        case Value::Type::BOOL: {
-            return lhs.getBool() & rhs.getBool();
-        }
         case Value::Type::INT: {
             return lhs.getInt() & rhs.getInt();
         }
@@ -2352,22 +2329,19 @@ Value operator&(const Value& lhs, const Value& rhs) {
 }
 
 Value operator|(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
 
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
-    if (lhs.type() != rhs.type()) {
+    if (!lhs.isInt() || lhs.type() != rhs.type()) {
         return Value::kNullBadType;
     }
 
     switch (lhs.type()) {
-        case Value::Type::BOOL: {
-            return lhs.getBool() | rhs.getBool();
-        }
         case Value::Type::INT: {
             return lhs.getInt() | rhs.getInt();
         }
@@ -2378,22 +2352,19 @@ Value operator|(const Value& lhs, const Value& rhs) {
 }
 
 Value operator^(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
 
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
-    if (lhs.type() != rhs.type()) {
+    if (!lhs.isInt() || lhs.type() != rhs.type()) {
         return Value::kNullBadType;
     }
 
     switch (lhs.type()) {
-        case Value::Type::BOOL: {
-            return lhs.getBool() ^ rhs.getBool();
-        }
         case Value::Type::INT: {
             return lhs.getInt() ^ rhs.getInt();
         }

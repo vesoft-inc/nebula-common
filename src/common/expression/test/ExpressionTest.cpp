@@ -6,6 +6,7 @@
 
 #include <gtest/gtest.h>
 #include <boost/algorithm/string.hpp>
+#include <memory>
 #include "common/datatypes/DataSet.h"
 #include "common/datatypes/Edge.h"
 #include "common/datatypes/List.h"
@@ -32,6 +33,7 @@
 #include "common/expression/VariableExpression.h"
 #include "common/expression/VertexExpression.h"
 #include "common/expression/CaseExpression.h"
+#include "common/expression/ColumnExpression.h"
 #include "common/expression/test/ExpressionContextMock.h"
 
 nebula::ExpressionContextMock gExpCtxt;
@@ -217,8 +219,11 @@ std::unordered_map<std::string, Expression::Kind> ExpressionTest::op_ = {
     {"!=", Expression::Kind::kRelNE},
     {"!", Expression::Kind::kUnaryNot}};
 
-std::unordered_map<std::string, Value> ExpressionTest::boolen_ = {{"true", Value(true)},
-                                                                  {"false", Value(false)}};
+std::unordered_map<std::string, Value>
+    ExpressionTest::boolen_ = {{"true", Value(true)},
+                               {"false", Value(false)},
+                               {"empty", Value()},
+                               {"null", Value(NullType::__NULL__)}};
 
 static std::unordered_map<std::string, std::vector<Value>> args_ = {
     {"null", {}},
@@ -243,17 +248,27 @@ static std::unordered_map<std::string, std::vector<Value>> args_ = {
 #define TEST_EXPR(expr, expected)                                                                  \
     do {                                                                                           \
         testExpr(#expr, expected);                                                                 \
-    } while (0);
+    } while (0)
 
 #define TEST_FUNCTION(expr, args, expected)                                                        \
     do {                                                                                           \
         testFunction(#expr, args, expected);                                                       \
-    } while (0);
+    } while (0)
 
 #define TEST_TOSTRING(expr, expected)                                                              \
     do {                                                                                           \
         testToString(#expr, expected);                                                             \
-    } while (0);
+    } while (0)
+
+#define STEP(DST, NAME, RANKING, TYPE)                                                             \
+    do {                                                                                           \
+        Step step;                                                                                 \
+        step.dst.vid = DST;                                                                        \
+        step.name = NAME;                                                                          \
+        step.ranking = RANKING;                                                                    \
+        step.type = TYPE;                                                                          \
+        path.steps.emplace_back(std::move(step));                                                  \
+    } while (0)
 
 TEST_F(ExpressionTest, Constant) {
     {
@@ -502,6 +517,90 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(2 > 1 AND 3 < 2, false);
         TEST_EXPR(2 < 1 AND 3 < 2, false);
     }
+    {
+        // test bad null
+        TEST_EXPR(2 / 0, Value::kNullDivByZero);
+        TEST_EXPR(2 / 0 AND true, Value::kNullDivByZero);
+        TEST_EXPR(2 / 0 AND false, Value::Value::kNullDivByZero);
+        TEST_EXPR(true AND 2 / 0, Value::kNullDivByZero);
+        TEST_EXPR(false AND 2 / 0, false);
+        TEST_EXPR(2 / 0 AND 2 / 0, Value::kNullDivByZero);
+        TEST_EXPR(empty AND null AND 2 / 0 AND empty, Value::kNullDivByZero);
+
+        TEST_EXPR(2 / 0 OR true, Value::kNullDivByZero);
+        TEST_EXPR(2 / 0 OR false, Value::kNullDivByZero);
+        TEST_EXPR(true OR 2 / 0, true);
+        TEST_EXPR(false OR 2 / 0, Value::kNullDivByZero);
+        TEST_EXPR(2 / 0 OR 2 / 0, Value::kNullDivByZero);
+        TEST_EXPR(empty OR null OR 2 / 0 OR empty, Value::kNullDivByZero);
+
+        TEST_EXPR(2 / 0 XOR true, Value::kNullDivByZero);
+        TEST_EXPR(2 / 0 XOR false, Value::kNullDivByZero);
+        TEST_EXPR(true XOR 2 / 0, Value::kNullDivByZero);
+        TEST_EXPR(false XOR 2 / 0, Value::kNullDivByZero);
+        TEST_EXPR(2 / 0 XOR 2 / 0, Value::kNullDivByZero);
+        TEST_EXPR(empty XOR 2 / 0 XOR null XOR empty, Value::kNullDivByZero);
+
+        // test normal null
+        TEST_EXPR(null AND true, Value::kNullValue);
+        TEST_EXPR(null AND false, false);
+        TEST_EXPR(true AND null, Value::kNullValue);
+        TEST_EXPR(false AND null, false);
+        TEST_EXPR(null AND null, Value::kNullValue);
+        TEST_EXPR(empty AND null AND empty, Value::kNullValue);
+
+        TEST_EXPR(null OR true, true);
+        TEST_EXPR(null OR false, Value::kNullValue);
+        TEST_EXPR(true OR null, true);
+        TEST_EXPR(false OR null, Value::kNullValue);
+        TEST_EXPR(null OR null, Value::kNullValue);
+        TEST_EXPR(empty OR null OR empty, Value::kNullValue);
+
+        TEST_EXPR(null XOR true, Value::kNullValue);
+        TEST_EXPR(null XOR false, Value::kNullValue);
+        TEST_EXPR(true XOR null, Value::kNullValue);
+        TEST_EXPR(false XOR null, Value::kNullValue);
+        TEST_EXPR(null XOR null, Value::kNullValue);
+        TEST_EXPR(empty XOR null XOR empty, Value::kNullValue);
+
+        // test empty
+        TEST_EXPR(empty, Value::kEmpty);
+        TEST_EXPR(empty AND true, Value::kEmpty);
+        TEST_EXPR(empty AND false, false);
+        TEST_EXPR(true AND empty, Value::kEmpty);
+        TEST_EXPR(false AND empty, false);
+        TEST_EXPR(empty AND empty, Value::kEmpty);
+        TEST_EXPR(empty AND null, Value::kNullValue);
+        TEST_EXPR(null AND empty, Value::kNullValue);
+        TEST_EXPR(empty AND true AND empty, Value::kEmpty);
+
+        TEST_EXPR(empty OR true, true);
+        TEST_EXPR(empty OR false, Value::kEmpty);
+        TEST_EXPR(true OR empty, true);
+        TEST_EXPR(false OR empty, Value::kEmpty);
+        TEST_EXPR(empty OR empty, Value::kEmpty);
+        TEST_EXPR(empty OR null, Value::kNullValue);
+        TEST_EXPR(null OR empty, Value::kNullValue);
+        TEST_EXPR(empty OR false OR empty, Value::kEmpty);
+
+        TEST_EXPR(empty XOR true, Value::kEmpty);
+        TEST_EXPR(empty XOR false, Value::kEmpty);
+        TEST_EXPR(true XOR empty, Value::kEmpty);
+        TEST_EXPR(false XOR empty, Value::kEmpty);
+        TEST_EXPR(empty XOR empty, Value::kEmpty);
+        TEST_EXPR(empty XOR null, Value::kNullValue);
+        TEST_EXPR(null XOR empty, Value::kNullValue);
+        TEST_EXPR(true XOR empty XOR false, Value::kEmpty);
+
+        TEST_EXPR(empty OR false AND true AND null XOR empty, Value::kEmpty);
+        TEST_EXPR(empty OR false AND true XOR empty OR true, true);
+        TEST_EXPR((empty OR false) AND true XOR empty XOR null AND 2 / 0, Value::kNullValue);
+        // empty OR false AND 2/0
+        TEST_EXPR(empty OR false AND true XOR empty XOR null AND 2 / 0, Value::kEmpty);
+        TEST_EXPR(empty AND true XOR empty XOR null AND 2 / 0, Value::kNullValue);
+        TEST_EXPR(empty OR false AND true XOR empty OR null AND 2 / 0, Value::kNullDivByZero);
+        TEST_EXPR(empty OR false AND empty XOR empty OR null, Value::kNullValue);
+    }
 }
 
 TEST_F(ExpressionTest, LiteralConstantsRelational) {
@@ -641,7 +740,7 @@ TEST_F(ExpressionTest, FunctionCallTest) {
         TEST_FUNCTION(rtrim, args_["trim"], " abc");
     }
     {
-        TEST_FUNCTION(substr, args_["substr"], "bcde");
+        TEST_FUNCTION(substr, args_["substr"], "cdef");
         TEST_FUNCTION(left, args_["side"], "abcde");
         TEST_FUNCTION(right, args_["side"], "mnopq");
         TEST_FUNCTION(left, args_["neg_side"], "");
@@ -650,6 +749,44 @@ TEST_F(ExpressionTest, FunctionCallTest) {
         TEST_FUNCTION(lpad, args_["pad"], "1231abcdefghijkl");
         TEST_FUNCTION(rpad, args_["pad"], "abcdefghijkl1231");
         TEST_FUNCTION(udf_is_in, args_["udf_is_in"], true);
+    }
+    {
+        // hasSameEdgeInPath
+        Path path;
+        path.src.vid = "1";
+        STEP("2", "edge", 0, 1);
+        STEP("1", "edge", 0, -1);
+        TEST_FUNCTION(hasSameEdgeInPath, {path}, true);
+    }
+    {
+        // hasSameEdgeInPath
+        Path path;
+        path.src.vid = "0";
+        Step step1, step2, step3;
+        STEP("2", "edge", 0, 1);
+        STEP("1", "edge", 0, -1);
+        STEP("2", "edge", 0, 1);
+        TEST_FUNCTION(hasSameEdgeInPath, {path}, true);
+    }
+    {
+        // hasSameEdgeInPath
+        Path path;
+        path.src.vid = "0";
+        Step step1, step2, step3;
+        STEP("2", "edge", 0, 1);
+        STEP("1", "edge", 0, 1);
+        STEP("2", "edge", 0, 1);
+        TEST_FUNCTION(hasSameEdgeInPath, {path}, false);
+    }
+    {
+        // hasSameEdgeInPath
+        Path path;
+        path.src.vid = "0";
+        Step step1, step2, step3;
+        STEP("2", "edge", 0, 1);
+        STEP("1", "edge", 0, -1);
+        STEP("2", "edge", 1, 1);
+        TEST_FUNCTION(hasSameEdgeInPath, {path}, false);
     }
 }
 
@@ -978,7 +1115,7 @@ TEST_F(ExpressionTest, toStringTest) {
     }
     {
         ConstantExpression ep(Date(1234));
-        EXPECT_EQ(ep.toString(), "-32765/05/19");
+        EXPECT_EQ(ep.toString(), "-32765-05-19");
     }
     {
         ConstantExpression ep(Edge("100", "102", 2, "like", 3, {{"likeness", 95}}));
@@ -1868,6 +2005,117 @@ TEST_F(ExpressionTest, TypeCastTest) {
     }
 }
 
+TEST_F(ExpressionTest, RelationRegexMatch) {
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("abcd\xA3g1234efgh\x49ijkl"),
+                new ConstantExpression("\\w{4}\xA3g12\\d*e\\w+\x49\\w+"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("Tony Parker"),
+                new ConstantExpression("T.*er"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("010-12345"),
+                new ConstantExpression("\\d{3}\\-\\d{3,8}"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("test_space_128"),
+                new ConstantExpression("[a-zA-Z_][0-9a-zA-Z_]{0,19}"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("2001-09-01 08:00:00"),
+                new ConstantExpression("\\d+\\-0\\d?\\-\\d+\\s\\d+:00:\\d+"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("jack138tom发."),
+                new ConstantExpression("j\\w*\\d+\\w+\u53d1\\."));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("jack138tom\u53d1.34数数数"),
+                new ConstantExpression("j\\w*\\d+\\w+发\\.34[\u4e00-\u9fa5]+"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("a good person"),
+                new ConstantExpression("a\\s\\w+"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("Tony Parker"),
+                new ConstantExpression("T\\w+\\s?\\P\\d+"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("010-12345"),
+                new ConstantExpression("\\d?\\-\\d{3,8}"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("test_space_128牛"),
+                new ConstantExpression("[a-zA-Z_][0-9a-zA-Z_]{0,19}"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("2001-09-01 08:00:00"),
+                new ConstantExpression("\\d+\\s\\d+:00:\\d+"));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+}
+
 TEST_F(ExpressionTest, RelationContains) {
     {
         // "abc" contains "a"
@@ -2605,7 +2853,7 @@ TEST_F(ExpressionTest, TestExprClone) {
     ASSERT_EQ(attrExpr, *attrExpr.clone());
 
     LabelAttributeExpression labelAttrExpr(new LabelExpression(new std::string("label")),
-                                           new LabelExpression(new std::string("prop")));
+                                           new ConstantExpression("prop"));
     ASSERT_EQ(labelAttrExpr, *labelAttrExpr.clone());
 
     TypeCastingExpression typeCastExpr(Value::Type::STRING, new ConstantExpression(100));
@@ -2732,13 +2980,77 @@ TEST_F(ExpressionTest, PathBuild) {
     }
     {
         PathBuildExpression expr;
+
         expr.add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
                                                               new std::string("path_src")))
             .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
                                                               new std::string("path_edge1")));
         auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-        EXPECT_EQ(eval, Value::kNullValue);
+        EXPECT_EQ(eval.type(), Value::Type::PATH);
+    }
+
+    auto varPropExpr = [](const std::string &name) {
+        auto var1 = std::make_unique<std::string>("var1");
+        auto prop = std::make_unique<std::string>(name);
+        return std::make_unique<VariablePropertyExpression>(var1.release(), prop.release());
+    };
+
+    {
+        auto expr0 = std::make_unique<PathBuildExpression>();
+        expr0->add(varPropExpr("path_src"));
+        auto expr = std::make_unique<PathBuildExpression>();
+        expr->add(std::move(expr0));
+        expr->add(varPropExpr("path_edge1"));
+
+        {
+            // Test: Path + Edge
+            auto result = Expression::eval(expr.get(), gExpCtxt);
+            EXPECT_EQ(result.type(), Value::Type::PATH);
+            const auto &path = result.getPath();
+            EXPECT_EQ(path.steps.size(), 1);
+            EXPECT_EQ(path.steps.back().dst.vid, "2");
+        }
+
+        auto expr1 = std::make_unique<PathBuildExpression>();
+        expr1->add(varPropExpr("path_v1"));
+        expr->add(std::move(expr1));
+
+        {
+            // Test: Path + Edge + Path
+            auto result = Expression::eval(expr.get(), gExpCtxt);
+            EXPECT_EQ(result.type(), Value::Type::PATH);
+            const auto &path = result.getPath();
+            EXPECT_EQ(path.steps.size(), 1);
+            EXPECT_EQ(path.steps.back().dst.vid, "2");
+        }
+
+        expr->add(varPropExpr("path_edge2"));
+
+        {
+            // Test: Path + Edge + Path + Edge
+            auto result = Expression::eval(expr.get(), gExpCtxt);
+            EXPECT_EQ(result.type(), Value::Type::PATH);
+            const auto &path = result.getPath();
+            EXPECT_EQ(path.steps.size(), 2);
+            EXPECT_EQ(path.steps.back().dst.vid, "3");
+        }
+
+        auto pathExpr2 = std::make_unique<PathBuildExpression>();
+        pathExpr2->add(varPropExpr("path_v2"));
+        pathExpr2->add(varPropExpr("path_edge3"));
+
+        auto pathExpr3 = std::make_unique<PathBuildExpression>();
+        pathExpr3->add(std::move(expr));
+        pathExpr3->add(std::move(pathExpr2));
+
+        {
+            // Test: Path + Path
+            auto result = Expression::eval(pathExpr3.get(), gExpCtxt);
+            EXPECT_EQ(result.type(), Value::Type::PATH);
+            const auto &path = result.getPath();
+            EXPECT_EQ(path.steps.size(), 3);
+            EXPECT_EQ(path.steps.back().dst.vid, "4");
+        }
     }
 }
 
@@ -2752,6 +3064,53 @@ TEST_F(ExpressionTest, PathBuildToString) {
             .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
                                                               new std::string("path_v1")));
         EXPECT_EQ(expr.toString(), "PathBuild[$var1.path_src,$var1.path_edge1,$var1.path_v1]");
+    }
+}
+
+TEST_F(ExpressionTest, ColumnExpression) {
+    {
+        ColumnExpression expr(2);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 3);
+    }
+    {
+        ColumnExpression expr(0);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 1);
+    }
+    {
+        ColumnExpression expr(-1);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 8);
+    }
+    {
+        ColumnExpression expr(-3);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::INT);
+        EXPECT_EQ(eval, 6);
+    }
+    {
+        ColumnExpression expr(8);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        ColumnExpression expr(-8);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        ColumnExpression expr(10);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval, Value::kNullBadType);
+    }
+    {
+        ColumnExpression expr(-10);
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval, Value::kNullBadType);
     }
 }
 

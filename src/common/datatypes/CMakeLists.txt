@@ -9,6 +9,11 @@ nebula_add_library(
     Path.cpp
     Value.cpp
     HostAddr.cpp
+    Edge.cpp
+    Vertex.cpp
+    Map.cpp
+    List.cpp
+    Set.cpp
 )
 
 nebula_add_subdirectory(test)

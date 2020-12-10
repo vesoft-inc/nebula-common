@@ -46,6 +46,7 @@ using NameIndexMap = std::unordered_map<std::pair<GraphSpaceID, std::string>, In
 // Get Index Structure by indexID
 using Indexes = std::unordered_map<IndexID, std::shared_ptr<cpp2::IndexItem>>;
 
+// Listeners is a map of ListenerHost => <PartId + type>, used to add/remove listener on local host
 using Listeners = std::unordered_map<HostAddr,
                                      std::vector<std::pair<PartitionID, cpp2::ListenerType>>>;
 
@@ -92,12 +93,15 @@ using UserPasswordMap = std::unordered_map<std::string, std::string>;
 using MetaConfigMap = std::unordered_map<std::pair<cpp2::ConfigModule, std::string>,
                                          cpp2::ConfigItem>;
 
+// get fulltext services
+using FulltextClientsList = std::vector<cpp2::FTClient>;
+
 class MetaChangedListener {
 public:
     virtual ~MetaChangedListener() = default;
 
-    virtual void onSpaceAdded(GraphSpaceID spaceId) = 0;
-    virtual void onSpaceRemoved(GraphSpaceID spaceId) = 0;
+    virtual void onSpaceAdded(GraphSpaceID spaceId, bool isListener = false) = 0;
+    virtual void onSpaceRemoved(GraphSpaceID spaceId, bool isListener = false) = 0;
     virtual void onSpaceOptionUpdated(
         GraphSpaceID spaceId,
         const std::unordered_map<std::string, std::string>& options) = 0;
@@ -106,6 +110,15 @@ public:
     virtual void onPartUpdated(const PartHosts& partHosts) = 0;
     virtual void fetchLeaderInfo(
         std::unordered_map<GraphSpaceID, std::vector<PartitionID>>& leaderIds) = 0;
+    virtual void onListenerAdded(GraphSpaceID spaceId,
+                                 PartitionID partId,
+                                 const ListenerHosts& listenerHosts) = 0;
+    virtual void onListenerRemoved(GraphSpaceID spaceId,
+                                   PartitionID partId,
+                                   cpp2::ListenerType type) = 0;
+    virtual void onCheckRemoteListeners(GraphSpaceID spaceId,
+                                        PartitionID partId,
+                                        const std::vector<HostAddr>& remoteListeners) = 0;
 };
 
 
@@ -376,25 +389,37 @@ public:
     StatusOr<std::vector<std::pair<PartitionID, cpp2::ListenerType>>>
     getListenersBySpaceHostFromCache(GraphSpaceID spaceId, const HostAddr& host);
 
-    StatusOr<std::map<GraphSpaceID, std::vector<std::pair<PartitionID, cpp2::ListenerType>>>>
-    getListenersByHostFromCache(const HostAddr& host);
+    StatusOr<ListenersMap> getListenersByHostFromCache(const HostAddr& host);
 
-    StatusOr<std::vector<HostAddr>>
-    getListenerHostsBySpacePartType(GraphSpaceID spaceId,
-                                    PartitionID partId,
-                                    cpp2::ListenerType type);
+    StatusOr<HostAddr> getListenerHostsBySpacePartType(GraphSpaceID spaceId,
+                                                       PartitionID partId,
+                                                       cpp2::ListenerType type);
 
-    StatusOr<std::vector<std::pair<HostAddr, cpp2::ListenerType>>>
+    StatusOr<std::vector<RemoteListenerInfo>>
     getListenerHostTypeBySpacePartType(GraphSpaceID spaceId, PartitionID partId);
+
+    // Operations for fulltext services
+    folly::Future<StatusOr<bool>>
+    signInFTService(cpp2::FTServiceType type, const std::vector<cpp2::FTClient>& clients);
+
+    folly::Future<StatusOr<bool>> signOutFTService();
+
+    folly::Future<StatusOr<std::vector<cpp2::FTClient>>> listFTClients();
+
+    StatusOr<std::vector<cpp2::FTClient>> getFTClientsFromCache();
 
     // Opeartions for cache.
     StatusOr<GraphSpaceID> getSpaceIdByNameFromCache(const std::string& name);
+
+    StatusOr<std::string> getSpaceNameByIdFromCache(GraphSpaceID spaceId);
 
     StatusOr<int32_t> getSpaceVidLen(const GraphSpaceID& space);
 
     StatusOr<cpp2::PropertyType> getSpaceVidType(const GraphSpaceID& space);
 
     StatusOr<meta::cpp2::SpaceDesc> getSpaceDesc(const GraphSpaceID& space);
+
+    StatusOr<meta::cpp2::IsolationLevel> getIsolationLevel(GraphSpaceID spaceId);
 
     StatusOr<TagID> getTagIDByNameFromCache(const GraphSpaceID& space,
                                             const std::string& name);
@@ -557,6 +582,8 @@ protected:
 
     bool loadListeners(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCache> cache);
 
+    bool loadFulltextClients();
+
     folly::Future<StatusOr<bool>> heartbeat();
 
     std::unordered_map<HostAddr, std::vector<PartitionID>> reverse(const PartsAlloc& parts);
@@ -575,7 +602,13 @@ protected:
         }
     }
 
+    // part diff
     void diff(const LocalCache& oldCache, const LocalCache& newCache);
+
+    void listenerDiff(const LocalCache& oldCache, const LocalCache& newCache);
+
+    // add remote listener as part peers
+    void loadRemoteListeners();
 
     template<typename RESP>
     Status handleResponse(const RESP& resp);
@@ -601,6 +634,8 @@ protected:
     std::vector<SpaceIdName> toSpaceIdName(const std::vector<cpp2::IdName>& tIdNames);
 
     PartsMap doGetPartsMap(const HostAddr& host, const LocalCache& localCache);
+
+    ListenersMap doGetListenersMap(const HostAddr& host, const LocalCache& localCache);
 
 private:
     std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool_;
@@ -634,9 +669,12 @@ private:
 
     NameIndexMap          tagNameIndexMap_;
     NameIndexMap          edgeNameIndexMap_;
+    FulltextClientsList   fulltextClientList_;
 
     mutable folly::RWSpinLock     localCacheLock_;
+    // The listener_ is the NebulaStore
     MetaChangedListener*  listener_{nullptr};
+    // The lock used to protect listener_
     folly::RWSpinLock     listenerLock_;
     std::atomic<ClusterID> clusterId_{0};
     bool                  isRunning_{false};
