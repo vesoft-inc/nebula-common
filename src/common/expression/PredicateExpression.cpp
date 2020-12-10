@@ -131,15 +131,12 @@ void PredicateExpression::writeTo(Encoder& encoder) const {
 }
 
 void PredicateExpression::resetFrom(Decoder& decoder) {
-    bool hasFilter = decoder.readValue().getBool();
     bool hasString = decoder.readValue().getBool();
 
     name_ = decoder.readStr();
     innerVar_ = decoder.readStr();
     collection_ = decoder.readExpression();
-    if (hasFilter) {
-        filter_ = decoder.readExpression();
-    }
+    filter_ = decoder.readExpression();
     if (hasString) {
         originString_ = decoder.readStr();
     }
