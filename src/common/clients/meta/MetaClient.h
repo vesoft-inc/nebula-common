@@ -433,6 +433,8 @@ public:
 
     StatusOr<meta::cpp2::SpaceDesc> getSpaceDesc(const GraphSpaceID& space);
 
+    StatusOr<meta::cpp2::IsolationLevel> getIsolationLevel(GraphSpaceID spaceId);
+
     StatusOr<TagID> getTagIDByNameFromCache(const GraphSpaceID& space,
                                             const std::string& name);
 
@@ -639,7 +641,7 @@ protected:
                      RemoteFunc remoteFunc,
                      RespGenerator respGen,
                      folly::Promise<StatusOr<Response>> pro,
-                     bool toLeader = false,
+                     bool toLeader = true,
                      int32_t retry = 0,
                      int32_t retryLimit = FLAGS_meta_client_retry_times);
 
