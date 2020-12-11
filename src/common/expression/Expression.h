@@ -59,6 +59,7 @@ public:
         kTypeCasting,
 
         kFunctionCall,
+        kAggregate,
 
         kTagProperty,
         kEdgeProperty,

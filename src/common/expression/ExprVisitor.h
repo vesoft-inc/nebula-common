@@ -7,8 +7,11 @@
 #ifndef EXPRESSION_EXPRVISITOR_H_
 #define EXPRESSION_EXPRVISITOR_H_
 
+#include "AggregateExpression.h"
 #include "common/expression/ArithmeticExpression.h"
 #include "common/expression/AttributeExpression.h"
+#include "common/expression/CaseExpression.h"
+#include "common/expression/ColumnExpression.h"
 #include "common/expression/ConstantExpression.h"
 #include "common/expression/ContainerExpression.h"
 #include "common/expression/EdgeExpression.h"
@@ -25,8 +28,6 @@
 #include "common/expression/UnaryExpression.h"
 #include "common/expression/VariableExpression.h"
 #include "common/expression/VertexExpression.h"
-#include "common/expression/CaseExpression.h"
-#include "common/expression/ColumnExpression.h"
 
 namespace nebula {
 
@@ -47,6 +48,8 @@ public:
     virtual void visit(LogicalExpression *expr) = 0;
     // function call
     virtual void visit(FunctionCallExpression *expr) = 0;
+    // TODO : impl AggExpr visitor
+//    virtual void visit(AggregateExpression *expr) = 0;
     virtual void visit(UUIDExpression *expr) = 0;
     // variable expression
     virtual void visit(VariableExpression *expr) = 0;

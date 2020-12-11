@@ -16,6 +16,7 @@
 #include "common/datatypes/Vertex.h"
 #include "common/expression/ArithmeticExpression.h"
 #include "common/expression/AttributeExpression.h"
+#include "common/expression/AggregateExpression.h"
 #include "common/expression/ConstantExpression.h"
 #include "common/expression/ContainerExpression.h"
 #include "common/expression/EdgeExpression.h"
@@ -199,6 +200,37 @@ protected:
         auto eval = Expression::eval(&functionCall, gExpCtxt);
         // EXPECT_EQ(eval.type(), expected.type());
         EXPECT_EQ(eval, expected);
+    }
+
+    void testAggExpr(const char* name,
+                     const bool isDistinct,
+                     const char* expr,
+                     std::vector<std::pair<std::string, Value>> inputVar,
+                     const std::unordered_map<std::string, Value> &expected) {
+        auto agg = new std::string(name);
+        auto func = new std::string(expr);
+        FunctionCallExpression* funcExpr = new FunctionCallExpression(func);
+        AggregateExpression aggExpr(agg, funcExpr, isDistinct);
+        std::unordered_map<std::string, std::unique_ptr<AggData>> agg_data_map;
+        for (auto row : inputVar) {
+            auto iter = agg_data_map.find(row.first);
+            if (iter == agg_data_map.end()) {
+                agg_data_map[row.first] = std::make_unique<AggData>();
+            }
+            auto args = std::make_unique<ArgumentList>(1);
+            args->addArgument(std::make_unique<ConstantExpression>(row.second));
+            funcExpr->setArgs(std::move(args).release());
+            aggExpr.setAggData(agg_data_map[row.first].get());
+            auto eval = aggExpr.eval(gExpCtxt);
+            if (eval.isBadNull()) {
+                assert(false);
+            }
+        }
+        std::unordered_map<std::string, Value> res;
+        for (auto& iter : agg_data_map) {
+            res[iter.first] = iter.second->res();
+        }
+        EXPECT_EQ(res, expected);
     }
 };
 
@@ -3111,6 +3143,162 @@ TEST_F(ExpressionTest, ColumnExpression) {
         ColumnExpression expr(-10);
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval, Value::kNullBadType);
+    }
+}
+
+TEST_F(ExpressionTest, AggregateExpression) {
+    std::vector<std::pair<std::string, Value>> input_dataset =
+        {{"a", -1},
+         {"c", Value::kNullValue},
+         {"a", Value::kEmpty},
+         {"b", 4},
+         {"c", 3},
+         {"a", 3},
+         {"b", Value::kNullValue},
+         {"a", Value::kEmpty},
+         {"c", -8},
+         {"c", 5},
+         {"a", Value::kNullValue},
+         {"c", Value::kEmpty},
+         {"c", 8}};
+    {
+        testAggExpr("COUNT", false, "abs", input_dataset,
+                    {{"a", 2},
+                     {"b", 1},
+                     {"c", 4}});
+        testAggExpr("COUNT", true, "abs", input_dataset,
+                    {{"a", 2},
+                     {"b", 1},
+                     {"c", 3}});
+    }
+    {
+        testAggExpr("SUM", false, "abs", input_dataset,
+                    {{"a", 4},
+                     {"b", 4},
+                     {"c", 24}});
+        testAggExpr("SUM", true, "abs", input_dataset,
+                    {{"a", 4},
+                     {"b", 4},
+                     {"c", 16}});
+    }
+    {
+        testAggExpr("AVG", false, "abs", input_dataset,
+                    {{"a", 2},
+                     {"b", 4},
+                     {"c", 6}});
+        testAggExpr("AVG", true, "abs", input_dataset,
+                    {{"a", 2},
+                     {"b", 4},
+                     {"c", 16.0/3}});
+    }
+    {
+        testAggExpr("MIN", false, "abs", input_dataset,
+                    {{"a", 1},
+                     {"b", 4},
+                     {"c", 3}});
+        testAggExpr("MIN", true, "abs", input_dataset,
+                    {{"a", 1},
+                     {"b", 4},
+                     {"c", 3}});
+    }
+    {
+        testAggExpr("MAX", false, "abs", input_dataset,
+                    {{"a", 3},
+                     {"b", 4},
+                     {"c", 8}});
+        testAggExpr("MAX", true, "abs", input_dataset,
+                    {{"a", 3},
+                     {"b", 4},
+                     {"c", 8}});
+    }
+    {
+        testAggExpr("COLLECT", false, "abs", input_dataset,
+                    {{"a", Value(List({1, 3}))},
+                     {"b", Value(List({4}))},
+                     {"c", Value(List({3, 8, 5, 8}))}});
+        testAggExpr("COLLECT", true, "abs", input_dataset,
+                    {{"a", List({1, 3})},
+                     {"b", List({4})},
+                     {"c", List({3, 8, 5})}});
+    }
+    {
+        std::unordered_map<std::string, Value> expected;
+        expected["b"] = Set({4});
+        expected["a"] = Set({1, 3});
+        expected["c"] = Set({3, 8, 5});
+        // TODO : unordered_map compare failed
+        // testAggExpr("COLLECT_SET", false, "abs", input_dataset, expected);
+        // testAggExpr("COLLECT_SET", true, "abs", input_dataset, expected);
+    }
+    {
+//        std::vector<std::pair<std::string, Value>> stdev_dataset =
+//            {{"a", 0},
+//             {"a", 1},
+//             {"a", 2},
+//             {"a", Value::kNullValue},
+//             {"a", Value::kEmpty},
+//             {"a", 3},
+//             {"a", 4},
+//             {"b", Value::kNullValue},
+//             {"c", Value::kEmpty},
+//             {"a", 5},
+//             {"a", Value::kEmpty},
+//             {"a", 6},
+//             {"a", 7},
+//             {"c", Value::kNullValue},
+//             {"b", 6},
+//             {"c", 7},
+//             {"c", 7},
+//             {"b", Value::kEmpty},
+//             {"a", 8},
+//             {"a", 9}};
+//        testAggExpr(new std::string("STD"), false, new std::string("abs"), stdev_dataset,
+//                    {{"a", 1.0},
+//                     {"b", 0.0},
+//                     {"c", 0.0}});
+//        testAggExpr(new std::string("STD"), true, new std::string("abs"), stdev_dataset,
+//                    {{"a", 1.0},
+//                     {"b", 0.0},
+//                     {"c", 0.0}});
+    }
+    {
+        std::vector<std::pair<std::string, Value>> input_dataset2 =
+            {{"a", 1},
+             {"b", 4},
+             {"c", 3},
+             {"a", 3},
+             {"c", 8},
+             {"c", 5},
+             {"c", 8}};
+        testAggExpr("BIT_AND", false, "hash", input_dataset2,
+                    {{"a", 1},
+                     {"b", 4},
+                     {"c", 0}});
+
+        testAggExpr("BIT_AND", true, "hash", input_dataset2,
+                    {{"a", 1},
+                     {"b", 4},
+                     {"c", 0}});
+
+        testAggExpr("BIT_OR", false, "hash", input_dataset2,
+                    {{"a", 3},
+                     {"b", 4},
+                     {"c", 15}});
+
+        testAggExpr("BIT_OR", true, "hash", input_dataset2,
+                    {{"a", 3},
+                     {"b", 4},
+                     {"c", 15}});
+
+        testAggExpr("BIT_XOR", false, "hash", input_dataset2,
+                    {{"a", 2},
+                     {"b", 4},
+                     {"c", 6}});
+
+        testAggExpr("BIT_XOR", true, "hash", input_dataset2,
+                    {{"a", 2},
+                     {"b", 4},
+                     {"c", 14}});
     }
 }
 
