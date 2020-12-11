@@ -79,6 +79,11 @@ enum ErrorCode {
     E_UNKNOWN        = -99,
 } (cpp.enum_strict)
 
+struct RespHeader {
+    1: ErrorCode        code,
+    // Valid if ret equals E_LEADER_CHANGED.
+    2: common.HostAddr  leader,
+}
 
 enum AlterSchemaOp {
     ADD    = 0x01,
@@ -266,11 +271,9 @@ struct RoleItem {
 }
 
 struct ExecResp {
-    1: ErrorCode        code,
+    1: RespHeader       header,
     // For custom kv operations, it is useless.
     2: ID               id,
-    // Valid if ret equals E_LEADER_CHANGED.
-    3: common.HostAddr  leader,
 }
 
 // Job related data structures
@@ -341,9 +344,8 @@ struct AdminJobResult {
 }
 
 struct AdminJobResp {
-    1: ErrorCode                    code
-    2: common.HostAddr              leader
-    3: AdminJobResult               result
+    1: RespHeader                   header,
+    2: AdminJobResult               result
 }
 
 struct StatisItem {
@@ -375,10 +377,8 @@ struct ListSpacesReq {
 }
 
 struct ListSpacesResp {
-    1: ErrorCode        code,
-    // Valid if ret equals E_LEADER_CHANGED.
-    2: common.HostAddr  leader,
-    3: list<IdName>     spaces,
+    1: RespHeader       header,
+    2: list<IdName>     spaces,
 }
 
 struct GetSpaceReq {
@@ -386,9 +386,8 @@ struct GetSpaceReq {
 }
 
 struct GetSpaceResp {
-    1: ErrorCode         code,
-    2: common.HostAddr   leader,
-    3: SpaceItem         item,
+    1: RespHeader        header,
+    2: SpaceItem         item,
 }
 
 // Tags related operations
@@ -417,10 +416,8 @@ struct ListTagsReq {
 }
 
 struct ListTagsResp {
-    1: ErrorCode        code,
-    // Valid if ret equals E_LEADER_CHANGED.
-    2: common.HostAddr  leader,
-    3: list<TagItem>    tags,
+    1: RespHeader        header,
+    2: list<TagItem>    tags,
 }
 
 struct GetTagReq {
@@ -430,9 +427,8 @@ struct GetTagReq {
 }
 
 struct GetTagResp {
-    1: ErrorCode        code,
-    2: common.HostAddr  leader,
-    3: Schema           schema,
+    1: RespHeader        header,
+    2: Schema            schema,
 }
 
 // Edge related operations.
@@ -457,9 +453,8 @@ struct GetEdgeReq {
 }
 
 struct GetEdgeResp {
-    1: ErrorCode        code,
-    2: common.HostAddr  leader,
-    3: Schema           schema,
+    1: RespHeader       header,
+    2: Schema           schema,
 }
 
 struct DropEdgeReq {
@@ -473,10 +468,8 @@ struct ListEdgesReq {
 }
 
 struct ListEdgesResp {
-    1: ErrorCode        code,
-    // Valid if ret equals E_LEADER_CHANGED.
-    2: common.HostAddr  leader,
-    3: list<EdgeItem>   edges,
+    1: RespHeader       header,
+    2: list<EdgeItem>   edges,
 }
 
 enum ListHostType {
@@ -492,10 +485,8 @@ struct ListHostsReq {
 }
 
 struct ListHostsResp {
-    1: ErrorCode        code,
-    // Valid if ret equals E_LEADER_CHANGED.
-    2: common.HostAddr  leader,
-    3: list<HostItem>   hosts,
+    1: RespHeader       header,
+    2: list<HostItem>   hosts,
 }
 
 struct PartItem {
@@ -511,9 +502,8 @@ struct ListPartsReq {
 }
 
 struct ListPartsResp {
-    1: ErrorCode       code,
-    2: common.HostAddr leader,
-    3: list<PartItem>  parts,
+    1: RespHeader       header,
+    2: list<PartItem>   parts,
 }
 
 struct GetPartsAllocReq {
@@ -521,10 +511,8 @@ struct GetPartsAllocReq {
 }
 
 struct GetPartsAllocResp {
-    1: ErrorCode        code,
-    // Valid if ret equals E_LEADER_CHANGED.
-    2: common.HostAddr  leader,
-    3: map<common.PartitionID, list<common.HostAddr>>(cpp.template = "std::unordered_map") parts,
+    1: RespHeader       header,
+    2: map<common.PartitionID, list<common.HostAddr>>(cpp.template = "std::unordered_map") parts,
 }
 
 struct MultiPutReq {
@@ -540,9 +528,8 @@ struct GetReq {
 }
 
 struct GetResp {
-    1: ErrorCode        code,
-    2: common.HostAddr  leader,
-    3: binary           value,
+    1: RespHeader       header,
+    2: binary           value,
 }
 
 struct MultiGetReq {
@@ -551,9 +538,8 @@ struct MultiGetReq {
 }
 
 struct MultiGetResp {
-    1: ErrorCode        code,
-    2: common.HostAddr  leader,
-    3: list<binary>     values,
+    1: RespHeader       header,
+    2: list<binary>     values,
 }
 
 struct RemoveReq {
@@ -574,16 +560,14 @@ struct ScanReq {
 }
 
 struct ScanResp {
-    1: ErrorCode        code,
-    2: common.HostAddr  leader,
-    3: list<binary>     values,
+    1: RespHeader       header,
+    2: list<binary>     values,
 }
 
 struct HBResp {
-    1: ErrorCode        code,
-    2: common.HostAddr  leader,
-    3: ClusterID        cluster_id,
-    4: i64              last_update_time_in_ms,
+    1: RespHeader       header,
+    2: ClusterID        cluster_id,
+    3: i64              last_update_time_in_ms,
 }
 
 enum HostRole {
@@ -629,9 +613,8 @@ struct GetTagIndexReq {
 }
 
 struct GetTagIndexResp {
-    1: ErrorCode			code,
-    2: common.HostAddr      leader,
-    3: IndexItem           	item,
+    1: RespHeader           header,
+    2: IndexItem           	item,
 }
 
 struct ListTagIndexesReq {
@@ -639,9 +622,8 @@ struct ListTagIndexesReq {
 }
 
 struct ListTagIndexesResp {
-    1: ErrorCode            code,
-    2: common.HostAddr      leader,
-    3: list<IndexItem>		items,
+    1: RespHeader           header,
+    2: list<IndexItem>		items,
 }
 
 struct CreateEdgeIndexReq {
@@ -664,9 +646,8 @@ struct GetEdgeIndexReq {
 }
 
 struct GetEdgeIndexResp {
-    1: ErrorCode            code,
-    2: common.HostAddr      leader,
-    3: IndexItem          	item,
+    1: RespHeader           header,
+    2: IndexItem          	item,
 }
 
 struct ListEdgeIndexesReq {
@@ -674,9 +655,8 @@ struct ListEdgeIndexesReq {
 }
 
 struct ListEdgeIndexesResp {
-    1: ErrorCode            code,
-    2: common.HostAddr      leader,
-    3: list<IndexItem>    	items,
+    1: RespHeader           header,
+    2: list<IndexItem>    	items,
 }
 
 struct RebuildIndexReq {
@@ -712,11 +692,9 @@ struct ListUsersReq {
 }
 
 struct ListUsersResp {
-    1: ErrorCode code,
-    // Valid if ret equals E_LEADER_CHANGED.
-    2: common.HostAddr  leader,
+    1: RespHeader                                                header,
     // map<account, encoded password>
-    3: map<binary, binary> (cpp.template = "std::unordered_map") users,
+    2: map<binary, binary> (cpp.template = "std::unordered_map") users,
 }
 
 struct ListRolesReq {
@@ -724,10 +702,8 @@ struct ListRolesReq {
 }
 
 struct ListRolesResp {
-    1: ErrorCode        code,
-    // Valid if ret equals E_LEADER_CHANGED.
-    2: common.HostAddr  leader,
-    3: list<RoleItem>   roles,
+    1: RespHeader       header,
+    2: list<RoleItem>   roles,
 }
 
 struct GetUserRolesReq {
@@ -762,11 +738,9 @@ struct BalanceTask {
 }
 
 struct BalanceResp {
-    1: ErrorCode        code,
-    2: i64              id,
-    // Valid if code equals E_LEADER_CHANGED.
-    3: common.HostAddr  leader,
-    4: list<BalanceTask> tasks,
+    1: RespHeader        header,
+    2: i64               id,
+    3: list<BalanceTask> tasks,
 }
 
 struct LeaderBalanceReq {
@@ -803,9 +777,8 @@ struct GetConfigReq {
 }
 
 struct GetConfigResp {
-    1: ErrorCode            code,
-    2: common.HostAddr      leader,
-    3: list<ConfigItem>     items,
+    1: RespHeader           header,
+    2: list<ConfigItem>     items,
 }
 
 struct SetConfigReq {
@@ -818,9 +791,8 @@ struct ListConfigsReq {
 }
 
 struct ListConfigsResp {
-    1: ErrorCode            code,
-    2: common.HostAddr      leader,
-    3: list<ConfigItem>     items,
+    1: RespHeader           header,
+    2: list<ConfigItem>     items,
 }
 
 struct CreateSnapshotReq {
@@ -840,10 +812,8 @@ struct Snapshot {
 }
 
 struct ListSnapshotsResp {
-    1: ErrorCode            code,
-    // Valid if code equals E_LEADER_CHANGED.
-    2: common.HostAddr      leader,
-    3: list<Snapshot>       snapshots,
+    1: RespHeader           header,
+    2: list<Snapshot>       snapshots,
 }
 
 struct ListIndexStatusReq {
@@ -856,9 +826,8 @@ struct IndexStatus {
 }
 
 struct ListIndexStatusResp {
-    1: ErrorCode            code,
-    2: common.HostAddr      leader,
-    3: list<IndexStatus>    statuses,
+    1: RespHeader           header,
+    2: list<IndexStatus>    statuses,
 }
 
 // Zone related interface
@@ -886,9 +855,8 @@ struct GetZoneReq {
 }
 
 struct GetZoneResp {
-    1: ErrorCode              code,
-    2: common.HostAddr        leader,
-    3: list<common.HostAddr>  hosts,
+    1: RespHeader             header,
+    2: list<common.HostAddr>  hosts,
 }
 
 struct ListZonesReq {
@@ -900,9 +868,8 @@ struct Zone {
 }
 
 struct ListZonesResp {
-    1: ErrorCode        code,
-    2: common.HostAddr  leader,
-    3: list<Zone>       zones,
+    1: RespHeader       header,
+    2: list<Zone>       zones,
 }
 
 struct AddGroupReq {
@@ -929,9 +896,8 @@ struct GetGroupReq {
 }
 
 struct GetGroupResp {
-    1: ErrorCode             code,
-    2: common.HostAddr       leader,
-    3: list<binary>          zone_names,
+    1: RespHeader       header,
+    2: list<binary>     zone_names,
 }
 
 struct ListGroupsReq {
@@ -943,9 +909,8 @@ struct Group {
 }
 
 struct ListGroupsResp {
-    1: ErrorCode        code,
-    2: common.HostAddr  leader,
-    3: list<Group>      groups,
+    1: RespHeader       header,
+    2: list<Group>      groups,
 }
 
 enum ListenerType {
@@ -976,9 +941,8 @@ struct ListenerInfo {
 }
 
 struct ListListenerResp {
-    1: ErrorCode               code,
-    2: common.HostAddr         leader,
-    3: list<ListenerInfo>      listeners,
+    1: RespHeader              header,
+    2: list<ListenerInfo>      listeners,
 }
 
 struct GetStatisReq {
@@ -986,10 +950,8 @@ struct GetStatisReq {
 }
 
 struct GetStatisResp {
-    1: ErrorCode        code,
-    // Valid if ret equals E_LEADER_CHANGED.
-    2: common.HostAddr  leader,
-    3: StatisItem       statis,
+    1: RespHeader       header,
+    2: StatisItem       statis,
 }
 
 enum FTServiceType {
@@ -1014,9 +976,8 @@ struct ListFTClientsReq {
 }
 
 struct ListFTClientsResp {
-    1: ErrorCode           code,
-    2: common.HostAddr     leader,
-    3: list<FTClient>      clients,
+    1: RespHeader       header,
+    2: list<FTClient>   clients,
 }
 
 service MetaService {

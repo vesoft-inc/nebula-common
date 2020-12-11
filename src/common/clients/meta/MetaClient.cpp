@@ -586,12 +586,12 @@ void MetaClient::getResponse(Request req,
             }
 
             auto&& resp = t.value();
-            if (resp.code == cpp2::ErrorCode::SUCCEEDED) {
+            if (resp.header.code == cpp2::ErrorCode::SUCCEEDED) {
                 // succeeded
                 pro.setValue(respGen(std::move(resp)));
                 return;
-            } else if (resp.code == cpp2::ErrorCode::E_LEADER_CHANGED) {
-                updateLeader(resp.get_leader());
+            } else if (resp.header.code == cpp2::ErrorCode::E_LEADER_CHANGED) {
+                updateLeader(resp.header.get_leader());
                 if (retry < retryLimit) {
                     evb->runAfterDelay([req = std::move(req),
                                         remoteFunc = std::move(remoteFunc),
@@ -631,7 +631,7 @@ MetaClient::toSpaceIdName(const std::vector<cpp2::IdName>& tIdNames) {
 
 template<typename RESP>
 Status MetaClient::handleResponse(const RESP& resp) {
-    switch (resp.get_code()) {
+    switch (resp.header.get_code()) {
         case cpp2::ErrorCode::SUCCEEDED:
             return Status::OK();
         case cpp2::ErrorCode::E_DISCONNECTED:
@@ -711,7 +711,7 @@ Status MetaClient::handleResponse(const RESP& resp) {
         case cpp2::ErrorCode::E_UNKNOWN:
             return Status::Error("unknown!");
         default:
-            return Status::Error("Unknown code %d", static_cast<int32_t>(resp.get_code()));
+            return Status::Error("Unknown code %d", static_cast<int32_t>(resp.header.get_code()));
     }
 }
 
@@ -1030,7 +1030,7 @@ folly::Future<StatusOr<bool>> MetaClient::dropSpace(std::string name,
                     return client->future_dropSpace(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -1214,7 +1214,7 @@ MetaClient::multiPut(std::string segment,
                     return client->future_multiPut(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -1308,7 +1308,7 @@ MetaClient::remove(std::string segment, std::string key) {
                     return client->future_remove(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -1333,7 +1333,7 @@ MetaClient::removeRange(std::string segment, std::string start, std::string end)
                     return client->future_removeRange(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -1457,7 +1457,7 @@ MetaClient::alterTagSchema(GraphSpaceID spaceId,
                     return client->future_alterTag(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -1496,7 +1496,7 @@ MetaClient::dropTagSchema(GraphSpaceID spaceId, std::string tagName, const bool 
                     return client->future_dropTag(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -1566,7 +1566,7 @@ MetaClient::alterEdgeSchema(GraphSpaceID spaceId,
                     return client->future_alterEdge(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -1625,7 +1625,7 @@ MetaClient::dropEdgeSchema(GraphSpaceID spaceId, std::string name, const bool if
                     return client->future_dropEdge(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -1736,7 +1736,7 @@ MetaClient::rebuildTagIndex(GraphSpaceID spaceID,
                     return client->future_rebuildTagIndex(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -1994,7 +1994,7 @@ MetaClient::rebuildEdgeIndex(GraphSpaceID spaceID,
                     return client->future_rebuildEdgeIndex(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2304,7 +2304,7 @@ folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
                     }
                     metadLastUpdateTime_ = resp.get_last_update_time_in_ms();
                     VLOG(1) << "Metad last update time: " << metadLastUpdateTime_;
-                    return true;  // resp.code == cpp2::ErrorCode::SUCCEEDED
+                    return true;  // resp.header.code == cpp2::ErrorCode::SUCCEEDED
                 },
                 std::move(promise),
                 true);
@@ -2325,7 +2325,7 @@ MetaClient::createUser(std::string account, std::string password, bool ifNotExis
                     return client->future_createUser(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2345,7 +2345,7 @@ MetaClient::dropUser(std::string account, bool ifExists) {
                     return client->future_dropUser(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2365,7 +2365,7 @@ MetaClient::alterUser(std::string account, std::string password) {
                     return client->future_alterUser(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2384,7 +2384,7 @@ MetaClient::grantToUser(cpp2::RoleItem roleItem) {
                     return client->future_grantRole(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2403,7 +2403,7 @@ MetaClient::revokeFromUser(cpp2::RoleItem roleItem) {
                     return client->future_revokeRole(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2461,7 +2461,7 @@ MetaClient::changePassword(std::string account,
                     return client->future_changePassword(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2540,7 +2540,7 @@ folly::Future<StatusOr<bool>> MetaClient::balanceLeader() {
                     return client->future_leaderBalance(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2612,7 +2612,7 @@ MetaClient::regConfig(const std::vector<cpp2::ConfigItem>& items) {
                     return client->future_regConfig(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> decltype(auto) {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2662,7 +2662,7 @@ MetaClient::setConfig(const cpp2::ConfigModule& module,
                     return client->future_setConfig(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2697,7 +2697,7 @@ folly::Future<StatusOr<bool>> MetaClient::createSnapshot() {
                     return client->future_createSnapshot(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2715,7 +2715,7 @@ folly::Future<StatusOr<bool>> MetaClient::dropSnapshot(const std::string& name) 
                     return client->future_dropSnapshot(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2752,7 +2752,7 @@ folly::Future<StatusOr<bool>> MetaClient::addListener(GraphSpaceID spaceId,
                     return client->future_addListener(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -2771,7 +2771,7 @@ folly::Future<StatusOr<bool>> MetaClient::removeListener(GraphSpaceID spaceId,
                     return client->future_removeListener(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -3031,7 +3031,7 @@ MetaClient::addZone(std::string zoneName, std::vector<HostAddr> nodes) {
                     return client->future_addZone(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -3050,7 +3050,7 @@ MetaClient::dropZone(std::string zoneName) {
                     return client->future_dropZone(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -3070,7 +3070,7 @@ MetaClient::addHostIntoZone(HostAddr node, std::string zoneName) {
                     return client->future_addHostIntoZone(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -3090,7 +3090,7 @@ MetaClient::dropHostFromZone(HostAddr node, std::string zoneName) {
                     return client->future_dropHostFromZone(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -3144,7 +3144,7 @@ MetaClient::addGroup(std::string groupName, std::vector<std::string> zoneNames) 
                     return client->future_addGroup(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -3163,7 +3163,7 @@ MetaClient::dropGroup(std::string groupName) {
                     return client->future_dropGroup(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -3183,7 +3183,7 @@ MetaClient::addZoneIntoGroup(std::string zoneName, std::string groupName) {
                     return client->future_addZoneIntoGroup(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -3203,7 +3203,7 @@ MetaClient::dropZoneFromGroup(std::string zoneName, std::string groupName) {
                     return client->future_dropZoneFromGroup(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -3274,7 +3274,7 @@ folly::Future<StatusOr<bool>> MetaClient::signInFTService(
                     return client->future_signInFTService(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
@@ -3291,7 +3291,7 @@ folly::Future<StatusOr<bool>> MetaClient::signOutFTService() {
                     return client->future_signOutFTService(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
-                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
+                    return resp.header.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise),
                 true);
