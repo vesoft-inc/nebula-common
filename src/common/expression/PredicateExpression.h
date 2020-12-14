@@ -15,6 +15,13 @@ class PredicateExpression final : public Expression {
     friend class Expression;
 
 public:
+    enum class Type : int8_t {
+        ALL = 0,
+        ANY = 1,
+        SINGLE = 2,
+        NONE = 3,
+    };
+
     explicit PredicateExpression(std::string* name = nullptr,
                                  std::string* innerVar = nullptr,
                                  Expression* collection = nullptr,
@@ -103,6 +110,8 @@ private:
     void writeTo(Encoder& encoder) const override;
 
     void resetFrom(Decoder& decoder) override;
+
+    static std::unordered_map<std::string, Type> typeMap_;
 
     std::unique_ptr<std::string> name_;
     std::unique_ptr<std::string> innerVar_;

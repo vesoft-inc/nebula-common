@@ -9,8 +9,23 @@
 
 namespace nebula {
 
+std::unordered_map<std::string, PredicateExpression::Type> PredicateExpression::typeMap_ = {
+    {"all", Type::ALL},
+    {"any", Type::ANY},
+    {"single", Type::SINGLE},
+    {"none", Type::NONE},
+};
+
 const Value& PredicateExpression::eval(ExpressionContext& ctx) {
-    auto& name = *name_;
+    Type type;
+    auto iter = typeMap_.find(*name_);
+    if (iter != typeMap_.end()) {
+        type = iter->second;
+    } else {
+        result_ = Value::kNullBadType;
+        return result_;
+    }
+
     auto& listVal = collection_->eval(ctx);
     if (listVal.isNull()) {
         result_ = Value::kNullValue;
@@ -22,74 +37,80 @@ const Value& PredicateExpression::eval(ExpressionContext& ctx) {
     }
     auto& list = listVal.getList();
 
-    if (name == "all") {
-        result_ = true;
-        for (size_t i = 0; i < list.size(); ++i) {
-            auto& v = list[i];
-            ctx.setVar(*innerVar_, v);
-            auto& filterVal = filter_->eval(ctx);
-            if (!filterVal.empty() && !filterVal.isNull() && !filterVal.isBool()) {
-                return Value::kNullBadType;
-            }
-            if (filterVal.empty() || filterVal.isNull() || !filterVal.getBool()) {
-                result_ = false;
-                return result_;
-            }
-        }
-        return result_;
-    } else if (name == "any") {
-        result_ = false;
-        for (size_t i = 0; i < list.size(); ++i) {
-            auto& v = list[i];
-            ctx.setVar(*innerVar_, v);
-            auto& filterVal = filter_->eval(ctx);
-            if (!filterVal.empty() && !filterVal.isNull() && !filterVal.isBool()) {
-                return Value::kNullBadType;
-            }
-            if (filterVal.isBool() && filterVal.getBool()) {
-                result_ = true;
-                return result_;
-            }
-        }
-        return result_;
-    } else if (name == "single") {
-        result_ = false;
-        for (size_t i = 0; i < list.size(); ++i) {
-            auto& v = list[i];
-            ctx.setVar(*innerVar_, v);
-            auto& filterVal = filter_->eval(ctx);
-            if (!filterVal.empty() && !filterVal.isNull() && !filterVal.isBool()) {
-                return Value::kNullBadType;
-            }
-            if (filterVal.isBool() && filterVal.getBool()) {
-                if (result_ == false) {
-                    result_ = true;
-                } else {
+    switch (type) {
+        case Type::ALL: {
+            result_ = true;
+            for (size_t i = 0; i < list.size(); ++i) {
+                auto& v = list[i];
+                ctx.setVar(*innerVar_, v);
+                auto& filterVal = filter_->eval(ctx);
+                if (!filterVal.empty() && !filterVal.isNull() && !filterVal.isBool()) {
+                    return Value::kNullBadType;
+                }
+                if (filterVal.empty() || filterVal.isNull() || !filterVal.getBool()) {
                     result_ = false;
                     return result_;
                 }
             }
+            return result_;
         }
-        return result_;
-    } else if (name == "none") {
-        result_ = true;
-        for (size_t i = 0; i < list.size(); ++i) {
-            auto& v = list[i];
-            ctx.setVar(*innerVar_, v);
-            auto& filterVal = filter_->eval(ctx);
-            if (!filterVal.empty() && !filterVal.isNull() && !filterVal.isBool()) {
-                return Value::kNullBadType;
+        case Type::ANY: {
+            result_ = false;
+            for (size_t i = 0; i < list.size(); ++i) {
+                auto& v = list[i];
+                ctx.setVar(*innerVar_, v);
+                auto& filterVal = filter_->eval(ctx);
+                if (!filterVal.empty() && !filterVal.isNull() && !filterVal.isBool()) {
+                    return Value::kNullBadType;
+                }
+                if (filterVal.isBool() && filterVal.getBool()) {
+                    result_ = true;
+                    return result_;
+                }
             }
-            if (filterVal.isBool() && filterVal.getBool()) {
-                result_ = false;
-                return result_;
-            }
+            return result_;
         }
-        return result_;
-    } else {
-        result_ = Value::kNullBadType;
-        return result_;
+        case Type::SINGLE: {
+            result_ = false;
+            for (size_t i = 0; i < list.size(); ++i) {
+                auto& v = list[i];
+                ctx.setVar(*innerVar_, v);
+                auto& filterVal = filter_->eval(ctx);
+                if (!filterVal.empty() && !filterVal.isNull() && !filterVal.isBool()) {
+                    return Value::kNullBadType;
+                }
+                if (filterVal.isBool() && filterVal.getBool()) {
+                    if (result_ == false) {
+                        result_ = true;
+                    } else {
+                        result_ = false;
+                        return result_;
+                    }
+                }
+            }
+            return result_;
+        }
+        case Type::NONE: {
+            result_ = true;
+            for (size_t i = 0; i < list.size(); ++i) {
+                auto& v = list[i];
+                ctx.setVar(*innerVar_, v);
+                auto& filterVal = filter_->eval(ctx);
+                if (!filterVal.empty() && !filterVal.isNull() && !filterVal.isBool()) {
+                    return Value::kNullBadType;
+                }
+                if (filterVal.isBool() && filterVal.getBool()) {
+                    result_ = false;
+                    return result_;
+                }
+            }
+            return result_;
+        }
+        // no default so the compiler will warning when lack
     }
+
+    result_ = Value::kNullBadType;
+    return result_;
 }
 
 bool PredicateExpression::operator==(const Expression& rhs) const {
