@@ -1029,7 +1029,7 @@ struct Session {
     6: common.HostAddr graph_addr,
     7: i32 timezone,
     8: binary client_ip,
-    9: map<binary, common.Value> configs,
+    9: map<binary, common.Value>(cpp.template = "std::unordered_map") configs,
 }
 
 struct CreateSessionReq {
