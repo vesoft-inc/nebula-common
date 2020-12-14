@@ -165,6 +165,34 @@ GraphStorageClient::addEdges(GraphSpaceID space,
 }
 
 folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>>
+GraphStorageClient::getVertexProps(GraphSpaceID space,
+                                   const DataSet& input,
+                                   const std::vector<cpp2::VertexProp>* vertexProps,
+                                   const std::vector<cpp2::Expr>* expressions,
+                                   bool dedup,
+                                   const std::vector<cpp2::OrderBy>& orderBy,
+                                   int64_t limit,
+                                   std::string filter,
+                                   folly::EventBase* evb) {
+    return getProps(space, input, vertexProps, nullptr, expressions,
+                    dedup, orderBy, limit, filter, evb);
+}
+
+folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>>
+GraphStorageClient::getEdgeProps(GraphSpaceID space,
+                                 const DataSet& input,
+                                 const std::vector<cpp2::EdgeProp>* edgeProps,
+                                 const std::vector<cpp2::Expr>* expressions,
+                                 bool dedup,
+                                 const std::vector<cpp2::OrderBy>& orderBy,
+                                 int64_t limit,
+                                 std::string filter,
+                                 folly::EventBase* evb) {
+    return getProps(space, input, nullptr, edgeProps, expressions,
+                    dedup, orderBy, limit, filter, evb);
+}
+
+folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>>
 GraphStorageClient::getProps(GraphSpaceID space,
                              const DataSet& input,
                              const std::vector<cpp2::VertexProp>* vertexProps,
