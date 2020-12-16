@@ -363,7 +363,6 @@ void StorageClientBase<ClientType>::getResponseImpl(
         folly::Promise<StatusOr<Response>> pro,
         std::size_t retry,
         std::size_t retryLimit) {
-    LOG(INFO) << "messi getResponseImpl() retry=" << retry;
     if (evb == nullptr) {
         DCHECK(!!ioThreadPool_);
         evb = ioThreadPool_->getEventBase();
@@ -400,7 +399,6 @@ void StorageClientBase<ClientType>::getResponseImpl(
                         p.setValue(Status::Error(folly::stringPrintf(
                             "RPC failure in StorageClient: %s", t.exception().what().c_str())));
                         invalidLeader(spaceId, partsId);
-                        LOG(INFO) << "messi getResponseImpl() retry=" << retry;
                         return;
                     }
                     auto&& resp = std::move(t.value());
@@ -438,10 +436,8 @@ void StorageClientBase<ClientType>::getResponseImpl(
                                                         retryLimit);
                                     },
                                     FLAGS_storage_client_retry_interval_ms);
-                                LOG(INFO) << "messi getResponseImpl() retry=" << retry;
                                 return;
                             } else {
-                                LOG(INFO) << "messi getResponseImpl() retry=" << retry;
                                 p.setValue(
                                     Status::LeaderChanged("Request to storage retry failed."));
                                 return;
@@ -451,11 +447,9 @@ void StorageClientBase<ClientType>::getResponseImpl(
                             invalidLeader(spaceId, code.get_part_id());
                         }
                     }
-                    LOG(INFO) << "messi getResponseImpl() retry=" << retry;
                     p.setValue(std::move(resp));
                 });
         });   // via
-    LOG(INFO) << "messi getResponseImpl() retry=" << retry;
 }
 
 

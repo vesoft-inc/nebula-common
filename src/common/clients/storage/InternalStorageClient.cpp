@@ -142,7 +142,6 @@ void InternalStorageClient::getValueImpl(GraphSpaceID spaceId,
 
     auto cb = [=, p = std::move(p)](auto&& t) mutable {
         auto code = extractErrorCode(t);
-        LOG(INFO) << "extractErrorCode() code=" << static_cast<int>(code);
         if (code == cpp2::ErrorCode::SUCCEEDED) {
             p.setValue(t.value().value().value);
         } else if (code == cpp2::ErrorCode::E_LEADER_CHANGED) {
