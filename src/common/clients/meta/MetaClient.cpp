@@ -931,7 +931,7 @@ void MetaClient::loadRemoteListeners() {
 
 /// ================================== public methods =================================
 
-StatusOr<PartitionID> MetaClient::partId(GraphSpaceID spaceId, const Value id) const {
+StatusOr<PartitionID> MetaClient::partId(GraphSpaceID spaceId, const VertexID id) const {
     auto status = partsNum(spaceId);
     if (!status.ok()) {
         return Status::Error("Space not found, spaceid: %d", spaceId);
@@ -941,11 +941,11 @@ StatusOr<PartitionID> MetaClient::partId(GraphSpaceID spaceId, const Value id) c
     // If the length of the id is 8, we will treat it as int64_t to be compatible
     // with the version 1.0
     uint64_t vid = 0;
-    if (id.isInt()) {
-        vid = static_cast<uint64_t>(id.getInt());
+    if (id.size() == 8) {
+        memcpy(static_cast<void*>(&vid), id.data(), 8);
     } else {
         MurmurHash2 hash;
-        vid = hash(id.getStr().data());
+        vid = hash(id.data());
     }
     PartitionID pId = vid % numParts + 1;
     CHECK_GT(pId, 0U);
