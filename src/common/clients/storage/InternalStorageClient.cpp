@@ -10,8 +10,6 @@
 namespace nebula {
 namespace storage {
 
-constexpr int32_t kInternalPortOffset = -2;
-
 template <typename T>
 cpp2::ErrorCode extractErrorCode(T& tryResp) {
     if (!tryResp.hasValue()) {

@@ -154,7 +154,7 @@ GraphStorageClient::addEdges(GraphSpaceID space,
         req.set_parts(std::move(c.second));
         req.set_prop_names(std::move(propNames));
     }
-    int32_t portOffsetIfRetry = useToss ? -2 : 0;
+    int32_t portOffsetIfRetry = useToss ? kInternalPortOffset : 0;
     return collectResponse(
         evb,
         std::move(requests),

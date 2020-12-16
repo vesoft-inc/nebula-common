@@ -19,6 +19,7 @@
 DECLARE_int32(storage_client_timeout_ms);
 DECLARE_uint32(storage_client_retry_interval_ms);
 
+constexpr int32_t kInternalPortOffset = -2;
 
 namespace nebula {
 namespace storage {
