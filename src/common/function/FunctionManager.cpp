@@ -1158,14 +1158,7 @@ FunctionManager::FunctionManager() {
             if (!args[0].isVertex()) {
                 return Value::kNullBadType;
             }
-            auto& val = args[0].getVertex().vid;
-            if (val.isInt()) {
-                return val.getInt();
-            }
-            if (val.isStr()) {
-                return val.getStr();
-            }
-            return Value::kNullBadType;
+            return args[0].getVertex().vid;
         };
     }
     {
@@ -1227,14 +1220,7 @@ FunctionManager::FunctionManager() {
             if (!args[0].isEdge()) {
                 return Value::kNullBadType;
             }
-            auto& val = args[0].getEdge().src;
-            if (val.isInt()) {
-                return val.getInt();
-            }
-            if (val.isStr()) {
-                return val.getStr();
-            }
-            return Value::kNullBadType;
+            return args[0].getEdge().src;
         };
     }
     {
@@ -1246,14 +1232,7 @@ FunctionManager::FunctionManager() {
             if (!args[0].isEdge()) {
                 return Value::kNullBadType;
             }
-            auto& val = args[0].getEdge().dst;
-            if (val.isInt()) {
-                return val.getInt();
-            }
-            if (val.isStr()) {
-                return val.getStr();
-            }
-            return Value::kNullBadType;
+            return args[0].getEdge().dst;
         };
     }
     {
