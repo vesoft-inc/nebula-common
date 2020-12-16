@@ -367,89 +367,75 @@ void StorageClientBase<ClientType>::getResponseImpl(
         DCHECK(!!ioThreadPool_);
         evb = ioThreadPool_->getEventBase();
     }
-    folly::via(
-        evb,
-        [evb,
-         request = std::move(request),
-         remoteFunc = std::move(remoteFunc),
-         leaderPortOffset = leaderPortOffset,
-         pro = std::move(pro),
-         retry,
-         retryLimit,
-         this]() mutable {
-            auto host = request.first;
-            auto client = clientsMan_->client(host, evb, false, FLAGS_storage_client_timeout_ms);
-            auto spaceId = request.second.get_space_id();
-            auto partsId = getReqPartsId(request.second);
-            LOG(INFO) << "Send request to storage " << host;
-            remoteFunc(client.get(), std::move(request.second))
-                .via(evb)
-                .then([spaceId,
-                       partsId = std::move(partsId),
-                       p = std::move(pro),
-                       request = std::move(request),
-                       remoteFunc = std::move(remoteFunc),
-                       evb,
-                       retry,
-                       retryLimit,
-                       leaderPortOffset = leaderPortOffset,
-                       this](folly::Try<Response>&& t) mutable {
-                    // exception occurred during RPC
-                    if (t.hasException()) {
-                        p.setValue(Status::Error(folly::stringPrintf(
-                            "RPC failure in StorageClient: %s", t.exception().what().c_str())));
-                        invalidLeader(spaceId, partsId);
+    folly::via(evb, [evb, request = std::move(request), remoteFunc = std::move(remoteFunc),
+                     leaderPortOffset, pro = std::move(pro), retry, retryLimit, this] () mutable {
+        auto host = request.first;
+        auto client = clientsMan_->client(host, evb, false, FLAGS_storage_client_timeout_ms);
+        auto spaceId = request.second.get_space_id();
+        auto partsId = getReqPartsId(request.second);
+        LOG(INFO) << "Send request to storage " << host;
+        remoteFunc(client.get(), std::move(request.second)).via(evb)
+             .then([spaceId,
+                    partsId = std::move(partsId),
+                    p = std::move(pro),
+                    request = std::move(request),
+                    remoteFunc = std::move(remoteFunc),
+                    evb,
+                    retry,
+                    retryLimit,
+                    leaderPortOffset,
+                    this] (folly::Try<Response>&& t) mutable {
+            // exception occurred during RPC
+            if (t.hasException()) {
+                p.setValue(
+                    Status::Error(
+                        folly::stringPrintf("RPC failure in StorageClient: %s",
+                                            t.exception().what().c_str())));
+                invalidLeader(spaceId, partsId);
+                return;
+            }
+            auto&& resp = std::move(t.value());
+            // leader changed
+            auto& result = resp.get_result();
+            for (auto& code : result.get_failed_parts()) {
+                VLOG(3) << "Failure! Failed part " << code.get_part_id()
+                        << ", failed code " << static_cast<int32_t>(code.get_code());
+                if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
+                    auto* leader = code.get_leader();
+                    if (isValidHostPtr(leader)) {
+                        updateLeader(spaceId, code.get_part_id(), *leader);
+                    } else {
+                        invalidLeader(spaceId, code.get_part_id());
+                    }
+                    if (retry < retryLimit && isValidHostPtr(leader)) {
+                        evb->runAfterDelay([this, evb, leader = *leader,
+                                req = std::move(request.second),
+                                remoteFunc = std::move(remoteFunc), p = std::move(p),
+                                leaderPortOffset,
+                                retry, retryLimit] () mutable {
+                                leader.port += leaderPortOffset;
+                                getResponseImpl(evb,
+                                        std::pair<HostAddr, Request>(std::move(leader),
+                                        std::move(req)),
+                                        std::move(remoteFunc),
+                                        leaderPortOffset,
+                                        std::move(p),
+                                        retry + 1,
+                                        retryLimit);
+                                }, FLAGS_storage_client_retry_interval_ms);
+                        return;
+                    } else {
+                        p.setValue(Status::LeaderChanged("Request to storage retry failed."));
                         return;
                     }
-                    auto&& resp = std::move(t.value());
-                    // leader changed
-                    auto& result = resp.get_result();
-                    for (auto& code : result.get_failed_parts()) {
-                        LOG(INFO) << "Failure! Failed part " << code.get_part_id()
-                                  << ", failed code " << static_cast<int32_t>(code.get_code());
-                        if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
-                            auto* leader = code.get_leader();
-                            if (isValidHostPtr(leader)) {
-                                updateLeader(spaceId, code.get_part_id(), *leader);
-                            } else {
-                                invalidLeader(spaceId, code.get_part_id());
-                            }
-                            if (retry < retryLimit && isValidHostPtr(leader)) {
-                                evb->runAfterDelay(
-                                    [this,
-                                     evb,
-                                     leader = *leader,
-                                     req = std::move(request.second),
-                                     remoteFunc = std::move(remoteFunc),
-                                     p = std::move(p),
-                                     leaderPortOffset,
-                                     retry,
-                                     retryLimit]() mutable {
-                                        leader.port += leaderPortOffset;
-                                        getResponseImpl(evb,
-                                                        std::pair<HostAddr, Request>(
-                                                            std::move(leader), std::move(req)),
-                                                        std::move(remoteFunc),
-                                                        leaderPortOffset,
-                                                        std::move(p),
-                                                        retry + 1,
-                                                        retryLimit);
-                                    },
-                                    FLAGS_storage_client_retry_interval_ms);
-                                return;
-                            } else {
-                                p.setValue(
-                                    Status::LeaderChanged("Request to storage retry failed."));
-                                return;
-                            }
-                        } else if (code.get_code() == storage::cpp2::ErrorCode::E_PART_NOT_FOUND ||
-                                   code.get_code() == storage::cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
-                            invalidLeader(spaceId, code.get_part_id());
-                        }
-                    }
-                    p.setValue(std::move(resp));
-                });
-        });   // via
+                } else if (code.get_code() == storage::cpp2::ErrorCode::E_PART_NOT_FOUND ||
+                           code.get_code() == storage::cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
+                    invalidLeader(spaceId, code.get_part_id());
+                }
+            }
+            p.setValue(std::move(resp));
+        });
+    });  // via
 }
 
 
