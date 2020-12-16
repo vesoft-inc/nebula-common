@@ -130,7 +130,8 @@ GraphStorageClient::addEdges(GraphSpaceID space,
                              std::vector<cpp2::NewEdge> edges,
                              std::vector<std::string> propNames,
                              bool overwritable,
-                             folly::EventBase* evb) {
+                             folly::EventBase* evb,
+                             bool useToss) {
     auto cbStatus = getIdFromNewEdge(space);
     if (!cbStatus.ok()) {
         return folly::makeFuture<StorageRpcResponse<cpp2::ExecResponse>>(
@@ -157,12 +158,11 @@ GraphStorageClient::addEdges(GraphSpaceID space,
     return collectResponse(
         evb,
         std::move(requests),
-        [] (cpp2::GraphStorageServiceAsyncClient* client,
-            const cpp2::AddEdgesRequest& r) {
-            return client->future_addEdges(r);
+        [=](cpp2::GraphStorageServiceAsyncClient* client, const cpp2::AddEdgesRequest& r) {
+            return useToss ? client->future_addEdgesAtomic(r)
+                           : client->future_addEdges(r);
         });
 }
-
 
 folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>>
 GraphStorageClient::getProps(GraphSpaceID space,
@@ -193,7 +193,6 @@ GraphStorageClient::getProps(GraphSpaceID space,
         auto& host = c.first;
         auto& req = requests[host];
         req.set_space_id(space);
-        req.set_column_names(std::move(input.colNames));
         req.set_parts(std::move(c.second));
         req.set_dedup(dedup);
         if (vertexProps != nullptr) {

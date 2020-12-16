@@ -6,10 +6,6 @@
 
 #include "FunctionManager.h"
 
-#include <unordered_set>
-
-#include <folly/String.h>
-
 #include "common/base/Base.h"
 #include "common/datatypes/DataSet.h"
 #include "common/datatypes/Edge.h"
@@ -203,6 +199,7 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
      {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::LIST),
       TypeSignature({Value::Type::INT, Value::Type::INT, Value::Type::INT}, Value::Type::LIST)}},
     {"hasSameEdgeInPath", { TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
+    {"hasSameVertexInPath", {TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
 };
 
 // static
@@ -336,7 +333,12 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric() && args[1].isNumeric()) {
                 auto base = args[0].isInt() ? args[0].getInt() : args[0].getFloat();
                 auto exp = args[1].isInt() ? args[1].getInt() : args[1].getFloat();
-                return std::pow(base, exp);
+                auto val = std::pow(base, exp);
+                if (args[0].isInt() && args[1].isInt()) {
+                    return static_cast<int64_t>(val);
+                } else {
+                    return val;
+                }
             }
             return Value::kNullBadType;
         };
@@ -1430,23 +1432,20 @@ FunctionManager::FunctionManager() {
                 return Value::kNullBadType;
             }
             auto &path = args[0].getPath();
-            if (path.steps.size() < 2) {
-                return false;
+            return path.hasDuplicateEdges();
+        };
+    }
+    {
+        auto &attr = functions_["hasSameVertexInPath"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isPath()) {
+                return Value::kNullBadType;
             }
-            std::unordered_set<std::string> uniqueSet;
-            auto src = path.src.vid;
-            for (const auto &step : path.steps) {
-                auto edgeSrc = step.type > 0 ? src : step.dst.vid;
-                auto edgeDst = step.type > 0 ? step.dst.vid : src;
-                auto edgeKey = folly::stringPrintf(
-                    "%s%s%s%ld", edgeSrc.c_str(), edgeDst.c_str(), step.name.c_str(), step.ranking);
-                auto res = uniqueSet.emplace(std::move(edgeKey));
-                if (!res.second) {
-                    return true;
-                }
-                src = step.dst.vid;
-            }
-            return false;
+            auto &path = args[0].getPath();
+            return path.hasDuplicateVertices();
         };
     }
 }   // NOLINT

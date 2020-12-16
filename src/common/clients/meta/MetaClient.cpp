@@ -961,11 +961,13 @@ MetaClient::submitJob(cpp2::AdminJobOp op, cpp2::AdminCmd cmd, std::vector<std::
     req.set_paras(std::move(paras));
     folly::Promise<StatusOr<cpp2::AdminJobResult>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req), [] (auto client, auto request) {
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
                     return client->future_runAdminJob(request);
                 }, [] (cpp2::AdminJobResp&& resp) -> decltype(auto) {
                     return resp.get_result();
-                }, std::move(promise), true);
+                },
+                std::move(promise));
     return future;
 }
 
@@ -983,8 +985,7 @@ folly::Future<StatusOr<GraphSpaceID>> MetaClient::createSpace(meta::cpp2::SpaceD
                 [] (cpp2::ExecResp&& resp) -> GraphSpaceID {
                     return resp.get_id().get_space_id();
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1009,11 +1010,13 @@ folly::Future<StatusOr<cpp2::SpaceItem>> MetaClient::getSpace(std::string name) 
     req.set_space_name(std::move(name));
     folly::Promise<StatusOr<cpp2::SpaceItem>> promise;
     auto future = promise.getFuture();
-    getResponse(std::move(req), [] (auto client, auto request) {
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
                     return client->future_getSpace(request);
                 }, [] (cpp2::GetSpaceResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_item();
-                }, std::move(promise));
+                },
+                std::move(promise));
     return future;
 }
 
@@ -1032,8 +1035,7 @@ folly::Future<StatusOr<bool>> MetaClient::dropSpace(std::string name,
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1216,8 +1218,7 @@ MetaClient::multiPut(std::string segment,
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1310,8 +1311,7 @@ MetaClient::remove(std::string segment, std::string key) {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1335,8 +1335,7 @@ MetaClient::removeRange(std::string segment, std::string start, std::string end)
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1434,8 +1433,7 @@ folly::Future<StatusOr<TagID>> MetaClient::createTagSchema(GraphSpaceID spaceId,
                 [] (cpp2::ExecResp&& resp) -> TagID {
                     return resp.get_id().get_tag_id();
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1459,8 +1457,7 @@ MetaClient::alterTagSchema(GraphSpaceID spaceId,
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1498,8 +1495,7 @@ MetaClient::dropTagSchema(GraphSpaceID spaceId, std::string tagName, const bool 
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1543,8 +1539,7 @@ folly::Future<StatusOr<EdgeType>> MetaClient::createEdgeSchema(GraphSpaceID spac
                 [] (cpp2::ExecResp&& resp) -> EdgeType {
                     return resp.get_id().get_edge_type();
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1568,8 +1563,7 @@ MetaClient::alterEdgeSchema(GraphSpaceID spaceId,
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1627,8 +1621,7 @@ MetaClient::dropEdgeSchema(GraphSpaceID spaceId, std::string name, const bool if
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1655,8 +1648,7 @@ MetaClient::createTagIndex(GraphSpaceID spaceID,
                 [] (cpp2::ExecResp&& resp) -> IndexID {
                     return resp.get_id().get_index_id();
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1677,8 +1669,7 @@ MetaClient::dropTagIndex(GraphSpaceID spaceID, std::string name, bool ifExists) 
                 [] (cpp2::ExecResp&& resp) -> IndexID {
                     return resp.get_id().get_index_id();
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1738,8 +1729,7 @@ MetaClient::rebuildTagIndex(GraphSpaceID spaceID,
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1786,8 +1776,7 @@ MetaClient::createEdgeIndex(GraphSpaceID spaceID,
                 [] (cpp2::ExecResp&& resp) -> IndexID {
                     return resp.get_id().get_index_id();
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1808,8 +1797,7 @@ MetaClient::dropEdgeIndex(GraphSpaceID spaceId, std::string name, bool ifExists)
                 [] (cpp2::ExecResp&& resp) -> IndexID {
                     return resp.get_id().get_index_id();
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -1844,7 +1832,8 @@ MetaClient::listEdgeIndexes(GraphSpaceID spaceId) {
     getResponse(std::move(req),
                 [] (auto client, auto request) {
                     return client->future_listEdgeIndexes(request);
-                }, [] (cpp2::ListEdgeIndexesResp&& resp) -> decltype(auto) {
+                },
+                [] (cpp2::ListEdgeIndexesResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_items();
                 },
                 std::move(promise));
@@ -1901,6 +1890,16 @@ StatusOr<cpp2::SpaceDesc> MetaClient::getSpaceDesc(const GraphSpaceID& space) {
     }
     return spaceIt->second->spaceDesc_;
 }
+
+
+StatusOr<meta::cpp2::IsolationLevel> MetaClient::getIsolationLevel(GraphSpaceID spaceId) {
+    auto spaceDescStatus = getSpaceDesc(spaceId);
+    if (!spaceDescStatus.ok()) {
+        return spaceDescStatus.status();
+    }
+    return spaceDescStatus.value().isolation_level;
+}
+
 
 StatusOr<std::shared_ptr<const NebulaSchemaProvider>>
 MetaClient::getTagSchemaFromCache(GraphSpaceID spaceId, TagID tagID, SchemaVer ver) {
@@ -1986,8 +1985,7 @@ MetaClient::rebuildEdgeIndex(GraphSpaceID spaceID,
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2296,8 +2294,7 @@ folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
                     VLOG(1) << "Metad last update time: " << metadLastUpdateTime_;
                     return true;  // resp.code == cpp2::ErrorCode::SUCCEEDED
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2317,8 +2314,7 @@ MetaClient::createUser(std::string account, std::string password, bool ifNotExis
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2337,8 +2333,7 @@ MetaClient::dropUser(std::string account, bool ifExists) {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2357,8 +2352,7 @@ MetaClient::alterUser(std::string account, std::string password) {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2376,8 +2370,7 @@ MetaClient::grantToUser(cpp2::RoleItem roleItem) {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2395,8 +2388,7 @@ MetaClient::revokeFromUser(cpp2::RoleItem roleItem) {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2453,8 +2445,7 @@ MetaClient::changePassword(std::string account,
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2500,8 +2491,7 @@ folly::Future<StatusOr<int64_t>> MetaClient::balance(std::vector<HostAddr> hostD
                 [] (cpp2::BalanceResp&& resp) -> int64_t {
                     return resp.id;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2519,8 +2509,7 @@ MetaClient::showBalance(int64_t balanceId) {
                 [] (cpp2::BalanceResp&& resp) -> std::vector<cpp2::BalanceTask> {
                     return resp.tasks;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2536,8 +2525,7 @@ folly::Future<StatusOr<bool>> MetaClient::balanceLeader() {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2608,8 +2596,7 @@ MetaClient::regConfig(const std::vector<cpp2::ConfigItem>& items) {
                 [] (cpp2::ExecResp&& resp) -> decltype(auto) {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2658,8 +2645,7 @@ MetaClient::setConfig(const cpp2::ConfigModule& module,
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2693,8 +2679,7 @@ folly::Future<StatusOr<bool>> MetaClient::createSnapshot() {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2711,8 +2696,7 @@ folly::Future<StatusOr<bool>> MetaClient::dropSnapshot(const std::string& name) 
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2748,8 +2732,7 @@ folly::Future<StatusOr<bool>> MetaClient::addListener(GraphSpaceID spaceId,
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -2767,8 +2750,7 @@ folly::Future<StatusOr<bool>> MetaClient::removeListener(GraphSpaceID spaceId,
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -3027,8 +3009,7 @@ MetaClient::addZone(std::string zoneName, std::vector<HostAddr> nodes) {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -3046,8 +3027,7 @@ MetaClient::dropZone(std::string zoneName) {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -3066,8 +3046,7 @@ MetaClient::addHostIntoZone(HostAddr node, std::string zoneName) {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -3086,8 +3065,7 @@ MetaClient::dropHostFromZone(HostAddr node, std::string zoneName) {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -3140,8 +3118,7 @@ MetaClient::addGroup(std::string groupName, std::vector<std::string> zoneNames) 
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -3159,8 +3136,7 @@ MetaClient::dropGroup(std::string groupName) {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -3179,8 +3155,7 @@ MetaClient::addZoneIntoGroup(std::string zoneName, std::string groupName) {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -3199,8 +3174,7 @@ MetaClient::dropZoneFromGroup(std::string zoneName, std::string groupName) {
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
-                std::move(promise),
-                true);
+                std::move(promise));
     return future;
 }
 
@@ -3308,7 +3282,6 @@ MetaClient::listFTClients() {
                 std::move(promise));
     return future;
 }
-
 
 StatusOr<std::vector<cpp2::FTClient>> MetaClient::getFTClientsFromCache() {
     if (!ready_) {

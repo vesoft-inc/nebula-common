@@ -39,6 +39,8 @@ typedef i32 (cpp.type = "nebula::TagID") TagID
 typedef i32 (cpp.type = "nebula::EdgeType") EdgeType
 typedef i64 (cpp.type = "nebula::EdgeRanking") EdgeRanking
 typedef binary (cpp.type = "nebula::VertexID") VertexID
+typedef i64 (cpp.type = "nebula::LogID") LogID
+typedef i64 (cpp.type = "nebula::TermID") TermID
 
 typedef i64 (cpp.type = "nebula::Timestamp") Timestamp
 
@@ -101,27 +103,27 @@ union Value {
     9: Vertex (cpp.type = "nebula::Vertex")     vVal (cpp.ref_type = "unique");
     10: Edge (cpp.type = "nebula::Edge")        eVal (cpp.ref_type = "unique");
     11: Path (cpp.type = "nebula::Path")        pVal (cpp.ref_type = "unique");
-    12: List (cpp.type = "nebula::List")        lVal (cpp.ref_type = "unique");
-    13: Map (cpp.type = "nebula::Map")          mVal (cpp.ref_type = "unique");
-    14: Set (cpp.type = "nebula::Set")          uVal (cpp.ref_type = "unique");
+    12: NList (cpp.type = "nebula::List")       lVal (cpp.ref_type = "unique");
+    13: NMap (cpp.type = "nebula::Map")         mVal (cpp.ref_type = "unique");
+    14: NSet (cpp.type = "nebula::Set")         uVal (cpp.ref_type = "unique");
     15: DataSet (cpp.type = "nebula::DataSet")  gVal (cpp.ref_type = "unique");
 } (cpp.type = "nebula::Value")
 
 
 // Ordered list
-struct List {
+struct NList {
     1: list<Value> values;
 } (cpp.type = "nebula::List")
 
 
 // Unordered key/values pairs
-struct Map {
+struct NMap {
     1: map<binary, Value> (cpp.template = "std::unordered_map") kvs;
 } (cpp.type = "nebula::Map")
 
 
 // Unordered and unique values
-struct Set {
+struct NSet {
     1: set<Value> (cpp.template = "std::unordered_set") values;
 } (cpp.type = "nebula::Set")
 
@@ -188,3 +190,12 @@ struct KeyValue {
     1: binary key,
     2: binary value,
 } (cpp.type = "nebula::KeyValue")
+
+struct LogInfo {
+    1: LogID  log_id;
+    2: TermID term_id;
+}
+
+struct PartitionBackupInfo {
+    1: map<PartitionID, LogInfo> (cpp.template = "std::unordered_map")  info,
+}
