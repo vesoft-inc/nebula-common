@@ -122,6 +122,7 @@ protected:
         folly::EventBase* evb,
         std::unordered_map<HostAddr, Request> requests,
         RemoteFunc&& remoteFunc,
+        int32_t portOffsetIfRetry = 0,
         std::size_t retry = 0,
         std::size_t retryLimit = 3);
 
@@ -136,6 +137,7 @@ protected:
             folly::EventBase* evb,
             std::pair<HostAddr, Request>&& request,
             RemoteFunc&& remoteFunc,
+            int32_t leaderPortOffset = 0,
             folly::Promise<StatusOr<Response>> pro = folly::Promise<StatusOr<Response>>(),
             std::size_t retry = 0,
             std::size_t retryLimit = 3);
@@ -151,6 +153,7 @@ protected:
             folly::EventBase* evb,
             std::pair<HostAddr, Request> request,
             RemoteFunc remoteFunc,
+            int32_t leaderPortOffset,
             folly::Promise<StatusOr<Response>> pro,
             std::size_t retry,
             std::size_t retryLimit);
