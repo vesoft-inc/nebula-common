@@ -165,8 +165,6 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"datetime", {TypeSignature({}, Value::Type::DATETIME),
               TypeSignature({Value::Type::STRING}, Value::Type::DATETIME),
               TypeSignature({Value::Type::MAP}, Value::Type::DATETIME)}},
-    {"id", {TypeSignature({Value::Type::VERTEX}, Value::Type::STRING),
-             }},
     {"tags", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
              }},
     {"labels", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
@@ -175,10 +173,6 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
                     TypeSignature({Value::Type::EDGE}, Value::Type::MAP),
              }},
     {"type", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
-             }},
-    {"src", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
-             }},
-    {"dst", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
              }},
     {"rank", {TypeSignature({Value::Type::EDGE}, Value::Type::INT),
              }},
@@ -1164,7 +1158,14 @@ FunctionManager::FunctionManager() {
             if (!args[0].isVertex()) {
                 return Value::kNullBadType;
             }
-            return args[0].getVertex().vid;
+            auto& val = args[0].getVertex().vid;
+            if (val.isInt()) {
+                return val.getInt();
+            }
+            if (val.isStr()) {
+                return val.getStr();
+            }
+            return Value::kNullBadType;
         };
     }
     {
@@ -1226,7 +1227,14 @@ FunctionManager::FunctionManager() {
             if (!args[0].isEdge()) {
                 return Value::kNullBadType;
             }
-            return args[0].getEdge().src;
+            auto& val = args[0].getEdge().src;
+            if (val.isInt()) {
+                return val.getInt();
+            }
+            if (val.isStr()) {
+                return val.getStr();
+            }
+            return Value::kNullBadType;
         };
     }
     {
@@ -1238,7 +1246,14 @@ FunctionManager::FunctionManager() {
             if (!args[0].isEdge()) {
                 return Value::kNullBadType;
             }
-            return args[0].getEdge().dst;
+            auto& val = args[0].getEdge().dst;
+            if (val.isInt()) {
+                return val.getInt();
+            }
+            if (val.isStr()) {
+                return val.getStr();
+            }
+            return Value::kNullBadType;
         };
     }
     {
