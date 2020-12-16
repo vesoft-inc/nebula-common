@@ -63,7 +63,7 @@ void InternalStorageClient::forwardTransactionImpl(int64_t txnId,
                                                    std::string&& data,
                                                    folly::Promise<cpp2::ErrorCode> p,
                                                    folly::EventBase* evb) {
-    LOG(INFO) << "forwardTransactionImpl txnId=" << txnId;
+    VLOG(1) << "forwardTransactionImpl txnId=" << txnId;
     auto statusOrLeader = getFuzzyLeader(spaceId, partId);
     if (!statusOrLeader.ok()) {
         p.setValue(cpp2::ErrorCode::E_SPACE_NOT_FOUND);
