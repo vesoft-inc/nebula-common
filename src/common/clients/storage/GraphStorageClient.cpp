@@ -154,15 +154,13 @@ GraphStorageClient::addEdges(GraphSpaceID space,
         req.set_parts(std::move(c.second));
         req.set_prop_names(std::move(propNames));
     }
-    int32_t portOffsetIfRetry = useToss ? kInternalPortOffset : 0;
     return collectResponse(
         evb,
         std::move(requests),
         [=](cpp2::GraphStorageServiceAsyncClient* client, const cpp2::AddEdgesRequest& r) {
             return useToss ? client->future_addEdgesAtomic(r)
                            : client->future_addEdges(r);
-        },
-        portOffsetIfRetry);
+        });
 }
 
 folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>>
