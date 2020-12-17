@@ -18,7 +18,7 @@ public:
           sum_(0.0),
           avg_(0.0),
           deviation_(0.0),
-          result_(Value::kEmpty) {
+          result_(Value::kNullValue) {
         if (uniques == nullptr) {
             uniques_ = std::make_unique<Set>();
         } else {

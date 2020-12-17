@@ -7,279 +7,6 @@
 #include "common/expression/ExprVisitor.h"
 
 namespace nebula {
-std::unordered_map<AggregateExpression::Function,
-                   std::function<void(AggData*, const Value&)>>
-                   AggregateExpression::aggFunMap_  = {
-    {
-      AggregateExpression::Function::kNone,
-      [](AggData* result, const Value& val) {
-          result->setRes(val);
-      }
-    },
-    {
-        AggregateExpression::Function::kCount,
-        [](AggData* result, const Value& val) {
-            if (val.isNull() || val.empty()) {
-                return;
-            }
-            auto res = result->res();
-            if (res.isBadNull()) {
-                return;
-            }
-
-            if (res.empty()) {
-                // TBD: 0 error
-                result->setRes(1);
-                return;
-            }
-            result->setRes(res + 1);
-        }
-    },
-    {
-        AggregateExpression::Function::kSum,
-        [](AggData* result, const Value& val) {
-            if (val.isNull() || val.empty()) {
-                return;
-            }
-            if (UNLIKELY(!val.isNumeric())) {
-                result->setRes(Value::kNullBadType);
-                return;
-            }
-            auto res = result->res();
-            if (res.isBadNull()) {
-                return;
-            }
-
-            if (res.empty()) {
-                result->setRes(val);
-                return;
-            }
-            result->setRes(res + val);
-        }
-    },
-    {
-        AggregateExpression::Function::kAvg,
-        [](AggData* result, const Value& val) {
-            if (val.isNull() || val.empty()) {
-                return;
-            }
-            if (UNLIKELY(!val.isNumeric())) {
-                result->setRes(Value::kNullBadType);
-                return;
-            }
-            auto res = result->res();
-            if (res.isBadNull()) {
-                return;
-            }
-
-            if (res.empty()) {
-                result->setRes(val);
-                result->setSum(val);
-                result->setCnt(1);
-                return;
-            }
-            auto sum = result->sum();
-            auto cnt = result->cnt();
-
-            result->setSum(sum + val);
-            result->setCnt(cnt + 1);
-            result->setRes((sum + val)/ (cnt + 1));
-        }
-    },
-    {
-        AggregateExpression::Function::kMax,
-        [](AggData* result, const Value& val) {
-            if (val.isNull() || val.empty()) {
-                return;
-            }
-            if (UNLIKELY(!val.isNumeric())) {
-                result->setRes(Value::kNullBadType);
-                return;
-            }
-            auto res = result->res();
-            if (res.isBadNull()) {
-                return;
-            }
-
-            if (res.empty()) {
-                result->setRes(val);
-                return;
-            }
-            if (val > res) {
-                result->setRes(val);
-            }
-        }
-    },
-    {
-        AggregateExpression::Function::kMin,
-        [](AggData* result, const Value& val) {
-            if (val.isNull() || val.empty()) {
-                return;
-            }
-            if (UNLIKELY(!val.isNumeric())) {
-                result->setRes(Value::kNullBadType);
-                return;
-            }
-            auto res = result->res();
-            if (res.isBadNull()) {
-                return;
-            }
-
-            if (res.empty()) {
-                result->setRes(val);
-                return;
-            }
-            if (val < res) {
-                result->setRes(val);
-            }
-        }
-    },
-    {
-        AggregateExpression::Function::kStdev,
-        [](AggData* result, const Value& val) {
-            if (val.isNull() || val.empty()) {
-                return;
-            }
-            if (UNLIKELY(!val.isNumeric())) {
-                result->setRes(Value::kNullBadType);
-                return;
-            }
-            auto res = result->res();
-            if (res.isBadNull()) {
-                return;
-            }
-
-            if (res.empty()) {
-                result->setRes(0.0);
-                result->setCnt(1);
-                result->setAvg(val);
-                return;
-            }
-
-            auto cnt = result->cnt();
-            result->setCnt(cnt + 1);
-            auto avg = result->avg();
-            auto old_deviation = result->deviation();
-            auto new_deviation = (cnt - 1) / (cnt * cnt) * ((val - avg) * (val - avg))
-                + (cnt - 1) / cnt * old_deviation;
-            avg = avg + (val - avg) / cnt;
-            auto stdev = new_deviation.isFloat() ?
-                         std::sqrt(new_deviation.getFloat()) : Value::kNullBadType;
-            result->setRes(stdev);
-        }
-    },
-    {
-        AggregateExpression::Function::kBitAnd,
-        [](AggData* result, const Value& val) {
-            if (val.isNull() || val.empty()) {
-                return;
-            }
-            if (!val.isInt()) {
-                result->setRes(Value::kNullBadType);
-                return;
-            }
-            auto res = result->res();
-            if (res.isBadNull()) {
-                return;
-            }
-
-            if (res.empty()) {
-                result->setRes(val);
-                return;
-            }
-            result->setRes(res & val);
-        }
-    },
-    {
-        AggregateExpression::Function::kBitOr,
-        [](AggData* result, const Value& val) {
-            if (val.isNull() || val.empty()) {
-                return;
-            }
-            if (!val.isInt()) {
-                result->setRes(Value::kNullBadType);
-                return;
-            }
-            auto res = result->res();
-            if (res.isBadNull()) {
-                return;
-            }
-
-            if (res.empty()) {
-                result->setRes(val);
-                return;
-            }
-            result->setRes(res | val);
-        }
-    },
-    {
-        AggregateExpression::Function::kBitXor,
-        [](AggData* result, const Value& val) {
-            if (val.isNull() || val.empty()) {
-                return;
-            }
-            if (!val.isInt()) {
-                result->setRes(Value::kNullBadType);
-                return;
-            }
-            auto res = result->res();
-            if (res.isBadNull()) {
-                return;
-            }
-
-            if (res.empty()) {
-                result->setRes(val);
-                return;
-            }
-            result->setRes(res ^ val);
-        }
-    },
-    {
-        AggregateExpression::Function::kCollect,
-        [](AggData* result, const Value& val) {
-            auto& res = result->res();
-            if (res.isBadNull()) {
-                return;
-            }
-            if (res.empty()) {
-                res = List();
-            }
-            if (val.isNull() || val.empty()) {
-                return;
-            }
-            if (!res.isList()) {
-                res = Value::kNullBadData;
-                return;
-            }
-            auto list = res.getList();
-            list.emplace_back(val);
-            result->setRes(list);
-        }
-    },
-    {
-        AggregateExpression::Function::kCollectSet,
-        [](AggData* result, const Value& val) {
-            auto& res = result->res();
-            if (res.isBadNull()) {
-                return;
-            }
-            if (res.empty()) {
-                res = Set();
-            }
-            if (val.isNull() || val.empty()) {
-                return;
-            }
-
-            if (!res.isSet()) {
-                res = Value::kNullBadData;
-                return;
-            }
-            auto set = res.getSet();
-            set.values.emplace(val);
-            result->setRes(set);
-        }
-    }
-};
 
 std::unordered_map<std::string, AggregateExpression::Function> AggregateExpression::nameIdMap_ = {
     {"", AggregateExpression::Function::kNone},
@@ -305,8 +32,6 @@ bool AggregateExpression::operator==(const Expression& rhs) const {
     return *name_ == *(r.name_) && *arg_ == *(r.arg_);
 }
 
-
-
 void AggregateExpression::writeTo(Encoder& encoder) const {
     // TODO : verify
     // kind_
@@ -324,7 +49,6 @@ void AggregateExpression::writeTo(Encoder& encoder) const {
     }
 }
 
-
 void AggregateExpression::resetFrom(Decoder& decoder) {
     // TODO : verify
     // Read name_
@@ -341,11 +65,17 @@ const Value& AggregateExpression::eval(ExpressionContext& ctx) {
     }
 
     auto val = arg_->eval(ctx);
-    auto uniques = result_->uniques();
-    if (distinct_ && uniques->contains(val)) {
-        return result_->res();
+    if (!result_) {
+        // groupBy is empy. eg.`yield count(*), 1`
+        return Value::kNullBadData;
     }
-    uniques->values.emplace(val);
+    auto uniques = result_->uniques();
+    if (distinct_) {
+        if (uniques->contains(val)) {
+            return result_->res();
+        }
+        uniques->values.emplace(val);
+    }
 
     auto apply = aggFunMap_[iter->second];
     apply(result_, val);
@@ -356,16 +86,284 @@ const Value& AggregateExpression::eval(ExpressionContext& ctx) {
 std::string AggregateExpression::toString() const {
     std::string arg(arg_->toString());
     std::string isDistinct;
-    if (distinct_) { isDistinct = "distinct";}
+    if (distinct_) { isDistinct = "distinct ";}
     std::stringstream out;
-    out << *name_ << "(" << isDistinct << " " << arg << ")";
+    out << *name_ << "(" << isDistinct << arg << ")";
     return out.str();
 }
 
 void AggregateExpression::accept(ExprVisitor* visitor) {
-    // TODO : impl visitor in nebula-graph
-    // visitor->visit(this);
-    UNUSED(visitor);
+    visitor->visit(this);
 }
+
+std::unordered_map<AggregateExpression::Function,
+                   std::function<void(AggData*, const Value&)>>
+    AggregateExpression::aggFunMap_  = {
+    {
+        AggregateExpression::Function::kNone,
+        [](AggData* result, const Value& val) {
+            result->setRes(val);
+        }
+    },
+    {
+        AggregateExpression::Function::kCount,
+        [](AggData* result, const Value& val) {
+            auto& res = result->res();
+            if (res.isBadNull()) {
+                return;
+            }
+            if (res.isNull()) {
+                res = 0;
+            }
+            if (val.isNull() || val.empty()) {
+                return;
+            }
+
+            res = res + 1;
+        }
+    },
+    {
+        AggregateExpression::Function::kSum,
+        [](AggData* result, const Value& val) {
+            auto& res = result->res();
+            if (res.isBadNull()) {
+                return;
+            }
+
+            if (res.isNull()) {
+                res = val;
+                return;
+            }
+            if (val.isNull() || val.empty()) {
+                return;
+            }
+            if (UNLIKELY(!val.isNumeric())) {
+                res = Value::kNullBadType;
+                return;
+            }
+            res = res + val;
+        }
+    },
+    {
+        AggregateExpression::Function::kAvg,
+        [](AggData* result, const Value& val) {
+            auto& res = result->res();
+            if (res.isBadNull()) {
+                return;
+            }
+
+            auto& sum = result->sum();
+            auto& cnt = result->cnt();
+            if (res.isNull()) {
+                res = val;
+                sum = val;
+                cnt = 1.0;
+                return;
+            }
+            if (val.isNull() || val.empty()) {
+                return;
+            }
+            if (UNLIKELY(!val.isNumeric())) {
+                res = Value::kNullBadType;
+                return;
+            }
+
+            sum = sum + val;
+            cnt = cnt + 1;
+            res = sum / cnt;
+        }
+    },
+    {
+        AggregateExpression::Function::kMax,
+        [](AggData* result, const Value& val) {
+            auto& res = result->res();
+            if (res.isBadNull()) {
+                return;
+            }
+            if (res.isNull()) {
+                res = val;
+                return;
+            }
+
+            if (val.isNull() || val.empty()) {
+                return;
+            }
+            if (UNLIKELY(!val.isNumeric())) {
+                res = Value::kNullBadType;
+                return;
+            }
+            if (val > res) {
+                result->setRes(val);
+            }
+        }
+    },
+    {
+        AggregateExpression::Function::kMin,
+        [](AggData* result, const Value& val) {
+            auto& res = result->res();
+            if (res.isBadNull()) {
+                return;
+            }
+            if (res.isNull()) {
+                res = val;
+                return;
+            }
+
+            if (val.isNull() || val.empty()) {
+                return;
+            }
+            if (UNLIKELY(!val.isNumeric())) {
+                res = Value::kNullBadType;
+                return;
+            }
+            if (val < res) {
+                result->setRes(val);
+            }
+        }
+    },
+    {
+        AggregateExpression::Function::kStdev,
+        [](AggData* result, const Value& val) {
+            auto& res = result->res();
+            if (res.isBadNull()) {
+                return;
+            }
+            if (val.isNull() || val.empty()) {
+                return;
+            }
+            if (UNLIKELY(!val.isNumeric())) {
+                res = Value::kNullBadType;
+                return;
+            }
+
+            auto& cnt = result->cnt();
+            auto& avg = result->avg();
+            auto& deviation = result->deviation();
+            if (res.isNull()) {
+                res = 0.0;
+                cnt = 0.0;
+                avg = 0.0;
+                deviation = 0.0;
+            }
+
+            cnt = cnt + 1;
+            deviation = (cnt - 1) / (cnt * cnt) * ((val - avg) * (val - avg))
+                + (cnt - 1) / cnt * deviation;
+            avg = avg + (val - avg) / cnt;
+            auto stdev = deviation.isFloat() ?
+                         std::sqrt(deviation.getFloat()) : Value::kNullBadType;
+            res = stdev;
+        }
+    },
+    {
+        AggregateExpression::Function::kBitAnd,
+        [](AggData* result, const Value& val) {
+            auto& res = result->res();
+            if (res.isBadNull()) {
+                return;
+            }
+            if (res.isNull() && val.isInt()) {
+                res = val;
+                return;
+            }
+            if (val.isNull() || val.empty()) {
+                return;
+            }
+            if (!val.isInt()) {
+                res = Value::kNullBadType;
+                return;
+            }
+
+            res = res & val;
+        }
+    },
+    {
+        AggregateExpression::Function::kBitOr,
+        [](AggData* result, const Value& val) {
+            auto& res = result->res();
+            if (res.isBadNull()) {
+                return;
+            }
+            if (res.isNull() && val.isInt()) {
+                res = val;
+                return;
+            }
+            if (val.isNull() || val.empty()) {
+                return;
+            }
+            if (!val.isInt()) {
+                res = Value::kNullBadType;
+                return;
+            }
+
+            res = res | val;
+        }
+    },
+    {
+        AggregateExpression::Function::kBitXor,
+        [](AggData* result, const Value& val) {
+            auto& res = result->res();
+            if (res.isBadNull()) {
+                return;
+            }
+            if (res.isNull() && val.isInt()) {
+                res = val;
+                return;
+            }
+            if (val.isNull() || val.empty()) {
+                return;
+            }
+            if (!val.isInt()) {
+                res = Value::kNullBadType;
+                return;
+            }
+
+            res = res ^ val;
+        }
+    },
+    {
+        AggregateExpression::Function::kCollect,
+        [](AggData* result, const Value& val) {
+            auto& res = result->res();
+            if (res.isBadNull()) {
+                return;
+            }
+            if (res.isNull()) {
+                res = List();
+            }
+            if (val.isNull() || val.empty()) {
+                return;
+            }
+            if (!res.isList()) {
+                res = Value::kNullBadData;
+                return;
+            }
+            auto &list = res.mutableList();
+            list.emplace_back(val);
+        }
+    },
+    {
+        AggregateExpression::Function::kCollectSet,
+        [](AggData* result, const Value& val) {
+            auto& res = result->res();
+            if (res.isBadNull()) {
+                return;
+            }
+            if (res.isNull()) {
+                res = Set();
+            }
+            if (val.isNull() || val.empty()) {
+                return;
+            }
+
+            if (!res.isSet()) {
+                res = Value::kNullBadData;
+                return;
+            }
+            auto& set = res.mutableSet();
+            set.values.emplace(val);
+        }
+    }
+};
 
 }  // namespace nebula

@@ -7,7 +7,6 @@
 #ifndef EXPRESSION_EXPRVISITOR_H_
 #define EXPRESSION_EXPRVISITOR_H_
 
-#include "AggregateExpression.h"
 #include "common/expression/ArithmeticExpression.h"
 #include "common/expression/AttributeExpression.h"
 #include "common/expression/CaseExpression.h"
@@ -16,6 +15,7 @@
 #include "common/expression/ContainerExpression.h"
 #include "common/expression/EdgeExpression.h"
 #include "common/expression/FunctionCallExpression.h"
+#include "common/expression/AggregateExpression.h"
 #include "common/expression/LabelAttributeExpression.h"
 #include "common/expression/LabelExpression.h"
 #include "common/expression/LogicalExpression.h"
@@ -48,8 +48,7 @@ public:
     virtual void visit(LogicalExpression *expr) = 0;
     // function call
     virtual void visit(FunctionCallExpression *expr) = 0;
-    // TODO : impl AggExpr visitor
-//    virtual void visit(AggregateExpression *expr) = 0;
+    virtual void visit(AggregateExpression *expr) = 0;
     virtual void visit(UUIDExpression *expr) = 0;
     // variable expression
     virtual void visit(VariableExpression *expr) = 0;

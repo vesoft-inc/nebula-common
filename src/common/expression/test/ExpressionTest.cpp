@@ -287,6 +287,15 @@ static std::unordered_map<std::string, std::vector<Value>> args_ = {
         testFunction(#expr, args, expected);                                                       \
     } while (0)
 
+#define TEST_AGG(name, isDistinct, expr, inputVar, expected)                                      \
+    do {                                                                                          \
+        testAggExpr(#name,                                                                        \
+                    isDistinct,                                                                   \
+                    #expr,                                                                        \
+                    inputVar,                                                                     \
+                    expected);                                                                    \
+    } while (0)
+
 #define TEST_TOSTRING(expr, expected)                                                              \
     do {                                                                                           \
         testToString(#expr, expected);                                                             \
@@ -3149,120 +3158,135 @@ TEST_F(ExpressionTest, ColumnExpression) {
 TEST_F(ExpressionTest, AggregateExpression) {
     std::vector<std::pair<std::string, Value>> input_dataset =
         {{"a", -1},
-         {"c", Value::kNullValue},
-         {"a", Value::kEmpty},
          {"b", 4},
          {"c", 3},
          {"a", 3},
-         {"b", Value::kNullValue},
-         {"a", Value::kEmpty},
          {"c", -8},
          {"c", 5},
-         {"a", Value::kNullValue},
-         {"c", Value::kEmpty},
          {"c", 8}};
     {
-        testAggExpr("COUNT", false, "abs", input_dataset,
-                    {{"a", 2},
-                     {"b", 1},
-                     {"c", 4}});
-        testAggExpr("COUNT", true, "abs", input_dataset,
-                    {{"a", 2},
-                     {"b", 1},
-                     {"c", 3}});
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 2},
+                          {"b", 1},
+                          {"c", 4}};
+        TEST_AGG(COUNT, false, abs, input_dataset, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 2},
+                          {"b", 1},
+                          {"c", 3}};
+        TEST_AGG(COUNT, true, abs, input_dataset, expected2);
     }
     {
-        testAggExpr("SUM", false, "abs", input_dataset,
-                    {{"a", 4},
-                     {"b", 4},
-                     {"c", 24}});
-        testAggExpr("SUM", true, "abs", input_dataset,
-                    {{"a", 4},
-                     {"b", 4},
-                     {"c", 16}});
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 4},
+                          {"b", 4},
+                          {"c", 24}};
+        TEST_AGG(SUM, false, abs, input_dataset, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 4},
+                          {"b", 4},
+                          {"c", 16}};
+        TEST_AGG(SUM, true, abs, input_dataset, expected2);
     }
     {
-        testAggExpr("AVG", false, "abs", input_dataset,
-                    {{"a", 2},
-                     {"b", 4},
-                     {"c", 6}});
-        testAggExpr("AVG", true, "abs", input_dataset,
-                    {{"a", 2},
-                     {"b", 4},
-                     {"c", 16.0/3}});
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 2},
+                          {"b", 4},
+                          {"c", 6}};
+        TEST_AGG(AVG, false, abs, input_dataset, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 2},
+                          {"b", 4},
+                          {"c", 16.0/3}};
+        TEST_AGG(AVG, true, abs, input_dataset, expected2);
     }
     {
-        testAggExpr("MIN", false, "abs", input_dataset,
-                    {{"a", 1},
-                     {"b", 4},
-                     {"c", 3}});
-        testAggExpr("MIN", true, "abs", input_dataset,
-                    {{"a", 1},
-                     {"b", 4},
-                     {"c", 3}});
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 1},
+                          {"b", 4},
+                          {"c", 3}};
+        TEST_AGG(MIN, false, abs, input_dataset, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 1},
+                          {"b", 4},
+                          {"c", 3}};
+        TEST_AGG(MIN, true, abs, input_dataset, expected2);
     }
     {
-        testAggExpr("MAX", false, "abs", input_dataset,
-                    {{"a", 3},
-                     {"b", 4},
-                     {"c", 8}});
-        testAggExpr("MAX", true, "abs", input_dataset,
-                    {{"a", 3},
-                     {"b", 4},
-                     {"c", 8}});
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 3},
+                          {"b", 4},
+                          {"c", 8}};
+        TEST_AGG(MAX, false, abs, input_dataset, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 3},
+                          {"b", 4},
+                          {"c", 8}};
+        TEST_AGG(MAX, true, abs, input_dataset, expected2);
     }
     {
-        testAggExpr("COLLECT", false, "abs", input_dataset,
-                    {{"a", Value(List({1, 3}))},
-                     {"b", Value(List({4}))},
-                     {"c", Value(List({3, 8, 5, 8}))}});
-        testAggExpr("COLLECT", true, "abs", input_dataset,
-                    {{"a", List({1, 3})},
-                     {"b", List({4})},
-                     {"c", List({3, 8, 5})}});
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", Value(List({1, 3}))},
+                          {"b", Value(List({4}))},
+                          {"c", Value(List({3, 8, 5, 8}))}};
+        TEST_AGG(COLLECT, false, abs, input_dataset, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", List({1, 3})},
+                          {"b", List({4})},
+                          {"c", List({3, 8, 5})}};
+        TEST_AGG(COLLECT, true, abs, input_dataset, expected2);
     }
     {
-        std::unordered_map<std::string, Value> expected;
-        expected["b"] = Set({4});
-        expected["a"] = Set({1, 3});
-        expected["c"] = Set({3, 8, 5});
         // TODO : unordered_map compare failed
-        // testAggExpr("COLLECT_SET", false, "abs", input_dataset, expected);
-        // testAggExpr("COLLECT_SET", true, "abs", input_dataset, expected);
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"b", Set({4})},
+                          {"a", Set({1, 3})},
+                          {"c", Set({3, 8, 5})}};
+        // TEST_AGG(COLLECT_SET, false, abs, input_dataset, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"b", Set({4})},
+                          {"a", Set({1, 3})},
+                          {"c", Set({3, 8, 5})}};
+        // TEST_AGG(COLLECT_SET, true, abs, input_dataset, expected2);
     }
     {
-//        std::vector<std::pair<std::string, Value>> stdev_dataset =
-//            {{"a", 0},
-//             {"a", 1},
-//             {"a", 2},
-//             {"a", Value::kNullValue},
-//             {"a", Value::kEmpty},
-//             {"a", 3},
-//             {"a", 4},
-//             {"b", Value::kNullValue},
-//             {"c", Value::kEmpty},
-//             {"a", 5},
-//             {"a", Value::kEmpty},
-//             {"a", 6},
-//             {"a", 7},
-//             {"c", Value::kNullValue},
-//             {"b", 6},
-//             {"c", 7},
-//             {"c", 7},
-//             {"b", Value::kEmpty},
-//             {"a", 8},
-//             {"a", 9}};
-//        testAggExpr(new std::string("STD"), false, new std::string("abs"), stdev_dataset,
-//                    {{"a", 1.0},
-//                     {"b", 0.0},
-//                     {"c", 0.0}});
-//        testAggExpr(new std::string("STD"), true, new std::string("abs"), stdev_dataset,
-//                    {{"a", 1.0},
-//                     {"b", 0.0},
-//                     {"c", 0.0}});
+       std::vector<std::pair<std::string, Value>> test_stdev_dataset =
+           {{"a", 0},
+            {"a", 1},
+            {"a", 2},
+            {"a", 3},
+            {"a", 4},
+            {"a", 5},
+            {"a", 6},
+            {"a", 7},
+            {"b", 6},
+            {"c", 7},
+            {"c", 7},
+            {"a", 8},
+            {"c", 9},
+            {"c", 9},
+            {"a", 9}};
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 2.8722813232690143},
+                          {"b", 0.0},
+                          {"c", 0.9999999999999999}};
+        TEST_AGG(STD, false, abs, test_stdev_dataset, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 2.8722813232690143},
+                          {"b", 0.0},
+                          {"c", 1.0}};
+        TEST_AGG(STD, true, abs, test_stdev_dataset, expected2);
     }
     {
-        std::vector<std::pair<std::string, Value>> input_dataset2 =
+        std::vector<std::pair<std::string, Value>> test_bit_dataset =
             {{"a", 1},
              {"b", 4},
              {"c", 3},
@@ -3270,38 +3294,43 @@ TEST_F(ExpressionTest, AggregateExpression) {
              {"c", 8},
              {"c", 5},
              {"c", 8}};
-        testAggExpr("BIT_AND", false, "hash", input_dataset2,
-                    {{"a", 1},
-                     {"b", 4},
-                     {"c", 0}});
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 1},
+                          {"b", 4},
+                          {"c", 0}};
+        TEST_AGG(BIT_AND, false, hash, test_bit_dataset, expected1);
 
-        testAggExpr("BIT_AND", true, "hash", input_dataset2,
-                    {{"a", 1},
-                     {"b", 4},
-                     {"c", 0}});
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 1},
+                          {"b", 4},
+                          {"c", 0}};
+        TEST_AGG(BIT_AND, true, hash, test_bit_dataset, expected2);
 
-        testAggExpr("BIT_OR", false, "hash", input_dataset2,
-                    {{"a", 3},
-                     {"b", 4},
-                     {"c", 15}});
+        const std::unordered_map<std::string, Value>
+             expected3 = {{"a", 3},
+                          {"b", 4},
+                          {"c", 15}};
+        TEST_AGG(BIT_OR, false, hash, test_bit_dataset, expected3);
 
-        testAggExpr("BIT_OR", true, "hash", input_dataset2,
-                    {{"a", 3},
-                     {"b", 4},
-                     {"c", 15}});
+        const std::unordered_map<std::string, Value>
+             expected4 = {{"a", 3},
+                          {"b", 4},
+                          {"c", 15}};
+        TEST_AGG(BIT_OR, true, hash, test_bit_dataset, expected4);
 
-        testAggExpr("BIT_XOR", false, "hash", input_dataset2,
-                    {{"a", 2},
-                     {"b", 4},
-                     {"c", 6}});
+        const std::unordered_map<std::string, Value>
+             expected5 = {{"a", 2},
+                          {"b", 4},
+                          {"c", 6}};
+        TEST_AGG(BIT_XOR, false, hash, test_bit_dataset, expected5);
 
-        testAggExpr("BIT_XOR", true, "hash", input_dataset2,
-                    {{"a", 2},
-                     {"b", 4},
-                     {"c", 14}});
+        const std::unordered_map<std::string, Value>
+             expected6 = {{"a", 2},
+                          {"b", 4},
+                          {"c", 14}};
+        TEST_AGG(BIT_XOR, true, hash, test_bit_dataset, expected6);
     }
 }
-
 }  // namespace nebula
 
 int main(int argc, char** argv) {
