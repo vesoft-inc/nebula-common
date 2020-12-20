@@ -441,6 +441,7 @@ GraphStorageClient::lookupIndex(GraphSpaceID space,
                                 bool isEdge,
                                 int32_t tagOrEdge,
                                 const std::vector<std::string>& returnCols,
+                                bool dedup,
                                 folly::EventBase *evb) {
     auto status = getHostParts(space);
     if (!status.ok()) {
@@ -463,6 +464,7 @@ GraphStorageClient::lookupIndex(GraphSpaceID space,
         spec.set_tag_or_edge_id(tagOrEdge);
 
         req.set_indices(spec);
+        req.set_dedup(dedup);
     }
 
     return collectResponse(evb,

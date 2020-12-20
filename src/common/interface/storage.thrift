@@ -583,6 +583,12 @@ struct LookupIndexRequest {
     // The list of property names. Should not be empty.
     // Support kVid and kTag for vertex, kSrc, kType, kRank and kDst for edge.
     4: optional list<binary>                return_columns,
+    // Whether to do the dedup based on the all rows.
+    // Caused by YIELD DISTINCT clause.
+    // the default value is false means just used field :
+    //   vertices : vid
+    //   edges : srcid, rank , dstid
+    5: bool                                 dedup = false,
 }
 
 

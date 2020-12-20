@@ -117,6 +117,7 @@ public:
         bool isEdge,
         int32_t tagOrEdge,
         const std::vector<std::string>& returnCols,
+        bool dedup,
         folly::EventBase *evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>> lookupAndTraverse(
