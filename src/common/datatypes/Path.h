@@ -49,10 +49,9 @@ struct Step {
 
     std::string toString() const {
         std::stringstream os;
-        os << "-" << "[" << (type > 0 ? "" : "-") << name << "]" << "->"
-            << "(" << dst << ")"
-            << "@" << ranking;
-        os << " ";
+        os << "-[" << name << "(" << type << ")]->"
+           << "(" << dst << ")"
+           << "@" << ranking << " ";
         for (const auto& prop : props) {
             os << prop.first << ":" << prop.second << ",";
         }
@@ -86,7 +85,7 @@ struct Step {
     bool operator==(const Step& rhs) const {
         return dst == rhs.dst &&
                type == rhs.type &&
-                name == rhs.name &&
+               name == rhs.name &&
                ranking == rhs.ranking &&
                props == rhs.props;
     }
