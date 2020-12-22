@@ -205,6 +205,7 @@ TEST(FulltextPluginTest, ESResultTest) {
     }
 }
 
+// TODO: The json string is not comparable.
 TEST(FulltextPluginTest, DISABLED_ESPrefixTest) {
     HostAddr localHost_{"127.0.0.1", 9200};
     HttpClient client(localHost_);
