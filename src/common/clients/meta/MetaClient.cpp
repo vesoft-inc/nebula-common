@@ -1667,7 +1667,7 @@ MetaClient::dropTagIndex(GraphSpaceID spaceID, std::string name, bool ifExists) 
                     return client->future_dropTagIndex(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> IndexID {
-                    return resp.get_id().get_index_id();
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise));
     return future;
@@ -1795,7 +1795,7 @@ MetaClient::dropEdgeIndex(GraphSpaceID spaceId, std::string name, bool ifExists)
                     return client->future_dropEdgeIndex(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> IndexID {
-                    return resp.get_id().get_index_id();
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise));
     return future;
