@@ -178,27 +178,30 @@ public:
     }
 
     const AggData* aggData() const {
-        return result_;
+        return aggData_;
     }
 
     AggData* aggData() {
-        return result_;
+        return aggData_;
     }
 
     void setAggData(AggData* agg_data) {
-        result_ = agg_data;
+        aggData_ = agg_data;
     }
 
 
 private:
-    void writeTo(Encoder& encoder) const override;
+    std::function<void(AggData*, const Value&)> apply() {
+        return aggFunMap_[nameIdMap_[name_->c_str()]];
+    }
 
+    void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
     std::unique_ptr<std::string>    name_;
     std::unique_ptr<Expression>     arg_;
     bool                            distinct_{false};
-    AggData*                        result_{nullptr};
+    AggData*                        aggData_{nullptr};
 };
 
 }  // namespace nebula

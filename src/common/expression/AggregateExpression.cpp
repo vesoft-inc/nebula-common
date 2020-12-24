@@ -59,34 +59,28 @@ void AggregateExpression::resetFrom(Decoder& decoder) {
 }
 
 const Value& AggregateExpression::eval(ExpressionContext& ctx) {
-    auto iter = nameIdMap_.find(name_->c_str());
-    if (iter == AggregateExpression::nameIdMap_.end()) {
-        return Value::kNullBadData;
-    }
+    DCHECK(!!aggData_);
 
     auto val = arg_->eval(ctx);
-    if (!result_) {
-        // groupBy is empy. eg.`yield count(*), 1`
-        return Value::kNullBadData;
-    }
-    auto uniques = result_->uniques();
+    auto uniques = aggData_->uniques();
     if (distinct_) {
         if (uniques->contains(val)) {
-            return result_->res();
+            return aggData_->res();
         }
         uniques->values.emplace(val);
     }
 
-    auto apply = aggFunMap_[iter->second];
-    apply(result_, val);
+    apply()(aggData_, val);
 
-    return result_->res();
+    return aggData_->res();
 }
 
 std::string AggregateExpression::toString() const {
     std::string arg(arg_->toString());
     std::string isDistinct;
-    if (distinct_) { isDistinct = "distinct ";}
+    if (distinct_) {
+        isDistinct = "distinct ";
+    }
     std::stringstream out;
     out << *name_ << "(" << isDistinct << arg << ")";
     return out.str();
