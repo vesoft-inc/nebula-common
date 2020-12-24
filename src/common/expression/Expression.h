@@ -18,9 +18,7 @@ class ExprVisitor;
 class Expression {
 public:
     enum class Kind : uint8_t {
-        kConstant = 0,
-
-        kAdd,
+        kAdd = 0,
         kMinus,
         kMultiply,
         kDivision,
@@ -44,8 +42,9 @@ public:
         kVar,
         kVersionedVar,
         kLabel,
-        kCase = 24,
+        kCase = 23,
 
+        kConstant ,
         kUnaryPlus,
         kUnaryNegate,
         kUnaryNot,
