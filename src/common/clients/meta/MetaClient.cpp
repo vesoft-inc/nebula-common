@@ -1666,8 +1666,8 @@ MetaClient::dropTagIndex(GraphSpaceID spaceID, std::string name, bool ifExists) 
                 [] (auto client, auto request) {
                     return client->future_dropTagIndex(request);
                 },
-                [] (cpp2::ExecResp&& resp) -> IndexID {
-                    return resp.get_id().get_index_id();
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise));
     return future;
@@ -1794,8 +1794,8 @@ MetaClient::dropEdgeIndex(GraphSpaceID spaceId, std::string name, bool ifExists)
                 [] (auto client, auto request) {
                     return client->future_dropEdgeIndex(request);
                 },
-                [] (cpp2::ExecResp&& resp) -> IndexID {
-                    return resp.get_id().get_index_id();
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.code == cpp2::ErrorCode::SUCCEEDED;
                 },
                 std::move(promise));
     return future;
@@ -2469,13 +2469,17 @@ MetaClient::getUserRoles(std::string account) {
 
 
 folly::Future<StatusOr<int64_t>> MetaClient::balance(std::vector<HostAddr> hostDel,
-                                                     bool isStop) {
+                                                     bool isStop,
+                                                     bool isReset) {
     cpp2::BalanceReq req;
     if (!hostDel.empty()) {
         req.set_host_del(std::move(hostDel));
     }
     if (isStop) {
         req.set_stop(isStop);
+    }
+    if (isReset) {
+        req.set_reset(isReset);
     }
 
     folly::Promise<StatusOr<int64_t>> promise;
