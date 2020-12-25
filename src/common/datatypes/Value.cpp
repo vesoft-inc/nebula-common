@@ -1903,10 +1903,8 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::NULLVALUE: {
                     return Value::kNullValue;
                 }
-                default: {
-                    LOG(FATAL) << "Unknown type: " << rhs.type();
-                }
             }
+            LOG(FATAL) << "Unknown type: " << rhs.type();
         }
         case Value::Type::VERTEX: {
             switch (rhs.type()) {
