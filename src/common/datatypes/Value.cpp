@@ -1894,8 +1894,17 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     ret.emplace_back(rhs);
                     return ret;
                 }
-                default: {
+                case Value::Type::DATASET: {
                     return Value::kNullBadType;
+                }
+                case Value::Type::__EMPTY__: {
+                    return Value::kEmpty;
+                }
+                case Value::Type::NULLVALUE: {
+                    return Value::kNullValue;
+                }
+                default: {
+                    LOG(FATAL) << "Unknown type: " << rhs.type();
                 }
             }
         }
