@@ -18,33 +18,14 @@ class ExprVisitor;
 class Expression {
 public:
     enum class Kind : uint8_t {
-        kAdd = 0,
+        kConstant,
+
+        kAdd,
         kMinus,
         kMultiply,
         kDivision,
         kMod,
 
-        kTypeCasting,
-        kFunctionCall,
-        kTagProperty,
-        kEdgeProperty,
-        kInputProperty,
-        kVarProperty,
-        kDstProperty,
-        kSrcProperty,
-        kEdgeSrc,
-        kEdgeType,
-        kEdgeRank,
-        kEdgeDst,
-        kVertex,
-        kEdge,
-        kUUID,
-        kVar,
-        kVersionedVar,
-        kLabel,
-        kCase = 23,
-
-        kConstant ,
         kUnaryPlus,
         kUnaryNegate,
         kUnaryNot,
@@ -75,9 +56,35 @@ public:
         kLogicalOr,
         kLogicalXor,
 
+        kTypeCasting,
+
+        kFunctionCall,
+
+        kTagProperty,
+        kEdgeProperty,
+        kInputProperty,
+        kVarProperty,
+        kDstProperty,
+        kSrcProperty,
+        kEdgeSrc,
+        kEdgeType,
+        kEdgeRank,
+        kEdgeDst,
+        kVertex,
+        kEdge,
+
+        kUUID,
+
+        kVar,
+        kVersionedVar,
+
         kList,
         kSet,
         kMap,
+
+        kLabel,
+
+        kCase,
 
         kPathBuild,
         // text or key word search expression
@@ -88,6 +95,7 @@ public:
 
         kAggregate,
     };
+
 
     explicit Expression(Kind kind) : kind_(kind) {}
 
