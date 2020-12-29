@@ -55,6 +55,7 @@ enum ErrorCode {
     E_NO_RUNNING_BALANCE_PLAN   = -36,
     E_NO_VALID_HOST             = -37,
     E_CORRUPTTED_BALANCE_PLAN   = -38,
+    E_NO_INVALID_BALANCE_PLAN   = -39,
 
     // Authentication Failure
     E_INVALID_PASSWORD          = -41,
@@ -75,6 +76,14 @@ enum ErrorCode {
     E_SAVE_JOB_FAILURE       = -57,
     E_BALANCER_FAILURE       = -58,
     E_JOB_NOT_FINISHED       = -59,
+
+    // Backup Failure
+    E_BACKUP_FAILURE = -60,
+    E_BACKUP_BUILDING_INDEX = -61,
+    E_BACKUP_SPACE_NOT_FOUND = -62,
+
+    // RESTORE Failure
+    E_RESTORE_FAILURE = -70,
 
     E_UNKNOWN        = -99,
 } (cpp.enum_strict)
@@ -747,6 +756,7 @@ struct BalanceReq {
     2: optional i64                     id,
     3: optional list<common.HostAddr>   host_del,
     4: optional bool                    stop,
+    5: optional bool                    reset,
 }
 
 enum TaskResult {
@@ -993,6 +1003,48 @@ struct GetStatisResp {
     3: StatisItem       statis,
 }
 
+struct CheckpointInfo {
+    1: common.HostAddr host,
+    2: binary          checkpoint_dir,
+}
+
+struct SpaceBackupInfo {
+    1: SpaceDesc                    space,
+    2: common.PartitionBackupInfo   partition_info,
+    // storage checkpoint directory name
+    3: list<CheckpointInfo>         cp_dirs,
+}
+
+struct BackupMeta {
+    // space_name => SpaceBackupInfo
+    1: map<common.GraphSpaceID, SpaceBackupInfo> (cpp.template = "std::unordered_map")  backup_info,
+    // sst file
+    2: list<binary>                               meta_files,
+    // backup
+    3: binary                                     backup_name,
+}
+
+struct CreateBackupReq {
+    // null means all spaces
+    1: optional list<binary>  spaces,
+}
+
+struct CreateBackupResp {
+    1: ErrorCode          code,
+    2: common.HostAddr    leader,
+    3: BackupMeta         meta,
+}
+
+struct HostPair {
+    1: common.HostAddr   from_host,
+    2: common.HostAddr   to_host,
+}
+
+struct RestoreMetaReq {
+    1: list<binary>     files,
+    2: list<HostPair>   hosts,
+}
+
 enum FTServiceType {
     ELASTICSEARCH = 0x01,
 } (cpp.enum_strict)
@@ -1018,6 +1070,57 @@ struct ListFTClientsResp {
     1: ErrorCode           code,
     2: common.HostAddr     leader,
     3: list<FTClient>      clients,
+}
+
+struct Session {
+    1: common.SessionID session_id,
+    2: common.Timestamp create_time,
+    3: common.Timestamp update_time,
+    4: binary user_name,
+    5: binary space_name,
+    6: common.HostAddr graph_addr,
+    7: i32 timezone,
+    8: binary client_ip,
+    9: map<binary, common.Value>(cpp.template = "std::unordered_map") configs,
+}
+
+struct CreateSessionReq {
+    1: binary               user,
+    2: common.HostAddr      graph_addr,
+    3: binary               client_ip,
+}
+
+struct CreateSessionResp {
+    1: ErrorCode            code,
+    2: common.HostAddr      leader,
+    3: Session              session,
+}
+
+struct UpdateSessionsReq {
+    1: list<Session>        sessions,
+}
+
+struct ListSessionsReq {
+}
+
+struct ListSessionsResp {
+    1: ErrorCode             code,
+    2: common.HostAddr       leader,
+    3: list<Session>         sessions,
+}
+
+struct GetSessionReq {
+    1: common.SessionID  session_id,
+}
+
+struct GetSessionResp {
+    1: ErrorCode            code,
+    2: common.HostAddr      leader,
+    3: Session              session,
+}
+
+struct RemoveSessionReq {
+    1: common.SessionID      session_id,
 }
 
 service MetaService {
@@ -1102,6 +1205,8 @@ service MetaService {
     GetGroupResp   getGroup(1: GetGroupReq req);
     ListGroupsResp listGroups(1: ListGroupsReq req);
 
+    CreateBackupResp createBackup(1: CreateBackupReq req);
+    ExecResp       restoreMeta(1: RestoreMetaReq req);
     ExecResp       addListener(1: AddListenerReq req);
     ExecResp       removeListener(1: RemoveListenerReq req);
     ListListenerResp listListener(1: ListListenerReq req);
@@ -1110,4 +1215,10 @@ service MetaService {
     ExecResp signInFTService(1: SignInFTServiceReq req);
     ExecResp signOutFTService(1: SignOutFTServiceReq req);
     ListFTClientsResp listFTClients(1: ListFTClientsReq req);
+
+    CreateSessionResp createSession(1: CreateSessionReq req);
+    ExecResp updateSessions(1: UpdateSessionsReq req);
+    ListSessionsResp listSessions(1: ListSessionsReq req);
+    GetSessionResp getSession(1: GetSessionReq req);
+    ExecResp removeSession(1: RemoveSessionReq req);
 }
