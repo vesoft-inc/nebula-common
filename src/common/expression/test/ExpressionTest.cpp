@@ -3190,17 +3190,17 @@ TEST_F(ExpressionTest, TestExprClone) {
                                  new ConstantExpression(2)));
     ASSERT_EQ(lcExpr, *lcExpr.clone());
 
-    ArgumentList *argList = new ArgumentList();
+    argList = new ArgumentList();
     argList->addArgument(std::make_unique<ConstantExpression>(1));
     argList->addArgument(std::make_unique<ConstantExpression>(5));
-    PredicateExpression lcExpr(
+    PredicateExpression predExpr(
         new std::string("all"),
         new std::string("n"),
         new FunctionCallExpression(new std::string("range"), argList),
         new RelationalExpression(Expression::Kind::kRelGE,
                                  new LabelExpression(new std::string("n")),
                                  new ConstantExpression(2)));
-    ASSERT_EQ(lcExpr, *lcExpr.clone());
+    ASSERT_EQ(predExpr, *predExpr.clone());
 }
 
 TEST_F(ExpressionTest, PathBuild) {
