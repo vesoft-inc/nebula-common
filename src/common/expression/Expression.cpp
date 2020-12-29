@@ -29,6 +29,7 @@
 #include "common/expression/VertexExpression.h"
 #include "common/expression/CaseExpression.h"
 #include "common/expression/ColumnExpression.h"
+#include "common/expression/ListComprehensionExpression.h"
 #include "common/expression/PredicateExpression.h"
 
 namespace nebula {
@@ -478,6 +479,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kListComprehension: {
+            exp = std::make_unique<ListComprehensionExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kPredicate: {
             exp = std::make_unique<PredicateExpression>();
             exp->resetFrom(decoder);
@@ -677,6 +683,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             break;
         case Expression::Kind::kTSFuzzy:
             os << "Fuzzy";
+            break;
+        case Expression::Kind::kListComprehension:
+            os << "ListComprehension";
             break;
         case Expression::Kind::kPredicate:
             os << "Predicate";
