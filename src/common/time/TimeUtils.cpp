@@ -250,10 +250,6 @@ const DateTime TimeUtils::kEpoch(1970, 1, 1, 0, 0, 0, 0);
 }
 
 StatusOr<Value> TimeUtils::toTimestamp(const Value &val) {
-    if (!val.isInt() && !val.isStr()) {
-        return Status::Error("Incorrect timestamp type: `%s'", val.toString().c_str());
-    }
-
     Timestamp timestamp;
     if (val.isStr()) {
         auto status = parseDateTime(val.getStr());
@@ -265,12 +261,14 @@ StatusOr<Value> TimeUtils::toTimestamp(const Value &val) {
             return Status::Error("The timestamp  only supports seconds unit.");
         }
         timestamp = time::TimeUtils::dateTimeToUnixSeconds(dateTime);
-    } else {
+    } else if (val.isInt()) {
         timestamp = val.getInt();
+    } else {
+        return Status::Error("Incorrect timestamp type: `%s'", val.toString().c_str());
     }
 
     if (timestamp < 0 || (timestamp > kMaxTimestamp)) {
-        return Status::Error("Incorrect timestamp type: `%s'", val.toString().c_str());
+        return Status::Error("Incorrect timestamp value: `%s'", val.toString().c_str());
     }
     return timestamp;
 }
