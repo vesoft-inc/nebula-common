@@ -94,11 +94,11 @@ std::unordered_map<AggregateExpression::Function,
             if (res.isBadNull()) {
                 return;
             }
-            if (res.isNull()) {
-                res = 0;
-            }
             if (val.isNull() || val.empty()) {
                 return;
+            }
+            if (res.isNull()) {
+                res = 0;
             }
 
             res = res + 1;
@@ -116,11 +116,11 @@ std::unordered_map<AggregateExpression::Function,
                 return;
             }
 
-            if (res.isNull()) {
-                res = val;
+            if (val.isNull() || val.empty()) {
                 return;
             }
-            if (val.isNull() || val.empty()) {
+            if (res.isNull()) {
+                res = val;
                 return;
             }
             res = res + val;
@@ -140,14 +140,13 @@ std::unordered_map<AggregateExpression::Function,
 
             auto& sum = result->sum();
             auto& cnt = result->cnt();
-            if (res.isNull()) {
-                res = val;
-                sum = val;
-                cnt = 1.0;
-                return;
-            }
             if (val.isNull() || val.empty()) {
                 return;
+            }
+            if (res.isNull()) {
+                res = 0.0;
+                sum = 0.0;
+                cnt = 0.0;
             }
 
             sum = sum + val;
@@ -166,16 +165,16 @@ std::unordered_map<AggregateExpression::Function,
                 res = Value::kNullBadType;
                 return;
             }
+            if (val.isNull() || val.empty()) {
+                return;
+            }
             if (res.isNull()) {
                 res = val;
                 return;
             }
 
-            if (val.isNull() || val.empty()) {
-                return;
-            }
             if (val > res) {
-                result->setRes(val);
+                res = val;
             }
         }
     },
@@ -190,15 +189,15 @@ std::unordered_map<AggregateExpression::Function,
                 res = Value::kNullBadType;
                 return;
             }
+            if (val.isNull() || val.empty()) {
+                return;
+            }
             if (res.isNull()) {
                 res = val;
                 return;
             }
-            if (val.isNull() || val.empty()) {
-                return;
-            }
             if (val < res) {
-                result->setRes(val);
+                res = val;
             }
         }
     },
@@ -247,11 +246,11 @@ std::unordered_map<AggregateExpression::Function,
                 res = Value::kNullBadType;
                 return;
             }
-            if (res.isNull() && val.isInt()) {
-                res = val;
+            if (val.isNull() || val.empty()) {
                 return;
             }
-            if (val.isNull() || val.empty()) {
+            if (res.isNull() && val.isInt()) {
+                res = val;
                 return;
             }
 
@@ -269,11 +268,11 @@ std::unordered_map<AggregateExpression::Function,
                 res = Value::kNullBadType;
                 return;
             }
-            if (res.isNull() && val.isInt()) {
-                res = val;
+            if (val.isNull() || val.empty()) {
                 return;
             }
-            if (val.isNull() || val.empty()) {
+            if (res.isNull() && val.isInt()) {
+                res = val;
                 return;
             }
 
@@ -291,11 +290,11 @@ std::unordered_map<AggregateExpression::Function,
                 res = Value::kNullBadType;
                 return;
             }
-            if (res.isNull() && val.isInt()) {
-                res = val;
+            if (val.isNull() || val.empty()) {
                 return;
             }
-            if (val.isNull() || val.empty()) {
+            if (res.isNull() && val.isInt()) {
+                res = val;
                 return;
             }
 

@@ -230,7 +230,7 @@ protected:
         for (auto& iter : agg_data_map) {
             res[iter.first] = iter.second->res();
         }
-        EXPECT_EQ(res, expected);
+        EXPECT_EQ(res, expected) << "check failed: " << name;
     }
 };
 
