@@ -165,6 +165,10 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"datetime", {TypeSignature({}, Value::Type::DATETIME),
               TypeSignature({Value::Type::STRING}, Value::Type::DATETIME),
               TypeSignature({Value::Type::MAP}, Value::Type::DATETIME)}},
+    {"timestamp", {TypeSignature({Value::Type::STRING}, Value::Type::INT),
+                   TypeSignature({Value::Type::INT}, Value::Type::INT)}},
+    {"id", {TypeSignature({Value::Type::VERTEX}, Value::Type::STRING),
+             }},
     {"tags", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
              }},
     {"labels", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
@@ -233,7 +237,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::abs(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::abs(args[0].getInt());
+                } else {
+                    return std::abs(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -246,7 +254,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::floor(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::floor(args[0].getInt());
+                } else {
+                    return std::floor(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -259,7 +271,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::ceil(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::ceil(args[0].getInt());
+                } else {
+                    return std::ceil(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -272,7 +288,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::round(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::round(args[0].getInt());
+                } else {
+                    return std::round(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -285,7 +305,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::sqrt(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::sqrt(args[0].getInt());
+                } else {
+                    return std::sqrt(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -346,7 +370,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::exp(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::exp(args[0].getInt());
+                } else {
+                    return std::exp(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -359,7 +387,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::exp2(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::exp2(args[0].getInt());
+                } else {
+                    return std::exp2(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -372,7 +404,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::log(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::log(args[0].getInt());
+                } else {
+                    return std::log(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -385,7 +421,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::log2(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::log2(args[0].getInt());
+                } else {
+                    return std::log2(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -1117,6 +1157,18 @@ FunctionManager::FunctionManager() {
                 default:
                     LOG(FATAL) << "Unexpected arguments count " << args.size();
             }
+        };
+    }
+    {
+        auto &attr = functions_["timestamp"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            auto status = time::TimeUtils::toTimestamp(args[0]);
+            if (!status.ok()) {
+                return Value::kNullBadData;
+            }
+            return status.value();
         };
     }
     {
