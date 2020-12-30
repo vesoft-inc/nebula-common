@@ -94,11 +94,11 @@ std::unordered_map<AggregateExpression::Function,
             if (res.isBadNull()) {
                 return;
             }
-            if (val.isNull() || val.empty()) {
-                return;
-            }
             if (res.isNull()) {
                 res = 0;
+            }
+            if (val.isNull() || val.empty()) {
+                return;
             }
 
             res = res + 1;
