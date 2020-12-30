@@ -53,14 +53,14 @@ const Value& AggregateExpression::eval(ExpressionContext& ctx) {
     auto uniques = aggData_->uniques();
     if (distinct_) {
         if (uniques->contains(val)) {
-            return aggData_->res();
+            return aggData_->result();
         }
         uniques->values.emplace(val);
     }
 
-    apply()(aggData_, val);
+    apply_(aggData_, val);
 
-    return aggData_->res();
+    return aggData_->result();
 }
 
 std::string AggregateExpression::toString() const {
@@ -84,13 +84,13 @@ std::unordered_map<AggregateExpression::Function,
     {
         AggregateExpression::Function::kNone,
         [](AggData* result, const Value& val) {
-            result->setRes(val);
+            result->setResult(val);
         }
     },
     {
         AggregateExpression::Function::kCount,
         [](AggData* result, const Value& val) {
-            auto& res = result->res();
+            auto& res = result->result();
             if (res.isBadNull()) {
                 return;
             }
@@ -107,7 +107,7 @@ std::unordered_map<AggregateExpression::Function,
     {
         AggregateExpression::Function::kSum,
         [](AggData* result, const Value& val) {
-            auto& res = result->res();
+            auto& res = result->result();
             if (res.isBadNull()) {
                 return;
             }
@@ -129,7 +129,7 @@ std::unordered_map<AggregateExpression::Function,
     {
         AggregateExpression::Function::kAvg,
         [](AggData* result, const Value& val) {
-            auto& res = result->res();
+            auto& res = result->result();
             if (res.isBadNull()) {
                 return;
             }
@@ -157,7 +157,7 @@ std::unordered_map<AggregateExpression::Function,
     {
         AggregateExpression::Function::kMax,
         [](AggData* result, const Value& val) {
-            auto& res = result->res();
+            auto& res = result->result();
             if (res.isBadNull()) {
                 return;
             }
@@ -181,7 +181,7 @@ std::unordered_map<AggregateExpression::Function,
     {
         AggregateExpression::Function::kMin,
         [](AggData* result, const Value& val) {
-            auto& res = result->res();
+            auto& res = result->result();
             if (res.isBadNull()) {
                 return;
             }
@@ -204,7 +204,7 @@ std::unordered_map<AggregateExpression::Function,
     {
         AggregateExpression::Function::kStdev,
         [](AggData* result, const Value& val) {
-            auto& res = result->res();
+            auto& res = result->result();
             if (res.isBadNull()) {
                 return;
             }
@@ -238,7 +238,7 @@ std::unordered_map<AggregateExpression::Function,
     {
         AggregateExpression::Function::kBitAnd,
         [](AggData* result, const Value& val) {
-            auto& res = result->res();
+            auto& res = result->result();
             if (res.isBadNull()) {
                 return;
             }
@@ -260,7 +260,7 @@ std::unordered_map<AggregateExpression::Function,
     {
         AggregateExpression::Function::kBitOr,
         [](AggData* result, const Value& val) {
-            auto& res = result->res();
+            auto& res = result->result();
             if (res.isBadNull()) {
                 return;
             }
@@ -282,7 +282,7 @@ std::unordered_map<AggregateExpression::Function,
     {
         AggregateExpression::Function::kBitXor,
         [](AggData* result, const Value& val) {
-            auto& res = result->res();
+            auto& res = result->result();
             if (res.isBadNull()) {
                 return;
             }
@@ -304,7 +304,7 @@ std::unordered_map<AggregateExpression::Function,
     {
         AggregateExpression::Function::kCollect,
         [](AggData* result, const Value& val) {
-            auto& res = result->res();
+            auto& res = result->result();
             if (res.isBadNull()) {
                 return;
             }
@@ -325,7 +325,7 @@ std::unordered_map<AggregateExpression::Function,
     {
         AggregateExpression::Function::kCollectSet,
         [](AggData* result, const Value& val) {
-            auto& res = result->res();
+            auto& res = result->result();
             if (res.isBadNull()) {
                 return;
             }

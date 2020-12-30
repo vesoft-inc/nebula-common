@@ -229,7 +229,7 @@ protected:
         }
         std::unordered_map<std::string, Value> res;
         for (auto& iter : agg_data_map) {
-            res[iter.first] = iter.second->res();
+            res[iter.first] = iter.second->result();
         }
         EXPECT_EQ(res, expected) << "check failed: " << name;
     }
@@ -1299,6 +1299,13 @@ TEST_F(ExpressionTest, SetToString) {
             .add(new ConstantExpression(true));
     auto expr = std::make_unique<SetExpression>(elist);
     ASSERT_EQ("{12345,12345,Hello,true}", expr->toString());
+}
+
+TEST_F(ExpressionTest, AggregateToString) {
+    auto* arg = new ConstantExpression("$-.age");
+    auto* aggName = new std::string("COUNT");
+    auto expr = std::make_unique<AggregateExpression>(aggName, arg, true);
+    ASSERT_EQ("COUNT(distinct $-.age)", expr->toString());
 }
 
 TEST_F(ExpressionTest, MapTostring) {
@@ -2995,6 +3002,9 @@ TEST_F(ExpressionTest, TestExprClone) {
         Expression::Kind::kAdd, new ConstantExpression(1), new ConstantExpression(1));
     auto aclone = aexpr.clone();
     ASSERT_EQ(*aclone, aexpr);
+
+    AggregateExpression aggExpr(new std::string("COUNT"), new ConstantExpression("$-.*"), true);
+    ASSERT_EQ(aggExpr, *aggExpr.clone());
 
     EdgeExpression edgeExpr;
     ASSERT_EQ(edgeExpr, *edgeExpr.clone());

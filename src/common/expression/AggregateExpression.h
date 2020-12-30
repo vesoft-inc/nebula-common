@@ -34,8 +34,8 @@ public:
         return cnt_;
     }
 
-    void setCnt(Value cnt) {
-        cnt_ = cnt;
+    void setCnt(Value&& cnt) {
+        cnt_ = std::move(cnt);
     }
 
     const Value& sum() const {
@@ -46,8 +46,8 @@ public:
         return sum_;
     }
 
-    void setSum(Value sum) {
-        sum_ = sum;
+    void setSum(Value&& sum) {
+        sum_ = std::move(sum);
     }
 
     const Value& avg() const {
@@ -58,8 +58,8 @@ public:
         return avg_;
     }
 
-    void setAvg(Value avg) {
-        avg_ = avg;
+    void setAvg(Value&& avg) {
+        avg_ = std::move(avg);
     }
 
     const Value& deviation() const {
@@ -70,19 +70,23 @@ public:
         return deviation_;
     }
 
-    void setDeviation(Value deviation) {
-        deviation_ = deviation;
+    void setDeviation(Value&& deviation) {
+        deviation_ = std::move(deviation);
     }
 
-    const Value& res() const {
+    const Value& result() const {
         return result_;
     }
 
-    Value& res() {
+    Value& result() {
         return result_;
     }
 
-    void setRes(Value res) {
+    void setResult(Value&& res) {
+        result_ = std::move(res);
+    }
+
+    void setResult(const Value& res) {
         result_ = res;
     }
 
@@ -94,7 +98,7 @@ public:
         return uniques_.get();
     }
 
-    void setRes(Set* uniques) {
+    void setUniques(Set* uniques) {
         uniques_.reset(uniques);
     }
 
@@ -136,6 +140,7 @@ public:
         arg_.reset(arg);
         name_.reset(name);
         distinct_ = distinct;
+        apply_ = aggFunMap_[nameIdMap_[name_->c_str()]];
     }
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -191,10 +196,6 @@ public:
 
 
 private:
-    std::function<void(AggData*, const Value&)> apply() {
-        return aggFunMap_[nameIdMap_[name_->c_str()]];
-    }
-
     void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
@@ -202,6 +203,7 @@ private:
     std::unique_ptr<Expression>     arg_;
     bool                            distinct_{false};
     AggData*                        aggData_{nullptr};
+    std::function<void(AggData*, const Value&)>   apply_;
 };
 
 }  // namespace nebula
