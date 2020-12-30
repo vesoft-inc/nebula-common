@@ -140,7 +140,6 @@ public:
         arg_.reset(arg);
         name_.reset(name);
         distinct_ = distinct;
-        apply_ = aggFunMap_[nameIdMap_[name_->c_str()]];
     }
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -196,6 +195,10 @@ public:
 
 
 private:
+    std::function<void(AggData*, const Value&)> apply() {
+        return aggFunMap_[nameIdMap_[name_->c_str()]];
+    }
+
     void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
@@ -203,7 +206,6 @@ private:
     std::unique_ptr<Expression>     arg_;
     bool                            distinct_{false};
     AggData*                        aggData_{nullptr};
-    std::function<void(AggData*, const Value&)>   apply_;
 };
 
 }  // namespace nebula

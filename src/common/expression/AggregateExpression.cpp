@@ -58,7 +58,7 @@ const Value& AggregateExpression::eval(ExpressionContext& ctx) {
         uniques->values.emplace(val);
     }
 
-    apply_(aggData_, val);
+    apply()(aggData_, val);
 
     return aggData_->result();
 }
