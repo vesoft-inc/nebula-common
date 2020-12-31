@@ -19,7 +19,6 @@
 #   NEBULA_USE_LINKER               -- Set linker to use, options are: bfd, gold
 #
 #   ENABLE_JEMALLOC                 -- Link jemalloc into all executables
-#   ENABLE_NATIVE                   -- Build native client
 #   ENABLE_TESTING                  -- Build unit test
 #   ENABLE_PACK_ONE                 -- Package to one or multi packages
 #
@@ -55,8 +54,7 @@ include(ClangTidy)
 # Remove the target exporting file
 file(REMOVE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-config.cmake)
 
-# For simplicity, we make all ordinary libraries depend on the compile-time generated files,
-# including the precompiled header, a.k.a Base.h.gch, and thrift headers.
+# For simplicity, we make all ordinary libraries depend on the build-time generated files
 macro(nebula_add_library name type)
     add_library(${name} ${type} ${ARGN})
     export(
@@ -67,11 +65,11 @@ macro(nebula_add_library name type)
     )
     add_dependencies(
         ${name}
-        common_thrift_headers
-        graph_thrift_headers
-        storage_thrift_headers
-        meta_thrift_headers
-        raftex_thrift_headers
+        common_thrift_generator
+        graph_thrift_generator
+        storage_thrift_generator
+        meta_thrift_generator
+        raftex_thrift_generator
     )
 endmacro()
 

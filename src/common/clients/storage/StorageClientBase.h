@@ -19,6 +19,7 @@
 DECLARE_int32(storage_client_timeout_ms);
 DECLARE_uint32(storage_client_retry_interval_ms);
 
+constexpr int32_t kInternalPortOffset = -2;
 
 namespace nebula {
 namespace storage {
@@ -122,6 +123,7 @@ protected:
         folly::EventBase* evb,
         std::unordered_map<HostAddr, Request> requests,
         RemoteFunc&& remoteFunc,
+        int32_t portOffsetIfRetry = 0,
         std::size_t retry = 0,
         std::size_t retryLimit = 3);
 
@@ -134,11 +136,28 @@ protected:
             >
     folly::Future<StatusOr<Response>> getResponse(
             folly::EventBase* evb,
-            std::pair<HostAddr, Request> request,
-            RemoteFunc remoteFunc,
+            std::pair<HostAddr, Request>&& request,
+            RemoteFunc&& remoteFunc,
+            int32_t leaderPortOffset = 0,
             folly::Promise<StatusOr<Response>> pro = folly::Promise<StatusOr<Response>>(),
             std::size_t retry = 0,
             std::size_t retryLimit = 3);
+
+    template<class Request,
+             class RemoteFunc,
+             class Response =
+                typename std::result_of<
+                    RemoteFunc(ClientType* client, const Request&)
+                >::type::value_type
+            >
+    void getResponseImpl(
+            folly::EventBase* evb,
+            std::pair<HostAddr, Request> request,
+            RemoteFunc remoteFunc,
+            int32_t leaderPortOffset,
+            folly::Promise<StatusOr<Response>> pro,
+            std::size_t retry,
+            std::size_t retryLimit);
 
     // Cluster given ids into the host they belong to
     // The method returns a map

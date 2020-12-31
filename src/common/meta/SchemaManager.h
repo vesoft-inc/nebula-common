@@ -27,13 +27,13 @@ class SchemaManager {
 public:
     virtual ~SchemaManager() = default;
 
-    static std::unique_ptr<SchemaManager> create(MetaClient *client);
-
     virtual StatusOr<int32_t> getSpaceVidLen(GraphSpaceID space) = 0;
 
     virtual StatusOr<cpp2::PropertyType> getSpaceVidType(GraphSpaceID) {
         return Status::Error("Not implemented");
     }
+
+    virtual StatusOr<int32_t> getPartsNum(GraphSpaceID space) = 0;
 
     virtual std::shared_ptr<const NebulaSchemaProvider>
     getTagSchema(GraphSpaceID space, TagID tag, SchemaVer ver = -1) = 0;
