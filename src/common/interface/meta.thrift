@@ -999,9 +999,8 @@ struct CreateBackupReq {
 }
 
 struct CreateBackupResp {
-    1: ErrorCode          code,
-    2: common.HostAddr    leader,
-    3: BackupMeta         meta,
+    1: RespHeader         header,
+    2: BackupMeta         meta,
 }
 
 struct HostPair {
@@ -1059,9 +1058,8 @@ struct CreateSessionReq {
 }
 
 struct CreateSessionResp {
-    1: ErrorCode            code,
-    2: common.HostAddr      leader,
-    3: Session              session,
+    1: RespHeader           header,
+    2: Session              session,
 }
 
 struct UpdateSessionsReq {
@@ -1072,9 +1070,8 @@ struct ListSessionsReq {
 }
 
 struct ListSessionsResp {
-    1: ErrorCode             code,
-    2: common.HostAddr       leader,
-    3: list<Session>         sessions,
+    1: RespHeader            header,
+    2: list<Session>         sessions,
 }
 
 struct GetSessionReq {
@@ -1082,9 +1079,8 @@ struct GetSessionReq {
 }
 
 struct GetSessionResp {
-    1: ErrorCode            code,
-    2: common.HostAddr      leader,
-    3: Session              session,
+    1: RespHeader           header,
+    2: Session              session,
 }
 
 struct RemoveSessionReq {
