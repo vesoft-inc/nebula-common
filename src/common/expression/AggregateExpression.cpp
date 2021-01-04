@@ -83,19 +83,23 @@ std::unordered_map<AggregateExpression::Function,
     AggregateExpression::aggFunMap_  = {
     {
         AggregateExpression::Function::kNone,
-        [](AggData* result, const Value& val) {
-            result->setResult(val);
+        [](AggData* aggData, const Value& val) {
+            aggData->setResult(val);
         }
     },
     {
         AggregateExpression::Function::kCount,
-        [](AggData* result, const Value& val) {
-            auto& res = result->result();
+        [](AggData* aggData, const Value& val) {
+            auto& res = aggData->result();
             if (res.isBadNull()) {
                 return;
             }
             if (res.isNull()) {
                 res = 0;
+            }
+            if (val.isBadNull()) {
+                res = Value::kNullBadData;
+                return;
             }
             if (val.isNull() || val.empty()) {
                 return;
@@ -106,12 +110,12 @@ std::unordered_map<AggregateExpression::Function,
     },
     {
         AggregateExpression::Function::kSum,
-        [](AggData* result, const Value& val) {
-            auto& res = result->result();
+        [](AggData* aggData, const Value& val) {
+            auto& res = aggData->result();
             if (res.isBadNull()) {
                 return;
             }
-            if (UNLIKELY(!val.isNull() && !val.isNumeric())) {
+            if (UNLIKELY(val.isBadNull() || (!val.isNull() && !val.empty() && !val.isNumeric()))) {
                 res = Value::kNullBadType;
                 return;
             }
@@ -128,18 +132,18 @@ std::unordered_map<AggregateExpression::Function,
     },
     {
         AggregateExpression::Function::kAvg,
-        [](AggData* result, const Value& val) {
-            auto& res = result->result();
+        [](AggData* aggData, const Value& val) {
+            auto& res = aggData->result();
             if (res.isBadNull()) {
                 return;
             }
-            if (UNLIKELY(!val.isNull() && !val.isNumeric())) {
+            if (UNLIKELY(val.isBadNull() || (!val.isNull() && !val.empty() && !val.isNumeric()))) {
                 res = Value::kNullBadType;
                 return;
             }
 
-            auto& sum = result->sum();
-            auto& cnt = result->cnt();
+            auto& sum = aggData->sum();
+            auto& cnt = aggData->cnt();
             if (val.isNull() || val.empty()) {
                 return;
             }
@@ -156,13 +160,17 @@ std::unordered_map<AggregateExpression::Function,
     },
     {
         AggregateExpression::Function::kMax,
-        [](AggData* result, const Value& val) {
-            auto& res = result->result();
+        [](AggData* aggData, const Value& val) {
+            auto& res = aggData->result();
             if (res.isBadNull()) {
                 return;
             }
-            if (UNLIKELY(!val.isNull() && !val.isNumeric())) {
+            if (UNLIKELY(!val.isNull() && !val.empty() && !val.isNumeric())) {
                 res = Value::kNullBadType;
+                return;
+            }
+            if (val.isBadNull()) {
+                res = Value::kNullBadData;
                 return;
             }
             if (val.isNull() || val.empty()) {
@@ -180,13 +188,17 @@ std::unordered_map<AggregateExpression::Function,
     },
     {
         AggregateExpression::Function::kMin,
-        [](AggData* result, const Value& val) {
-            auto& res = result->result();
+        [](AggData* aggData, const Value& val) {
+            auto& res = aggData->result();
             if (res.isBadNull()) {
                 return;
             }
-            if (UNLIKELY(!val.isNull() && !val.isNumeric())) {
+            if (UNLIKELY(!val.isNull() && !val.empty() && !val.isNumeric())) {
                 res = Value::kNullBadType;
+                return;
+            }
+            if (val.isBadNull()) {
+                res = Value::kNullBadData;
                 return;
             }
             if (val.isNull() || val.empty()) {
@@ -203,22 +215,26 @@ std::unordered_map<AggregateExpression::Function,
     },
     {
         AggregateExpression::Function::kStdev,
-        [](AggData* result, const Value& val) {
-            auto& res = result->result();
+        [](AggData* aggData, const Value& val) {
+            auto& res = aggData->result();
             if (res.isBadNull()) {
                 return;
             }
-            if (UNLIKELY(!val.isNull() && !val.isNumeric())) {
+            if (UNLIKELY(!val.isNull() && !val.empty() && !val.isNumeric())) {
                 res = Value::kNullBadType;
+                return;
+            }
+            if (val.isBadNull()) {
+                res = Value::kNullBadData;
                 return;
             }
             if (val.isNull() || val.empty()) {
                 return;
             }
 
-            auto& cnt = result->cnt();
-            auto& avg = result->avg();
-            auto& deviation = result->deviation();
+            auto& cnt = aggData->cnt();
+            auto& avg = aggData->avg();
+            auto& deviation = aggData->deviation();
             if (res.isNull()) {
                 res = 0.0;
                 cnt = 0.0;
@@ -237,12 +253,12 @@ std::unordered_map<AggregateExpression::Function,
     },
     {
         AggregateExpression::Function::kBitAnd,
-        [](AggData* result, const Value& val) {
-            auto& res = result->result();
+        [](AggData* aggData, const Value& val) {
+            auto& res = aggData->result();
             if (res.isBadNull()) {
                 return;
             }
-            if (UNLIKELY(!val.isNull() && !val.isInt())) {
+            if (UNLIKELY(val.isBadNull() || (!val.isNull() && !val.empty() && !val.isInt()))) {
                 res = Value::kNullBadType;
                 return;
             }
@@ -259,12 +275,12 @@ std::unordered_map<AggregateExpression::Function,
     },
     {
         AggregateExpression::Function::kBitOr,
-        [](AggData* result, const Value& val) {
-            auto& res = result->result();
+        [](AggData* aggData, const Value& val) {
+            auto& res = aggData->result();
             if (res.isBadNull()) {
                 return;
             }
-            if (UNLIKELY(!val.isNull() && !val.isNumeric())) {
+            if (UNLIKELY(val.isBadNull() || (!val.isNull() && !val.empty() && !val.isInt()))) {
                 res = Value::kNullBadType;
                 return;
             }
@@ -281,12 +297,12 @@ std::unordered_map<AggregateExpression::Function,
     },
     {
         AggregateExpression::Function::kBitXor,
-        [](AggData* result, const Value& val) {
-            auto& res = result->result();
+        [](AggData* aggData, const Value& val) {
+            auto& res = aggData->result();
             if (res.isBadNull()) {
                 return;
             }
-            if (UNLIKELY(!val.isNull() && !val.isNumeric())) {
+            if (UNLIKELY(val.isBadNull() || (!val.isNull() && !val.empty() && !val.isInt()))) {
                 res = Value::kNullBadType;
                 return;
             }
@@ -303,13 +319,17 @@ std::unordered_map<AggregateExpression::Function,
     },
     {
         AggregateExpression::Function::kCollect,
-        [](AggData* result, const Value& val) {
-            auto& res = result->result();
+        [](AggData* aggData, const Value& val) {
+            auto& res = aggData->result();
             if (res.isBadNull()) {
                 return;
             }
             if (res.isNull()) {
                 res = List();
+            }
+            if (val.isBadNull()) {
+                res = Value::kNullBadData;
+                return;
             }
             if (val.isNull() || val.empty()) {
                 return;
@@ -324,13 +344,17 @@ std::unordered_map<AggregateExpression::Function,
     },
     {
         AggregateExpression::Function::kCollectSet,
-        [](AggData* result, const Value& val) {
-            auto& res = result->result();
+        [](AggData* aggData, const Value& val) {
+            auto& res = aggData->result();
             if (res.isBadNull()) {
                 return;
             }
             if (res.isNull()) {
                 res = Set();
+            }
+            if (val.isBadNull()) {
+                res = Value::kNullBadData;
+                return;
             }
             if (val.isNull() || val.empty()) {
                 return;

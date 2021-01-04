@@ -41,8 +41,6 @@ pids/
 .project
 .settings/
 .classpath
-cmake-build-debug/
-cmake-build-release/
-cmake-build-*/
+cmake-build*/
 .vscode/
 .clang-format
