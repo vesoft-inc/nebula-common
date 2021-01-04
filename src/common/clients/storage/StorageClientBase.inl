@@ -15,7 +15,7 @@ namespace {
 template<class Request, class RemoteFunc, class Response>
 struct ResponseContext {
 public:
-    ResponseContext(size_t reqsSent, RemoteFunc&& remoteFunc)
+    ResponseContext(size_t reqsSent, RemoteFunc remoteFunc)
         : resp(reqsSent)
         , serverMethod(std::move(remoteFunc)) {}
 
@@ -172,12 +172,12 @@ folly::SemiFuture<StorageRpcResponse<Response>>
 StorageClientBase<ClientType>::collectResponse(
         folly::EventBase* evb,
         std::unordered_map<HostAddr, Request> requests,
-        RemoteFunc&& remoteFunc,
+        RemoteFunc remoteFunc,
         int32_t portOffsetIfRetry,
         std::size_t retry,
         std::size_t retryLimit) {
     auto context = std::make_shared<ResponseContext<Request, RemoteFunc, Response>>(
-        requests.size(), std::move(remoteFunc));
+        requests.size(), remoteFunc);
 
     if (evb == nullptr) {
         DCHECK(!!ioThreadPool_);
@@ -196,7 +196,7 @@ StorageClientBase<ClientType>::collectResponse(
                          host,
                          spaceId,
                          res,
-                         remoteFunc = std::move(remoteFunc),
+                         remoteFunc,
                          retry,
                          retryLimit,
                          portOffsetIfRetry] () mutable {
@@ -361,7 +361,7 @@ void StorageClientBase<ClientType>::getResponseImpl(
         auto spaceId = request.second.get_space_id();
         auto partsId = getReqPartsId(request.second);
         LOG(INFO) << "Send request to storage " << host;
-        remoteFunc(client.get(), std::move(request.second)).via(evb)
+        remoteFunc(client.get(), request.second).via(evb)
              .then([spaceId,
                     partsId = std::move(partsId),
                     p = std::move(pro),
