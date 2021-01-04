@@ -15,7 +15,7 @@ namespace {
 template<class Request, class RemoteFunc, class Response>
 struct ResponseContext {
 public:
-    ResponseContext(size_t reqsSent, RemoteFunc remoteFunc)
+    ResponseContext(size_t reqsSent, RemoteFunc&& remoteFunc)
         : resp(reqsSent)
         , serverMethod(std::move(remoteFunc)) {}
 
@@ -172,12 +172,12 @@ folly::SemiFuture<StorageRpcResponse<Response>>
 StorageClientBase<ClientType>::collectResponse(
         folly::EventBase* evb,
         std::unordered_map<HostAddr, Request> requests,
-        RemoteFunc remoteFunc,
+        RemoteFunc&& remoteFunc,
         int32_t portOffsetIfRetry,
         std::size_t retry,
         std::size_t retryLimit) {
     auto context = std::make_shared<ResponseContext<Request, RemoteFunc, Response>>(
-        requests.size(), remoteFunc);
+        requests.size(), std::move(remoteFunc));
 
     if (evb == nullptr) {
         DCHECK(!!ioThreadPool_);
@@ -196,7 +196,6 @@ StorageClientBase<ClientType>::collectResponse(
                          host,
                          spaceId,
                          res,
-                         remoteFunc,
                          retry,
                          retryLimit,
                          portOffsetIfRetry] () mutable {
@@ -216,7 +215,6 @@ StorageClientBase<ClientType>::collectResponse(
                             spaceId,
                             start,
                             evb,
-                            remoteFunc = std::move(remoteFunc),
                             retry,
                             retryLimit,
                             portOffsetIfRetry] (folly::Try<Response>&& val) {
@@ -245,12 +243,12 @@ StorageClientBase<ClientType>::collectResponse(
                             }
                             if (retry < retryLimit && isValidHostPtr(leader)) {
                                 evb->runAfterDelay([this, evb, leader = *leader, r = std::move(r),
-                                                    remoteFunc = std::move(remoteFunc), context,
+                                                    context,
                                                     start, retry, retryLimit,
                                                     portOffsetIfRetry] (){
                                     getResponse(evb,
                                                 std::pair<HostAddr, Request>(leader, std::move(r)),
-                                                std::move(remoteFunc),
+                                                context->serverMethod,
                                                 portOffsetIfRetry,
                                                 folly::Promise<StatusOr<Response>>(),
                                                 retry + 1,

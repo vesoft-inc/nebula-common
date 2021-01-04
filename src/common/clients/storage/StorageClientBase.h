@@ -122,7 +122,7 @@ protected:
     folly::SemiFuture<StorageRpcResponse<Response>> collectResponse(
         folly::EventBase* evb,
         std::unordered_map<HostAddr, Request> requests,
-        RemoteFunc remoteFunc,
+        RemoteFunc&& remoteFunc,
         int32_t portOffsetIfRetry = 0,
         std::size_t retry = 0,
         std::size_t retryLimit = 3);
