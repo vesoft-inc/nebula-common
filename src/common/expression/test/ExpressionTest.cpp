@@ -209,14 +209,14 @@ protected:
                      std::vector<std::pair<std::string, Value>> inputVar,
                      const std::unordered_map<std::string, Value> &expected) {
         auto agg = new std::string(name);
-        auto func = new std::string(expr);
+        auto func = std::make_unique<std::string>(expr);
         Expression* arg = nullptr;
         auto isConst = false;
         if (!func->compare("isConst")) {
             isConst = true;
             arg = new ConstantExpression();
         } else {
-            arg = new FunctionCallExpression(func);
+            arg = new FunctionCallExpression(func.release());
         }
         AggregateExpression aggExpr(agg, arg, isDistinct);
         std::unordered_map<std::string, std::unique_ptr<AggData>> agg_data_map;
