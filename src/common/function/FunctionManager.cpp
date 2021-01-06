@@ -199,6 +199,10 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"hasSameEdgeInPath", { TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
     {"hasSameVertexInPath", {TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
     {"reversePath", {TypeSignature({Value::Type::PATH}, Value::Type::PATH), }},
+    {"dataSetRowCol", {TypeSignature({Value::Type::DATASET, Value::Type::INT, Value::Type::INT},
+                                      Value::Type::__EMPTY__),
+                       TypeSignature({Value::Type::DATASET, Value::Type::INT, Value::Type::STRING},
+                                      Value::Type::__EMPTY__), }},
 };
 
 // static
@@ -1507,6 +1511,36 @@ FunctionManager::FunctionManager() {
             auto path = args[0].getPath();
             path.reverse();
             return path;
+        };
+    }
+    {
+        auto &attr = functions_["dataSetRowCol"];
+        attr.minArity_ = 3;
+        attr.maxArity_ = 3;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isDataSet() || !args[1].isInt() || !(args[2].isInt() || args[2].isStr())) {
+                return Value::kNullBadType;
+            }
+            auto &ds = args[0].getDataSet();
+            if (ds.rowSize() < 1 || ds.colSize() < 1) {
+                return Value::kNullBadData;
+            }
+            auto &colNames = ds.colNames;
+            size_t rowIndex = args[1].getInt();
+            size_t colIndex = -1;
+            if (args[2].isInt()) {
+                colIndex = args[2].getInt();
+            } else {
+                colIndex =
+                    std::distance(colNames.begin(),
+                                  std::find(colNames.begin(), colNames.end(), args[2].getStr()));
+            }
+            if ((rowIndex >= ds.rowSize() || rowIndex < 0) ||
+                (colIndex >= ds.colSize() || colIndex < 0)) {
+                return Value::kNullBadData;
+            }
+            return ds.rows[rowIndex][colIndex];
         };
     }
 }   // NOLINT
