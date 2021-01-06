@@ -167,8 +167,6 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
               TypeSignature({Value::Type::MAP}, Value::Type::DATETIME)}},
     {"timestamp", {TypeSignature({Value::Type::STRING}, Value::Type::INT),
                    TypeSignature({Value::Type::INT}, Value::Type::INT)}},
-    {"id", {TypeSignature({Value::Type::VERTEX}, Value::Type::STRING),
-             }},
     {"tags", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
              }},
     {"labels", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
