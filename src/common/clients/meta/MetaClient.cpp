@@ -1958,7 +1958,7 @@ StatusOr<TagSchemas> MetaClient::getAllVerTagSchema(GraphSpaceID spaceId) {
 }
 
 
-StatusOr<TagSchemas> MetaClient::getAllLatestTagSchema(const GraphSpaceID& spaceId) {
+StatusOr<TagLatestSchema> MetaClient::getAllLatestTagSchema(const GraphSpaceID& spaceId) {
     if (!ready_) {
         return Status::Error("Not ready!");
     }
@@ -1968,12 +1968,11 @@ StatusOr<TagSchemas> MetaClient::getAllLatestTagSchema(const GraphSpaceID& space
         return Status::Error("Space not %d found", spaceId);
     }
     std::unordered_map<TagID,
-        std::vector<std::shared_ptr<const NebulaSchemaProvider>>> tagsSchema;
+        std::shared_ptr<const NebulaSchemaProvider>> tagsSchema;
+    tagsSchema.reserve(iter->second->tagSchemas_.size());
     // fetch all tagIds
     for (const auto& tagSchema : iter->second->tagSchemas_) {
-        std::vector<std::shared_ptr<const NebulaSchemaProvider>> tagLatestSchema;
-        tagLatestSchema.emplace_back(tagSchema.second.back());
-        tagsSchema.emplace(tagSchema.first, tagLatestSchema);
+        tagsSchema.emplace(tagSchema.first, tagSchema.second.back());
     }
     return tagsSchema;
 }
