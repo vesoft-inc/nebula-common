@@ -1958,6 +1958,27 @@ StatusOr<TagSchemas> MetaClient::getAllVerTagSchema(GraphSpaceID spaceId) {
 }
 
 
+StatusOr<TagSchemas> MetaClient::getAllLatestTagSchema(const GraphSpaceID& spaceId) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto iter = localCache_.find(spaceId);
+    if (iter == localCache_.end()) {
+        return Status::Error("Space not %d found", spaceId);
+    }
+    std::unordered_map<TagID,
+        std::vector<std::shared_ptr<const NebulaSchemaProvider>>> tagsSchema;
+    // fetch all tagIds
+    for (const auto& tagSchema : iter->second->tagSchemas_) {
+        std::vector<std::shared_ptr<const NebulaSchemaProvider>> tagLatestSchema;
+        tagLatestSchema.emplace_back(tagSchema.second.back());
+        tagsSchema.emplace(tagSchema.first, tagLatestSchema);
+    }
+    return tagsSchema;
+}
+
+
 StatusOr<EdgeSchemas> MetaClient::getAllVerEdgeSchema(GraphSpaceID spaceId) {
     if (!ready_) {
         return Status::Error("Not ready!");
@@ -2206,6 +2227,7 @@ bool MetaClient::authCheckFromCache(const std::string& account, const std::strin
     return iter->second == password;
 }
 
+
 bool MetaClient::checkShadowAccountFromCache(const std::string& account) const {
     if (!ready_) {
         return false;
@@ -2230,7 +2252,6 @@ StatusOr<SchemaVer> MetaClient::getLatestTagVersionFromCache(const GraphSpaceID&
     }
     return it->second;
 }
-
 
 StatusOr<SchemaVer> MetaClient::getLatestEdgeVersionFromCache(const GraphSpaceID& space,
                                                               const EdgeType& edgeType) {

@@ -64,6 +64,9 @@ public:
     // get all version of all tag schema
     virtual StatusOr<TagSchemas> getAllVerTagSchema(GraphSpaceID space) = 0;
 
+    // get all latest version of all tag schema
+    virtual StatusOr<TagSchemas> getAllLatestVerTagSchema(GraphSpaceID space)  = 0;
+
     // get all version of all edge schema
     virtual StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID space) = 0;
 

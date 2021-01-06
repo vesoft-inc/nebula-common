@@ -478,6 +478,8 @@ public:
 
     StatusOr<TagSchemas> getAllVerTagSchema(GraphSpaceID spaceId);
 
+    StatusOr<TagSchemas> getAllLatestTagSchema(const GraphSpaceID& spaceId);
+
     StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID spaceId);
 
     StatusOr<std::shared_ptr<cpp2::IndexItem>>

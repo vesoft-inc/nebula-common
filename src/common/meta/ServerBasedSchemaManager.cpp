@@ -133,6 +133,11 @@ StatusOr<TagSchemas> ServerBasedSchemaManager::getAllVerTagSchema(GraphSpaceID s
     return metaClient_->getAllVerTagSchema(space);
 }
 
+StatusOr<TagSchemas> ServerBasedSchemaManager::getAllLatestVerTagSchema(GraphSpaceID space) {
+    CHECK(metaClient_);
+    return metaClient_->getAllLatestTagSchema(space);
+}
+
 StatusOr<EdgeSchemas> ServerBasedSchemaManager::getAllVerEdgeSchema(GraphSpaceID space) {
     CHECK(metaClient_);
     return metaClient_->getAllVerEdgeSchema(space);
