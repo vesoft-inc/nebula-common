@@ -440,8 +440,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::LookupIndexResp>>
 GraphStorageClient::lookupIndex(GraphSpaceID space,
                                 const std::vector<storage::cpp2::IndexQueryContext>& contexts,
                                 bool isEdge,
-                                int32_t tagOrEdge,
-                                const std::vector<std::string>& returnCols,
+                                const std::vector<storage::cpp2::IndexReturnColumn>& returnCols,
                                 folly::EventBase *evb) {
     auto status = getHostParts(space);
     if (!status.ok()) {
@@ -461,7 +460,6 @@ GraphStorageClient::lookupIndex(GraphSpaceID space,
         cpp2::IndexSpec spec;
         spec.set_contexts(contexts);
         spec.set_is_edge(isEdge);
-        spec.set_tag_or_edge_id(tagOrEdge);
 
         req.set_indices(spec);
     }

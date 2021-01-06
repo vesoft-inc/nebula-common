@@ -545,6 +545,21 @@ enum ScanType {
     RANGE  = 2,
 } (cpp.enum_strict)
 
+enum AggregateType {
+    UNION = 1,
+    INTERSECT = 2,
+    EXCEPT = 3,
+}
+
+struct IndexReturnColumn {
+    // Field name of tag or edge
+    1: required binary           prop,
+    // TagID or EdgeType
+    2: required i32              tag_or_edge_id,
+    // Alias of the field
+    3: optional binary           alias,
+}
+
 struct IndexColumnHint {
     1: binary                   column_name,
     // If scan_type == PREFIX, using begin_value to handler prefix.
@@ -564,6 +579,7 @@ struct IndexQueryContext {
     //    to be empty, At least one index column must be hit.
     // When the field size of index_id IndexItem is zero, the columns_hints must be empty.
     3: list<IndexColumnHint>    column_hints,
+    4: i32                      tag_or_edge_id,
 }
 
 
@@ -571,7 +587,7 @@ struct IndexSpec {
     // In order to union multiple indices, multiple index hints are allowed
     1: required list<IndexQueryContext>   contexts,
     2: required bool                      is_edge,
-    3: required i32                       tag_or_edge_id,
+    3: AggregateType                      aggr_type = AggregateType.UNION,
 }
 
 
@@ -581,7 +597,9 @@ struct LookupIndexRequest {
     3: IndexSpec                            indices,
     // The list of property names. Should not be empty.
     // Support kVid and kTag for vertex, kSrc, kType, kRank and kDst for edge.
-    4: optional list<binary>                return_columns,
+    // When the result set is an intersection, fields of multiple schemas are returned.
+    // for example yield tag1.c1, tag2.c1...
+    4: optional list<IndexReturnColumn>     return_columns,
 }
 
 
