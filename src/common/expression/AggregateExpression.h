@@ -130,10 +130,10 @@ public:
         kCollectSet,
     };
     static std::unordered_map<AggregateExpression::Function,
-        std::function<void(AggData*, const Value&)>> aggFunMap_;
-    static std::unordered_map<std::string, AggregateExpression::Function> nameIdMap_;
+        std::function<void(AggData*, const Value&)>> AGG_FUNC_MAP;
+    static std::unordered_map<std::string, AggregateExpression::Function> NAME_ID_MAP;
 
-    AggregateExpression(std::string* name = nullptr,
+    explicit AggregateExpression(std::string* name = nullptr,
                         Expression* arg = nullptr,
                         bool distinct = false)
         : Expression(Kind::kAggregate) {
@@ -195,8 +195,8 @@ public:
 
 
 private:
-    std::function<void(AggData*, const Value&)> apply() {
-        return aggFunMap_[nameIdMap_[name_->c_str()]];
+    void apply(AggData* aggData, const Value& val) {
+        AGG_FUNC_MAP[NAME_ID_MAP[name_->c_str()]](aggData, val);
     }
 
     void writeTo(Encoder& encoder) const override;

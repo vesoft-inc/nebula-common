@@ -204,7 +204,7 @@ protected:
     }
 
     void testAggExpr(const char* name,
-                     const bool isDistinct,
+                     bool isDistinct,
                      const char* expr,
                      std::vector<std::pair<std::string, Value>> inputVar,
                      const std::unordered_map<std::string, Value> &expected) {
@@ -220,7 +220,7 @@ protected:
         }
         AggregateExpression aggExpr(agg, arg, isDistinct);
         std::unordered_map<std::string, std::unique_ptr<AggData>> agg_data_map;
-        for (auto row : inputVar) {
+        for (const auto &row : inputVar) {
             auto iter = agg_data_map.find(row.first);
             if (iter == agg_data_map.end()) {
                 agg_data_map[row.first] = std::make_unique<AggData>();

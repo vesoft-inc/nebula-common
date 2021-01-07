@@ -8,7 +8,7 @@
 
 namespace nebula {
 
-std::unordered_map<std::string, AggregateExpression::Function> AggregateExpression::nameIdMap_ = {
+std::unordered_map<std::string, AggregateExpression::Function> AggregateExpression::NAME_ID_MAP = {
     {"", AggregateExpression::Function::kNone},
     {"COUNT", AggregateExpression::Function::kCount},
     {"SUM", AggregateExpression::Function::kSum},
@@ -58,7 +58,7 @@ const Value& AggregateExpression::eval(ExpressionContext& ctx) {
         uniques->values.emplace(val);
     }
 
-    apply()(aggData_, val);
+    apply(aggData_, val);
 
     return aggData_->result();
 }
@@ -80,7 +80,7 @@ void AggregateExpression::accept(ExprVisitor* visitor) {
 
 std::unordered_map<AggregateExpression::Function,
                    std::function<void(AggData*, const Value&)>>
-    AggregateExpression::aggFunMap_  = {
+    AggregateExpression::AGG_FUNC_MAP  = {
     {
         AggregateExpression::Function::kNone,
         [](AggData* aggData, const Value& val) {
