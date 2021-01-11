@@ -1134,7 +1134,7 @@ struct ReportTaskReq {
     1: ErrorCode            code,
     2: i32                  job_id,
     3: i32                  task_id,
-    4: StatisItem           statis
+    4: optional StatisItem  statis
 }
 
 service MetaService {
