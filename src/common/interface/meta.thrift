@@ -76,6 +76,7 @@ enum ErrorCode {
     E_SAVE_JOB_FAILURE       = -57,
     E_BALANCER_FAILURE       = -58,
     E_JOB_NOT_FINISHED       = -59,
+    E_TASK_REPORT_OUT_DATE   = -80,
 
     // Backup Failure
     E_BACKUP_FAILURE = -60,
