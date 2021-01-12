@@ -1512,7 +1512,7 @@ std::string Value::toString() const {
             return folly::to<std::string>(getFloat());
         }
         case Value::Type::STRING: {
-            return getStr();
+            return "\"" + getStr() + "\"";
         }
         case Value::Type::DATE: {
             return getDate().toString();
