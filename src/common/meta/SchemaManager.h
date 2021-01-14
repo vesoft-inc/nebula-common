@@ -20,8 +20,8 @@ class MetaClient;
 using TagSchemas =
     std::unordered_map<TagID, std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
-// Mapping of tags and corresponding *latest* tag schema
-using TagLatestSchema =
+// Mapping of tagId and a *single* tag schema
+using TagSchema =
     std::unordered_map<TagID, std::shared_ptr<const NebulaSchemaProvider>>;
 
 using EdgeSchemas =
@@ -69,7 +69,7 @@ public:
     virtual StatusOr<TagSchemas> getAllVerTagSchema(GraphSpaceID space) = 0;
 
     // get all latest version of all tag schema
-    virtual StatusOr<TagLatestSchema> getAllLatestVerTagSchema(GraphSpaceID space)  = 0;
+    virtual StatusOr<TagSchema> getAllLatestVerTagSchema(GraphSpaceID space)  = 0;
 
     // get all version of all edge schema
     virtual StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID space) = 0;

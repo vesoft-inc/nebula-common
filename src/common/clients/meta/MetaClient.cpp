@@ -1952,23 +1952,22 @@ StatusOr<TagSchemas> MetaClient::getAllVerTagSchema(GraphSpaceID spaceId) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = localCache_.find(spaceId);
     if (iter == localCache_.end()) {
-        return Status::Error("Space not %d found", spaceId);
+        return Status::Error("Space %d not  found", spaceId);
     }
     return iter->second->tagSchemas_;
 }
 
 
-StatusOr<TagLatestSchema> MetaClient::getAllLatestTagSchema(const GraphSpaceID& spaceId) {
+StatusOr<TagSchema> MetaClient::getAllLatestTagSchema(const GraphSpaceID& spaceId) {
     if (!ready_) {
         return Status::Error("Not ready!");
     }
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = localCache_.find(spaceId);
     if (iter == localCache_.end()) {
-        return Status::Error("Space not %d found", spaceId);
+        return Status::Error("Space %d not  found", spaceId);
     }
-    std::unordered_map<TagID,
-        std::shared_ptr<const NebulaSchemaProvider>> tagsSchema;
+    TagSchema tagsSchema;
     tagsSchema.reserve(iter->second->tagSchemas_.size());
     // fetch all tagIds
     for (const auto& tagSchema : iter->second->tagSchemas_) {
@@ -1985,7 +1984,7 @@ StatusOr<EdgeSchemas> MetaClient::getAllVerEdgeSchema(GraphSpaceID spaceId) {
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     auto iter = localCache_.find(spaceId);
     if (iter == localCache_.end()) {
-        return Status::Error("Space not %d found", spaceId);
+        return Status::Error("Space %d not  found", spaceId);
     }
     return iter->second->edgeSchemas_;
 }

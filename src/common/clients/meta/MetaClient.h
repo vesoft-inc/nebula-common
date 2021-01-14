@@ -35,9 +35,8 @@ using HostStatus = std::pair<HostAddr, std::string>;
 using TagSchemas = std::unordered_map<TagID,
                                       std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
-// Mapping of tags and corresponding *latest* tag schema
-using TagLatestSchema = std::unordered_map<TagID,
-                                      std::shared_ptr<const NebulaSchemaProvider>>;
+// Mapping of tagId and a *single* tag schema
+using TagSchema = std::unordered_map<TagID, std::shared_ptr<const NebulaSchemaProvider>>;
 
 // the different version of edge schema, from oldest to latest
 using EdgeSchemas = std::unordered_map<EdgeType,
@@ -482,7 +481,7 @@ public:
 
     StatusOr<TagSchemas> getAllVerTagSchema(GraphSpaceID spaceId);
 
-    StatusOr<TagLatestSchema> getAllLatestTagSchema(const GraphSpaceID& spaceId);
+    StatusOr<TagSchema> getAllLatestTagSchema(const GraphSpaceID& spaceId);
 
     StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID spaceId);
 
