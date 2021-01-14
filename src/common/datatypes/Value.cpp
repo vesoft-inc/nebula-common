@@ -1484,7 +1484,7 @@ std::string Value::toString() const {
         case Value::Type::NULLVALUE: {
             switch (getNull()) {
                 case NullType::__NULL__:
-                    return "__NULL__";
+                    return "NULL";
                 case NullType::BAD_DATA:
                     return "__NULL_BAD_DATA__";
                 case NullType::BAD_TYPE:
