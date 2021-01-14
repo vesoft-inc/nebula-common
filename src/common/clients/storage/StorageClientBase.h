@@ -34,6 +34,10 @@ public:
 
     explicit StorageRpcResponse(size_t reqsSent) : totalReqsSent_(reqsSent) {}
 
+    void increase(size_t size) {
+        totalReqsSent_ += size;
+    }
+
     bool succeeded() const {
         return result_ == Result::ALL_SUCCEEDED;
     }
@@ -85,7 +89,7 @@ public:
     }
 
 private:
-    const size_t totalReqsSent_;
+    size_t totalReqsSent_;
     size_t failedReqs_{0};
 
     Result result_{Result::ALL_SUCCEEDED};
@@ -93,6 +97,66 @@ private:
     int32_t maxLatency_{0};
     std::vector<Response> responses_;
     std::vector<std::tuple<HostAddr, int32_t, int32_t>> hostLatency_;
+};
+
+template<class Request, class RemoteFunc, class Response>
+struct ResponseContext {
+public:
+    ResponseContext(size_t reqsSent, RemoteFunc remoteFunc)
+        : resp(reqsSent)
+        , serverMethod(remoteFunc) {}
+
+    // Return true if processed all responses
+    bool finishSending() {
+        std::lock_guard<std::mutex> g(lock_);
+        finishSending_ = true;
+        if (ongoingRequests_.empty() && !fulfilled_) {
+            fulfilled_ = true;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    void increase(size_t size) {
+        resp.increase(size);
+    }
+
+    std::pair<const Request*, bool> insertRequest(HostAddr host, Request&& req) {
+        std::lock_guard<std::mutex> g(lock_);
+        auto res = ongoingRequests_.emplace(host, std::move(req));
+        return std::make_pair(&res.first->second, res.second);
+    }
+
+    Request& findRequest(HostAddr host) {
+        std::lock_guard<std::mutex> g(lock_);
+        auto it = ongoingRequests_.find(host);
+        DCHECK(it != ongoingRequests_.end());
+        return it->second;
+    }
+
+    // Return true if processed all responses
+    bool removeRequest(HostAddr host) {
+        std::lock_guard<std::mutex> g(lock_);
+        ongoingRequests_.erase(host);
+        if (finishSending_ && !fulfilled_ && ongoingRequests_.empty()) {
+            fulfilled_ = true;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+public:
+    folly::Promise<StorageRpcResponse<Response>> promise;
+    StorageRpcResponse<Response> resp;
+    RemoteFunc serverMethod;
+
+private:
+    std::mutex lock_;
+    std::unordered_map<HostAddr, Request> ongoingRequests_;
+    bool finishSending_{false};
+    bool fulfilled_{false};
 };
 
 
@@ -125,8 +189,11 @@ protected:
         RemoteFunc&& remoteFunc,
         int32_t portOffsetIfRetry = 0,
         std::size_t retry = 0,
-        std::size_t retryLimit = 3);
+        std::size_t retryLimit = 3,
+        std::shared_ptr<ResponseContext<Request, RemoteFunc, Response>> context = nullptr);
 
+
+    // getResponse is only used in single part scenarios
     template<class Request,
              class RemoteFunc,
              class Response =
@@ -142,6 +209,11 @@ protected:
             folly::Promise<StatusOr<Response>> pro = folly::Promise<StatusOr<Response>>(),
             std::size_t retry = 0,
             std::size_t retryLimit = 3);
+
+    // Remove the extra part of the request
+    // only include the part of the specified partId
+    template<class Request>
+    Request getSinglePartReqest(PartitionID part, Request& request);
 
     template<class Request,
              class RemoteFunc,
@@ -196,9 +268,42 @@ protected:
         return partsId;
     }
 
+    template <typename K>
+    std::unordered_map<PartitionID, K> getReqPartsIdFromContainer(
+        const std::unordered_map<PartitionID, K> &t, PartitionID partId) const {
+        std::unordered_map<PartitionID, K> ret;
+        ret.emplace(partId, t.at(partId));
+        return ret;
+    }
+
+    template <typename K>
+    void addPartRequest(std::unordered_map<PartitionID, K> &oldMap,
+                        std::unordered_map<PartitionID, K> &newMap,
+                        PartitionID partId) {
+        auto it = newMap.find(partId);
+        if (it != newMap.end()) {
+            it->second.insert(newMap.at(partId).end(),
+                              oldMap.at(partId).begin(), oldMap.at(partId).end());
+        } else {
+            newMap[partId] = oldMap.at(partId);
+        }
+    }
+
     // from list
     std::vector<PartitionID> getReqPartsIdFromContainer(const std::vector<PartitionID> &t) const {
         return t;
+    }
+
+    std::vector<PartitionID> getReqPartsIdFromContainer(const std::vector<PartitionID>&,
+                                                        PartitionID partId) const {
+        return {partId};
+    }
+
+    template <typename K>
+    void addPartRequest(std::vector<PartitionID, K>&,
+                        std::vector<PartitionID, K> &newMap,
+                        PartitionID partId) {
+        newMap.push_back(partId);
     }
 
     template <typename Request>
@@ -229,6 +334,12 @@ protected:
     bool isValidHostPtr(const HostAddr* addr) {
         return addr != nullptr && !addr->host.empty() && addr->port != 0;
     }
+
+    template<class Request>
+    void addPartRetryRequest(HostAddr& leader,
+                             PartitionID partId,
+                             Request& oldRequest,
+                             std::unordered_map<HostAddr, Request> &retryRequests);
 
 protected:
     meta::MetaClient* metaClient_{nullptr};

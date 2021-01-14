@@ -10,67 +10,6 @@
 namespace nebula {
 namespace storage {
 
-namespace {
-
-template<class Request, class RemoteFunc, class Response>
-struct ResponseContext {
-public:
-    ResponseContext(size_t reqsSent, RemoteFunc&& remoteFunc)
-        : resp(reqsSent)
-        , serverMethod(std::move(remoteFunc)) {}
-
-    // Return true if processed all responses
-    bool finishSending() {
-        std::lock_guard<std::mutex> g(lock_);
-        finishSending_ = true;
-        if (ongoingRequests_.empty() && !fulfilled_) {
-            fulfilled_ = true;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    std::pair<const Request*, bool> insertRequest(HostAddr host, Request&& req) {
-        std::lock_guard<std::mutex> g(lock_);
-        auto res = ongoingRequests_.emplace(host, std::move(req));
-        return std::make_pair(&res.first->second, res.second);
-    }
-
-    const Request& findRequest(HostAddr host) {
-        std::lock_guard<std::mutex> g(lock_);
-        auto it = ongoingRequests_.find(host);
-        DCHECK(it != ongoingRequests_.end());
-        return it->second;
-    }
-
-    // Return true if processed all responses
-    bool removeRequest(HostAddr host) {
-        std::lock_guard<std::mutex> g(lock_);
-        ongoingRequests_.erase(host);
-        if (finishSending_ && !fulfilled_ && ongoingRequests_.empty()) {
-            fulfilled_ = true;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-public:
-    folly::Promise<StorageRpcResponse<Response>> promise;
-    StorageRpcResponse<Response> resp;
-    RemoteFunc serverMethod;
-
-private:
-    std::mutex lock_;
-    std::unordered_map<HostAddr, Request> ongoingRequests_;
-    bool finishSending_{false};
-    bool fulfilled_{false};
-};
-
-}  // Anonymous namespace
-
-
 template<typename ClientType>
 StorageClientBase<ClientType>::StorageClientBase(
     std::shared_ptr<folly::IOThreadPoolExecutor> threadPool,
@@ -165,6 +104,28 @@ void StorageClientBase<ClientType>::invalidLeader(GraphSpaceID spaceId,
     }
 }
 
+template<typename ClientType>
+template<class Request>
+void StorageClientBase<ClientType>::addPartRetryRequest(HostAddr& leader,
+                         PartitionID partId,
+                         Request& oldRequest,
+                         std::unordered_map<HostAddr, Request> &retryRequests) {
+   auto it = retryRequests.find(leader);
+   if (it == retryRequests.end()) {
+       auto req = getSinglePartReqest(partId, oldRequest);
+       retryRequests.emplace(leader, req);
+   } else {
+       addPartRequest(oldRequest.parts, it->second.parts, partId);
+   }
+}
+
+template<typename ClientType>
+template<class Request>
+Request StorageClientBase<ClientType>::getSinglePartReqest(PartitionID part, Request& request) {
+    auto retReq = request;
+    retReq.parts = getReqPartsIdFromContainer(request.parts, part);
+    return retReq;
+}
 
 template<typename ClientType>
 template<class Request, class RemoteFunc, class Response>
@@ -175,14 +136,22 @@ StorageClientBase<ClientType>::collectResponse(
         RemoteFunc&& remoteFunc,
         int32_t portOffsetIfRetry,
         std::size_t retry,
-        std::size_t retryLimit) {
-    auto context = std::make_shared<ResponseContext<Request, RemoteFunc, Response>>(
-        requests.size(), std::move(remoteFunc));
+        std::size_t retryLimit,
+        std::shared_ptr<ResponseContext<Request, RemoteFunc, Response>> context) {
+    if (context == nullptr) {
+        context = std::make_shared<ResponseContext<Request, RemoteFunc, Response>>(
+            requests.size(), remoteFunc);
+    } else {
+        context->increase(requests.size());
+    }
 
     if (evb == nullptr) {
         DCHECK(!!ioThreadPool_);
         evb = ioThreadPool_->getEventBase();
     }
+
+    bool canTry = true;
+    std::unordered_map<HostAddr, Request> retryRequests;
 
     for (auto& req : requests) {
         auto& host = req.first;
@@ -198,7 +167,9 @@ StorageClientBase<ClientType>::collectResponse(
                          res,
                          retry,
                          retryLimit,
-                         portOffsetIfRetry] () mutable {
+                         portOffsetIfRetry,
+                         &canTry,
+                         &retryRequests] () mutable {
             auto client = clientsMan_->client(host,
                                               evb,
                                               false,
@@ -217,7 +188,9 @@ StorageClientBase<ClientType>::collectResponse(
                             evb,
                             retry,
                             retryLimit,
-                            portOffsetIfRetry] (folly::Try<Response>&& val) {
+                            portOffsetIfRetry,
+                            &canTry,
+                            &retryRequests] (folly::Try<Response>&& val) {
                 auto& r = context->findRequest(host);
                 if (val.hasException()) {
                     LOG(ERROR) << "Request to " << host
@@ -226,67 +199,52 @@ StorageClientBase<ClientType>::collectResponse(
                     context->resp.appendFailedParts(parts, storage::cpp2::ErrorCode::E_RPC_FAILURE);
                     invalidLeader(spaceId, parts);
                     context->resp.markFailure();
+                    canTry = false;
                 } else {
                     auto resp = std::move(val.value());
                     auto& result = resp.get_result();
+                    auto partResults = result.get_failed_parts();
                     bool hasFailure{false};
-                    for (auto& code : result.get_failed_parts()) {
-                        VLOG(3) << "Failure! Failed part " << code.get_part_id()
-                                << ", failed code " << static_cast<int32_t>(code.get_code());
-                        hasFailure = true;
-                        if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
-                            auto* leader = code.get_leader();
-                            if (isValidHostPtr(leader)) {
-                                updateLeader(spaceId, code.get_part_id(), *leader);
-                            } else {
-                                invalidLeader(spaceId, code.get_part_id());
-                            }
-                            if (retry < retryLimit && isValidHostPtr(leader)) {
-                                evb->runAfterDelay([this, evb, leader = *leader, r = std::move(r),
-                                                    context,
-                                                    start, retry, retryLimit,
-                                                    portOffsetIfRetry] (){
-                                    getResponse(evb,
-                                                std::pair<HostAddr, Request>(leader, std::move(r)),
-                                                context->serverMethod,
-                                                portOffsetIfRetry,
-                                                folly::Promise<StatusOr<Response>>(),
-                                                retry + 1,
-                                                retryLimit)
-                                        .thenValue([leader, context, start](auto &&retryResult) {
-                                            if (retryResult.ok()) {
-                                                // Adjust the latency
-                                                auto latency = retryResult.value()
-                                                                .get_result()
-                                                                .get_latency_in_us();
-                                                context->resp.setLatency(
-                                                    leader,
-                                                    latency,
-                                                    time::WallClock::fastNowInMicroSec() - start);
 
-                                                // Keep the response
-                                                context->resp
-                                                    .responses()
-                                                    .emplace_back(std::move(retryResult).value());
-                                            } else {
-                                                context->resp.markFailure();
-                                            }
-                                        }).thenError([context](auto&&) {
-                                            context->resp.markFailure();
-                                        });
-                                    }, FLAGS_storage_client_retry_interval_ms);
+                    // When all error codes are leader change, try again
+                    if (std::any_of(partResults.begin(), partResults.end(), [](auto& pResult) {
+                        return pResult.get_code() != storage::cpp2::ErrorCode::E_LEADER_CHANGED;
+                    })) {
+                        canTry = false;
+                    }
+
+                    for (auto& pResult : partResults) {
+                        auto partId = pResult.get_part_id();
+                        VLOG(3) << "The first execution failed! Failed part " << partId
+                                << ", failed code " << static_cast<int32_t>(pResult.get_code())
+                                << ", will retry";
+
+                        if (pResult.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
+                            auto* leader = pResult.get_leader();
+                            if (isValidHostPtr(leader)) {
+                                updateLeader(spaceId, partId, *leader);
                             } else {
-                                // retry failed
-                                context->resp.markFailure();
+                                invalidLeader(spaceId, partId);
                             }
-                        } else if (code.get_code() == cpp2::ErrorCode::E_PART_NOT_FOUND ||
-                                   code.get_code() == cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
-                            invalidLeader(spaceId, code.get_part_id());
+
+                            if (canTry && retry < retryLimit && isValidHostPtr(leader)) {
+                                // add current part to retry
+                                addPartRetryRequest(*leader, partId, r, retryRequests);
+                            } else {
+                                hasFailure = true;
+                            }
+                        } else if (pResult.get_code() == cpp2::ErrorCode::E_PART_NOT_FOUND ||
+                                   pResult.get_code() == cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
+                            invalidLeader(spaceId, pResult.get_part_id());
+                            hasFailure = true;
                         } else {
                             // Simply keep the result
-                            context->resp.emplaceFailedPart(code.get_part_id(), code.get_code());
+                            context->resp.emplaceFailedPart(pResult.get_part_id(),
+                                                            pResult.get_code());
+                            hasFailure = true;
                         }
                     }
+
                     if (hasFailure) {
                         context->resp.markFailure();
                     }
@@ -309,6 +267,17 @@ StorageClientBase<ClientType>::collectResponse(
         });  // via
     }  // for
 
+    // retry
+    if (!retryRequests.empty() && canTry) {
+        return collectResponse(evb,
+                               retryRequests,
+                               std::move(remoteFunc),
+                               portOffsetIfRetry,
+                               retry + 1,
+                               retryLimit,
+                               context);
+    }
+
     if (context->finishSending()) {
         // Received all responses, most likely, all rpc failed
         context->promise.setValue(std::move(context->resp));
@@ -316,6 +285,7 @@ StorageClientBase<ClientType>::collectResponse(
 
     return context->promise.getSemiFuture();
 }
+
 
 template<typename ClientType>
 template<class Request, class RemoteFunc, class Response>
@@ -358,6 +328,10 @@ void StorageClientBase<ClientType>::getResponseImpl(
         auto client = clientsMan_->client(host, evb, false, FLAGS_storage_client_timeout_ms);
         auto spaceId = request.second.get_space_id();
         auto partsId = getReqPartsId(request.second);
+
+        // getResponseImpl is used when there is only one part in a request,
+        // Otherwise, the retries are wrong
+        CHECK_EQ(1, partsId.size());
         LOG(INFO) << "Send request to storage " << host;
         remoteFunc(client.get(), request.second).via(evb)
              .then([spaceId,
@@ -380,17 +354,25 @@ void StorageClientBase<ClientType>::getResponseImpl(
                 return;
             }
             auto&& resp = std::move(t.value());
-            // leader changed
+
             auto& result = resp.get_result();
-            for (auto& code : result.get_failed_parts()) {
-                VLOG(3) << "Failure! Failed part " << code.get_part_id()
-                        << ", failed code " << static_cast<int32_t>(code.get_code());
-                if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
-                    auto* leader = code.get_leader();
+            auto failedParts = result.get_failed_parts();
+
+            if (!failedParts.empty()) {
+                // Because there is only one part in the request,
+                // there is only one error code at most
+                CHECK_EQ(1, failedParts.size());
+                auto& partResult = failedParts[0];
+                auto partId = partResult.get_part_id();
+                VLOG(3) << "Failure! Failed part " << partId
+                        << ", failed code " << static_cast<int32_t>(partResult.get_code());
+                // leader changed
+                if (partResult.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
+                    auto* leader = partResult.get_leader();
                     if (isValidHostPtr(leader)) {
-                        updateLeader(spaceId, code.get_part_id(), *leader);
+                        updateLeader(spaceId, partId, *leader);
                     } else {
-                        invalidLeader(spaceId, code.get_part_id());
+                        invalidLeader(spaceId, partId);
                     }
                     if (retry < retryLimit && isValidHostPtr(leader)) {
                         evb->runAfterDelay([this, evb, leader = *leader,
@@ -413,9 +395,9 @@ void StorageClientBase<ClientType>::getResponseImpl(
                         p.setValue(Status::LeaderChanged("Request to storage retry failed."));
                         return;
                     }
-                } else if (code.get_code() == storage::cpp2::ErrorCode::E_PART_NOT_FOUND ||
-                           code.get_code() == storage::cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
-                    invalidLeader(spaceId, code.get_part_id());
+                } else if (partResult.get_code() == storage::cpp2::ErrorCode::E_PART_NOT_FOUND ||
+                           partResult.get_code() == storage::cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
+                    invalidLeader(spaceId, partResult.get_part_id());
                 }
             }
             p.setValue(std::move(resp));
@@ -489,6 +471,5 @@ StorageClientBase<ClientType>::getHostParts(GraphSpaceID spaceId) const {
     }
     return hostParts;
 }
-
 }   // namespace storage
 }   // namespace nebula
