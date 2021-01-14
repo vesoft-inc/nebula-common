@@ -569,6 +569,20 @@ public:
     folly::Future<StatusOr<cpp2::StatisItem>>
     getStatis(GraphSpaceID spaceId);
 
+    folly::Future<StatusOr<cpp2::ErrorCode>> reportTaskFinish(
+        int32_t jobId,
+        int32_t taskId,
+        nebula::meta::cpp2::ErrorCode taskErrCode,
+        cpp2::StatisItem* statisticItem);
+
+    folly::Future<StatusOr<bool>>
+    download(const std::string& hdfsHost,
+             int32_t hdfsPort,
+             const std::string& hdfsPath,
+             GraphSpaceID spaceId);
+
+    folly::Future<StatusOr<bool>> ingest(GraphSpaceID spaceId);
+
 protected:
     // Return true if load succeeded.
     bool loadData();
