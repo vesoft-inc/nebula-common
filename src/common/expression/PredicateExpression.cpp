@@ -30,6 +30,9 @@ const Value& PredicateExpression::eval(ExpressionContext& ctx) {
     if (listVal.isNull()) {
         result_ = Value::kNullValue;
         return result_;
+    } else if (listVal.empty()) {
+        result_ = Value::kEmpty;
+        return result_;
     }
     if (!listVal.isList()) {
         result_ = Value::kNullBadType;

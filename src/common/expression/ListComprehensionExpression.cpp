@@ -13,6 +13,13 @@ const Value& ListComprehensionExpression::eval(ExpressionContext& ctx) {
     List ret;
 
     auto& listVal = collection_->eval(ctx);
+    if (listVal.isNull()) {
+        result_ = Value::kNullValue;
+        return result_;
+    } else if (listVal.empty()) {
+        result_ = Value::kEmpty;
+        return result_;
+    }
     if (!listVal.isList()) {
         return Value::kNullBadType;
     }
