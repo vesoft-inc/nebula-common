@@ -481,7 +481,7 @@ public:
 
     StatusOr<TagSchemas> getAllVerTagSchema(GraphSpaceID spaceId);
 
-    StatusOr<TagSchema> getAllLatestTagSchema(const GraphSpaceID& spaceId);
+    StatusOr<TagSchema> getAllLatestVerTagSchema(const GraphSpaceID& spaceId);
 
     StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID spaceId);
 
