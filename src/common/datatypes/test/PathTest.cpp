@@ -5,6 +5,7 @@
  */
 
 #include "common/base/Base.h"
+#include <double-conversion/utils.h>
 #include <gtest/gtest.h>
 #include "common/datatypes/Path.h"
 
@@ -235,8 +236,16 @@ TEST(Path, ReverseIntegerID) {
     }
 }
 
-}  // namespace nebula
+TEST(Path, HasSameEdgeInPath) {
+    Path path;
+    path.src = Vertex("1", {});
+    path.addStep(Step(Vertex("2", {}), 1, "like", 0, {}));
+    path.addStep(Step(Vertex("3", {}), 1, "like", 0, {}));
+    path.addStep(Step(Vertex("2", {}), -1, "like", 0, {}));
+    ASSERT(path.hasDuplicateEdges());
+}
 
+}   // namespace nebula
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);

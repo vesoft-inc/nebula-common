@@ -8,8 +8,10 @@
 
 #include <folly/hash/Hash.h>
 #include <folly/String.h>
+#include <tuple>
 #include <unordered_set>
 #include "common/datatypes/Path.h"
+#include "common/thrift/ThriftTypes.h"
 
 namespace nebula {
 void Path::reverse() {
@@ -40,11 +42,10 @@ bool Path::hasDuplicateVertices() const {
     if (steps.empty()) {
         return false;
     }
-    std::unordered_set<Value> uniqueVid;
-    auto srcVid = src.vid;
-    uniqueVid.emplace(srcVid);
+    std::unordered_set<std::string> uniqueVid;
+    uniqueVid.emplace(src.vid.toString());
     for (const auto& step : steps) {
-        auto ret = uniqueVid.emplace(step.dst.vid);
+        auto ret = uniqueVid.emplace(step.dst.vid.toString());
         if (!ret.second) {
             return true;
         }
@@ -56,19 +57,30 @@ bool Path::hasDuplicateEdges() const {
     if (steps.size() < 2) {
         return false;
     }
-    std::unordered_set<std::string> uniqueSet;
+    using EdgeKey = std::tuple<Value, Value, std::string, nebula::EdgeRanking>;
+    std::unordered_map<std::string, std::vector<EdgeKey>> uniqueMap;
     auto srcVid = src.vid;
     for (const auto& step : steps) {
-        auto edgeSrc = step.type > 0 ? srcVid : step.dst.vid;
-        auto edgeDst = step.type > 0 ? step.dst.vid : srcVid;
+        const auto& edgeSrc = step.type > 0 ? srcVid : step.dst.vid;
+        const auto& edgeDst = step.type > 0 ? step.dst.vid : srcVid;
         auto edgeKey = folly::stringPrintf("%s%s%s%ld",
                                            edgeSrc.toString().c_str(),
                                            edgeDst.toString().c_str(),
                                            step.name.c_str(),
                                            step.ranking);
-        auto res = uniqueSet.emplace(std::move(edgeKey));
-        if (!res.second) {
-            return true;
+        auto iter = uniqueMap.find(edgeKey);
+        if (iter != uniqueMap.end()) {
+            for (const auto& key : iter->second) {
+                if (std::get<0>(key) == edgeSrc && std::get<1>(key) == edgeDst &&
+                    std::get<2>(key) == step.name && std::get<3>(key) == step.ranking) {
+                    return true;
+                }
+            }
+            iter->second.emplace_back(std::make_tuple(edgeSrc, edgeDst, step.name, step.ranking));
+        } else {
+            std::vector<EdgeKey> edgeKeyList = {
+                std::make_tuple(edgeSrc, edgeDst, step.name, step.ranking)};
+            uniqueMap.emplace(std::move(edgeKey), std::move(edgeKeyList));
         }
         srcVid = step.dst.vid;
     }
