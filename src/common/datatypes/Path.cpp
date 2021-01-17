@@ -79,7 +79,8 @@ bool Path::hasDuplicateEdges() const {
             iter->second.emplace_back(std::make_tuple(edgeSrc, edgeDst, step.name, step.ranking));
         } else {
             std::vector<EdgeKey> edgeKeyList = {
-                std::make_tuple(edgeSrc, edgeDst, step.name, step.ranking)};
+                std::make_tuple(edgeSrc, edgeDst, step.name, step.ranking),
+            };
             uniqueMap.emplace(std::move(edgeKey), std::move(edgeKeyList));
         }
         srcVid = step.dst.vid;

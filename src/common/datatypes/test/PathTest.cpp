@@ -5,7 +5,6 @@
  */
 
 #include "common/base/Base.h"
-#include <double-conversion/utils.h>
 #include <gtest/gtest.h>
 #include "common/datatypes/Path.h"
 
@@ -238,10 +237,12 @@ TEST(Path, ReverseIntegerID) {
 
 TEST(Path, HasSameEdgeInPath) {
     Path path;
-    path.src = Vertex("1", {});
-    path.addStep(Step(Vertex("2", {}), 1, "like", 0, {}));
+    path.src = Vertex("10", {});
+    path.addStep(Step(Vertex("12", {}), 1, "like", 0, {}));
     path.addStep(Step(Vertex("3", {}), 1, "like", 0, {}));
-    path.addStep(Step(Vertex("2", {}), -1, "like", 0, {}));
+    path.addStep(Step(Vertex("1", {}), 1, "like", 0, {}));
+    path.addStep(Step(Vertex("23", {}), 1, "like", 0, {}));
+    path.addStep(Step(Vertex("1", {}), -1, "like", 0, {}));
     ASSERT(path.hasDuplicateEdges());
 }
 
