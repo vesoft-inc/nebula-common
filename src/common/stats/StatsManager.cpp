@@ -254,8 +254,6 @@ folly::dynamic StatsManager::readAllValue() {
             case StatsMethod::COUNT:
                 metricValue = readValue(statsName.second, spec.method);
                 break;
-            default:
-                LOG(FATAL) << "Impossible";
         }
         if (metricValue.ok()) {
             vals[statsName.first] = metricValue.value();
@@ -287,7 +285,7 @@ folly::dynamic StatsManager::readAllValue() {
         method = StatsMethod::AVG;
     } else if (parts[1] == "rate") {
         method = StatsMethod::RATE;
-    } else if (parts[1][0] == 'p') {
+    } else if (parts[1].size() > 0 && parts[1][0] == 'p') {
         method = StatsMethod::PCT;
         // Percentile
         try {
