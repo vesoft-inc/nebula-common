@@ -7,7 +7,9 @@
 #ifndef COMMON_DATATYPES_LIST_H_
 #define COMMON_DATATYPES_LIST_H_
 
-#include "common/base/Base.h"
+#include <vector>
+#include <algorithm>
+
 #include "common/datatypes/Value.h"
 
 namespace nebula {
@@ -31,7 +33,8 @@ struct List {
         values.reserve(n);
     }
 
-    template <typename T, typename = std::enable_if_t<std::is_convertible<T, Value>::value>>
+    template <typename T,
+              typename = typename std::enable_if<std::is_convertible<T, Value>::value>::type>
     void emplace_back(T &&v) {
         values.emplace_back(std::forward<T>(v));
     }
@@ -71,16 +74,7 @@ struct List {
         return values.size();
     }
 
-    std::string toString() const {
-        std::vector<std::string> value(values.size());
-        std::transform(
-            values.begin(), values.end(), value.begin(), [](const auto& v) -> std::string {
-                return v.toString();
-            });
-        std::stringstream os;
-        os << "[" << folly::join(",", value) << "]";
-        return os.str();
-    }
+    std::string toString() const;
 };
 
 inline std::ostream &operator<<(std::ostream& os, const List& l) {

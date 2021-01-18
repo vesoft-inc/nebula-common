@@ -13,13 +13,14 @@ namespace nebula {
 
 class ArgumentList final {
 public:
+    ArgumentList() = default;
+    explicit ArgumentList(size_t sz) {
+        args_.reserve(sz);
+    }
+
     void addArgument(std::unique_ptr<Expression> arg) {
         CHECK(!!arg);
         args_.emplace_back(std::move(arg));
-    }
-
-    auto moveArgs() {
-        return std::move(args_);
     }
 
     const auto& args() const {
@@ -32,6 +33,11 @@ public:
 
     size_t numArgs() const {
         return args_.size();
+    }
+
+    void setArg(size_t i, std::unique_ptr<Expression> arg) {
+        DCHECK_LT(i, numArgs());
+        args_[i] = std::move(arg);
     }
 
     void setArgs(std::vector<std::unique_ptr<Expression>> args) {
@@ -66,6 +72,16 @@ public:
     bool operator==(const Expression& rhs) const override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        auto arguments = new ArgumentList(args_->numArgs());
+        for (auto& arg : args_->args()) {
+            arguments->addArgument(arg->clone());
+        }
+        return std::make_unique<FunctionCallExpression>(new std::string(*name_), arguments);
+    }
 
     const std::string* name() const {
         return name_.get();

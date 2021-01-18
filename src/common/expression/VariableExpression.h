@@ -12,7 +12,7 @@
 namespace nebula {
 class VariableExpression final : public Expression {
 public:
-    explicit VariableExpression(std::string* var)
+    explicit VariableExpression(std::string* var = nullptr)
         : Expression(Kind::kVar) {
         var_.reset(var);
     }
@@ -24,19 +24,27 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     bool operator==(const Expression& rhs) const override {
-        UNUSED(rhs);
-        return false;
+        if (kind() != rhs.kind()) {
+            return false;
+        }
+        return var() == static_cast<const VariableExpression&>(rhs).var();
     }
 
     std::string toString() const override;
 
-private:
-    void writeTo(Encoder& encoder) const override {
-        UNUSED(encoder);
+    void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        return std::make_unique<VariableExpression>(new std::string(var()));
     }
 
-    void resetFrom(Decoder& decoder) override {
-        UNUSED(decoder);
+private:
+    void writeTo(Encoder&) const override {
+        LOG(FATAL) << "VariableExpression not support to encode.";
+    }
+
+    void resetFrom(Decoder&) override {
+        LOG(FATAL) << "VariableExpression not support to decode.";
     }
 
     std::unique_ptr<std::string>                 var_;
@@ -48,7 +56,7 @@ private:
  */
 class VersionedVariableExpression final : public Expression {
 public:
-    VersionedVariableExpression(std::string* var, Expression* version)
+    explicit VersionedVariableExpression(std::string* var = nullptr, Expression* version = nullptr)
         : Expression(Kind::kVersionedVar) {
         var_.reset(var);
         version_.reset(version);
@@ -61,19 +69,34 @@ public:
     const Value& eval(ExpressionContext& ctx) override;
 
     bool operator==(const Expression& rhs) const override {
-        UNUSED(rhs);
-        return false;
+        if (kind() != rhs.kind()) {
+            return false;
+        }
+
+        auto &vve = static_cast<const VersionedVariableExpression&>(rhs);
+        if (var() != vve.var()) {
+            return false;
+        }
+
+        return *version_ == *vve.version_;
     }
 
     std::string toString() const override;
 
-private:
-    void writeTo(Encoder& encoder) const override {
-        UNUSED(encoder);
+    void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        return std::make_unique<VersionedVariableExpression>(new std::string(var()),
+                                                             version_->clone().release());
     }
 
-    void resetFrom(Decoder& decoder) override {
-        UNUSED(decoder);
+private:
+    void writeTo(Encoder&) const override {
+        LOG(FATAL) << "VersionedVairableExpression not support to encode.";
+    }
+
+    void resetFrom(Decoder&) override {
+        LOG(FATAL) << "VersionedVairableExpression not support to decode.";
     }
 
     std::unique_ptr<std::string>                 var_;

@@ -6,6 +6,7 @@
 
 #include "common/expression/UnaryExpression.h"
 #include "common/expression/VariableExpression.h"
+#include "common/expression/ExprVisitor.h"
 
 namespace nebula {
 
@@ -14,7 +15,7 @@ bool UnaryExpression::operator==(const Expression& rhs) const {
         return false;
     }
 
-    const auto& r = dynamic_cast<const UnaryExpression&>(rhs);
+    const auto& r = static_cast<const UnaryExpression&>(rhs);
     return *operand_ == *(r.operand_);
 }
 
@@ -104,6 +105,10 @@ std::string UnaryExpression::toString() const {
     std::stringstream out;
     out << op << "(" << operand_->toString() << ")";
     return out.str();
+}
+
+void UnaryExpression::accept(ExprVisitor* visitor) {
+    visitor->visit(this);
 }
 
 }  // namespace nebula

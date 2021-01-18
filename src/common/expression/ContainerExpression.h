@@ -14,6 +14,9 @@ namespace nebula {
 class ExpressionList final {
 public:
     ExpressionList() = default;
+    explicit ExpressionList(size_t sz) {
+        items_.reserve(sz);
+    }
 
     ExpressionList& add(Expression *expr) {
         items_.emplace_back(expr);
@@ -32,6 +35,9 @@ private:
 class MapItemList final {
 public:
     MapItemList() = default;
+    explicit MapItemList(size_t sz) {
+        items_.reserve(sz);
+    }
 
     MapItemList& add(std::string *key, Expression *value) {
         items_.emplace_back(key, value);
@@ -60,13 +66,17 @@ public:
 
     const Value& eval(ExpressionContext &ctx) override;
 
-    std::vector<const Expression*> items() const {
-        std::vector<const Expression*> items;
-        items.reserve(items_.size());
-        for (auto &item : items_) {
-            items.emplace_back(item.get());
-        }
-        return items;
+    const std::vector<std::unique_ptr<Expression>> &items() const {
+        return items_;
+    }
+
+    void setItem(size_t index, std::unique_ptr<Expression> item) {
+        DCHECK_LT(index, items_.size());
+        items_[index] = std::move(item);
+    }
+
+    std::vector<std::unique_ptr<Expression>> get() && {
+        return std::move(items_);
     }
 
     void setItems(std::vector<std::unique_ptr<Expression>> items) {
@@ -80,6 +90,16 @@ public:
     bool operator==(const Expression &rhs) const override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor *visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        auto items = new ExpressionList(items_.size());
+        for (auto &item : items_) {
+            items->add(item->clone().release());
+        }
+        return std::make_unique<ListExpression>(items);
+    }
 
 private:
     void writeTo(Encoder &encoder) const override;
@@ -104,13 +124,17 @@ public:
 
     const Value& eval(ExpressionContext &ctx) override;
 
-    std::vector<const Expression*> items() const {
-        std::vector<const Expression*> items;
-        items.reserve(items_.size());
-        for (auto &item : items_) {
-            items.emplace_back(item.get());
-        }
-        return items;
+    const std::vector<std::unique_ptr<Expression>> &items() const {
+        return items_;
+    }
+
+    void setItem(size_t index, std::unique_ptr<Expression> item) {
+        DCHECK_LT(index, items_.size());
+        items_[index] = std::move(item);
+    }
+
+    std::vector<std::unique_ptr<Expression>> get() && {
+        return std::move(items_);
     }
 
     void setItems(std::vector<std::unique_ptr<Expression>> items) {
@@ -125,6 +149,16 @@ public:
 
     std::string toString() const override;
 
+    void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        auto items = new ExpressionList(items_.size());
+        for (auto &item : items_) {
+            items->add(item->clone().release());
+        }
+        return std::make_unique<SetExpression>(items);
+    }
+
 private:
     void writeTo(Encoder &encoder) const override;
 
@@ -138,6 +172,8 @@ private:
 
 class MapExpression final : public Expression {
 public:
+    using Item = std::pair<std::unique_ptr<std::string>, std::unique_ptr<Expression>>;
+
     MapExpression() : Expression(Kind::kMap) {
     }
 
@@ -148,18 +184,21 @@ public:
 
     const Value& eval(ExpressionContext &ctx) override;
 
-    std::vector<std::pair<const std::string*, const Expression*>> items() const {
-        std::vector<std::pair<const std::string*, const Expression*>> items;
-        items.reserve(items_.size());
-        for (auto &item : items_) {
-            items.emplace_back(item.first.get(), item.second.get());
-        }
-        return items;
+    const std::vector<Item> &items() const {
+        return items_;
     }
 
-    using Item = std::pair<std::unique_ptr<std::string>, std::unique_ptr<Expression>>;
     void setItems(std::vector<Item> items) {
         items_ = std::move(items);
+    }
+
+    void setItem(size_t index, Item item) {
+        DCHECK_LT(index, items_.size());
+        items_[index] = std::move(item);
+    }
+
+    std::vector<Item> get() && {
+        return std::move(items_);
     }
 
     size_t size() const {
@@ -169,6 +208,16 @@ public:
     bool operator==(const Expression &rhs) const override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        auto items = new MapItemList(items_.size());
+        for (auto &item : items_) {
+            items->add(new std::string(*item.first), item.second->clone().release());
+        }
+        return std::make_unique<MapExpression>(items);
+    }
 
 private:
     void writeTo(Encoder &encoder) const override;

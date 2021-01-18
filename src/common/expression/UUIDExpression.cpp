@@ -5,6 +5,7 @@
  */
 
 #include "common/expression/UUIDExpression.h"
+#include "common/expression/ExprVisitor.h"
 
 namespace nebula {
 
@@ -13,7 +14,7 @@ bool UUIDExpression::operator==(const Expression& rhs) const {
         return false;
     }
 
-    const auto& r = dynamic_cast<const UUIDExpression&>(rhs);
+    const auto& r = static_cast<const UUIDExpression&>(rhs);
     return *field_ == *(r.field_);
 }
 
@@ -43,6 +44,10 @@ const Value& UUIDExpression::eval(ExpressionContext& ctx) {
 
 std::string UUIDExpression::toString() const {
     return folly::stringPrintf("uuid(%s)", field_->c_str());
+}
+
+void UUIDExpression::accept(ExprVisitor* visitor) {
+    visitor->visit(this);
 }
 
 }  // namespace nebula

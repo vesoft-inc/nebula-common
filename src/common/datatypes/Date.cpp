@@ -4,20 +4,21 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include <cstdint>
+
+#include <folly/String.h>
+#include <folly/hash/Hash.h>
+
 #include "common/datatypes/Date.h"
 
 namespace nebula {
 
-static const int64_t daysSoFar[] =
-    {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
-static const int64_t leapDaysSoFar[] =
-    {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
-
+const int64_t kDaysSoFar[] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
+const int64_t kLeapDaysSoFar[] = {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
 
 Date::Date(uint64_t days) {
     fromInt(days);
 }
-
 
 int64_t Date::toInt() const {
     // Year
@@ -31,9 +32,9 @@ int64_t Date::toInt() const {
     // Month
     if (yearsPassed % 4 == 0) {
         // Leap year
-        days += leapDaysSoFar[month - 1];
+        days += kLeapDaysSoFar[month - 1];
     } else {
-        days += daysSoFar[month - 1];
+        days += kDaysSoFar[month - 1];
     }
 
     // Day
@@ -42,7 +43,6 @@ int64_t Date::toInt() const {
     // Since we start from -32768/1/1, we need to reduce one day
     return days - 1;
 }
-
 
 void Date::fromInt(int64_t days) {
     // year
@@ -71,13 +71,13 @@ void Date::fromInt(int64_t days) {
     while (true) {
         if (year % 4 == 0) {
             // Leap year
-            if (daysInYear <= leapDaysSoFar[month]) {
-                day = daysInYear - leapDaysSoFar[month - 1];
+            if (daysInYear <= kLeapDaysSoFar[month]) {
+                day = daysInYear - kLeapDaysSoFar[month - 1];
                 break;
             }
         } else {
-            if (daysInYear <= daysSoFar[month]) {
-                day = daysInYear - daysSoFar[month - 1];
+            if (daysInYear <= kDaysSoFar[month]) {
+                day = daysInYear - kDaysSoFar[month - 1];
                 break;
             }
         }
@@ -85,38 +85,60 @@ void Date::fromInt(int64_t days) {
     }
 }
 
-
 Date Date::operator+(int64_t days) const {
     int64_t daysSince = toInt();
     return Date(daysSince + days);
 }
-
 
 Date Date::operator-(int64_t days) const {
     int64_t daysSince = toInt();
     return Date(daysSince - days);
 }
 
-
 std::string Date::toString() const {
-    // TODO(sye) The format should depend on the locale
-    return folly::stringPrintf("%d/%02d/%02d", year, month, day);
+    // It's in current timezone already
+    return folly::stringPrintf("%d-%02d-%02d", year, month, day);
 }
 
+std::string Time::toString() const {
+    // It's in current timezone already
+    return folly::stringPrintf("%02d:%02d:%02d.%06d", hour, minute, sec, microsec);
+}
 
 std::string DateTime::toString() const {
-    // TODO(sye) The format should depend on the locale
-    return folly::stringPrintf("%d/%02d/%02d %02d:%02d:%02d.%06d %c%d.%02d",
-                               year,
-                               month,
-                               day,
-                               hour,
-                               minute,
-                               sec,
-                               microsec,
-                               timezone > 0 ? '+' : '-',
-                               timezone / 3600,
-                               (timezone % 3600) / 60);
+    // It's in current timezone already
+    return folly::stringPrintf(
+        "%d-%02d-%02dT%02d:%02d:%02d.%d", year, month, day, hour, minute, sec, microsec);
 }
 
-}  // namespace nebula
+}   // namespace nebula
+
+namespace std {
+
+// Inject a customized hash function
+std::size_t hash<nebula::Date>::operator()(const nebula::Date& h) const noexcept {
+    size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year), sizeof(h.year));
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.month), sizeof(h.month), hv);
+    return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.day), sizeof(h.day), hv);
+}
+
+std::size_t hash<nebula::Time>::operator()(const nebula::Time& h) const noexcept {
+    std::size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.hour), sizeof(h.hour));
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.minute), sizeof(h.minute), hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.sec), sizeof(h.sec), hv);
+    return folly::hash::fnv64_buf(
+        reinterpret_cast<const void*>(&h.microsec), sizeof(h.microsec), hv);
+}
+
+std::size_t hash<nebula::DateTime>::operator()(const nebula::DateTime& h) const noexcept {
+    size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year), sizeof(h.year));
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.month), sizeof(h.month), hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.day), sizeof(h.day), hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.hour), sizeof(h.hour), hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.minute), sizeof(h.minute), hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.sec), sizeof(h.sec), hv);
+    return folly::hash::fnv64_buf(
+        reinterpret_cast<const void*>(&h.microsec), sizeof(h.microsec), hv);
+}
+
+}   // namespace std

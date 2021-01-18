@@ -5,15 +5,24 @@ message(">>>> Configuring third party for '${PROJECT_NAME}' <<<<")
 #   3. The path specified with environment variable NEBULA_THIRDPARTY_ROOT=path
 #   4. /opt/vesoft/third-party, if exists
 #   5. At last, one copy will be downloaded and installed to ${CMAKE_BINARY_DIR}/third-party/install
-if("${NEBULA_THIRDPARTY_ROOT}" STREQUAL "")
-    if(EXISTS ${CMAKE_BINARY_DIR}/third-party/install)
-        SET(NEBULA_THIRDPARTY_ROOT ${CMAKE_BINARY_DIR}/third-party/install)
-    elseif(NOT $ENV{NEBULA_THIRDPARTY_ROOT} STREQUAL "")
-        SET(NEBULA_THIRDPARTY_ROOT $ENV{NEBULA_THIRDPARTY_ROOT})
-    elseif(EXISTS /opt/vesoft/third-party)
-        SET(NEBULA_THIRDPARTY_ROOT "/opt/vesoft/third-party")
-    else()
+
+if(${DISABLE_CXX11_ABI})
+    SET(NEBULA_THIRDPARTY_ROOT ${CMAKE_BINARY_DIR}/third-party-98/install)
+    if(NOT EXISTS ${CMAKE_BINARY_DIR}/third-party-98/install)
+        message(STATUS "Install abi 98 third-party")
         include(InstallThirdParty)
+    endif()
+else()
+    if("${NEBULA_THIRDPARTY_ROOT}" STREQUAL "")
+        if(EXISTS ${CMAKE_BINARY_DIR}/third-party/install)
+            SET(NEBULA_THIRDPARTY_ROOT ${CMAKE_BINARY_DIR}/third-party/install)
+        elseif(NOT $ENV{NEBULA_THIRDPARTY_ROOT} STREQUAL "")
+            SET(NEBULA_THIRDPARTY_ROOT $ENV{NEBULA_THIRDPARTY_ROOT})
+        elseif(EXISTS /opt/vesoft/third-party)
+            SET(NEBULA_THIRDPARTY_ROOT "/opt/vesoft/third-party")
+        else()
+            include(InstallThirdParty)
+        endif()
     endif()
 endif()
 
@@ -92,8 +101,6 @@ find_package(Libunwind REQUIRED)
 find_package(BISON 3.0.5 REQUIRED)
 include(MakeBisonRelocatable)
 find_package(FLEX REQUIRED)
-find_package(Readline REQUIRED)
-find_package(NCURSES REQUIRED)
 find_package(LibLZMA REQUIRED)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L ${NEBULA_THIRDPARTY_ROOT}/lib")
@@ -112,6 +119,11 @@ set(THRIFT_LIBRARIES
     thriftfrozen2
     thrift-core
     wangle
+)
+
+set(PROXYGEN_LIBRARIES
+    proxygenlib
+    proxygenhttpserver
 )
 
 set(ROCKSDB_LIBRARIES ${Rocksdb_LIBRARY})

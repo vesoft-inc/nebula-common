@@ -10,10 +10,18 @@
 namespace nebula {
 namespace meta {
 
-std::unique_ptr<SchemaManager> SchemaManager::create(MetaClient *client) {
-    auto mgr = std::make_unique<ServerBasedSchemaManager>();
-    mgr->init(client);
-    return mgr;
+StatusOr<std::pair<bool, int32_t>>
+SchemaManager::getSchemaIDByName(GraphSpaceID space, folly::StringPiece schemaName) {
+    auto ret = toEdgeType(space, schemaName);
+    if (ret.ok()) {
+        return std::make_pair(true, ret.value());
+    } else {
+        ret = toTagID(space, schemaName);
+        if (ret.ok()) {
+            return std::make_pair(false, ret.value());
+        }
+    }
+    return Status::Error("Schema not exist: %s", schemaName.str().c_str());
 }
 
 }   // namespace meta

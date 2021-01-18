@@ -11,7 +11,6 @@
 
 namespace nebula {
 namespace stats {
-
 TEST(StatsManager, StatsTest) {
     auto statId = StatsManager::registerStats("stat01.sum.5");
     ASSERT_TRUE(StatsManager::statsIndex(statId));

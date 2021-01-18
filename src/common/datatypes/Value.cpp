@@ -3,10 +3,15 @@
  * This source code is licensed under Apache 2.0 License,
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
+#include <memory>
+#include <string>
+#include <utility>
+
+#include <folly/hash/Hash.h>
+#include <folly/String.h>
+#include <glog/logging.h>
 
 #include "common/datatypes/Value.h"
-#include <folly/hash/Hash.h>
-#include <string>
 #include "common/datatypes/List.h"
 #include "common/datatypes/Map.h"
 #include "common/datatypes/Set.h"
@@ -39,6 +44,9 @@ std::size_t hash<nebula::Value>::operator()(const nebula::Value& v) const noexce
         }
         case nebula::Value::Type::DATE: {
             return hash<nebula::Date>()(v.getDate());
+        }
+        case nebula::Value::Type::TIME: {
+            return hash<nebula::Time>()(v.getTime());
         }
         case nebula::Value::Type::DATETIME: {
             return hash<nebula::DateTime>()(v.getDateTime());
@@ -122,9 +130,14 @@ Value::Value(Value&& rhs) noexcept : type_(Value::Type::__EMPTY__) {
             setD(std::move(rhs.value_.dVal));
             break;
         }
-        case Type::DATETIME:
+        case Type::TIME:
         {
             setT(std::move(rhs.value_.tVal));
+            break;
+        }
+        case Type::DATETIME:
+        {
+            setDT(std::move(rhs.value_.dtVal));
             break;
         }
         case Type::VERTEX:
@@ -206,9 +219,14 @@ Value::Value(const Value& rhs) : type_(Value::Type::__EMPTY__) {
             setD(rhs.value_.dVal);
             break;
         }
-        case Type::DATETIME:
+        case Type::TIME:
         {
             setT(rhs.value_.tVal);
+            break;
+        }
+        case Type::DATETIME:
+        {
+            setDT(rhs.value_.dtVal);
             break;
         }
         case Type::VERTEX:
@@ -322,10 +340,6 @@ Value::Value(const char* v) {
     setS(v);
 }
 
-Value::Value(folly::StringPiece v) {
-    setS(v);
-}
-
 Value::Value(const Date& v) {
     setD(v);
 }
@@ -334,12 +348,20 @@ Value::Value(Date&& v) {
     setD(std::move(v));
 }
 
-Value::Value(const DateTime& v) {
+Value::Value(const Time& v) {
     setT(v);
 }
 
-Value::Value(DateTime&& v) {
+Value::Value(Time&& v) {
     setT(std::move(v));
+}
+
+Value::Value(const DateTime& v) {
+    setDT(v);
+}
+
+Value::Value(DateTime&& v) {
+    setDT(std::move(v));
 }
 
 Value::Value(const Vertex& v) {
@@ -411,6 +433,7 @@ const std::string& Value::typeName() const {
         { Type::FLOAT, "float" },
         { Type::STRING, "string" },
         { Type::DATE, "date" },
+        { Type::TIME, "time" },
         { Type::DATETIME, "datetime" },
         { Type::VERTEX, "vertex" },
         { Type::EDGE, "edge" },
@@ -532,11 +555,6 @@ void Value::setStr(const char* v) {
     setS(v);
 }
 
-void Value::setStr(folly::StringPiece v) {
-    clear();
-    setS(v);
-}
-
 void Value::setDate(const Date& v) {
     clear();
     setD(v);
@@ -547,14 +565,24 @@ void Value::setDate(Date&& v) {
     setD(std::move(v));
 }
 
-void Value::setDateTime(const DateTime& v) {
+void Value::setTime(const Time& v) {
     clear();
     setT(v);
 }
 
-void Value::setDateTime(DateTime&& v) {
+void Value::setTime(Time&& v) {
     clear();
     setT(std::move(v));
+}
+
+void Value::setDateTime(const DateTime& v) {
+    clear();
+    setDT(v);
+}
+
+void Value::setDateTime(DateTime&& v) {
+    clear();
+    setDT(std::move(v));
 }
 
 void Value::setVertex(const Vertex& v) {
@@ -693,9 +721,14 @@ const Date& Value::getDate() const {
     return value_.dVal;
 }
 
+const Time& Value::getTime() const {
+    CHECK_EQ(type_, Type::TIME);
+    return value_.tVal;
+}
+
 const DateTime& Value::getDateTime() const {
     CHECK_EQ(type_, Type::DATETIME);
-    return value_.tVal;
+    return value_.dtVal;
 }
 
 const Vertex& Value::getVertex() const {
@@ -799,9 +832,14 @@ Date& Value::mutableDate() {
     return value_.dVal;
 }
 
+Time& Value::mutableTime() {
+    CHECK_EQ(type_, Type::TIME);
+    return value_.tVal;
+}
+
 DateTime& Value::mutableDateTime() {
     CHECK_EQ(type_, Type::DATETIME);
-    return value_.tVal;
+    return value_.dtVal;
 }
 
 Vertex& Value::mutableVertex() {
@@ -882,9 +920,16 @@ Date Value::moveDate() {
     return v;
 }
 
+Time Value::moveTime() {
+    CHECK_EQ(type_, Type::TIME);
+    Time v = std::move(value_.tVal);
+    clear();
+    return v;
+}
+
 DateTime Value::moveDateTime() {
     CHECK_EQ(type_, Type::DATETIME);
-    DateTime v = std::move(value_.tVal);
+    DateTime v = std::move(value_.dtVal);
     clear();
     return v;
 }
@@ -974,9 +1019,14 @@ void Value::clear() {
             destruct(value_.dVal);
             break;
         }
-        case Type::DATETIME:
+        case Type::TIME:
         {
             destruct(value_.tVal);
+            break;
+        }
+        case Type::DATETIME:
+        {
+            destruct(value_.dtVal);
             break;
         }
         case Type::VERTEX:
@@ -1054,9 +1104,14 @@ Value& Value::operator=(Value&& rhs) noexcept {
             setD(std::move(rhs.value_.dVal));
             break;
         }
-        case Type::DATETIME:
+        case Type::TIME:
         {
             setT(std::move(rhs.value_.tVal));
+            break;
+        }
+        case Type::DATETIME:
+        {
+            setDT(std::move(rhs.value_.dtVal));
             break;
         }
         case Type::VERTEX:
@@ -1140,9 +1195,14 @@ Value& Value::operator=(const Value& rhs) {
             setD(rhs.value_.dVal);
             break;
         }
-        case Type::DATETIME:
+        case Type::TIME:
         {
             setT(rhs.value_.tVal);
+            break;
+        }
+        case Type::DATETIME:
+        {
+            setDT(rhs.value_.dtVal);
             break;
         }
         case Type::VERTEX:
@@ -1246,11 +1306,6 @@ void Value::setS(const char* v) {
     new (std::addressof(value_.sVal)) std::string(v);
 }
 
-void Value::setS(folly::StringPiece v) {
-    type_ = Type::STRING;
-    new (std::addressof(value_.sVal)) std::string(v.data(), v.size());
-}
-
 void Value::setD(const Date& v) {
     type_ = Type::DATE;
     new (std::addressof(value_.dVal)) Date(v);
@@ -1261,14 +1316,24 @@ void Value::setD(Date&& v) {
     new (std::addressof(value_.dVal)) Date(std::move(v));
 }
 
-void Value::setT(const DateTime& v) {
-    type_ = Type::DATETIME;
-    new (std::addressof(value_.tVal)) DateTime(v);
+void Value::setT(const Time& v) {
+    type_ = Type::TIME;
+    new (std::addressof(value_.tVal)) Time(v);
 }
 
-void Value::setT(DateTime&& v) {
+void Value::setT(Time&& v) {
+    type_ = Type::TIME;
+    new (std::addressof(value_.tVal)) Time(std::move(v));
+}
+
+void Value::setDT(const DateTime& v) {
     type_ = Type::DATETIME;
-    new (std::addressof(value_.tVal)) DateTime(std::move(v));
+    new (std::addressof(value_.dtVal)) DateTime(v);
+}
+
+void Value::setDT(DateTime&& v) {
+    type_ = Type::DATETIME;
+    new (std::addressof(value_.dtVal)) DateTime(std::move(v));
 }
 
 void Value::setV(const std::unique_ptr<Vertex>& v) {
@@ -1452,6 +1517,9 @@ std::string Value::toString() const {
         case Value::Type::DATE: {
             return getDate().toString();
         }
+        case Value::Type::TIME: {
+            return getTime().toString();
+        }
         case Value::Type::DATETIME: {
             return getDateTime().toString();
         }
@@ -1462,7 +1530,7 @@ std::string Value::toString() const {
             return getVertex().toString();
         }
         case Value::Type::PATH: {
-            return getVertex().toString();
+            return getPath().toString();
         }
         case Value::Type::LIST: {
             return getList().toString();
@@ -1482,85 +1550,79 @@ std::string Value::toString() const {
     LOG(FATAL) << "Unknown value type " << static_cast<int>(type_);
 }
 
-StatusOr<bool> Value::toBool() {
+std::pair<bool, bool> Value::toBool() {
     switch (type_) {
         // Type::__EMPTY__ is always false
         case Value::Type::__EMPTY__: {
-            return false;
+            return std::make_pair(false, true);
         }
         // Type::NULLVALUE is always false
         case Value::Type::NULLVALUE: {
-            return false;
+            return std::make_pair(false, true);
         }
         case Value::Type::BOOL: {
-            return getBool();
+            return std::make_pair(getBool(), true);
         }
         case Value::Type::INT: {
-            return getInt() != 0;
+            return std::make_pair(getInt() != 0, true);
         }
         case Value::Type::FLOAT: {
-            return std::abs(getFloat()) > kEpsilon;
+            return std::make_pair(std::abs(getFloat()) > kEpsilon, true);
         }
         case Value::Type::STRING: {
-            return !getStr().empty();
+            return std::make_pair(!getStr().empty(), true);
         }
         case Value::Type::DATE: {
-            return getDate().toInt() != 0;
+            return std::make_pair(getDate().toInt() != 0, true);
         }
         default: {
-            std::stringstream ss;
-            ss << *this << "'s type " << type_ << " can not convert to Bool";
-            return Status::Error(ss.str());
+            return std::make_pair(bool{}, false);
         }
     }
 }
 
-StatusOr<double> Value::toFloat() {
+std::pair<double, bool> Value::toFloat() {
     switch (type_) {
         case Value::Type::INT: {
-            return static_cast<double>(getInt());
+            return std::make_pair(static_cast<double>(getInt()), true);
         }
         case Value::Type::FLOAT: {
-            return getFloat();
+            return std::make_pair(getFloat(), true);
         }
         case Value::Type::STRING: {
             const auto& str = getStr();
             char *pEnd;
             double val = strtod(str.c_str(), &pEnd);
             if (*pEnd != '\0') {
-                return Status::Error("%s can not convert to Float", str.c_str());
+                return std::make_pair(double{}, false);
             }
-            return val;
+            return std::make_pair(val, true);
         }
         default: {
-            std::stringstream ss;
-            ss << *this << "'s type " << type_ << " can not convert to Float";
-            return Status::Error(ss.str());
+            return std::make_pair(double{}, false);
         }
     }
 }
 
-StatusOr<int64_t> Value::toInt() {
+std::pair<int64_t, bool> Value::toInt() {
     switch (type_) {
         case Value::Type::INT: {
-            return getInt();
+            return std::make_pair(getInt(), true);
         }
         case Value::Type::FLOAT: {
-            return static_cast<int64_t>(getFloat());
+            return std::make_pair(static_cast<int64_t>(getFloat()), true);
         }
         case Value::Type::STRING: {
             const auto& str = getStr();
             char *pEnd;
             double val = strtod(str.c_str(), &pEnd);
             if (*pEnd != '\0') {
-                return Status::Error("%s can not convert to Int", str.c_str());
+                return std::make_pair(int64_t{}, false);
             }
-            return static_cast<int64_t>(val);
+            return std::make_pair(static_cast<int64_t>(val), true);
         }
         default: {
-            std::stringstream ss;
-            ss << *this << "'s type " << type_ << " can not convert to Int";
-            return Status::Error(ss.str());
+            return std::make_pair(int64_t{}, false);
         }
     }
 }
@@ -1599,6 +1661,10 @@ std::ostream& operator<<(std::ostream& os, const Value::Type& type) {
         }
         case Value::Type::DATE: {
             os << "DATE";
+            break;
+        }
+        case Value::Type::TIME: {
+            os << "TIME";
             break;
         }
         case Value::Type::DATETIME: {
@@ -1643,12 +1709,11 @@ std::ostream& operator<<(std::ostream& os, const Value::Type& type) {
 }
 
 Value operator+(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
-
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     switch (lhs.type()) {
@@ -1658,6 +1723,11 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return folly::stringPrintf("%s%s",
                                                lhs.getBool() ? "true" : "false",
                                                rhs.getStr().c_str());
+                }
+                case Value::Type::LIST: {
+                    auto ret = rhs.getList();
+                    ret.values.insert(ret.values.begin(), lhs);
+                    return ret;
                 }
                 default: {
                     return Value::kNullBadType;
@@ -1680,6 +1750,11 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::DATE: {
                     return rhs.getDate() + lhs.getInt();
                 }
+                case Value::Type::LIST: {
+                    auto ret = rhs.getList();
+                    ret.values.insert(ret.values.begin(), lhs);
+                    return ret;
+                }
                 default: {
                     return Value::kNullBadType;
                 }
@@ -1697,6 +1772,11 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return folly::stringPrintf("%lf%s",
                                                lhs.getFloat(),
                                                rhs.getStr().c_str());
+                }
+                case Value::Type::LIST: {
+                    auto ret = rhs.getList();
+                    ret.values.insert(ret.values.begin(), lhs);
+                    return ret;
                 }
                 default: {
                     return Value::kNullBadType;
@@ -1726,8 +1806,16 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::DATE: {
                     return lhs.getStr() + rhs.getDate().toString();
                 }
+                case Value::Type::TIME: {
+                    return lhs.getStr() + rhs.getTime().toString();
+                }
                 case Value::Type::DATETIME: {
                     return lhs.getStr() + rhs.getDateTime().toString();
+                }
+                case Value::Type::LIST: {
+                    auto ret = rhs.getList();
+                    ret.values.insert(ret.values.begin(), lhs);
+                    return ret;
                 }
                 default: {
                     return Value::kNullBadType;
@@ -1742,6 +1830,26 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::STRING: {
                     return lhs.getDate().toString() + rhs.getStr();
                 }
+                case Value::Type::LIST: {
+                    auto ret = rhs.getList();
+                    ret.values.insert(ret.values.begin(), lhs);
+                    return ret;
+                }
+                default: {
+                    return Value::kNullBadType;
+                }
+            }
+        }
+        case Value::Type::TIME: {
+            switch (rhs.type()) {
+                case Value::Type::STRING: {
+                    return lhs.getTime().toString() + rhs.getStr();
+                }
+                case Value::Type::LIST: {
+                    auto ret = rhs.getList();
+                    ret.values.insert(ret.values.begin(), lhs);
+                    return ret;
+                }
                 default: {
                     return Value::kNullBadType;
                 }
@@ -1751,6 +1859,107 @@ Value operator+(const Value& lhs, const Value& rhs) {
             switch (rhs.type()) {
                 case Value::Type::STRING: {
                     return lhs.getDateTime().toString() + rhs.getStr();
+                }
+                case Value::Type::LIST: {
+                    auto ret = rhs.getList();
+                    ret.values.insert(ret.values.begin(), lhs);
+                    return ret;
+                }
+                default: {
+                    return Value::kNullBadType;
+                }
+            }
+        }
+        case Value::Type::LIST: {
+            switch (rhs.type()) {
+                case Value::Type::LIST: {
+                    auto ret = lhs.getList();
+                    auto& list = rhs.getList();
+                    ret.values.insert(ret.values.end(), list.values.begin(), list.values.end());
+                    return ret;
+                }
+                case Value::Type::BOOL:
+                case Value::Type::INT:
+                case Value::Type::FLOAT:
+                case Value::Type::STRING:
+                case Value::Type::DATE:
+                case Value::Type::TIME:
+                case Value::Type::DATETIME:
+                case Value::Type::VERTEX:
+                case Value::Type::EDGE:
+                case Value::Type::PATH:
+                case Value::Type::MAP:
+                case Value::Type::SET: {
+                    auto ret = lhs.getList();
+                    ret.emplace_back(rhs);
+                    return ret;
+                }
+                case Value::Type::DATASET: {
+                    return Value::kNullBadType;
+                }
+                case Value::Type::__EMPTY__: {
+                    return Value::kEmpty;
+                }
+                case Value::Type::NULLVALUE: {
+                    return Value::kNullValue;
+                }
+            }
+            LOG(FATAL) << "Unknown type: " << rhs.type();
+        }
+        case Value::Type::VERTEX: {
+            switch (rhs.type()) {
+                case Value::Type::LIST: {
+                    auto ret = rhs.getList();
+                    ret.values.insert(ret.values.begin(), lhs);
+                    return ret;
+                }
+                default: {
+                    return Value::kNullBadType;
+                }
+            }
+        }
+        case Value::Type::EDGE: {
+            switch (rhs.type()) {
+                case Value::Type::LIST: {
+                    auto ret = rhs.getList();
+                    ret.values.insert(ret.values.begin(), lhs);
+                    return ret;
+                }
+                default: {
+                    return Value::kNullBadType;
+                }
+            }
+        }
+        case Value::Type::PATH: {
+            switch (rhs.type()) {
+                case Value::Type::LIST: {
+                    auto ret = rhs.getList();
+                    ret.values.insert(ret.values.begin(), lhs);
+                    return ret;
+                }
+                default: {
+                    return Value::kNullBadType;
+                }
+            }
+        }
+        case Value::Type::MAP: {
+            switch (rhs.type()) {
+                case Value::Type::LIST: {
+                    auto ret = rhs.getList();
+                    ret.values.insert(ret.values.begin(), lhs);
+                    return ret;
+                }
+                default: {
+                    return Value::kNullBadType;
+                }
+            }
+        }
+        case Value::Type::SET: {
+            switch (rhs.type()) {
+                case Value::Type::LIST: {
+                    auto ret = rhs.getList();
+                    ret.values.insert(ret.values.begin(), lhs);
+                    return ret;
                 }
                 default: {
                     return Value::kNullBadType;
@@ -1765,12 +1974,11 @@ Value operator+(const Value& lhs, const Value& rhs) {
 
 
 Value operator-(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
-
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     switch (lhs.type()) {
@@ -1821,12 +2029,11 @@ Value operator-(const Value& lhs, const Value& rhs) {
 
 
 Value operator*(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
-
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     switch (lhs.type()) {
@@ -1864,12 +2071,11 @@ Value operator*(const Value& lhs, const Value& rhs) {
 
 
 Value operator/(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
-
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     switch (lhs.type()) {
@@ -1926,12 +2132,11 @@ Value operator/(const Value& lhs, const Value& rhs) {
 }
 
 Value operator%(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
-
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     switch (lhs.type()) {
@@ -1988,8 +2193,8 @@ Value operator%(const Value& lhs, const Value& rhs) {
 }
 
 Value operator-(const Value& rhs) {
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     switch (rhs.type()) {
@@ -2008,8 +2213,8 @@ Value operator-(const Value& rhs) {
 }
 
 Value operator!(const Value& rhs) {
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
     if (rhs.type() != Value::Type::BOOL) {
@@ -2063,13 +2268,24 @@ bool operator<(const Value& lhs, const Value& rhs) {
         case Value::Type::STRING: {
             return lhs.getStr() < rhs.getStr();
         }
+        case Value::Type::VERTEX: {
+            return lhs.getVertex() < rhs.getVertex();
+        }
+        case Value::Type::EDGE: {
+            return lhs.getEdge() < rhs.getEdge();
+        }
+        case Value::Type::PATH: {
+            return lhs.getPath() < rhs.getPath();
+        }
+        case Value::Type::TIME: {
+            return lhs.getTime() < rhs.getTime();
+        }
         case Value::Type::DATE: {
             return lhs.getDate() < rhs.getDate();
         }
-        case Value::Type::DATETIME:
-        case Value::Type::VERTEX:
-        case Value::Type::EDGE:
-        case Value::Type::PATH:
+        case Value::Type::DATETIME: {
+            return lhs.getDateTime() < rhs.getDateTime();
+        }
         case Value::Type::LIST:
         case Value::Type::MAP:
         case Value::Type::SET:
@@ -2077,10 +2293,13 @@ bool operator<(const Value& lhs, const Value& rhs) {
             // TODO:
             return false;
         }
-        default: {
+        case Value::Type::NULLVALUE:
+        case Value::Type::__EMPTY__: {
             return false;
         }
     }
+    DLOG(FATAL) << "Unknown type " << static_cast<int>(lType);
+    return false;
 }
 
 bool operator==(const Value& lhs, const Value& rhs) {
@@ -2129,7 +2348,12 @@ bool operator==(const Value& lhs, const Value& rhs) {
         case Value::Type::DATE: {
             return lhs.getDate() == rhs.getDate();
         }
+        case Value::Type::TIME: {
+            // TODO(shylock) convert to UTC then compare
+            return lhs.getTime() == rhs.getTime();
+        }
         case Value::Type::DATETIME: {
+            // TODO(shylock) convert to UTC then compare
             return lhs.getDateTime() == rhs.getDateTime();
         }
         case Value::Type::VERTEX: {
@@ -2153,10 +2377,13 @@ bool operator==(const Value& lhs, const Value& rhs) {
         case Value::Type::DATASET: {
             return lhs.getDataSet() == rhs.getDataSet();
         }
-        default: {
+        case Value::Type::NULLVALUE:
+        case Value::Type::__EMPTY__: {
             return false;
         }
     }
+    DLOG(FATAL) << "Unknown type " << static_cast<int>(lhs.type());
+    return false;
 }
 
 bool operator!=(const Value& lhs, const Value& rhs) {
@@ -2210,22 +2437,19 @@ Value operator||(const Value& lhs, const Value& rhs) {
 }
 
 Value operator&(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
 
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
-    if (lhs.type() != rhs.type()) {
+    if (!lhs.isInt() || lhs.type() != rhs.type()) {
         return Value::kNullBadType;
     }
 
     switch (lhs.type()) {
-        case Value::Type::BOOL: {
-            return lhs.getBool() & rhs.getBool();
-        }
         case Value::Type::INT: {
             return lhs.getInt() & rhs.getInt();
         }
@@ -2236,22 +2460,19 @@ Value operator&(const Value& lhs, const Value& rhs) {
 }
 
 Value operator|(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
 
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
-    if (lhs.type() != rhs.type()) {
+    if (!lhs.isInt() || lhs.type() != rhs.type()) {
         return Value::kNullBadType;
     }
 
     switch (lhs.type()) {
-        case Value::Type::BOOL: {
-            return lhs.getBool() | rhs.getBool();
-        }
         case Value::Type::INT: {
             return lhs.getInt() | rhs.getInt();
         }
@@ -2262,22 +2483,19 @@ Value operator|(const Value& lhs, const Value& rhs) {
 }
 
 Value operator^(const Value& lhs, const Value& rhs) {
-    if (lhs.isNull()) {
-        return lhs.getNull();
+    if (lhs.isNull() || (lhs.empty() && !rhs.isNull())) {
+        return lhs;
     }
 
-    if (rhs.isNull()) {
-        return rhs.getNull();
+    if (rhs.isNull() || rhs.empty()) {
+        return rhs;
     }
 
-    if (lhs.type() != rhs.type()) {
+    if (!lhs.isInt() || lhs.type() != rhs.type()) {
         return Value::kNullBadType;
     }
 
     switch (lhs.type()) {
-        case Value::Type::BOOL: {
-            return lhs.getBool() ^ rhs.getBool();
-        }
         case Value::Type::INT: {
             return lhs.getInt() ^ rhs.getInt();
         }

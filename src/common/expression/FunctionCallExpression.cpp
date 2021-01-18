@@ -5,6 +5,7 @@
  */
 #include "common/function/FunctionManager.h"
 #include "common/expression/FunctionCallExpression.h"
+#include "common/expression/ExprVisitor.h"
 
 namespace nebula {
 
@@ -28,7 +29,7 @@ bool FunctionCallExpression::operator==(const Expression& rhs) const {
         return false;
     }
 
-    const auto& r = dynamic_cast<const FunctionCallExpression&>(rhs);
+    const auto& r = static_cast<const FunctionCallExpression&>(rhs);
     return *name_ == *(r.name_) && *args_ == *(r.args_);
 }
 
@@ -90,6 +91,10 @@ std::string FunctionCallExpression::toString() const {
     std::stringstream out;
     out << *name_ << "(" << folly::join(",", args) << ")";
     return out.str();
+}
+
+void FunctionCallExpression::accept(ExprVisitor* visitor) {
+    visitor->visit(this);
 }
 
 }  // namespace nebula

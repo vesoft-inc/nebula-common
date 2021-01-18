@@ -16,6 +16,9 @@ Base.h.gch
 .ccls-cache
 compile_commands.json
 
+# clangd cache
+.clangd/
+
 src/common/base/Base.h.gch
 gen-*
 
@@ -38,7 +41,6 @@ pids/
 .project
 .settings/
 .classpath
-cmake-build-debug/
-cmake-build-release/
+cmake-build*/
 .vscode/
 .clang-format

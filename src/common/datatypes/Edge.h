@@ -7,16 +7,16 @@
 #ifndef COMMON_DATATYPES_EDGE_H_
 #define COMMON_DATATYPES_EDGE_H_
 
-#include "common/base/Base.h"
-#include <folly/hash/Hash.h>
+#include <unordered_map>
+
 #include "common/thrift/ThriftTypes.h"
 #include "common/datatypes/Value.h"
 
 namespace nebula {
 
 struct Edge {
-    VertexID src;
-    VertexID dst;
+    Value src;
+    Value dst;
     EdgeType type;
     std::string name;
     EdgeRanking ranking;
@@ -37,11 +37,11 @@ struct Edge {
         , name(v.name)
         , ranking(v.ranking)
         , props(v.props) {}
-    Edge(VertexID&& s,
-         VertexID&& d,
-         EdgeType&& t,
-         std::string&& n,
-         EdgeRanking&& r,
+    Edge(Value s,
+         Value d,
+         EdgeType t,
+         std::string n,
+         EdgeRanking r,
          std::unordered_map<std::string, Value>&& p)
         : src(std::move(s))
         , dst(std::move(d))
@@ -59,24 +59,7 @@ struct Edge {
         props.clear();
     }
 
-    std::string toString() const {
-        std::stringstream os;
-        os << "(" << src << ")"
-            << "-" << "[" << name << "]" << "->"
-            << "(" << dst << ")"
-            << "@" << ranking;
-        if (!props.empty()) {
-            std::vector<std::string> value(props.size());
-            std::transform(
-                props.begin(), props.end(), value.begin(), [](const auto& iter) -> std::string {
-                    std::stringstream out;
-                    out << iter.first << ":" << iter.second;
-                    return out.str();
-                });
-            os << " " << folly::join(",", value);
-        }
-        return os.str();
-    }
+    std::string toString() const;
 
     bool operator==(const Edge& rhs) const {
         return src == rhs.src &&
@@ -84,6 +67,38 @@ struct Edge {
                type == rhs.type &&
                ranking == rhs.ranking &&
                props == rhs.props;
+    }
+
+    void format() {
+        if (type < 0) {
+            reverse();
+        }
+    }
+
+    void reverse() {
+        type = -type;
+        auto tmp = std::move(src);
+        src = std::move(dst);
+        dst = std::move(tmp);
+    }
+
+    bool operator<(const Edge& rhs) const {
+        if (src != rhs.src) {
+            return src < rhs.src;
+        }
+        if (dst != rhs.dst) {
+            return dst < rhs.dst;
+        }
+        if (type != rhs.type) {
+            return type < rhs.type;
+        }
+        if (ranking != rhs.ranking) {
+            return ranking < rhs.ranking;
+        }
+        if (props.size() != rhs.props.size()) {
+            return props.size() < rhs.props.size();
+        }
+        return false;
     }
 };
 
@@ -99,16 +114,7 @@ namespace std {
 // Inject a customized hash function
 template<>
 struct hash<nebula::Edge> {
-    std::size_t operator()(const nebula::Edge& h) const noexcept {
-        size_t hv = folly::hash::fnv64(h.src);
-        hv = folly::hash::fnv64(h.dst, hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.type),
-                                    sizeof(h.type),
-                                    hv);
-        return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.ranking),
-                                      sizeof(h.ranking),
-                                      hv);
-    }
+    std::size_t operator()(const nebula::Edge& h) const noexcept;
 };
 
 }  // namespace std

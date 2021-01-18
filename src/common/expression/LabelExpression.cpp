@@ -5,10 +5,13 @@
  */
 
 #include "common/expression/LabelExpression.h"
+#include "common/expression/ExprVisitor.h"
 
 namespace nebula {
+
 const Value& LabelExpression::eval(ExpressionContext&) {
-    LOG(FATAL) << "Couldn't use directly";
+    result_.setStr(*name_);
+    return result_;
 }
 
 std::string LabelExpression::toString() const {
@@ -19,7 +22,7 @@ bool LabelExpression::operator==(const Expression& rhs) const {
     if (kind_ != rhs.kind()) {
         return false;
     }
-    const auto& expr = dynamic_cast<const LabelExpression&>(rhs);
+    const auto& expr = static_cast<const LabelExpression&>(rhs);
     return *name_ == *(expr.name());
 }
 
@@ -37,4 +40,9 @@ void LabelExpression::resetFrom(Decoder& decoder) {
     // Read name_
     name_ = decoder.readStr();
 }
+
+void LabelExpression::accept(ExprVisitor* visitor) {
+    visitor->visit(this);
+}
+
 }  // namespace nebula

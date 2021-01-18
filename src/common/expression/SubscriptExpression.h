@@ -21,6 +21,13 @@ public:
 
     std::string toString() const override;
 
+    void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        return std::make_unique<SubscriptExpression>(left()->clone().release(),
+                                                     right()->clone().release());
+    }
+
 private:
     Value                               result_;
 };

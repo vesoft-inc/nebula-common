@@ -15,17 +15,21 @@ class TypeCastingExpression final : public Expression {
     friend class Expression;
 
 public:
-    TypeCastingExpression(Value::Type vType = Value::Type::__EMPTY__,
-                          Expression* operand = nullptr)
-        : Expression(Kind::kTypeCasting)
-        , vType_(vType)
-        , operand_(std::move(operand)) {}
+    explicit TypeCastingExpression(Value::Type vType = Value::Type::__EMPTY__,
+                                   Expression* operand = nullptr)
+        : Expression(Kind::kTypeCasting), vType_(vType), operand_(operand) {}
 
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        return std::make_unique<TypeCastingExpression>(type(), operand()->clone().release());
+    }
 
     const Expression* operand() const {
         return operand_.get();

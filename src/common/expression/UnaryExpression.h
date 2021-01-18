@@ -15,16 +15,20 @@ class UnaryExpression final : public Expression {
     friend class Expression;
 
 public:
-    UnaryExpression(Kind kind,
-                    Expression* operand = nullptr)
-        : Expression(kind)
-        , operand_(std::move(operand)) {}
+    explicit UnaryExpression(Kind kind, Expression* operand = nullptr)
+        : Expression(kind), operand_(operand) {}
 
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        return std::make_unique<UnaryExpression>(kind(), operand()->clone().release());
+    }
 
     const Expression* operand() const {
         return operand_.get();

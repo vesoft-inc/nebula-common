@@ -7,15 +7,15 @@
 #ifndef COMMON_DATATYPES_DATE_H_
 #define COMMON_DATATYPES_DATE_H_
 
-#include "common/base/Base.h"
-#include <folly/hash/Hash.h>
-#include <gtest/gtest_prod.h>
-
 namespace nebula {
 
-struct Date {
-    FRIEND_TEST(Date, DaysConversion);
+// In nebula only store UTC time, and the interpretion of time value based on the
+// timezone configuration in current system.
 
+extern const int64_t kDaysSoFar[];
+extern const int64_t kLeapDaysSoFar[];
+
+struct Date {
     int16_t year;   // Any integer
     int8_t month;   // 1 - 12
     int8_t day;     // 1 - 31
@@ -72,6 +72,54 @@ inline std::ostream &operator<<(std::ostream& os, const Date& d) {
     return os;
 }
 
+struct Time {
+    int8_t hour;
+    int8_t minute;
+    int8_t sec;
+    int32_t microsec;
+
+    Time() : hour{0}, minute{0}, sec{0}, microsec{0} {}
+    Time(int8_t h, int8_t min, int8_t s, int32_t us)
+        : hour{h}, minute{min}, sec{s}, microsec{us} {}
+
+    void clear() {
+        hour = 0;
+        minute = 0;
+        sec = 0;
+        microsec = 0;
+    }
+
+    bool operator==(const Time& rhs) const {
+        return hour == rhs.hour &&
+               minute == rhs.minute &&
+               sec == rhs.sec &&
+               microsec == rhs.microsec;
+    }
+
+    bool operator<(const Time& rhs) const {
+        if (!(hour == rhs.hour)) {
+            return hour < rhs.hour;
+        }
+        if (!(minute == rhs.minute)) {
+            return minute < rhs.minute;
+        }
+        if (!(sec == rhs.sec)) {
+            return sec < rhs.sec;
+        }
+        if (!(microsec == rhs.microsec)) {
+            return microsec < rhs.microsec;
+        }
+        return false;
+    }
+
+    std::string toString() const;
+};
+
+inline std::ostream &operator<<(std::ostream& os, const Time& d) {
+    os << d.toString();
+    return os;
+}
+
 struct DateTime {
     int16_t year;
     int8_t month;
@@ -80,17 +128,22 @@ struct DateTime {
     int8_t minute;
     int8_t sec;
     int32_t microsec;
-    int32_t timezone;
+
+    DateTime() : year{0}, month{1}, day{1}, hour{0}, minute{0}, sec{0}, microsec{0} {}
+    DateTime(int16_t y, int8_t m, int8_t d, int8_t h, int8_t min, int8_t s, int32_t us)
+        : year{y}, month{m}, day{d}, hour{h}, minute{min}, sec{s}, microsec{us} {}
+    explicit DateTime(const Date &date)
+        : year{date.year}, month{date.month}, day{date.day},
+          hour{0}, minute{0}, sec{0}, microsec{0} {}
 
     void clear() {
         year = 0;
-        month = 0;
-        day = 0;
+        month = 1;
+        day = 1;
         hour = 0;
         minute = 0;
         sec = 0;
         microsec = 0;
-        timezone = 0;
     }
 
     bool operator==(const DateTime& rhs) const {
@@ -100,8 +153,31 @@ struct DateTime {
                hour == rhs.hour &&
                minute == rhs.minute &&
                sec == rhs.sec &&
-               microsec == rhs.microsec &&
-               timezone == rhs.timezone;
+               microsec == rhs.microsec;
+    }
+    bool operator<(const DateTime& rhs) const {
+        if (!(year == rhs.year)) {
+            return year < rhs.year;
+        }
+        if (!(month == rhs.month)) {
+            return month < rhs.month;
+        }
+        if (!(day == rhs.day)) {
+            return day < rhs.day;
+        }
+        if (!(hour == rhs.hour)) {
+            return hour < rhs.hour;
+        }
+        if (!(minute == rhs.minute)) {
+            return minute < rhs.minute;
+        }
+        if (!(sec == rhs.sec)) {
+            return sec < rhs.sec;
+        }
+        if (!(microsec == rhs.microsec)) {
+            return microsec < rhs.microsec;
+        }
+        return false;
     }
 
     std::string toString() const;
@@ -121,46 +197,17 @@ namespace std {
 // Inject a customized hash function
 template<>
 struct hash<nebula::Date> {
-    std::size_t operator()(const nebula::Date& h) const noexcept {
-        size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year),
-                                           sizeof(h.year));
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.month),
-                                    sizeof(h.month),
-                                    hv);
-        return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.day),
-                                      sizeof(h.day),
-                                      hv);
-    }
+    std::size_t operator()(const nebula::Date& h) const noexcept;
 };
 
+template<>
+struct hash<nebula::Time> {
+    std::size_t operator()(const nebula::Time& h) const noexcept;
+};
 
 template<>
 struct hash<nebula::DateTime> {
-    std::size_t operator()(const nebula::DateTime& h) const noexcept {
-        size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year),
-                                           sizeof(h.year));
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.month),
-                                    sizeof(h.month),
-                                    hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.day),
-                                    sizeof(h.day),
-                                    hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.hour),
-                                    sizeof(h.hour),
-                                    hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.minute),
-                                    sizeof(h.minute),
-                                    hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.sec),
-                                    sizeof(h.sec),
-                                    hv);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.microsec),
-                                    sizeof(h.microsec),
-                                    hv);
-        return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.timezone),
-                                      sizeof(h.timezone),
-                                      hv);
-    }
+    std::size_t operator()(const nebula::DateTime& h) const noexcept;
 };
 
 }  // namespace std

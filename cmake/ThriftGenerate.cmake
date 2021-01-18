@@ -86,18 +86,30 @@ add_custom_command(
     --gen "js:node:"
     --gen "csharp"
     --gen "java:hashcode"
-    --gen "go:thrift_import=github.com/facebook/fbthrift/thrift/lib/go/thrift,package_prefix=github.com/vesoft-inc/nebula-go/v2/,use_context"
+    --gen "go:thrift_import=github.com/facebook/fbthrift/thrift/lib/go/thrift,package_prefix=github.com/vesoft-inc/nebula-go/,use_context"
     -o "." "${file_path}/${file_name}.thrift"
   DEPENDS "${file_path}/${file_name}.thrift"
   COMMENT "Generating thrift files for ${file_name}"
 )
 
-bypass_source_check(${file_name}_cpp2-SOURCES)
+bypass_source_check(${${file_name}-cpp2-SOURCES})
+add_custom_target(
+    ${file_name}_thrift_generator
+    DEPENDS ${${file_name}-cpp2-HEADERS} ${${file_name}-cpp2-SOURCES}
+)
+
 add_library(
   "${file_name}_thrift_obj"
   OBJECT
   ${${file_name}-cpp2-SOURCES}
 )
+add_dependencies(${file_name}_thrift_obj ${file_name}_thrift_generator)
+
+set_target_properties(
+    "${file_name}_thrift_obj"
+    PROPERTIES CXX_CLANG_TIDY ""
+)
+
 target_compile_options(${file_name}_thrift_obj PRIVATE "-Wno-pedantic")
 target_compile_options(${file_name}_thrift_obj PRIVATE "-Wno-extra")
 export(
@@ -107,11 +119,17 @@ export(
   FILE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-config.cmake
 )
 
-add_custom_target(${file_name}_thrift_headers DEPENDS ${${file_name}-cpp2-HEADERS})
 if(NOT "${file_name}" STREQUAL "common")
     add_dependencies(
-        "${file_name}_thrift_obj"
-        "common_thrift_obj"
+        ${file_name}_thrift_obj
+        common_thrift_generator
+    )
+endif()
+
+if("${file_name}" STREQUAL "storage")
+    add_dependencies(
+        ${file_name}_thrift_obj
+        meta_thrift_generator
     )
 endif()
 endmacro()

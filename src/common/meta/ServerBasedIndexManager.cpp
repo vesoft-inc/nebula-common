@@ -16,6 +16,12 @@ ServerBasedIndexManager::~ServerBasedIndexManager() {
     }
 }
 
+std::unique_ptr<ServerBasedIndexManager> ServerBasedIndexManager::create(MetaClient *client) {
+    auto mgr = std::make_unique<ServerBasedIndexManager>();
+    mgr->init(client);
+    return mgr;
+}
+
 void ServerBasedIndexManager::init(MetaClient *client) {
     CHECK_NOTNULL(client);
     metaClient_ = client;
@@ -59,12 +65,12 @@ ServerBasedIndexManager::toEdgeIndexID(GraphSpaceID space, std::string edgeName)
     return status.value()->get_index_id();
 }
 
-Status ServerBasedIndexManager::checkTagIndexed(GraphSpaceID space, TagID tagID) {
-    return metaClient_->checkTagIndexed(space, tagID);
+Status ServerBasedIndexManager::checkTagIndexed(GraphSpaceID space, IndexID index) {
+    return metaClient_->checkTagIndexed(space, index);
 }
 
-Status ServerBasedIndexManager::checkEdgeIndexed(GraphSpaceID space, EdgeType edgeType) {
-    return metaClient_->checkEdgeIndexed(space, edgeType);
+Status ServerBasedIndexManager::checkEdgeIndexed(GraphSpaceID space, IndexID index) {
+    return metaClient_->checkEdgeIndexed(space, index);
 }
 
 }  // namespace meta

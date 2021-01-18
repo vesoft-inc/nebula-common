@@ -8,6 +8,7 @@
 #include "common/datatypes/List.h"
 #include "common/datatypes/Set.h"
 #include "common/datatypes/Map.h"
+#include "common/expression/ExprVisitor.h"
 
 namespace nebula {
 const Value& RelationalExpression::eval(ExpressionContext& ctx) {
@@ -40,6 +41,20 @@ const Value& RelationalExpression::eval(ExpressionContext& ctx) {
         case Kind::kRelGE:
             result_ = lhs >= rhs;
             break;
+        case Kind::kRelREG: {
+            if (lhs.isStr() && rhs.isStr()) {
+                try {
+                    const auto& r = ctx.getRegex(rhs.getStr());
+                    result_ = std::regex_match(lhs.getStr(), r);
+                } catch (const std::exception& ex) {
+                    LOG(ERROR) << "Regex match error: " << ex.what();
+                    result_ = Value::kNullBadType;
+                }
+            } else {
+                result_ = Value::kNullBadType;
+            }
+            break;
+        }
         case Kind::kRelIn: {
             if (rhs.isList()) {
                 result_ = rhs.getList().contains(lhs);
@@ -66,7 +81,55 @@ const Value& RelationalExpression::eval(ExpressionContext& ctx) {
         }
         case Kind::kContains: {
             if (lhs.isStr() && rhs.isStr()) {
-                result_ = lhs.getStr().find(rhs.getStr()) != std::string::npos;
+                result_ = lhs.getStr().size() >= rhs.getStr().size() &&
+                    lhs.getStr().find(rhs.getStr()) != std::string::npos;
+            } else {
+                return Value::kNullBadType;
+            }
+            break;
+        }
+        case Kind::kNotContains: {
+            if (lhs.isStr() && rhs.isStr()) {
+                result_ = !(lhs.getStr().size() >= rhs.getStr().size() &&
+                    lhs.getStr().find(rhs.getStr()) != std::string::npos);
+            } else {
+                return Value::kNullBadType;
+            }
+            break;
+        }
+        case Kind::kStartsWith: {
+            if (lhs.isStr() && rhs.isStr()) {
+                result_ = lhs.getStr().size() >= rhs.getStr().size() &&
+                    lhs.getStr().find(rhs.getStr()) == 0;
+            } else {
+                return Value::kNullBadType;
+            }
+            break;
+        }
+        case Kind::kNotStartsWith: {
+            if (lhs.isStr() && rhs.isStr()) {
+                result_ = !(lhs.getStr().size() >= rhs.getStr().size() &&
+                    lhs.getStr().find(rhs.getStr()) == 0);
+            } else {
+                return Value::kNullBadType;
+            }
+            break;
+        }
+        case Kind::kEndsWith: {
+            if (lhs.isStr() && rhs.isStr()) {
+                result_ = lhs.getStr().size() >= rhs.getStr().size() &&
+                    lhs.getStr().compare(lhs.getStr().size() - rhs.getStr().size(),
+                    rhs.getStr().size(), rhs.getStr()) == 0;
+            } else {
+                return Value::kNullBadType;
+            }
+            break;
+        }
+        case Kind::kNotEndsWith: {
+            if (lhs.isStr() && rhs.isStr()) {
+                result_ = !(lhs.getStr().size() >= rhs.getStr().size() &&
+                    lhs.getStr().compare(lhs.getStr().size() - rhs.getStr().size(),
+                    rhs.getStr().size(), rhs.getStr()) == 0);
             } else {
                 return Value::kNullBadType;
             }
@@ -99,6 +162,9 @@ std::string RelationalExpression::toString() const {
         case Kind::kRelNE:
             op = "!=";
             break;
+        case Kind::kRelREG:
+            op = "=~";
+            break;
         case Kind::kRelIn:
             op = " IN ";
             break;
@@ -108,12 +174,31 @@ std::string RelationalExpression::toString() const {
         case Kind::kContains:
             op = " CONTAINS ";
             break;
+        case Kind::kNotContains:
+            op = " NOT CONTAINS ";
+            break;
+        case Kind::kStartsWith:
+            op = " STARTS WITH ";
+            break;
+        case Kind::kNotStartsWith:
+            op = " NOT STARTS WITH ";
+            break;
+        case Kind::kEndsWith:
+            op = " ENDS WITH ";
+            break;
+        case Kind::kNotEndsWith:
+            op = " NOT ENDS WITH ";
+            break;
         default:
-            op = "illegal symbol ";
+            op = " illegal symbol ";
     }
     std::stringstream out;
     out << "(" << lhs_->toString() << op << rhs_->toString() << ")";
     return out.str();
+}
+
+void RelationalExpression::accept(ExprVisitor* visitor) {
+    visitor->visit(this);
 }
 
 }  // namespace nebula

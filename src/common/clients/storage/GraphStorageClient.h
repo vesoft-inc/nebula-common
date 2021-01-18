@@ -74,7 +74,8 @@ public:
         std::vector<cpp2::NewEdge> edges,
         std::vector<std::string> propNames,
         bool overwritable,
-        folly::EventBase* evb = nullptr);
+        folly::EventBase* evb = nullptr,
+        bool useToss = false);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> deleteEdges(
         GraphSpaceID space,
@@ -83,12 +84,12 @@ public:
 
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> deleteVertices(
         GraphSpaceID space,
-        std::vector<VertexID> ids,
+        std::vector<Value> ids,
         folly::EventBase* evb = nullptr);
 
     folly::Future<StatusOr<storage::cpp2::UpdateResponse>> updateVertex(
         GraphSpaceID space,
-        VertexID vertexId,
+        Value vertexId,
         TagID tagId,
         std::vector<cpp2::UpdatedProp> updatedProps,
         bool insertable,
@@ -112,10 +113,10 @@ public:
 
     folly::SemiFuture<StorageRpcResponse<cpp2::LookupIndexResp>> lookupIndex(
         GraphSpaceID space,
-        std::vector<storage::cpp2::IndexQueryContext> contexts,
+        const std::vector<storage::cpp2::IndexQueryContext>& contexts,
         bool isEdge,
         int32_t tagOrEdge,
-        std::vector<std::string> returnCols,
+        const std::vector<std::string>& returnCols,
         folly::EventBase *evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>> lookupAndTraverse(
@@ -123,6 +124,22 @@ public:
         cpp2::IndexSpec indexSpec,
         cpp2::TraverseSpec traverseSpec,
         folly::EventBase* evb = nullptr);
+
+private:
+    StatusOr<std::function<const VertexID&(const Row&)>>
+        getIdFromRow(GraphSpaceID space, bool isEdgeProps) const;
+
+    StatusOr<std::function<const VertexID&(const cpp2::NewVertex&)>>
+        getIdFromNewVertex(GraphSpaceID space) const;
+
+    StatusOr<std::function<const VertexID&(const cpp2::NewEdge&)>>
+        getIdFromNewEdge(GraphSpaceID space) const;
+
+    StatusOr<std::function<const VertexID&(const cpp2::EdgeKey&)>>
+        getIdFromEdgeKey(GraphSpaceID space) const;
+
+    StatusOr<std::function<const VertexID&(const Value&)>>
+        getIdFromValue(GraphSpaceID space) const;
 };
 
 }   // namespace storage

@@ -27,7 +27,21 @@ public:
         return val_;
     }
 
+    const Value& value() const {
+        return val_;
+    }
+
+    void setValue(Value val) {
+        val_ = std::move(val);
+    }
+
+    void accept(ExprVisitor* visitor) override;
+
     std::string toString() const override;
+
+    std::unique_ptr<Expression> clone() const override {
+        return std::make_unique<ConstantExpression>(val_);
+    }
 
 private:
     void writeTo(Encoder& encoder) const override;

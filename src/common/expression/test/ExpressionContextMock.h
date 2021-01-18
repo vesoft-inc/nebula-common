@@ -109,12 +109,25 @@ public:
         }
     }
 
+    Value getVertex() const override {
+        return Value();
+    }
+
+    Value getEdge() const override {
+        return Value();
+    }
+
+    Value getColumn(int32_t index) const override;
+
     void setVar(const std::string& var, Value val) override {
-        UNUSED(var);
-        UNUSED(val);
+        if (var == "n" || var == "p") {   // used by tests of list comprehesion or predicate
+            vals_.erase(var);
+            vals_[var] = val;
+        }
     }
 
 private:
     static std::unordered_map<std::string, Value>      vals_;
+    std::unordered_map<std::string, std::regex>        regex_;
 };
 }  // namespace nebula

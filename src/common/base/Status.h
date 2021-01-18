@@ -135,9 +135,12 @@ public:
     STATUS_GENERATOR(EdgeNotFound);
     STATUS_GENERATOR(UserNotFound);
     STATUS_GENERATOR(IndexNotFound);
+    STATUS_GENERATOR(GroupNotFound);
+    STATUS_GENERATOR(ZoneNotFound);
     STATUS_GENERATOR(LeaderChanged);
     STATUS_GENERATOR(Balanced);
     STATUS_GENERATOR(PartNotFound);
+    STATUS_GENERATOR(ListenerNotFound);
 
     // User or permission errors
     STATUS_GENERATOR(PermissionError);
@@ -175,6 +178,9 @@ public:
         kBalanced               = 410,
         kIndexNotFound          = 411,
         kPartNotFound           = 412,
+        kGroupNotFound          = 413,
+        kZoneNotFound           = 414,
+        kListenerNotFound       = 415,
         // 5xx for user or permission error
         kPermissionError        = 501,
     };

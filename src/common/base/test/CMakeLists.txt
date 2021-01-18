@@ -10,9 +10,16 @@ nebula_add_test(
     LIBRARIES gtest
 )
 
+nebula_add_test(
+    NAME icord_test
+    SOURCES ICordTest.cpp
+    OBJECTS $<TARGET_OBJECTS:base_obj>
+    LIBRARIES gtest
+)
+
 nebula_add_executable(
-    NAME cord_bm
-    SOURCES CordBenchmark.cpp
+    NAME icord_bm
+    SOURCES ICordBenchmark.cpp
     OBJECTS $<TARGET_OBJECTS:base_obj>
     LIBRARIES follybenchmark boost_regex
 )
@@ -94,3 +101,9 @@ nebula_add_executable(
     LIBRARIES follybenchmark boost_regex
 )
 target_compile_options(range_vs_transform_bm PRIVATE -O3)
+
+nebula_add_test(
+    NAME object_pool_test
+    SOURCES ObjectPoolTest.cpp
+    LIBRARIES gtest gtest_main
+)

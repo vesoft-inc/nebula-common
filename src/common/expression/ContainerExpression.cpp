@@ -8,6 +8,7 @@
 #include "common/datatypes/List.h"
 #include "common/datatypes/Set.h"
 #include "common/datatypes/Map.h"
+#include "common/expression/ExprVisitor.h"
 
 namespace nebula {
 
@@ -79,6 +80,9 @@ void ListExpression::resetFrom(Decoder &decoder) {
     }
 }
 
+void ListExpression::accept(ExprVisitor *visitor) {
+    visitor->visit(this);
+}
 
 std::string SetExpression::toString() const {
     // set *expression* is not allowed to be empty
@@ -148,6 +152,9 @@ void SetExpression::resetFrom(Decoder &decoder) {
     }
 }
 
+void SetExpression::accept(ExprVisitor *visitor) {
+    visitor->visit(this);
+}
 
 std::string MapExpression::toString() const {
     // map *expression* is not allowed to be empty
@@ -157,9 +164,7 @@ std::string MapExpression::toString() const {
 
     buf += '{';
     for (auto &kv : items_) {
-        buf += "\"";
         buf += *kv.first;
-        buf += "\"";
         buf += ":";
         buf += kv.second->toString();
         buf += ",";
@@ -225,6 +230,10 @@ void MapExpression::resetFrom(Decoder &decoder) {
         auto expr = decoder.readExpression();
         items_.emplace_back(std::move(str), std::move(expr));
     }
+}
+
+void MapExpression::accept(ExprVisitor *visitor) {
+    visitor->visit(this);
 }
 
 }   // namespace nebula

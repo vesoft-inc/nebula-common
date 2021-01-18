@@ -25,6 +25,12 @@ public:
 
     std::string toString() const override;
 
+    void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        return std::make_unique<UUIDExpression>(new std::string(*field_));
+    }
+
 private:
     void writeTo(Encoder& encoder) const override;
 

@@ -7,10 +7,10 @@
 #ifndef COMMON_DATATYPES_VALUE_H_
 #define COMMON_DATATYPES_VALUE_H_
 
-#include "common/base/Base.h"
+#include <memory>
+
 #include "common/thrift/ThriftTypes.h"
 #include "common/datatypes/Date.h"
-#include "common/base/StatusOr.h"
 
 namespace apache {
 namespace thrift {
@@ -67,14 +67,15 @@ struct Value {
         FLOAT     = 1UL << 3,
         STRING    = 1UL << 4,
         DATE      = 1UL << 5,
-        DATETIME  = 1UL << 6,
-        VERTEX    = 1UL << 7,
-        EDGE      = 1UL << 8,
-        PATH      = 1UL << 9,
-        LIST      = 1UL << 10,
-        MAP       = 1UL << 11,
-        SET       = 1UL << 12,
-        DATASET   = 1UL << 13,
+        TIME      = 1UL << 6,
+        DATETIME  = 1UL << 7,
+        VERTEX    = 1UL << 8,
+        EDGE      = 1UL << 9,
+        PATH      = 1UL << 10,
+        LIST      = 1UL << 11,
+        MAP       = 1UL << 12,
+        SET       = 1UL << 13,
+        DATASET   = 1UL << 14,
         NULLVALUE = 1UL << 63,
     };
 
@@ -100,9 +101,10 @@ struct Value {
     Value(const std::string& v);    // NOLINT
     Value(std::string&& v);         // NOLINT
     Value(const char* v);           // NOLINT
-    Value(folly::StringPiece v);    // NOLINT
     Value(const Date& v);           // NOLINT
     Value(Date&& v);                // NOLINT
+    Value(const Time& v);           // NOLINT
+    Value(Time&& v);                // NOLINT
     Value(const DateTime& v);       // NOLINT
     Value(DateTime&& v);            // NOLINT
     Value(const Vertex& v);         // NOLINT
@@ -164,6 +166,9 @@ struct Value {
     bool isDate() const {
         return type_ == Type::DATE;
     }
+    bool isTime() const {
+        return type_ == Type::TIME;
+    }
     bool isDateTime() const {
         return type_ == Type::DATETIME;
     }
@@ -211,9 +216,10 @@ struct Value {
     void setStr(const std::string& v);
     void setStr(std::string&& v);
     void setStr(const char* v);
-    void setStr(folly::StringPiece v);
     void setDate(const Date& v);
     void setDate(Date&& v);
+    void setTime(const Time& v);
+    void setTime(Time&& v);
     void setDateTime(const DateTime& v);
     void setDateTime(DateTime&& v);
     void setVertex(const Vertex& v);
@@ -244,6 +250,7 @@ struct Value {
     const double& getFloat() const;
     const std::string& getStr() const;
     const Date& getDate() const;
+    const Time& getTime() const;
     const DateTime& getDateTime() const;
     const Vertex& getVertex() const;
     const Vertex* getVertexPtr() const;
@@ -266,6 +273,7 @@ struct Value {
     double moveFloat();
     std::string moveStr();
     Date moveDate();
+    Time moveTime();
     DateTime moveDateTime();
     Vertex moveVertex();
     Edge moveEdge();
@@ -281,6 +289,7 @@ struct Value {
     double& mutableFloat();
     std::string& mutableStr();
     Date& mutableDate();
+    Time& mutableTime();
     DateTime& mutableDateTime();
     Vertex& mutableVertex();
     Edge& mutableEdge();
@@ -296,11 +305,12 @@ struct Value {
 
     std::string toString() const;
 
-    StatusOr<bool> toBool();
+    // The second means is this casting valid, check it before access the value
+    std::pair<bool, bool> toBool();
 
-    StatusOr<double> toFloat();
+    std::pair<double, bool> toFloat();
 
-    StatusOr<int64_t> toInt();
+    std::pair<int64_t, bool> toInt();
 
 private:
     Type type_;
@@ -312,7 +322,8 @@ private:
         double                      fVal;
         std::string                 sVal;
         Date                        dVal;
-        DateTime                    tVal;
+        Time                        tVal;
+        DateTime                    dtVal;
         std::unique_ptr<Vertex>     vVal;
         std::unique_ptr<Edge>       eVal;
         std::unique_ptr<Path>       pVal;
@@ -346,13 +357,15 @@ private:
     void setS(const std::string& v);
     void setS(std::string&& v);
     void setS(const char* v);
-    void setS(folly::StringPiece v);
     // Date value
     void setD(const Date& v);
     void setD(Date&& v);
+    // Date value
+    void setT(const Time& v);
+    void setT(Time&& v);
     // DateTime value
-    void setT(const DateTime& v);
-    void setT(DateTime&& v);
+    void setDT(const DateTime& v);
+    void setDT(DateTime&& v);
     // Vertex value
     void setV(const std::unique_ptr<Vertex>& v);
     void setV(std::unique_ptr<Vertex>&& v);

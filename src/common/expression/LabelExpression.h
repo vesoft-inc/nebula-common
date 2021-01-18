@@ -12,6 +12,7 @@
 // The LabelExpression use for name_label in base_expression,
 // need to rewrite it based on the usage scenario
 namespace nebula {
+
 class LabelExpression: public Expression {
 public:
     explicit LabelExpression(std::string* name = nullptr)
@@ -21,6 +22,10 @@ public:
         } else {
             name_.reset(name);
         }
+    }
+
+    explicit LabelExpression(std::string name)
+        : LabelExpression(new std::string(std::move(name))) {
     }
 
     bool operator==(const Expression& rhs) const override;
@@ -33,12 +38,20 @@ public:
 
     std::string toString() const override;
 
+    void accept(ExprVisitor* visitor) override;
+
+    std::unique_ptr<Expression> clone() const override {
+        return std::make_unique<LabelExpression>(*name());
+    }
+
 protected:
     void writeTo(Encoder& encoder) const override;
 
     void resetFrom(Decoder& decoder) override;
 
     std::unique_ptr<std::string>    name_;
+    Value                           result_;
 };
+
 }  // namespace nebula
 #endif   // COMMON_EXPRESSION_LABELEXPRESSION_H_

@@ -57,6 +57,7 @@
 #include <folly/Hash.h>
 #include <folly/Random.h>
 #include <folly/Conv.h>
+#include <folly/Unicode.h>
 #include <folly/ThreadLocal.h>
 #include <folly/Varint.h>
 #include <folly/dynamic.h>
@@ -129,6 +130,7 @@ using VariantType = boost::variant<int64_t, double, bool, std::string>;
 // reserved property names
 constexpr char kId[]    = "_id";
 constexpr char kVid[]   = "_vid";
+constexpr char kTag[]   = "_tag";
 constexpr char kSrc[]   = "_src";
 constexpr char kType[]  = "_type";
 constexpr char kRank[]  = "_rank";
@@ -156,8 +158,6 @@ static constexpr auto is_constructible_v = std::is_constructible<T, Args...>::va
 // Tell if `U' could be convertible to `T'
 template <typename U, typename T>
 static constexpr auto is_convertible_v = std::is_constructible<U, T>::value;
-
-std::string versionString();
 
 std::string toHexStr(folly::StringPiece str);
 

@@ -13,6 +13,8 @@
 
 namespace nebula {
 
+class ExprVisitor;
+
 class Expression {
 public:
     enum class Kind : uint8_t {
@@ -36,10 +38,19 @@ public:
         kRelLE,
         kRelGT,
         kRelGE,
+        kRelREG,
         kRelIn,
         kRelNotIn,
         kContains,
+        kNotContains,
+        kStartsWith,
+        kNotStartsWith,
+        kEndsWith,
+        kNotEndsWith,
         kSubscript,
+        kAttribute,
+        kLabelAttribute,
+        kColumn,
 
         kLogicalAnd,
         kLogicalOr,
@@ -49,7 +60,6 @@ public:
 
         kFunctionCall,
 
-        kSymProperty,
         kTagProperty,
         kEdgeProperty,
         kInputProperty,
@@ -60,6 +70,8 @@ public:
         kEdgeType,
         kEdgeRank,
         kEdgeDst,
+        kVertex,
+        kEdge,
 
         kUUID,
 
@@ -71,7 +83,22 @@ public:
         kMap,
 
         kLabel,
+
+        kCase,
+
+        kPredicate,
+        kListComprehension,
+
+        kPathBuild,
+        // text or key word search expression
+        kTSPrefix,
+        kTSWildcard,
+        kTSRegexp,
+        kTSFuzzy,
+
+        kAggregate,
     };
+
 
     explicit Expression(Kind kind) : kind_(kind) {}
 
@@ -94,9 +121,14 @@ public:
 
     virtual std::string toString() const = 0;
 
-    static std::string encode(const Expression& exp);
+    virtual void accept(ExprVisitor* visitor) = 0;
+
+    // Deep copy
+    virtual std::unique_ptr<Expression> clone() const = 0;
 
     std::string encode() const;
+
+    static std::string encode(const Expression& exp);
 
     static std::unique_ptr<Expression> decode(folly::StringPiece encoded);
 
