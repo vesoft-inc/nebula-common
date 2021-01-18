@@ -11,9 +11,13 @@
 #include <folly/Benchmark.h>
 #include <folly/Random.h>
 
+#include "common/datatypes/Edge.h"
 #include "common/datatypes/Value.h"
+#include "common/datatypes/Vertex.h"
 
+using nebula::Edge;
 using nebula::Value;
+using nebula::Vertex;
 
 static const int seed = folly::randomNumberSeed();
 using RandomT = std::mt19937;
@@ -47,12 +51,44 @@ BENCHMARK(HashString, n) {
     }
 }
 
-BENCHMARK_RELATIVE(HashValue, n) {
+BENCHMARK(HashValue, n) {
     std::vector<Value> values;
     BENCHMARK_SUSPEND {
         values.reserve(n);
         for (size_t i = 0; i < n; i++) {
             values.emplace_back(randomString(10));
+        }
+    }
+    std::unordered_set<Value> set;
+    for (const auto &value : values) {
+        set.emplace(value);
+    }
+}
+
+BENCHMARK_DRAW_LINE();
+
+BENCHMARK(HashIntString, n) {
+    std::vector<Value> values;
+    BENCHMARK_SUSPEND {
+        values.reserve(n);
+        for (size_t i = 0; i < n; i++) {
+            std::uniform_int_distribution<> range(100 * 1000, 500 * 1000);
+            values.emplace_back(range(rng));
+        }
+    }
+    std::unordered_set<Value> set;
+    for (const auto &value : values) {
+        set.emplace(value.toString());
+    }
+}
+
+BENCHMARK(HashIntValue, n) {
+    std::vector<Value> values;
+    BENCHMARK_SUSPEND {
+        values.reserve(n);
+        for (size_t i = 0; i < n; i++) {
+            std::uniform_int_distribution<> range(100 * 1000, 500 * 1000);
+            values.emplace_back(range(rng));
         }
     }
     std::unordered_set<Value> set;
@@ -69,6 +105,9 @@ int main() {
 // ============================================================================
 // nebula-common/src/common/datatypes/test/ValueBenchmark.cpp relative  time/iter  iters/s
 // ============================================================================
-// HashString                                                 481.34ns    2.08M
-// HashValue                                         64.35%   747.95ns    1.34M
+// HashString                                                 474.94ns    2.11M
+// HashValue                                                  741.21ns    1.35M
+// ----------------------------------------------------------------------------
+// HashIntString                                              926.13ns    1.08M
+// HashIntValue                                               623.31ns    1.60M
 // ============================================================================
