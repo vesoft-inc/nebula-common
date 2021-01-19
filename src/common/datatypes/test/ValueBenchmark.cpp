@@ -82,6 +82,21 @@ BENCHMARK(HashIntString, n) {
     }
 }
 
+BENCHMARK(HashInt, n) {
+    std::vector<Value> values;
+    BENCHMARK_SUSPEND {
+        values.reserve(n);
+        for (size_t i = 0; i < n; i++) {
+            std::uniform_int_distribution<> range(100 * 1000, 500 * 1000);
+            values.emplace_back(range(rng));
+        }
+    }
+    std::unordered_set<int64_t> set;
+    for (const auto &value : values) {
+        set.emplace(value.getInt());
+    }
+}
+
 BENCHMARK(HashIntValue, n) {
     std::vector<Value> values;
     BENCHMARK_SUSPEND {
@@ -105,9 +120,10 @@ int main() {
 // ============================================================================
 // nebula-common/src/common/datatypes/test/ValueBenchmark.cpp relative  time/iter  iters/s
 // ============================================================================
-// HashString                                                 474.94ns    2.11M
-// HashValue                                                  741.21ns    1.35M
+// HashString                                                 438.80ns    2.28M
+// HashValue                                                  681.89ns    1.47M
 // ----------------------------------------------------------------------------
-// HashIntString                                              926.13ns    1.08M
-// HashIntValue                                               623.31ns    1.60M
+// HashIntString                                              935.24ns    1.07M
+// HashInt                                                    485.02ns    2.06M
+// HashIntValue                                               632.23ns    1.58M
 // ============================================================================
