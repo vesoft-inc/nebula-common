@@ -10,8 +10,8 @@
 
 using nebula::stats::StatsManager;
 
-const int32_t kCounterStats = StatsManager::registerStats("stats", "avg, rate, sum");
-const int32_t kCounterHisto = StatsManager::registerHisto("histogram", 10, 1, 100, "p95, p99");
+int32_t kCounterStats;
+int32_t kCounterHisto;
 
 
 void statsBM(int32_t counterId, uint32_t numThreads, uint32_t iters) {
@@ -31,8 +31,6 @@ void statsBM(int32_t counterId, uint32_t numThreads, uint32_t iters) {
     }
 }
 
-
-BENCHMARK_DRAW_LINE();
 
 BENCHMARK(add_stats_value_1t, iters) {
     statsBM(kCounterStats, 1, iters);
@@ -60,11 +58,12 @@ BENCHMARK(add_histogram_value_8t, iters) {
     statsBM(kCounterHisto, 8, iters);
 }
 
-BENCHMARK_DRAW_LINE();
-
 
 int main(int argc, char** argv) {
     folly::init(&argc, &argv, true);
+
+    kCounterStats = StatsManager::registerStats("stats", "avg, rate, sum");
+    kCounterHisto = StatsManager::registerHisto("histogram", 100, 1, 1000, "p95, p99");
 
     folly::runBenchmarks();
     return 0;
