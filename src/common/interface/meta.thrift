@@ -76,14 +76,15 @@ enum ErrorCode {
     E_SAVE_JOB_FAILURE       = -57,
     E_BALANCER_FAILURE       = -58,
     E_JOB_NOT_FINISHED       = -59,
+    E_TASK_REPORT_OUT_DATE   = -60,
 
     // Backup Failure
-    E_BACKUP_FAILURE = -60,
-    E_BACKUP_BUILDING_INDEX = -61,
-    E_BACKUP_SPACE_NOT_FOUND = -62,
+    E_BACKUP_FAILURE = -70,
+    E_BACKUP_BUILDING_INDEX = -71,
+    E_BACKUP_SPACE_NOT_FOUND = -72,
 
     // RESTORE Failure
-    E_RESTORE_FAILURE = -70,
+    E_RESTORE_FAILURE = -80,
 
     E_UNKNOWN        = -99,
 } (cpp.enum_strict)
@@ -1130,6 +1131,13 @@ struct RemoveSessionReq {
     1: common.SessionID      session_id,
 }
 
+struct ReportTaskReq {
+    1: ErrorCode            code,
+    2: i32                  job_id,
+    3: i32                  task_id,
+    4: optional StatisItem  statis
+}
+
 service MetaService {
     ExecResp createSpace(1: CreateSpaceReq req);
     ExecResp dropSpace(1: DropSpaceReq req);
@@ -1228,4 +1236,6 @@ service MetaService {
     ListSessionsResp listSessions(1: ListSessionsReq req);
     GetSessionResp getSession(1: GetSessionReq req);
     ExecResp removeSession(1: RemoveSessionReq req);
+
+    ExecResp reportTaskFinish(1: ReportTaskReq req);
 }

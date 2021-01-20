@@ -86,6 +86,7 @@ public:
 
         kCase,
 
+        kPredicate,
         kListComprehension,
 
         kPathBuild,
@@ -94,7 +95,10 @@ public:
         kTSWildcard,
         kTSRegexp,
         kTSFuzzy,
+
+        kAggregate,
     };
+
 
     explicit Expression(Kind kind) : kind_(kind) {}
 
