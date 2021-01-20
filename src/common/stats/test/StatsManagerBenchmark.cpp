@@ -10,8 +10,8 @@
 
 using nebula::stats::StatsManager;
 
-const int32_t kCounterStats = StatsManager::registerStats("stats");
-const int32_t kCounterHisto = StatsManager::registerHisto("histogram", 10, 1, 100);
+const int32_t kCounterStats = StatsManager::registerStats("stats", "avg, rate, sum");
+const int32_t kCounterHisto = StatsManager::registerHisto("histogram", 10, 1, 100, "p95, p99");
 
 
 void statsBM(int32_t counterId, uint32_t numThreads, uint32_t iters) {
