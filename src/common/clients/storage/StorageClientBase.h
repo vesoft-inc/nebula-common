@@ -95,6 +95,24 @@ private:
     std::vector<std::tuple<HostAddr, int32_t, int32_t>> hostLatency_;
 };
 
+template<class Request, class RemoteFunc, class Response>
+struct ResponseContext {
+public:
+    ResponseContext(size_t reqsSent, RemoteFunc&& remoteFunc)
+        : serverMethod(std::move(remoteFunc))
+        , resp(reqsSent) {}
+
+    ResponseContext(size_t reqsSent, const RemoteFunc& remoteFunc)
+        : serverMethod(std::move(remoteFunc))
+        , resp(reqsSent) {}
+
+public:
+    folly::Promise<StorageRpcResponse<Response>> promise;
+    RemoteFunc serverMethod;
+
+    StorageRpcResponse<Response> resp;
+};
+
 
 /**
  * A base class for all storage clients
@@ -126,6 +144,21 @@ protected:
         int32_t portOffsetIfRetry = 0,
         std::size_t retry = 0,
         std::size_t retryLimit = 3);
+
+    template<class Request,
+             class RemoteFunc,
+             class Response =
+                typename std::result_of<
+                    RemoteFunc(ClientType*, const Request&)
+                >::type::value_type
+            >
+    void collectResponseImpl(
+        folly::EventBase* evb,
+        std::unordered_map<HostAddr, Request> requests,
+        int32_t portOffsetIfRetry,
+        std::shared_ptr<ResponseContext<Request, RemoteFunc, Response>> context,
+        std::size_t retry,
+        std::size_t retryLimit);
 
     template<class Request,
              class RemoteFunc,
@@ -201,6 +234,44 @@ protected:
         return t;
     }
 
+    // from map
+    template <typename K>
+    std::unordered_map<PartitionID, K> getReqPartsFromContainer(
+        const std::unordered_map<PartitionID, K> &t, PartitionID partId) const {
+        std::unordered_map<PartitionID, K> parts;
+        parts.emplace(partId, t.at(partId));
+        return parts;
+    }
+
+    template <typename K>
+    void appendPart(std::unordered_map<PartitionID, K> &to,
+                    const std::unordered_map<PartitionID, K> &origin,
+                    PartitionID partId) const {
+        auto find = to.find(partId);
+        if (find != to.end()) {
+            find->second.insert(find->second.end(),
+                                origin.at(partId).begin(),
+                                origin.at(partId).end());
+        } else {
+            to[partId] = origin.at(partId);
+        }
+    }
+
+    // from list
+    std::vector<PartitionID> getReqPartsFromContainer(const std::vector<PartitionID> &t,
+                                                      PartitionID partId) const {
+        UNUSED(t);
+        return {partId};
+    }
+
+    void appendPart(std::vector<PartitionID> &to,
+                    const std::vector<PartitionID> &origin,
+                    PartitionID partId) const {
+        UNUSED(origin);
+        UNUSED(to);
+        to.emplace_back(partId);
+    }
+
     template <typename Request>
     std::vector<PartitionID> getReqPartsId(const Request &req) const {
         return getReqPartsIdFromContainer(req.get_parts());
@@ -224,6 +295,43 @@ protected:
 
     std::vector<PartitionID> getReqPartsId(const cpp2::GetValueRequest &req) const {
         return {req.get_part_id()};
+    }
+
+    template <typename Request>
+    auto getReqWithPartId(const Request &req, PartitionID partId) const {
+        auto reqCopy = req;
+        reqCopy.parts = getReqPartsFromContainer(req.get_parts(), partId);
+        return reqCopy;
+    }
+
+    auto getReqWithPartId(const cpp2::UpdateVertexRequest &req, PartitionID partId) const {
+        auto reqCopy = req;
+        reqCopy.part_id = getReqPartsFromContainer(req.get_part_id(), partId);
+        return reqCopy;
+    }
+
+    auto getReqWithPartId(const cpp2::UpdateEdgeRequest &req, PartitionID partId) const {
+        auto reqCopy = req;
+        reqCopy.part_id = getReqPartsFromContainer(req.get_part_id(), partId);
+        return reqCopy;
+    }
+
+    auto getReqWithPartId(const cpp2::GetUUIDReq &req, PartitionID partId) const {
+        auto reqCopy = req;
+        reqCopy.part_id = getReqPartsFromContainer(req.get_part_id(), partId);
+        return reqCopy;
+    }
+
+    auto getReqWithPartId(const cpp2::InternalTxnRequest &req, PartitionID partId) const {
+        auto reqCopy = req;
+        reqCopy.part_id = getReqPartsFromContainer(req.get_part_id(), partId);
+        return reqCopy;
+    }
+
+    auto getReqWithPartId(const cpp2::GetValueRequest &req, PartitionID partId) const {
+        auto reqCopy = req;
+        reqCopy.part_id = getReqPartsFromContainer(req.get_part_id(), partId);
+        return reqCopy;
     }
 
     bool isValidHostPtr(const HostAddr* addr) {

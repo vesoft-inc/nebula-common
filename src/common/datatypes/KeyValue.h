@@ -24,6 +24,8 @@ struct KeyValue {
         : key(std::move(kv.first))
         , value(std::move(kv.second)) {}
 
+    KeyValue& operator=(const KeyValue &i) = default;
+
     void clear() {
         key.clear();
         value.clear();

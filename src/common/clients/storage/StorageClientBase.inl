@@ -10,66 +10,6 @@
 namespace nebula {
 namespace storage {
 
-namespace {
-
-template<class Request, class RemoteFunc, class Response>
-struct ResponseContext {
-public:
-    ResponseContext(size_t reqsSent, RemoteFunc&& remoteFunc)
-        : resp(reqsSent)
-        , serverMethod(std::move(remoteFunc)) {}
-
-    // Return true if processed all responses
-    bool finishSending() {
-        std::lock_guard<std::mutex> g(lock_);
-        finishSending_ = true;
-        if (ongoingRequests_.empty() && !fulfilled_) {
-            fulfilled_ = true;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    std::pair<const Request*, bool> insertRequest(HostAddr host, Request&& req) {
-        std::lock_guard<std::mutex> g(lock_);
-        auto res = ongoingRequests_.emplace(host, std::move(req));
-        return std::make_pair(&res.first->second, res.second);
-    }
-
-    const Request& findRequest(HostAddr host) {
-        std::lock_guard<std::mutex> g(lock_);
-        auto it = ongoingRequests_.find(host);
-        DCHECK(it != ongoingRequests_.end());
-        return it->second;
-    }
-
-    // Return true if processed all responses
-    bool removeRequest(HostAddr host) {
-        std::lock_guard<std::mutex> g(lock_);
-        ongoingRequests_.erase(host);
-        if (finishSending_ && !fulfilled_ && ongoingRequests_.empty()) {
-            fulfilled_ = true;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-public:
-    folly::Promise<StorageRpcResponse<Response>> promise;
-    StorageRpcResponse<Response> resp;
-    RemoteFunc serverMethod;
-
-private:
-    std::mutex lock_;
-    std::unordered_map<HostAddr, Request> ongoingRequests_;
-    bool finishSending_{false};
-    bool fulfilled_{false};
-};
-
-}  // Anonymous namespace
-
 
 template<typename ClientType>
 StorageClientBase<ClientType>::StorageClientBase(
@@ -177,63 +117,97 @@ StorageClientBase<ClientType>::collectResponse(
         std::size_t retry,
         std::size_t retryLimit) {
     auto context = std::make_shared<ResponseContext<Request, RemoteFunc, Response>>(
-        requests.size(), std::move(remoteFunc));
+        requests.size(), std::forward<RemoteFunc>(remoteFunc));
+    collectResponseImpl(evb,
+                std::move(requests),
+                portOffsetIfRetry,
+                context,
+                retry,
+                retryLimit);
+    return context->promise.getSemiFuture();
+}
+
+template<typename ClientType>
+template<class Request, class RemoteFunc, class Response>
+void StorageClientBase<ClientType>::collectResponseImpl(
+    folly::EventBase* evb,
+    std::unordered_map<HostAddr, Request> requests,
+    int32_t portOffsetIfRetry,
+    std::shared_ptr<ResponseContext<Request, RemoteFunc, Response>> context,
+    std::size_t retry,
+    std::size_t retryLimit) {
 
     if (evb == nullptr) {
         DCHECK(!!ioThreadPool_);
         evb = ioThreadPool_->getEventBase();
     }
 
-    for (auto& req : requests) {
-        auto& host = req.first;
-        auto spaceId = req.second.get_space_id();
-        auto res = context->insertRequest(host, std::move(req.second));
-        DCHECK(res.second);
-        // Invoke the remote method
-        folly::via(evb, [this,
-                         evb,
-                         context,
-                         host,
-                         spaceId,
-                         res,
-                         retry,
-                         retryLimit,
-                         portOffsetIfRetry] () mutable {
+    folly::via(evb, [this,
+                     evb,
+                     context,
+                     requests = std::move(requests),
+                     retry,
+                     retryLimit,
+                     portOffsetIfRetry] () mutable {
+        std::vector<folly::Future<Response>> responses;
+        responses.reserve(requests.size());
+        std::vector<int64_t> startsMS;
+        startsMS.reserve(requests.size());
+        std::vector<Request> reqs;
+        reqs.reserve(requests.size());
+        std::vector<HostAddr> hosts;
+        hosts.reserve(requests.size());
+        std::vector<GraphSpaceID> spaceIds;
+        spaceIds.reserve(requests.size());
+        for (auto& req : requests) {
+            auto& host = req.first;
+            auto spaceId = req.second.get_space_id();
             auto client = clientsMan_->client(host,
-                                              evb,
-                                              false,
-                                              FLAGS_storage_client_timeout_ms);
-            // Result is a pair of <Request&, bool>
-            auto start = time::WallClock::fastNowInMicroSec();
-            context->serverMethod(client.get(), *res.first)
+                                                evb,
+                                                false,
+                                                FLAGS_storage_client_timeout_ms);
+            startsMS.emplace_back(time::WallClock::fastNowInMicroSec());
+            // Invoke the remote method
             // Future process code will be executed on the IO thread
             // Since all requests are sent using the same eventbase, all then-callback
             // will be executed on the same IO thread
-            .via(evb).then([this,
-                            context,
-                            host,
-                            spaceId,
-                            start,
-                            evb,
-                            retry,
-                            retryLimit,
-                            portOffsetIfRetry] (folly::Try<Response>&& val) {
-                auto& r = context->findRequest(host);
+            responses.emplace_back(context->serverMethod(client.get(), req.second).via(evb));
+            reqs.emplace_back(std::move(req.second));
+            hosts.emplace_back(std::move(host));
+            spaceIds.emplace_back(spaceId);
+        }
+
+        folly::collectAll(responses).then([this,
+                                        evb,
+                                        context,
+                                        hosts = std::move(hosts),
+                                        spaceIds = std::move(spaceIds),
+                                        startsMS = std::move(startsMS),
+                                        reqs = std::move(reqs),
+                                        portOffsetIfRetry,
+                                        retry,
+                                        retryLimit] (std::vector<folly::Try<Response>>&& vals) {
+            for (std::size_t i = 0; i < vals.size(); ++i) {
+                auto spaceId = spaceIds[i];
+                auto &host = hosts[i];
+                auto &val = vals[i];
+                auto &req = reqs[i];
                 if (val.hasException()) {
                     LOG(ERROR) << "Request to " << host
-                               << " failed: " << val.exception().what();
-                    auto parts = getReqPartsId(r);
+                                << " failed: " << val.exception().what();
+                    auto parts = getReqPartsId(req);
                     context->resp.appendFailedParts(parts, storage::cpp2::ErrorCode::E_RPC_FAILURE);
                     invalidLeader(spaceId, parts);
                     context->resp.markFailure();
                 } else {
+                    std::unordered_map<HostAddr, Request> retryRequests;
                     auto resp = std::move(val.value());
-                    auto& result = resp.get_result();
+                    auto& result = resp.result;
                     bool hasFailure{false};
+                    decltype(result.failed_parts) notRetryParts;
                     for (auto& code : result.get_failed_parts()) {
                         VLOG(3) << "Failure! Failed part " << code.get_part_id()
                                 << ", failed code " << static_cast<int32_t>(code.get_code());
-                        hasFailure = true;
                         if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
                             auto* leader = code.get_leader();
                             if (isValidHostPtr(leader)) {
@@ -241,51 +215,29 @@ StorageClientBase<ClientType>::collectResponse(
                             } else {
                                 invalidLeader(spaceId, code.get_part_id());
                             }
-                            if (retry < retryLimit && isValidHostPtr(leader)) {
-                                evb->runAfterDelay([this, evb, leader = *leader, r = std::move(r),
-                                                    context,
-                                                    start, retry, retryLimit,
-                                                    portOffsetIfRetry] (){
-                                    getResponse(evb,
-                                                std::pair<HostAddr, Request>(leader, std::move(r)),
-                                                context->serverMethod,
-                                                portOffsetIfRetry,
-                                                folly::Promise<StatusOr<Response>>(),
-                                                retry + 1,
-                                                retryLimit)
-                                        .thenValue([leader, context, start](auto &&retryResult) {
-                                            if (retryResult.ok()) {
-                                                // Adjust the latency
-                                                auto latency = retryResult.value()
-                                                                .get_result()
-                                                                .get_latency_in_us();
-                                                context->resp.setLatency(
-                                                    leader,
-                                                    latency,
-                                                    time::WallClock::fastNowInMicroSec() - start);
-
-                                                // Keep the response
-                                                context->resp
-                                                    .responses()
-                                                    .emplace_back(std::move(retryResult).value());
-                                            } else {
-                                                context->resp.markFailure();
-                                            }
-                                        }).thenError([context](auto&&) {
-                                            context->resp.markFailure();
-                                        });
-                                    }, FLAGS_storage_client_retry_interval_ms);
+                            auto newHost = retryRequests.find(*leader);
+                            if (newHost == retryRequests.end()) {
+                                retryRequests.emplace(*leader,
+                                                       getReqWithPartId(req, code.get_part_id()));
                             } else {
-                                // retry failed
-                                context->resp.markFailure();
+                                appendPart(newHost->second.parts,
+                                           req.get_parts(),
+                                           code.get_part_id());
                             }
                         } else if (code.get_code() == cpp2::ErrorCode::E_PART_NOT_FOUND ||
-                                   code.get_code() == cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
+                                code.get_code() == cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
                             invalidLeader(spaceId, code.get_part_id());
+                            hasFailure = true;
+                            notRetryParts.emplace_back(code);
                         } else {
                             // Simply keep the result
                             context->resp.emplaceFailedPart(code.get_part_id(), code.get_code());
+                            hasFailure = true;
+                            notRetryParts.emplace_back(code);
                         }
+                    }
+                    if (retry < retryLimit) {
+                        result.failed_parts = notRetryParts;
                     }
                     if (hasFailure) {
                         context->resp.markFailure();
@@ -294,27 +246,38 @@ StorageClientBase<ClientType>::collectResponse(
                     // Adjust the latency
                     auto latency = result.get_latency_in_us();
                     context->resp.setLatency(host,
-                                             latency,
-                                             time::WallClock::fastNowInMicroSec() - start);
+                                            latency,
+                                            time::WallClock::fastNowInMicroSec() - startsMS[i]);
 
                     // Keep the response
                     context->resp.responses().emplace_back(std::move(resp));
-                }
 
-                if (context->removeRequest(host)) {
-                    // Received all responses
-                    context->promise.setValue(std::move(context->resp));
-                }
-            });
-        });  // via
-    }  // for
-
-    if (context->finishSending()) {
-        // Received all responses, most likely, all rpc failed
-        context->promise.setValue(std::move(context->resp));
-    }
-
-    return context->promise.getSemiFuture();
+                    if (!retryRequests.empty()) {
+                        if (retry < retryLimit) {
+                            evb->runAfterDelay([this, evb, requests = std::move(retryRequests),
+                                                context,
+                                                retry, retryLimit,
+                                                portOffsetIfRetry] () mutable {
+                                collectResponseImpl(evb,
+                                                    std::move(requests),
+                                                    portOffsetIfRetry,
+                                                    context,
+                                                    retry + 1,
+                                                    retryLimit);
+                                }, FLAGS_storage_client_retry_interval_ms);
+                        } else {
+                            // retry failed
+                            context->resp.markFailure();
+                            context->promise.setValue(std::move(context->resp));
+                        }
+                    } else {
+                        // retry succeeded
+                        context->promise.setValue(std::move(context->resp));
+                    }
+                }  // no except
+            }  // for
+        });  // then
+    });  // via
 }
 
 template<typename ClientType>
