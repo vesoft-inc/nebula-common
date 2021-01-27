@@ -17,7 +17,7 @@ TEST(StatsManager, RateTest) {
     auto thread = std::make_unique<thread::GenericWorker>();
     ASSERT_TRUE(thread->start());
 
-    auto task = [=] () {
+    auto task = [&statId] () {
         StatsManager::addValue(statId);
     };
     constexpr auto qps = 100L;

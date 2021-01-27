@@ -8,18 +8,19 @@
 #include <folly/Benchmark.h>
 #include "common/stats/StatsManager.h"
 
+using nebula::stats::CounterId;
 using nebula::stats::StatsManager;
 
-int32_t kCounterStats;
-int32_t kCounterHisto;
+CounterId kCounterStats;
+CounterId kCounterHisto;
 
 
-void statsBM(int32_t counterId, uint32_t numThreads, uint32_t iters) {
+void statsBM(const CounterId& counterId, uint32_t numThreads, uint32_t iters) {
     std::vector<std::thread> threads;
     for (uint32_t i = 0; i < numThreads; i++) {
         auto itersInThread = i == 0 ? iters - (iters / numThreads) * (numThreads - 1)
                                     : iters / numThreads;
-        threads.emplace_back([counterId, itersInThread]() {
+        threads.emplace_back([&counterId, itersInThread]() {
             for (uint32_t k = 0; k < itersInThread; k++) {
                 StatsManager::addValue(counterId, k);
             }

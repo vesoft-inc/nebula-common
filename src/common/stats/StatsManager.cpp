@@ -69,8 +69,8 @@ void StatsManager::parseStats(const folly::StringPiece stats,
 
 
 // static
-int32_t StatsManager::registerStats(folly::StringPiece counterName,
-                                    std::string stats) {
+CounterId StatsManager::registerStats(folly::StringPiece counterName,
+                                      std::string stats) {
     using std::chrono::seconds;
 
     auto& sm = get();
@@ -82,10 +82,10 @@ int32_t StatsManager::registerStats(folly::StringPiece counterName,
     folly::RWSpinLock::WriteHolder wh(sm.nameMapLock_);
     auto it = sm.nameMap_.find(name);
     if (it != sm.nameMap_.end()) {
-        DCHECK_GT(it->second.index_, 0);
+        DCHECK_GT(it->second.id_.index(), 0);
         VLOG(2) << "The counter \"" << name << "\" already exists";
         it->second.methods_ = methods;
-        return it->second.index_;
+        return it->second.id_.index();
     }
 
     // Insert the Stats
@@ -99,11 +99,12 @@ int32_t StatsManager::registerStats(folly::StringPiece counterName,
                                                             seconds(600),
                                                             seconds(3600)}))));
     int32_t index = sm.stats_.size();
-    sm.nameMap_.emplace(std::piecewise_construct,
-                        std::forward_as_tuple(std::move(name)),
-                        std::forward_as_tuple(index,
-                                              std::move(methods),
-                                              std::vector<std::pair<std::string, double>>()));
+    sm.nameMap_.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(std::move(name)),
+        std::forward_as_tuple(index,
+                              std::move(methods),
+                              std::vector<std::pair<std::string, double>>()));
 
     VLOG(1) << "Registered stats " << counterName.toString();
     return index;
@@ -111,11 +112,11 @@ int32_t StatsManager::registerStats(folly::StringPiece counterName,
 
 
 // static
-int32_t StatsManager::registerHisto(folly::StringPiece counterName,
-                                    StatsManager::VT bucketSize,
-                                    StatsManager::VT min,
-                                    StatsManager::VT max,
-                                    std::string stats) {
+CounterId StatsManager::registerHisto(folly::StringPiece counterName,
+                                      StatsManager::VT bucketSize,
+                                      StatsManager::VT min,
+                                      StatsManager::VT max,
+                                      std::string stats) {
     using std::chrono::seconds;
     std::vector<StatsMethod> methods;
     std::vector<std::pair<std::string, double>> percentiles;
@@ -126,11 +127,11 @@ int32_t StatsManager::registerHisto(folly::StringPiece counterName,
     folly::RWSpinLock::WriteHolder wh(sm.nameMapLock_);
     auto it = sm.nameMap_.find(name);
     if (it != sm.nameMap_.end()) {
-        DCHECK_LT(it->second.index_, 0);
+        DCHECK_LT(it->second.id_.index(), 0);
         VLOG(2) << "The counter \"" << name << "\" already exists";
         it->second.methods_ = methods;
         it->second.percentiles_ = percentiles;
-        return it->second.index_;
+        return it->second.id_.index();
     }
 
     // Insert the Histogram
@@ -143,11 +144,12 @@ int32_t StatsManager::registerHisto(folly::StringPiece counterName,
                 max,
                 StatsType(60, {seconds(5), seconds(60), seconds(600), seconds(3600)}))));
     int32_t index = - sm.histograms_.size();
-    sm.nameMap_.emplace(std::piecewise_construct,
-                        std::forward_as_tuple(std::move(name)),
-                        std::forward_as_tuple(index,
-                                              std::move(methods),
-                                              std::move(percentiles)));
+    sm.nameMap_.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(std::move(name)),
+        std::forward_as_tuple(index,
+                              std::move(methods),
+                              std::move(percentiles)));
 
     VLOG(1) << "Registered histogram " << counterName.toString()
             << " [bucketSize: " << bucketSize
@@ -159,23 +161,25 @@ int32_t StatsManager::registerHisto(folly::StringPiece counterName,
 
 
 // static
-void StatsManager::addValue(int32_t index, VT value) {
+void StatsManager::addValue(const CounterId& id, VT value) {
     using std::chrono::seconds;
-    CHECK_NE(index, 0);
 
     auto& sm = get();
+    int32_t index = id.index();
     if (index > 0) {
         // Stats
         --index;
         DCHECK_LT(index, sm.stats_.size());
         std::lock_guard<std::mutex> g(*(sm.stats_[index].first));
         sm.stats_[index].second->addValue(seconds(time::WallClock::fastNowInSec()), value);
-    } else {
+    } else if (index < 0) {
         // Histogram
         index = - (index + 1);
         DCHECK_LT(index, sm.histograms_.size());
         std::lock_guard<std::mutex> g(*(sm.histograms_[index].first));
         sm.histograms_[index].second->addValue(seconds(time::WallClock::fastNowInSec()), value);
+    } else {
+        LOG(FATAL) << "Invalid counter id";
     }
 }
 
@@ -298,7 +302,7 @@ void StatsManager::readAllValue(folly::dynamic& vals) {
                     // intentionally no `default'
                 }
 
-                auto status = readStats(statsName.second.index_, range, method);
+                auto status = readStats(statsName.second.id_, range, method);
                 CHECK(status.ok());
                 int64_t metricValue = status.value();
                 folly::dynamic stat = folly::dynamic::object();
@@ -331,7 +335,7 @@ void StatsManager::readAllValue(folly::dynamic& vals) {
                         // intentionally no `default'
                 }
 
-                auto status = readHisto(statsName.second.index_, range, pct.second);
+                auto status = readHisto(statsName.second.id_, range, pct.second);
                 if (!status.ok()) {
                     LOG(ERROR) << "Failed to read histogram " << metricName;
                     continue;
@@ -348,11 +352,12 @@ void StatsManager::readAllValue(folly::dynamic& vals) {
 
 
 // static
-StatusOr<StatsManager::VT> StatsManager::readStats(int32_t index,
+StatusOr<StatsManager::VT> StatsManager::readStats(const CounterId& id,
                                                    StatsManager::TimeRange range,
                                                    StatsManager::StatsMethod method) {
     using std::chrono::seconds;
     auto& sm = get();
+    int32_t index = id.index();
 
     if (index == 0) {
         return Status::Error("Invalid stats");
@@ -383,28 +388,29 @@ StatusOr<StatsManager::VT> StatsManager::readStats(const std::string& counterNam
     auto& sm = get();
 
     // Look up the counter name
-    int32_t index = 0;
-
+    CounterId const* id;
     {
+        folly::RWSpinLock::ReadHolder rh(sm.nameMapLock_);
         auto it = sm.nameMap_.find(counterName);
         if (it == sm.nameMap_.end()) {
             // Not found
             return Status::Error("Stats not found \"%s\"", counterName.c_str());
         }
 
-        index = it->second.index_;
+        id = &(it->second.id_);
     }
 
-    return readStats(index, range, method);
+    return readStats(*id, range, method);
 }
 
 
 // static
-StatusOr<StatsManager::VT> StatsManager::readHisto(int32_t index,
+StatusOr<StatsManager::VT> StatsManager::readHisto(const CounterId& id,
                                                    StatsManager::TimeRange range,
                                                    double pct) {
     using std::chrono::seconds;
     auto& sm = get();
+    int32_t index = id.index();
 
     if (index >= 0) {
         return Status::Error("Invalid stats");
@@ -428,18 +434,19 @@ StatusOr<StatsManager::VT> StatsManager::readHisto(const std::string& counterNam
     auto& sm = get();
 
     // Look up the counter name
-    int32_t index = 0;
+    CounterId const* id;
     {
+        folly::RWSpinLock::ReadHolder rh(sm.nameMapLock_);
         auto it = sm.nameMap_.find(counterName);
         if (it == sm.nameMap_.end()) {
             // Not found
             return Status::Error("Stats not found \"%s\"", counterName.c_str());
         }
 
-        index = it->second.index_;
+        id = &(it->second.id_);
     }
 
-    return readHisto(index, range, pct);
+    return readHisto(*id, range, pct);
 }
 
 }  // namespace stats

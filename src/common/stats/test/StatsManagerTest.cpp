@@ -11,11 +11,12 @@
 
 namespace nebula {
 namespace stats {
+
 TEST(StatsManager, StatsTest) {
     auto statId = StatsManager::registerStats("stat01", "");
     std::vector<std::thread> threads;
     for (int i = 0; i < 10; i++) {
-        threads.emplace_back([statId, i] () {
+        threads.emplace_back([&statId, i] () {
             for (int k = i * 10 + 1; k <= i * 10 + 10; k++) {
                 sleep(6);
                 StatsManager::addValue(statId, k);
@@ -50,7 +51,7 @@ TEST(StatsManager, HistogramTest) {
     auto statId = StatsManager::registerHisto("stat02", 1, 1, 100, "");
     std::vector<std::thread> threads;
     for (int i = 0; i < 10; i++) {
-        threads.emplace_back([statId, i] () {
+        threads.emplace_back([&statId, i] () {
             for (int k = i * 10 + 1; k <= i * 10 + 10; k++) {
                 sleep(6);
                 StatsManager::addValue(statId, k);

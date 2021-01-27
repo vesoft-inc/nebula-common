@@ -18,6 +18,49 @@
 namespace nebula {
 namespace stats {
 
+// A wrapper class of counter index. Each instance can only be writtern once.
+class CounterId final {
+public:
+    CounterId() : index_{0} {}
+    CounterId(int32_t index) : index_{index} {}  // NOLINT
+
+    CounterId& operator=(const CounterId& right) {
+        if (!right.valid()) {
+            LOG(FATAL) << "Invalid counter id";
+        }
+        if (valid()) {
+            // Already assigned
+            LOG(FATAL) << "CounterId cannot be assigned twice";
+        }
+        index_ = right.index_;
+        return *this;
+    }
+
+    CounterId& operator=(int32_t right) {
+        if (right == 0) {
+            LOG(FATAL) << "Invalid counter id";
+        }
+        if (valid()) {
+            // Already assigned
+            LOG(FATAL) << "CounterId cannot be assigned twice";
+        }
+        index_ = right;
+        return *this;
+    }
+
+    bool valid() const {
+        return index_ != 0;
+    }
+
+    int32_t index() const {
+        return index_;
+    }
+
+private:
+    int32_t index_;
+};
+
+
 /**
  * This is a utility class to keep track the service's statistic information.
  *
@@ -79,14 +122,14 @@ public:
     // the readAllValue() method. The readAllValue() only returns the matrix for
     // those specified in the parameter **stats**. If **stats** is empty, nothing
     // will return from readAllValue()
-    static int32_t registerStats(folly::StringPiece counterName, std::string stats);
-    static int32_t registerHisto(folly::StringPiece counterName,
-                                 VT bucketSize,
-                                 VT min,
-                                 VT max,
-                                 std::string stats);
+    static CounterId registerStats(folly::StringPiece counterName, std::string stats);
+    static CounterId registerHisto(folly::StringPiece counterName,
+                                   VT bucketSize,
+                                   VT min,
+                                   VT max,
+                                   std::string stats);
 
-    static void addValue(int32_t index, VT value = 1);
+    static void addValue(const CounterId& id, VT value = 1);
 
     // The parameter counter here must be a qualified counter name, which includes
     // all three parts (counter name, method/percentile, and time range). Here are
@@ -97,13 +140,13 @@ public:
     //    query_latency.avg.60
     static StatusOr<VT> readValue(folly::StringPiece counter);
 
-    static StatusOr<VT> readStats(int32_t index,
+    static StatusOr<VT> readStats(const CounterId& id,
                                   TimeRange range,
                                   StatsMethod method);
     static StatusOr<VT> readStats(const std::string& counterName,
                                   TimeRange range,
                                   StatsMethod method);
-    static StatusOr<VT> readHisto(int32_t index,
+    static StatusOr<VT> readHisto(const CounterId& id,
                                   TimeRange range,
                                   double pct);
     static StatusOr<VT> readHisto(const std::string& counterName,
@@ -130,14 +173,14 @@ private:
 
 private:
     struct CounterInfo {
-        int32_t                                     index_;
+        CounterId                                   id_;
         std::vector<StatsMethod>                    methods_;
         std::vector<std::pair<std::string, double>> percentiles_;
 
         CounterInfo(int32_t index,
                     std::vector<StatsMethod>&& methods,
                     std::vector<std::pair<std::string, double>>&& percentiles)
-            : index_(index)
+            : id_(index)
             , methods_(std::move(methods))
             , percentiles_(std::move(percentiles)) {}
     };
