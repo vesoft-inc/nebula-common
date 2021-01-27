@@ -41,10 +41,10 @@ bool Path::hasDuplicateVertices() const {
     if (steps.empty()) {
         return false;
     }
-    std::unordered_set<std::string> uniqueVid;
-    uniqueVid.emplace(src.vid.toString());
+    std::unordered_set<Value> uniqueVid;
+    uniqueVid.emplace(src.vid);
     for (const auto& step : steps) {
-        auto ret = uniqueVid.emplace(step.dst.vid.toString());
+        auto ret = uniqueVid.emplace(step.dst.vid);
         if (!ret.second) {
             return true;
         }
@@ -71,7 +71,7 @@ bool Path::hasDuplicateEdges() const {
                                            step.name.size(),
                                            step.ranking);
         auto res = uniqueSet.emplace(std::move(edgeKey));
-        if (res.second) {
+        if (!res.second) {
             return true;
         }
         srcVid = dstVid;
