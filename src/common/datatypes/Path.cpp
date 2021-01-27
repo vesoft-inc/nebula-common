@@ -4,14 +4,13 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include "common/datatypes/Path.h"
+
 #include <algorithm>
+#include <unordered_set>
 
 #include <folly/hash/Hash.h>
 #include <folly/String.h>
-#include <tuple>
-#include <unordered_set>
-#include "common/datatypes/Path.h"
-#include "common/thrift/ThriftTypes.h"
 
 namespace nebula {
 void Path::reverse() {
@@ -57,33 +56,25 @@ bool Path::hasDuplicateEdges() const {
     if (steps.size() < 2) {
         return false;
     }
-    using EdgeKey = std::tuple<Value, Value, std::string, nebula::EdgeRanking>;
-    std::unordered_map<std::string, std::vector<EdgeKey>> uniqueMap;
-    auto srcVid = src.vid;
+    std::unordered_set<std::string> uniqueSet;
+    auto srcVid = src.vid.toString();
     for (const auto& step : steps) {
-        const auto& edgeSrc = step.type > 0 ? srcVid : step.dst.vid;
-        const auto& edgeDst = step.type > 0 ? step.dst.vid : srcVid;
-        auto edgeKey = folly::stringPrintf("%s%s%s%ld",
-                                           edgeSrc.toString().c_str(),
-                                           edgeDst.toString().c_str(),
+        auto dstVid = step.dst.vid.toString();
+        const auto& edgeSrc = step.type > 0 ? srcVid : dstVid;
+        const auto& edgeDst = step.type > 0 ? dstVid : srcVid;
+        auto edgeKey = folly::stringPrintf("%s%ld%s%ld%s%ld%ld",
+                                           edgeSrc.c_str(),
+                                           edgeSrc.size(),
+                                           edgeDst.c_str(),
+                                           edgeDst.size(),
                                            step.name.c_str(),
+                                           step.name.size(),
                                            step.ranking);
-        auto iter = uniqueMap.find(edgeKey);
-        if (iter != uniqueMap.end()) {
-            for (const auto& key : iter->second) {
-                if (std::get<0>(key) == edgeSrc && std::get<1>(key) == edgeDst &&
-                    std::get<2>(key) == step.name && std::get<3>(key) == step.ranking) {
-                    return true;
-                }
-            }
-            iter->second.emplace_back(std::make_tuple(edgeSrc, edgeDst, step.name, step.ranking));
-        } else {
-            std::vector<EdgeKey> edgeKeyList = {
-                std::make_tuple(edgeSrc, edgeDst, step.name, step.ranking),
-            };
-            uniqueMap.emplace(std::move(edgeKey), std::move(edgeKeyList));
+        auto res = uniqueSet.emplace(std::move(edgeKey));
+        if (res.second) {
+            return true;
         }
-        srcVid = step.dst.vid;
+        srcVid = dstVid;
     }
     return false;
 }
