@@ -100,6 +100,8 @@ struct Edge {
         }
         return false;
     }
+
+    std::string edgeKey() const;
 };
 
 inline std::ostream &operator<<(std::ostream& os, const Edge& v) {

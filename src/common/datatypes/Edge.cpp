@@ -32,6 +32,20 @@ std::string Edge::toString() const {
     return os.str();
 }
 
+std::string Edge::edgeKey() const {
+    std::string key;
+    const auto& srcVid = type > 0 ? src.toString() : dst.toString();
+    const auto& dstVid = type > 0 ? dst.toString() : src.toString();
+    auto edgeKey = folly::stringPrintf("%s%ld%s%ld%d%ld",
+                                       srcVid.c_str(),
+                                       srcVid.size(),
+                                       dstVid.c_str(),
+                                       dstVid.size(),
+                                       type < 0 ? -type : type,
+                                       ranking);
+    return edgeKey;
+}
+
 }   // namespace nebula
 
 namespace std {

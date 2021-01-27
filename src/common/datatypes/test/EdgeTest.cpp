@@ -76,4 +76,25 @@ TEST(Edge, ReverseInteger) {
     }
 }
 
+TEST(Edge, edgeKey) {
+    {
+        Edge edge(1, 2, -1, "e1", 0, {});
+        auto edgeKey = edge.edgeKey();
+        auto expect = "211110";
+        EXPECT_EQ(expect, edgeKey);
+    }
+    {
+        Edge edge("Tim Duncan", "Tony Parker", 1, "e1", 0, {});
+        auto edgeKey = edge.edgeKey();
+        auto expect = "Tim Duncan10Tony Parker1110";
+        EXPECT_EQ(expect, edgeKey);
+    }
+    {
+        Edge edge("Tim Duncan", "Tony Parker", -1, "e1", 0, {});
+        auto edgeKey = edge.edgeKey();
+        auto expect = "Tony Parker11Tim Duncan1010";
+        EXPECT_EQ(expect, edgeKey);
+    }
+}
+
 }  // namespace nebula
