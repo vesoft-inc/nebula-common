@@ -2692,54 +2692,9 @@ MetaClient::getUserRoles(std::string account) {
 }
 
 
-folly::Future<StatusOr<int64_t>> MetaClient::balance(std::vector<HostAddr> hostDel,
-                                                     bool isStop,
-                                                     bool isReset) {
-    cpp2::BalanceReq req;
-    if (!hostDel.empty()) {
-        req.set_host_del(std::move(hostDel));
-    }
-    if (isStop) {
-        req.set_stop(isStop);
-    }
-    if (isReset) {
-        req.set_reset(isReset);
-    }
-
-    folly::Promise<StatusOr<int64_t>> promise;
-    auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_balance(request);
-                },
-                [] (cpp2::BalanceResp&& resp) -> int64_t {
-                    return resp.get_id();
-                },
-                std::move(promise));
-    return future;
-}
-
-
-folly::Future<StatusOr<std::vector<cpp2::BalanceTask>>>
-MetaClient::showBalance(int64_t balanceId) {
-    cpp2::BalanceReq req;
-    req.set_id(balanceId);
-    folly::Promise<StatusOr<std::vector<cpp2::BalanceTask>>> promise;
-    auto future = promise.getFuture();
-    getResponse(std::move(req),
-                [] (auto client, auto request) {
-                    return client->future_balance(request);
-                },
-                [] (cpp2::BalanceResp&& resp) -> std::vector<cpp2::BalanceTask> {
-                    return resp.get_tasks();
-                },
-                std::move(promise));
-    return future;
-}
-
-
-folly::Future<StatusOr<bool>> MetaClient::balanceLeader() {
+folly::Future<StatusOr<bool>> MetaClient::balanceLeader(GraphSpaceID space) {
     cpp2::LeaderBalanceReq req;
+    req.set_space_id(space);
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
@@ -3462,9 +3417,27 @@ MetaClient::getStatis(GraphSpaceID spaceId) {
     return future;
 }
 
+folly::Future<StatusOr<cpp2::BalancePlanItem>>
+MetaClient::getBalancePlan(GraphSpaceID spaceId) {
+    cpp2::GetBalancePlanReq req;
+    req.set_space_id(spaceId);
+    folly::Promise<StatusOr<cpp2::BalancePlanItem>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_getBalancePlan(request);
+                },
+                [] (cpp2::GetBalancePlanResp&& resp) -> cpp2::BalancePlanItem {
+                    return std::move(resp).get_plan();
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
 folly::Future<StatusOr<nebula::cpp2::ErrorCode>> MetaClient::reportTaskFinish(
-    int32_t jobId,
-    int32_t taskId,
+    JobID jobId,
+    TaskID taskId,
     nebula::cpp2::ErrorCode taskErrCode,
     cpp2::StatisItem* statisticItem) {
     cpp2::ReportTaskReq req;
@@ -3476,12 +3449,15 @@ folly::Future<StatusOr<nebula::cpp2::ErrorCode>> MetaClient::reportTaskFinish(
     }
     folly::Promise<StatusOr<nebula::cpp2::ErrorCode>> pro;
     auto fut = pro.getFuture();
-    getResponse(
-        std::move(req),
-        [](auto client, auto request) { return client->future_reportTaskFinish(request); },
-        [](cpp2::ExecResp&& resp) -> nebula::cpp2::ErrorCode { return resp.get_code(); },
-        std::move(pro),
-        true);
+    getResponse(std::move(req),
+                [](auto client, auto request) {
+                    return client->future_reportTaskFinish(request);
+                },
+                [](cpp2::ExecResp&& resp) -> nebula::cpp2::ErrorCode {
+                    return resp.get_code();
+                },
+                std::move(pro),
+                true);
     return fut;
 }
 

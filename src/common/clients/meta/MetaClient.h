@@ -367,13 +367,7 @@ public:
     getUserRoles(std::string account);
 
     // Operations for admin
-    folly::Future<StatusOr<int64_t>>
-    balance(std::vector<HostAddr> hostDel, bool isStop, bool isReset);
-
-    folly::Future<StatusOr<std::vector<cpp2::BalanceTask>>>
-    showBalance(int64_t balanceId);
-
-    folly::Future<StatusOr<bool>> balanceLeader();
+    folly::Future<StatusOr<bool>> balanceLeader(GraphSpaceID space);
 
     // Operations for config
     folly::Future<StatusOr<bool>>
@@ -626,9 +620,12 @@ public:
     folly::Future<StatusOr<cpp2::StatisItem>>
     getStatis(GraphSpaceID spaceId);
 
+    folly::Future<StatusOr<cpp2::BalancePlanItem>>
+    getBalancePlan(GraphSpaceID spaceId);
+
     folly::Future<StatusOr<nebula::cpp2::ErrorCode>> reportTaskFinish(
-        int32_t jobId,
-        int32_t taskId,
+        JobID jobId,
+        TaskID taskId,
         nebula::cpp2::ErrorCode taskErrCode,
         cpp2::StatisItem* statisticItem);
 
