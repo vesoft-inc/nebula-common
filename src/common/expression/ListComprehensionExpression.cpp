@@ -17,9 +17,6 @@ const Value& ListComprehensionExpression::eval(ExpressionContext& ctx) {
         result_ = listVal;
         return result_;
     }
-    if (!listVal.isList()) {
-        return Value::kNullBadType;
-    }
     auto& list = listVal.getList();
 
     if  (filter_ == nullptr && mapping_ == nullptr) {
