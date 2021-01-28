@@ -25,9 +25,9 @@ typedef i64 (cpp.type = "nebula::SchemaVer") SchemaVer
 typedef i64 (cpp.type = "nebula::ClusterID") ClusterID
 
 enum AlterSchemaOp {
-    ADD    = 0x01,
-    CHANGE = 0x02,
-    DROP   = 0x03,
+    ADD     = 0x01,
+    CHANGE  = 0x02,
+    DROP    = 0x03,
     UNKNOWN = 0x04,
 } (cpp.enum_strict)
 
@@ -261,28 +261,28 @@ enum JobStatus {
 } (cpp.enum_strict)
 
 struct JobDesc {
-    1: i32              id,
-    2: AdminCmd         cmd,
-    3: list<string>     paras,
-    4: JobStatus        status,
-    5: i64              start_time,
-    6: i64              stop_time,
+    1: i32                id,
+    2: AdminCmd           cmd,
+    3: list<string>       paras,
+    4: JobStatus          status,
+    5: common.Timestamp   start_time,
+    6: common.Timestamp   stop_time,
 }
 
 struct TaskDesc {
-    1: i32              task_id,
-    2: common.HostAddr  host,
-    3: JobStatus        status,
-    4: i64              start_time,
-    5: i64              stop_time,
-    6: i32              job_id,
+    1: common.TaskID      task_id,
+    2: common.HostAddr    host,
+    3: JobStatus          status,
+    4: common.Timestamp   start_time,
+    5: common.Timestamp   stop_time,
+    6: common.JobID       job_id,
 }
 
 struct AdminJobResult {
     // used in a new added job, e.g. "flush" "compact"
     // other job type which also need jobId in their result
     // will use other filed. e.g. JobDesc::id
-    1: optional i32                 job_id,
+    1: optional common.JobID        job_id,
 
     // used in "show jobs" and "show job <id>"
     2: optional list<JobDesc>       job_desc,
@@ -717,37 +717,8 @@ struct ChangePasswordReq {
     3: binary old_encoded_pwd,
 }
 
-struct BalanceReq {
-    1: optional common.GraphSpaceID     space_id,
-    // Specify the balance id to check the status of the related balance plan
-    2: optional i64                     id,
-    3: optional list<common.HostAddr>   host_del,
-    4: optional bool                    stop,
-    5: optional bool                    reset,
-}
-
-enum TaskResult {
-    SUCCEEDED  = 0x00,
-    FAILED = 0x01,
-    IN_PROGRESS = 0x02,
-    INVALID = 0x03,
-} (cpp.enum_strict)
-
-
-struct BalanceTask {
-    1: binary id,
-    2: TaskResult result,
-}
-
-struct BalanceResp {
-    1: common.ErrorCode code,
-    2: i64              id,
-    // Valid if code equals E_LEADER_CHANGED.
-    3: common.HostAddr  leader,
-    4: list<BalanceTask> tasks,
-}
-
 struct LeaderBalanceReq {
+    1: common.GraphSpaceID   space_id,
 }
 
 enum ConfigModule {
@@ -970,6 +941,41 @@ struct GetStatisResp {
     3: StatisItem       statis,
 }
 
+enum TaskResult {
+    SUCCEEDED       = 0x00,
+    FAILED          = 0x01,
+    IN_PROGRESS     = 0x02,
+    INVALID         = 0x03,
+} (cpp.enum_strict)
+
+struct BalanceTaskItem {
+    1: common.JobID            job_id,
+    2: common.TaskID           task_id,
+    3: common.GraphSpaceID     space_id,
+    4: common.PartitionID      part_id,
+    5: common.HostAddr         src,
+    6: common.HostAddr         dst,
+    7: common.Timestamp        start_time,
+    8: common.Timestamp        end_time,
+    9: TaskResult              result,
+}
+
+struct BalancePlanItem {
+    1: JobStatus              status,
+    2: list<BalanceTaskItem>  tasks,
+}
+
+struct GetBalancePlanReq {
+    1: common.GraphSpaceID    space_id,
+}
+
+struct GetBalancePlanResp {
+    1: common.ErrorCode        code,
+    // Valid if ret equals E_LEADER_CHANGED.
+    2: common.HostAddr  leader,
+    3: BalancePlanItem  plan,
+}
+
 struct BackupInfo {
     1: common.HostAddr host,
     2: list<common.CheckpointInfo> info,
@@ -1146,8 +1152,8 @@ struct KillQueryReq {
 
 struct ReportTaskReq {
     1: common.ErrorCode     code,
-    2: i32                  job_id,
-    3: i32                  task_id,
+    2: common.JobID         job_id,
+    3: common.TaskID        task_id,
     4: optional StatisItem  statis
 }
 
@@ -1223,7 +1229,6 @@ service MetaService {
     ExecResp changePassword(1: ChangePasswordReq req);
 
     HBResp           heartBeat(1: HBReq req);
-    BalanceResp      balance(1: BalanceReq req);
     ExecResp         leaderBalance(1: LeaderBalanceReq req);
 
     ExecResp regConfig(1: RegConfigReq req);
@@ -1252,12 +1257,14 @@ service MetaService {
     ListGroupsResp listGroups(1: ListGroupsReq req);
 
     CreateBackupResp createBackup(1: CreateBackupReq req);
-    ExecResp       restoreMeta(1: RestoreMetaReq req);
-    ExecResp       addListener(1: AddListenerReq req);
-    ExecResp       removeListener(1: RemoveListenerReq req);
+    ExecResp         restoreMeta(1: RestoreMetaReq req);
+    ExecResp         addListener(1: AddListenerReq req);
+    ExecResp         removeListener(1: RemoveListenerReq req);
     ListListenerResp listListener(1: ListListenerReq req);
 
-    GetStatisResp  getStatis(1: GetStatisReq req);
+    GetStatisResp       getStatis(1: GetStatisReq req);
+    GetBalancePlanResp  getBalancePlan(1: GetBalancePlanReq req);
+
     ExecResp signInFTService(1: SignInFTServiceReq req);
     ExecResp signOutFTService(1: SignOutFTServiceReq req);
     ListFTClientsResp listFTClients(1: ListFTClientsReq req);

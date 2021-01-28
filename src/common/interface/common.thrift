@@ -50,6 +50,8 @@ typedef i32 (cpp.type = "nebula::Port") Port
 typedef i64 (cpp.type = "nebula::SessionID") SessionID
 
 typedef i64 (cpp.type = "nebula::ExecutionPlanID") ExecutionPlanID
+typedef i32 (cpp.type = "nebula::JobID")  JobID
+typedef i32 (cpp.type = "nebula::TaskID") TaskID
 
 // !! Struct Date has a shadow data type defined in the Date.h
 // So any change here needs to be reflected to the shadow type there
@@ -389,6 +391,7 @@ enum ErrorCode {
     E_INVALID_TASK_PARA               = -3051,
     E_USER_CANCEL                     = -3052,
     E_TASK_EXECUTION_FAILED           = -3053,
+    E_JOB_NOT_FOUND                   = -3054,
 
     E_UNKNOWN                         = -8000,
 } (cpp.enum_strict)

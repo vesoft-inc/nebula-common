@@ -39,7 +39,6 @@ using Timestamp = int64_t;
 
 using JobID  = int32_t;
 using TaskID = int32_t;
-using BalanceID = int64_t;
 
 using GroupID = int32_t;
 using ZoneID = int32_t;
