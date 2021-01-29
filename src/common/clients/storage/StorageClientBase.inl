@@ -179,16 +179,14 @@ StorageClientBase<ClientType>::collectResponse(
     auto context = std::make_shared<ResponseContext<Request, RemoteFunc, Response>>(
         requests.size(), std::move(remoteFunc));
 
-    if (evb == nullptr) {
-        DCHECK(!!ioThreadPool_);
-        evb = ioThreadPool_->getEventBase();
-    }
+    DCHECK(!!ioThreadPool_);
 
     for (auto& req : requests) {
         auto& host = req.first;
         auto spaceId = req.second.get_space_id();
         auto res = context->insertRequest(host, std::move(req.second));
         DCHECK(res.second);
+        evb = ioThreadPool_->getEventBase();
         // Invoke the remote method
         folly::via(evb, [this,
                          evb,
