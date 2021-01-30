@@ -248,7 +248,7 @@ StorageClientBase<ClientType>::collectResponse(
                                              time::WallClock::fastNowInMicroSec() - start);
 
                     // Keep the response
-                    context->resp.responses().emplace_back(std::move(resp));
+                    context->resp.addResponse(std::move(resp));
                 }
 
                 if (context->removeRequest(host)) {
