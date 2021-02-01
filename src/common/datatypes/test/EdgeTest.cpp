@@ -76,4 +76,18 @@ TEST(Edge, ReverseInteger) {
     }
 }
 
+TEST(Edge, hashEdge) {
+    std::unordered_set<size_t> uniqueEdge;
+    for (size_t i = 0; i < 20; ++i) {
+        Edge edge(static_cast<int64_t>(i), static_cast<int64_t>(i + 1), 1, "like", 0, {});
+        uniqueEdge.emplace(std::hash<nebula::Edge>()(edge));
+    }
+    for (size_t i = 0; i < 20; ++i) {
+        Edge edge(static_cast<int64_t>(i + 1), static_cast<int64_t>(i), -1, "like", 0, {});
+        uniqueEdge.emplace(std::hash<nebula::Edge>()(edge));
+    }
+    EXPECT_EQ(uniqueEdge.size(), 20);
+}
+
+
 }  // namespace nebula
