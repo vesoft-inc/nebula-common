@@ -16,6 +16,9 @@
 #include "common/datatypes/Value.h"
 
 using nebula::Edge;
+using nebula::Value;
+using nebula::EdgeType;
+using nebula::EdgeRanking;
 
 static const int seed = folly::randomNumberSeed();
 using RandomT = std::mt19937;
@@ -90,8 +93,24 @@ BENCHMARK_RELATIVE(HashEdge, n) {
         }
     }
     std::unordered_set<Edge> uniqueEdge;
+    uniqueEdge.reserve(edges.size());
+    for (auto& edge : edges) {
+        uniqueEdge.emplace(edge);
+    }
+}
+
+BENCHMARK_RELATIVE(HashEdgeCopy, n) {
+    std::vector<Edge> edges;
+    BENCHMARK_SUSPEND {
+        edges.reserve(n);
+        for (size_t i = 0; i < n; ++i) {
+            edges.emplace_back(
+                Edge(randomString(10), randomString(10), random(-200, 200), "like", 0, {}));
+        }
+    }
+    std::unordered_set<Edge> uniqueEdge;
     for (const auto& edge : edges) {
-        std::hash<Edge>()(edge);
+        uniqueEdge.emplace(edge);
     }
 }
 
@@ -136,17 +155,36 @@ BENCHMARK_RELATIVE(HashMoveStringEdgeKey, n) {
     }
 }
 
+BENCHMARK_RELATIVE(HashTupleEdge, n) {
+    std::vector<Edge> edges;
+    BENCHMARK_SUSPEND {
+        edges.reserve(n);
+        for (size_t i = 0; i < n; ++i) {
+            edges.emplace_back(
+                Edge(randomString(10), randomString(10), random(-200, 200), "like", 0, {}));
+        }
+    }
+    std::unordered_set<std::tuple<Value, EdgeType, EdgeRanking, Value>> uniqueEdge;
+    uniqueEdge.reserve(edges.size());
+    for (const auto& edge : edges) {
+        auto edgeKey = std::make_tuple(edge.src, edge.type, edge.ranking, edge.dst);
+        uniqueEdge.emplace(std::move(edgeKey));
+    }
+}
+
 int main() {
     folly::runBenchmarks();
     return 0;
 }
 
 // ============================================================================
-// nebula-common/src/common/datatypes/test/EdgeBenchmark  time/iter  iters/s
+// /nebula-common/src/common/datatypes/test/EdgeBenchmark.cpp time/iter  iters/s
 // ============================================================================
-// HashStringEdgeKey                                          707.88ns    1.41M
-// HashStringEdgeKeyOut                             312.45%   226.55ns    4.41M
-// HashEdge                                         191.63%   369.40ns    2.71M
-// HashMoveEdge                                      63.33%     1.12us  894.66K
-// HashMoveStringEdgeKey                            101.68%   696.15ns    1.44M
+// HashStringEdgeKey                                          712.78ns    1.40M
+// HashStringEdgeKeyOut                             315.52%   225.90ns    4.43M
+// HashEdge                                          65.86%     1.08us  923.97K
+// HashEdgeCopy                                      45.50%     1.57us  638.36K
+// HashMoveEdge                                      65.77%     1.08us  922.67K
+// HashMoveStringEdgeKey                            107.19%   664.96ns    1.50M
+// HashTupleEdge                                    113.85%   626.04ns    1.60M
 // ============================================================================
