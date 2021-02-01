@@ -67,10 +67,6 @@ public:
         return totalReqsSent_ == 0 ? 0 : (totalReqsSent_ - failedReqs_) * 100 / totalReqsSent_;
     }
 
-    const std::unordered_map<PartitionID, storage::cpp2::ErrorCode>& failedParts() const {
-        return failedParts_;
-    }
-
     void emplaceFailedPart(PartitionID partId, storage::cpp2::ErrorCode errorCode) {
         std::lock_guard<std::mutex> g(*lock_);
         failedParts_.emplace(partId, errorCode);
@@ -90,10 +86,17 @@ public:
         responses_.emplace_back(std::move(resp));
     }
 
+    // Not thread-safe.
+    const std::unordered_map<PartitionID, storage::cpp2::ErrorCode>& failedParts() const {
+        return failedParts_;
+    }
+
+    // Not thread-safe.
     std::vector<Response>& responses() {
         return responses_;
     }
 
+    // Not thread-safe.
     const std::vector<std::tuple<HostAddr, int32_t, int32_t>>& hostLatency() const {
         return hostLatency_;
     }
