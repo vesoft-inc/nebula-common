@@ -7,6 +7,7 @@
 #ifndef COMMON_EXPRESSION_FUNCTIONCALLEXPRESSION_H_
 #define COMMON_EXPRESSION_FUNCTIONCALLEXPRESSION_H_
 
+#include "common/function/FunctionManager.h"
 #include "common/expression/Expression.h"
 
 namespace nebula {
@@ -104,9 +105,12 @@ private:
 
     void resetFrom(Decoder& decoder) override;
 
-    std::unique_ptr<std::string>    name_;
-    std::unique_ptr<ArgumentList>   args_;
-    Value                           result_;
+    std::unique_ptr<std::string>                 name_;
+    std::unique_ptr<ArgumentList>                args_;
+
+    // runtime cache
+    Value                                        result_;
+    folly::Optional<FunctionManager::Function>   func_;
 };
 
 }  // namespace nebula

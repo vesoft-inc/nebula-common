@@ -203,6 +203,9 @@ protected:
         auto eval = Expression::eval(&functionCall, gExpCtxt);
         // EXPECT_EQ(eval.type(), expected.type());
         EXPECT_EQ(eval, expected);
+        eval = Expression::eval(&functionCall, gExpCtxt);
+        // EXPECT_EQ(eval.type(), expected.type());
+        EXPECT_EQ(eval, expected);
     }
 
     void testAggExpr(const char* name,
