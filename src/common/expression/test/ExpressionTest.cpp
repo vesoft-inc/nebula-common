@@ -37,6 +37,7 @@
 #include "common/expression/ColumnExpression.h"
 #include "common/expression/ListComprehensionExpression.h"
 #include "common/expression/PredicateExpression.h"
+#include "common/expression/ReduceExpression.h"
 #include "common/expression/test/ExpressionContextMock.h"
 
 nebula::ExpressionContextMock gExpCtxt;
@@ -1823,6 +1824,106 @@ TEST_F(ExpressionTest, MapSubscript) {
     }
 }
 
+TEST_F(ExpressionTest, VertexSubscript) {
+    Vertex vertex;
+    vertex.vid = "vid";
+    vertex.tags.resize(2);
+    vertex.tags[0].props = {
+        {"Venus", "Mars"},
+        {"Mull", "Kintyre"},
+    };
+    vertex.tags[1].props = {
+        {"Bip", "Bop"},
+        {"Tug", "War"},
+        {"Venus", "RocksShow"},
+    };
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new ConstantExpression("Mull");
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("Kintyre", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new LabelExpression("Bip");
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("Bop", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new LabelExpression("Venus");
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("Mars", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new LabelExpression("_vid");
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("vid", value.getStr());
+    }
+}
+
+TEST_F(ExpressionTest, EdgeSubscript) {
+    Edge edge;
+    edge.name = "type";
+    edge.src = "src";
+    edge.dst = "dst";
+    edge.ranking = 123;
+    edge.props = {
+        {"Magill", "Nancy"},
+        {"Gideon", "Bible"},
+        {"Rocky", "Raccoon"},
+    };
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new ConstantExpression("Rocky");
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("Raccoon", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new ConstantExpression(kType);
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("type", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new ConstantExpression(kSrc);
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("src", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new ConstantExpression(kDst);
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("dst", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new ConstantExpression(kRank);
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isInt());
+        ASSERT_EQ(123, value.getInt());
+    }
+}
+
 TEST_F(ExpressionTest, MapAttribute) {
     // {"key1":1, "key2":2, "key3":3}.key1
     {
@@ -3134,6 +3235,53 @@ TEST_F(ExpressionTest, PredicateEvaluate) {
     }
 }
 
+TEST_F(ExpressionTest, ReduceExprToString) {
+    {
+        // reduce(totalNum = 2 * 10, n IN range(1, 5) | totalNum + n * 2)
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<ConstantExpression>(1));
+        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        ReduceExpression expr(
+            new std::string("totalNum"),
+            new ArithmeticExpression(
+                Expression::Kind::kMultiply, new ConstantExpression(2), new ConstantExpression(10)),
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("range"), argList),
+            new ArithmeticExpression(
+                Expression::Kind::kAdd,
+                new LabelExpression(new std::string("totalNum")),
+                new ArithmeticExpression(Expression::Kind::kMultiply,
+                                         new LabelExpression(new std::string("n")),
+                                         new ConstantExpression(2))));
+        ASSERT_EQ("reduce(totalNum = (2*10), n IN range(1,5) | (totalNum+(n*2)))", expr.toString());
+    }
+}
+
+TEST_F(ExpressionTest, ReduceEvaluate) {
+    {
+        // reduce(totalNum = 2 * 10, n IN range(1, 5) | totalNum + n * 2)
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<ConstantExpression>(1));
+        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        ReduceExpression expr(
+            new std::string("totalNum"),
+            new ArithmeticExpression(
+                Expression::Kind::kMultiply, new ConstantExpression(2), new ConstantExpression(10)),
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("range"), argList),
+            new ArithmeticExpression(
+                Expression::Kind::kAdd,
+                new VariableExpression(new std::string("totalNum")),
+                new ArithmeticExpression(Expression::Kind::kMultiply,
+                                         new VariableExpression(new std::string("n")),
+                                         new ConstantExpression(2))));
+
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_EQ(Value::Type::INT, value.type());
+        ASSERT_EQ(50, value.getInt());
+    }
+}
+
 TEST_F(ExpressionTest, TestExprClone) {
     ConstantExpression expr(1);
     auto clone = expr.clone();
@@ -3260,6 +3408,22 @@ TEST_F(ExpressionTest, TestExprClone) {
                                  new LabelExpression(new std::string("n")),
                                  new ConstantExpression(2)));
     ASSERT_EQ(predExpr, *predExpr.clone());
+
+    argList = new ArgumentList();
+    argList->addArgument(std::make_unique<ConstantExpression>(1));
+    argList->addArgument(std::make_unique<ConstantExpression>(5));
+    ReduceExpression reduceExpr(
+        new std::string("totalNum"),
+        new ArithmeticExpression(
+            Expression::Kind::kMultiply, new ConstantExpression(2), new ConstantExpression(10)),
+        new std::string("n"),
+        new FunctionCallExpression(new std::string("range"), argList),
+        new ArithmeticExpression(Expression::Kind::kAdd,
+                                 new LabelExpression(new std::string("totalNum")),
+                                 new ArithmeticExpression(Expression::Kind::kMultiply,
+                                                          new LabelExpression(new std::string("n")),
+                                                          new ConstantExpression(2))));
+    ASSERT_EQ(reduceExpr, *reduceExpr.clone());
 }
 
 TEST_F(ExpressionTest, PathBuild) {
@@ -3551,13 +3715,21 @@ TEST_F(ExpressionTest, AggregateExpression) {
             {"a", 9}};
 
     std::vector<std::pair<std::string, Value>> vals9_ =
-        {{"a", 1},
+        {{"a", true},
          {"b", true},
-         {"c", 3},
-         {"a", true},
-         {"c", 8},
-         {"c", 5},
+         {"c", false},
+         {"a", false},
+         {"c", false},
+         {"c", false},
          {"c", true}};
+    std::vector<std::pair<std::string, Value>> vals10_ =
+        {{"a", "true"},
+         {"b", "12"},
+         {"c", "a"},
+         {"a", "false"},
+         {"c", "zxA"},
+         {"c", "zxbC"},
+         {"c", "Ca"}};
 
 
     {
@@ -3755,6 +3927,14 @@ TEST_F(ExpressionTest, AggregateExpression) {
              expected5 = {{"a", Value::kNullBadType},
                           {"b", Value::kNullBadType},
                           {"c", Value::kNullBadType}};
+        const std::unordered_map<std::string, Value>
+             expected6 = {{"a", false},
+                          {"b", true},
+                          {"c", false}};
+        const std::unordered_map<std::string, Value>
+             expected7 = {{"a", true},
+                          {"b", true},
+                          {"c", true}};
 
         TEST_AGG(COUNT, false, isConst, vals5_, expected2);
         TEST_AGG(COUNT, true, isConst, vals5_, expected2);
@@ -3770,12 +3950,12 @@ TEST_F(ExpressionTest, AggregateExpression) {
         TEST_AGG(AVG, true, isConst, vals9_, expected5);
         TEST_AGG(MAX, false, isConst, vals5_, expected1);
         TEST_AGG(MAX, true, isConst, vals5_, expected1);
-        TEST_AGG(MAX, false, isConst, vals9_, expected5);
-        TEST_AGG(MAX, true, isConst, vals9_, expected5);
+        TEST_AGG(MAX, false, isConst, vals9_, expected7);
+        TEST_AGG(MAX, true, isConst, vals9_, expected7);
         TEST_AGG(MIN, false, isConst, vals5_, expected1);
         TEST_AGG(MIN, true, isConst, vals5_, expected1);
-        TEST_AGG(MIN, false, isConst, vals9_, expected5);
-        TEST_AGG(MIN, true, isConst, vals9_, expected5);
+        TEST_AGG(MIN, false, isConst, vals9_, expected6);
+        TEST_AGG(MIN, true, isConst, vals9_, expected6);
         TEST_AGG(STD, false, isConst, vals5_, expected1);
         TEST_AGG(STD, true, isConst, vals5_, expected1);
         TEST_AGG(STD, false, isConst, vals9_, expected5);
