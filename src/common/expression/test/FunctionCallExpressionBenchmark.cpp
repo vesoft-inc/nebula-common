@@ -24,7 +24,7 @@ size_t funcCall(size_t iters) {
     return iters;
 }
 
-BENCHMARK_NAMED_PARAM_MULTI(funcCall, FunctionCallBM);
+BENCHMARK_NAMED_PARAM_MULTI(funcCall, FunctionCallBM)
 
 }   // namespace nebula
 
