@@ -27,7 +27,8 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
     auto it = clientMap_->find(std::make_pair(host, evb));
     if (it != clientMap_->end()) {
         auto channel = dynamic_cast<apache::thrift::HeaderClientChannel*>(it->second->getChannel());
-        if (channel == nullptr || !channel->good() || channel->getTransport()->readable()) {
+        if (channel == nullptr || !channel->good()
+            || (evb->isInEventBaseThread() && channel->getTransport()->readable())) {
             // Remove bad connection to create a new one.
             clientMap_->erase(it);
             LOG(ERROR) << "Invalid Channel: " << channel << " for host: " << host;
@@ -74,7 +75,8 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
         headerClientChannel->setProtocolId(apache::thrift::protocol::T_BINARY_PROTOCOL);
         headerClientChannel->setClientType(THRIFT_UNFRAMED_DEPRECATED);
     }
-    std::shared_ptr<ClientType> client(new ClientType(std::move(headerClientChannel)), [evb](auto* p) {
+    std::shared_ptr<ClientType> client(new ClientType(std::move(headerClientChannel)),
+            [evb](auto* p) {
         evb->runImmediatelyOrRunInEventBaseThreadAndWait([p] {
             delete p;
         });
