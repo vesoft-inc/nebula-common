@@ -48,6 +48,7 @@ std::unordered_map<std::string, std::vector<Value>> FunctionManagerTest::args_ =
     {"empty", {}},
     {"nullvalue", {NullType::__NULL__}},
     {"int", {4}},
+    {"zero", {0}},
     {"float", {1.1}},
     {"neg_int", {-1}},
     {"neg_float", {-1.1}},
@@ -103,7 +104,20 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(sqrt, args_["int"], 2.0);
         TEST_FUNCTION(sqrt, args_["float"], std::sqrt(1.1));
     }
-
+    {
+        TEST_FUNCTION(cbrt, args_["int"], std::cbrt(4));
+        TEST_FUNCTION(cbrt, args_["float"], std::cbrt(1.1));
+    }
+    {
+        TEST_FUNCTION(hypot, args_["two"], std::hypot(2, 4));
+    }
+    {
+        TEST_FUNCTION(sign, args_["int"], 1);
+        TEST_FUNCTION(sign, args_["neg_int"], -1);
+        TEST_FUNCTION(sign, args_["float"], 1);
+        TEST_FUNCTION(sign, args_["neg_float"], -1);
+        TEST_FUNCTION(sign, args_["zero"], 0);
+    }
     {
         TEST_FUNCTION(pow, args_["pow"], 8);
         TEST_FUNCTION(exp, args_["int"], std::exp(4));
@@ -155,6 +169,7 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(toString, args_["string"], "AbcDeFG");
         TEST_FUNCTION(toString, args_["date"], "1984-10-11");
         TEST_FUNCTION(toString, args_["datetime"], "1984-10-11T12:31:14.341");
+        TEST_FUNCTION(toString, args_["nullvalue"], "NULL");
     }
     {
         auto result = FunctionManager::get("rand32", args_["rand"].size());
@@ -746,7 +761,7 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("cbrt", {Value::Type::INT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("cbrt", {Value::Type::FLOAT});
@@ -813,7 +828,7 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("hypot", {Value::Type::INT, Value::Type::INT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result =

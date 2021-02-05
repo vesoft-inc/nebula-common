@@ -44,10 +44,10 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
      {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
     {"cbrt",
-     {TypeSignature({Value::Type::INT}, Value::Type::INT),
+     {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
     {"hypot",
-     {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::INT),
+     {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::INT, Value::Type::FLOAT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT, Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT, Value::Type::FLOAT}, Value::Type::FLOAT)}},
@@ -89,6 +89,9 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"atan",
      {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
+    {"sign",
+     {TypeSignature({Value::Type::INT}, Value::Type::INT),
+      TypeSignature({Value::Type::FLOAT}, Value::Type::INT)}},
     {"rand32",
      {TypeSignature({}, Value::Type::INT),
       TypeSignature({Value::Type::INT}, Value::Type::INT),
@@ -519,6 +522,24 @@ FunctionManager::FunctionManager() {
         };
     }
     {
+        auto &attr = functions_["sign"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNumeric()) {
+                if (args[0].isInt()) {
+                    auto val = args[0].getInt();
+                    return val > 0 ? 1 : val < 0 ? -1 : 0;
+                } else {
+                    auto val = args[0].getFloat();
+                    return val > 0 ? 1 : val < 0 ? -1 : 0;
+                }
+            }
+            return Value::kNullBadType;
+        };
+    }
+    {
         // rand32(), rand32(max), rand32(min, max)
         auto &attr = functions_["rand32"];
         attr.minArity_ = 0;
@@ -798,7 +819,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
              switch (args[0].type()) {
                 case Value::Type::NULLVALUE:
-                    return Value::kNullBadType;
+                    return "NULL";
                 case Value::Type::INT: {
                     return folly::to<std::string>(args[0].getInt());
                 }
