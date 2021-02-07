@@ -66,23 +66,24 @@ void FunctionCallExpression::resetFrom(Decoder& decoder) {
     for (size_t i = 0;  i < sz; i++) {
         args_->addArgument(decoder.readExpression());
     }
-}
 
-const Value& FunctionCallExpression::eval(ExpressionContext& ctx) {
-    if (!func_.hasValue()) {
+    if (name_ != nullptr) {
         auto funcResult = FunctionManager::get(*name_, args_->numArgs());
-        if (!funcResult.ok()) {
-            result_ = Value::kNullBadData;
-        } else {
+        if (funcResult.ok()) {
             func_ = std::move(funcResult).value();
         }
     }
+}
+
+const Value& FunctionCallExpression::eval(ExpressionContext& ctx) {
     if (func_.hasValue()) {
         std::vector<Value> parameter;
         for (const auto& arg : args_->args()) {
             parameter.emplace_back(std::move(arg->eval(ctx)));
         }
         result_ = func_.value()(parameter);
+    } else {
+        result_ = Value::kNullBadData;
     }
     return result_;
 }

@@ -66,6 +66,13 @@ public:
         }
 
         name_.reset(name);
+
+        if (name_ != nullptr) {
+            auto funcResult = FunctionManager::get(*name_, args_->numArgs());
+            if (funcResult.ok()) {
+                func_ = std::move(funcResult).value();
+            }
+        }
     }
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -94,10 +101,6 @@ public:
 
     ArgumentList* args() {
         return args_.get();
-    }
-
-    void setArgs(ArgumentList* args) {
-        args_.reset(args);
     }
 
 private:
