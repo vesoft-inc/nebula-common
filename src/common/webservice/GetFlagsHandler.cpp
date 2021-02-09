@@ -32,7 +32,7 @@ void GetFlagsHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
     }
 
     if (headers->hasQueryParam("return")) {
-        returnJson_ = (headers->getQueryParam("return") == "true");
+        returnJson_ = (headers->getQueryParam("return") == "json");
     }
 
     if (headers->hasQueryParam("names")) {

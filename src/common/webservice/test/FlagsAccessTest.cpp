@@ -76,62 +76,60 @@ TEST(FlagsAccessTest, GetSetTest) {
               resp);
 }
 
-// TEST(FlagsAccessTest, JsonTest) {
-//     std::string resp;
-//     ASSERT_TRUE(getUrl("/flags?names=double_test&return=json", resp));
-//     auto json = folly::parseJson(resp)["flags"];
-//     ASSERT_TRUE(json.isArray());
-//     ASSERT_EQ(1UL, json.size());
-//     ASSERT_TRUE(json[0].isObject());
-//     ASSERT_EQ(2UL, json[0].size());
+TEST(FlagsAccessTest, JsonTest) {
+    std::string resp;
+    ASSERT_TRUE(getUrl("/flags?names=double_test&return=json", resp));
+    auto json = folly::parseJson(resp)["flags"];
+    ASSERT_TRUE(json.isArray());
+    ASSERT_EQ(1UL, json.size());
+    ASSERT_TRUE(json[0].isObject());
+    ASSERT_EQ(2UL, json[0].size());
 
-//     auto it = json[0].find("name");
-//     ASSERT_NE(json[0].items().end(), it);
-//     ASSERT_TRUE(it->second.isString());
-//     EXPECT_EQ("double_test", it->second.getString());
+    auto it = json[0].find("name");
+    ASSERT_NE(json[0].items().end(), it);
+    ASSERT_TRUE(it->second.isString());
+    EXPECT_EQ("double_test", it->second.getString());
 
-//     it = json[0].find("value");
-//     ASSERT_NE(json[0].items().end(), it);
-//     ASSERT_TRUE(it->second.isDouble());
-//     EXPECT_DOUBLE_EQ(FLAGS_double_test, it->second.getDouble());
-// }
+    it = json[0].find("value");
+    ASSERT_NE(json[0].items().end(), it);
+    ASSERT_TRUE(it->second.isDouble());
+    EXPECT_DOUBLE_EQ(FLAGS_double_test, it->second.getDouble());
+}
 
+TEST(FlagsAccessTest, VerboseTest) {
+    std::string resp;
+    ASSERT_TRUE(getUrl("/flags?names=int32_test&return=json&verbose=true", resp));
+    auto json = folly::parseJson(resp)["flags"];
+    ASSERT_TRUE(json.isArray());
+    ASSERT_EQ(1UL, json.size());
+    ASSERT_TRUE(json[0].isObject());
+    ASSERT_EQ(7UL, json[0].size());
 
-// TEST(FlagsAccessTest, VerboseTest) {
-//     std::string resp;
-//     ASSERT_TRUE(getUrl("/get_flags?flags=int32_test&returnjson&verbose", resp));
-//     auto json = folly::parseJson(resp);
-//     ASSERT_TRUE(json.isArray());
-//     ASSERT_EQ(1UL, json.size());
-//     ASSERT_TRUE(json[0].isObject());
-//     ASSERT_EQ(7UL, json[0].size());
+    auto it = json[0].find("name");
+    ASSERT_NE(json[0].items().end(), it);
+    ASSERT_TRUE(it->second.isString());
+    EXPECT_EQ("int32_test", it->second.getString());
 
-//     auto it = json[0].find("name");
-//     ASSERT_NE(json[0].items().end(), it);
-//     ASSERT_TRUE(it->second.isString());
-//     EXPECT_EQ("int32_test", it->second.getString());
+    it = json[0].find("value");
+    ASSERT_NE(json[0].items().end(), it);
+    ASSERT_TRUE(it->second.isInt());
+    EXPECT_EQ(FLAGS_int32_test, it->second.getInt());
 
-//     it = json[0].find("value");
-//     ASSERT_NE(json[0].items().end(), it);
-//     ASSERT_TRUE(it->second.isInt());
-//     EXPECT_EQ(FLAGS_int32_test, it->second.getInt());
+    it = json[0].find("type");
+    ASSERT_NE(json[0].items().end(), it);
+    ASSERT_TRUE(it->second.isString());
+    EXPECT_EQ("int32", it->second.getString());
 
-//     it = json[0].find("type");
-//     ASSERT_NE(json[0].items().end(), it);
-//     ASSERT_TRUE(it->second.isString());
-//     EXPECT_EQ("int32", it->second.getString());
+    it = json[0].find("file");
+    ASSERT_NE(json[0].items().end(), it);
+    ASSERT_TRUE(it->second.isString());
+    EXPECT_EQ(__FILE__, it->second.getString());
 
-//     it = json[0].find("file");
-//     ASSERT_NE(json[0].items().end(), it);
-//     ASSERT_TRUE(it->second.isString());
-//     EXPECT_EQ(__FILE__, it->second.getString());
-
-//     it = json[0].find("is_default");
-//     ASSERT_NE(json[0].items().end(), it);
-//     ASSERT_TRUE(it->second.isBool());
-//     EXPECT_TRUE(it->second.getBool());
-// }
-
+    it = json[0].find("is_default");
+    ASSERT_NE(json[0].items().end(), it);
+    ASSERT_TRUE(it->second.isBool());
+    EXPECT_TRUE(it->second.getBool());
+}
 
 TEST(FlagsAccessTest, ErrorTest) {
     std::string resp;
