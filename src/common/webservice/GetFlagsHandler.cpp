@@ -35,9 +35,9 @@ void GetFlagsHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
         returnJson_ = (headers->getQueryParam("return") == "true");
     }
 
-    auto* flagsStr = headers->getQueryParamPtr("names");
-    if (flagsStr != nullptr) {
-        folly::split(",", *flagsStr, flagnames_, true);
+    if (headers->hasQueryParam("names")) {
+        const std::string& names = headers->getQueryParam("names");
+        folly::split(",", names, flagnames_, true);
     }
 }
 
@@ -169,7 +169,8 @@ folly::dynamic GetFlagsHandler::getFlags() {
     return flags;
 }
 
-static std::string valToString(const folly::dynamic& val) {
+// static
+std::string GetFlagsHandler::valToString(const folly::dynamic& val) {
     if (val.isNull()) {
         return "nullptr";
     }
