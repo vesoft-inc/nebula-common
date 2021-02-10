@@ -33,9 +33,6 @@ public:
     static StatusOr<std::string> put(const std::string& path,
                                      const folly::dynamic& data = folly::dynamic::object());
 
-    // static std::string buildHeaderStr(const std::unordered_map<std::string, std::string>&
-    // header);
-
 protected:
     static StatusOr<std::string> sendRequest(const std::string& path,
                                              const folly::dynamic& data,

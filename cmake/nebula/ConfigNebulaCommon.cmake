@@ -28,7 +28,7 @@ macro(config_nebula_common)
                 -DNEBULA_THIRDPARTY_ROOT=${NEBULA_THIRDPARTY_ROOT}
                 -DNEBULA_OTHER_ROOT=${NEBULA_OTHER_ROOT}
                 -DENABLE_JEMALLOC=${ENABLE_JEMALLOC}
-                -DENABLE_TESTING=ON
+                -DENABLE_TESTING=OFF
                 -DENABLE_CCACHE=${ENABLE_CCACHE}
                 -DENABLE_ASAN=${ENABLE_ASAN}
                 -DENABLE_UBSAN=${ENABLE_UBSAN}

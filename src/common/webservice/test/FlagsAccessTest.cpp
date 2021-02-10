@@ -39,30 +39,6 @@ private:
     std::unique_ptr<WebService> webSvc_;
 };
 
-// TEST(FlagsAccessTest, GetSetTest) {
-//     std::string resp;
-//     ASSERT_TRUE(getUrl("/flags?names=int32_test", resp));
-//     EXPECT_EQ(folly::stringPrintf("int32_test=%d\n", FLAGS_int32_test), resp);
-
-//     ASSERT_TRUE(getUrl("/flags?names=int64_test,bool_test,string_test", resp));
-//     EXPECT_EQ(folly::stringPrintf("int64_test=%ld\nbool_test=%s\nstring_test=\"%s\"\n",
-//                                   FLAGS_int64_test,
-//                                   (FLAGS_bool_test ? "1" : "0"),
-//                                   FLAGS_string_test.c_str()),
-//               resp);
-
-//     folly::dynamic data = folly::dynamic::object("int64_test", 20);
-//     auto status = putUrl("/flags", data);
-//     ASSERT_TRUE(status.ok());
-//     folly::dynamic json = folly::parseJson(status.value());
-//     ASSERT_EQ(0, json["errCode"].asInt());
-//     ASSERT_TRUE(getUrl("/flags?names=int64_test", resp));
-//     EXPECT_EQ(std::string("int64_test=20\n"), resp);
-
-//     ASSERT_TRUE(getUrl("/flags", resp));
-//     ASSERT_TRUE(resp.find("crash_test=nullptr") != std::string::npos);
-// }
-
 TEST(FlagsAccessTest, GetSetTest) {
     std::string resp;
     ASSERT_TRUE(getUrl("/flags?names=int32_test", resp));

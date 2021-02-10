@@ -74,15 +74,5 @@ StatusOr<std::string> HttpClient::sendRequest(const std::string& path,
     }
 }
 
-// std::string HttpClient::buildHeaderStr(const std::unordered_map<std::string, std::string>&
-// header) {
-//     std::string headerStr;
-//     for (auto const& it : header) {
-//         auto strSeg = folly::stringPrintf("-H \"%s: %s\" ", it.first.c_str(), it.second.c_str());
-//         headerStr += strSeg;
-//     }
-//     return headerStr;
-// }
-
 }   // namespace http
 }   // namespace nebula
