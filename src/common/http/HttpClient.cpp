@@ -47,6 +47,28 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const folly::dyn
     return sendRequest(path, data, "POST");
 }
 
+StatusOr<std::string> HttpClient::put(const std::string& path,
+                                       const std::unordered_map<std::string, std::string>& header) {
+    folly::dynamic mapData = folly::dynamic::object;
+    // Build a dynamic object from map
+    for (auto const& it : header) {
+        mapData[it.first] = it.second;
+    }
+    return put(path, mapData);
+}
+
+StatusOr<std::string> HttpClient::put(const std::string& path, const std::string& header) {
+    auto command =
+        folly::stringPrintf("/usr/bin/curl -X PUT %s \"%s\"", header.c_str(), path.c_str());
+    LOG(INFO) << "HTTP PUT Command: " << command;
+    auto result = nebula::ProcessUtils::runCommand(command.c_str());
+    if (result.ok()) {
+        return result.value();
+    } else {
+        return Status::Error(folly::stringPrintf("Http Put Failed: %s", path.c_str()));
+    }
+}
+
 StatusOr<std::string> HttpClient::put(const std::string& path, const folly::dynamic& data) {
     return sendRequest(path, data, "PUT");
 }

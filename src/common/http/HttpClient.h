@@ -30,8 +30,11 @@ public:
                                       const folly::dynamic& data = folly::dynamic::object());
 
     // Send a http PUT request
+    static StatusOr<std::string> put(const std::string& path, const std::string& header);
     static StatusOr<std::string> put(const std::string& path,
-                                     const folly::dynamic& data = folly::dynamic::object());
+                                      const std::unordered_map<std::string, std::string>& header);
+    static StatusOr<std::string> put(const std::string& path,
+                                      const folly::dynamic& data = folly::dynamic::object());
 
 protected:
     static StatusOr<std::string> sendRequest(const std::string& path,
