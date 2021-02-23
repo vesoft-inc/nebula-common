@@ -14,4 +14,16 @@ std::string gitInfoSha() {
     return "@NEBULA_SERVER_GIT_INFO_SHA@";
 }
 
+std::string versionString() {
+    std::string version;
+#if defined(NEBULA_BUILD_VERSION)
+    version = folly::stringPrintf("%s, ", "@NEBULA_BUILD_VERSION@");
+#endif
+    version += folly::stringPrintf("Git: %s", gitInfoSha().c_str());
+    version += folly::stringPrintf(", Build Time: %s %s", __DATE__, __TIME__);
+    version += "\nThis source code is licensed under Apache 2.0 License,"
+               " attached with Common Clause Condition 1.0.";
+    return version;
+}
+
 }   // namespace nebula
