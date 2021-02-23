@@ -890,9 +890,7 @@ FunctionManager::FunctionManager() {
             if (args[0].isStr() && args[1].isInt() && args[2].isStr()) {
                 auto value = args[0].getStr();
                 size_t size = args[1].getInt();
-                if (size < 0) {
-                    return std::string("");
-                } else if (size < value.size()) {
+                if (size < value.size()) {
                     return value.substr(0, static_cast<int32_t>(size));
                 } else {
                     auto extra = args[2].getStr();
@@ -1558,8 +1556,7 @@ FunctionManager::FunctionManager() {
                     std::distance(colNames.begin(),
                                   std::find(colNames.begin(), colNames.end(), args[2].getStr()));
             }
-            if ((rowIndex >= ds.rowSize() || rowIndex < 0) ||
-                (colIndex >= ds.colSize() || colIndex < 0)) {
+            if (rowIndex >= ds.rowSize() || colIndex >= ds.colSize()) {
                 return Value::kNullBadData;
             }
             return ds.rows[rowIndex][colIndex];
