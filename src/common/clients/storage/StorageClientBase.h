@@ -33,7 +33,7 @@ public:
     };
 
     explicit StorageRpcResponse(size_t reqsSent) : totalReqsSent_(reqsSent) {
-        lock_ = std::make_shared<std::mutex>();
+        lock_ = std::make_unique<std::mutex>();
     }
 
     bool succeeded() const {
@@ -102,7 +102,7 @@ public:
     }
 
 private:
-    std::shared_ptr<std::mutex> lock_;
+    std::unique_ptr<std::mutex> lock_;
     const size_t totalReqsSent_;
     size_t failedReqs_{0};
 
