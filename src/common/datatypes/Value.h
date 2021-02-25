@@ -8,6 +8,7 @@
 #define COMMON_DATATYPES_VALUE_H_
 
 #include <memory>
+#include <unordered_map>
 
 #include "common/thrift/ThriftTypes.h"
 #include "common/datatypes/Date.h"
@@ -78,6 +79,8 @@ struct Value {
         DATASET   = 1UL << 14,
         NULLVALUE = 1UL << 63,
     };
+    static const std::unordered_map<Value::Type, std::string> TYPE_NAME_MAP;
+    static const std::unordered_map<NullType, std::string> NULL_TYPE_NAME_MAP;
 
     // Constructors
     Value() : type_(Type::__EMPTY__) {}
