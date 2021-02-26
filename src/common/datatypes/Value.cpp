@@ -1610,6 +1610,16 @@ std::pair<int64_t, bool> Value::toInt() {
             return std::make_pair(getInt(), true);
         }
         case Value::Type::FLOAT: {
+            // Check if float value is in the limit of int_64
+            if (getFloat() < std::numeric_limits<int64_t>::min()) {
+                LOG(WARNING) << "Overflow happened when casting float value " << getFloat()
+                             << " into int";
+                return std::make_pair(std::numeric_limits<int64_t>::min(), false);
+            } else if (getFloat() > std::numeric_limits<int64_t>::max()) {
+                LOG(WARNING) << "Overflow happened when casting float value " << getFloat()
+                             << " into int";
+                return std::make_pair(std::numeric_limits<int64_t>::max(), false);
+            }
             return std::make_pair(static_cast<int64_t>(getFloat()), true);
         }
         case Value::Type::STRING: {
