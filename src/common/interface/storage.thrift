@@ -84,15 +84,18 @@ enum ErrorCode {
     E_FILTER_OUT             = -81,
     E_INVALID_DATA           = -82,
 
-    // transaction
-    E_MUTATE_EDGE_CONFLICT   = -85,
-    E_OUTDATED_LOCK          = -86,
-
     // task manager failed
     E_INVALID_TASK_PARA      = -90,
     E_USER_CANCEL            = -99,
 
-    E_UNKNOWN               = -100,
+    // transaction
+    E_SET_MEM_LOCK_FAILED    = -8000,
+    E_MUTATE_EDGE_CONFLICT   = -8001,
+    E_OUTDATED_LOCK          = -8002,
+    E_KVSTORE_EXCEPTION      = -8005,
+    E_FORWARD_REQUEST_ERR    = -8006,
+
+    E_UNKNOWN               = -10000,
 } (cpp.enum_strict)
 
 
