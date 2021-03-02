@@ -1611,10 +1611,11 @@ std::pair<int64_t, bool> Value::toInt() {
         }
         case Value::Type::FLOAT: {
             // Check if float value is in the range of int_64
+            // Return min/max int_64 value and false to accommodate Cypher
             if (getFloat() <= std::numeric_limits<int64_t>::min()) {
-                return std::make_pair(std::numeric_limits<int64_t>::min(), false);
+                return std::make_pair(std::numeric_limits<int64_t>::min(), true);
             } else if (getFloat() >= std::numeric_limits<int64_t>::max()) {
-                return std::make_pair(std::numeric_limits<int64_t>::max(), false);
+                return std::make_pair(std::numeric_limits<int64_t>::max(), true);
             }
             return std::make_pair(static_cast<int64_t>(getFloat()), true);
         }

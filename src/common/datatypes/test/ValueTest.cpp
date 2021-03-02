@@ -896,14 +896,14 @@ TEST(Value, TypeCast) {
         EXPECT_EQ(10, vFloatToInt);
         // 1.7976931348623157E308
         castSucceed = vFloatMax.toInt().second;
-        EXPECT_EQ(false, castSucceed);
+        EXPECT_EQ(true, castSucceed);
         EXPECT_EQ(std::numeric_limits<int64_t>::max(), vFloatMax.toInt().first);
 
         castSucceed = vFloatMin.toInt().second;
         EXPECT_EQ(true, castSucceed);
         // -1.7976931348623157E308
         castSucceed = (-vFloatMax).toInt().second;
-        EXPECT_EQ(false, castSucceed);
+        EXPECT_EQ(true, castSucceed);
         EXPECT_EQ(std::numeric_limits<int64_t>::min(), (-vFloatMax).toInt().first);
     }
     // float to string
