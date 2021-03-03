@@ -31,13 +31,13 @@ void GetFlagsHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
         verbose_ = (headers->getQueryParam("verbose") == "true");
     }
 
-    if (headers->hasQueryParam("return")) {
-        returnJson_ = (headers->getQueryParam("return") == "json");
+    if (headers->hasQueryParam("format")) {
+        returnJson_ = (headers->getQueryParam("format") == "json");
     }
 
-    if (headers->hasQueryParam("names")) {
-        const std::string& names = headers->getQueryParam("names");
-        folly::split(",", names, flagnames_, true);
+    if (headers->hasQueryParam("flags")) {
+        const std::string& flags = headers->getQueryParam("flags");
+        folly::split(",", flags, flagnames_, true);
     }
 }
 

@@ -29,13 +29,13 @@ void GetStatsHandler::onRequest(std::unique_ptr<HTTPMessage> headers) noexcept {
         return;
     }
 
-    if (headers->hasQueryParam("return")) {
-        returnJson_ = (headers->getQueryParam("return") == "json");
+    if (headers->hasQueryParam("format")) {
+        returnJson_ = (headers->getQueryParam("format") == "json");
     }
 
-    if (headers->hasQueryParam("names")) {
-        const std::string& names = headers->getQueryParam("names");
-        folly::split(",", names, statNames_, true);
+    if (headers->hasQueryParam("stats")) {
+        const std::string& stats = headers->getQueryParam("stats");
+        folly::split(",", stats, statNames_, true);
     }
 }
 
@@ -71,6 +71,17 @@ void GetStatsHandler::onUpgrade(UpgradeProtocol) noexcept {
     // Do nothing
 }
 
+void GetStatsHandler::addOneStat(folly::dynamic& vals,
+                                 const std::string& statName,
+                                 int64_t statValue) const {
+    vals.push_back(folly::dynamic::object(statName, statValue));
+}
+
+void GetStatsHandler::addOneStat(folly::dynamic& vals,
+                                 const std::string& statName,
+                                 const std::string& error) const {
+    vals.push_back(folly::dynamic::object(statName, error));
+}
 
 void GetStatsHandler::requestComplete() noexcept {
     delete this;
@@ -91,16 +102,14 @@ folly::dynamic GetStatsHandler::getStats() const {
     } else {
         for (auto& sn : statNames_) {
             auto status = StatsManager::readValue(sn);
-            folly::dynamic stat = folly::dynamic::object();
             if (status.ok()) {
-                stat.insert(sn, status.value());
+                int64_t statValue = status.value();
+                addOneStat(stats, sn, statValue);
             } else {
-                stat.insert(sn, status.status().toString());
+                addOneStat(stats, sn, status.status().toString());
             }
-            stats.push_back(std::move(stat));
         }
     }
-
     return stats;
 }
 

@@ -41,10 +41,10 @@ private:
 
 TEST(FlagsAccessTest, GetSetTest) {
     std::string resp;
-    ASSERT_TRUE(getUrl("/flags?names=int32_test", resp));
+    ASSERT_TRUE(getUrl("/flags?flags=int32_test", resp));
     EXPECT_EQ(folly::stringPrintf("int32_test=%d\n", FLAGS_int32_test), resp);
 
-    ASSERT_TRUE(getUrl("/flags?names=int64_test,bool_test,string_test", resp));
+    ASSERT_TRUE(getUrl("/flags?flags=int64_test,bool_test,string_test", resp));
     EXPECT_EQ(folly::stringPrintf("int64_test=%ld\nbool_test=%s\nstring_test=\"%s\"\n",
                                   FLAGS_int64_test,
                                   (FLAGS_bool_test ? "1" : "0"),
@@ -56,7 +56,7 @@ TEST(FlagsAccessTest, GetSetTest) {
     ASSERT_TRUE(status.ok());
     folly::dynamic json = folly::parseJson(status.value());
     ASSERT_EQ(0, json["errCode"].asInt());
-    ASSERT_TRUE(getUrl("/flags?names=int64_test", resp));
+    ASSERT_TRUE(getUrl("/flags?flags=int64_test", resp));
     EXPECT_EQ(std::string("int64_test=20\n"), resp);
 
     ASSERT_TRUE(getUrl("/flags", resp));
@@ -75,7 +75,7 @@ TEST(FlagsAccessTest, TestSetFlagsFailure) {
 
 TEST(FlagsAccessTest, JsonTest) {
     std::string resp;
-    ASSERT_TRUE(getUrl("/flags?names=double_test&return=json", resp));
+    ASSERT_TRUE(getUrl("/flags?flags=double_test&format=json", resp));
     auto json = folly::parseJson(resp)["flags"];
     ASSERT_TRUE(json.isArray());
     ASSERT_EQ(1UL, json.size());
@@ -95,7 +95,7 @@ TEST(FlagsAccessTest, JsonTest) {
 
 TEST(FlagsAccessTest, VerboseTest) {
     std::string resp;
-    ASSERT_TRUE(getUrl("/flags?names=int32_test&return=json&verbose=true", resp));
+    ASSERT_TRUE(getUrl("/flags?flags=int32_test&format=json&verbose=true", resp));
     auto json = folly::parseJson(resp)["flags"];
     ASSERT_TRUE(json.isArray());
     ASSERT_EQ(1UL, json.size());
