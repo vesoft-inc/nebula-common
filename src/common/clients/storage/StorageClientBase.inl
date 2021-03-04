@@ -176,16 +176,14 @@ StorageClientBase<ClientType>::collectResponse(
     auto context = std::make_shared<ResponseContext<Request, RemoteFunc, Response>>(
         requests.size(), std::move(remoteFunc));
 
-    if (evb == nullptr) {
-        DCHECK(!!ioThreadPool_);
-        evb = ioThreadPool_->getEventBase();
-    }
+    DCHECK(!!ioThreadPool_);
 
     for (auto& req : requests) {
         auto& host = req.first;
         auto spaceId = req.second.get_space_id();
         auto res = context->insertRequest(host, std::move(req.second));
         DCHECK(res.second);
+        evb = ioThreadPool_->getEventBase();
         // Invoke the remote method
         folly::via(evb, [this,
                          evb,
@@ -224,6 +222,7 @@ StorageClientBase<ClientType>::collectResponse(
                         VLOG(3) << "Failure! Failed part " << code.get_part_id()
                                 << ", failed code " << static_cast<int32_t>(code.get_code());
                         hasFailure = true;
+                        context->resp.emplaceFailedPart(code.get_part_id(), code.get_code());
                         if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
                             auto* leader = code.get_leader();
                             if (isValidHostPtr(leader)) {
@@ -235,8 +234,7 @@ StorageClientBase<ClientType>::collectResponse(
                                    code.get_code() == cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
                             invalidLeader(spaceId, code.get_part_id());
                         } else {
-                            // Simply keep the result
-                            context->resp.emplaceFailedPart(code.get_part_id(), code.get_code());
+                            // do nothing
                         }
                     }
                     if (hasFailure) {
@@ -250,7 +248,7 @@ StorageClientBase<ClientType>::collectResponse(
                                              time::WallClock::fastNowInMicroSec() - start);
 
                     // Keep the response
-                    context->resp.responses().emplace_back(std::move(resp));
+                    context->resp.addResponse(std::move(resp));
                 }
 
                 if (context->removeRequest(host)) {
