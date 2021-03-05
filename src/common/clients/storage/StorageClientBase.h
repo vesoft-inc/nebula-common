@@ -130,6 +130,9 @@ protected:
     void invalidLeader(GraphSpaceID spaceId, PartitionID partId);
     void invalidLeader(GraphSpaceID spaceId, std::vector<PartitionID> &partsId);
 
+    void invalidHost(const HostAddr &host);
+    void validHost(const HostAddr &host);
+
     template<class Request,
              class RemoteFunc,
              class Response =
@@ -250,6 +253,9 @@ private:
     mutable std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr> leaders_;
     mutable std::atomic_bool loadLeaderBefore_{false};
     mutable std::atomic_bool isLoadingLeader_{false};
+
+    mutable folly::RWSpinLock            hostsLock_;
+    mutable std::unordered_set<HostAddr> invalidHosts_;
 };
 
 }   // namespace storage

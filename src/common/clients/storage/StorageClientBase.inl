@@ -123,7 +123,21 @@ StorageClientBase<ClientType>::getLeader(const meta::PartHosts& partHosts) const
     }
     {
         folly::RWSpinLock::WriteHolder wh(leadersLock_);
-        VLOG(1) << "No leader exists. Choose one random.";
+        VLOG(1) << "No leader exists. Choose one from valid hosts.";
+        {
+            folly::RWSpinLock::ReadHolder rh(hostsLock_);
+            for (const auto &host : partHosts.hosts_) {
+                if (invalidHosts_.find(host) != invalidHosts_.end()) {
+                    leaders_[part] = host;
+                    break;
+                }
+            }
+        }
+        auto find = leaders_.find(part);
+        if (find != leaders_.end()) {
+            return find->second;
+        }
+        VLOG(1) << "Maybe no valid leader exists. Choose random one for a try.";
         const auto& random = partHosts.hosts_[folly::Random::rand32(partHosts.hosts_.size())];
         leaders_[part] = random;
         return random;
@@ -165,6 +179,17 @@ void StorageClientBase<ClientType>::invalidLeader(GraphSpaceID spaceId,
     }
 }
 
+template<typename ClientType>
+void StorageClientBase<ClientType>::invalidHost(const HostAddr &host) {
+    folly::RWSpinLock::WriteHolder wh(hostsLock_);
+    invalidHosts_.emplace(host);
+}
+
+template<typename ClientType>
+void StorageClientBase<ClientType>::validHost(const HostAddr &host) {
+    folly::RWSpinLock::WriteHolder wh(hostsLock_);
+    invalidHosts_.erase(host);
+}
 
 template<typename ClientType>
 template<class Request, class RemoteFunc, class Response>
@@ -212,9 +237,11 @@ StorageClientBase<ClientType>::collectResponse(
                                << " failed: " << val.exception().what();
                     auto parts = getReqPartsId(r);
                     context->resp.appendFailedParts(parts, storage::cpp2::ErrorCode::E_RPC_FAILURE);
+                    invalidHost(host);
                     invalidLeader(spaceId, parts);
                     context->resp.markFailure();
                 } else {
+                    validHost(host);
                     auto resp = std::move(val.value());
                     auto& result = resp.get_result();
                     bool hasFailure{false};
@@ -306,6 +333,7 @@ void StorageClientBase<ClientType>::getResponseImpl(
                     p = std::move(pro),
                     request = std::move(request),
                     remoteFunc = std::move(remoteFunc),
+                    host,
                     this] (folly::Try<Response>&& t) mutable {
             // exception occurred during RPC
             if (t.hasException()) {
@@ -313,9 +341,11 @@ void StorageClientBase<ClientType>::getResponseImpl(
                     Status::Error(
                         folly::stringPrintf("RPC failure in StorageClient: %s",
                                             t.exception().what().c_str())));
+                invalidHost(host);
                 invalidLeader(spaceId, partsId);
                 return;
             }
+            validHost(host);
             auto&& resp = std::move(t.value());
             // leader changed
             auto& result = resp.get_result();
