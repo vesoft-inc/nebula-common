@@ -173,6 +173,30 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(toString, args_["nullvalue"], "NULL");
     }
     {
+        TEST_FUNCTION(toBoolean, args_["int"], Value::kNullBadType);
+        TEST_FUNCTION(toBoolean, args_["float"], Value::kNullBadType);
+        TEST_FUNCTION(toBoolean, {true}, true);
+        TEST_FUNCTION(toBoolean, {false}, false);
+        TEST_FUNCTION(toBoolean, {"fAlse"}, false);
+        TEST_FUNCTION(toBoolean, {"false "}, Value::kNullValue);
+    }
+    {
+        TEST_FUNCTION(toFloat, args_["int"], 4.0);
+        TEST_FUNCTION(toFloat, args_["float"], 1.1);
+        TEST_FUNCTION(toFloat, {true}, Value::kNullBadType);
+        TEST_FUNCTION(toFloat, {false}, Value::kNullBadType);
+        TEST_FUNCTION(toFloat, {"3.14"}, 3.14);
+        TEST_FUNCTION(toFloat, {"false "}, Value::kNullValue);
+    }
+    {
+        TEST_FUNCTION(toInteger, args_["int"], 4);
+        TEST_FUNCTION(toInteger, args_["float"], 1);
+        TEST_FUNCTION(toInteger, {true}, Value::kNullBadType);
+        TEST_FUNCTION(toInteger, {false}, Value::kNullBadType);
+        TEST_FUNCTION(toInteger, {"1"}, 1);
+        TEST_FUNCTION(toInteger, {"false "}, Value::kNullValue);
+    }
+    {
         auto result = FunctionManager::get("rand32", args_["rand"].size());
         ASSERT_TRUE(result.ok());
         result.value()(args_["rand"]);
@@ -975,6 +999,46 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result = FunctionManager::getReturnType("toString", {Value::Type::DATE});
         ASSERT_TRUE(result.ok());
         EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toBoolean", {Value::Type::BOOL});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::BOOL);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toBoolean", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::BOOL);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toFloat", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toFloat", {Value::Type::FLOAT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toFloat", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toInteger", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toInteger", {Value::Type::FLOAT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toInteger", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
     }
     {
         auto result = FunctionManager::getReturnType("strcasecmp",
