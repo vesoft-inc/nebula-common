@@ -14,17 +14,17 @@ namespace csharp nebula
 namespace py nebula2.common
 
 cpp_include "common/thrift/ThriftTypes.h"
-cpp_include "common/datatypes/DateOps.h"
-cpp_include "common/datatypes/VertexOps.h"
-cpp_include "common/datatypes/EdgeOps.h"
-cpp_include "common/datatypes/PathOps.h"
-cpp_include "common/datatypes/ValueOps.h"
-cpp_include "common/datatypes/MapOps.h"
-cpp_include "common/datatypes/ListOps.h"
-cpp_include "common/datatypes/SetOps.h"
-cpp_include "common/datatypes/DataSetOps.h"
-cpp_include "common/datatypes/KeyValueOps.h"
-cpp_include "common/datatypes/HostAddrOps.h"
+cpp_include "common/datatypes/DateOps.inl"
+cpp_include "common/datatypes/VertexOps.inl"
+cpp_include "common/datatypes/EdgeOps.inl"
+cpp_include "common/datatypes/PathOps.inl"
+cpp_include "common/datatypes/ValueOps.inl"
+cpp_include "common/datatypes/MapOps.inl"
+cpp_include "common/datatypes/ListOps.inl"
+cpp_include "common/datatypes/SetOps.inl"
+cpp_include "common/datatypes/DataSetOps.inl"
+cpp_include "common/datatypes/KeyValueOps.inl"
+cpp_include "common/datatypes/HostAddrOps.inl"
 
 /*
  *
@@ -38,13 +38,16 @@ typedef i32 (cpp.type = "nebula::PartitionID") PartitionID
 typedef i32 (cpp.type = "nebula::TagID") TagID
 typedef i32 (cpp.type = "nebula::EdgeType") EdgeType
 typedef i64 (cpp.type = "nebula::EdgeRanking") EdgeRanking
-typedef binary (cpp.type = "nebula::VertexID") VertexID
+typedef i64 (cpp.type = "nebula::LogID") LogID
+typedef i64 (cpp.type = "nebula::TermID") TermID
 
 typedef i64 (cpp.type = "nebula::Timestamp") Timestamp
 
 typedef i32 (cpp.type = "nebula::IndexID") IndexID
 
 typedef i32 (cpp.type = "nebula::Port") Port
+
+typedef i64 (cpp.type = "nebula::SessionID") SessionID
 
 // !! Struct Date has a shadow data type defined in the Date.h
 // So any change here needs to be reflected to the shadow type there
@@ -101,27 +104,27 @@ union Value {
     9: Vertex (cpp.type = "nebula::Vertex")     vVal (cpp.ref_type = "unique");
     10: Edge (cpp.type = "nebula::Edge")        eVal (cpp.ref_type = "unique");
     11: Path (cpp.type = "nebula::Path")        pVal (cpp.ref_type = "unique");
-    12: List (cpp.type = "nebula::List")        lVal (cpp.ref_type = "unique");
-    13: Map (cpp.type = "nebula::Map")          mVal (cpp.ref_type = "unique");
-    14: Set (cpp.type = "nebula::Set")          uVal (cpp.ref_type = "unique");
+    12: NList (cpp.type = "nebula::List")       lVal (cpp.ref_type = "unique");
+    13: NMap (cpp.type = "nebula::Map")         mVal (cpp.ref_type = "unique");
+    14: NSet (cpp.type = "nebula::Set")         uVal (cpp.ref_type = "unique");
     15: DataSet (cpp.type = "nebula::DataSet")  gVal (cpp.ref_type = "unique");
 } (cpp.type = "nebula::Value")
 
 
 // Ordered list
-struct List {
+struct NList {
     1: list<Value> values;
 } (cpp.type = "nebula::List")
 
 
 // Unordered key/values pairs
-struct Map {
+struct NMap {
     1: map<binary, Value> (cpp.template = "std::unordered_map") kvs;
 } (cpp.type = "nebula::Map")
 
 
 // Unordered and unique values
-struct Set {
+struct NSet {
     1: set<Value> (cpp.template = "std::unordered_set") values;
 } (cpp.type = "nebula::Set")
 
@@ -145,14 +148,14 @@ struct Tag {
 
 
 struct Vertex {
-    1: VertexID vid,
+    1: Value     vid,
     2: list<Tag> tags,
 } (cpp.type = "nebula::Vertex")
 
 
 struct Edge {
-    1: VertexID src,
-    2: VertexID dst,
+    1: Value src,
+    2: Value dst,
     3: EdgeType type,
     4: binary name,
     5: EdgeRanking ranking,
@@ -188,3 +191,12 @@ struct KeyValue {
     1: binary key,
     2: binary value,
 } (cpp.type = "nebula::KeyValue")
+
+struct LogInfo {
+    1: LogID  log_id;
+    2: TermID term_id;
+}
+
+struct PartitionBackupInfo {
+    1: map<PartitionID, LogInfo> (cpp.template = "std::unordered_map")  info,
+}

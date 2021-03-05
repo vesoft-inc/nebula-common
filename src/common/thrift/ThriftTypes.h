@@ -11,7 +11,6 @@
 #include <string>
 
 namespace nebula {
-
 // Raft related types
 using ClusterID = int64_t;
 using GraphSpaceID = int32_t;
@@ -33,6 +32,7 @@ using TagVersion = int64_t;
 using EdgeType = int32_t;
 using EdgeRanking = int64_t;
 using EdgeVersion = int64_t;
+using EdgeVerPlaceHolder = char;
 using SchemaVer = int64_t;
 using IndexID = int32_t;
 using Timestamp = int64_t;
@@ -43,6 +43,8 @@ using BalanceID = int64_t;
 
 using GroupID = int32_t;
 using ZoneID = int32_t;
+
+using SessionID = int64_t;
 
 }  // namespace nebula
 #endif  // COMMON_THRIFT_THRIFTTYPES_H_

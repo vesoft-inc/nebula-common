@@ -38,6 +38,7 @@ public:
         kRelLE,
         kRelGT,
         kRelGE,
+        kRelREG,
         kRelIn,
         kRelNotIn,
         kContains,
@@ -49,6 +50,7 @@ public:
         kSubscript,
         kAttribute,
         kLabelAttribute,
+        kColumn,
 
         kLogicalAnd,
         kLogicalOr,
@@ -84,8 +86,20 @@ public:
 
         kCase,
 
+        kPredicate,
+        kListComprehension,
+        kReduce,
+
         kPathBuild,
+        // text or key word search expression
+        kTSPrefix,
+        kTSWildcard,
+        kTSRegexp,
+        kTSFuzzy,
+
+        kAggregate,
     };
+
 
     explicit Expression(Kind kind) : kind_(kind) {}
 

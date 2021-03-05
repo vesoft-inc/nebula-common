@@ -14,6 +14,14 @@ namespace py nebula2.graph
 
 include "common.thrift"
 
+cpp_include "common/graph/PairOps.inl"
+cpp_include "common/graph/ProfilingStatsOps.inl"
+cpp_include "common/graph/PlanNodeBranchInfoOps.inl"
+cpp_include "common/graph/PlanNodeDescriptionOps.inl"
+cpp_include "common/graph/PlanDescriptionOps.inl"
+cpp_include "common/graph/ExecutionResponseOps.inl"
+cpp_include "common/graph/AuthResponseOps.inl"
+
 /*
  *
  *  Note: In order to support multiple languages, all string
@@ -39,7 +47,7 @@ enum ErrorCode {
     E_SYNTAX_ERROR = -7,
     E_EXECUTION_ERROR = -8,
     // Nothing is executed When command is comment
-    E_STATEMENT_EMTPY = -9,
+    E_STATEMENT_EMPTY = -9,
 
     // User and permission error
     E_USER_NOT_FOUND = -10,
@@ -47,6 +55,9 @@ enum ErrorCode {
 
     // semantic error
     E_SEMANTIC_ERROR = -12,
+
+    // Exceeding the maximum number of connections
+    E_TOO_MANY_CONNECTIONS = -13,
 } (cpp.enum_strict)
 
 
@@ -60,7 +71,7 @@ struct ProfilingStats {
     // Other profiling stats data map
     4: optional map<binary, binary>
         (cpp.template = "std::unordered_map") other_stats;
-}
+} (cpp.type = "nebula::ProfilingStats")
 
 // The info used for select/loop.
 struct PlanNodeBranchInfo {
@@ -68,12 +79,12 @@ struct PlanNodeBranchInfo {
     1: required bool  is_do_branch;
     // select/loop node id
     2: required i64   condition_node_id;
-}
+} (cpp.type = "nebula::PlanNodeBranchInfo")
 
 struct Pair {
     1: required binary key;
     2: required binary value;
-}
+} (cpp.type = "nebula::Pair")
 
 struct PlanNodeDescription {
     1: required binary                          name;
@@ -86,7 +97,7 @@ struct PlanNodeDescription {
     5: optional list<ProfilingStats>            profiles;
     6: optional PlanNodeBranchInfo              branch_info;
     7: optional list<i64>                       dependencies;
-}
+} (cpp.type = "nebula::PlanNodeDescription")
 
 struct PlanDescription {
     1: required list<PlanNodeDescription>     plan_node_descs;
@@ -95,7 +106,7 @@ struct PlanDescription {
         (cpp.template = "std::unordered_map") node_index_map;
     // the print format of exec plan, lowercase string like `dot'
     3: required binary                        format;
-}
+} (cpp.type = "nebula::PlanDescription")
 
 
 struct ExecutionResponse {
@@ -106,14 +117,14 @@ struct ExecutionResponse {
     5: optional binary                  error_msg;
     6: optional PlanDescription         plan_desc;
     7: optional binary                  comment;        // Supplementary instruction
-}
+} (cpp.type = "nebula::ExecutionResponse")
 
 
 struct AuthResponse {
     1: required ErrorCode   error_code;
     2: optional binary      error_msg;
     3: optional i64         session_id;
-}
+} (cpp.type = "nebula::AuthResponse")
 
 
 service GraphService {

@@ -31,6 +31,11 @@ StatusOr<cpp2::PropertyType> ServerBasedSchemaManager::getSpaceVidType(GraphSpac
     return metaClient_->getSpaceVidType(space);
 }
 
+StatusOr<int32_t> ServerBasedSchemaManager::getPartsNum(GraphSpaceID space) {
+    CHECK(metaClient_);
+    return metaClient_->partsNum(space);
+}
+
 std::shared_ptr<const NebulaSchemaProvider>
 ServerBasedSchemaManager::getTagSchema(GraphSpaceID space, TagID tag, SchemaVer ver) {
     VLOG(3) << "Get Tag Schema Space " << space << ", TagID " << tag << ", Version " << ver;
@@ -91,6 +96,11 @@ StatusOr<GraphSpaceID> ServerBasedSchemaManager::toGraphSpaceID(folly::StringPie
     return  metaClient_->getSpaceIdByNameFromCache(spaceName.str());
 }
 
+StatusOr<std::string> ServerBasedSchemaManager::toGraphSpaceName(GraphSpaceID space) {
+    CHECK(metaClient_);
+    return metaClient_->getSpaceNameByIdFromCache(space);
+}
+
 StatusOr<TagID> ServerBasedSchemaManager::toTagID(GraphSpaceID space,
                                                   folly::StringPiece tagName) {
     CHECK(metaClient_);
@@ -123,10 +133,33 @@ StatusOr<TagSchemas> ServerBasedSchemaManager::getAllVerTagSchema(GraphSpaceID s
     return metaClient_->getAllVerTagSchema(space);
 }
 
+StatusOr<TagSchema> ServerBasedSchemaManager::getAllLatestVerTagSchema(GraphSpaceID space) {
+    CHECK(metaClient_);
+    return metaClient_->getAllLatestVerTagSchema(space);
+}
+
 StatusOr<EdgeSchemas> ServerBasedSchemaManager::getAllVerEdgeSchema(GraphSpaceID space) {
     CHECK(metaClient_);
     return metaClient_->getAllVerEdgeSchema(space);
 }
+
+StatusOr<std::vector<nebula::meta::cpp2::FTClient>> ServerBasedSchemaManager::getFTClients() {
+    auto ret = metaClient_->getFTClientsFromCache();
+    if (!ret.ok()) {
+        return ret.status();
+    }
+    if (ret.value().empty()) {
+        return Status::Error("fulltext client list is empty");
+    }
+    return std::move(ret).value();
+}
+
+std::unique_ptr<ServerBasedSchemaManager> ServerBasedSchemaManager::create(MetaClient *client) {
+    auto mgr = std::make_unique<ServerBasedSchemaManager>();
+    mgr->init(client);
+    return mgr;
+}
+
 
 }  // namespace meta
 }  // namespace nebula

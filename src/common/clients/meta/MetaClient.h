@@ -12,6 +12,7 @@
 #include <folly/RWSpinLock.h>
 #include <gtest/gtest_prod.h>
 #include "common/interface/gen-cpp2/MetaServiceAsyncClient.h"
+#include "common/interface/gen-cpp2/meta_types.h"
 #include "common/base/Status.h"
 #include "common/base/StatusOr.h"
 #include "common/meta/Common.h"
@@ -30,11 +31,14 @@ using SpaceIdName = std::pair<GraphSpaceID, std::string>;
 using HostStatus = std::pair<HostAddr, std::string>;
 
 // struct for in cache
-// the different version of tag schema, from oldest to newest
+// the different version of tag schemas, from oldest to latest
 using TagSchemas = std::unordered_map<TagID,
                                       std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
-// the different version of edge schema, from oldest to newest
+// Mapping of tagId and a *single* tag schema
+using TagSchema = std::unordered_map<TagID, std::shared_ptr<const NebulaSchemaProvider>>;
+
+// the different version of edge schema, from oldest to latest
 using EdgeSchemas = std::unordered_map<EdgeType,
                                        std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
@@ -46,6 +50,7 @@ using NameIndexMap = std::unordered_map<std::pair<GraphSpaceID, std::string>, In
 // Get Index Structure by indexID
 using Indexes = std::unordered_map<IndexID, std::shared_ptr<cpp2::IndexItem>>;
 
+// Listeners is a map of ListenerHost => <PartId + type>, used to add/remove listener on local host
 using Listeners = std::unordered_map<HostAddr,
                                      std::vector<std::pair<PartitionID, cpp2::ListenerType>>>;
 
@@ -92,12 +97,15 @@ using UserPasswordMap = std::unordered_map<std::string, std::string>;
 using MetaConfigMap = std::unordered_map<std::pair<cpp2::ConfigModule, std::string>,
                                          cpp2::ConfigItem>;
 
+// get fulltext services
+using FulltextClientsList = std::vector<cpp2::FTClient>;
+
 class MetaChangedListener {
 public:
     virtual ~MetaChangedListener() = default;
 
-    virtual void onSpaceAdded(GraphSpaceID spaceId) = 0;
-    virtual void onSpaceRemoved(GraphSpaceID spaceId) = 0;
+    virtual void onSpaceAdded(GraphSpaceID spaceId, bool isListener = false) = 0;
+    virtual void onSpaceRemoved(GraphSpaceID spaceId, bool isListener = false) = 0;
     virtual void onSpaceOptionUpdated(
         GraphSpaceID spaceId,
         const std::unordered_map<std::string, std::string>& options) = 0;
@@ -106,6 +114,15 @@ public:
     virtual void onPartUpdated(const PartHosts& partHosts) = 0;
     virtual void fetchLeaderInfo(
         std::unordered_map<GraphSpaceID, std::vector<PartitionID>>& leaderIds) = 0;
+    virtual void onListenerAdded(GraphSpaceID spaceId,
+                                 PartitionID partId,
+                                 const ListenerHosts& listenerHosts) = 0;
+    virtual void onListenerRemoved(GraphSpaceID spaceId,
+                                   PartitionID partId,
+                                   cpp2::ListenerType type) = 0;
+    virtual void onCheckRemoteListeners(GraphSpaceID spaceId,
+                                        PartitionID partId,
+                                        const std::vector<HostAddr>& remoteListeners) = 0;
 };
 
 
@@ -336,7 +353,7 @@ public:
 
     // Operations for admin
     folly::Future<StatusOr<int64_t>>
-    balance(std::vector<HostAddr> hostDel, bool isStop = false);
+    balance(std::vector<HostAddr> hostDel, bool isStop, bool isReset);
 
     folly::Future<StatusOr<std::vector<cpp2::BalanceTask>>>
     showBalance(int64_t balanceId);
@@ -376,25 +393,50 @@ public:
     StatusOr<std::vector<std::pair<PartitionID, cpp2::ListenerType>>>
     getListenersBySpaceHostFromCache(GraphSpaceID spaceId, const HostAddr& host);
 
-    StatusOr<std::map<GraphSpaceID, std::vector<std::pair<PartitionID, cpp2::ListenerType>>>>
-    getListenersByHostFromCache(const HostAddr& host);
+    StatusOr<ListenersMap> getListenersByHostFromCache(const HostAddr& host);
 
-    StatusOr<std::vector<HostAddr>>
-    getListenerHostsBySpacePartType(GraphSpaceID spaceId,
-                                    PartitionID partId,
-                                    cpp2::ListenerType type);
+    StatusOr<HostAddr> getListenerHostsBySpacePartType(GraphSpaceID spaceId,
+                                                       PartitionID partId,
+                                                       cpp2::ListenerType type);
 
-    StatusOr<std::vector<std::pair<HostAddr, cpp2::ListenerType>>>
+    StatusOr<std::vector<RemoteListenerInfo>>
     getListenerHostTypeBySpacePartType(GraphSpaceID spaceId, PartitionID partId);
+
+    // Operations for fulltext services
+    folly::Future<StatusOr<bool>>
+    signInFTService(cpp2::FTServiceType type, const std::vector<cpp2::FTClient>& clients);
+
+    folly::Future<StatusOr<bool>> signOutFTService();
+
+    folly::Future<StatusOr<std::vector<cpp2::FTClient>>> listFTClients();
+
+    StatusOr<std::vector<cpp2::FTClient>> getFTClientsFromCache();
+
+    // session
+    folly::Future<StatusOr<cpp2::CreateSessionResp>> createSession(
+            const std::string &userName, const HostAddr& graphAddr, const std::string &clientIp);
+
+    folly::Future<StatusOr<cpp2::ExecResp>>
+    updateSessions(const std::vector<cpp2::Session>& sessions);
+
+    folly::Future<StatusOr<cpp2::ListSessionsResp>> listSessions();
+
+    folly::Future<StatusOr<cpp2::GetSessionResp>> getSession(SessionID sessionId);
+
+    folly::Future<StatusOr<cpp2::ExecResp>> removeSession(SessionID sessionId);
 
     // Opeartions for cache.
     StatusOr<GraphSpaceID> getSpaceIdByNameFromCache(const std::string& name);
+
+    StatusOr<std::string> getSpaceNameByIdFromCache(GraphSpaceID spaceId);
 
     StatusOr<int32_t> getSpaceVidLen(const GraphSpaceID& space);
 
     StatusOr<cpp2::PropertyType> getSpaceVidType(const GraphSpaceID& space);
 
     StatusOr<meta::cpp2::SpaceDesc> getSpaceDesc(const GraphSpaceID& space);
+
+    StatusOr<meta::cpp2::IsolationLevel> getIsolationLevel(GraphSpaceID spaceId);
 
     StatusOr<TagID> getTagIDByNameFromCache(const GraphSpaceID& space,
                                             const std::string& name);
@@ -438,6 +480,8 @@ public:
     getEdgeSchemaFromCache(GraphSpaceID spaceId, EdgeType edgeType, SchemaVer ver = -1);
 
     StatusOr<TagSchemas> getAllVerTagSchema(GraphSpaceID spaceId);
+
+    StatusOr<TagSchema> getAllLatestVerTagSchema(const GraphSpaceID& spaceId);
 
     StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID spaceId);
 
@@ -530,6 +574,20 @@ public:
     folly::Future<StatusOr<cpp2::StatisItem>>
     getStatis(GraphSpaceID spaceId);
 
+    folly::Future<StatusOr<cpp2::ErrorCode>> reportTaskFinish(
+        int32_t jobId,
+        int32_t taskId,
+        nebula::meta::cpp2::ErrorCode taskErrCode,
+        cpp2::StatisItem* statisticItem);
+
+    folly::Future<StatusOr<bool>>
+    download(const std::string& hdfsHost,
+             int32_t hdfsPort,
+             const std::string& hdfsPath,
+             GraphSpaceID spaceId);
+
+    folly::Future<StatusOr<bool>> ingest(GraphSpaceID spaceId);
+
 protected:
     // Return true if load succeeded.
     bool loadData();
@@ -557,6 +615,8 @@ protected:
 
     bool loadListeners(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCache> cache);
 
+    bool loadFulltextClients();
+
     folly::Future<StatusOr<bool>> heartbeat();
 
     std::unordered_map<HostAddr, std::vector<PartitionID>> reverse(const PartsAlloc& parts);
@@ -575,7 +635,13 @@ protected:
         }
     }
 
+    // part diff
     void diff(const LocalCache& oldCache, const LocalCache& newCache);
+
+    void listenerDiff(const LocalCache& oldCache, const LocalCache& newCache);
+
+    // add remote listener as part peers
+    void loadRemoteListeners();
 
     template<typename RESP>
     Status handleResponse(const RESP& resp);
@@ -594,13 +660,15 @@ protected:
                      RemoteFunc remoteFunc,
                      RespGenerator respGen,
                      folly::Promise<StatusOr<Response>> pro,
-                     bool toLeader = false,
+                     bool toLeader = true,
                      int32_t retry = 0,
                      int32_t retryLimit = FLAGS_meta_client_retry_times);
 
     std::vector<SpaceIdName> toSpaceIdName(const std::vector<cpp2::IdName>& tIdNames);
 
     PartsMap doGetPartsMap(const HostAddr& host, const LocalCache& localCache);
+
+    ListenersMap doGetListenersMap(const HostAddr& host, const LocalCache& localCache);
 
 private:
     std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool_;
@@ -634,9 +702,12 @@ private:
 
     NameIndexMap          tagNameIndexMap_;
     NameIndexMap          edgeNameIndexMap_;
+    FulltextClientsList   fulltextClientList_;
 
     mutable folly::RWSpinLock     localCacheLock_;
+    // The listener_ is the NebulaStore
     MetaChangedListener*  listener_{nullptr};
+    // The lock used to protect listener_
     folly::RWSpinLock     listenerLock_;
     std::atomic<ClusterID> clusterId_{0};
     bool                  isRunning_{false};

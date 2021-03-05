@@ -20,6 +20,10 @@ class MetaClient;
 using TagSchemas =
     std::unordered_map<TagID, std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
+// Mapping of tagId and a *single* tag schema
+using TagSchema =
+    std::unordered_map<TagID, std::shared_ptr<const NebulaSchemaProvider>>;
+
 using EdgeSchemas =
     std::unordered_map<EdgeType, std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
@@ -27,13 +31,13 @@ class SchemaManager {
 public:
     virtual ~SchemaManager() = default;
 
-    static std::unique_ptr<SchemaManager> create(MetaClient *client);
-
     virtual StatusOr<int32_t> getSpaceVidLen(GraphSpaceID space) = 0;
 
     virtual StatusOr<cpp2::PropertyType> getSpaceVidType(GraphSpaceID) {
         return Status::Error("Not implemented");
     }
+
+    virtual StatusOr<int32_t> getPartsNum(GraphSpaceID space) = 0;
 
     virtual std::shared_ptr<const NebulaSchemaProvider>
     getTagSchema(GraphSpaceID space, TagID tag, SchemaVer ver = -1) = 0;
@@ -49,6 +53,8 @@ public:
 
     virtual StatusOr<GraphSpaceID> toGraphSpaceID(folly::StringPiece spaceName) = 0;
 
+    virtual StatusOr<std::string> toGraphSpaceName(GraphSpaceID space) = 0;
+
     virtual StatusOr<TagID> toTagID(GraphSpaceID space, folly::StringPiece tagName) = 0;
 
     virtual StatusOr<std::string> toTagName(GraphSpaceID space, TagID tagId) = 0;
@@ -62,8 +68,13 @@ public:
     // get all version of all tag schema
     virtual StatusOr<TagSchemas> getAllVerTagSchema(GraphSpaceID space) = 0;
 
+    // get all latest version of all tag schema
+    virtual StatusOr<TagSchema> getAllLatestVerTagSchema(GraphSpaceID space)  = 0;
+
     // get all version of all edge schema
     virtual StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID space) = 0;
+
+    virtual StatusOr<std::vector<nebula::meta::cpp2::FTClient>> getFTClients() = 0;
 
     // Get the TagID or EdgeType by the name.
     // The first one is a bool which is used to distinguish the type.

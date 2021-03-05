@@ -8,13 +8,14 @@
 
 #include <thrift/lib/cpp2/protocol/Serializer.h>
 
-#include "common/datatypes/ValueOps.h"
+#include "common/datatypes/ValueOps.inl"
 #include "common/expression/ArithmeticExpression.h"
 #include "common/expression/AttributeExpression.h"
 #include "common/expression/ConstantExpression.h"
 #include "common/expression/ContainerExpression.h"
 #include "common/expression/EdgeExpression.h"
 #include "common/expression/FunctionCallExpression.h"
+#include "common/expression/AggregateExpression.h"
 #include "common/expression/LabelAttributeExpression.h"
 #include "common/expression/LabelExpression.h"
 #include "common/expression/LogicalExpression.h"
@@ -28,6 +29,10 @@
 #include "common/expression/VariableExpression.h"
 #include "common/expression/VertexExpression.h"
 #include "common/expression/CaseExpression.h"
+#include "common/expression/ColumnExpression.h"
+#include "common/expression/ListComprehensionExpression.h"
+#include "common/expression/PredicateExpression.h"
+#include "common/expression/ReduceExpression.h"
 
 namespace nebula {
 
@@ -285,6 +290,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kRelREG: {
+            exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelREG);
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kRelIn: {
             exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelIn);
             exp->resetFrom(decoder);
@@ -330,6 +340,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kColumn: {
+            exp = std::make_unique<ColumnExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kAttribute: {
             exp = std::make_unique<AttributeExpression>();
             exp->resetFrom(decoder);
@@ -362,6 +377,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
         }
         case Expression::Kind::kFunctionCall: {
             exp = std::make_unique<FunctionCallExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kAggregate: {
+            exp = std::make_unique<AggregateExpression>();
             exp->resetFrom(decoder);
             return exp;
         }
@@ -466,6 +486,28 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kListComprehension: {
+            exp = std::make_unique<ListComprehensionExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kPredicate: {
+            exp = std::make_unique<PredicateExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kReduce: {
+            exp = std::make_unique<ReduceExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kTSPrefix:
+        case Expression::Kind::kTSWildcard:
+        case Expression::Kind::kTSRegexp:
+        case Expression::Kind::kTSFuzzy: {
+            LOG(FATAL) << "Should not decode text search expression";
+            return exp;
+        }
         // no default so the compiler will warning when lack
     }
 
@@ -525,6 +567,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Kind::kRelGE:
             os << "GreaterEqual";
             break;
+        case Expression::Kind::kRelREG:
+            os << "RegexMatch";
+            break;
         case Expression::Kind::kRelIn:
             os << "In";
             break;
@@ -552,6 +597,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Kind::kSubscript:
             os << "Subscript";
             break;
+        case Expression::Kind::kColumn:
+            os << "Column";
+            break;
         case Expression::Kind::kAttribute:
             os << "Attribute";
             break;
@@ -572,6 +620,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             break;
         case Expression::Kind::kFunctionCall:
             os << "FunctionCall";
+            break;
+        case Expression::Kind::kAggregate:
+            os << "Aggregate";
             break;
         case Expression::Kind::kEdgeProperty:
             os << "EdgeProp";
@@ -635,6 +686,27 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             break;
         case Expression::Kind::kPathBuild:
             os << "PathBuild";
+            break;
+        case Expression::Kind::kTSPrefix:
+            os << "Prefix";
+            break;
+        case Expression::Kind::kTSWildcard:
+            os << "Wildcard";
+            break;
+        case Expression::Kind::kTSRegexp:
+            os << "Regexp";
+            break;
+        case Expression::Kind::kTSFuzzy:
+            os << "Fuzzy";
+            break;
+        case Expression::Kind::kListComprehension:
+            os << "ListComprehension";
+            break;
+        case Expression::Kind::kPredicate:
+            os << "Predicate";
+            break;
+        case Expression::Kind::kReduce:
+            os << "Reduce";
             break;
     }
     return os;

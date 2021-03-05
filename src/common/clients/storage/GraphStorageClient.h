@@ -74,7 +74,8 @@ public:
         std::vector<cpp2::NewEdge> edges,
         std::vector<std::string> propNames,
         bool overwritable,
-        folly::EventBase* evb = nullptr);
+        folly::EventBase* evb = nullptr,
+        bool useToss = false);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> deleteEdges(
         GraphSpaceID space,
@@ -126,7 +127,7 @@ public:
 
 private:
     StatusOr<std::function<const VertexID&(const Row&)>>
-        getIdFromRow(GraphSpaceID space) const;
+        getIdFromRow(GraphSpaceID space, bool isEdgeProps) const;
 
     StatusOr<std::function<const VertexID&(const cpp2::NewVertex&)>>
         getIdFromNewVertex(GraphSpaceID space) const;

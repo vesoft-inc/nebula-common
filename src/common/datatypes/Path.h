@@ -7,7 +7,6 @@
 #ifndef COMMON_DATATYPES_PATH_H_
 #define COMMON_DATATYPES_PATH_H_
 
-#include "common/base/Base.h"
 #include "common/thrift/ThriftTypes.h"
 #include "common/datatypes/Value.h"
 #include "common/datatypes/Vertex.h"
@@ -50,14 +49,15 @@ struct Step {
 
     std::string toString() const {
         std::stringstream os;
-        os << "-" << "[" << name << "]" << "->"
-            << "(" << dst << ")"
-            << "@" << ranking;
-        os << " ";
+        os << "-[" << name << "(" << type << ")]->"
+           << "(" << dst << ")"
+           << "@" << ranking << " ";
         for (const auto& prop : props) {
             os << prop.first << ":" << prop.second << ",";
         }
-        return os.str();
+        auto path = os.str();
+        path.pop_back();
+        return path;
     }
 
     Step& operator=(Step&& rhs) noexcept {
@@ -85,6 +85,7 @@ struct Step {
     bool operator==(const Step& rhs) const {
         return dst == rhs.dst &&
                type == rhs.type &&
+               name == rhs.name &&
                ranking == rhs.ranking &&
                props == rhs.props;
     }
@@ -112,7 +113,7 @@ struct Path {
     std::vector<Step> steps;
 
     Path() = default;
-    Path(const Path& p) : src(p.src), steps(p.steps) {}
+    Path(const Path& p) = default;
     Path(Path&& p) noexcept
         : src(std::move(p.src)), steps(std::move(p.steps)) {}
 
@@ -172,6 +173,9 @@ struct Path {
         }
         return false;
     }
+
+    bool hasDuplicateEdges() const;
+    bool hasDuplicateVertices() const;
 };
 
 inline void swap(Step& a, Step& b) {
@@ -191,29 +195,13 @@ namespace std {
 
 template<>
 struct hash<nebula::Step> {
-    std::size_t operator()(const nebula::Step& h) const noexcept {
-        size_t hv = hash<nebula::Vertex>()(h.dst);
-        hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.type),
-                                    sizeof(h.type),
-                                    hv);
-        return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.ranking),
-                                      sizeof(h.ranking),
-                                      hv);
-    }
+    std::size_t operator()(const nebula::Step& h) const noexcept;
 };
 
 
 template<>
 struct hash<nebula::Path> {
-    std::size_t operator()(const nebula::Path& h) const noexcept {
-    size_t hv = hash<nebula::Vertex>()(h.src);
-        for (auto& s : h.steps) {
-            hv += (hv << 1) + (hv << 4) + (hv << 5) + (hv << 7) + (hv << 8) + (hv << 40);
-            hv ^= hash<nebula::Step>()(s);
-        }
-
-        return hv;
-    }
+    std::size_t operator()(const nebula::Path& h) const noexcept;
 };
 
 }  // namespace std

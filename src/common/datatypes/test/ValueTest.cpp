@@ -31,6 +31,11 @@ TEST(Value, Arithmetics) {
     Value vBool2(true);
     Value vDate1(Date(2020, 1, 1));
     Value vDate2(Date(2019, 12, 1));
+    Value vList1(List({1, 3, 2}));
+    Value vList2(List({6, 4, 5}));
+    Value vSet(Set({8, 7}));
+    Value vMap(Map({{"a", 9}, {"b", 10}}));
+
 
     // +
     {
@@ -88,7 +93,27 @@ TEST(Value, Arithmetics) {
 
         v = vStr1 + vDate1;
         EXPECT_EQ(Value::Type::STRING, v.type());
-        EXPECT_EQ(std::string("Hello 2020/01/01"), v.getStr());
+        EXPECT_EQ(std::string("Hello 2020-01-01"), v.getStr());
+
+        v = vList1 + vList2;
+        EXPECT_EQ(Value::Type::LIST, v.type());
+        EXPECT_EQ(List({1, 3, 2, 6, 4, 5}), v.getList());
+
+        v = vList1 + vBool2;
+        EXPECT_EQ(Value::Type::LIST, v.type());
+        EXPECT_EQ(List({1, 3, 2, true}), v.getList());
+
+        v = vStr1 + vList2;
+        EXPECT_EQ(Value::Type::LIST, v.type());
+        EXPECT_EQ(List({std::string("Hello "), 6, 4, 5}), v.getList());
+
+        v = vMap + vList1;
+        EXPECT_EQ(Value::Type::LIST, v.type());
+        EXPECT_EQ(List({Map({{"a", 9}, {"b", 10}}), 1, 3, 2 }), v.getList());
+
+        v = vList2 + vSet;
+        EXPECT_EQ(Value::Type::LIST, v.type());
+        EXPECT_EQ(List({6, 4, 5, Set({8, 7})}), v.getList());
     }
     // -
     {
@@ -210,6 +235,9 @@ TEST(Value, Comparison) {
     Value vStr2("World");
     Value vBool1(false);
     Value vBool2(true);
+    List vList1({2, 1, 3});
+    List vList2({2, 1});
+    List vList3({-4, 1, 30});
     Value vTime1(Time(23, 19, 55, 23));
     Value vTime2(Time(00, 12, 45, 32));
     Value vDate1(Date(2020, 1, 1));
@@ -257,6 +285,18 @@ TEST(Value, Comparison) {
         EXPECT_EQ(false, v.getBool());
 
         v = vInt1 > vEmpty;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+
+        v = vList1 > vList2;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+
+        v = vList1 > vList3;
+        EXPECT_EQ(Value::Type::BOOL, v.type());
+        EXPECT_EQ(true, v.getBool());
+
+        v = vList3 < vList2;
         EXPECT_EQ(Value::Type::BOOL, v.type());
         EXPECT_EQ(true, v.getBool());
     }
@@ -510,6 +550,8 @@ TEST(Value, Logical) {
 }
 
 TEST(Value, Bit) {
+    Value vNull(nebula::NullType::__NULL__);
+    Value vEmpty;
     Value vZero(0);
     Value vInt1(1);
     Value vInt2(2);
@@ -528,8 +570,8 @@ TEST(Value, Bit) {
         EXPECT_EQ(0, v.getInt());
 
         v = vBool1 & vBool2;
-        EXPECT_EQ(Value::Type::INT, v.type());
-        EXPECT_EQ(0, v.getInt());
+        EXPECT_EQ(Value::Type::NULLVALUE, v.type());
+        EXPECT_EQ(NullType::BAD_TYPE, v.getNull());
 
         v = vStr1 & vStr2;
         EXPECT_TRUE(v.isNull());
@@ -538,6 +580,42 @@ TEST(Value, Bit) {
         EXPECT_TRUE(v.isNull());
 
         v = vDate1 & vDate2;
+        EXPECT_TRUE(v.isNull());
+
+        v = vEmpty & true;
+        EXPECT_TRUE(v.empty());
+
+        v = vEmpty & false;
+        EXPECT_TRUE(v.empty());
+
+        v = true & vEmpty;
+        EXPECT_TRUE(v.empty());
+
+        v = false & vEmpty;
+        EXPECT_TRUE(v.empty());
+
+        v = vNull & true;
+        EXPECT_TRUE(v.isNull());
+
+        v = vNull & false;
+        EXPECT_TRUE(v.isNull());
+
+        v = true & vNull;
+        EXPECT_TRUE(v.isNull());
+
+        v = false & vNull;
+        EXPECT_TRUE(v.isNull());
+
+        v = vEmpty & vNull;
+        EXPECT_TRUE(v.isNull());
+
+        v = vEmpty & vEmpty;
+        EXPECT_TRUE(v.empty());
+
+        v = vNull & vNull;
+        EXPECT_TRUE(v.isNull());
+
+        v = vNull & vEmpty;
         EXPECT_TRUE(v.isNull());
     }
 
@@ -547,16 +625,53 @@ TEST(Value, Bit) {
         EXPECT_EQ(3, v.getInt());
 
         v = vBool1 | vBool2;
-        EXPECT_EQ(Value::Type::INT, v.type());
-        EXPECT_EQ(1, v.getInt());
+        EXPECT_EQ(Value::Type::NULLVALUE, v.type());
+        EXPECT_EQ(NullType::BAD_TYPE, v.getNull());
 
-        v = vStr1 & vStr2;
+        v = vStr1 | vStr2;
         EXPECT_TRUE(v.isNull());
 
-        v = vFloat1 & vFloat2;
+        v = vFloat1 | vFloat2;
         EXPECT_TRUE(v.isNull());
 
-        v = vDate1 & vDate2;
+        v = vDate1 | vDate2;
+        EXPECT_TRUE(v.isNull());
+
+        v = vEmpty | true;
+        EXPECT_TRUE(v.empty());
+
+        v = vEmpty | false;
+        EXPECT_TRUE(v.empty());
+
+        v = true | vEmpty;
+        EXPECT_TRUE(v.empty());
+
+        v = false | vEmpty;
+        EXPECT_TRUE(v.empty());
+
+        v = vNull | true;
+        EXPECT_TRUE(v.isNull());
+
+        v = vNull | false;
+        EXPECT_TRUE(v.isNull());
+
+        v = true | vNull;
+        EXPECT_TRUE(v.isNull());
+
+        v = false | vNull;
+        EXPECT_TRUE(v.isNull());
+
+
+        v = vEmpty | vNull;
+        EXPECT_TRUE(v.isNull());
+
+        v = vEmpty | vEmpty;
+        EXPECT_TRUE(v.empty());
+
+        v = vNull | vNull;
+        EXPECT_TRUE(v.isNull());
+
+        v = vNull | vEmpty;
         EXPECT_TRUE(v.isNull());
     }
 
@@ -566,16 +681,52 @@ TEST(Value, Bit) {
         EXPECT_EQ(3, v.getInt());
 
         v = vBool1 ^ vBool2;
-        EXPECT_EQ(Value::Type::INT, v.type());
-        EXPECT_EQ(1, v.getInt());
+        EXPECT_EQ(Value::Type::NULLVALUE, v.type());
+        EXPECT_EQ(NullType::BAD_TYPE, v.getNull());
 
-        v = vStr1 & vStr2;
+        v = vStr1 ^ vStr2;
         EXPECT_TRUE(v.isNull());
 
-        v = vFloat1 & vFloat2;
+        v = vFloat1 ^ vFloat2;
         EXPECT_TRUE(v.isNull());
 
-        v = vDate1 & vDate2;
+        v = vDate1 ^ vDate2;
+        EXPECT_TRUE(v.isNull());
+
+        v = vEmpty ^ true;
+        EXPECT_TRUE(v.empty());
+
+        v = vEmpty ^ false;
+        EXPECT_TRUE(v.empty());
+
+        v = true ^ vEmpty;
+        EXPECT_TRUE(v.empty());
+
+        v = false ^ vEmpty;
+        EXPECT_TRUE(v.empty());
+
+        v = vNull ^ true;
+        EXPECT_TRUE(v.isNull());
+
+        v = vNull ^ false;
+        EXPECT_TRUE(v.isNull());
+
+        v = true ^ vNull;
+        EXPECT_TRUE(v.isNull());
+
+        v = false ^ vNull;
+        EXPECT_TRUE(v.isNull());
+
+        v = vEmpty ^ vNull;
+        EXPECT_TRUE(v.isNull());
+
+        v = vEmpty ^ vEmpty;
+        EXPECT_TRUE(v.empty());
+
+        v = vNull ^ vNull;
+        EXPECT_TRUE(v.isNull());
+
+        v = vNull ^ vEmpty;
         EXPECT_TRUE(v.isNull());
     }
 }
@@ -652,8 +803,17 @@ TEST(Value, DecodeEncode) {
             Tag("tagName1", {{"prop1", Value(2)}, {"prop2", Value(NullType::__NULL__)}}),
         }})),
 
+        // integerID vertex
+        Value(Vertex({001, {
+            Tag("tagName", {{"prop", Value(2)}}),
+            Tag("tagName1", {{"prop1", Value(2)}, {"prop2", Value(NullType::__NULL__)}}),
+        }})),
+
         // edge
         Value(Edge("Src", "Dst", 1, "Edge", 233, {{"prop1", Value(233)}, {"prop2", Value(2.3)}})),
+
+        // integerID edge
+        Value(Edge(001, 002, 1, "Edge", 233, {{"prop1", Value(233)}, {"prop2", Value(2.3)}})),
 
         // Path
         Value(Path()),
@@ -681,6 +841,119 @@ TEST(Value, DecodeEncode) {
     }
 }
 
+TEST(Value, TypeCast) {
+    Value vInt1(1);
+    Value vInt2(-1);
+    Value vIntMin(std::numeric_limits<int64_t>::min());
+    Value vIntMax(std::numeric_limits<int64_t>::max());
+    Value vFloat1(3.14);
+    Value vFloat2(10.0);
+    Value vFloatMin(std::numeric_limits<double_t>::min());   // non-negtive
+    Value vFloatMax(std::numeric_limits<double_t>::max());
+    Value vStr1("50");
+    Value vStr2("3.14");
+    Value vStr3("World");
+
+    // int to float
+    {
+        // 1
+        bool castSucceed = vInt1.toFloat().second;
+        EXPECT_EQ(true, castSucceed);
+        Value vIntToFloat = vInt1.toFloat().first;
+        EXPECT_EQ(Value::Type::FLOAT, vIntToFloat.type());
+        // -1
+        castSucceed = vIntMax.toFloat().second;
+        EXPECT_EQ(true, castSucceed);
+        vIntToFloat = vIntMax.toFloat().first;
+        EXPECT_EQ(Value::Type::FLOAT, vIntToFloat.type());
+    }
+    // int to string
+    {
+        Value vIntToStr = vInt1.toString();
+        EXPECT_EQ("1", vIntToStr);
+
+        vIntToStr = vInt2.toString();
+        EXPECT_EQ("-1", vIntToStr);
+
+        vIntToStr = vIntMax.toString();
+        EXPECT_EQ("9223372036854775807", vIntToStr);
+
+        vIntToStr = vIntMin.toString();
+        EXPECT_EQ("-9223372036854775808", vIntToStr);
+    }
+    // float to int
+    {
+        // 3.14
+        bool castSucceed = vFloat1.toInt().second;
+        EXPECT_EQ(true, castSucceed);
+        Value vFloatToInt = vFloat1.toInt().first;
+        EXPECT_EQ(Value::Type::INT, vFloatToInt.type());
+        // 10.0
+        castSucceed = vFloat2.toInt().second;
+        EXPECT_EQ(true, castSucceed);
+        vFloatToInt = vFloat2.toInt().first;
+        EXPECT_EQ(Value::Type::INT, vFloatToInt.type());
+        EXPECT_EQ(10, vFloatToInt);
+        // 1.7976931348623157E308
+        castSucceed = vFloatMax.toInt().second;
+        EXPECT_EQ(true, castSucceed);
+        EXPECT_EQ(std::numeric_limits<int64_t>::max(), vFloatMax.toInt().first);
+
+        castSucceed = vFloatMin.toInt().second;
+        EXPECT_EQ(true, castSucceed);
+        // -1.7976931348623157E308
+        castSucceed = (-vFloatMax).toInt().second;
+        EXPECT_EQ(true, castSucceed);
+        EXPECT_EQ(std::numeric_limits<int64_t>::min(), (-vFloatMax).toInt().first);
+    }
+    // float to string
+    {
+        Value vFloatToStr = vFloat1.toString();
+        EXPECT_EQ("3.14", vFloatToStr);
+
+        vFloatToStr = vFloatMax.toString();
+        EXPECT_EQ("1.7976931348623157E308", vFloatToStr);
+
+        vFloatToStr = (-vFloatMax).toString();
+        EXPECT_EQ("-1.7976931348623157E308", vFloatToStr);
+    }
+    // string to int
+    {
+        // "1"
+        bool castSucceed = vStr1.toInt().second;
+        EXPECT_EQ(true, castSucceed);
+        Value vStrToInt = vStr1.toInt().first;
+        EXPECT_EQ(Value::Type::INT, vStrToInt.type());
+        EXPECT_EQ(50, vStrToInt);
+        // "3.14"
+        castSucceed = vStr2.toInt().second;
+        EXPECT_EQ(true, castSucceed);
+        vStrToInt = vStr2.toInt().first;
+        EXPECT_EQ(Value::Type::INT, vStrToInt.type());
+        EXPECT_EQ(3, vStrToInt);   // lose precision
+        // "world"
+        castSucceed = vStr3.toInt().second;
+        EXPECT_EQ(false, castSucceed);
+    }
+    // string to float
+    {
+        // "50"
+        bool castSucceed = vStr1.toFloat().second;
+        EXPECT_EQ(true, castSucceed);
+        Value vStrToFloat = vStr1.toFloat().first;
+        EXPECT_EQ(Value::Type::FLOAT, vStrToFloat.type());
+        EXPECT_EQ(50.0, vStrToFloat);
+        // "3.14"
+        castSucceed = vStr2.toFloat().second;
+        EXPECT_EQ(true, castSucceed);
+        vStrToFloat = vStr2.toFloat().first;
+        EXPECT_EQ(Value::Type::FLOAT, vStrToFloat.type());
+        EXPECT_EQ(3.14, vStrToFloat);
+        // "world"
+        castSucceed = vStr3.toFloat().second;
+        EXPECT_EQ(false, castSucceed);
+    }
+}
 }  // namespace nebula
 
 

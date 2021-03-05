@@ -5,17 +5,19 @@
  */
 
 #include "FunctionManager.h"
+
 #include "common/base/Base.h"
-#include "common/expression/Expression.h"
-#include "common/time/WallClock.h"
+#include "common/datatypes/DataSet.h"
+#include "common/datatypes/Edge.h"
 #include "common/datatypes/List.h"
 #include "common/datatypes/Map.h"
-#include "common/datatypes/Set.h"
-#include "common/datatypes/DataSet.h"
-#include "common/time/TimeUtils.h"
-#include "common/datatypes/Edge.h"
 #include "common/datatypes/Path.h"
+#include "common/datatypes/Set.h"
 #include "common/datatypes/Vertex.h"
+#include "common/expression/Expression.h"
+#include "common/thrift/ThriftTypes.h"
+#include "common/time/TimeUtils.h"
+#include "common/time/WallClock.h"
 
 namespace nebula {
 
@@ -42,10 +44,10 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
      {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
     {"cbrt",
-     {TypeSignature({Value::Type::INT}, Value::Type::INT),
+     {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
     {"hypot",
-     {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::INT),
+     {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::INT, Value::Type::FLOAT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT, Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT, Value::Type::FLOAT}, Value::Type::FLOAT)}},
@@ -54,6 +56,8 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
       TypeSignature({Value::Type::INT, Value::Type::FLOAT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT, Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT, Value::Type::FLOAT}, Value::Type::FLOAT)}},
+    {"e",
+     {TypeSignature({}, Value::Type::FLOAT)}},
     {"exp",
      {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
@@ -67,6 +71,11 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
      {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
     {"log10",
+     {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
+      TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
+    {"pi",
+     {TypeSignature({}, Value::Type::FLOAT)}},
+    {"radians",
      {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
     {"sin",
@@ -87,6 +96,9 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"atan",
      {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
+    {"sign",
+     {TypeSignature({Value::Type::INT}, Value::Type::INT),
+      TypeSignature({Value::Type::FLOAT}, Value::Type::INT)}},
     {"rand32",
      {TypeSignature({}, Value::Type::INT),
       TypeSignature({Value::Type::INT}, Value::Type::INT),
@@ -99,7 +111,9 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"strcasecmp",
      {TypeSignature({Value::Type::STRING, Value::Type::STRING}, Value::Type::STRING)}},
     {"lower", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
+    {"toLower", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
     {"upper", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
+    {"toUpper", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
     {"length", {TypeSignature({Value::Type::STRING}, Value::Type::INT),
                 TypeSignature({Value::Type::PATH}, Value::Type::INT), }},
     {"trim", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
@@ -107,6 +121,11 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"rtrim", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
     {"left", {TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
     {"right", {TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
+    {"replace", {TypeSignature({Value::Type::STRING,
+            Value::Type::STRING, Value::Type::STRING}, Value::Type::STRING)}},
+    {"reverse", {TypeSignature({Value::Type::STRING}, Value::Type::STRING),
+                 TypeSignature({Value::Type::LIST}, Value::Type::LIST)}},
+    {"split", {TypeSignature({Value::Type::STRING, Value::Type::STRING}, Value::Type::LIST)}},
     {"lpad",
      {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::STRING},
                     Value::Type::STRING)}},
@@ -114,8 +133,19 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
      {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::STRING},
                     Value::Type::STRING)}},
     {"substr",
-     {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT},
-                    Value::Type::STRING)}},
+     {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT}, Value::Type::STRING),
+            TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
+    {"substring",
+     {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT}, Value::Type::STRING),
+            TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
+    {"toString", {TypeSignature({Value::Type::INT}, Value::Type::STRING),
+                  TypeSignature({Value::Type::FLOAT}, Value::Type::STRING),
+                  TypeSignature({Value::Type::STRING}, Value::Type::STRING),
+                  TypeSignature({Value::Type::BOOL}, Value::Type::STRING),
+                  TypeSignature({Value::Type::DATE}, Value::Type::STRING),
+                  TypeSignature({Value::Type::TIME}, Value::Type::STRING),
+                  TypeSignature({Value::Type::DATETIME}, Value::Type::STRING)
+                }},
     {"hash", {TypeSignature({Value::Type::INT}, Value::Type::INT),
               TypeSignature({Value::Type::FLOAT}, Value::Type::INT),
               TypeSignature({Value::Type::STRING}, Value::Type::INT),
@@ -145,20 +175,17 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"datetime", {TypeSignature({}, Value::Type::DATETIME),
               TypeSignature({Value::Type::STRING}, Value::Type::DATETIME),
               TypeSignature({Value::Type::MAP}, Value::Type::DATETIME)}},
-    {"id", {TypeSignature({Value::Type::VERTEX}, Value::Type::STRING),
-             }},
+    {"timestamp", {TypeSignature({Value::Type::STRING}, Value::Type::INT),
+                   TypeSignature({Value::Type::INT}, Value::Type::INT)}},
     {"tags", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
              }},
     {"labels", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
              }},
     {"properties", {TypeSignature({Value::Type::VERTEX}, Value::Type::MAP),
                     TypeSignature({Value::Type::EDGE}, Value::Type::MAP),
+                    TypeSignature({Value::Type::MAP}, Value::Type::MAP),
              }},
     {"type", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
-             }},
-    {"src", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
-             }},
-    {"dst", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
              }},
     {"rank", {TypeSignature({Value::Type::EDGE}, Value::Type::INT),
              }},
@@ -166,10 +193,25 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
                    TypeSignature({Value::Type::PATH}, Value::Type::VERTEX), }},
     {"endNode", {TypeSignature({Value::Type::EDGE}, Value::Type::VERTEX),
                  TypeSignature({Value::Type::PATH}, Value::Type::VERTEX), }},
+    {"keys", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
+              TypeSignature({Value::Type::EDGE}, Value::Type::LIST),
+              TypeSignature({Value::Type::MAP}, Value::Type::LIST), }},
+    {"nodes", {TypeSignature({Value::Type::PATH}, Value::Type::LIST), }},
+    {"tail", {TypeSignature({Value::Type::LIST}, Value::Type::LIST), }},
     {"relationships", {TypeSignature({Value::Type::PATH}, Value::Type::LIST), }},
     {"head", {TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
     {"last", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
     {"coalesce", { TypeSignature({Value::Type::LIST}, Value::Type::__EMPTY__), }},
+    {"range",
+     {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::LIST),
+      TypeSignature({Value::Type::INT, Value::Type::INT, Value::Type::INT}, Value::Type::LIST)}},
+    {"hasSameEdgeInPath", { TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
+    {"hasSameVertexInPath", {TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
+    {"reversePath", {TypeSignature({Value::Type::PATH}, Value::Type::PATH), }},
+    {"dataSetRowCol", {TypeSignature({Value::Type::DATASET, Value::Type::INT, Value::Type::INT},
+                                      Value::Type::__EMPTY__),
+                       TypeSignature({Value::Type::DATASET, Value::Type::INT, Value::Type::STRING},
+                                      Value::Type::__EMPTY__), }},
 };
 
 // static
@@ -208,7 +250,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::abs(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::abs(args[0].getInt());
+                } else {
+                    return std::abs(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -221,7 +267,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::floor(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::floor(args[0].getInt());
+                } else {
+                    return std::floor(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -234,7 +284,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::ceil(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::ceil(args[0].getInt());
+                } else {
+                    return std::ceil(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -247,7 +301,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::round(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::round(args[0].getInt());
+                } else {
+                    return std::round(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -260,7 +318,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::sqrt(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::sqrt(args[0].getInt());
+                } else {
+                    return std::sqrt(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -303,9 +365,25 @@ FunctionManager::FunctionManager() {
             if (args[0].isNumeric() && args[1].isNumeric()) {
                 auto base = args[0].isInt() ? args[0].getInt() : args[0].getFloat();
                 auto exp = args[1].isInt() ? args[1].getInt() : args[1].getFloat();
-                return std::pow(base, exp);
+                auto val = std::pow(base, exp);
+                if (args[0].isInt() && args[1].isInt()) {
+                    return static_cast<int64_t>(val);
+                } else {
+                    return val;
+                }
             }
             return Value::kNullBadType;
+        };
+    }
+    {
+        // return the base of natural logarithm e
+        auto &attr = functions_["e"];
+        attr.minArity_ = 0;
+        attr.maxArity_ = 0;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            UNUSED(args);
+            return M_E;
         };
     }
     {
@@ -316,7 +394,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::exp(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::exp(args[0].getInt());
+                } else {
+                    return std::exp(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -329,7 +411,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::exp2(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::exp2(args[0].getInt());
+                } else {
+                    return std::exp2(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -342,7 +428,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::log(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::log(args[0].getInt());
+                } else {
+                    return std::log(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -355,7 +445,11 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
-                return std::log2(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+                if (args[0].isInt()) {
+                    return std::log2(args[0].getInt());
+                } else {
+                    return std::log2(args[0].getFloat());
+                }
             }
             return Value::kNullBadType;
         };
@@ -373,6 +467,31 @@ FunctionManager::FunctionManager() {
             return Value::kNullBadType;
         };
     }
+    {
+        // return the mathmatical constant PI
+        auto &attr = functions_["pi"];
+        attr.minArity_ = 0;
+        attr.maxArity_ = 0;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            UNUSED(args);
+            return M_PI;
+        };
+    }
+
+    {
+        auto &attr = functions_["radians"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNumeric()) {
+                return (args[0] * M_PI) / 180;
+            }
+            return Value::kNullBadType;
+        };
+    }
+
     {
         auto &attr = functions_["sin"];
         attr.minArity_ = 1;
@@ -441,6 +560,24 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isNumeric()) {
                 return std::atan(args[0].isInt() ? args[0].getInt() : args[0].getFloat());
+            }
+            return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["sign"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNumeric()) {
+                if (args[0].isInt()) {
+                    auto val = args[0].getInt();
+                    return val > 0 ? 1 : val < 0 ? -1 : 0;
+                } else {
+                    auto val = args[0].getFloat();
+                    return val > 0 ? 1 : val < 0 ? -1 : 0;
+                }
             }
             return Value::kNullBadType;
         };
@@ -550,6 +687,7 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
+        functions_["toLower"] = attr;
     }
     {
         auto &attr = functions_["upper"];
@@ -566,6 +704,7 @@ FunctionManager::FunctionManager() {
             }
             return Value::kNullBadType;
         };
+        functions_["toUpper"] = attr;
     }
     {
         auto &attr = functions_["length"];
@@ -592,7 +731,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
-                return folly::trimWhitespace(value);
+                return folly::trimWhitespace(value).toString();
             }
             return Value::kNullBadType;
         };
@@ -605,7 +744,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
-                return folly::ltrimWhitespace(value);
+                return folly::ltrimWhitespace(value).toString();
             }
             return Value::kNullBadType;
         };
@@ -618,7 +757,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr()) {
                 std::string value(args[0].getStr());
-                return folly::rtrimWhitespace(value);
+                return folly::rtrimWhitespace(value).toString();
             }
             return Value::kNullBadType;
         };
@@ -658,6 +797,102 @@ FunctionManager::FunctionManager() {
                 return value.substr(value.size() - length);
             }
             return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["replace"];
+        attr.minArity_ = 3;
+        attr.maxArity_ = 3;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isStr() && args[1].isStr() && args[2].isStr()) {
+                std::string origStr(args[0].getStr());
+                std::string search(args[1].getStr());
+                std::string newStr(args[2].getStr());
+                return boost::replace_all_copy(origStr, search, newStr);
+            }
+            return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["reverse"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isStr()) {
+                std::string origStr(args[0].getStr());
+                std::reverse(origStr.begin(), origStr.end());
+                return origStr;
+            } else if (args[0].isList()) {
+                auto& list = args[0].getList();
+                List result(list.values);
+                std::reverse(result.values.begin(), result.values.end());
+                return result;
+            }
+
+            return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["split"];
+        attr.minArity_ = 2;
+        attr.maxArity_ = 2;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isStr() && args[1].isStr()) {
+                std::string origStr(args[0].getStr());
+                std::string delim(args[1].getStr());
+                List res;
+                std::vector<folly::StringPiece> substrings;
+                folly::split<folly::StringPiece>(delim, origStr, substrings);
+                for (auto str : substrings) {
+                    res.emplace_back(str.toString());
+                }
+                return res;
+            }
+            return Value::kNullBadType;
+        };
+    }
+    {
+        auto &attr = functions_["toString"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+             switch (args[0].type()) {
+                case Value::Type::NULLVALUE:
+                    return "NULL";
+                case Value::Type::INT: {
+                    return folly::to<std::string>(args[0].getInt());
+                }
+                case Value::Type::FLOAT: {
+                    auto str = folly::to<std::string>(args[0].getFloat());
+                    std::size_t found = str.find('.');
+                    if (found == std::string::npos) {
+                        str += ".0";
+                    }
+                    return str;
+                }
+                case Value::Type::BOOL: {
+                    return args[0].getBool() ? "true" : "false";
+                }
+                case Value::Type::STRING: {
+                    return args[0].getStr();
+                }
+                case Value::Type::DATE: {
+                    return args[0].getDate().toString();
+                }
+                case Value::Type::TIME: {
+                    return args[0].getTime().toString();
+                }
+                case Value::Type::DATETIME: {
+                    return args[0].getDateTime().toString();
+                }
+                default:
+                    LOG(ERROR) << "toString has not been implemented for " << args[0].type();
+                    return Value::kNullBadType;
+            }
         };
     }
     {
@@ -720,26 +955,39 @@ FunctionManager::FunctionManager() {
     }
     {
         auto &attr = functions_["substr"];
-        attr.minArity_ = 3;
+        attr.minArity_ = 2;
         attr.maxArity_ = 3;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].isStr() && args[1].isInt() && args[2].isInt()) {
-                auto value = args[0].getStr();
-                auto start = args[1].getInt();
-                auto length = args[2].getInt();
-                if (static_cast<size_t>(std::abs(start)) > value.size() || length <= 0 ||
-                    start == 0) {
+            auto argSize = args.size();
+            if (argSize < 2 || argSize >3) {
+                LOG(ERROR) <<  "Unexpected arguments count " << args.size();
+                return Value::kNullBadData;
+            }
+            auto value = args[0].getStr();
+            auto start = args[1].getInt();
+            auto length =  (args.size() == 2) ? value.size() - start : args[2].getInt();
+            if (args[0].isStr() && args[1].isInt()) {
+                if (argSize == 3) {
+                    if (!args[2].isInt()) {
+                        return Value::kNullBadType;
+                    }
+                }
+                if (static_cast<size_t>(std::abs(start)) > value.size() || length == 0) {
                     return std::string("");
                 }
-                if (start > 0) {
-                    return value.substr(start - 1, length);
-                } else {
-                    return value.substr(value.size() + start, length);
+                if (start < 0) {
+                    LOG(ERROR) << "Invalid Start index " << start;
+                    return Value::kNullBadData;
                 }
+                if (start == 0) {
+                    return value;
+                }
+                return value.substr(start, length);
             }
             return Value::kNullBadType;
         };
+        functions_["substring"] = attr;
     }
     {
         // 64bit signed hash value
@@ -904,7 +1152,7 @@ FunctionManager::FunctionManager() {
     }
     {
         auto &attr = functions_["time"];
-        // 0 for corrent time
+        // 0 for current time
         // 1 for string or map
         attr.minArity_ = 0;
         attr.maxArity_ = 1;
@@ -979,6 +1227,48 @@ FunctionManager::FunctionManager() {
         };
     }
     {
+        auto &attr = functions_["timestamp"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.body_ = [](const auto &args) -> Value {
+            auto status = time::TimeUtils::toTimestamp(args[0]);
+            if (!status.ok()) {
+                return Value::kNullBadData;
+            }
+            return status.value();
+        };
+    }
+    {
+        auto &attr = functions_["range"];
+        attr.minArity_ = 2;
+        attr.maxArity_ = 3;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isInt() || !args[1].isInt()) {
+                return Value::kNullBadType;
+            }
+
+            int64_t start = args[0].getInt();
+            int64_t end = args[1].getInt();
+            int64_t step = 1;
+            if (args.size() == 3) {
+                if (!args[2].isInt()) {
+                    return Value::kNullBadType;
+                }
+                step = args[2].getInt();
+            }
+            if (step == 0) {
+                return Value::kNullBadData;
+            }
+
+            List res;
+            for (auto i = start; step > 0? i <= end : i >= end; i = i + step) {
+                res.emplace_back(i);
+            }
+            return Value(res);
+        };
+    }
+    {
         auto &attr = functions_["id"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
@@ -1023,6 +1313,8 @@ FunctionManager::FunctionManager() {
                 Map props;
                 props.kvs = args[0].getEdge().props;
                 return Value(std::move(props));
+            } else if (args[0].isMap()) {
+                return args[0];
             } else {
                 return Value::kNullBadType;
             }
@@ -1156,6 +1448,70 @@ FunctionManager::FunctionManager() {
         };
     }
     {
+        auto &attr = functions_["keys"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            std::set<std::string> tmp;
+            if (args[0].isVertex()) {
+                for (auto& tag : args[0].getVertex().tags) {
+                    for (auto& prop : tag.props) {
+                        tmp.emplace(prop.first);
+                    }
+                }
+            } else if (args[0].isEdge()) {
+                for (auto& prop : args[0].getEdge().props) {
+                    tmp.emplace(prop.first);
+                }
+            } else if (args[0].isMap()) {
+                for (auto& kv : args[0].getMap().kvs) {
+                    tmp.emplace(kv.first);
+                }
+            } else {
+                return Value::kNullBadType;
+            }
+            List result;
+            result.values.assign(tmp.cbegin(), tmp.cend());
+            return result;
+        };
+    }
+    {
+        auto &attr = functions_["nodes"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isPath()) {
+                return Value::kNullBadType;
+            }
+            auto& path = args[0].getPath();
+            List result;
+            result.emplace_back(path.src);
+            for (auto& step : path.steps) {
+                result.emplace_back(step.dst);
+            }
+            return result;
+        };
+    }
+    {
+        auto &attr = functions_["tail"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isList()) {
+                return Value::kNullBadType;
+            }
+            auto& list = args[0].getList();
+            if (list.empty()) {
+                return List();
+            }
+            List result(std::vector<Value>(list.values.begin()+1, list.values.end()));
+            return result;
+        };
+    }
+    {
         auto &attr = functions_["relationships"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
@@ -1180,6 +1536,76 @@ FunctionManager::FunctionManager() {
                 result.values.emplace_back(std::move(edge));
             }
             return result;
+        };
+    }
+    {
+        auto &attr = functions_["hasSameEdgeInPath"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isPath()) {
+                return Value::kNullBadType;
+            }
+            auto &path = args[0].getPath();
+            return path.hasDuplicateEdges();
+        };
+    }
+    {
+        auto &attr = functions_["hasSameVertexInPath"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isPath()) {
+                return Value::kNullBadType;
+            }
+            auto &path = args[0].getPath();
+            return path.hasDuplicateVertices();
+        };
+    }
+    {
+        auto &attr = functions_["reversePath"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isPath()) {
+                return Value::kNullBadType;
+            }
+            auto path = args[0].getPath();
+            path.reverse();
+            return path;
+        };
+    }
+    {
+        auto &attr = functions_["dataSetRowCol"];
+        attr.minArity_ = 3;
+        attr.maxArity_ = 3;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[0].isDataSet() || !args[1].isInt() || !(args[2].isInt() || args[2].isStr())) {
+                return Value::kNullBadType;
+            }
+            auto &ds = args[0].getDataSet();
+            if (ds.rowSize() < 1 || ds.colSize() < 1) {
+                return Value::kNullBadData;
+            }
+            auto &colNames = ds.colNames;
+            size_t rowIndex = args[1].getInt();
+            size_t colIndex = -1;
+            if (args[2].isInt()) {
+                colIndex = args[2].getInt();
+            } else {
+                colIndex =
+                    std::distance(colNames.begin(),
+                                  std::find(colNames.begin(), colNames.end(), args[2].getStr()));
+            }
+            if ((rowIndex >= ds.rowSize() || rowIndex < 0) ||
+                (colIndex >= ds.colSize() || colIndex < 0)) {
+                return Value::kNullBadData;
+            }
+            return ds.rows[rowIndex][colIndex];
         };
     }
 }   // NOLINT

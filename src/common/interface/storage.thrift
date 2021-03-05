@@ -45,6 +45,7 @@ enum ErrorCode {
     E_FIELD_UNSET          = -22,   // The field neither can be NULL, nor has a default value
     E_OUT_OF_RANGE         = -23,   // Value exceeds the range of type
     E_ATOMIC_OP_FAILED     = -24,   // Atomic operation failed
+    E_DATA_CONFLICT_ERROR  = -25,   // data conflict, for index write withnot toss.
 
     // meta failures
     E_EDGE_PROP_NOT_FOUND    = -31,
@@ -73,12 +74,19 @@ enum ErrorCode {
     E_FAILED_TO_CHECKPOINT   = -60,
     E_CHECKPOINT_BLOCKED     = -61,
 
+    //backup failed
+    E_BACKUP_FAILED          = -65,
+
     // partial result, used for kv interfaces
     E_PARTIAL_RESULT         = -71,
 
     // Filter out
     E_FILTER_OUT             = -81,
     E_INVALID_DATA           = -82,
+
+    // transaction
+    E_MUTATE_EDGE_CONFLICT   = -85,
+    E_OUTDATED_LOCK          = -86,
 
     // task manager failed
     E_INVALID_TASK_PARA      = -90,
@@ -143,8 +151,8 @@ struct Expr {
 struct EdgeProp {
     // A valid edge type
     1: common.EdgeType  type,
-    // The list of property names. If it is empty, then all properties on
-    // the given edge type will be returned
+    // The list of property names. If it is empty, then all properties in value will be returned.
+    // Support kSrc, kType, kRank and kDst as well.
     2: list<binary>     props,
 }
 
@@ -153,8 +161,8 @@ struct EdgeProp {
 struct VertexProp {
     // A valid tag id
     1: common.TagID tag,
-    // The list of property names. If it is empty, then all properties on
-    // the given tag will be returned
+    // The list of property names. If it is empty, then all properties in value will be returned.
+    // Support kVid and kTag as well.
     2: list<binary> props,
 }
 
@@ -264,23 +272,24 @@ struct GetNeighborsResponse {
     //
     // Starting from the third column, source vertex properties will be returned if the
     //   GetNeighborsRequest::vertex_props is not empty. Each column contains properties
-    //   from one tag. The column name will be in the following format
+    //   from one tag. The column name will be in the following format in the same order
+    //   which specified in VertexProp
     //
     //   "_tag:<tag_name>:<alias1>:<alias2>:..."
     //
     // The value of each tag column is a list of Values, which follows the order of the
     //   property names specified in the above column name. If a vertex does not have
-    //   the specific tag, the value will be NULL
+    //   the specific tag, the value will be empty value
     //
     // Columns after the tag columns are edge columns. One column per edge type. The
-    //   column name is in the following format
+    //   column name is in the following format in the same order which specified in EdgeProp
     //
     //   "_edge:<edge_name>:<alias1>:<alias2>:..."
     //
     // The value of each edge column is list<list<Value>>, which represents multiple
     //   edges. For each edge, the list of Values will follow the order of the property
     //   names specified in the column name. If a vertex does not have any edge for a
-    //   specific edge type, the value for that column will be NULL
+    //   specific edge type, the value for that column will be empty value
     //
     // The last column is the expression column, if the GetNeighborsRequest::expressions
     //   is not empty. The column name is in the format of this
@@ -307,27 +316,23 @@ struct ExecResponse {
  */
 struct GetPropRequest {
     1: common.GraphSpaceID                      space_id,
-    // Column names for the pass-in data. When getting the vertex props, the first
-    //   column has to be "_vid", when getting the edge props, the first four columns
-    //   have to be "_src", "_type", "_ranking", and "_dst"
-    2: list<binary>                             column_names,
-    3: map<common.PartitionID, list<common.Row>>
+    2: map<common.PartitionID, list<common.Row>>
         (cpp.template = "std::unordered_map")   parts,
     // Based on whether to get the vertex properties or to get the edge properties,
-    //   One of the following can be set. If an empty list is given then all properties
-    //   of the vertex or the edge will be returned
-    4: optional list<VertexProp>                vertex_props,
-    5: optional list<EdgeProp>                  edge_props,
+    // exactly one of the vertex_props or edge_props must be set. If an empty list is given
+    // then all properties of the vertex or the edge will be returned in tagId/edgeType ascending order
+    3: optional list<VertexProp>                vertex_props,
+    4: optional list<EdgeProp>                  edge_props,
     // A list of expressions with alias
-    6: optional list<Expr>                      expressions,
+    5: optional list<Expr>                      expressions,
     // Whether to do the dedup based on the entire result row
-    7: bool                                     dedup = false,
+    6: bool                                     dedup = false,
     // List of expressions used by the order-by clause
-    8: optional list<OrderBy>                   order_by,
-    9: optional i64                             limit,
+    7: optional list<OrderBy>                   order_by,
+    8: optional i64                             limit,
     // If a filter is provided, only vertices that are satisfied the filter
     // will be returned
-    10: optional binary                          filter,
+    9: optional binary                          filter,
 }
 
 
@@ -346,15 +351,13 @@ struct GetPropResponse {
     //   | .....                            |
     //   ====================================
     //
+    // Each column represents one peoperty. the column name is in the form of "tag_name.prop_alias"
+    // or "edge_type_name.prop_alias" in the same order which specified in VertexProp or EdgeProp
+    //
     // If the request is to get tag prop, the first column will **always** be the vid,
     // and the first column name is "_vid".
     //
-    // Each column represents one peoperty. When all properties are returned, the
-    //   column name is in the form of
-    //   "<tag_name>:<prop_alias>" or "<edge_type_name>:<prop_alias>"
-    //
-    // If the vertex or the edge does NOT have the given property, the value will
-    //   be a NULL
+    // If the vertex or the edge does NOT have the given property, the value will be an empty value
     2: optional common.DataSet  props,
 }
 /*
@@ -418,6 +421,7 @@ struct AddEdgesRequest {
     // If true, it equals an upsert operation.
     4: bool                                     overwritable = true,
 }
+
 /*
  * End of AddVertices section
  */
@@ -473,7 +477,7 @@ struct UpdateVertexRequest {
     4: required common.TagID        tag_id
     5: list<UpdatedProp>            updated_props,
     6: optional bool                insertable = false,
-    // A list of expressions
+    // A list of kSrcProperty expressions, support kVid and kTag
     7: optional list<binary>        return_props,
     // If provided, the update happens only when the condition evaluates true
     8: optional binary              condition,
@@ -492,7 +496,7 @@ struct UpdateEdgeRequest {
     3: EdgeKey                  edge_key,
     4: list<UpdatedProp>        updated_props,
     5: optional bool            insertable = false,
-    // A list of expressions
+    // A list of kEdgeProperty expressions, support kSrc, kType, kRank and kDst
     6: optional list<binary>    return_props,
     // If provided, the update happens only when the condition evaluates true
     7: optional binary          condition,
@@ -514,7 +518,7 @@ struct GetUUIDReq {
 
 struct GetUUIDResp {
     1: required ResponseCommon result,
-    2: common.VertexID id,
+    2: common.Value id,
 }
 /*
  * End of GetUUID section
@@ -532,27 +536,15 @@ struct LookupIndexResp {
     //   properties; when looking up the edge index, each row represents one edge
     //   and its properties.
     //
-    // When returning the data for the vertex index, it follows this convention:
-    // 1. The name of the first column is "_vid", it's the ID of the vertex
-    // 2. Starting from the second column, it's the vertex property, one column
-    //    per peoperty. The column name is in the form of "tag_name.prop_name".
-    //    If the vertex does NOT have the given property, the value will be a NULL
-    //
-    // When returning the data for the edge index, it follows this convention:
-    // 1. The name of the first column is "_src", it's the ID of the source vertex
-    // 2. The name of the second column is "_ranking", it's the edge ranking
-    // 3. The name of the third column is "_dst", it's the ID of the destination
-    //    vertex
-    // 4. Starting from the fourth column, it's the edge property, one column per
-    //    peoperty. The column name is in the form of "edge_type_name.prop_name".
-    //    If the vertex does NOT have the given property, the value will be a NULL
+    // Each column represents one peoperty. the column name is in the form of "tag_name.prop_alias"
+    // or "edge_type_name.prop_alias" in the same order which specified in return_columns of request
     2: optional common.DataSet          data,
 }
 
- enum ScanType {
+enum ScanType {
     PREFIX = 1,
     RANGE  = 2,
- } (cpp.enum_strict)
+} (cpp.enum_strict)
 
 struct IndexColumnHint {
     1: binary                   column_name,
@@ -588,9 +580,8 @@ struct LookupIndexRequest {
     1: required common.GraphSpaceID         space_id,
     2: required list<common.PartitionID>    parts,
     3: IndexSpec                            indices,
-    // We only support specified fields here, not wild card "*"
-    // If the list is empty, only the VertexID or the EdgeKey will
-    // be returned
+    // The list of property names. Should not be empty.
+    // Support kVid and kTag for vertex, kSrc, kType, kRank and kDst for edge.
     4: optional list<binary>                return_columns,
 }
 
@@ -614,24 +605,25 @@ struct ScanVertexRequest {
     2: common.PartitionID                   part_id,
     // start key of this block
     3: optional binary                      cursor,
-    4: list<VertexProp>                     return_columns,
-    // If no_columns is true, no properties of tags will be returned,
-    // no matter what property is defined in VertexProp
-    5: bool                                 no_columns,
+    4: VertexProp                           return_columns,
     // max row count of tag in this response
-    6: i32                                  limit,
+    5: i64                                  limit,
     // only return data in time range [start_time, end_time)
-    7: optional i64                         start_time,
-    8: optional i64                         end_time,
+    6: optional i64                         start_time,
+    7: optional i64                         end_time,
+    8: optional binary                      filter,
+    // when storage enable multi versions and only_latest_version is true, only return latest version.
+    // when storage disable multi versions, just use the default value.
+    9: bool                                 only_latest_version = false,
+    // if set to false, forbid follower read
+    10: bool                                enable_read_from_follower = true,
 }
 
 struct ScanVertexResponse {
     1: required ResponseCommon              result,
     // The data will return as a dataset. The format is as follows:
-    // 1. First column is vertex id
-    // 2. Second column is tag id
-    // 3. Starting from the third column, is the properties specified in request.
-    //    If no_columns is true, there are only the first two columns.
+    // Each column represents one property. the column name is in the form of "tag_name.prop_alias"
+    // in the same order which specified in VertexProp in request.
     2: common.DataSet                       vertex_data,
     3: bool                                 has_next,
     // next start key of scan, only valid when has_next is true
@@ -643,26 +635,25 @@ struct ScanEdgeRequest {
     2: common.PartitionID                   part_id,
     // start key of this block
     3: optional binary                      cursor,
-    4: list<EdgeProp>                       return_columns,
-    // If no_columns is true, no properties of edge will be returned,
-    // no matter what property is defined in EdgeProp
-    5: bool                                 no_columns,
+    4: EdgeProp                             return_columns,
     // max row count of edge in this response
-    6: i32                                  limit,
+    5: i64                                  limit,
     // only return data in time range [start_time, end_time)
-    7: optional i64                         start_time,
-    8: optional i64                         end_time,
+    6: optional i64                         start_time,
+    7: optional i64                         end_time,
+    8: optional binary                      filter,
+    // when storage enable multi versions and only_latest_version is true, only return latest version.
+    // when storage disable multi versions, just use the default value.
+    9: bool                                only_latest_version = false,
+    // if set to false, forbid follower read
+    10: bool                                enable_read_from_follower = true,
 }
 
 struct ScanEdgeResponse {
     1: required ResponseCommon              result,
     // The data will return as a dataset. The format is as follows:
-    // 1. First column is src id
-    // 2. Second column is edge type
-    // 3. Third column is edge rank
-    // 4. Fourth column is dst id
-    // 5. Starting from the fifth column, is the properties specified in request.
-    //    If no_columns is true, there are only the first four columns.
+    // Each column represents one property. the column name is in the form of "edge_name.prop_alias"
+    // in the same order which specified in EdgeProp in requesss.
     2: common.DataSet                       edge_data,
     3: bool                                 has_next,
     // next start key of scan, only valid when has_next is true
@@ -713,6 +704,7 @@ service GraphStorageService {
     LookupIndexResp lookupIndex(1: LookupIndexRequest req);
 
     GetNeighborsResponse lookupAndTraverse(1: LookupAndTraverseRequest req);
+    ExecResponse addEdgesAtomic(1: AddEdgesRequest req);
 }
 
 
@@ -818,6 +810,21 @@ struct RebuildIndexRequest {
     3: common.IndexID               index_id,
 }
 
+struct CreateCPResp {
+    1: required ResponseCommon result,
+    2: binary                  path,
+}
+
+struct PartitionInfoResp {
+    1: required ResponseCommon          result,
+    2: binary                           backup_name,
+    3: common.PartitionBackupInfo       partition_info,
+}
+
+struct PartitionInfoRequest {
+    1: common.GraphSpaceID                  space_id,
+    2: binary                               backup_name,
+}
 
 service StorageAdminService {
     // Interfaces for admin operations
@@ -829,7 +836,7 @@ service StorageAdminService {
     AdminExecResp waitingForCatchUpData(1: CatchUpDataReq req);
 
     // Interfaces for nebula cluster checkpoint
-    AdminExecResp createCheckpoint(1: CreateCPRequest req);
+    CreateCPResp  createCheckpoint(1: CreateCPRequest req);
     AdminExecResp dropCheckpoint(1: DropCPRequest req);
     AdminExecResp blockingWrites(1: BlockingSignRequest req);
 
@@ -891,3 +898,35 @@ service GeneralStorageService {
     ExecResponse    remove(1: KVRemoveRequest req);
 }
 
+//////////////////////////////////////////////////////////
+//
+//  Requests, responses for the InternalStorageService
+//
+//////////////////////////////////////////////////////////
+
+// transaction request
+struct InternalTxnRequest {
+    1: i64                                  txn_id,
+    2: i32                                  space_id,
+    // need this(part_id) to satisfy getResponse
+    3: i32                                  part_id,
+    // position of chain
+    4: i32                                  position,
+    5: list<list<binary>>                   data
+}
+
+struct GetValueRequest {
+    1: common.GraphSpaceID space_id,
+    2: common.PartitionID part_id,
+    3: binary key
+}
+
+struct GetValueResponse {
+    1: required ResponseCommon result
+    2: binary value
+}
+
+service InternalStorageService {
+    GetValueResponse  getValue(1: GetValueRequest req);
+    ExecResponse    forwardTransaction(1: InternalTxnRequest req);
+}

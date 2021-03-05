@@ -8,13 +8,13 @@ nebula_add_library(
     detail/TscHelper.cpp
     Duration.cpp
     WallClock.cpp
-    TimeParser.cpp
 )
 
 nebula_add_library(
     time_utils_obj OBJECT
     TimeUtils.cpp
     TimezoneInfo.cpp
+    TimeParser.cpp
 )
 
 nebula_add_subdirectory(test)

@@ -54,7 +54,10 @@ public:
 
     static StatusOr<DateTime> parseDateTime(const std::string &str) {
         TimeParser p;
-        return p.parseDateTime(str);
+        auto result = p.parseDateTime(str);
+        NG_RETURN_IF_ERROR(result);
+        NG_RETURN_IF_ERROR(validateDate(result.value()));
+        return result.value();
     }
 
     static StatusOr<DateTime> dateTimeFromMap(const Map &m);
@@ -119,7 +122,10 @@ public:
 
     static StatusOr<Date> parseDate(const std::string &str) {
         TimeParser p;
-        return p.parseDate(str);
+        auto result = p.parseDate(str);
+        NG_RETURN_IF_ERROR(result);
+        NG_RETURN_IF_ERROR(validateDate(result.value()));
+        return result.value();
     }
 
     // unix time
@@ -227,6 +233,8 @@ public:
     static Timezone &getGlobalTimezone() {
         return globalTimezone;
     }
+
+    static StatusOr<Value> toTimestamp(const Value &val);
 
 private:
     static constexpr int kDayOfLeapYear = 366;

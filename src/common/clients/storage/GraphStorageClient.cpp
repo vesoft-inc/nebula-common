@@ -26,7 +26,7 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
                                  int64_t limit,
                                  std::string filter,
                                  folly::EventBase* evb) {
-    auto cbStatus = getIdFromRow(space);
+    auto cbStatus = getIdFromRow(space, false);
     if (!cbStatus.ok()) {
         return folly::makeFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>>(
             std::runtime_error(cbStatus.status().toString()));
@@ -44,7 +44,7 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
         auto& host = c.first;
         auto& req = requests[host];
         req.set_space_id(space);
-        req.set_column_names(std::move(colNames));
+        req.set_column_names(colNames);
         req.set_parts(std::move(c.second));
 
         cpp2::TraverseSpec spec;
@@ -67,11 +67,9 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
         if (!orderBy.empty()) {
             spec.set_order_by(orderBy);
         }
-        if (limit < std::numeric_limits<int64_t>::max()) {
-            spec.set_limit(limit);
-        }
+        spec.set_limit(limit);
         if (filter.size() > 0) {
-            spec.set_filter(std::move(filter));
+            spec.set_filter(filter);
         }
         req.set_traverse_spec(std::move(spec));
     }
@@ -81,9 +79,6 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
         [] (cpp2::GraphStorageServiceAsyncClient* client,
             const cpp2::GetNeighborsRequest& r) {
             return client->future_getNeighbors(r);
-        },
-        [] (const std::pair<const PartitionID, std::vector<Row>>& p) {
-            return p.first;
         });
 }
 
@@ -114,7 +109,7 @@ GraphStorageClient::addVertices(GraphSpaceID space,
         req.set_space_id(space);
         req.set_overwritable(overwritable);
         req.set_parts(std::move(c.second));
-        req.set_prop_names(std::move(propNames));
+        req.set_prop_names(propNames);
     }
 
     VLOG(3) << "requests size " << requests.size();
@@ -124,9 +119,6 @@ GraphStorageClient::addVertices(GraphSpaceID space,
         [] (cpp2::GraphStorageServiceAsyncClient* client,
             const cpp2::AddVerticesRequest& r) {
             return client->future_addVertices(r);
-        },
-        [] (const std::pair<const PartitionID, std::vector<cpp2::NewVertex>>& p) {
-            return p.first;
         });
 }
 
@@ -136,7 +128,8 @@ GraphStorageClient::addEdges(GraphSpaceID space,
                              std::vector<cpp2::NewEdge> edges,
                              std::vector<std::string> propNames,
                              bool overwritable,
-                             folly::EventBase* evb) {
+                             folly::EventBase* evb,
+                             bool useToss) {
     auto cbStatus = getIdFromNewEdge(space);
     if (!cbStatus.ok()) {
         return folly::makeFuture<StorageRpcResponse<cpp2::ExecResponse>>(
@@ -157,21 +150,16 @@ GraphStorageClient::addEdges(GraphSpaceID space,
         req.set_space_id(space);
         req.set_overwritable(overwritable);
         req.set_parts(std::move(c.second));
-        req.set_prop_names(std::move(propNames));
+        req.set_prop_names(propNames);
     }
-
     return collectResponse(
         evb,
         std::move(requests),
-        [] (cpp2::GraphStorageServiceAsyncClient* client,
-            const cpp2::AddEdgesRequest& r) {
-            return client->future_addEdges(r);
-        },
-        [] (const std::pair<const PartitionID, std::vector<cpp2::NewEdge>>& p) {
-            return p.first;
+        [=](cpp2::GraphStorageServiceAsyncClient* client, const cpp2::AddEdgesRequest& r) {
+            return useToss ? client->future_addEdgesAtomic(r)
+                           : client->future_addEdges(r);
         });
 }
-
 
 folly::SemiFuture<StorageRpcResponse<cpp2::GetPropResponse>>
 GraphStorageClient::getProps(GraphSpaceID space,
@@ -184,7 +172,7 @@ GraphStorageClient::getProps(GraphSpaceID space,
                              int64_t limit,
                              std::string filter,
                              folly::EventBase* evb) {
-    auto cbStatus = getIdFromRow(space);
+    auto cbStatus = getIdFromRow(space, edgeProps != nullptr);
     if (!cbStatus.ok()) {
         return folly::makeFuture<StorageRpcResponse<cpp2::GetPropResponse>>(
             std::runtime_error(cbStatus.status().toString()));
@@ -202,7 +190,6 @@ GraphStorageClient::getProps(GraphSpaceID space,
         auto& host = c.first;
         auto& req = requests[host];
         req.set_space_id(space);
-        req.set_column_names(std::move(input.colNames));
         req.set_parts(std::move(c.second));
         req.set_dedup(dedup);
         if (vertexProps != nullptr) {
@@ -217,11 +204,9 @@ GraphStorageClient::getProps(GraphSpaceID space,
         if (!orderBy.empty()) {
             req.set_order_by(orderBy);
         }
-        if (limit < std::numeric_limits<int64_t>::max()) {
-            req.set_limit(limit);
-        }
+        req.set_limit(limit);
         if (filter.size() > 0) {
-            req.set_filter(std::move(filter));
+            req.set_filter(filter);
         }
     }
 
@@ -231,9 +216,6 @@ GraphStorageClient::getProps(GraphSpaceID space,
         [] (cpp2::GraphStorageServiceAsyncClient* client,
             const cpp2::GetPropRequest& r) {
             return client->future_getProps(r);
-        },
-        [] (const std::pair<const PartitionID, std::vector<Row>>& p) {
-            return p.first;
         });
 }
 
@@ -269,9 +251,6 @@ GraphStorageClient::deleteEdges(GraphSpaceID space,
         [] (cpp2::GraphStorageServiceAsyncClient* client,
             const cpp2::DeleteEdgesRequest& r) {
             return client->future_deleteEdges(r);
-        },
-        [] (const std::pair<const PartitionID, std::vector<cpp2::EdgeKey>>& p) {
-            return p.first;
         });
 }
 
@@ -307,9 +286,6 @@ GraphStorageClient::deleteVertices(GraphSpaceID space,
         [] (cpp2::GraphStorageServiceAsyncClient* client,
             const cpp2::DeleteVerticesRequest& r) {
             return client->future_deleteVertices(r);
-        },
-        [] (const std::pair<const PartitionID, std::vector<Value>>& p) {
-            return p.first;
         });
 }
 
@@ -490,10 +466,7 @@ GraphStorageClient::lookupIndex(GraphSpaceID space,
                            std::move(requests),
                            [] (cpp2::GraphStorageServiceAsyncClient* client,
                                const cpp2::LookupIndexRequest& r) {
-                               return client->future_lookupIndex(r); },
-                           [] (const PartitionID& part) {
-                               return part;
-                           });
+                               return client->future_lookupIndex(r); });
 }
 
 
@@ -523,14 +496,11 @@ GraphStorageClient::lookupAndTraverse(GraphSpaceID space,
                            std::move(requests),
                            [] (cpp2::GraphStorageServiceAsyncClient* client,
                                const cpp2::LookupAndTraverseRequest& r) {
-                               return client->future_lookupAndTraverse(r); },
-                           [] (const PartitionID& part) {
-                               return part;
-                           });
+                               return client->future_lookupAndTraverse(r); });
 }
 
 StatusOr<std::function<const VertexID&(const Row&)>> GraphStorageClient::getIdFromRow(
-    GraphSpaceID space) const {
+    GraphSpaceID space, bool isEdgeProps) const {
     auto vidTypeStatus = metaClient_->getSpaceVidType(space);
     if (!vidTypeStatus) {
         return vidTypeStatus.status();
@@ -539,7 +509,20 @@ StatusOr<std::function<const VertexID&(const Row&)>> GraphStorageClient::getIdFr
 
     std::function<const VertexID&(const Row&)> cb;
     if (vidType == meta::cpp2::PropertyType::INT64) {
-        cb = [](const Row& r) -> const VertexID& {
+        if (isEdgeProps) {
+            cb = [](const Row& r) -> const VertexID& {
+                // The first column has to be the src, the thrid column has to be the dst
+                DCHECK_EQ(Value::Type::INT, r.values[0].type());
+                DCHECK_EQ(Value::Type::INT, r.values[3].type());
+                auto& mutableR = const_cast<Row&>(r);
+                mutableR.values[0] = Value(
+                        std::string(reinterpret_cast<const char*>(&r.values[0].getInt()), 8));
+                mutableR.values[3] = Value(
+                        std::string(reinterpret_cast<const char*>(&r.values[3].getInt()), 8));
+                return mutableR.values[0].getStr();
+            };
+        } else {
+            cb = [](const Row& r) -> const VertexID& {
                 // The first column has to be the vid
                 DCHECK_EQ(Value::Type::INT, r.values[0].type());
                 auto& mutableR = const_cast<Row&>(r);
@@ -547,6 +530,7 @@ StatusOr<std::function<const VertexID&(const Row&)>> GraphStorageClient::getIdFr
                         std::string(reinterpret_cast<const char*>(&r.values[0].getInt()), 8));
                 return mutableR.values[0].getStr();
             };
+        }
     } else if (vidType == meta::cpp2::PropertyType::FIXED_STRING) {
         cb = [](const Row& r) -> const VertexID& {
                 // The first column has to be the vid

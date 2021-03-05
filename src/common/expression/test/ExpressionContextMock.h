@@ -117,12 +117,18 @@ public:
         return Value();
     }
 
+    Value getColumn(int32_t index) const override;
+
     void setVar(const std::string& var, Value val) override {
-        UNUSED(var);
-        UNUSED(val);
+          // used by tests of list comprehesion, predicate or reduce
+        if (var == "n" || var == "p" || var == "totalNum") {
+            vals_.erase(var);
+            vals_[var] = val;
+        }
     }
 
 private:
     static std::unordered_map<std::string, Value>      vals_;
+    std::unordered_map<std::string, std::regex>        regex_;
 };
 }  // namespace nebula
