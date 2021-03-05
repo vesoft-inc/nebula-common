@@ -549,6 +549,122 @@ TEST(Value, Logical) {
     }
 }
 
+TEST(Value, TypeCast) {
+    Value vInt(1);
+    Value vFloat(3.14);
+    Value vStr1("TrUe");
+    Value vStr2("3.14");
+    Value vBool1(false);
+    Value vBool2(true);
+    Value vDate(Date(2020, 1, 1));
+    Value vNull(NullType::__NULL__);
+    Value vIntMin(std::numeric_limits<int64_t>::min());
+    Value vIntMax(std::numeric_limits<int64_t>::max());
+    Value vFloatMin(std::numeric_limits<double_t>::lowest());   // non-negtive
+    Value vFloatMax(std::numeric_limits<double_t>::max());
+
+    {
+        auto vb1 = vInt.toBool();
+        EXPECT_EQ(Value::Type::NULLVALUE, vb1.type());
+
+        auto vb2 = vFloat.toBool();
+        EXPECT_EQ(Value::Type::NULLVALUE, vb2.type());
+
+        auto vb3 = vStr1.toBool();
+        EXPECT_EQ(Value::Type::BOOL, vb3.type());
+        EXPECT_EQ(true, vb3.getBool());
+
+        auto vb4 = vStr2.toBool();
+        EXPECT_EQ(Value::Type::NULLVALUE, vb4.type());
+
+        auto vb5 = vBool1.toBool();
+        EXPECT_EQ(Value::Type::BOOL, vb5.type());
+        EXPECT_EQ(false, vb5.getBool());
+
+        auto vb6 = vBool2.toBool();
+        EXPECT_EQ(Value::Type::BOOL, vb6.type());
+        EXPECT_EQ(true, vb6.getBool());
+
+        auto vb7 = vDate.toBool();
+        EXPECT_EQ(Value::Type::NULLVALUE, vb7.type());
+
+        auto vb8 = vNull.toBool();
+        EXPECT_EQ(Value::Type::NULLVALUE, vb8.type());
+    }
+    {
+        auto vf1 = vInt.toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf1.type());
+        EXPECT_EQ(vf1.getFloat(), 1.0);
+
+        auto vf2 = vFloat.toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf2.type());
+        EXPECT_EQ(vf2.getFloat(), 3.14);
+
+        auto vf3 = vStr1.toFloat();
+        EXPECT_EQ(Value::Type::NULLVALUE, vf3.type());
+
+        auto vf4 = vStr2.toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf4.type());
+        EXPECT_EQ(vf4.getFloat(), 3.14);
+
+        auto vf5 = vBool1.toFloat();
+        EXPECT_EQ(Value::Type::NULLVALUE, vf5.type());
+
+        auto vf6 = vBool2.toFloat();
+        EXPECT_EQ(Value::Type::NULLVALUE, vf6.type());
+
+        auto vf7 = vDate.toFloat();
+        EXPECT_EQ(Value::Type::NULLVALUE, vf7.type());
+
+        auto vf8 = vNull.toFloat();
+        EXPECT_EQ(Value::Type::NULLVALUE, vf8.type());
+
+        auto vf9 = vIntMin.toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf9.type());
+        EXPECT_EQ(vf9.getFloat(), std::numeric_limits<int64_t>::min());
+
+        auto vf10 = vIntMax.toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf10.type());
+        EXPECT_EQ(vf10.getFloat(), std::numeric_limits<int64_t>::max());
+    }
+    {
+        auto vi1 = vInt.toInt();
+        EXPECT_EQ(Value::Type::INT, vi1.type());
+        EXPECT_EQ(vi1.getInt(), 1);
+
+        auto vi2 = vFloat.toInt();
+        EXPECT_EQ(Value::Type::INT, vi2.type());
+        EXPECT_EQ(vi2.getInt(), 3);
+
+        auto vi3 = vStr1.toInt();
+        EXPECT_EQ(Value::Type::NULLVALUE, vi3.type());
+
+        auto vi4 = vStr2.toInt();
+        EXPECT_EQ(Value::Type::INT, vi4.type());
+        EXPECT_EQ(vi4.getInt(), 3);
+
+        auto vi5 = vBool1.toInt();
+        EXPECT_EQ(Value::Type::NULLVALUE, vi5.type());
+
+        auto vi6 = vBool2.toInt();
+        EXPECT_EQ(Value::Type::NULLVALUE, vi6.type());
+
+        auto vi7 = vDate.toInt();
+        EXPECT_EQ(Value::Type::NULLVALUE, vi7.type());
+
+        auto vi8 = vNull.toInt();
+        EXPECT_EQ(Value::Type::NULLVALUE, vi8.type());
+
+        auto vi9 = vFloatMin.toInt();
+        EXPECT_EQ(Value::Type::INT, vi9.type());
+        EXPECT_EQ(vi9.getInt(), std::numeric_limits<int64_t>::min());
+
+        auto vi10 = vFloatMax.toInt();
+        EXPECT_EQ(Value::Type::INT, vi10.type());
+        EXPECT_EQ(vi10.getInt(), std::numeric_limits<int64_t>::max());
+    }
+}
+
 TEST(Value, Bit) {
     Value vNull(nebula::NullType::__NULL__);
     Value vEmpty;
@@ -840,7 +956,6 @@ TEST(Value, DecodeEncode) {
         EXPECT_EQ(val, valCopy);
     }
 }
-
 }  // namespace nebula
 
 
