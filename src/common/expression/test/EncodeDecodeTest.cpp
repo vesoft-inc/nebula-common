@@ -10,6 +10,7 @@
 #include "common/expression/ConstantExpression.h"
 #include "common/expression/ContainerExpression.h"
 #include "common/expression/FunctionCallExpression.h"
+#include "common/expression/AggregateExpression.h"
 #include "common/expression/LabelExpression.h"
 #include "common/expression/LogicalExpression.h"
 #include "common/expression/PathBuildExpression.h"
@@ -20,6 +21,9 @@
 #include "common/expression/UUIDExpression.h"
 #include "common/expression/UnaryExpression.h"
 #include "common/expression/CaseExpression.h"
+#include "common/expression/PredicateExpression.h"
+#include "common/expression/ListComprehensionExpression.h"
+#include "common/expression/ReduceExpression.h"
 
 namespace nebula {
 
@@ -142,6 +146,15 @@ TEST(ExpressionEncodeDecode, FunctionCallExpression) {
     std::string encoded = Expression::encode(fcEx);
     auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(fcEx, *decoded);
+}
+
+
+TEST(ExpressionEncodeDecode, AggregateExpression) {
+    auto arg = std::make_unique<ConstantExpression>(123);
+    AggregateExpression aggEx(new std::string("COUNT"), arg.release(), true);
+    std::string encoded = Expression::encode(aggEx);
+    auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
+    EXPECT_EQ(aggEx, *decoded);
 }
 
 
@@ -445,6 +458,48 @@ TEST(ExpressionEncodeDecode, CaseExpression) {
     }
 }
 
+TEST(ExpressionEncodeDecode, PredicateExpression) {
+    {
+        // all(n IN range(1, 5) WHERE n >= 2)
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<ConstantExpression>(1));
+        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        auto origin = std::make_unique<PredicateExpression>(
+            new std::string("all"),
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("range"), argList),
+            new RelationalExpression(
+                Expression::Kind::kRelGE,
+                new LabelExpression(new std::string("n")),
+                new ConstantExpression(2)));
+        auto decoded = Expression::decode(Expression::encode(*origin));
+        ASSERT_EQ(*origin, *decoded);
+    }
+}
+
+TEST(ExpressionEncodeDecode, ReduceExpression) {
+    {
+        // reduce(totalNum = 2 * 10, n IN range(1, 5) | totalNum + n * 2)
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<ConstantExpression>(1));
+        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        auto origin = std::make_unique<ReduceExpression>(
+            new std::string("totalNum"),
+            new ArithmeticExpression(
+                Expression::Kind::kMultiply, new ConstantExpression(2), new ConstantExpression(10)),
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("range"), argList),
+            new ArithmeticExpression(
+                Expression::Kind::kAdd,
+                new LabelExpression(new std::string("totalNum")),
+                new ArithmeticExpression(Expression::Kind::kMultiply,
+                                         new LabelExpression(new std::string("n")),
+                                         new ConstantExpression(2))));
+        auto decoded = Expression::decode(Expression::encode(*origin));
+        ASSERT_EQ(*origin, *decoded);
+    }
+}
+
 TEST(ExpressionEncodeDecode, PathBuildExpression) {
     auto origin = std::make_unique<PathBuildExpression>();
     (*origin)
@@ -453,6 +508,54 @@ TEST(ExpressionEncodeDecode, PathBuildExpression) {
         .add(std::make_unique<LabelExpression>(new std::string("path_v1")));
     auto decoded = Expression::decode(Expression::encode(*origin));
     ASSERT_EQ(*origin, *decoded);
+}
+
+TEST(ExpressionEncodeDecode, ListComprehensionExpression) {
+    {
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<ConstantExpression>(1));
+        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        auto origin = std::make_unique<ListComprehensionExpression>(
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("range"), argList),
+            new RelationalExpression(
+                Expression::Kind::kRelGE,
+                new LabelExpression(new std::string("n")),
+                new ConstantExpression(2)));
+        auto decoded = Expression::decode(Expression::encode(*origin));
+        ASSERT_EQ(*origin, *decoded);
+    }
+    {
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<LabelExpression>(new std::string("p")));
+        auto origin = std::make_unique<ListComprehensionExpression>(
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("nodes"), argList),
+            nullptr,
+            new ArithmeticExpression(
+                Expression::Kind::kAdd,
+                new LabelExpression(new std::string("n")),
+                new ConstantExpression(10)));
+        auto decoded = Expression::decode(Expression::encode(*origin));
+        ASSERT_EQ(*origin, *decoded);
+    }
+    {
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<ConstantExpression>(1));
+        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        auto origin = std::make_unique<ListComprehensionExpression>(
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("range"), argList),
+            new RelationalExpression(Expression::Kind::kRelGE,
+                                    new LabelExpression(new std::string("n")),
+                                    new ConstantExpression(2)),
+            new ArithmeticExpression(Expression::Kind::kAdd,
+                                    new LabelExpression(new std::string("n")),
+                                    new ConstantExpression(10)));
+
+        auto decoded = Expression::decode(Expression::encode(*origin));
+        ASSERT_EQ(*origin, *decoded);
+    }
 }
 
 }  // namespace nebula

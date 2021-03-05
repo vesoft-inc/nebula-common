@@ -20,30 +20,3 @@ nebula_add_test(
         gtest_main
 )
 
-nebula_add_test(
-    NAME
-        agg_func_test
-    SOURCES
-        AggregateFunctionTest.cpp
-    OBJECTS
-        $<TARGET_OBJECTS:agg_function_obj>
-        $<TARGET_OBJECTS:datatypes_obj>
-        $<TARGET_OBJECTS:base_obj>
-    LIBRARIES
-        gtest
-        gtest_main
-)
-
-nebula_add_test(
-    NAME
-        time_func_test
-    SOURCES
-        TimeFunctionTest.cpp
-    OBJECTS
-        $<TARGET_OBJECTS:time_function_obj>
-        $<TARGET_OBJECTS:datatypes_obj>
-        $<TARGET_OBJECTS:base_obj>
-    LIBRARIES
-        gtest
-        gtest_main
-)

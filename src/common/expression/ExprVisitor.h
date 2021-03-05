@@ -9,10 +9,13 @@
 
 #include "common/expression/ArithmeticExpression.h"
 #include "common/expression/AttributeExpression.h"
+#include "common/expression/CaseExpression.h"
+#include "common/expression/ColumnExpression.h"
 #include "common/expression/ConstantExpression.h"
 #include "common/expression/ContainerExpression.h"
 #include "common/expression/EdgeExpression.h"
 #include "common/expression/FunctionCallExpression.h"
+#include "common/expression/AggregateExpression.h"
 #include "common/expression/LabelAttributeExpression.h"
 #include "common/expression/LabelExpression.h"
 #include "common/expression/LogicalExpression.h"
@@ -27,6 +30,9 @@
 #include "common/expression/VertexExpression.h"
 #include "common/expression/CaseExpression.h"
 #include "common/expression/ColumnExpression.h"
+#include "common/expression/PredicateExpression.h"
+#include "common/expression/ListComprehensionExpression.h"
+#include "common/expression/ReduceExpression.h"
 
 namespace nebula {
 
@@ -47,6 +53,7 @@ public:
     virtual void visit(LogicalExpression *expr) = 0;
     // function call
     virtual void visit(FunctionCallExpression *expr) = 0;
+    virtual void visit(AggregateExpression *expr) = 0;
     virtual void visit(UUIDExpression *expr) = 0;
     // variable expression
     virtual void visit(VariableExpression *expr) = 0;
@@ -75,6 +82,12 @@ public:
     virtual void visit(PathBuildExpression *expr) = 0;
     // column expression
     virtual void visit(ColumnExpression *expr) = 0;
+    // predicate expression
+    virtual void visit(PredicateExpression *expr) = 0;
+    // list comprehension expression
+    virtual void visit(ListComprehensionExpression *expr) = 0;
+    // reduce expression
+    virtual void visit(ReduceExpression *expr) = 0;
 };
 
 }   // namespace nebula

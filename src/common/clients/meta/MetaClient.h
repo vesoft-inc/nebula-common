@@ -12,6 +12,7 @@
 #include <folly/RWSpinLock.h>
 #include <gtest/gtest_prod.h>
 #include "common/interface/gen-cpp2/MetaServiceAsyncClient.h"
+#include "common/interface/gen-cpp2/meta_types.h"
 #include "common/base/Status.h"
 #include "common/base/StatusOr.h"
 #include "common/meta/Common.h"
@@ -30,11 +31,14 @@ using SpaceIdName = std::pair<GraphSpaceID, std::string>;
 using HostStatus = std::pair<HostAddr, std::string>;
 
 // struct for in cache
-// the different version of tag schema, from oldest to newest
+// the different version of tag schemas, from oldest to latest
 using TagSchemas = std::unordered_map<TagID,
                                       std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
-// the different version of edge schema, from oldest to newest
+// Mapping of tagId and a *single* tag schema
+using TagSchema = std::unordered_map<TagID, std::shared_ptr<const NebulaSchemaProvider>>;
+
+// the different version of edge schema, from oldest to latest
 using EdgeSchemas = std::unordered_map<EdgeType,
                                        std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
@@ -349,7 +353,7 @@ public:
 
     // Operations for admin
     folly::Future<StatusOr<int64_t>>
-    balance(std::vector<HostAddr> hostDel, bool isStop = false);
+    balance(std::vector<HostAddr> hostDel, bool isStop, bool isReset);
 
     folly::Future<StatusOr<std::vector<cpp2::BalanceTask>>>
     showBalance(int64_t balanceId);
@@ -408,6 +412,19 @@ public:
 
     StatusOr<std::vector<cpp2::FTClient>> getFTClientsFromCache();
 
+    // session
+    folly::Future<StatusOr<cpp2::CreateSessionResp>> createSession(
+            const std::string &userName, const HostAddr& graphAddr, const std::string &clientIp);
+
+    folly::Future<StatusOr<cpp2::ExecResp>>
+    updateSessions(const std::vector<cpp2::Session>& sessions);
+
+    folly::Future<StatusOr<cpp2::ListSessionsResp>> listSessions();
+
+    folly::Future<StatusOr<cpp2::GetSessionResp>> getSession(SessionID sessionId);
+
+    folly::Future<StatusOr<cpp2::ExecResp>> removeSession(SessionID sessionId);
+
     // Opeartions for cache.
     StatusOr<GraphSpaceID> getSpaceIdByNameFromCache(const std::string& name);
 
@@ -463,6 +480,8 @@ public:
     getEdgeSchemaFromCache(GraphSpaceID spaceId, EdgeType edgeType, SchemaVer ver = -1);
 
     StatusOr<TagSchemas> getAllVerTagSchema(GraphSpaceID spaceId);
+
+    StatusOr<TagSchema> getAllLatestVerTagSchema(const GraphSpaceID& spaceId);
 
     StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID spaceId);
 
@@ -555,6 +574,20 @@ public:
     folly::Future<StatusOr<cpp2::StatisItem>>
     getStatis(GraphSpaceID spaceId);
 
+    folly::Future<StatusOr<cpp2::ErrorCode>> reportTaskFinish(
+        int32_t jobId,
+        int32_t taskId,
+        nebula::meta::cpp2::ErrorCode taskErrCode,
+        cpp2::StatisItem* statisticItem);
+
+    folly::Future<StatusOr<bool>>
+    download(const std::string& hdfsHost,
+             int32_t hdfsPort,
+             const std::string& hdfsPath,
+             GraphSpaceID spaceId);
+
+    folly::Future<StatusOr<bool>> ingest(GraphSpaceID spaceId);
+
 protected:
     // Return true if load succeeded.
     bool loadData();
@@ -627,7 +660,7 @@ protected:
                      RemoteFunc remoteFunc,
                      RespGenerator respGen,
                      folly::Promise<StatusOr<Response>> pro,
-                     bool toLeader = false,
+                     bool toLeader = true,
                      int32_t retry = 0,
                      int32_t retryLimit = FLAGS_meta_client_retry_times);
 

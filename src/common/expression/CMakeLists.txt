@@ -14,6 +14,7 @@ nebula_add_library(
     LogicalExpression.cpp
     TypeCastingExpression.cpp
     FunctionCallExpression.cpp
+    AggregateExpression.cpp
     PropertyExpression.cpp
     UUIDExpression.cpp
     VariableExpression.cpp
@@ -28,6 +29,9 @@ nebula_add_library(
     PathBuildExpression.cpp
     TextSearchExpression.cpp
     ColumnExpression.cpp
+    PredicateExpression.cpp
+    ListComprehensionExpression.cpp
+    ReduceExpression.cpp
 )
 
 nebula_add_subdirectory(test)

@@ -8,13 +8,14 @@
 
 #include <thrift/lib/cpp2/protocol/Serializer.h>
 
-#include "common/datatypes/ValueOps.h"
+#include "common/datatypes/ValueOps.inl"
 #include "common/expression/ArithmeticExpression.h"
 #include "common/expression/AttributeExpression.h"
 #include "common/expression/ConstantExpression.h"
 #include "common/expression/ContainerExpression.h"
 #include "common/expression/EdgeExpression.h"
 #include "common/expression/FunctionCallExpression.h"
+#include "common/expression/AggregateExpression.h"
 #include "common/expression/LabelAttributeExpression.h"
 #include "common/expression/LabelExpression.h"
 #include "common/expression/LogicalExpression.h"
@@ -29,6 +30,9 @@
 #include "common/expression/VertexExpression.h"
 #include "common/expression/CaseExpression.h"
 #include "common/expression/ColumnExpression.h"
+#include "common/expression/ListComprehensionExpression.h"
+#include "common/expression/PredicateExpression.h"
+#include "common/expression/ReduceExpression.h"
 
 namespace nebula {
 
@@ -376,6 +380,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kAggregate: {
+            exp = std::make_unique<AggregateExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kInputProperty: {
             LOG(FATAL) << "Should not decode input property expression";
             return exp;
@@ -474,6 +483,21 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
         }
         case Expression::Kind::kPathBuild: {
             exp = std::make_unique<PathBuildExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kListComprehension: {
+            exp = std::make_unique<ListComprehensionExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kPredicate: {
+            exp = std::make_unique<PredicateExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kReduce: {
+            exp = std::make_unique<ReduceExpression>();
             exp->resetFrom(decoder);
             return exp;
         }
@@ -597,6 +621,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Kind::kFunctionCall:
             os << "FunctionCall";
             break;
+        case Expression::Kind::kAggregate:
+            os << "Aggregate";
+            break;
         case Expression::Kind::kEdgeProperty:
             os << "EdgeProp";
             break;
@@ -671,6 +698,15 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             break;
         case Expression::Kind::kTSFuzzy:
             os << "Fuzzy";
+            break;
+        case Expression::Kind::kListComprehension:
+            os << "ListComprehension";
+            break;
+        case Expression::Kind::kPredicate:
+            os << "Predicate";
+            break;
+        case Expression::Kind::kReduce:
+            os << "Reduce";
             break;
     }
     return os;

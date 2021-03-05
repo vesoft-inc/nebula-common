@@ -120,8 +120,11 @@ public:
     Value getColumn(int32_t index) const override;
 
     void setVar(const std::string& var, Value val) override {
-        UNUSED(var);
-        UNUSED(val);
+          // used by tests of list comprehesion, predicate or reduce
+        if (var == "n" || var == "p" || var == "totalNum") {
+            vals_.erase(var);
+            vals_[var] = val;
+        }
     }
 
 private:

@@ -47,16 +47,15 @@ struct Step {
 
     std::string toString() const {
         std::stringstream os;
-        os << "-"
-           << "[" << name << "]"
-           << "->"
+        os << "-[" << name << "(" << type << ")]->"
            << "(" << dst << ")"
-           << "@" << ranking;
-        os << " ";
+           << "@" << ranking << " ";
         for (const auto& prop : props) {
             os << prop.first << ":" << prop.second << ",";
         }
-        return os.str();
+        auto path = os.str();
+        path.pop_back();
+        return path;
     }
 
     Step& operator=(Step&& rhs) noexcept {
@@ -82,7 +81,11 @@ struct Step {
     }
 
     bool operator==(const Step& rhs) const {
-        return dst == rhs.dst && type == rhs.type && ranking == rhs.ranking && props == rhs.props;
+        return dst == rhs.dst &&
+               type == rhs.type &&
+               name == rhs.name &&
+               ranking == rhs.ranking &&
+               props == rhs.props;
     }
 
     bool operator<(const Step& rhs) const {
@@ -242,6 +245,9 @@ struct Path {
         }
         return false;
     }
+
+    bool hasDuplicateEdges() const;
+    bool hasDuplicateVertices() const;
 };
 
 inline void swap(Step& a, Step& b) {

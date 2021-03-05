@@ -55,6 +55,7 @@ enum ErrorCode {
     E_NO_RUNNING_BALANCE_PLAN   = -36,
     E_NO_VALID_HOST             = -37,
     E_CORRUPTTED_BALANCE_PLAN   = -38,
+    E_NO_INVALID_BALANCE_PLAN   = -39,
 
     // Authentication Failure
     E_INVALID_PASSWORD          = -41,
@@ -75,6 +76,15 @@ enum ErrorCode {
     E_SAVE_JOB_FAILURE       = -57,
     E_BALANCER_FAILURE       = -58,
     E_JOB_NOT_FINISHED       = -59,
+    E_TASK_REPORT_OUT_DATE   = -60,
+
+    // Backup Failure
+    E_BACKUP_FAILURE = -70,
+    E_BACKUP_BUILDING_INDEX = -71,
+    E_BACKUP_SPACE_NOT_FOUND = -72,
+
+    // RESTORE Failure
+    E_RESTORE_FAILURE = -80,
 
     E_UNKNOWN        = -99,
 } (cpp.enum_strict)
@@ -175,13 +185,13 @@ enum IsolationLevel {
 } (cpp.enum_strict)
 
 struct SpaceDesc {
-    1: binary               space_name,
-    2: i32                  partition_num = 0,
-    3: i32                  replica_factor = 0,
-    4: binary               charset_name,
-    5: binary               collate_name,
-    6: ColumnTypeDef        vid_type = {"type": PropertyType.FIXED_STRING, "type_length": 8},
-    7: optional binary      group_name,
+    1: binary                   space_name,
+    2: i32                      partition_num = 0,
+    3: i32                      replica_factor = 0,
+    4: binary                   charset_name,
+    5: binary                   collate_name,
+    6: ColumnTypeDef            vid_type = {"type": PropertyType.FIXED_STRING, "type_length": 8},
+    7: optional binary          group_name,
     8: optional IsolationLevel  isolation_level
 }
 
@@ -283,9 +293,9 @@ enum AdminJobOp {
 } (cpp.enum_strict)
 
 struct AdminJobReq {
-    1: AdminJobOp       op
-    2: AdminCmd         cmd
-    3: list<binary>     paras
+    1: AdminJobOp       op,
+    2: AdminCmd         cmd,
+    3: list<binary>     paras,
 }
 
 enum AdminCmd {
@@ -294,7 +304,8 @@ enum AdminCmd {
     REBUILD_TAG_INDEX   = 2,
     REBUILD_EDGE_INDEX  = 3,
     STATS               = 4,
-    UNKNOWN             = 5,
+    DATA_BALANCE        = 5,
+    UNKNOWN             = 99,
 } (cpp.enum_strict)
 
 enum JobStatus {
@@ -307,43 +318,48 @@ enum JobStatus {
 } (cpp.enum_strict)
 
 struct JobDesc {
-    1: i32              id
-    2: AdminCmd         cmd
-    3: list<string>     paras
-    4: JobStatus        status
-    5: i64              start_time
-    6: i64              stop_time
+    1: i32              id,
+    2: AdminCmd         cmd,
+    3: list<string>     paras,
+    4: JobStatus        status,
+    5: i64              start_time,
+    6: i64              stop_time,
 }
 
 struct TaskDesc {
-    1: i32              task_id
-    2: common.HostAddr  host
-    3: JobStatus        status
-    4: i64              start_time
-    5: i64              stop_time
-    6: i32              job_id
+    1: i32              task_id,
+    2: common.HostAddr  host,
+    3: JobStatus        status,
+    4: i64              start_time,
+    5: i64              stop_time,
+    6: i32              job_id,
 }
 
 struct AdminJobResult {
     // used in a new added job, e.g. "flush" "compact"
     // other job type which also need jobId in their result
     // will use other filed. e.g. JobDesc::id
-    1: optional i32                 job_id
+    1: optional i32                 job_id,
 
     // used in "show jobs" and "show job <id>"
-    2: optional list<JobDesc>       job_desc
+    2: optional list<JobDesc>       job_desc,
 
     // used in "show job <id>"
-    3: optional list<TaskDesc>      task_desc
+    3: optional list<TaskDesc>      task_desc,
 
     // used in "recover job"
-    4: optional i32                 recovered_job_num
+    4: optional i32                 recovered_job_num,
 }
 
 struct AdminJobResp {
-    1: ErrorCode                    code
-    2: common.HostAddr              leader
-    3: AdminJobResult               result
+    1: ErrorCode                    code,
+    2: common.HostAddr              leader,
+    3: AdminJobResult               result,
+}
+
+struct Correlativity {
+    1: common.PartitionID part_id,
+    2: double             proportion,
 }
 
 struct StatisItem {
@@ -357,7 +373,9 @@ struct StatisItem {
     3: i64                                    space_vertices,
     // The number of edges of current space
     4: i64                                    space_edges,
-    5: JobStatus                              status,
+    5: map<common.PartitionID, list<Correlativity>>
+        (cpp.template = "std::unordered_map") part_corelativity,
+    6: JobStatus                              status,
 }
 
 // Graph space related operations.
@@ -746,6 +764,7 @@ struct BalanceReq {
     2: optional i64                     id,
     3: optional list<common.HostAddr>   host_del,
     4: optional bool                    stop,
+    5: optional bool                    reset,
 }
 
 enum TaskResult {
@@ -992,6 +1011,48 @@ struct GetStatisResp {
     3: StatisItem       statis,
 }
 
+struct CheckpointInfo {
+    1: common.HostAddr host,
+    2: binary          checkpoint_dir,
+}
+
+struct SpaceBackupInfo {
+    1: SpaceDesc                    space,
+    2: common.PartitionBackupInfo   partition_info,
+    // storage checkpoint directory name
+    3: list<CheckpointInfo>         cp_dirs,
+}
+
+struct BackupMeta {
+    // space_name => SpaceBackupInfo
+    1: map<common.GraphSpaceID, SpaceBackupInfo> (cpp.template = "std::unordered_map")  backup_info,
+    // sst file
+    2: list<binary>                               meta_files,
+    // backup
+    3: binary                                     backup_name,
+}
+
+struct CreateBackupReq {
+    // null means all spaces
+    1: optional list<binary>  spaces,
+}
+
+struct CreateBackupResp {
+    1: ErrorCode          code,
+    2: common.HostAddr    leader,
+    3: BackupMeta         meta,
+}
+
+struct HostPair {
+    1: common.HostAddr   from_host,
+    2: common.HostAddr   to_host,
+}
+
+struct RestoreMetaReq {
+    1: list<binary>     files,
+    2: list<HostPair>   hosts,
+}
+
 enum FTServiceType {
     ELASTICSEARCH = 0x01,
 } (cpp.enum_strict)
@@ -1017,6 +1078,64 @@ struct ListFTClientsResp {
     1: ErrorCode           code,
     2: common.HostAddr     leader,
     3: list<FTClient>      clients,
+}
+
+struct Session {
+    1: common.SessionID session_id,
+    2: common.Timestamp create_time,
+    3: common.Timestamp update_time,
+    4: binary user_name,
+    5: binary space_name,
+    6: common.HostAddr graph_addr,
+    7: i32 timezone,
+    8: binary client_ip,
+    9: map<binary, common.Value>(cpp.template = "std::unordered_map") configs,
+}
+
+struct CreateSessionReq {
+    1: binary               user,
+    2: common.HostAddr      graph_addr,
+    3: binary               client_ip,
+}
+
+struct CreateSessionResp {
+    1: ErrorCode            code,
+    2: common.HostAddr      leader,
+    3: Session              session,
+}
+
+struct UpdateSessionsReq {
+    1: list<Session>        sessions,
+}
+
+struct ListSessionsReq {
+}
+
+struct ListSessionsResp {
+    1: ErrorCode             code,
+    2: common.HostAddr       leader,
+    3: list<Session>         sessions,
+}
+
+struct GetSessionReq {
+    1: common.SessionID  session_id,
+}
+
+struct GetSessionResp {
+    1: ErrorCode            code,
+    2: common.HostAddr      leader,
+    3: Session              session,
+}
+
+struct RemoveSessionReq {
+    1: common.SessionID      session_id,
+}
+
+struct ReportTaskReq {
+    1: ErrorCode            code,
+    2: i32                  job_id,
+    3: i32                  task_id,
+    4: optional StatisItem  statis
 }
 
 service MetaService {
@@ -1101,6 +1220,8 @@ service MetaService {
     GetGroupResp   getGroup(1: GetGroupReq req);
     ListGroupsResp listGroups(1: ListGroupsReq req);
 
+    CreateBackupResp createBackup(1: CreateBackupReq req);
+    ExecResp       restoreMeta(1: RestoreMetaReq req);
     ExecResp       addListener(1: AddListenerReq req);
     ExecResp       removeListener(1: RemoveListenerReq req);
     ListListenerResp listListener(1: ListListenerReq req);
@@ -1109,4 +1230,12 @@ service MetaService {
     ExecResp signInFTService(1: SignInFTServiceReq req);
     ExecResp signOutFTService(1: SignOutFTServiceReq req);
     ListFTClientsResp listFTClients(1: ListFTClientsReq req);
+
+    CreateSessionResp createSession(1: CreateSessionReq req);
+    ExecResp updateSessions(1: UpdateSessionsReq req);
+    ListSessionsResp listSessions(1: ListSessionsReq req);
+    GetSessionResp getSession(1: GetSessionReq req);
+    ExecResp removeSession(1: RemoveSessionReq req);
+
+    ExecResp reportTaskFinish(1: ReportTaskReq req);
 }

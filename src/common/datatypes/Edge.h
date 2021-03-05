@@ -16,8 +16,8 @@
 namespace nebula {
 
 struct Edge {
-    VertexID src;
-    VertexID dst;
+    Value src;
+    Value dst;
     EdgeType type;
     std::string name;
     EdgeRanking ranking;
@@ -38,8 +38,8 @@ struct Edge {
         , name(v.name)
         , ranking(v.ranking)
         , props(v.props) {}
-    Edge(VertexID s,
-         VertexID d,
+    Edge(Value s,
+         Value d,
          EdgeType t,
          std::string n,
          EdgeRanking r,
@@ -63,11 +63,13 @@ struct Edge {
     std::string toString() const;
 
     bool operator==(const Edge& rhs) const {
-        return src == rhs.src &&
-               dst == rhs.dst &&
-               type == rhs.type &&
-               ranking == rhs.ranking &&
-               props == rhs.props;
+        if (type != rhs.type && type != -rhs.type) {
+            return false;
+        }
+        if (type == rhs.type) {
+            return src == rhs.src && dst == rhs.dst && ranking == rhs.ranking && props == rhs.props;
+        }
+        return src == rhs.dst && dst == rhs.src && ranking == rhs.ranking && props == rhs.props;
     }
 
     std::vector<std::string> keys() const {
