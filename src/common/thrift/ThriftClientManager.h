@@ -33,7 +33,7 @@ public:
 private:
     using ClientMap = std::unordered_map<
         std::pair<HostAddr, folly::EventBase*>,     // <ip, port> pair
-        std::shared_ptr<ClientType>                 // Async thrift client
+        std::pair<int64_t, std::shared_ptr<ClientType>>                // Async thrift client
     >;
 
     folly::ThreadLocal<ClientMap> clientMap_;

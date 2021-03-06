@@ -19,6 +19,8 @@
 
 #include <folly/io/async/AsyncSocketException.h>
 
+#include <thrift/lib/cpp/async/TAsyncSocket.h>
+
 namespace apache {
 namespace thrift {
 
@@ -82,7 +84,9 @@ uint32_t ReconnectingRequestChannel::sendRequest(
 }
 
 ReconnectingRequestChannel::Impl& ReconnectingRequestChannel::impl() {
-  if (!impl_ || !std::dynamic_pointer_cast<apache::thrift::ClientChannel>(impl_)->good()) {
+  if (!impl_ || !std::dynamic_pointer_cast<apache::thrift::ClientChannel>(impl_)->good()
+      || !std::dynamic_pointer_cast<apache::thrift::ClientChannel>(
+          impl_)->getTransport()->readable()) {
     impl_ = implCreator_(evb_);
   }
 

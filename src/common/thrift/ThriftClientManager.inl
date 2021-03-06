@@ -9,6 +9,8 @@
 #include <thrift/lib/cpp/async/TAsyncSocket.h>
 #include <folly/system/ThreadName.h>
 #include "common/network/NetworkUtils.h"
+#include "common/time/WallClock.h"
+
 
 DECLARE_int32(conn_timeout_ms);
 
@@ -24,9 +26,24 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
         evb = folly::EventBaseManager::get()->getEventBase();
     }
 
+
+    for (auto e : *clientMap_) {
+        LOG(INFO) << "host " << e.first.first.host << " port " << e.first.first.port
+                  << " create time " << e.second.first;
+    }
+
     auto it = clientMap_->find(std::make_pair(host, evb));
     if (it != clientMap_->end()) {
-        return it->second;
+        auto channel =
+            dynamic_cast<apache::thrift::HeaderClientChannel*>(it->second.second->getChannel());
+        if (channel) {
+            LOG(INFO) << "channel status is " << channel->good();
+        } else {
+            LOG(INFO) << "channel status is null";
+        }
+        LOG(INFO) << "using host " << it->first.first.host << " port " << it->first.first.port
+                  << " create time " << it->second.first;
+        return it->second.second;
     }
 
     // Need to create a new client
@@ -74,7 +91,9 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
             delete p;
         });
     });
-    clientMap_->emplace(std::make_pair(host, evb), client);
+
+    auto createtime = nebula::time::WallClock::fastNowInSec();
+    clientMap_->emplace(std::make_pair(host, evb), std::make_pair(createtime, client));
     return client;
 }
 
