@@ -1578,6 +1578,10 @@ Value Value::toBool() {
 
 Value Value::toFloat() {
     switch (type_) {
+        case Value::Type::__EMPTY__:
+        case Value::Type::NULLVALUE: {
+            return Value::kNullValue;
+        }
         case Value::Type::INT: {
             return static_cast<double>(getInt());
         }
@@ -1601,6 +1605,10 @@ Value Value::toFloat() {
 
 Value Value::toInt() {
     switch (type_) {
+        case Value::Type::__EMPTY__:
+        case Value::Type::NULLVALUE: {
+            return Value::kNullValue;
+        }
         case Value::Type::INT: {
             return *this;
         }
@@ -1627,6 +1635,182 @@ Value Value::toInt() {
             return Value::kNullBadType;
         }
     }
+}
+
+Value Value::lessThan(const Value& v) const {
+    if (empty() || v.empty()) {
+       return (v.isNull() || isNull())? Value::kNullValue : Value::kEmpty;
+    }
+    auto vType = v.type();
+    auto hasNull = (type_ | vType) & Value::Type::NULLVALUE;
+    auto notSameType = type_ != vType;
+    auto notBothNumeric = ((type_ | vType) & Value::kNumericType) != Value::kNumericType;
+    if (hasNull || (notSameType && notBothNumeric)) {
+        return Value::kNullValue;
+    }
+
+    switch (type_) {
+        case Value::Type::BOOL: {
+            return getBool() < v.getBool();
+        }
+        case Value::Type::INT: {
+            switch (vType) {
+                case Value::Type::INT: {
+                    return getInt() < v.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return (std::abs(getInt() - v.getFloat()) >= kEpsilon
+                            && getInt() < v.getFloat());
+                }
+                default: {
+                    return kNullBadType;
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (vType) {
+                case Value::Type::INT: {
+                    return (std::abs(getFloat() - v.getInt()) >= kEpsilon
+                            && getFloat() < v.getInt());
+                }
+                case Value::Type::FLOAT: {
+                    return (std::abs(getFloat() - v.getFloat()) >= kEpsilon
+                            && getFloat() < v.getFloat());
+                }
+                default: {
+                    return kNullBadType;
+                }
+            }
+        }
+        case Value::Type::STRING: {
+            return getStr() < v.getStr();
+        }
+        case Value::Type::DATE: {
+            return getDate() < v.getDate();
+        }
+        case Value::Type::TIME: {
+            // TODO(shylock) convert to UTC then compare
+            return getTime() < v.getTime();
+        }
+        case Value::Type::DATETIME: {
+            // TODO(shylock) convert to UTC then compare
+            return getDateTime() < v.getDateTime();
+        }
+        case Value::Type::VERTEX: {
+            return getVertex() < v.getVertex();
+        }
+        case Value::Type::EDGE: {
+            return getEdge() < v.getEdge();
+        }
+        case Value::Type::PATH: {
+            return getPath() < v.getPath();
+        }
+        case Value::Type::LIST: {
+            return getList() < v.getList();
+        }
+        case Value::Type::MAP: {
+            return getMap() < v.getMap();
+        }
+        case Value::Type::SET: {
+            return getSet() < v.getSet();
+        }
+        case Value::Type::DATASET: {
+            return getDataSet() < v.getDataSet();
+        }
+        case Value::Type::NULLVALUE:
+        case Value::Type::__EMPTY__: {
+            return kNullBadType;
+        }
+    }
+    DLOG(FATAL) << "Unknown type " << static_cast<int>(v.type());
+    return Value::kNullBadType;
+}
+
+Value Value::equal(const Value& v) const {
+    if (empty()) {
+       return v.isNull()? Value::kNullValue : v.empty();
+    }
+    auto vType = v.type();
+    auto hasNull = (type_ | vType) & Value::Type::NULLVALUE;
+    auto notSameType = type_ != vType;
+    auto notBothNumeric = ((type_ | vType) & Value::kNumericType) != Value::kNumericType;
+    if (hasNull) return Value::kNullValue;
+    if (notSameType && notBothNumeric) {
+        return false;
+    }
+
+    switch (type_) {
+        case Value::Type::BOOL: {
+            return getBool() == v.getBool();
+        }
+        case Value::Type::INT: {
+            switch (vType) {
+                case Value::Type::INT: {
+                    return getInt() == v.getInt();
+                }
+                case Value::Type::FLOAT: {
+                    return std::abs(getInt() - v.getFloat()) < kEpsilon;
+                }
+                default: {
+                    return kNullBadType;
+                }
+            }
+        }
+        case Value::Type::FLOAT: {
+            switch (vType) {
+                case Value::Type::INT: {
+                    return std::abs(getFloat() - v.getInt()) < kEpsilon;
+                }
+                case Value::Type::FLOAT: {
+                    return std::abs(getFloat() - v.getFloat()) < kEpsilon;
+                }
+                default: {
+                    return kNullBadType;
+                }
+            }
+        }
+        case Value::Type::STRING: {
+            return getStr() == v.getStr();
+        }
+        case Value::Type::DATE: {
+            return getDate() == v.getDate();
+        }
+        case Value::Type::TIME: {
+            // TODO(shylock) convert to UTC then compare
+            return getTime() == v.getTime();
+        }
+        case Value::Type::DATETIME: {
+            // TODO(shylock) convert to UTC then compare
+            return getDateTime() == v.getDateTime();
+        }
+        case Value::Type::VERTEX: {
+            return getVertex() == v.getVertex();
+        }
+        case Value::Type::EDGE: {
+            return getEdge() == v.getEdge();
+        }
+        case Value::Type::PATH: {
+            return getPath() == v.getPath();
+        }
+        case Value::Type::LIST: {
+            return getList() == v.getList();
+        }
+        case Value::Type::MAP: {
+            return getMap() == v.getMap();
+        }
+        case Value::Type::SET: {
+            return getSet() == v.getSet();
+        }
+        case Value::Type::DATASET: {
+            return getDataSet() == v.getDataSet();
+        }
+        case Value::Type::NULLVALUE:
+        case Value::Type::__EMPTY__: {
+            return false;
+        }
+    }
+    DLOG(FATAL) << "Unknown type " << static_cast<int>(v.type());
+    return Value::kNullBadType;
 }
 
 void swap(Value& a, Value& b) {
@@ -2415,6 +2599,10 @@ Value operator&&(const Value& lhs, const Value& rhs) {
         return rhs.getNull();
     }
 
+    if (lhs.empty() || rhs.empty()) {
+        return Value::kEmpty;
+    }
+
     if (lhs.type() == Value::Type::BOOL
             && rhs.type() == Value::Type::BOOL) {
         return lhs.getBool() && rhs.getBool();
@@ -2430,6 +2618,10 @@ Value operator||(const Value& lhs, const Value& rhs) {
 
     if (rhs.isNull()) {
         return rhs.getNull();
+    }
+
+    if (lhs.empty() || rhs.empty()) {
+        return Value::kEmpty;
     }
 
     if (lhs.type() == Value::Type::BOOL

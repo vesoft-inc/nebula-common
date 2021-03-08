@@ -932,6 +932,9 @@ TEST(Value, DecodeEncode) {
         Value(Edge(001, 002, 1, "Edge", 233, {{"prop1", Value(233)}, {"prop2", Value(2.3)}})),
 
         // Path
+        Value(Path(
+            Vertex({"1", {Tag("tagName", {{"prop", Value(2)}})}}),
+            {Step(Vertex({"1", {Tag("tagName", {{"prop", Value(2)}})}}), 1, "1", 1, {{"1", 1}})})),
         Value(Path()),
 
         // List
@@ -953,6 +956,15 @@ TEST(Value, DecodeEncode) {
         Value valCopy;
         std::size_t s = serializer::deserialize(buf, valCopy);
         ASSERT_EQ(s, buf.size());
+        if (val.isNull()) {
+            EXPECT_EQ(valCopy.isNull(), true);
+            EXPECT_EQ(val.getNull(), valCopy.getNull());
+            continue;
+        }
+        if (val.empty()) {
+            EXPECT_EQ(valCopy.empty(), true);
+            continue;
+        }
         EXPECT_EQ(val, valCopy);
     }
 }
