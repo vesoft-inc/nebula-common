@@ -82,7 +82,7 @@ uint32_t ReconnectingRequestChannel::sendRequest(
 }
 
 ReconnectingRequestChannel::Impl& ReconnectingRequestChannel::impl() {
-  if (!impl_ || !std::dynamic_pointer_cast<apache::thrift::ClientChannel>(impl_)->good()) {
+  if (!impl_) {
     impl_ = implCreator_(evb_);
   }
 
