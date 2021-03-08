@@ -48,7 +48,7 @@ bool inline checkPointer(const T *lhs, const T *rhs) {
 // TODO(shylock) use optional for optional in thrift instead of pointer
 
 struct AuthResponse {
-    void clear() {
+    void __clear() {
         errorCode = ErrorCode::SUCCEEDED;
         sessionId = nullptr;
         errorMsg = nullptr;
@@ -71,7 +71,7 @@ struct AuthResponse {
 
 
 struct ProfilingStats {
-    void clear() {
+    void __clear() {
         rows = 0;
         execDurationInUs = 0;
         totalDurationInUs = 0;
@@ -103,7 +103,7 @@ struct ProfilingStats {
 
 // The info used for select/loop.
 struct PlanNodeBranchInfo {
-    void clear() {
+    void __clear() {
         isDoBranch = false;
         conditionNodeId = -1;
     }
@@ -119,7 +119,7 @@ struct PlanNodeBranchInfo {
 };
 
 struct Pair {
-    void clear() {
+    void __clear() {
         key.clear();
         value.clear();
     }
@@ -133,7 +133,7 @@ struct Pair {
 };
 
 struct PlanNodeDescription {
-    void clear() {
+    void __clear() {
         name.clear();
         id = -1;
         outputVar.clear();
@@ -158,7 +158,7 @@ struct PlanNodeDescription {
 };
 
 struct PlanDescription {
-    void clear() {
+    void __clear() {
         planNodeDescs.clear();
         nodeIndexMap.clear();
         format.clear();
@@ -181,7 +181,7 @@ struct PlanDescription {
 };
 
 struct ExecutionResponse {
-    void clear() {
+    void __clear() {
         errorCode = ErrorCode::SUCCEEDED;
         latencyInUs = 0;
         data.reset();

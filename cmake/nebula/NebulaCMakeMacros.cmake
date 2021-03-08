@@ -78,6 +78,7 @@ macro(nebula_link_libraries target)
         ${target}
         ${ARGN}
         folly
+        fmt
         glog
         gflags
         boost_context

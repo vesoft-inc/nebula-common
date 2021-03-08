@@ -86,12 +86,12 @@ selected_libc_version=$(select_by_version $this_libc_version "${libc_preset_vers
 selected_gcc_version=$(select_by_version $this_gcc_version "${gcc_preset_versions[@]}")
 
 [[ -z $selected_libc_version ]] && {
-    echo "No prebuilt third-party found to download for your environment: libc-$this_libc_version, GCC-$this_gcc_version, ABI $this_abi_version" 1>&2
-    echo "Please invoke $this_dir/build-third-party.sh to build manually" 1>&2
+    echo "No prebuilt third-party found for your environment: libc-$this_libc_version, GCC-$this_gcc_version, ABI $this_abi_version" 1>&2
     exit 1
 }
 
-selected_archive=vesoft-third-party-x86_64-libc-$selected_libc_version-gcc-$selected_gcc_version-abi-$this_abi_version.sh
+[[ $version -eq 0 ]] && version=2.0
+selected_archive=vesoft-third-party-$version-x86_64-libc-$selected_libc_version-gcc-$selected_gcc_version-abi-$this_abi_version.sh
 
 url=$url_base/$selected_archive
 echo "Downloading $selected_archive..."
@@ -101,6 +101,4 @@ $download_cmd $url
     exit 1
 }
 
-bash $selected_archive $@
-
-rm -rf $selected_archive
+bash $selected_archive $@ && rm -rf $selected_archive
