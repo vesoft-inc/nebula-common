@@ -376,6 +376,38 @@ StorageClientBase<ClientType>::clusterIdsToHosts(GraphSpaceID spaceId,
     return clusters;
 }
 
+template<typename ClientType>
+template<class GetIdFunc>
+StatusOr<std::unordered_map<HostAddr,
+                            std::unordered_map<
+                                PartitionID,
+                                storage::cpp2::StepRows>
+                            >>
+StorageClientBase<ClientType>::clusterIdsToHostsWithStep(GraphSpaceID spaceId,
+                                                        const storage::cpp2::StepRows& ids,
+                                                        GetIdFunc f) const {
+    std::unordered_map<HostAddr,
+                       std::unordered_map<PartitionID, storage::cpp2::StepRows>> clusters;
+    for (auto& id : ids.rows) {
+        CHECK(!!metaClient_);
+        auto status = metaClient_->partId(spaceId, f(id));
+        if (!status.ok()) {
+            return status.status();
+        }
+
+        auto part = status.value();
+        auto metaStatus = getPartHosts(spaceId, part);
+        if (!metaStatus.ok()) {
+            return status.status();
+        }
+
+        auto partHosts = metaStatus.value();
+        CHECK_GT(partHosts.hosts_.size(), 0U);
+        const auto leader = this->getLeader(partHosts);
+        clusters[leader][part].rows.emplace_back(std::move(id));
+    }
+    return clusters;
+}
 
 template<typename ClientType>
 StatusOr<std::unordered_map<HostAddr, std::vector<PartitionID>>>

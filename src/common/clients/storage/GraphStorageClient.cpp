@@ -13,7 +13,7 @@ namespace storage {
 folly::SemiFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>>
 GraphStorageClient::getNeighbors(GraphSpaceID space,
                                  std::vector<std::string> colNames,
-                                 const std::vector<Row>& vertices,
+                                 const storage::cpp2::StepRows& vertices,
                                  const std::vector<EdgeType>& edgeTypes,
                                  cpp2::EdgeDirection edgeDirection,
                                  const std::vector<cpp2::StatProp>* statProps,
@@ -32,7 +32,7 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
             std::runtime_error(cbStatus.status().toString()));
     }
 
-    auto status = clusterIdsToHosts(space, vertices, std::move(cbStatus).value());
+    auto status = clusterIdsToHostsWithStep(space, vertices, std::move(cbStatus).value());
     if (!status.ok()) {
         return folly::makeFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>>(
             std::runtime_error(status.status().toString()));

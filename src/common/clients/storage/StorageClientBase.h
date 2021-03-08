@@ -184,6 +184,14 @@ protected:
     >
     clusterIdsToHosts(GraphSpaceID spaceId, const Container& ids, GetIdFunc f) const;
 
+
+    template<class GetIdFunc>
+    StatusOr<std::unordered_map<HostAddr,
+                                std::unordered_map<PartitionID, storage::cpp2::StepRows>>>
+    clusterIdsToHostsWithStep(GraphSpaceID spaceId,
+                              const storage::cpp2::StepRows& ids,
+                              GetIdFunc f) const;
+
     virtual StatusOr<meta::PartHosts> getPartHosts(GraphSpaceID spaceId,
                                                    PartitionID partId) const {
         CHECK(metaClient_ != nullptr);

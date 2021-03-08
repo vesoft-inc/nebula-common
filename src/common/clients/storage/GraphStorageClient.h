@@ -30,13 +30,14 @@ public:
     GraphStorageClient(std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool,
                        meta::MetaClient* metaClient)
         : Parent(ioThreadPool, metaClient) {}
+
     virtual ~GraphStorageClient() {}
 
     folly::SemiFuture<StorageRpcResponse<cpp2::GetNeighborsResponse>> getNeighbors(
         GraphSpaceID space,
         std::vector<std::string> colNames,
         // The first column has to be the VertexID
-        const std::vector<Row>& vertices,
+        const storage::cpp2::StepRows& vertices,
         const std::vector<EdgeType>& edgeTypes,
         cpp2::EdgeDirection edgeDirection,
         const std::vector<cpp2::StatProp>* statProps,

@@ -232,12 +232,18 @@ struct TraverseSpec {
 /*
  * Start of GetNeighbors section
  */
+
+struct StepRows {
+    1: i16                step,
+    2: list<common.Row>   rows,
+}
+
 struct GetNeighborsRequest {
     1: common.GraphSpaceID                      space_id,
     // Column names for input data. The first column name must be "_vid"
     2: list<binary>                             column_names,
     // partId => rows
-    3: map<common.PartitionID, list<common.Row>>
+    3: map<common.PartitionID, StepRows>
         (cpp.template = "std::unordered_map")   parts,
     4: TraverseSpec                             traverse_spec;
 }
@@ -297,6 +303,9 @@ struct GetNeighborsResponse {
     //   "_expr:<alias1>:<alias2>:..."
     //
     2: optional common.DataSet vertices,
+
+    // Used to record the remaining steps of each partition.
+    3: map<common.PartitionID, i16>(cpp.template = "std::unordered_map") remain_steps,
 }
 /*
  * End of GetNeighbors section
