@@ -1550,7 +1550,7 @@ std::string Value::toString() const {
     LOG(FATAL) << "Unknown value type " << static_cast<int>(type_);
 }
 
-Value Value::toBool() {
+Value Value::toBool() const {
     switch (type_) {
         case Value::Type::__EMPTY__:
         case Value::Type::NULLVALUE: {
@@ -1560,7 +1560,7 @@ Value Value::toBool() {
             return *this;
         }
         case Value::Type::STRING: {
-            auto str = toString();
+            auto str = getStr();
             std::transform(str.begin(), str.end(), str.begin(), ::tolower);
             if (str.compare("true") == 0) {
                 return true;
@@ -1576,7 +1576,7 @@ Value Value::toBool() {
     }
 }
 
-Value Value::toFloat() {
+Value Value::toFloat() const {
     switch (type_) {
         case Value::Type::__EMPTY__:
         case Value::Type::NULLVALUE: {
@@ -1603,7 +1603,7 @@ Value Value::toFloat() {
     }
 }
 
-Value Value::toInt() {
+Value Value::toInt() const {
     switch (type_) {
         case Value::Type::__EMPTY__:
         case Value::Type::NULLVALUE: {
