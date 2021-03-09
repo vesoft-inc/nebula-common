@@ -18,6 +18,7 @@ class ExprVisitor;
 class Expression {
 public:
     enum class Kind : uint8_t {
+<<<<<<< HEAD
         kConstant,
         // Arithmetic
         kAdd,
@@ -92,17 +93,101 @@ public:
         kReduce,
 
         kPathBuild,
-        // text or key word search expression
-        kTSPrefix,
-        kTSWildcard,
-        kTSRegexp,
-        kTSFuzzy,
+=======
+        kConstant = 0,
 
+        kAdd = 1,
+        kMinus = 2,
+        kMultiply = 3,
+        kDivision = 4,
+        kMod = 5,
+
+        kUnaryPlus = 6,
+        kUnaryNegate = 7,
+        kUnaryNot = 8,
+        kUnaryIncr = 9,
+        kUnaryDecr = 10,
+        kIsNull = 64,
+        kIsNotNull = 65,
+
+        kRelEQ = 11,
+        kRelNE = 12,
+        kRelLT = 13,
+        kRelLE = 14,
+        kRelGT = 15,
+        kRelGE = 16,
+        kRelREG = 17,
+        kRelIn = 18,
+        kRelNotIn = 19,
+        kContains = 20,
+        kNotContains = 21,
+        kStartsWith = 22,
+        kNotStartsWith = 23,
+        kEndsWith = 24,
+        kNotEndsWith = 25,
+        kSubscript = 26,
+        kAttribute = 27,
+        kLabelAttribute = 28,
+        kColumn = 29,
+
+        kLogicalAnd = 30,
+        kLogicalOr = 31,
+        kLogicalXor = 32,
+
+        kTypeCasting = 33,
+
+        kFunctionCall = 34,
+
+        kTagProperty = 35,
+        kEdgeProperty = 36,
+        kInputProperty = 37,
+        kVarProperty = 38,
+        kDstProperty = 39,
+        kSrcProperty = 40,
+        kEdgeSrc = 41,
+        kEdgeType = 42,
+        kEdgeRank = 43,
+        kEdgeDst = 44,
+        kVertex = 45,
+        kEdge = 46,
+
+        kUUID = 47,
+
+        kVar = 48,
+        kVersionedVar = 49,
+
+        kList = 50,
+        kSet = 51,
+        kMap = 52,
+
+        kLabel = 53,
+
+        kCase = 54,
+
+        kPredicate = 55,
+        kListComprehension = 56,
+        kReduce = 57,
+
+        kPathBuild = 58,
+>>>>>>> add expression type enum value
+        // text or key word search expression
+        kTSPrefix = 59,
+        kTSWildcard = 60,
+        kTSRegexp = 61,
+        kTSFuzzy = 62,
+
+<<<<<<< HEAD
         kAggregate,
         kIsNull,
         kIsNotNull,
+<<<<<<< HEAD
         kIsEmpty,
         kIsNotEmpty,
+=======
+=======
+        kAggregate = 63,
+>>>>>>> add expression type enum value
+>>>>>>> add expression type enum value
     };
 
 
