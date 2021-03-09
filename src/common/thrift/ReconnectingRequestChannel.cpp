@@ -84,10 +84,16 @@ uint32_t ReconnectingRequestChannel::sendRequest(
 }
 
 ReconnectingRequestChannel::Impl& ReconnectingRequestChannel::impl() {
-  if (!impl_ || !std::dynamic_pointer_cast<apache::thrift::ClientChannel>(impl_)->good()
-      || !std::dynamic_pointer_cast<apache::thrift::ClientChannel>(
-          impl_)->getTransport()->readable()) {
+  if (!impl_) {
     impl_ = implCreator_(evb_);
+  }
+  auto channel = dynamic_cast<apache::thrift::ClientChannel*>(impl_.get());
+  if (channel == nullptr || !channel->good()) {
+      VLOG(3) << "channel is bad";
+      impl_ = implCreator_(evb_);
+  } else if (evb_.isInEventBaseThread() && channel->getTransport()->readable()) {
+      VLOG(3) << "channel is illegal";
+      impl_ = implCreator_(evb_);
   }
 
   return *impl_;
