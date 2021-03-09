@@ -56,6 +56,8 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
       TypeSignature({Value::Type::INT, Value::Type::FLOAT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT, Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT, Value::Type::FLOAT}, Value::Type::FLOAT)}},
+    {"e",
+     {TypeSignature({}, Value::Type::FLOAT)}},
     {"exp",
      {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
@@ -69,6 +71,11 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
      {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
     {"log10",
+     {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
+      TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
+    {"pi",
+     {TypeSignature({}, Value::Type::FLOAT)}},
+    {"radians",
      {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
     {"sin",
@@ -139,6 +146,24 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
                   TypeSignature({Value::Type::TIME}, Value::Type::STRING),
                   TypeSignature({Value::Type::DATETIME}, Value::Type::STRING)
                 }},
+    {"toBoolean", {TypeSignature({Value::Type::STRING}, Value::Type::BOOL),
+                   TypeSignature({Value::Type::STRING}, Value::Type::NULLVALUE),
+                   TypeSignature({Value::Type::BOOL}, Value::Type::BOOL)
+                }},
+    {"toFloat", {TypeSignature({Value::Type::STRING}, Value::Type::FLOAT),
+                 TypeSignature({Value::Type::STRING}, Value::Type::NULLVALUE),
+                 TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT),
+                 TypeSignature({Value::Type::INT}, Value::Type::FLOAT)
+                }},
+    {"toInteger", {TypeSignature({Value::Type::STRING}, Value::Type::INT),
+                   TypeSignature({Value::Type::STRING}, Value::Type::NULLVALUE),
+                   TypeSignature({Value::Type::FLOAT}, Value::Type::INT),
+                   TypeSignature({Value::Type::INT}, Value::Type::INT)
+                }},
+    {"toBoolean", {TypeSignature({Value::Type::STRING}, Value::Type::BOOL),
+                   TypeSignature({Value::Type::STRING}, Value::Type::NULLVALUE),
+                   TypeSignature({Value::Type::BOOL}, Value::Type::BOOL)
+                }},
     {"hash", {TypeSignature({Value::Type::INT}, Value::Type::INT),
               TypeSignature({Value::Type::FLOAT}, Value::Type::INT),
               TypeSignature({Value::Type::STRING}, Value::Type::INT),
@@ -178,6 +203,10 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
                     TypeSignature({Value::Type::EDGE}, Value::Type::MAP),
                     TypeSignature({Value::Type::MAP}, Value::Type::MAP),
              }},
+    {"exists", {TypeSignature({Value::Type::VERTEX, Value::Type::STRING}, Value::Type::BOOL),
+                TypeSignature({Value::Type::EDGE, Value::Type::STRING}, Value::Type::BOOL),
+                TypeSignature({Value::Type::MAP, Value::Type::STRING}, Value::Type::BOOL)
+                }},
     {"type", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
              }},
     {"rank", {TypeSignature({Value::Type::EDGE}, Value::Type::INT),
@@ -369,6 +398,17 @@ FunctionManager::FunctionManager() {
         };
     }
     {
+        // return the base of natural logarithm e
+        auto &attr = functions_["e"];
+        attr.minArity_ = 0;
+        attr.maxArity_ = 0;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            UNUSED(args);
+            return M_E;
+        };
+    }
+    {
         // e^x
         auto &attr = functions_["exp"];
         attr.minArity_ = 1;
@@ -449,6 +489,31 @@ FunctionManager::FunctionManager() {
             return Value::kNullBadType;
         };
     }
+    {
+        // return the mathmatical constant PI
+        auto &attr = functions_["pi"];
+        attr.minArity_ = 0;
+        attr.maxArity_ = 0;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            UNUSED(args);
+            return M_PI;
+        };
+    }
+
+    {
+        auto &attr = functions_["radians"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNumeric()) {
+                return (args[0] * M_PI) / 180;
+            }
+            return Value::kNullBadType;
+        };
+    }
+
     {
         auto &attr = functions_["sin"];
         attr.minArity_ = 1;
@@ -853,6 +918,33 @@ FunctionManager::FunctionManager() {
         };
     }
     {
+        auto &attr = functions_["toBoolean"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+             return Value(args[0]).toBool();
+        };
+    }
+    {
+        auto &attr = functions_["toFloat"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+             return Value(args[0]).toFloat();
+        };
+    }
+    {
+        auto &attr = functions_["toInteger"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+             return Value(args[0]).toInt();
+        };
+    }
+    {
         auto &attr = functions_["lpad"];
         attr.minArity_ = 3;
         attr.maxArity_ = 3;
@@ -1109,7 +1201,7 @@ FunctionManager::FunctionManager() {
     }
     {
         auto &attr = functions_["time"];
-        // 0 for corrent time
+        // 0 for current time
         // 1 for string or map
         attr.minArity_ = 0;
         attr.maxArity_ = 1;
@@ -1275,6 +1367,33 @@ FunctionManager::FunctionManager() {
             } else {
                 return Value::kNullBadType;
             }
+        };
+    }
+    {
+        auto &attr = functions_["exists"];
+        attr.minArity_ = 2;
+        attr.maxArity_ = 2;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (!args[1].isStr()) {
+                return Value::kNullBadType;
+            }
+            auto &key = args[1].getStr();
+            if (args[0].isVertex()) {
+                for (auto &tag : args[0].getVertex().tags) {
+                    if (tag.props.find(key) != tag.props.end()) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            if (args[0].isEdge()) {
+                return args[0].getEdge().props.count(key) != 0;
+            }
+            if (args[0].isMap()) {
+                return args[0].getMap().kvs.count(key) != 0;
+            }
+            return Value::kNullBadType;
         };
     }
     {
