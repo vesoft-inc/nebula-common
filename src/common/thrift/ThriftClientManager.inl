@@ -4,7 +4,6 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include <thrift/lib/cpp2/async/ReconnectingRequestChannel.h>
 #include <thrift/lib/cpp2/async/HeaderClientChannel.h>
 #include <thrift/lib/cpp/async/TAsyncSocket.h>
 #include <folly/io/async/AsyncSocket.h>
