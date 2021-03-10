@@ -127,7 +127,7 @@ StorageClientBase<ClientType>::getLeader(const meta::PartHosts& partHosts) const
         {
             folly::RWSpinLock::ReadHolder rh(hostsLock_);
             for (const auto &host : partHosts.hosts_) {
-                if (invalidHosts_.find(host) != invalidHosts_.end()) {
+                if (invalidHosts_.find(host) == invalidHosts_.end()) {
                     leaders_[part] = host;
                     break;
                 }
