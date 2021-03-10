@@ -32,17 +32,22 @@ public:
         PARTIAL_SUCCEEDED = 1,
     };
 
-    explicit StorageRpcResponse(size_t reqsSent) : totalReqsSent_(reqsSent) {}
+    explicit StorageRpcResponse(size_t reqsSent) : totalReqsSent_(reqsSent) {
+        lock_ = std::make_unique<std::mutex>();
+    }
 
     bool succeeded() const {
+        std::lock_guard<std::mutex> g(*lock_);
         return result_ == Result::ALL_SUCCEEDED;
     }
 
     int32_t maxLatency() const {
+        std::lock_guard<std::mutex> g(*lock_);
         return maxLatency_;
     }
 
     void setLatency(HostAddr host, int32_t latency, int32_t e2eLatency) {
+        std::lock_guard<std::mutex> g(*lock_);
         if (latency > maxLatency_) {
             maxLatency_ = latency;
         }
@@ -50,41 +55,54 @@ public:
     }
 
     void markFailure() {
+        std::lock_guard<std::mutex> g(*lock_);
         result_ = Result::PARTIAL_SUCCEEDED;
         ++failedReqs_;
     }
 
     // A value between [0, 100], representing a precentage
     int32_t completeness() const {
+        std::lock_guard<std::mutex> g(*lock_);
         DCHECK_NE(totalReqsSent_, 0);
         return totalReqsSent_ == 0 ? 0 : (totalReqsSent_ - failedReqs_) * 100 / totalReqsSent_;
     }
 
-    const std::unordered_map<PartitionID, storage::cpp2::ErrorCode>& failedParts() const {
-        return failedParts_;
-    }
-
     void emplaceFailedPart(PartitionID partId, storage::cpp2::ErrorCode errorCode) {
+        std::lock_guard<std::mutex> g(*lock_);
         failedParts_.emplace(partId, errorCode);
     }
 
     void appendFailedParts(const std::vector<PartitionID> &partsId,
                            storage::cpp2::ErrorCode errorCode) {
+        std::lock_guard<std::mutex> g(*lock_);
         failedParts_.reserve(failedParts_.size() + partsId.size());
         for (const auto &partId : partsId) {
-            emplaceFailedPart(partId, errorCode);
+            failedParts_.emplace(partId, errorCode);
         }
     }
 
+    void addResponse(Response&& resp) {
+        std::lock_guard<std::mutex> g(*lock_);
+        responses_.emplace_back(std::move(resp));
+    }
+
+    // Not thread-safe.
+    const std::unordered_map<PartitionID, storage::cpp2::ErrorCode>& failedParts() const {
+        return failedParts_;
+    }
+
+    // Not thread-safe.
     std::vector<Response>& responses() {
         return responses_;
     }
 
+    // Not thread-safe.
     const std::vector<std::tuple<HostAddr, int32_t, int32_t>>& hostLatency() const {
         return hostLatency_;
     }
 
 private:
+    std::unique_ptr<std::mutex> lock_;
     const size_t totalReqsSent_;
     size_t failedReqs_{0};
 
@@ -122,10 +140,7 @@ protected:
     folly::SemiFuture<StorageRpcResponse<Response>> collectResponse(
         folly::EventBase* evb,
         std::unordered_map<HostAddr, Request> requests,
-        RemoteFunc&& remoteFunc,
-        int32_t portOffsetIfRetry = 0,
-        std::size_t retry = 0,
-        std::size_t retryLimit = 3);
+        RemoteFunc&& remoteFunc);
 
     template<class Request,
              class RemoteFunc,
@@ -138,10 +153,7 @@ protected:
             folly::EventBase* evb,
             std::pair<HostAddr, Request>&& request,
             RemoteFunc&& remoteFunc,
-            int32_t leaderPortOffset = 0,
-            folly::Promise<StatusOr<Response>> pro = folly::Promise<StatusOr<Response>>(),
-            std::size_t retry = 0,
-            std::size_t retryLimit = 3);
+            folly::Promise<StatusOr<Response>> pro = folly::Promise<StatusOr<Response>>());
 
     template<class Request,
              class RemoteFunc,
@@ -154,10 +166,7 @@ protected:
             folly::EventBase* evb,
             std::pair<HostAddr, Request> request,
             RemoteFunc remoteFunc,
-            int32_t leaderPortOffset,
-            folly::Promise<StatusOr<Response>> pro,
-            std::size_t retry,
-            std::size_t retryLimit);
+            folly::Promise<StatusOr<Response>> pro);
 
     // Cluster given ids into the host they belong to
     // The method returns a map

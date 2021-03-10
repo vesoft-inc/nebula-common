@@ -8,14 +8,4 @@ nebula_add_library(
     FunctionManager.cpp
 )
 
-nebula_add_library(
-    agg_function_obj OBJECT
-    AggregateFunction.cpp
-)
-
-nebula_add_library(
-    time_function_obj OBJECT
-    TimeFunction.cpp
-)
-
 nebula_add_subdirectory(test)

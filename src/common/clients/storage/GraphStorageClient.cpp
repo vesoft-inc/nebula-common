@@ -44,7 +44,7 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
         auto& host = c.first;
         auto& req = requests[host];
         req.set_space_id(space);
-        req.set_column_names(std::move(colNames));
+        req.set_column_names(colNames);
         req.set_parts(std::move(c.second));
 
         cpp2::TraverseSpec spec;
@@ -67,11 +67,9 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
         if (!orderBy.empty()) {
             spec.set_order_by(orderBy);
         }
-        if (limit < std::numeric_limits<int64_t>::max()) {
-            spec.set_limit(limit);
-        }
+        spec.set_limit(limit);
         if (filter.size() > 0) {
-            spec.set_filter(std::move(filter));
+            spec.set_filter(filter);
         }
         req.set_traverse_spec(std::move(spec));
     }
@@ -111,7 +109,7 @@ GraphStorageClient::addVertices(GraphSpaceID space,
         req.set_space_id(space);
         req.set_overwritable(overwritable);
         req.set_parts(std::move(c.second));
-        req.set_prop_names(std::move(propNames));
+        req.set_prop_names(propNames);
     }
 
     VLOG(3) << "requests size " << requests.size();
@@ -152,7 +150,7 @@ GraphStorageClient::addEdges(GraphSpaceID space,
         req.set_space_id(space);
         req.set_overwritable(overwritable);
         req.set_parts(std::move(c.second));
-        req.set_prop_names(std::move(propNames));
+        req.set_prop_names(propNames);
     }
     return collectResponse(
         evb,
@@ -206,11 +204,9 @@ GraphStorageClient::getProps(GraphSpaceID space,
         if (!orderBy.empty()) {
             req.set_order_by(orderBy);
         }
-        if (limit < std::numeric_limits<int64_t>::max()) {
-            req.set_limit(limit);
-        }
+        req.set_limit(limit);
         if (filter.size() > 0) {
-            req.set_filter(std::move(filter));
+            req.set_filter(filter);
         }
     }
 

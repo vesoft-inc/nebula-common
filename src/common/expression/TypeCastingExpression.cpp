@@ -15,6 +15,7 @@ static std::unordered_multimap<Value::Type, Value::Type> typeCastMap = {
     {Value::Type::INT, Value::Type::INT},
     {Value::Type::FLOAT, Value::Type::INT},
     {Value::Type::STRING, Value::Type::INT},
+    {Value::Type::__EMPTY__, Value::Type::INT},
     // cast to STRING
     {Value::Type::STRING, Value::Type::STRING},
     {Value::Type::__EMPTY__, Value::Type::STRING},
@@ -42,7 +43,8 @@ static std::unordered_multimap<Value::Type, Value::Type> typeCastMap = {
     // cast to FLOAT
     {Value::Type::FLOAT, Value::Type::FLOAT},
     {Value::Type::INT, Value::Type::FLOAT},
-    {Value::Type::STRING, Value::Type::FLOAT}
+    {Value::Type::STRING, Value::Type::FLOAT},
+    {Value::Type::__EMPTY__, Value::Type::FLOAT},
 };
 
 // static
@@ -60,31 +62,20 @@ bool TypeCastingExpression::validateTypeCast(Value::Type operandType, Value::Typ
 }
 
 const Value& TypeCastingExpression::eval(ExpressionContext& ctx) {
+    DCHECK(!!operand_);
     auto val = operand_->eval(ctx);
 
     switch (vType_) {
         case Value::Type::BOOL: {
-            auto result = val.toBool();
-            if (!result.second) {
-                return Value::kNullValue;
-            }
-            result_.setBool(result.first);
+            result_ = val.toBool();
             break;
         }
         case Value::Type::INT: {
-            auto result = val.toInt();
-            if (!result.second) {
-                return Value::kNullValue;
-            }
-            result_.setInt(result.first);
+            result_ = val.toInt();
             break;
         }
         case Value::Type::FLOAT: {
-            auto result = val.toFloat();
-            if (!result.second) {
-                return Value::kNullValue;
-            }
-            result_.setFloat(result.first);
+            result_ = val.toFloat();
             break;
         }
         case Value::Type::STRING: {

@@ -86,13 +86,22 @@ public:
 
         kCase,
 
+        kPredicate,
+        kListComprehension,
+        kReduce,
+
         kPathBuild,
         // text or key word search expression
         kTSPrefix,
         kTSWildcard,
         kTSRegexp,
         kTSFuzzy,
+
+        kAggregate,
+        kIsNull,
+        kIsNotNull,
     };
+
 
     explicit Expression(Kind kind) : kind_(kind) {}
 

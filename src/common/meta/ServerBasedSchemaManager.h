@@ -24,6 +24,8 @@ public:
 
     StatusOr<cpp2::PropertyType> getSpaceVidType(GraphSpaceID space) override;
 
+    StatusOr<int32_t> getPartsNum(GraphSpaceID space) override;
+
     // return the newest one if ver less 0
     std::shared_ptr<const NebulaSchemaProvider>
     getTagSchema(GraphSpaceID space, TagID tag, SchemaVer ver = -1) override;
@@ -54,6 +56,9 @@ public:
 
     // get all version of all tags
     StatusOr<TagSchemas> getAllVerTagSchema(GraphSpaceID space) override;
+
+    // get latest version of all tags
+    StatusOr<TagSchema> getAllLatestVerTagSchema(GraphSpaceID space) override;
 
     // get all version of all tags
     StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID space) override;

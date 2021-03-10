@@ -305,12 +305,13 @@ struct Value {
 
     std::string toString() const;
 
-    // The second means is this casting valid, check it before access the value
-    std::pair<bool, bool> toBool();
+    Value toBool() const;
+    Value toFloat() const;
+    Value toInt() const;
 
-    std::pair<double, bool> toFloat();
+    Value lessThan(const Value& v) const;
 
-    std::pair<int64_t, bool> toInt();
+    Value equal(const Value& v) const;
 
 private:
     Type type_;

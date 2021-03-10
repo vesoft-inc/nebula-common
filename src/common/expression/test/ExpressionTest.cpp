@@ -16,6 +16,7 @@
 #include "common/datatypes/Vertex.h"
 #include "common/expression/ArithmeticExpression.h"
 #include "common/expression/AttributeExpression.h"
+#include "common/expression/AggregateExpression.h"
 #include "common/expression/ConstantExpression.h"
 #include "common/expression/ContainerExpression.h"
 #include "common/expression/EdgeExpression.h"
@@ -34,6 +35,9 @@
 #include "common/expression/VertexExpression.h"
 #include "common/expression/CaseExpression.h"
 #include "common/expression/ColumnExpression.h"
+#include "common/expression/ListComprehensionExpression.h"
+#include "common/expression/PredicateExpression.h"
+#include "common/expression/ReduceExpression.h"
 #include "common/expression/test/ExpressionContextMock.h"
 
 nebula::ExpressionContextMock gExpCtxt;
@@ -175,8 +179,8 @@ protected:
         boost::split(splitString, expr, boost::is_any_of(" \t"));
         Expression *ep = ExpressionCalu(splitString);
         auto eval = Expression::eval(ep, gExpCtxt);
-        EXPECT_EQ(eval.type(), expected.type());
-        EXPECT_EQ(eval, expected);
+        EXPECT_EQ(eval.type(), expected.type()) << "type check failed: " << ep->toString();
+        EXPECT_EQ(eval, expected) << "check failed: " << ep->toString();
         delete ep;
     }
 
@@ -199,6 +203,45 @@ protected:
         auto eval = Expression::eval(&functionCall, gExpCtxt);
         // EXPECT_EQ(eval.type(), expected.type());
         EXPECT_EQ(eval, expected);
+    }
+
+    void testAggExpr(const char* name,
+                     bool isDistinct,
+                     const char* expr,
+                     std::vector<std::pair<std::string, Value>> inputVar,
+                     const std::unordered_map<std::string, Value> &expected) {
+        auto agg = new std::string(name);
+        auto func = std::make_unique<std::string>(expr);
+        Expression* arg = nullptr;
+        auto isConst = false;
+        if (!func->compare("isConst")) {
+            isConst = true;
+            arg = new ConstantExpression();
+        } else {
+            arg = new FunctionCallExpression(func.release());
+        }
+        AggregateExpression aggExpr(agg, arg, isDistinct);
+        std::unordered_map<std::string, std::unique_ptr<AggData>> agg_data_map;
+        for (const auto &row : inputVar) {
+            auto iter = agg_data_map.find(row.first);
+            if (iter == agg_data_map.end()) {
+                agg_data_map[row.first] = std::make_unique<AggData>();
+            }
+            if (isConst) {
+                static_cast<ConstantExpression*>(arg)->setValue(row.second);
+            } else {
+                auto args = std::make_unique<ArgumentList>(1);
+                args->addArgument(std::make_unique<ConstantExpression>(row.second));
+                static_cast<FunctionCallExpression*>(arg)->setArgs(std::move(args).release());
+            }
+            aggExpr.setAggData(agg_data_map[row.first].get());
+            auto eval = aggExpr.eval(gExpCtxt);
+        }
+        std::unordered_map<std::string, Value> res;
+        for (auto& iter : agg_data_map) {
+            res[iter.first] = iter.second->result();
+        }
+        EXPECT_EQ(res, expected) << "check failed: " << name;
     }
 };
 
@@ -253,6 +296,15 @@ static std::unordered_map<std::string, std::vector<Value>> args_ = {
 #define TEST_FUNCTION(expr, args, expected)                                                        \
     do {                                                                                           \
         testFunction(#expr, args, expected);                                                       \
+    } while (0)
+
+#define TEST_AGG(name, isDistinct, expr, inputVar, expected)                                      \
+    do {                                                                                          \
+        testAggExpr(#name,                                                                        \
+                    isDistinct,                                                                   \
+                    #expr,                                                                        \
+                    inputVar,                                                                     \
+                    expected);                                                                    \
     } while (0)
 
 #define TEST_TOSTRING(expr, expected)                                                              \
@@ -609,35 +661,35 @@ TEST_F(ExpressionTest, LiteralConstantsRelational) {
         TEST_EXPR(true == 2.0, false);
         TEST_EXPR(true != 1.0, true);
         TEST_EXPR(true != 2.0, true);
-        TEST_EXPR(true > 1.0, false);
-        TEST_EXPR(true >= 1.0, false);
-        TEST_EXPR(true < 1.0, true);
-        TEST_EXPR(true <= 1.0, true);
+        TEST_EXPR(true > 1.0, Value::kNullBadType);
+        TEST_EXPR(true >= 1.0, Value::kNullBadType);
+        TEST_EXPR(true < 1.0, Value::kNullBadType);
+        TEST_EXPR(true <= 1.0, Value::kNullBadType);
         TEST_EXPR(false == 0.0, false);
         TEST_EXPR(false == 1.0, false);
         TEST_EXPR(false != 0.0, true);
         TEST_EXPR(false != 1.0, true);
-        TEST_EXPR(false > 0.0, false);
-        TEST_EXPR(false >= 0.0, false);
-        TEST_EXPR(false < 0.0, true);
-        TEST_EXPR(false <= 0.0, true);
+        TEST_EXPR(false > 0.0, Value::kNullBadType);
+        TEST_EXPR(false >= 0.0, Value::kNullBadType);
+        TEST_EXPR(false < 0.0, Value::kNullBadType);
+        TEST_EXPR(false <= 0.0, Value::kNullBadType);
 
         TEST_EXPR(true == 1, false);
         TEST_EXPR(true == 2, false);
         TEST_EXPR(true != 1, true);
         TEST_EXPR(true != 2, true);
-        TEST_EXPR(true > 1, false);
-        TEST_EXPR(true >= 1, false);
-        TEST_EXPR(true < 1, true);
-        TEST_EXPR(true <= 1, true);
+        TEST_EXPR(true > 1, Value::kNullBadType);
+        TEST_EXPR(true >= 1, Value::kNullBadType);
+        TEST_EXPR(true < 1, Value::kNullBadType);
+        TEST_EXPR(true <= 1, Value::kNullBadType);
         TEST_EXPR(false == 0, false);
         TEST_EXPR(false == 1, false);
         TEST_EXPR(false != 0, true);
         TEST_EXPR(false != 1, true);
-        TEST_EXPR(false > 0, false);
-        TEST_EXPR(false >= 0, false);
-        TEST_EXPR(false < 0, true);
-        TEST_EXPR(false <= 0, true);
+        TEST_EXPR(false > 0, Value::kNullBadType);
+        TEST_EXPR(false >= 0, Value::kNullBadType);
+        TEST_EXPR(false < 0, Value::kNullBadType);
+        TEST_EXPR(false <= 0, Value::kNullBadType);
     }
     {
         TEST_EXPR(-1 == -2, false);
@@ -688,6 +740,22 @@ TEST_F(ExpressionTest, LiteralConstantsRelational) {
         TEST_EXPR(1 >= 1, true);
         TEST_EXPR(1 < 1, false);
         TEST_EXPR(1 <= 1, true);
+    }
+    {
+        TEST_EXPR(empty == empty, true);
+        TEST_EXPR(empty == null, Value::kNullValue);
+        TEST_EXPR(empty != null, Value::kNullValue);
+        TEST_EXPR(empty != 1, true);
+        TEST_EXPR(empty != true, true);
+        TEST_EXPR(empty > "1", Value::kEmpty);
+        TEST_EXPR(empty < 1, Value::kEmpty);
+        TEST_EXPR(empty >= 1.11, Value::kEmpty);
+
+        TEST_EXPR(null != 1, Value::kNullValue);
+        TEST_EXPR(null != true, Value::kNullValue);
+        TEST_EXPR(null > "1", Value::kNullValue);
+        TEST_EXPR(null < 1, Value::kNullValue);
+        TEST_EXPR(null >= 1.11, Value::kNullValue);
     }
     {
         TEST_EXPR(8 % 2 + 1 == 1, true);
@@ -912,8 +980,7 @@ TEST_F(ExpressionTest, Relation) {
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
                 new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, false);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
     }
     {
         // e1.list_of_list == NULL
@@ -922,8 +989,7 @@ TEST_F(ExpressionTest, Relation) {
                 new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
                 new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, false);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
     }
     {
         // e1.list == e1.list
@@ -952,8 +1018,7 @@ TEST_F(ExpressionTest, Relation) {
                 new ConstantExpression(Value(1)),
                 new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, false);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
     }
     {
         // NULL == NULL
@@ -962,8 +1027,7 @@ TEST_F(ExpressionTest, Relation) {
                 new ConstantExpression(Value(NullType::NaN)),
                 new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, true);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
     }
     {
         // 1 != NULL
@@ -972,8 +1036,7 @@ TEST_F(ExpressionTest, Relation) {
                 new ConstantExpression(Value(1)),
                 new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, true);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
     }
     {
         // NULL != NULL
@@ -982,8 +1045,7 @@ TEST_F(ExpressionTest, Relation) {
                 new ConstantExpression(Value(NullType::NaN)),
                 new ConstantExpression(Value(NullType::NaN)));
         auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, false);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
     }
     {
         // 1 < NULL
@@ -1027,6 +1089,93 @@ TEST_F(ExpressionTest, UnaryINCR) {
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 2);
+    }
+}
+
+TEST_F(ExpressionTest, IsNull) {
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNull,
+                new ConstantExpression(Value::kNullValue));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNull,
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNull,
+                new ConstantExpression(1.1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNull,
+                new ConstantExpression(true));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNull,
+                new ConstantExpression(Value::kEmpty));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+}
+
+
+TEST_F(ExpressionTest, IsNotNull) {
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNotNull,
+                new ConstantExpression(Value::kNullValue));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNotNull,
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNotNull,
+                new ConstantExpression(1.1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNotNull,
+                new ConstantExpression(true));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNotNull,
+                new ConstantExpression(Value::kEmpty));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
     }
 }
 
@@ -1107,11 +1256,11 @@ TEST_F(ExpressionTest, toStringTest) {
     }
     {
         ConstantExpression ep(Map({{"hello", "world"}, {"name", "zhang"}}));
-        EXPECT_EQ(ep.toString(), "{\"name\":zhang,\"hello\":world}");
+        EXPECT_EQ(ep.toString(), "{name:\"zhang\",hello:\"world\"}");
     }
     {
         ConstantExpression ep(Set({1, 2.3, "hello", true}));
-        EXPECT_EQ(ep.toString(), "{hello,2.3,true,1}");
+        EXPECT_EQ(ep.toString(), "{\"hello\",2.3,true,1}");
     }
     {
         ConstantExpression ep(Date(1234));
@@ -1119,11 +1268,11 @@ TEST_F(ExpressionTest, toStringTest) {
     }
     {
         ConstantExpression ep(Edge("100", "102", 2, "like", 3, {{"likeness", 95}}));
-        EXPECT_EQ(ep.toString(), "(100)-[like(2)]->(102)@3 likeness:95");
+        EXPECT_EQ(ep.toString(), "(\"100\")-[like(2)]->(\"102\")@3 likeness:95");
     }
     {
         ConstantExpression ep(Vertex("100", {Tag("player", {{"name", "jame"}})}));
-        EXPECT_EQ(ep.toString(), "(100) Tag: player, name:jame");
+        EXPECT_EQ(ep.toString(), "(\"100\") Tag: player, name:\"jame\"");
     }
     {
         TypeCastingExpression ep(Value::Type::FLOAT, new ConstantExpression(2));
@@ -1144,6 +1293,13 @@ TEST_F(ExpressionTest, toStringTest) {
 
         UnaryExpression no(Expression::Kind::kUnaryNot, new ConstantExpression(2));
         EXPECT_EQ(no.toString(), "!(2)");
+
+        UnaryExpression isNull(Expression::Kind::kIsNull, new ConstantExpression(2));
+        EXPECT_EQ(isNull.toString(), "IS NULL(2)");
+
+        UnaryExpression isNotNull(Expression::Kind::kIsNotNull,
+                                  new ConstantExpression(Value::kNullValue));
+        EXPECT_EQ(isNotNull.toString(), "IS NOT NULL(NULL)");
     }
     {
         VariableExpression var(new std::string("name"));
@@ -1246,7 +1402,7 @@ TEST_F(ExpressionTest, ListToString) {
             .add(new ConstantExpression("Hello"))
             .add(new ConstantExpression(true));
     auto expr = std::make_unique<ListExpression>(elist);
-    ASSERT_EQ("[12345,Hello,true]", expr->toString());
+    ASSERT_EQ("[12345,\"Hello\",true]", expr->toString());
 }
 
 TEST_F(ExpressionTest, SetToString) {
@@ -1256,7 +1412,14 @@ TEST_F(ExpressionTest, SetToString) {
             .add(new ConstantExpression("Hello"))
             .add(new ConstantExpression(true));
     auto expr = std::make_unique<SetExpression>(elist);
-    ASSERT_EQ("{12345,12345,Hello,true}", expr->toString());
+    ASSERT_EQ("{12345,12345,\"Hello\",true}", expr->toString());
+}
+
+TEST_F(ExpressionTest, AggregateToString) {
+    auto* arg = new ConstantExpression("$-.age");
+    auto* aggName = new std::string("COUNT");
+    auto expr = std::make_unique<AggregateExpression>(aggName, arg, true);
+    ASSERT_EQ("COUNT(distinct $-.age)", expr->toString());
 }
 
 TEST_F(ExpressionTest, MapTostring) {
@@ -1267,10 +1430,10 @@ TEST_F(ExpressionTest, MapTostring) {
             .add(new std::string("key4"), new ConstantExpression(true));
     auto expr = std::make_unique<MapExpression>(items);
     auto expected = "{"
-                        "\"key1\":12345,"
-                        "\"key2\":12345,"
-                        "\"key3\":Hello,"
-                        "\"key4\":true"
+                        "key1:12345,"
+                        "key2:12345,"
+                        "key3:\"Hello\","
+                        "key4:true"
                     "}";
     ASSERT_EQ(expected, expr->toString());
 }
@@ -1765,6 +1928,106 @@ TEST_F(ExpressionTest, MapSubscript) {
     }
 }
 
+TEST_F(ExpressionTest, VertexSubscript) {
+    Vertex vertex;
+    vertex.vid = "vid";
+    vertex.tags.resize(2);
+    vertex.tags[0].props = {
+        {"Venus", "Mars"},
+        {"Mull", "Kintyre"},
+    };
+    vertex.tags[1].props = {
+        {"Bip", "Bop"},
+        {"Tug", "War"},
+        {"Venus", "RocksShow"},
+    };
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new ConstantExpression("Mull");
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("Kintyre", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new LabelExpression("Bip");
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("Bop", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new LabelExpression("Venus");
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("Mars", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new LabelExpression("_vid");
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("vid", value.getStr());
+    }
+}
+
+TEST_F(ExpressionTest, EdgeSubscript) {
+    Edge edge;
+    edge.name = "type";
+    edge.src = "src";
+    edge.dst = "dst";
+    edge.ranking = 123;
+    edge.props = {
+        {"Magill", "Nancy"},
+        {"Gideon", "Bible"},
+        {"Rocky", "Raccoon"},
+    };
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new ConstantExpression("Rocky");
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("Raccoon", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new ConstantExpression(kType);
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("type", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new ConstantExpression(kSrc);
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("src", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new ConstantExpression(kDst);
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("dst", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new ConstantExpression(kRank);
+        SubscriptExpression expr(left, right);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isInt());
+        ASSERT_EQ(123, value.getInt());
+    }
+}
+
 TEST_F(ExpressionTest, MapAttribute) {
     // {"key1":1, "key2":2, "key3":3}.key1
     {
@@ -1954,14 +2217,12 @@ TEST_F(ExpressionTest, TypeCastTest) {
     {
         TypeCastingExpression typeCast(Value::Type::BOOL, new ConstantExpression(2));
         auto eval = Expression::eval(&typeCast, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, true);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
     }
     {
         TypeCastingExpression typeCast(Value::Type::BOOL, new ConstantExpression(0));
         auto eval = Expression::eval(&typeCast, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, false);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
     }
     {
         TypeCastingExpression typeCast(Value::Type::STRING, new ConstantExpression(true));
@@ -2578,7 +2839,7 @@ TEST_F(ExpressionTest, ContainsToString) {
                 Expression::Kind::kContains,
                 new ConstantExpression("abc"),
                 new ConstantExpression("a"));
-        ASSERT_EQ("(abc CONTAINS a)", expr.toString());
+        ASSERT_EQ("(\"abc\" CONTAINS \"a\")", expr.toString());
     }
 }
 
@@ -2589,7 +2850,7 @@ TEST_F(ExpressionTest, NotContainsToString) {
                 Expression::Kind::kNotContains,
                 new ConstantExpression("abc"),
                 new ConstantExpression("a"));
-        ASSERT_EQ("(abc NOT CONTAINS a)", expr.toString());
+        ASSERT_EQ("(\"abc\" NOT CONTAINS \"a\")", expr.toString());
     }
 }
 
@@ -2631,7 +2892,7 @@ TEST_F(ExpressionTest, CaseExprToString) {
                                                    new ConstantExpression("nebu")));
         expr.setDefault(new ConstantExpression(3));
         ASSERT_EQ(
-            "CASE (nebula STARTS WITH nebu) WHEN false THEN 1 WHEN true THEN 2 ELSE 3 END",
+            "CASE (\"nebula\" STARTS WITH \"nebu\") WHEN false THEN 1 WHEN true THEN 2 ELSE 3 END",
             expr.toString());
     }
     {
@@ -2643,7 +2904,7 @@ TEST_F(ExpressionTest, CaseExprToString) {
         expr.setCondition(new ArithmeticExpression(
             Expression::Kind::kAdd, new ConstantExpression(3), new ConstantExpression(5)));
         expr.setDefault(new ConstantExpression(false));
-        ASSERT_EQ("CASE (3+5) WHEN 7 THEN 1 WHEN 8 THEN 2 WHEN 8 THEN jack ELSE false END",
+        ASSERT_EQ("CASE (3+5) WHEN 7 THEN 1 WHEN 8 THEN 2 WHEN 8 THEN \"jack\" ELSE false END",
                   expr.toString());
     }
     {
@@ -2657,7 +2918,7 @@ TEST_F(ExpressionTest, CaseExprToString) {
         cases->add(new ConstantExpression(false), new ConstantExpression(18));
         CaseExpression expr(cases);
         expr.setDefault(new ConstantExpression("ok"));
-        ASSERT_EQ("CASE WHEN false THEN 18 ELSE ok END", expr.toString());
+        ASSERT_EQ("CASE WHEN false THEN 18 ELSE \"ok\" END", expr.toString());
     }
     {
         auto *cases = new CaseList();
@@ -2667,7 +2928,7 @@ TEST_F(ExpressionTest, CaseExprToString) {
                    new ConstantExpression("yes"));
         CaseExpression expr(cases);
         expr.setDefault(new ConstantExpression(false));
-        ASSERT_EQ("CASE WHEN (nebula STARTS WITH nebu) THEN yes ELSE false END",
+        ASSERT_EQ("CASE WHEN (\"nebula\" STARTS WITH \"nebu\") THEN \"yes\" ELSE false END",
                   expr.toString());
     }
     {
@@ -2704,7 +2965,7 @@ TEST_F(ExpressionTest, CaseExprToString) {
         cases->add(new ConstantExpression(false), new ConstantExpression(1));
         CaseExpression expr(cases, false);
         expr.setDefault(new ConstantExpression("ok"));
-        ASSERT_EQ("(false ? 1 : ok)", expr.toString());
+        ASSERT_EQ("(false ? 1 : \"ok\")", expr.toString());
     }
 }
 
@@ -2830,6 +3091,299 @@ TEST_F(ExpressionTest, CaseEvaluate) {
     }
 }
 
+TEST_F(ExpressionTest, ListComprehensionExprToString) {
+    {
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<ConstantExpression>(1));
+        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        ListComprehensionExpression expr(
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("range"), argList),
+            new RelationalExpression(
+                Expression::Kind::kRelGE,
+                new LabelExpression(new std::string("n")),
+                new ConstantExpression(2)));
+        ASSERT_EQ("[n IN range(1,5) WHERE (n>=2)]", expr.toString());
+    }
+    {
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<LabelExpression>(new std::string("p")));
+        ListComprehensionExpression expr(
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("nodes"), argList),
+            nullptr,
+            new ArithmeticExpression(
+                Expression::Kind::kAdd,
+                new LabelAttributeExpression(new LabelExpression(new std::string("n")),
+                                             new ConstantExpression("age")),
+                new ConstantExpression(10)));
+        ASSERT_EQ("[n IN nodes(p) | (n.age+10)]", expr.toString());
+    }
+    {
+        auto *listItems = new ExpressionList();
+        (*listItems)
+            .add(new ConstantExpression(0))
+            .add(new ConstantExpression(1))
+            .add(new ConstantExpression(2));
+        ListComprehensionExpression expr(
+            new std::string("n"),
+            new ListExpression(listItems),
+            new RelationalExpression(
+                Expression::Kind::kRelGE,
+                new LabelExpression(new std::string("n")),
+                new ConstantExpression(2)),
+            new ArithmeticExpression(
+                Expression::Kind::kAdd,
+                new LabelExpression(new std::string("n")),
+                new ConstantExpression(10)));
+        ASSERT_EQ("[n IN [0,1,2] WHERE (n>=2) | (n+10)]", expr.toString());
+    }
+}
+
+TEST_F(ExpressionTest, ListComprehensionEvaluate) {
+    {
+        // [n IN [0, 1, 2, 4, 5] WHERE n >= 2 | n + 10]
+        auto *listItems = new ExpressionList();
+        (*listItems)
+            .add(new ConstantExpression(0))
+            .add(new ConstantExpression(1))
+            .add(new ConstantExpression(2))
+            .add(new ConstantExpression(4))
+            .add(new ConstantExpression(5));
+        ListComprehensionExpression expr(
+            new std::string("n"),
+            new ListExpression(listItems),
+            new RelationalExpression(
+                Expression::Kind::kRelGE,
+                new VariableExpression(new std::string("n")),
+                new ConstantExpression(2)),
+            new ArithmeticExpression(
+                Expression::Kind::kAdd,
+                new VariableExpression(new std::string("n")),
+                new ConstantExpression(10)));
+
+        auto value = Expression::eval(&expr, gExpCtxt);
+        List expected;
+        expected.reserve(3);
+        expected.emplace_back(12);
+        expected.emplace_back(14);
+        expected.emplace_back(15);
+        ASSERT_TRUE(value.isList());
+        ASSERT_EQ(expected, value.getList());
+    }
+    {
+        // [n IN nodes(p) | n.age + 5]
+        auto v1 = Vertex("101", {Tag("player", {{"name", "joe"}, {"age", 18}})});
+        auto v2 = Vertex("102", {Tag("player", {{"name", "amber"}, {"age", 19}})});
+        auto v3 = Vertex("103", {Tag("player", {{"name", "shawdan"}, {"age", 20}})});
+        Path path;
+        path.src = v1;
+        path.steps.emplace_back(Step(v2, 1, "like", 0, {}));
+        path.steps.emplace_back(Step(v3, 1, "like", 0, {}));
+        gExpCtxt.setVar("p", path);
+
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<VariableExpression>(new std::string("p")));
+        ListComprehensionExpression expr(
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("nodes"), argList),
+            nullptr,
+            new ArithmeticExpression(
+                Expression::Kind::kAdd,
+                new AttributeExpression(new VariableExpression(new std::string("n")),
+                                        new ConstantExpression("age")),
+                new ConstantExpression(5)));
+
+        auto value = Expression::eval(&expr, gExpCtxt);
+        List expected;
+        expected.reserve(3);
+        expected.emplace_back(23);
+        expected.emplace_back(24);
+        expected.emplace_back(25);
+        ASSERT_TRUE(value.isList());
+        ASSERT_EQ(expected, value.getList());
+    }
+}
+
+TEST_F(ExpressionTest, PredicateExprToString) {
+    {
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<ConstantExpression>(1));
+        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        PredicateExpression expr(
+            new std::string("all"),
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("range"), argList),
+            new RelationalExpression(
+                Expression::Kind::kRelGE,
+                new LabelExpression(new std::string("n")),
+                new ConstantExpression(2)));
+        ASSERT_EQ("all(n IN range(1,5) WHERE (n>=2))", expr.toString());
+    }
+}
+
+TEST_F(ExpressionTest, PredicateEvaluate) {
+    {
+        // all(n IN [0, 1, 2, 4, 5) WHERE n >= 2)
+        auto *listItems = new ExpressionList();
+        (*listItems)
+            .add(new ConstantExpression(0))
+            .add(new ConstantExpression(1))
+            .add(new ConstantExpression(2))
+            .add(new ConstantExpression(4))
+            .add(new ConstantExpression(5));
+        PredicateExpression expr(
+            new std::string("all"),
+            new std::string("n"),
+            new ListExpression(listItems),
+            new RelationalExpression(
+                Expression::Kind::kRelGE,
+                new VariableExpression(new std::string("n")),
+                new ConstantExpression(2)));
+
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isBool());
+        ASSERT_EQ(false, value.getBool());
+    }
+    {
+        // any(n IN nodes(p) WHERE n.age >= 19)
+        auto v1 = Vertex("101", {Tag("player", {{"name", "joe"}, {"age", 18}})});
+        auto v2 = Vertex("102", {Tag("player", {{"name", "amber"}, {"age", 19}})});
+        auto v3 = Vertex("103", {Tag("player", {{"name", "shawdan"}, {"age", 20}})});
+        Path path;
+        path.src = v1;
+        path.steps.emplace_back(Step(v2, 1, "like", 0, {}));
+        path.steps.emplace_back(Step(v3, 1, "like", 0, {}));
+        gExpCtxt.setVar("p", path);
+
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<VariableExpression>(new std::string("p")));
+        PredicateExpression expr(
+            new std::string("any"),
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("nodes"), argList),
+            new RelationalExpression(
+                Expression::Kind::kRelGE,
+                new AttributeExpression(new VariableExpression(new std::string("n")),
+                                        new ConstantExpression("age")),
+                new ConstantExpression(19)));
+
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isBool());
+        ASSERT_EQ(true, value.getBool());
+    }
+    {
+        // single(n IN [0, 1, 2, 4, 5) WHERE n == 2)
+        auto *listItems = new ExpressionList();
+        (*listItems)
+            .add(new ConstantExpression(0))
+            .add(new ConstantExpression(1))
+            .add(new ConstantExpression(2))
+            .add(new ConstantExpression(4))
+            .add(new ConstantExpression(5));
+        PredicateExpression expr(
+            new std::string("single"),
+            new std::string("n"),
+            new ListExpression(listItems),
+            new RelationalExpression(
+                Expression::Kind::kRelEQ,
+                new VariableExpression(new std::string("n")),
+                new ConstantExpression(2)));
+
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isBool());
+        ASSERT_EQ(true, value.getBool());
+    }
+    {
+        // none(n IN nodes(p) WHERE n.age >= 19)
+        auto v1 = Vertex("101", {Tag("player", {{"name", "joe"}, {"age", 18}})});
+        auto v2 = Vertex("102", {Tag("player", {{"name", "amber"}, {"age", 19}})});
+        auto v3 = Vertex("103", {Tag("player", {{"name", "shawdan"}, {"age", 20}})});
+        Path path;
+        path.src = v1;
+        path.steps.emplace_back(Step(v2, 1, "like", 0, {}));
+        path.steps.emplace_back(Step(v3, 1, "like", 0, {}));
+        gExpCtxt.setVar("p", path);
+
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<VariableExpression>(new std::string("p")));
+        PredicateExpression expr(
+            new std::string("none"),
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("nodes"), argList),
+            new RelationalExpression(
+                Expression::Kind::kRelGE,
+                new AttributeExpression(new VariableExpression(new std::string("n")),
+                                        new ConstantExpression("age")),
+                new ConstantExpression(19)));
+
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_TRUE(value.isBool());
+        ASSERT_EQ(false, value.getBool());
+    }
+    {
+        // single(n IN null WHERE n > 1)
+        PredicateExpression expr(
+            new std::string("all"),
+            new std::string("n"),
+            new ConstantExpression(Value(NullType::__NULL__)),
+            new RelationalExpression(
+                Expression::Kind::kRelEQ,
+                new VariableExpression(new std::string("n")),
+                new ConstantExpression(1)));
+
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_EQ(Value::kNullValue, value.getNull());
+    }
+}
+
+TEST_F(ExpressionTest, ReduceExprToString) {
+    {
+        // reduce(totalNum = 2 * 10, n IN range(1, 5) | totalNum + n * 2)
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<ConstantExpression>(1));
+        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        ReduceExpression expr(
+            new std::string("totalNum"),
+            new ArithmeticExpression(
+                Expression::Kind::kMultiply, new ConstantExpression(2), new ConstantExpression(10)),
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("range"), argList),
+            new ArithmeticExpression(
+                Expression::Kind::kAdd,
+                new LabelExpression(new std::string("totalNum")),
+                new ArithmeticExpression(Expression::Kind::kMultiply,
+                                         new LabelExpression(new std::string("n")),
+                                         new ConstantExpression(2))));
+        ASSERT_EQ("reduce(totalNum = (2*10), n IN range(1,5) | (totalNum+(n*2)))", expr.toString());
+    }
+}
+
+TEST_F(ExpressionTest, ReduceEvaluate) {
+    {
+        // reduce(totalNum = 2 * 10, n IN range(1, 5) | totalNum + n * 2)
+        ArgumentList *argList = new ArgumentList();
+        argList->addArgument(std::make_unique<ConstantExpression>(1));
+        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        ReduceExpression expr(
+            new std::string("totalNum"),
+            new ArithmeticExpression(
+                Expression::Kind::kMultiply, new ConstantExpression(2), new ConstantExpression(10)),
+            new std::string("n"),
+            new FunctionCallExpression(new std::string("range"), argList),
+            new ArithmeticExpression(
+                Expression::Kind::kAdd,
+                new VariableExpression(new std::string("totalNum")),
+                new ArithmeticExpression(Expression::Kind::kMultiply,
+                                         new VariableExpression(new std::string("n")),
+                                         new ConstantExpression(2))));
+
+        auto value = Expression::eval(&expr, gExpCtxt);
+        ASSERT_EQ(Value::Type::INT, value.type());
+        ASSERT_EQ(50, value.getInt());
+    }
+}
+
 TEST_F(ExpressionTest, TestExprClone) {
     ConstantExpression expr(1);
     auto clone = expr.clone();
@@ -2839,6 +3393,9 @@ TEST_F(ExpressionTest, TestExprClone) {
         Expression::Kind::kAdd, new ConstantExpression(1), new ConstantExpression(1));
     auto aclone = aexpr.clone();
     ASSERT_EQ(*aclone, aexpr);
+
+    AggregateExpression aggExpr(new std::string("COUNT"), new ConstantExpression("$-.*"), true);
+    ASSERT_EQ(aggExpr, *aggExpr.clone());
 
     EdgeExpression edgeExpr;
     ASSERT_EQ(edgeExpr, *edgeExpr.clone());
@@ -2930,6 +3487,45 @@ TEST_F(ExpressionTest, TestExprClone) {
         .add(std::make_unique<VariablePropertyExpression>(new std::string("var1"),
                                                               new std::string("path_v1")));
     ASSERT_EQ(pathBuild, *pathBuild.clone());
+
+    ArgumentList *argList = new ArgumentList();
+    argList->addArgument(std::make_unique<ConstantExpression>(1));
+    argList->addArgument(std::make_unique<ConstantExpression>(5));
+    ListComprehensionExpression lcExpr(
+        new std::string("n"),
+        new FunctionCallExpression(new std::string("range"), argList),
+        new RelationalExpression(Expression::Kind::kRelGE,
+                                 new LabelExpression(new std::string("n")),
+                                 new ConstantExpression(2)));
+    ASSERT_EQ(lcExpr, *lcExpr.clone());
+
+    argList = new ArgumentList();
+    argList->addArgument(std::make_unique<ConstantExpression>(1));
+    argList->addArgument(std::make_unique<ConstantExpression>(5));
+    PredicateExpression predExpr(
+        new std::string("all"),
+        new std::string("n"),
+        new FunctionCallExpression(new std::string("range"), argList),
+        new RelationalExpression(Expression::Kind::kRelGE,
+                                 new LabelExpression(new std::string("n")),
+                                 new ConstantExpression(2)));
+    ASSERT_EQ(predExpr, *predExpr.clone());
+
+    argList = new ArgumentList();
+    argList->addArgument(std::make_unique<ConstantExpression>(1));
+    argList->addArgument(std::make_unique<ConstantExpression>(5));
+    ReduceExpression reduceExpr(
+        new std::string("totalNum"),
+        new ArithmeticExpression(
+            Expression::Kind::kMultiply, new ConstantExpression(2), new ConstantExpression(10)),
+        new std::string("n"),
+        new FunctionCallExpression(new std::string("range"), argList),
+        new ArithmeticExpression(Expression::Kind::kAdd,
+                                 new LabelExpression(new std::string("totalNum")),
+                                 new ArithmeticExpression(Expression::Kind::kMultiply,
+                                                          new LabelExpression(new std::string("n")),
+                                                          new ConstantExpression(2))));
+    ASSERT_EQ(reduceExpr, *reduceExpr.clone());
 }
 
 TEST_F(ExpressionTest, PathBuild) {
@@ -3114,6 +3710,382 @@ TEST_F(ExpressionTest, ColumnExpression) {
     }
 }
 
+TEST_F(ExpressionTest, AggregateExpression) {
+    std::vector<std::pair<std::string, Value>> vals1_ =
+        {{"a", 1},
+         {"b", 4},
+         {"c", 3},
+         {"a", 3},
+         {"c", 8},
+         {"c", 5},
+         {"c", 8}};
+
+    std::vector<std::pair<std::string, Value>> vals2_ =
+        {{"a", 1},
+         {"b", 4},
+         {"c", Value::kNullValue},
+         {"c", 3},
+         {"a", 3},
+         {"a", Value::kEmpty},
+         {"b", Value::kEmpty},
+         {"c", Value::kEmpty},
+         {"c", 8},
+         {"a", Value::kNullValue},
+         {"c", 5},
+         {"b", Value::kNullValue},
+         {"c", 8}};
+
+    std::vector<std::pair<std::string, Value>> vals3_ =
+        {{"a", 1},
+         {"b", 4},
+         {"c", 3},
+         {"a", 3},
+         {"c", 8},
+         {"c", 5},
+         {"c", 8}};
+
+    std::vector<std::pair<std::string, Value>> vals4_ =
+        {{"a", 1},
+         {"b", 4},
+         {"c", 3},
+         {"c", Value::kNullValue},
+         {"a", Value::kEmpty},
+         {"b", Value::kEmpty},
+         {"c", Value::kEmpty},
+         {"a", Value::kNullValue},
+         {"b", Value::kNullValue},
+         {"a", 3},
+         {"c", 8},
+         {"c", 5},
+         {"c", 8}};
+
+    std::vector<std::pair<std::string, Value>> vals5_ =
+        {{"c", Value::kNullValue},
+         {"a", Value::kEmpty},
+         {"b", Value::kEmpty},
+         {"c", Value::kEmpty},
+         {"a", Value::kNullValue},
+         {"b", Value::kNullValue}};
+
+    std::vector<std::pair<std::string, Value>> vals6_ =
+        {{"a", true},
+         {"b", false},
+         {"c", true},
+         {"a", false},
+         {"c", true},
+         {"c", false},
+         {"c", true}};
+
+    std::vector<std::pair<std::string, Value>> vals7_ =
+           {{"a", 0},
+            {"a", 1},
+            {"a", 2},
+            {"a", 3},
+            {"a", 4},
+            {"a", 5},
+            {"a", 6},
+            {"a", 7},
+            {"b", 6},
+            {"c", 7},
+            {"c", 7},
+            {"a", 8},
+            {"c", 9},
+            {"c", 9},
+            {"a", 9}};
+
+    std::vector<std::pair<std::string, Value>> vals8_ =
+           {{"a", 0},
+            {"a", 1},
+            {"a", 2},
+            {"c", Value::kEmpty},
+            {"a", Value::kEmpty},
+            {"a", 3},
+            {"a", 4},
+            {"a", 5},
+            {"c", Value::kNullValue},
+            {"a", 6},
+            {"a", 7},
+            {"b", Value::kEmpty},
+            {"b", 6},
+            {"a", Value::kNullValue},
+            {"c", 7},
+            {"c", 7},
+            {"a", 8},
+            {"c", 9},
+            {"b", Value::kNullValue},
+            {"c", 9},
+            {"a", 9}};
+
+    std::vector<std::pair<std::string, Value>> vals9_ =
+        {{"a", true},
+         {"b", true},
+         {"c", false},
+         {"a", false},
+         {"c", false},
+         {"c", false},
+         {"c", true}};
+    std::vector<std::pair<std::string, Value>> vals10_ =
+        {{"a", "true"},
+         {"b", "12"},
+         {"c", "a"},
+         {"a", "false"},
+         {"c", "zxA"},
+         {"c", "zxbC"},
+         {"c", "Ca"}};
+
+
+    {
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 3},
+                          {"b", 4},
+                          {"c", 8}};
+        TEST_AGG("", false, abs, vals1_, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 3},
+                          {"b", 4},
+                          {"c", 5}};
+        TEST_AGG("", true, abs, vals1_, expected2);
+    }
+    {
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 2},
+                          {"b", 1},
+                          {"c", 4}};
+        TEST_AGG(COUNT, false, abs, vals1_, expected1);
+        TEST_AGG(COUNT, false, isConst, vals2_, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 2},
+                          {"b", 1},
+                          {"c", 3}};
+        TEST_AGG(COUNT, true, abs, vals1_, expected2);
+        TEST_AGG(COUNT, true, isConst, vals2_, expected2);
+    }
+    {
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 4},
+                          {"b", 4},
+                          {"c", 24}};
+        TEST_AGG(SUM, false, abs, vals1_, expected1);
+        TEST_AGG(SUM, false, isConst, vals2_, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 4},
+                          {"b", 4},
+                          {"c", 16}};
+        TEST_AGG(SUM, true, abs, vals1_, expected2);
+        TEST_AGG(SUM, true, isConst, vals2_, expected2);
+    }
+    {
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 2},
+                          {"b", 4},
+                          {"c", 6}};
+        TEST_AGG(AVG, false, abs, vals1_, expected1);
+        TEST_AGG(AVG, false, isConst, vals2_, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 2},
+                          {"b", 4},
+                          {"c", 16.0/3}};
+        TEST_AGG(AVG, true, abs, vals1_, expected2);
+        TEST_AGG(AVG, true, isConst, vals2_, expected2);
+    }
+    {
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 1},
+                          {"b", 4},
+                          {"c", 3}};
+        TEST_AGG(MIN, false, abs, vals1_, expected1);
+        TEST_AGG(MIN, false, isConst, vals2_, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 1},
+                          {"b", 4},
+                          {"c", 3}};
+        TEST_AGG(MIN, true, abs, vals1_, expected2);
+        TEST_AGG(MIN, true, isConst, vals2_, expected2);
+    }
+    {
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 3},
+                          {"b", 4},
+                          {"c", 8}};
+        TEST_AGG(MAX, false, abs, vals1_, expected1);
+        TEST_AGG(MAX, false, isConst, vals2_, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 3},
+                          {"b", 4},
+                          {"c", 8}};
+        TEST_AGG(MAX, true, abs, vals1_, expected2);
+        TEST_AGG(MAX, true, isConst, vals2_, expected2);
+    }
+    {
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", Value(List({1, 3}))},
+                          {"b", Value(List({4}))},
+                          {"c", Value(List({3, 8, 5, 8}))}};
+        TEST_AGG(COLLECT, false, abs, vals1_, expected1);
+        TEST_AGG(COLLECT, false, isConst, vals2_, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", List({1, 3})},
+                          {"b", List({4})},
+                          {"c", List({3, 8, 5})}};
+        TEST_AGG(COLLECT, true, abs, vals1_, expected2);
+        TEST_AGG(COLLECT, true, isConst, vals2_, expected2);
+    }
+    {
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"b", Set({4})},
+                          {"a", Set({1, 3})},
+                          {"c", Set({3, 8, 5})}};
+        TEST_AGG(COLLECT_SET, false, abs, vals1_, expected1);
+        TEST_AGG(COLLECT_SET, false, isConst, vals2_, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"b", Set({4})},
+                          {"a", Set({1, 3})},
+                          {"c", Set({3, 8, 5})}};
+        TEST_AGG(COLLECT_SET, true, abs, vals1_, expected2);
+        TEST_AGG(COLLECT_SET, true, isConst, vals2_, expected2);
+    }
+    {
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 2.8722813232690143},
+                          {"b", 0.0},
+                          {"c", 0.9999999999999999}};
+        TEST_AGG(STD, false, abs, vals7_, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 2.8722813232690143},
+                          {"b", 0.0},
+                          {"c", 1.0}};
+        TEST_AGG(STD, true, abs, vals7_, expected2);
+    }
+    {
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", 1},
+                          {"b", 4},
+                          {"c", 0}};
+        TEST_AGG(BIT_AND, false, abs, vals3_, expected1);
+        TEST_AGG(BIT_AND, false, isConst, vals4_, expected1);
+
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 1},
+                          {"b", 4},
+                          {"c", 0}};
+        TEST_AGG(BIT_AND, true, abs, vals3_, expected2);
+        TEST_AGG(BIT_AND, true, isConst, vals4_, expected2);
+
+        const std::unordered_map<std::string, Value>
+             expected3 = {{"a", 3},
+                          {"b", 4},
+                          {"c", 15}};
+        TEST_AGG(BIT_OR, false, abs, vals3_, expected3);
+        TEST_AGG(BIT_OR, false, isConst, vals4_, expected3);
+
+        const std::unordered_map<std::string, Value>
+             expected4 = {{"a", 3},
+                          {"b", 4},
+                          {"c", 15}};
+        TEST_AGG(BIT_OR, true, abs, vals3_, expected4);
+        TEST_AGG(BIT_OR, true, isConst, vals4_, expected4);
+
+        const std::unordered_map<std::string, Value>
+             expected5 = {{"a", 2},
+                          {"b", 4},
+                          {"c", 6}};
+        TEST_AGG(BIT_XOR, false, abs, vals3_, expected5);
+        TEST_AGG(BIT_XOR, false, isConst, vals4_, expected5);
+
+        const std::unordered_map<std::string, Value>
+             expected6 = {{"a", 2},
+                          {"b", 4},
+                          {"c", 14}};
+        TEST_AGG(BIT_XOR, true, abs, vals3_, expected6);
+        TEST_AGG(BIT_XOR, true, isConst, vals4_, expected6);
+    }
+    {
+        const std::unordered_map<std::string, Value>
+             expected1 = {{"a", Value::kNullValue},
+                          {"b", Value::kNullValue},
+                          {"c", Value::kNullValue}};
+        const std::unordered_map<std::string, Value>
+             expected2 = {{"a", 0},
+                          {"b", 0},
+                          {"c", 0}};
+        const std::unordered_map<std::string, Value>
+             expected3 = {{"a", Value(List())},
+                          {"b", Value(List())},
+                          {"c", Value(List())}};
+        const std::unordered_map<std::string, Value>
+             expected4 = {{"a", Value(Set())},
+                          {"b", Value(Set())},
+                          {"c", Value(Set())}};
+        const std::unordered_map<std::string, Value>
+             expected5 = {{"a", Value::kNullBadType},
+                          {"b", Value::kNullBadType},
+                          {"c", Value::kNullBadType}};
+        const std::unordered_map<std::string, Value>
+             expected6 = {{"a", false},
+                          {"b", true},
+                          {"c", false}};
+        const std::unordered_map<std::string, Value>
+             expected7 = {{"a", true},
+                          {"b", true},
+                          {"c", true}};
+
+        TEST_AGG(COUNT, false, isConst, vals5_, expected2);
+        TEST_AGG(COUNT, true, isConst, vals5_, expected2);
+        TEST_AGG(COUNT, false, abs, vals9_, expected5);
+        TEST_AGG(COUNT, true, abs, vals9_, expected5);
+        TEST_AGG(SUM, false, isConst, vals5_, expected1);
+        TEST_AGG(SUM, true, isConst, vals5_, expected1);
+        TEST_AGG(SUM, false, isConst, vals9_, expected5);
+        TEST_AGG(SUM, true, isConst, vals9_, expected5);
+        TEST_AGG(AVG, false, isConst, vals5_, expected1);
+        TEST_AGG(AVG, true, isConst, vals5_, expected1);
+        TEST_AGG(AVG, false, isConst, vals9_, expected5);
+        TEST_AGG(AVG, true, isConst, vals9_, expected5);
+        TEST_AGG(MAX, false, isConst, vals5_, expected1);
+        TEST_AGG(MAX, true, isConst, vals5_, expected1);
+        TEST_AGG(MAX, false, isConst, vals9_, expected7);
+        TEST_AGG(MAX, true, isConst, vals9_, expected7);
+        TEST_AGG(MIN, false, isConst, vals5_, expected1);
+        TEST_AGG(MIN, true, isConst, vals5_, expected1);
+        TEST_AGG(MIN, false, isConst, vals9_, expected6);
+        TEST_AGG(MIN, true, isConst, vals9_, expected6);
+        TEST_AGG(STD, false, isConst, vals5_, expected1);
+        TEST_AGG(STD, true, isConst, vals5_, expected1);
+        TEST_AGG(STD, false, isConst, vals9_, expected5);
+        TEST_AGG(STD, true, isConst, vals9_, expected5);
+        TEST_AGG(BIT_AND, false, isConst, vals5_, expected1);
+        TEST_AGG(BIT_AND, true, isConst, vals5_, expected1);
+        TEST_AGG(BIT_AND, false, isConst, vals6_, expected5);
+        TEST_AGG(BIT_AND, true, isConst, vals6_, expected5);
+        TEST_AGG(BIT_AND, false, isConst, vals9_, expected5);
+        TEST_AGG(BIT_AND, true, isConst, vals9_, expected5);
+        TEST_AGG(BIT_OR, false, isConst, vals5_, expected1);
+        TEST_AGG(BIT_OR, true, isConst, vals5_, expected1);
+        TEST_AGG(BIT_OR, false, isConst, vals6_, expected5);
+        TEST_AGG(BIT_OR, true, isConst, vals6_, expected5);
+        TEST_AGG(BIT_OR, false, isConst, vals9_, expected5);
+        TEST_AGG(BIT_OR, true, isConst, vals9_, expected5);
+        TEST_AGG(BIT_XOR, false, isConst, vals5_, expected1);
+        TEST_AGG(BIT_XOR, true, isConst, vals5_, expected1);
+        TEST_AGG(BIT_XOR, false, isConst, vals6_, expected5);
+        TEST_AGG(BIT_XOR, true, isConst, vals6_, expected5);
+        TEST_AGG(BIT_XOR, false, isConst, vals9_, expected5);
+        TEST_AGG(BIT_XOR, true, isConst, vals9_, expected5);
+        TEST_AGG(COLLECT, false, isConst, vals5_, expected3);
+        TEST_AGG(COLLECT, true, isConst, vals5_, expected3);
+        TEST_AGG(COLLECT_SET, false, isConst, vals5_, expected4);
+        TEST_AGG(COLLECT_SET, true, isConst, vals5_, expected4);
+    }
+}
 }  // namespace nebula
 
 int main(int argc, char** argv) {

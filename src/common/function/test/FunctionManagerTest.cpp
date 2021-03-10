@@ -24,10 +24,12 @@ public:
     void TearDown() override {}
 
 protected:
-    void testFunction(const char *expr, std::vector<Value> &args, Value expect) {
+    void testFunction(const char *expr, const std::vector<Value> &args, Value expect) {
         auto result = FunctionManager::get(expr, args.size());
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value()(args), expect);
+        auto res = result.value()(args);
+        EXPECT_EQ(res.type(), expect.type()) << "function return type check failed: " << expr;
+        EXPECT_EQ(res, expect) << "function return value check failed: " << expr;
     }
 
     Path createPath(const Value& src, const std::vector<Value>& steps) {
@@ -46,6 +48,7 @@ std::unordered_map<std::string, std::vector<Value>> FunctionManagerTest::args_ =
     {"empty", {}},
     {"nullvalue", {NullType::__NULL__}},
     {"int", {4}},
+    {"zero", {0}},
     {"float", {1.1}},
     {"neg_int", {-1}},
     {"neg_float", {-1.1}},
@@ -53,6 +56,7 @@ std::unordered_map<std::string, std::vector<Value>> FunctionManagerTest::args_ =
     {"one", {-1.2}},
     {"two", {2, 4}},
     {"pow", {2, 3}},
+    {"radians", {180}},
     {"range1", {1, 5}},
     {"range2", {1, 5, 2}},
     {"range3", {5, 1, -2}},
@@ -92,23 +96,36 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(abs, args_["float"], 1.1);
     }
     {
-        TEST_FUNCTION(floor, args_["neg_int"], -1);
-        TEST_FUNCTION(floor, args_["float"], 1);
-        TEST_FUNCTION(floor, args_["neg_float"], -2);
-        TEST_FUNCTION(floor, args_["int"], 4);
+        TEST_FUNCTION(floor, args_["neg_int"], -1.0);
+        TEST_FUNCTION(floor, args_["float"], 1.0);
+        TEST_FUNCTION(floor, args_["neg_float"], -2.0);
+        TEST_FUNCTION(floor, args_["int"], 4.0);
     }
     {
-        TEST_FUNCTION(sqrt, args_["int"], 2);
+        TEST_FUNCTION(sqrt, args_["int"], 2.0);
         TEST_FUNCTION(sqrt, args_["float"], std::sqrt(1.1));
     }
-
+    {
+        TEST_FUNCTION(cbrt, args_["int"], std::cbrt(4));
+        TEST_FUNCTION(cbrt, args_["float"], std::cbrt(1.1));
+    }
+    {
+        TEST_FUNCTION(hypot, args_["two"], std::hypot(2, 4));
+    }
+    {
+        TEST_FUNCTION(sign, args_["int"], 1);
+        TEST_FUNCTION(sign, args_["neg_int"], -1);
+        TEST_FUNCTION(sign, args_["float"], 1);
+        TEST_FUNCTION(sign, args_["neg_float"], -1);
+        TEST_FUNCTION(sign, args_["zero"], 0);
+    }
     {
         TEST_FUNCTION(pow, args_["pow"], 8);
         TEST_FUNCTION(exp, args_["int"], std::exp(4));
-        TEST_FUNCTION(exp2, args_["int"], 16);
+        TEST_FUNCTION(exp2, args_["int"], 16.0);
 
         TEST_FUNCTION(log, args_["int"], std::log(4));
-        TEST_FUNCTION(log2, args_["int"], 2);
+        TEST_FUNCTION(log2, args_["int"], 2.0);
     }
     {
         TEST_FUNCTION(range, args_["range1"], Value(List({1, 2, 3, 4, 5})));
@@ -153,6 +170,34 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(toString, args_["string"], "AbcDeFG");
         TEST_FUNCTION(toString, args_["date"], "1984-10-11");
         TEST_FUNCTION(toString, args_["datetime"], "1984-10-11T12:31:14.341");
+        TEST_FUNCTION(toString, args_["nullvalue"], "NULL");
+    }
+    {
+        TEST_FUNCTION(toBoolean, args_["int"], Value::kNullBadType);
+        TEST_FUNCTION(toBoolean, args_["float"], Value::kNullBadType);
+        TEST_FUNCTION(toBoolean, {true}, true);
+        TEST_FUNCTION(toBoolean, {false}, false);
+        TEST_FUNCTION(toBoolean, {"fAlse"}, false);
+        TEST_FUNCTION(toBoolean, {"false "}, Value::kNullValue);
+        TEST_FUNCTION(toBoolean, {Value::kNullValue}, Value::kNullValue);
+    }
+    {
+        TEST_FUNCTION(toFloat, args_["int"], 4.0);
+        TEST_FUNCTION(toFloat, args_["float"], 1.1);
+        TEST_FUNCTION(toFloat, {true}, Value::kNullBadType);
+        TEST_FUNCTION(toFloat, {false}, Value::kNullBadType);
+        TEST_FUNCTION(toFloat, {"3.14"}, 3.14);
+        TEST_FUNCTION(toFloat, {"false "}, Value::kNullValue);
+        TEST_FUNCTION(toFloat, {Value::kNullValue}, Value::kNullValue);
+    }
+    {
+        TEST_FUNCTION(toInteger, args_["int"], 4);
+        TEST_FUNCTION(toInteger, args_["float"], 1);
+        TEST_FUNCTION(toInteger, {true}, Value::kNullBadType);
+        TEST_FUNCTION(toInteger, {false}, Value::kNullBadType);
+        TEST_FUNCTION(toInteger, {"1"}, 1);
+        TEST_FUNCTION(toInteger, {"false "}, Value::kNullValue);
+        TEST_FUNCTION(toInteger, {Value::kNullValue}, Value::kNullValue);
     }
     {
         auto result = FunctionManager::get("rand32", args_["rand"].size());
@@ -649,6 +694,62 @@ TEST_F(FunctionManagerTest, functionCall) {
                                                    {"second", 60}})});
         EXPECT_EQ(res, Value::kNullBadData);
     }
+    // timestamp
+    {
+        auto result = FunctionManager::get("timestamp", 1);
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({"2020-10-10T10:00:00"});
+        EXPECT_EQ(res, 1602324000);
+    }
+    {
+        TEST_FUNCTION(e, args_["empty"], M_E);
+        TEST_FUNCTION(pi, args_["empty"], M_PI);
+        TEST_FUNCTION(radians, args_["radians"], M_PI);
+        TEST_FUNCTION(radians, args_["nullvalue"], Value::kNullBadType);
+    }
+    // exists
+    {
+        Vertex vertex;
+        vertex.vid = "vid";
+        vertex.tags.resize(2);
+        vertex.tags[0].name = "tag1";
+        vertex.tags[0].props = {
+            {"p1", 123},
+        };
+        vertex.tags[1].name = "tag2";
+        vertex.tags[1].props = {
+            {"p2", 456},
+        };
+
+        TEST_FUNCTION(exists, std::vector<Value>({vertex, "p1"}), true);
+        TEST_FUNCTION(exists, std::vector<Value>({vertex, "p2"}), true);
+        TEST_FUNCTION(exists, std::vector<Value>({vertex, "p3"}), false);
+
+        Vertex emptyVertex;
+        TEST_FUNCTION(exists, std::vector<Value>({emptyVertex, "p1"}), false);
+
+        Edge edge;
+        edge.src = "src";
+        edge.dst = "dst";
+        edge.type = 0;
+        edge.name = "type";
+        edge.ranking = 123;
+        edge.props = {
+            {"p1", 123},
+        };
+        TEST_FUNCTION(exists, std::vector<Value>({edge, "p1"}), true);
+        TEST_FUNCTION(exists, std::vector<Value>({edge, "p2"}), false);
+
+        Edge emptyEdge;
+        TEST_FUNCTION(exists, std::vector<Value>({emptyEdge, "p1"}), false);
+
+        Map map({{"p1", 123}});
+        TEST_FUNCTION(exists, std::vector<Value>({map, "p1"}), true);
+        TEST_FUNCTION(exists, std::vector<Value>({map, "p2"}), false);
+
+        Map emptyMap;
+        TEST_FUNCTION(exists, std::vector<Value>({emptyMap, "p1"}), false);
+    }
 }
 
 TEST_F(FunctionManagerTest, returnType) {
@@ -737,7 +838,7 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("cbrt", {Value::Type::INT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("cbrt", {Value::Type::FLOAT});
@@ -804,7 +905,7 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("hypot", {Value::Type::INT, Value::Type::INT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result =
@@ -944,6 +1045,46 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result = FunctionManager::getReturnType("toString", {Value::Type::DATE});
         ASSERT_TRUE(result.ok());
         EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toBoolean", {Value::Type::BOOL});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::BOOL);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toBoolean", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::BOOL);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toFloat", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toFloat", {Value::Type::FLOAT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toFloat", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toInteger", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toInteger", {Value::Type::FLOAT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toInteger", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
     }
     {
         auto result = FunctionManager::getReturnType("strcasecmp",
@@ -1161,6 +1302,11 @@ TEST_F(FunctionManagerTest, returnType) {
     }
     {
         auto result = FunctionManager::getReturnType("properties", {Value::Type::EDGE});
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(Value::Type::MAP, result.value());
+    }
+    {
+        auto result = FunctionManager::getReturnType("properties", {Value::Type::MAP});
         ASSERT_TRUE(result.ok()) << result.status();
         EXPECT_EQ(Value::Type::MAP, result.value());
     }

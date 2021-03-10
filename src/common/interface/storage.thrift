@@ -45,6 +45,7 @@ enum ErrorCode {
     E_FIELD_UNSET          = -22,   // The field neither can be NULL, nor has a default value
     E_OUT_OF_RANGE         = -23,   // Value exceeds the range of type
     E_ATOMIC_OP_FAILED     = -24,   // Atomic operation failed
+    E_DATA_CONFLICT_ERROR  = -25,   // data conflict, for index write withnot toss.
 
     // meta failures
     E_EDGE_PROP_NOT_FOUND    = -31,
@@ -606,7 +607,7 @@ struct ScanVertexRequest {
     3: optional binary                      cursor,
     4: VertexProp                           return_columns,
     // max row count of tag in this response
-    5: i32                                  limit,
+    5: i64                                  limit,
     // only return data in time range [start_time, end_time)
     6: optional i64                         start_time,
     7: optional i64                         end_time,
@@ -636,7 +637,7 @@ struct ScanEdgeRequest {
     3: optional binary                      cursor,
     4: EdgeProp                             return_columns,
     // max row count of edge in this response
-    5: i32                                  limit,
+    5: i64                                  limit,
     // only return data in time range [start_time, end_time)
     6: optional i64                         start_time,
     7: optional i64                         end_time,

@@ -31,11 +31,14 @@ using SpaceIdName = std::pair<GraphSpaceID, std::string>;
 using HostStatus = std::pair<HostAddr, std::string>;
 
 // struct for in cache
-// the different version of tag schema, from oldest to newest
+// the different version of tag schemas, from oldest to latest
 using TagSchemas = std::unordered_map<TagID,
                                       std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
-// the different version of edge schema, from oldest to newest
+// Mapping of tagId and a *single* tag schema
+using TagSchema = std::unordered_map<TagID, std::shared_ptr<const NebulaSchemaProvider>>;
+
+// the different version of edge schema, from oldest to latest
 using EdgeSchemas = std::unordered_map<EdgeType,
                                        std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
@@ -478,6 +481,8 @@ public:
 
     StatusOr<TagSchemas> getAllVerTagSchema(GraphSpaceID spaceId);
 
+    StatusOr<TagSchema> getAllLatestVerTagSchema(const GraphSpaceID& spaceId);
+
     StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID spaceId);
 
     StatusOr<std::shared_ptr<cpp2::IndexItem>>
@@ -568,6 +573,20 @@ public:
 
     folly::Future<StatusOr<cpp2::StatisItem>>
     getStatis(GraphSpaceID spaceId);
+
+    folly::Future<StatusOr<cpp2::ErrorCode>> reportTaskFinish(
+        int32_t jobId,
+        int32_t taskId,
+        nebula::meta::cpp2::ErrorCode taskErrCode,
+        cpp2::StatisItem* statisticItem);
+
+    folly::Future<StatusOr<bool>>
+    download(const std::string& hdfsHost,
+             int32_t hdfsPort,
+             const std::string& hdfsPath,
+             GraphSpaceID spaceId);
+
+    folly::Future<StatusOr<bool>> ingest(GraphSpaceID spaceId);
 
 protected:
     // Return true if load succeeded.
