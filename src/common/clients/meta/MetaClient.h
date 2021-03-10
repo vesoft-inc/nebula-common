@@ -58,9 +58,13 @@ struct SpaceInfoCache {
     cpp2::SpaceDesc spaceDesc_;
     PartsAlloc partsAlloc_;
     std::unordered_map<HostAddr, std::vector<PartitionID>> partsOnHost_;
+    std::vector<cpp2::TagItem> tagItemVec_;
     TagSchemas tagSchemas_;
+    std::vector<cpp2::EdgeItem> edgeItemVec_;
     EdgeSchemas edgeSchemas_;
+    std::vector<cpp2::IndexItem> tagIndexItemVec_;
     Indexes tagIndexes_;
+    std::vector<cpp2::IndexItem> edgeIndexItemVec_;
     Indexes edgeIndexes_;
     Listeners listeners_;
 };
@@ -99,6 +103,19 @@ using MetaConfigMap = std::unordered_map<std::pair<cpp2::ConfigModule, std::stri
 
 // get fulltext services
 using FulltextClientsList = std::vector<cpp2::FTClient>;
+
+struct ThreadLocalInfo {
+    int64_t localLastUpdateTime_{-1};
+    LocalCache localCache_;
+    SpaceNameIdMap spaceIndexByName_;
+    SpaceTagNameIdMap spaceTagIndexByName_;
+    SpaceEdgeNameTypeMap spaceEdgeIndexByName_;
+    SpaceEdgeTypeNameMap spaceEdgeIndexByType_;
+    SpaceTagIdNameMap spaceTagIndexById_;
+    SpaceNewestTagVerMap spaceNewestTagVerMap_;
+    SpaceNewestEdgeVerMap spaceNewestEdgeVerMap_;
+    SpaceAllEdgeMap spaceAllEdgeMap_;
+};
 
 class MetaChangedListener {
 public:
@@ -469,9 +486,9 @@ public:
 
     Status checkSpaceExistInCache(const HostAddr& host, GraphSpaceID spaceId);
 
-    StatusOr<int32_t> partsNum(GraphSpaceID spaceId) const;
+    StatusOr<int32_t> partsNum(GraphSpaceID spaceId);
 
-    StatusOr<PartitionID> partId(GraphSpaceID spaceId, VertexID id) const;
+    StatusOr<PartitionID> partId(GraphSpaceID spaceId, VertexID id);
 
     StatusOr<std::shared_ptr<const NebulaSchemaProvider>>
     getTagSchemaFromCache(GraphSpaceID spaceId, TagID tagID, SchemaVer ver = -1);
@@ -671,13 +688,13 @@ protected:
     ListenersMap doGetListenersMap(const HostAddr& host, const LocalCache& localCache);
 
 private:
+    const ThreadLocalInfo& getThreadLocalInfo();
+
     std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool_;
     std::shared_ptr<thrift::ThriftClientManager<cpp2::MetaServiceAsyncClient>> clientsMan_;
 
     std::unordered_map<GraphSpaceID, std::vector<PartitionID>> leaderIds_;
     folly::RWSpinLock     leaderIdsLock_;
-    int64_t               localLastUpdateTime_{0};
-    int64_t               metadLastUpdateTime_{0};
 
     LocalCache localCache_;
     std::vector<HostAddr> addrs_;
@@ -720,6 +737,10 @@ private:
     std::vector<cpp2::ConfigItem> gflagsDeclared_;
     bool                  skipConfig_ = false;
     MetaClientOptions     options_;
+
+    std::atomic<int64_t>  localDataLastUpdateTime_{-1};
+    std::atomic<int64_t>  localCfgLastUpdateTime_{-1};
+    std::atomic<int64_t>  metadLastUpdateTime_{0};
 };
 
 }  // namespace meta
