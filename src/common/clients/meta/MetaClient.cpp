@@ -2991,7 +2991,7 @@ Status MetaClient::refreshCache() {
 }
 
 
-StatusOr<LeaderMap> MetaClient::loadLeader() {
+StatusOr<LeaderInfo> MetaClient::loadLeader() {
     // Return error if has not loadData before
     if (!ready_) {
         return Status::Error("Not ready!");
@@ -3002,8 +3002,9 @@ StatusOr<LeaderMap> MetaClient::loadLeader() {
         return Status::Error("List hosts failed");
     }
 
-    LeaderMap leaderMap;
+    LeaderInfo leaderInfo;
     auto hostItems = std::move(ret).value();
+    std::unordered_map<GraphSpaceID, size_t> leaderCount;
     for (auto& item : hostItems) {
         for (auto& spaceEntry : item.get_leader_parts()) {
             auto spaceName = spaceEntry.first;
@@ -3013,14 +3014,27 @@ StatusOr<LeaderMap> MetaClient::loadLeader() {
             }
             auto spaceId = status.value();
             for (const auto& partId : spaceEntry.second) {
-                leaderMap[{spaceId, partId}] = item.hostAddr;
+                leaderInfo.leaderMap_[{spaceId, partId}] = item.hostAddr;
             }
+            leaderCount[spaceId] += spaceEntry.second.size();
         }
         LOG(INFO) << "Load leader of " << item.hostAddr
                   << " in " << item.get_leader_parts().size() << " space";
     }
-    LOG(INFO) << "Load leader ok";
-    return leaderMap;
+    // check if all partition has elected leader in each space
+    {
+        leaderInfo.allElected_ = true;
+        folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+        for (const auto& spaceEntry : localCache_) {
+            auto spaceId = spaceEntry.first;
+            if (spaceEntry.second->partsAlloc_.size() != leaderCount[spaceId]) {
+                leaderInfo.allElected_ = false;
+                break;
+            }
+        }
+    }
+    LOG(INFO) << "Load leader ok, all elected: " << leaderInfo.allElected_;
+    return leaderInfo;
 }
 
 folly::Future<StatusOr<bool>>

@@ -83,8 +83,12 @@ using SpaceEdgeTypeNameMap = std::unordered_map<std::pair<GraphSpaceID, EdgeType
 // get all edgeType edgeName via spaceId
 using SpaceAllEdgeMap = std::unordered_map<GraphSpaceID, std::vector<std::string>>;
 
-// get leader host via spaceId and partId
-using LeaderMap = std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr>;
+struct LeaderInfo {
+    // get leader host via spaceId and partId
+    std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr> leaderMap_;
+    // indicated if meta has all leader of all spaces
+    bool allElected_;
+};
 
 using IndexStatus = std::tuple<std::string, std::string, std::string>;
 
@@ -569,7 +573,7 @@ public:
 
     Status refreshCache();
 
-    StatusOr<LeaderMap> loadLeader();
+    StatusOr<LeaderInfo> loadLeader();
 
     folly::Future<StatusOr<cpp2::StatisItem>>
     getStatis(GraphSpaceID spaceId);

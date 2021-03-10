@@ -248,7 +248,9 @@ private:
 
     mutable folly::RWSpinLock leadersLock_;
     mutable std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr> leaders_;
-    mutable std::atomic_bool loadLeaderBefore_{false};
+    // record the index of hosts we pick last time
+    mutable std::unordered_map<std::pair<GraphSpaceID, PartitionID>, size_t> leaderIndex_;
+    mutable std::atomic_bool allElected_{false};
     mutable std::atomic_bool isLoadingLeader_{false};
 };
 
