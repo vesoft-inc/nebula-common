@@ -179,6 +179,7 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(toBoolean, {false}, false);
         TEST_FUNCTION(toBoolean, {"fAlse"}, false);
         TEST_FUNCTION(toBoolean, {"false "}, Value::kNullValue);
+        TEST_FUNCTION(toBoolean, {Value::kNullValue}, Value::kNullValue);
     }
     {
         TEST_FUNCTION(toFloat, args_["int"], 4.0);
@@ -187,6 +188,7 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(toFloat, {false}, Value::kNullBadType);
         TEST_FUNCTION(toFloat, {"3.14"}, 3.14);
         TEST_FUNCTION(toFloat, {"false "}, Value::kNullValue);
+        TEST_FUNCTION(toFloat, {Value::kNullValue}, Value::kNullValue);
     }
     {
         TEST_FUNCTION(toInteger, args_["int"], 4);
@@ -195,6 +197,7 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(toInteger, {false}, Value::kNullBadType);
         TEST_FUNCTION(toInteger, {"1"}, 1);
         TEST_FUNCTION(toInteger, {"false "}, Value::kNullValue);
+        TEST_FUNCTION(toInteger, {Value::kNullValue}, Value::kNullValue);
     }
     {
         auto result = FunctionManager::get("rand32", args_["rand"].size());
@@ -703,6 +706,49 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(pi, args_["empty"], M_PI);
         TEST_FUNCTION(radians, args_["radians"], M_PI);
         TEST_FUNCTION(radians, args_["nullvalue"], Value::kNullBadType);
+    }
+    // exists
+    {
+        Vertex vertex;
+        vertex.vid = "vid";
+        vertex.tags.resize(2);
+        vertex.tags[0].name = "tag1";
+        vertex.tags[0].props = {
+            {"p1", 123},
+        };
+        vertex.tags[1].name = "tag2";
+        vertex.tags[1].props = {
+            {"p2", 456},
+        };
+
+        TEST_FUNCTION(exists, std::vector<Value>({vertex, "p1"}), true);
+        TEST_FUNCTION(exists, std::vector<Value>({vertex, "p2"}), true);
+        TEST_FUNCTION(exists, std::vector<Value>({vertex, "p3"}), false);
+
+        Vertex emptyVertex;
+        TEST_FUNCTION(exists, std::vector<Value>({emptyVertex, "p1"}), false);
+
+        Edge edge;
+        edge.src = "src";
+        edge.dst = "dst";
+        edge.type = 0;
+        edge.name = "type";
+        edge.ranking = 123;
+        edge.props = {
+            {"p1", 123},
+        };
+        TEST_FUNCTION(exists, std::vector<Value>({edge, "p1"}), true);
+        TEST_FUNCTION(exists, std::vector<Value>({edge, "p2"}), false);
+
+        Edge emptyEdge;
+        TEST_FUNCTION(exists, std::vector<Value>({emptyEdge, "p1"}), false);
+
+        Map map({{"p1", 123}});
+        TEST_FUNCTION(exists, std::vector<Value>({map, "p1"}), true);
+        TEST_FUNCTION(exists, std::vector<Value>({map, "p2"}), false);
+
+        Map emptyMap;
+        TEST_FUNCTION(exists, std::vector<Value>({emptyMap, "p1"}), false);
     }
 }
 

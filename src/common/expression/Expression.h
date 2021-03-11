@@ -98,6 +98,8 @@ public:
         kTSFuzzy,
 
         kAggregate,
+        kIsNull,
+        kIsNotNull,
     };
 
 
