@@ -1700,8 +1700,9 @@ StatusOr<FunctionManager::Function> FunctionManager::get(const std::string &func
 }
 
 /*static*/ StatusOr<const FunctionManager::FunctionAttributes>
-FunctionManager::getInternal(const std::string &func,
+FunctionManager::getInternal(std::string func,
                              size_t arity) const {
+    std::transform(func.begin(), func.end(), func.begin(), ::tolower);
     folly::RWSpinLock::ReadHolder holder(lock_);
     // check existence
     auto iter = functions_.find(func);
