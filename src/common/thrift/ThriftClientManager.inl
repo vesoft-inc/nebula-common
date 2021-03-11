@@ -51,14 +51,14 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
      * TODO(liuyu): folly said 'resolve' may take second to finish
      *              if this really happen, we will add a cache here.
      * */
-    HostAddr tempHost = host;
-    if (!folly::IPAddress::validate(tempHost.host)) {
+    HostAddr resolved = host;
+    if (!folly::IPAddress::validate(resolved.host)) {
         try {
-            folly::SocketAddress socketAddr(tempHost.host, tempHost.port, true);
+            folly::SocketAddress socketAddr(resolved.host, resolved.port, true);
             std::ostringstream oss;
-            oss << "resolve " << tempHost << " as ";
-            tempHost.host = socketAddr.getAddressStr();
-            oss << tempHost;
+            oss << "resolve " << resolved << " as ";
+            resolved.host = socketAddr.getAddressStr();
+            oss << resolved;
             LOG(INFO) << oss.str();
         } catch(const std::exception& e) {
             LOG(ERROR) << e.what();
@@ -69,9 +69,9 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
     VLOG(2) << "Connecting to " << host << " for " << ++connectionCount << " times";
     std::shared_ptr<apache::thrift::async::TAsyncSocket> socket;
     evb->runImmediatelyOrRunInEventBaseThreadAndWait(
-        [&socket, evb, host]() {
+        [&socket, evb, resolved]() {
             socket = apache::thrift::async::TAsyncSocket::newSocket(
-                evb, host.host, host.port, FLAGS_conn_timeout_ms);
+                evb, resolved.host, resolved.port, FLAGS_conn_timeout_ms);
         });
     auto headerClientChannel = apache::thrift::HeaderClientChannel::newChannel(socket);
     if (timeout > 0) {
@@ -84,7 +84,7 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
     std::shared_ptr<ClientType> client(
         new ClientType(std::move(headerClientChannel)),
         [evb](auto* p) { evb->runImmediatelyOrRunInEventBaseThreadAndWait([p] { delete p; }); });
-    clientMap_->emplace(std::make_pair(host, evb), client);
+    clientMap_->emplace(std::make_pair(resolved, evb), client);
     return client;
 }
 
