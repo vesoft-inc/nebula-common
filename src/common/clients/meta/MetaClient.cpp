@@ -1971,7 +1971,7 @@ MetaClient::getTagSchemaFromCache(GraphSpaceID spaceId, TagID tagID, SchemaVer v
     }
     const ThreadLocalInfo& threadLocalInfo = getThreadLocalInfo();
     auto spaceIt = threadLocalInfo.localCache_.find(spaceId);
-    if (spaceIt == threadLocalInfo.localCache_.end()) {
+    if (spaceIt != threadLocalInfo.localCache_.end()) {
         auto tagIt = spaceIt->second->tagSchemas_.find(tagID);
         if (tagIt != spaceIt->second->tagSchemas_.end() && !tagIt->second.empty()) {
             size_t vNum = tagIt->second.size();
@@ -1992,7 +1992,7 @@ MetaClient::getEdgeSchemaFromCache(GraphSpaceID spaceId, EdgeType edgeType, Sche
     }
     const ThreadLocalInfo& threadLocalInfo = getThreadLocalInfo();
     auto spaceIt = threadLocalInfo.localCache_.find(spaceId);
-    if (spaceIt == threadLocalInfo.localCache_.end()) {
+    if (spaceIt != threadLocalInfo.localCache_.end()) {
         auto edgeIt = spaceIt->second->edgeSchemas_.find(edgeType);
         if (edgeIt != spaceIt->second->edgeSchemas_.end() && !edgeIt->second.empty()) {
             size_t vNum = edgeIt->second.size();
