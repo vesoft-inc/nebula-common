@@ -96,6 +96,14 @@ public:
         return originString_ != nullptr;
     }
 
+    bool hasInnerVar() const {
+        return innerVar_ != nullptr;
+    }
+
+    bool hasFilter() const {
+        return filter_ != nullptr;
+    }
+
     void setResult(Value &&res) {
         result_ = std::move(res);
     }

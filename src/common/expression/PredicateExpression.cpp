@@ -21,16 +21,28 @@ const Value& PredicateExpression::evalExists(ExpressionContext& ctx) {
         return result_;
     }
     auto& container = collection_->eval(ctx);
-    if (container.isNull()) {
-        result_ == Value::kNullValue;
-        return result_;
+    auto& key = filter_->eval(ctx);
+    switch (container.type()) {
+        case Value::Type::VERTEX: {
+            result_ = container.getVertex().contains(key);
+            break;
+        }
+        case Value::Type::EDGE: {
+            result_ = container.getEdge().contains(key);
+            break;
+        }
+        case Value::Type::MAP: {
+            result_ = container.getMap().contains(key);
+            break;
+        }
+        case Value::Type::NULLVALUE: {
+            result_ = Value::kNullValue;
+            break;
+        }
+        default: {
+            result_ = Value::kNullBadType;
+        }
     }
-    auot& key = filter_->eval(ctx);
-    if (container.isVertex() || container.isEdge() || container.isMap()) {
-        result_ = container.contains(key);
-        return result_;
-    }
-    result_ = Value::kNullBadType;
     return result_;
 }
 
@@ -145,15 +157,28 @@ bool PredicateExpression::operator==(const Expression& rhs) const {
         return false;
     }
 
-    if (*innerVar_ != *expr.innerVar_) {
+    if (hasInnerVar() != expr.hasInnerVar()) {
         return false;
+    }
+
+    if (hasInnerVar()) {
+        if (*innerVar_ != *expr.innerVar_) {
+            return false;
+        }
     }
 
     if (*collection_ != *expr.collection_) {
         return false;
     }
-    if (*filter_ != *expr.filter_) {
+
+    if (hasFilter() != expr.hasFilter()) {
         return false;
+    }
+
+    if (hasFilter()) {
+        if (*filter_ != *expr.filter_) {
+            return false;
+        }
     }
 
     return true;
@@ -173,24 +198,36 @@ std::unique_ptr<Expression> PredicateExpression::clone() const {
 
 void PredicateExpression::writeTo(Encoder& encoder) const {
     encoder << kind_;
+    encoder << Value(hasInnerVar());
+    encoder << Value(hasFilter());
     encoder << Value(hasOriginString());
 
     encoder << name_.get();
-    encoder << innerVar_.get();
+    if (hasInnerVar()) {
+        encoder << innerVar_.get();
+    }
     encoder << *collection_;
-    encoder << *filter_;
+    if (hasFilter()) {
+        encoder << *filter_;
+    }
     if (hasOriginString()) {
         encoder << originString_.get();
     }
 }
 
 void PredicateExpression::resetFrom(Decoder& decoder) {
+    bool hasInnerVar = decoder.readValue().getBool();
+    bool hasFilter = decoder.readValue().getBool();
     bool hasString = decoder.readValue().getBool();
 
     name_ = decoder.readStr();
-    innerVar_ = decoder.readStr();
+    if (hasInnerVar) {
+        innerVar_ = decoder.readStr();
+    }
     collection_ = decoder.readExpression();
-    filter_ = decoder.readExpression();
+    if (hasFilter) {
+        filter_ = decoder.readExpression();
+    }
     if (hasString) {
         originString_ = decoder.readStr();
     }
