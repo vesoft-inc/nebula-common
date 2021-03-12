@@ -305,9 +305,13 @@ struct Value {
 
     std::string toString() const;
 
-    Value toBool();
-    Value toFloat();
-    Value toInt();
+    Value toBool() const;
+    Value toFloat() const;
+    Value toInt() const;
+
+    Value lessThan(const Value& v) const;
+
+    Value equal(const Value& v) const;
 
 private:
     Type type_;
