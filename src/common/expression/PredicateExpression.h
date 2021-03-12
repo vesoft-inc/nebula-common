@@ -40,17 +40,7 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        auto expr = std::make_unique<PredicateExpression>(
-            new std::string(*name_),
-            new std::string(*innerVar_),
-            collection_->clone().release(),
-            filter_ != nullptr ? filter_->clone().release() : nullptr);
-        if (originString_ != nullptr) {
-            expr->setOriginString(new std::string(*originString_));
-        }
-        return expr;
-    }
+    std::unique_ptr<Expression> clone() const override;
 
     const std::string* name() const {
         return name_.get();
@@ -106,7 +96,13 @@ public:
         return originString_ != nullptr;
     }
 
+    void setResult(Value &&res) {
+        result_ = std::move(res);
+    }
+
 private:
+    const Value& evalExists(ExpressionContext& ctx);
+
     void writeTo(Encoder& encoder) const override;
 
     void resetFrom(Decoder& decoder) override;

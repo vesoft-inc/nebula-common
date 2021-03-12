@@ -119,6 +119,8 @@ struct Vertex {
         }
         return false;
     }
+
+    bool contains(const Value &key) const;
 };
 
 

@@ -25,6 +25,16 @@ std::string Tag::toString() const {
     return os.str();
 }
 
+bool Vertex::contains(const Value &key) const {
+    for (const auto& tag : tags) {
+        if (tag.props.find(key) != tag.props.end()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 }  // namespace nebula
 
 

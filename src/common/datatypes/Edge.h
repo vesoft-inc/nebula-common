@@ -102,6 +102,10 @@ struct Edge {
         }
         return false;
     }
+
+    bool contains(const Value &key) const {
+        return props.find(key) != props.end();
+    }
 };
 
 inline std::ostream &operator<<(std::ostream& os, const Edge& v) {

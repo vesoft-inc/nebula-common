@@ -16,7 +16,28 @@ std::unordered_map<std::string, PredicateExpression::Type> PredicateExpression::
     {"none", Type::NONE},
 };
 
+const Value& PredicateExpression::evalExists(ExpressionContext& ctx) {
+    if (!result_.empty()) {
+        return result_;
+    }
+    auto& container = collection_->eval(ctx);
+    if (container.isNull()) {
+        result_ == Value::kNullValue;
+        return result_;
+    }
+    auot& key = filter_->eval(ctx);
+    if (container.isVertex() || container.isEdge() || container.isMap()) {
+        result_ = container.contains(key);
+        return result_;
+    }
+    result_ = Value::kNullBadType;
+    return result_;
+}
+
 const Value& PredicateExpression::eval(ExpressionContext& ctx) {
+    if (*name_ == "exists") {
+        return evalExists(ctx);
+    }
     Type type;
     auto iter = typeMap_.find(*name_);
     if (iter != typeMap_.end()) {
@@ -138,6 +159,18 @@ bool PredicateExpression::operator==(const Expression& rhs) const {
     return true;
 }
 
+std::unique_ptr<Expression> PredicateExpression::clone() const {
+    auto expr = std::make_unique<PredicateExpression>(
+        new std::string(*name_),
+        innerVar_ == nullptr ? nullptr : new std::string(*innerVar_),
+        collection_->clone().release(),
+        filter_ != nullptr ? filter_->clone().release() : nullptr);
+    if (originString_ != nullptr) {
+        expr->setOriginString(new std::string(*originString_));
+    }
+    return expr;
+}
+
 void PredicateExpression::writeTo(Encoder& encoder) const {
     encoder << kind_;
     encoder << Value(hasOriginString());
@@ -166,9 +199,8 @@ void PredicateExpression::resetFrom(Decoder& decoder) {
 std::string PredicateExpression::toString() const {
     if (originString_ != nullptr) {
         return *originString_;
-    } else {
-        return makeString();
     }
+    return makeString();
 }
 
 std::string PredicateExpression::makeString() const {
@@ -177,11 +209,15 @@ std::string PredicateExpression::makeString() const {
 
     buf += *name_;
     buf += "(";
-    buf += *innerVar_;
-    buf += " IN ";
-    buf += collection_->toString();
-    buf += " WHERE ";
-    buf += filter_->toString();
+    if (innerVar_ != nullptr) {
+        buf += *innerVar_;
+        buf += " IN ";
+        buf += collection_->toString();
+        buf += " WHERE ";
+        buf += filter_->toString();
+    } else {
+        buf += collection_->toString();
+    }
     buf += ")";
 
     return buf;
