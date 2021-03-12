@@ -18,3 +18,9 @@ nebula_add_test(
         gtest
         gtest_main
 )
+
+nebula_add_executable(
+    NAME time_sharing_execute_showcase
+    SOURCES TimeSharingExecuteShowcase.cpp
+    OBJECTS $<TARGET_OBJECTS:time_obj>
+)
