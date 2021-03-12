@@ -723,6 +723,10 @@ Status MetaClient::handleResponse(const RESP& resp) {
             return Status::Error("Backup building indexes!");
         case cpp2::ErrorCode::E_BACKUP_SPACE_NOT_FOUND:
             return Status::Error("The space is not found when backup!");
+        case cpp2::ErrorCode::E_LIST_CLUSTER_FAILURE:
+            return Status::Error("list cluster failure!");
+        case cpp2::ErrorCode::E_LIST_CLUSTER_GET_ABS_PATH_FAILURE:
+            return Status::Error("Failed to get the absolute path!");
         case cpp2::ErrorCode::E_RESTORE_FAILURE:
             return Status::Error("Restore failure!");
         case cpp2::ErrorCode::E_UNKNOWN:

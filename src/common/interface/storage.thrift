@@ -70,6 +70,9 @@ enum ErrorCode {
     // meta client failed
     E_LOAD_META_FAILED       = -51,
 
+    // File failed to get absolute path
+    E_FAILED_GET_ABS_PATH    = -55,
+
     // checkpoint failed
     E_FAILED_TO_CHECKPOINT   = -60,
     E_CHECKPOINT_BLOCKED     = -61,
@@ -826,6 +829,15 @@ struct PartitionInfoRequest {
     2: binary                               backup_name,
 }
 
+struct ListClusterInfoResp {
+    1: required ResponseCommon  result,
+    2: binary                   root_dir,
+    3: list<binary>             data_dir,
+}
+
+struct ListClusterInfoReq {
+}
+
 service StorageAdminService {
     // Interfaces for admin operations
     AdminExecResp transLeader(1: TransLeaderReq req);
@@ -851,6 +863,8 @@ service StorageAdminService {
 
     AdminExecResp addAdminTask(1: AddAdminTaskRequest req);
     AdminExecResp stopAdminTask(1: StopAdminTaskRequest req);
+
+    ListClusterInfoResp listClusterInfo(1: ListClusterInfoReq req);
 }
 
 

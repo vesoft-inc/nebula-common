@@ -197,6 +197,12 @@ struct LogInfo {
     2: TermID term_id;
 }
 
+struct NodeInfo {
+    1: HostAddr      host,
+    2: binary        root_dir,
+    3: list<binary>  data_dir,
+}
+
 struct PartitionBackupInfo {
     1: map<PartitionID, LogInfo> (cpp.template = "std::unordered_map")  info,
 }

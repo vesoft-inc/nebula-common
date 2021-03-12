@@ -83,6 +83,10 @@ enum ErrorCode {
     E_BACKUP_BUILDING_INDEX = -71,
     E_BACKUP_SPACE_NOT_FOUND = -72,
 
+    // ListClusterInfo Failure
+    E_LIST_CLUSTER_FAILURE = -75,
+    E_LIST_CLUSTER_GET_ABS_PATH_FAILURE = -76,
+
     // RESTORE Failure
     E_RESTORE_FAILURE = -80,
 
@@ -1140,6 +1144,17 @@ struct ReportTaskReq {
     4: optional StatisItem  statis
 }
 
+struct ListClusterInfoResp {
+    1: ErrorCode                code,
+    2: common.HostAddr          leader,
+    3: common.NodeInfo          meta,
+    4: list<common.NodeInfo>    storage_cluster,
+}
+
+struct ListClusterInfoReq {
+    1: optional list<SpaceItem>  spaces,
+}
+
 service MetaService {
     ExecResp createSpace(1: CreateSpaceReq req);
     ExecResp dropSpace(1: DropSpaceReq req);
@@ -1240,4 +1255,6 @@ service MetaService {
     ExecResp removeSession(1: RemoveSessionReq req);
 
     ExecResp reportTaskFinish(1: ReportTaskReq req);
+
+    ListClusterInfoResp ListCluster(1: ListClusterInfoReq req);
 }
