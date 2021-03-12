@@ -8,6 +8,7 @@
 #define COMMON_EXPRESSION_PREDICATEEXPRESSIONEXPRESSION_H_
 
 #include "common/expression/Expression.h"
+#include "common/datatypes/Map.h"
 
 namespace nebula {
 
