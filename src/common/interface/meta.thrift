@@ -1256,5 +1256,5 @@ service MetaService {
 
     ExecResp reportTaskFinish(1: ReportTaskReq req);
 
-    ListClusterInfoResp ListCluster(1: ListClusterInfoReq req);
+    ListClusterInfoResp listCluster(1: ListClusterInfoReq req);
 }
