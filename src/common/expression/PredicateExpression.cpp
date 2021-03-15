@@ -20,8 +20,10 @@ const Value& PredicateExpression::evalExists(ExpressionContext& ctx) {
     if (!result_.empty()) {
         return result_;
     }
-    auto& container = collection_->eval(ctx);
-    auto& key = filter_->eval(ctx);
+    DCHECK(collection_->kind() == Expression::Kind::kAttribute);
+    auto* attributeExpr = static_cast<AttributeExpression* >(collection_.get());
+    auto& container = attributeExpr->left()->eval(ctx);
+    auto& key = attributeExpr->right()->eval(ctx);
     switch (container.type()) {
         case Value::Type::VERTEX: {
             result_ = container.getVertex().contains(key);
