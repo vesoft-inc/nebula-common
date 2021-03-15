@@ -17,12 +17,19 @@ public:
     FiberExecutor(size_t n,
                   std::string name = "",
                   folly::fibers::FiberManager::Options opts = {}) {
-        auto tf = std::make_shared<folly::NamedThreadFactory>(name);
-        io_ = std::make_shared<folly::IOThreadPoolExecutor>(n, std::move(tf));
+        if (!name.empty()) {
+            auto tf = std::make_shared<folly::NamedThreadFactory>(name);
+            io_ = std::make_shared<folly::IOThreadPoolExecutor>(n, std::move(tf));
+        } else {
+            io_ = std::make_shared<folly::IOThreadPoolExecutor>(n);
+        }
         fiber_ = std::make_shared<folly::FiberIOExecutor>(io_, opts);
     }
 
-    ~FiberExecutor() override = default;
+    ~FiberExecutor() override {
+        stop();
+        join();
+    }
 
     void add(folly::Func func) override {
         fiber_->add(std::move(func));
