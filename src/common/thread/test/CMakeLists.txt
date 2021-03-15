@@ -19,8 +19,13 @@ nebula_add_test(
         gtest_main
 )
 
-nebula_add_executable(
-    NAME time_sharing_execute_showcase
-    SOURCES TimeSharingExecuteShowcase.cpp
-    OBJECTS $<TARGET_OBJECTS:time_obj>
-)
+# When ASan enabled, there will be a linking error if folly itself was not sanitized.
+# There is an open PR to address this issue: https://github.com/facebook/folly/pull/1510
+# For the time being, we disable the use of folly::fibers when ASan.
+if(NOT ENABLE_ASAN)
+    nebula_add_executable(
+        NAME time_sharing_execute_showcase
+        SOURCES TimeSharingExecuteShowcase.cpp
+        OBJECTS $<TARGET_OBJECTS:time_obj>
+    )
+endif()
