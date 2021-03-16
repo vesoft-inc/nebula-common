@@ -105,15 +105,6 @@ public:
         return filter_ != nullptr;
     }
 
-    void setResult(Value &&res) {
-        result_ = std::move(res);
-    }
-
-    void setConstant(bool value) {
-        isConstant_ = value;
-    }
-
-
 private:
     const Value& evalExists(ExpressionContext& ctx);
 
@@ -128,7 +119,6 @@ private:
     std::unique_ptr<Expression> collection_;
     std::unique_ptr<Expression> filter_;
     std::unique_ptr<std::string> originString_;
-    bool isConstant_{false};
     Value result_;
 };
 

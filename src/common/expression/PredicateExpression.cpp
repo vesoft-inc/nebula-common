@@ -17,9 +17,6 @@ std::unordered_map<std::string, PredicateExpression::Type> PredicateExpression::
 };
 
 const Value& PredicateExpression::evalExists(ExpressionContext& ctx) {
-    if (isConstant_) {
-        return result_;
-    }
     DCHECK(collection_->kind() == Expression::Kind::kAttribute);
     auto* attributeExpr = static_cast<AttributeExpression* >(collection_.get());
     auto& container = attributeExpr->left()->eval(ctx);
@@ -183,7 +180,7 @@ bool PredicateExpression::operator==(const Expression& rhs) const {
         }
     }
 
-    return isConstant_ == expr.isConstant_;
+    return true;
 }
 
 std::unique_ptr<Expression> PredicateExpression::clone() const {
@@ -195,13 +192,11 @@ std::unique_ptr<Expression> PredicateExpression::clone() const {
     if (originString_ != nullptr) {
         expr->setOriginString(new std::string(*originString_));
     }
-    expr->setConstant(isConstant_);
     return expr;
 }
 
 void PredicateExpression::writeTo(Encoder& encoder) const {
     encoder << kind_;
-    encoder << isConstant_;
     encoder << Value(hasInnerVar());
     encoder << Value(hasFilter());
     encoder << Value(hasOriginString());
@@ -224,7 +219,6 @@ void PredicateExpression::resetFrom(Decoder& decoder) {
     bool hasFilter = decoder.readValue().getBool();
     bool hasString = decoder.readValue().getBool();
 
-    isConstant_ = decoder.readValue().getBool();
     name_ = decoder.readStr();
     if (hasInnerVar) {
         innerVar_ = decoder.readStr();
