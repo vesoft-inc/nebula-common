@@ -109,6 +109,11 @@ public:
         result_ = std::move(res);
     }
 
+    void setConstance(bool value) {
+        isConstance_ = value;
+    }
+
+
 private:
     const Value& evalExists(ExpressionContext& ctx);
 
@@ -123,6 +128,7 @@ private:
     std::unique_ptr<Expression> collection_;
     std::unique_ptr<Expression> filter_;
     std::unique_ptr<std::string> originString_;
+    bool isConstance_{false};
     Value result_;
 };
 
