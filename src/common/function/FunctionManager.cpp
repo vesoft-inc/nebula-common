@@ -1709,7 +1709,6 @@ Status FunctionManager::find(const std::string &func, const size_t arity) {
 /*static*/ StatusOr<const FunctionManager::FunctionAttributes>
 FunctionManager::getInternal(const std::string &func,
                              size_t arity) const {
-    folly::RWSpinLock::ReadHolder holder(lock_);
     // check existence
     auto iter = functions_.find(func);
     if (iter == functions_.end()) {
