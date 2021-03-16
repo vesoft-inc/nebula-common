@@ -124,11 +124,7 @@ protected:
                       meta::MetaClient* metaClient);
     virtual ~StorageClientBase();
 
-    virtual void loadLeader() const;
-    const HostAddr getLeader(const meta::PartHosts& partHosts) const;
-    void updateLeader(GraphSpaceID spaceId, PartitionID partId, const HostAddr& leader);
-    void invalidLeader(GraphSpaceID spaceId, PartitionID partId);
-    void invalidLeader(GraphSpaceID spaceId, std::vector<PartitionID> &partsId);
+    const StatusOr<HostAddr> getLeader(GraphSpaceID spaceId, PartitionID partId) const;
 
     template<class Request,
              class RemoteFunc,
@@ -245,11 +241,6 @@ protected:
 private:
     std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool_;
     std::unique_ptr<thrift::ThriftClientManager<ClientType>> clientsMan_;
-
-    mutable folly::RWSpinLock leadersLock_;
-    mutable std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr> leaders_;
-    mutable std::atomic_bool loadLeaderBefore_{false};
-    mutable std::atomic_bool isLoadingLeader_{false};
 };
 
 }   // namespace storage

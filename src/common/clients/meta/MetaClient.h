@@ -511,6 +511,9 @@ public:
     StatusOr<std::vector<std::shared_ptr<cpp2::IndexItem>>>
     getEdgeIndexesFromCache(GraphSpaceID spaceId);
 
+    StatusOr<HostAddr> getStorageLeaderFromCache(std::pair<GraphSpaceID, PartitionID> part) const;
+    StatusOr<LeaderMap> getStorageLeaderFromCache() const;
+
     Status checkTagIndexed(GraphSpaceID space, IndexID indexID);
 
     Status checkEdgeIndexed(GraphSpaceID space, IndexID indexID);
@@ -568,8 +571,6 @@ public:
     listGroups();
 
     Status refreshCache();
-
-    StatusOr<LeaderMap> loadLeader();
 
     folly::Future<StatusOr<cpp2::StatisItem>>
     getStatis(GraphSpaceID spaceId);
@@ -670,6 +671,8 @@ protected:
 
     ListenersMap doGetListenersMap(const HostAddr& host, const LocalCache& localCache);
 
+    StatusOr<LeaderMap> loadLeader(const SpaceNameIdMap &spaceNameId, const LocalCache &localCache);
+
 private:
     std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool_;
     std::shared_ptr<thrift::ThriftClientManager<cpp2::MetaServiceAsyncClient>> clientsMan_;
@@ -703,6 +706,9 @@ private:
     NameIndexMap          tagNameIndexMap_;
     NameIndexMap          edgeNameIndexMap_;
     FulltextClientsList   fulltextClientList_;
+
+    // storage leader cache
+    LeaderMap             leaderMap_;
 
     mutable folly::RWSpinLock     localCacheLock_;
     // The listener_ is the NebulaStore

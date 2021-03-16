@@ -91,72 +91,11 @@ StorageClientBase<ClientType>::~StorageClientBase() {
 
 
 template<typename ClientType>
-void StorageClientBase<ClientType>::loadLeader() const {
-    if (loadLeaderBefore_) {
-        return;
-    }
-    bool expected = false;
-    if (isLoadingLeader_.compare_exchange_strong(expected, true)) {
-        CHECK(metaClient_ != nullptr);
-        auto status = metaClient_->loadLeader();
-        if (status.ok()) {
-            folly::RWSpinLock::WriteHolder wh(leadersLock_);
-            leaders_ = std::move(status).value();
-            loadLeaderBefore_ = true;
-        }
-        isLoadingLeader_ = false;
-    }
-}
-
-
-template<typename ClientType>
-const HostAddr
-StorageClientBase<ClientType>::getLeader(const meta::PartHosts& partHosts) const {
-    loadLeader();
-    auto part = std::make_pair(partHosts.spaceId_, partHosts.partId_);
-    {
-        folly::RWSpinLock::ReadHolder rh(leadersLock_);
-        auto it = leaders_.find(part);
-        if (it != leaders_.end()) {
-            return it->second;
-        }
-    }
-    {
-        folly::RWSpinLock::WriteHolder wh(leadersLock_);
-        VLOG(1) << "No leader exists. Choose one random.";
-        const auto& random = partHosts.hosts_[folly::Random::rand32(partHosts.hosts_.size())];
-        leaders_[part] = random;
-        return random;
-    }
-}
-
-
-template<typename ClientType>
-void StorageClientBase<ClientType>::updateLeader(GraphSpaceID spaceId,
-                                                 PartitionID partId,
-                                                 const HostAddr& leader) {
-    LOG(INFO) << "Update the leader for [" << spaceId << ", " << partId << "] to " << leader;
-    folly::RWSpinLock::WriteHolder wh(leadersLock_);
-    leaders_[std::make_pair(spaceId, partId)] = leader;
-}
-
-
-template<typename ClientType>
-void StorageClientBase<ClientType>::invalidLeader(GraphSpaceID spaceId,
-                                                  PartitionID partId) {
-    LOG(INFO) << "Invalidate the leader for [" << spaceId << ", " << partId << "]";
-    folly::RWSpinLock::WriteHolder wh(leadersLock_);
-    leaders_.erase(std::make_pair(spaceId, partId));
-}
-
-template<typename ClientType>
-void StorageClientBase<ClientType>::invalidLeader(GraphSpaceID spaceId,
-                                                  std::vector<PartitionID> &partsId) {
-    folly::RWSpinLock::WriteHolder wh(leadersLock_);
-    for (const auto &partId : partsId) {
-        LOG(INFO) << "Invalidate the leader for [" << spaceId << ", " << partId << "]";
-        leaders_.erase(std::make_pair(spaceId, partId));
-    }
+const StatusOr<HostAddr>
+StorageClientBase<ClientType>::getLeader(const GraphSpaceID spaceId,
+                                         const PartitionID partId) const {
+    auto part = std::make_pair(spaceId, partId);
+    return metaClient_->getStorageLeaderFromCache(part);
 }
 
 
@@ -174,7 +113,6 @@ StorageClientBase<ClientType>::collectResponse(
 
     for (auto& req : requests) {
         auto& host = req.first;
-        auto spaceId = req.second.get_space_id();
         auto res = context->insertRequest(host, std::move(req.second));
         DCHECK(res.second);
         evb = ioThreadPool_->getEventBase();
@@ -183,7 +121,6 @@ StorageClientBase<ClientType>::collectResponse(
                          evb,
                          context,
                          host,
-                         spaceId,
                          res] () mutable {
             auto client = clientsMan_->client(host,
                                               evb,
@@ -191,14 +128,13 @@ StorageClientBase<ClientType>::collectResponse(
                                               FLAGS_storage_client_timeout_ms);
             // Result is a pair of <Request&, bool>
             auto start = time::WallClock::fastNowInMicroSec();
-            context->serverMethod(client.get(), *res.first)
+            context->serverMethod(DCHECK_NOTNULL(client.get()), *res.first)
             // Future process code will be executed on the IO thread
             // Since all requests are sent using the same eventbase, all then-callback
             // will be executed on the same IO thread
             .via(evb).then([this,
                             context,
                             host,
-                            spaceId,
                             start] (folly::Try<Response>&& val) {
                 auto& r = context->findRequest(host);
                 if (val.hasException()) {
@@ -206,7 +142,6 @@ StorageClientBase<ClientType>::collectResponse(
                                << " failed: " << val.exception().what();
                     auto parts = getReqPartsId(r);
                     context->resp.appendFailedParts(parts, storage::cpp2::ErrorCode::E_RPC_FAILURE);
-                    invalidLeader(spaceId, parts);
                     context->resp.markFailure();
                 } else {
                     auto resp = std::move(val.value());
@@ -217,19 +152,6 @@ StorageClientBase<ClientType>::collectResponse(
                                 << ", failed code " << static_cast<int32_t>(code.get_code());
                         hasFailure = true;
                         context->resp.emplaceFailedPart(code.get_part_id(), code.get_code());
-                        if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
-                            auto* leader = code.get_leader();
-                            if (isValidHostPtr(leader)) {
-                                updateLeader(spaceId, code.get_part_id(), *leader);
-                            } else {
-                                invalidLeader(spaceId, code.get_part_id());
-                            }
-                        } else if (code.get_code() == cpp2::ErrorCode::E_PART_NOT_FOUND ||
-                                   code.get_code() == cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
-                            invalidLeader(spaceId, code.get_part_id());
-                        } else {
-                            // do nothing
-                        }
                     }
                     if (hasFailure) {
                         context->resp.markFailure();
@@ -291,23 +213,18 @@ void StorageClientBase<ClientType>::getResponseImpl(
                     pro = std::move(pro), this] () mutable {
         auto host = request.first;
         auto client = clientsMan_->client(host, evb, false, FLAGS_storage_client_timeout_ms);
-        auto spaceId = request.second.get_space_id();
-        auto partsId = getReqPartsId(request.second);
         LOG(INFO) << "Send request to storage " << host;
-        remoteFunc(client.get(), request.second).via(evb)
-             .then([spaceId,
-                    partsId = std::move(partsId),
+        remoteFunc(DCHECK_NOTNULL(client.get()), request.second).via(evb)
+             .then([
                     p = std::move(pro),
                     request = std::move(request),
-                    remoteFunc = std::move(remoteFunc),
-                    this] (folly::Try<Response>&& t) mutable {
+                    remoteFunc = std::move(remoteFunc)] (folly::Try<Response>&& t) mutable {
             // exception occurred during RPC
             if (t.hasException()) {
                 p.setValue(
                     Status::Error(
                         folly::stringPrintf("RPC failure in StorageClient: %s",
                                             t.exception().what().c_str())));
-                invalidLeader(spaceId, partsId);
                 return;
             }
             auto&& resp = std::move(t.value());
@@ -316,17 +233,6 @@ void StorageClientBase<ClientType>::getResponseImpl(
             for (auto& code : result.get_failed_parts()) {
                 VLOG(3) << "Failure! Failed part " << code.get_part_id()
                         << ", failed code " << static_cast<int32_t>(code.get_code());
-                if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
-                    auto* leader = code.get_leader();
-                    if (isValidHostPtr(leader)) {
-                        updateLeader(spaceId, code.get_part_id(), *leader);
-                    } else {
-                        invalidLeader(spaceId, code.get_part_id());
-                    }
-                } else if (code.get_code() == storage::cpp2::ErrorCode::E_PART_NOT_FOUND ||
-                           code.get_code() == storage::cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
-                    invalidLeader(spaceId, code.get_part_id());
-                }
             }
             p.setValue(std::move(resp));
         });
@@ -363,15 +269,9 @@ StorageClientBase<ClientType>::clusterIdsToHosts(GraphSpaceID spaceId,
         }
 
         auto part = status.value();
-        auto metaStatus = getPartHosts(spaceId, part);
-        if (!metaStatus.ok()) {
-            return status.status();
-        }
-
-        auto partHosts = metaStatus.value();
-        CHECK_GT(partHosts.hosts_.size(), 0U);
-        const auto leader = this->getLeader(partHosts);
-        clusters[leader][part].emplace_back(std::move(id));
+        const auto leader = this->getLeader(spaceId, part);
+        NG_RETURN_IF_ERROR(leader);
+        clusters[leader.value()][part].emplace_back(std::move(id));
     }
     return clusters;
 }
@@ -388,14 +288,9 @@ StorageClientBase<ClientType>::getHostParts(GraphSpaceID spaceId) const {
 
     auto parts = status.value();
     for (auto partId = 1; partId <= parts; partId++) {
-        auto metaStatus = getPartHosts(spaceId, partId);
-        if (!metaStatus.ok()) {
-            return metaStatus.status();
-        }
-        auto partHosts = std::move(metaStatus).value();
-        DCHECK_GT(partHosts.hosts_.size(), 0U);
-        const auto leader = getLeader(partHosts);
-        hostParts[leader].emplace_back(partId);
+        const auto leader = getLeader(spaceId, partId);
+        NG_RETURN_IF_ERROR(leader);
+        hostParts[leader.value()].emplace_back(partId);
     }
     return hostParts;
 }

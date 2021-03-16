@@ -251,6 +251,11 @@ bool MetaClient::loadData() {
         spaceIndexByName.emplace(space.second, spaceId);
     }
 
+    auto leaderMap = loadLeader(spaceIndexByName, cache);
+    if (!leaderMap.ok()) {
+        return false;
+    }
+
     decltype(localCache_) oldCache;
     {
         folly::RWSpinLock::WriteHolder holder(localCacheLock_);
@@ -264,6 +269,7 @@ bool MetaClient::loadData() {
         spaceEdgeIndexByType_   = std::move(spaceEdgeIndexByType);
         spaceTagIndexById_      = std::move(spaceTagIndexById);
         spaceAllEdgeMap_        = std::move(spaceAllEdgeMap);
+        leaderMap_              = std::move(leaderMap).value();
     }
 
     diff(oldCache, localCache_);
@@ -543,7 +549,7 @@ void MetaClient::getResponse(Request req,
                      this] () mutable {
         auto client = clientsMan_->client(host, evb, false, FLAGS_meta_client_timeout_ms);
         VLOG(1) << "Send request to meta " << host;
-        remoteFunc(client, req)
+        remoteFunc(DCHECK_NOTNULL(client), req)
             .via(evb)
             .then([host,
                    req = std::move(req),
@@ -2144,6 +2150,29 @@ MetaClient::getEdgeIndexFromCache(GraphSpaceID spaceId, IndexID indexID) {
 }
 
 
+StatusOr<HostAddr>
+MetaClient::getStorageLeaderFromCache(std::pair<GraphSpaceID, PartitionID> part) const {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto findLeader = leaderMap_.find(part);
+    if (findLeader == leaderMap_.end()) {
+        return Status::Error("No valid leader.");
+    }
+    return findLeader->second;
+}
+
+StatusOr<LeaderMap> MetaClient::getStorageLeaderFromCache() const {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    return leaderMap_;
+}
+
 StatusOr<EdgeType>
 MetaClient::getRelatedEdgeTypeByIndexNameFromCache(const GraphSpaceID space,
                                                    const std::string& indexName) {
@@ -2997,12 +3026,8 @@ Status MetaClient::refreshCache() {
 }
 
 
-StatusOr<LeaderMap> MetaClient::loadLeader() {
-    // Return error if has not loadData before
-    if (!ready_) {
-        return Status::Error("Not ready!");
-    }
-
+StatusOr<LeaderMap> MetaClient::loadLeader(const SpaceNameIdMap &spaceNameId,
+                                           const LocalCache &localCache) {
     auto ret = listHosts().get();
     if (!ret.ok()) {
         return Status::Error("List hosts failed");
@@ -3010,20 +3035,35 @@ StatusOr<LeaderMap> MetaClient::loadLeader() {
 
     LeaderMap leaderMap;
     auto hostItems = std::move(ret).value();
+    std::unordered_map<GraphSpaceID, std::size_t> leaderCount;
     for (auto& item : hostItems) {
         for (auto& spaceEntry : item.get_leader_parts()) {
             auto spaceName = spaceEntry.first;
-            auto status = getSpaceIdByNameFromCache(spaceName);
-            if (!status.ok()) {
+            auto find = spaceNameId.find(spaceName);
+            if (find == spaceNameId.end()) {
                 continue;
             }
-            auto spaceId = status.value();
+            auto spaceId = find->second;
+            leaderCount[spaceId] += spaceEntry.second.size();
             for (const auto& partId : spaceEntry.second) {
                 leaderMap[{spaceId, partId}] = item.hostAddr;
             }
         }
         LOG(INFO) << "Load leader of " << item.hostAddr
                   << " in " << item.get_leader_parts().size() << " space";
+    }
+    // check leader count
+    // for the lazy expired host
+    for (const auto &space : localCache) {
+        const auto find = leaderCount.find(space.first);
+        if (find == leaderCount.end()) {
+            return Status::Error("Get mismatched leaders.");
+        }
+        DCHECK_GT(space.second->spaceDesc_.get_partition_num(), 0);
+        if (find->second !=
+            static_cast<std::size_t>(space.second->spaceDesc_.get_partition_num())) {
+            return Status::Error("Get mismatched leaders.");
+        }
     }
     LOG(INFO) << "Load leader ok";
     return leaderMap;

@@ -15,6 +15,8 @@ DECLARE_int32(conn_timeout_ms);
 namespace nebula {
 namespace thrift {
 
+
+// Note. The return ptr shouldn't be null
 template<class ClientType>
 std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
         const HostAddr& host, folly::EventBase* evb, bool compatibility, uint32_t timeout) {
@@ -62,7 +64,7 @@ std::shared_ptr<ClientType> ThriftClientManager<ClientType>::client(
             LOG(INFO) << oss.str();
         } catch(const std::exception& e) {
             LOG(ERROR) << e.what();
-            return nullptr;
+            // The exception handled when try use it
         }
     }
 
