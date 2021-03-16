@@ -109,8 +109,8 @@ public:
         result_ = std::move(res);
     }
 
-    void setConstance(bool value) {
-        isConstance_ = value;
+    void setConstant(bool value) {
+        isConstant_ = value;
     }
 
 
@@ -128,7 +128,7 @@ private:
     std::unique_ptr<Expression> collection_;
     std::unique_ptr<Expression> filter_;
     std::unique_ptr<std::string> originString_;
-    bool isConstance_{false};
+    bool isConstant_{false};
     Value result_;
 };
 
