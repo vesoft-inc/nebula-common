@@ -195,7 +195,7 @@ std::unique_ptr<Expression> PredicateExpression::clone() const {
     if (originString_ != nullptr) {
         expr->setOriginString(new std::string(*originString_));
     }
-    expr->setConstance(isConstance_);
+    expr->setConstant(isConstant_);
     return expr;
 }
 
