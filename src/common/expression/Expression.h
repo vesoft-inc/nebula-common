@@ -19,6 +19,7 @@ class Expression {
 public:
     enum class Kind : uint8_t {
 <<<<<<< HEAD
+<<<<<<< HEAD
         kConstant,
         // Arithmetic
         kAdd,
@@ -94,6 +95,8 @@ public:
 
         kPathBuild,
 =======
+=======
+>>>>>>> rebase upstream
         kConstant = 0,
 
         kAdd = 1,
@@ -169,13 +172,13 @@ public:
         kReduce = 57,
 
         kPathBuild = 58,
->>>>>>> add expression type enum value
         // text or key word search expression
         kTSPrefix = 59,
         kTSWildcard = 60,
         kTSRegexp = 61,
         kTSFuzzy = 62,
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         kAggregate,
         kIsNull,
@@ -188,6 +191,9 @@ public:
         kAggregate = 63,
 >>>>>>> add expression type enum value
 >>>>>>> add expression type enum value
+=======
+        kAggregate = 63,
+>>>>>>> rebase upstream
     };
 
 
