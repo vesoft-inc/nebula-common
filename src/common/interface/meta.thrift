@@ -86,6 +86,7 @@ enum ErrorCode {
     // ListClusterInfo Failure
     E_LIST_CLUSTER_FAILURE = -75,
     E_LIST_CLUSTER_GET_ABS_PATH_FAILURE = -76,
+    E_GET_META_DIR_FAILURE = -77,
 
     // RESTORE Failure
     E_RESTORE_FAILURE = -80,
@@ -1147,12 +1148,21 @@ struct ReportTaskReq {
 struct ListClusterInfoResp {
     1: ErrorCode                code,
     2: common.HostAddr          leader,
-    3: common.NodeInfo          meta,
-    4: list<common.NodeInfo>    storage_cluster,
+    3: list<common.HostAddr>    meta_servers,
+    4: list<common.NodeInfo>    storage_servers,
 }
 
 struct ListClusterInfoReq {
     1: optional list<SpaceItem>  spaces,
+}
+
+struct GetMetaDirInfoResp {
+    1: ErrorCode    code,
+    2: binary       root_dir,
+    3: list<binary> data_dir,
+}
+
+struct GetMetaDirInfoReq {
 }
 
 service MetaService {
@@ -1257,4 +1267,5 @@ service MetaService {
     ExecResp reportTaskFinish(1: ReportTaskReq req);
 
     ListClusterInfoResp listCluster(1: ListClusterInfoReq req);
+    GetMetaDirInfoResp getMetaDirInfo(1: GetMetaDirInfoReq req);
 }

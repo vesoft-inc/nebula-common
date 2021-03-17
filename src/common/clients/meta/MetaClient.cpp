@@ -727,6 +727,8 @@ Status MetaClient::handleResponse(const RESP& resp) {
             return Status::Error("list cluster failure!");
         case cpp2::ErrorCode::E_LIST_CLUSTER_GET_ABS_PATH_FAILURE:
             return Status::Error("Failed to get the absolute path!");
+        case cpp2::ErrorCode::E_GET_META_DIR_FAILURE:
+            return Status::Error("Failed to get meta dir!");
         case cpp2::ErrorCode::E_RESTORE_FAILURE:
             return Status::Error("Restore failure!");
         case cpp2::ErrorCode::E_UNKNOWN:
