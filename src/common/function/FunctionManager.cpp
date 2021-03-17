@@ -1323,6 +1323,9 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNull()) {
+                return Value::kNullValue;
+            }
             if (!args[0].isVertex()) {
                 return Value::kNullBadType;
             }
@@ -1335,6 +1338,9 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNull()) {
+                return Value::kNullValue;
+            }
             if (!args[0].isVertex()) {
                 return Value::kNullBadType;
             }
@@ -1352,20 +1358,28 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
-            if (args[0].isVertex()) {
-                Map props;
-                for (auto &tag : args[0].getVertex().tags) {
-                    props.kvs.insert(tag.props.cbegin(), tag.props.cend());
+            switch (args[0].type()) {
+                case Value::Type::NULLVALUE: {
+                    return Value::kNullValue;
                 }
-                return Value(std::move(props));
-            } else if (args[0].isEdge()) {
-                Map props;
-                props.kvs = args[0].getEdge().props;
-                return Value(std::move(props));
-            } else if (args[0].isMap()) {
-                return args[0];
-            } else {
-                return Value::kNullBadType;
+                case Value::Type::VERTEX: {
+                    Map props;
+                    for (auto& tag : args[0].getVertex().tags) {
+                        props.kvs.insert(tag.props.cbegin(), tag.props.cend());
+                    }
+                    return Value(std::move(props));
+                }
+                case Value::Type::EDGE: {
+                    Map props;
+                    props.kvs = args[0].getEdge().props;
+                    return Value(std::move(props));
+                }
+                case Value::Type::MAP: {
+                    return args[0];
+                }
+                default: {
+                    return Value::kNullBadType;
+                }
             }
         };
     }
@@ -1450,6 +1464,9 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNull()) {
+                return Value::kNullValue;
+            }
             if (args[0].isEdge()) {
                 return Vertex(args[0].getEdge().src, {});
             }
@@ -1465,6 +1482,9 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNull()) {
+                return Value::kNullValue;
+            }
             if (args[0].isEdge()) {
                 return Vertex(args[0].getEdge().dst, {});
             }
@@ -1484,6 +1504,9 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNull()) {
+                return Value::kNullValue;
+            }
             if (!args[0].isList()) {
                 return Value::kNullBadType;
             }
@@ -1496,6 +1519,9 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNull()) {
+                return Value::kNullValue;
+            }
             if (!args[0].isList()) {
                 return Value::kNullBadType;
             }
@@ -1530,6 +1556,9 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             std::set<std::string> tmp;
+            if (args[0].isNull()) {
+                return Value::kNullValue;
+            }
             if (args[0].isVertex()) {
                 for (auto& tag : args[0].getVertex().tags) {
                     for (auto& prop : tag.props) {
@@ -1558,6 +1587,9 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNull()) {
+                return Value::kNullValue;
+            }
             if (!args[0].isPath()) {
                 return Value::kNullBadType;
             }
@@ -1593,6 +1625,9 @@ FunctionManager::FunctionManager() {
         attr.maxArity_ = 1;
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNull()) {
+                return Value::kNullValue;
+            }
             if (!args[0].isPath()) {
                 return Value::kNullBadType;
             }
