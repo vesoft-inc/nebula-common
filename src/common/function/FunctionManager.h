@@ -81,7 +81,8 @@ private:
 
     static std::unordered_map<std::string, std::vector<TypeSignature>> typeSignature_;
 
-    std::unordered_map<std::string, FunctionAttributes> functions_;
+    std::unordered_map<std::string, FunctionAttributes,
+                       std::hash<std::string>, std::case_insensitive_comparator> functions_;
 };
 
 }   // namespace nebula

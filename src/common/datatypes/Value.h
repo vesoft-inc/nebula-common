@@ -8,6 +8,7 @@
 #define COMMON_DATATYPES_VALUE_H_
 
 #include <memory>
+#include <boost/algorithm/string.hpp>
 
 #include "common/thrift/ThriftTypes.h"
 #include "common/datatypes/Date.h"
@@ -482,6 +483,12 @@ template<>
 struct equal_to<nebula::Value*> {
     bool operator()(const nebula::Value* lhs, const nebula::Value* rhs) const noexcept {
         return lhs == rhs ? true : (lhs != nullptr) && (rhs != nullptr) && (*lhs == *rhs);
+    }
+};
+
+struct case_insensitive_comparator{
+    bool operator()(const std::string& x, const std::string& y) const{
+        return boost::iequals(x, y);
     }
 };
 
