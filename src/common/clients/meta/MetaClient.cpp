@@ -252,9 +252,6 @@ bool MetaClient::loadData() {
     }
 
     auto leaderMap = loadLeader(spaceIndexByName, cache);
-    if (!leaderMap.ok()) {
-        return false;
-    }
 
     decltype(localCache_) oldCache;
     {
@@ -269,13 +266,19 @@ bool MetaClient::loadData() {
         spaceEdgeIndexByType_   = std::move(spaceEdgeIndexByType);
         spaceTagIndexById_      = std::move(spaceTagIndexById);
         spaceAllEdgeMap_        = std::move(spaceAllEdgeMap);
-        leaderMap_              = std::move(leaderMap).value();
+        if (leaderMap.ok()) {
+            leaderMap_              = leaderMap.value();
+        }
     }
 
     diff(oldCache, localCache_);
     listenerDiff(oldCache, localCache_);
     loadRemoteListeners();
     ready_ = true;
+    // TODO(shylock) using separate timestamp to avoid conflict with meta data
+    if (!leaderMap.ok()) {
+        return false;
+    }
     return true;
 }
 
