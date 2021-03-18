@@ -1037,6 +1037,8 @@ struct BackupMeta {
     2: list<binary>                               meta_files,
     // backup
     3: binary                                     backup_name,
+    4: bool                                       full,
+    5: i64                                        create_time,
 }
 
 struct CreateBackupReq {
