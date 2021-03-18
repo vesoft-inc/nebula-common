@@ -16,7 +16,7 @@ bool UnaryExpression::operator==(const Expression& rhs) const {
     }
 
     const auto& r = static_cast<const UnaryExpression&>(rhs);
-    return *operand_ == *(r.operand_);
+    return parentheses_ == r.parentheses_ && *operand_ == *(r.operand_);
 }
 
 
@@ -25,6 +25,8 @@ void UnaryExpression::writeTo(Encoder& encoder) const {
     // kind_
     encoder << kind_;
 
+    encoder << parentheses_;
+
     // operand_
     DCHECK(!!operand_);
     encoder << *operand_;
@@ -32,6 +34,7 @@ void UnaryExpression::writeTo(Encoder& encoder) const {
 
 
 void UnaryExpression::resetFrom(Decoder& decoder) {
+    parentheses_ = decoder.readValue().getBool();
     // Read operand_
     operand_ = decoder.readExpression();
     CHECK(!!operand_);
@@ -128,7 +131,11 @@ std::string UnaryExpression::toString() const {
             op = "illegal symbol ";
     }
     std::stringstream out;
-    out << op << "(" << operand_->toString() << ")";
+    if (parentheses_) {
+        out << op << "(" << operand_->toString() << ")";
+    } else {
+        out << op << operand_->toString();
+    }
     return out.str();
 }
 

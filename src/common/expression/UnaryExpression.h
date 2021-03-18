@@ -27,7 +27,9 @@ public:
     void accept(ExprVisitor* visitor) override;
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<UnaryExpression>(kind(), operand()->clone().release());
+        auto expr = std::make_unique<UnaryExpression>(kind(), operand()->clone().release());
+        expr->setParentheses(parentheses_);
+        return expr;
     }
 
     const Expression* operand() const {

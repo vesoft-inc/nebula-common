@@ -40,7 +40,9 @@ public:
     std::string toString() const override;
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstantExpression>(val_);
+        auto expr = std::make_unique<ConstantExpression>(val_);
+        expr->setParentheses(parentheses_);
+        return expr;
     }
 
 private:

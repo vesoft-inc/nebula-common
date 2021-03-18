@@ -148,6 +148,9 @@ public:
 
     virtual bool isArithmeticExpr() const {
         return false;
+
+    void setParentheses(bool val) {
+        parentheses_ = val;
     }
 
 protected:
@@ -198,6 +201,7 @@ protected:
     virtual void resetFrom(Decoder& decoder) = 0;
 
     Kind kind_;
+    bool parentheses_{false};
 };
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind);

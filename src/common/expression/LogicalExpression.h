@@ -32,6 +32,7 @@ public:
         for (auto i = 0u; i < operands_.size(); i++) {
             copy->operands_[i] = operands_[i]->clone();
         }
+        copy->setParentheses(parentheses_);
         return copy;
     }
 

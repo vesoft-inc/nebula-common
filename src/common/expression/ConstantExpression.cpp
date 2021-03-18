@@ -16,7 +16,7 @@ bool ConstantExpression::operator==(const Expression& rhs) const {
     }
 
     const auto& r = static_cast<const ConstantExpression&>(rhs);
-    return val_ == r.val_;
+    return parentheses_ == r.parentheses_ && val_ == r.val_;
 }
 
 
@@ -25,12 +25,16 @@ void ConstantExpression::writeTo(Encoder& encoder) const {
     // kind_
     encoder << kind_;
 
+    // parentheses_
+    encoder << parentheses_;
+
     // val_
     encoder << val_;
 }
 
 
 void ConstantExpression::resetFrom(Decoder& decoder) {
+    parentheses_ = decoder.readValue().getBool();
     // Deserialize val_
     val_ = decoder.readValue();
 }
@@ -41,7 +45,11 @@ void ConstantExpression::accept(ExprVisitor* visitor) {
 
 std::string ConstantExpression::toString() const {
     std::stringstream out;
-    out << val_;
+    if (parentheses_) {
+        out << "(" << val_ << ")";
+    } else {
+        out << val_;
+    }
     return out.str();
 }
 

@@ -122,13 +122,14 @@ std::string LogicalExpression::toString() const {
     std::string buf;
     buf.reserve(256);
 
-    buf += "(";
     buf += operands_[0]->toString();
     for (auto i = 1u; i < operands_.size(); i++) {
         buf += op;
         buf += operands_[i]->toString();
     }
-    buf += ")";
+    if (parentheses_) {
+        buf = "(" + buf + ")";
+    }
 
     return buf;
 }
@@ -139,6 +140,7 @@ void LogicalExpression::accept(ExprVisitor* visitor) {
 
 void LogicalExpression::writeTo(Encoder &encoder) const {
     encoder << kind();
+    encoder << parentheses_;
     encoder << operands_.size();
     for (auto &expr : operands_) {
         encoder << *expr;
@@ -146,6 +148,7 @@ void LogicalExpression::writeTo(Encoder &encoder) const {
 }
 
 void LogicalExpression::resetFrom(Decoder &decoder) {
+    parentheses_ = decoder.readValue().getBool();
     auto size = decoder.readSize();
     operands_.resize(size);
     for (auto i = 0u; i < size; i++) {
@@ -160,6 +163,10 @@ bool LogicalExpression::operator==(const Expression &rhs) const {
     auto &logic = static_cast<const LogicalExpression&>(rhs);
 
     if (operands_.size() != logic.operands_.size()) {
+        return false;
+    }
+
+    if (parentheses_ != logic.parentheses_) {
         return false;
     }
 

@@ -96,6 +96,7 @@ static std::vector<std::string> InfixToSuffix(const std::vector<std::string> &ex
                 values.push_back(operators.top());
                 operators.pop();
             }
+            values.push_back(")");
             operators.pop();
         } else {
             values.push_back(str);
@@ -124,22 +125,12 @@ protected:
         std::vector<std::string> arithmeticOp = {"+", "-", "*", "/", "%"};
 
         std::vector<std::string> symbol = InfixToSuffix(expr);
-        if (symbol.size() == 1) {
-            // TEST_EXPR(true, true)
-            if (boolen_.find(symbol.front()) != boolen_.end()) {
-                return new ConstantExpression(boolen_[symbol.front()]);
-            } else if (symbol.front().find('.') != std::string::npos) {
-                // TEST_EXPR(123.0, 123.0)
-                return new ConstantExpression(::atof(symbol.front().c_str()));
-            }
-            // TEST_EXPR(123, 123)
-            return new ConstantExpression(::atoi(symbol.front().c_str()));
-        }
 
         // calu suffix expression
         std::stack<Expression *> value;
-        for (const auto &str : symbol) {
-            if (op_.find(str) == op_.end()) {
+        for (size_t i = 0; i < symbol.size(); ++i) {
+            auto& str = symbol[i];
+            if (op_.find(symbol[i]) == op_.end()) {
                 Expression *ep = nullptr;
                 if (boolen_.find(str) != boolen_.end()) {
                     ep = new ConstantExpression(boolen_[str.c_str()]);
@@ -147,6 +138,10 @@ protected:
                     ep = new ConstantExpression(::atof(str.c_str()));
                 } else {
                     ep = new ConstantExpression(::atoi(str.c_str()));
+                }
+                if (i < symbol.size() - 1 && symbol[i+1] == ")") {
+                    ep->setParentheses(true);
+                    i++;
                 }
                 value.push(ep);
             } else {
@@ -165,6 +160,10 @@ protected:
                     result = new LogicalExpression(op_[str], lhs, rhs);
                 } else {
                     return new ConstantExpression(NullType::UNKNOWN_PROP);
+                }
+                if (i < symbol.size() - 1 && symbol[i+1] == ")") {
+                    result->setParentheses(true);
+                    i++;
                 }
                 value.push(result);
             }
@@ -1594,19 +1593,19 @@ TEST_F(ExpressionTest, toStringTest) {
     }
     {
         UnaryExpression plus(Expression::Kind::kUnaryPlus, new ConstantExpression(2));
-        EXPECT_EQ(plus.toString(), "+(2)");
+        EXPECT_EQ(plus.toString(), "+2");
 
         UnaryExpression nega(Expression::Kind::kUnaryNegate, new ConstantExpression(2));
-        EXPECT_EQ(nega.toString(), "-(2)");
+        EXPECT_EQ(nega.toString(), "-2");
 
         UnaryExpression incr(Expression::Kind::kUnaryIncr, new ConstantExpression(2));
-        EXPECT_EQ(incr.toString(), "++(2)");
+        EXPECT_EQ(incr.toString(), "++2");
 
         UnaryExpression decr(Expression::Kind::kUnaryDecr, new ConstantExpression(2));
-        EXPECT_EQ(decr.toString(), "--(2)");
+        EXPECT_EQ(decr.toString(), "--2");
 
         UnaryExpression no(Expression::Kind::kUnaryNot, new ConstantExpression(2));
-        EXPECT_EQ(no.toString(), "!(2)");
+        EXPECT_EQ(no.toString(), "!2");
 
         UnaryExpression isNull(Expression::Kind::kIsNull, new ConstantExpression(2));
         EXPECT_EQ(isNull.toString(), "2 IS NULL");
@@ -1630,15 +1629,16 @@ TEST_F(ExpressionTest, toStringTest) {
         EXPECT_EQ(versionVar.toString(), "$name{1}");
     }
     {
-        TEST_TOSTRING(2 + 2 - 3, "((2+2)-3)");
-        TEST_TOSTRING(true OR true, "(true OR true)");
-        TEST_TOSTRING(true AND false OR false, "((true AND false) OR false)");
-        TEST_TOSTRING(true == 2, "(true==2)");
-        TEST_TOSTRING(2 > 1 AND 3 > 2, "((2>1) AND (3>2))");
-        TEST_TOSTRING((3 + 5) * 3 / (6 - 2), "(((3+5)*3)/(6-2))");
-        TEST_TOSTRING(76 - 100 / 20 * 4, "(76-((100/20)*4))");
-        TEST_TOSTRING(8 % 2 + 1 == 1, "(((8%2)+1)==1)");
-        TEST_TOSTRING(1 == 2, "(1==2)");
+        TEST_TOSTRING(2 + 2 - 3, "2+2-3");
+        TEST_TOSTRING(true OR true, "true OR true");
+        TEST_TOSTRING(true AND false OR false, "true AND false OR false");
+        TEST_TOSTRING(true == 2, "true==2");
+        TEST_TOSTRING(2 > 1 AND 3 > 2, "2>1 AND 3>2");
+        TEST_TOSTRING((3 + 5) * 3 / (6 - 2), "(3+5)*3/(6-2)");
+        TEST_TOSTRING((1) + 2 * (3 + (4 - 5 * 6)), "(1)+2*(3+(4-5*6))");
+        TEST_TOSTRING(76 - 100 / 20 * 4, "76-100/20*4");
+        TEST_TOSTRING(8 % 2 + 1 == 1, "8%2+1==1");
+        TEST_TOSTRING(1 == 2, "1==2");
     }
 }
 
@@ -3340,7 +3340,7 @@ TEST_F(ExpressionTest, ContainsToString) {
                 Expression::Kind::kContains,
                 new ConstantExpression("abc"),
                 new ConstantExpression("a"));
-        ASSERT_EQ("(\"abc\" CONTAINS \"a\")", expr.toString());
+        ASSERT_EQ("\"abc\" CONTAINS \"a\"", expr.toString());
     }
     {
         RelationalExpression expr(
@@ -3387,7 +3387,7 @@ TEST_F(ExpressionTest, NotContainsToString) {
                 Expression::Kind::kNotContains,
                 new ConstantExpression("abc"),
                 new ConstantExpression("a"));
-        ASSERT_EQ("(\"abc\" NOT CONTAINS \"a\")", expr.toString());
+        ASSERT_EQ("\"abc\" NOT CONTAINS \"a\"", expr.toString());
     }
     {
         RelationalExpression expr(
@@ -3465,7 +3465,7 @@ TEST_F(ExpressionTest, CaseExprToString) {
                                                    new ConstantExpression("nebu")));
         expr.setDefault(new ConstantExpression(3));
         ASSERT_EQ(
-            "CASE (\"nebula\" STARTS WITH \"nebu\") WHEN false THEN 1 WHEN true THEN 2 ELSE 3 END",
+            "CASE \"nebula\" STARTS WITH \"nebu\" WHEN false THEN 1 WHEN true THEN 2 ELSE 3 END",
             expr.toString());
     }
     {
@@ -3477,7 +3477,7 @@ TEST_F(ExpressionTest, CaseExprToString) {
         expr.setCondition(new ArithmeticExpression(
             Expression::Kind::kAdd, new ConstantExpression(3), new ConstantExpression(5)));
         expr.setDefault(new ConstantExpression(false));
-        ASSERT_EQ("CASE (3+5) WHEN 7 THEN 1 WHEN 8 THEN 2 WHEN 8 THEN \"jack\" ELSE false END",
+        ASSERT_EQ("CASE 3+5 WHEN 7 THEN 1 WHEN 8 THEN 2 WHEN 8 THEN \"jack\" ELSE false END",
                   expr.toString());
     }
     {
@@ -3501,7 +3501,7 @@ TEST_F(ExpressionTest, CaseExprToString) {
                    new ConstantExpression("yes"));
         CaseExpression expr(cases);
         expr.setDefault(new ConstantExpression(false));
-        ASSERT_EQ("CASE WHEN (\"nebula\" STARTS WITH \"nebu\") THEN \"yes\" ELSE false END",
+        ASSERT_EQ("CASE WHEN \"nebula\" STARTS WITH \"nebu\" THEN \"yes\" ELSE false END",
                   expr.toString());
     }
     {
@@ -3520,7 +3520,7 @@ TEST_F(ExpressionTest, CaseExprToString) {
             new ConstantExpression(3));
         CaseExpression expr(cases);
         expr.setDefault(new ConstantExpression(4));
-        ASSERT_EQ("CASE WHEN (23<17) THEN 1 WHEN (37==37) THEN 2 WHEN (45!=99) THEN 3 ELSE 4 END",
+        ASSERT_EQ("CASE WHEN 23<17 THEN 1 WHEN 37==37 THEN 2 WHEN 45!=99 THEN 3 ELSE 4 END",
                   expr.toString());
     }
     {
@@ -3531,7 +3531,7 @@ TEST_F(ExpressionTest, CaseExprToString) {
             new ConstantExpression(1));
         CaseExpression expr(cases, false);
         expr.setDefault(new ConstantExpression(2));
-        ASSERT_EQ("((23<17) ? 1 : 2)", expr.toString());
+        ASSERT_EQ("(23<17 ? 1 : 2)", expr.toString());
     }
     {
         auto *cases = new CaseList();
@@ -3676,7 +3676,7 @@ TEST_F(ExpressionTest, ListComprehensionExprToString) {
                 Expression::Kind::kRelGE,
                 new LabelExpression(new std::string("n")),
                 new ConstantExpression(2)));
-        ASSERT_EQ("[n IN range(1,5) WHERE (n>=2)]", expr.toString());
+        ASSERT_EQ("[n IN range(1,5) WHERE n>=2]", expr.toString());
     }
     {
         ArgumentList *argList = new ArgumentList();
@@ -3690,7 +3690,7 @@ TEST_F(ExpressionTest, ListComprehensionExprToString) {
                 new LabelAttributeExpression(new LabelExpression(new std::string("n")),
                                              new ConstantExpression("age")),
                 new ConstantExpression(10)));
-        ASSERT_EQ("[n IN nodes(p) | (n.age+10)]", expr.toString());
+        ASSERT_EQ("[n IN nodes(p) | n.age+10]", expr.toString());
     }
     {
         auto *listItems = new ExpressionList();
@@ -3709,7 +3709,7 @@ TEST_F(ExpressionTest, ListComprehensionExprToString) {
                 Expression::Kind::kAdd,
                 new LabelExpression(new std::string("n")),
                 new ConstantExpression(10)));
-        ASSERT_EQ("[n IN [0,1,2] WHERE (n>=2) | (n+10)]", expr.toString());
+        ASSERT_EQ("[n IN [0,1,2] WHERE n>=2 | n+10]", expr.toString());
     }
 }
 
@@ -3791,7 +3791,7 @@ TEST_F(ExpressionTest, PredicateExprToString) {
                 Expression::Kind::kRelGE,
                 new LabelExpression(new std::string("n")),
                 new ConstantExpression(2)));
-        ASSERT_EQ("all(n IN range(1,5) WHERE (n>=2))", expr.toString());
+        ASSERT_EQ("all(n IN range(1,5) WHERE n>=2)", expr.toString());
     }
 }
 
@@ -3928,7 +3928,7 @@ TEST_F(ExpressionTest, ReduceExprToString) {
                 new ArithmeticExpression(Expression::Kind::kMultiply,
                                          new LabelExpression(new std::string("n")),
                                          new ConstantExpression(2))));
-        ASSERT_EQ("reduce(totalNum = (2*10), n IN range(1,5) | (totalNum+(n*2)))", expr.toString());
+        ASSERT_EQ("reduce(totalNum = 2*10, n IN range(1,5) | totalNum+n*2)", expr.toString());
     }
 }
 

@@ -14,7 +14,7 @@ bool BinaryExpression::operator==(const Expression& rhs) const {
     }
 
     const auto& r = static_cast<const BinaryExpression&>(rhs);
-    return *lhs_ == *(r.lhs_) && *rhs_ == *(r.rhs_);
+    return parentheses_ == r.parentheses_ && *lhs_ == *(r.lhs_) && *rhs_ == *(r.rhs_);
 }
 
 
@@ -22,6 +22,7 @@ void BinaryExpression::writeTo(Encoder& encoder) const {
     // kind_
     encoder << kind_;
 
+    encoder << parentheses_;
     // lhs_
     DCHECK(!!lhs_);
     encoder << *lhs_;
@@ -33,6 +34,7 @@ void BinaryExpression::writeTo(Encoder& encoder) const {
 
 
 void BinaryExpression::resetFrom(Decoder& decoder) {
+    parentheses_ = decoder.readValue().getBool();
     // Read lhs_
     lhs_ = decoder.readExpression();
     CHECK(!!lhs_);

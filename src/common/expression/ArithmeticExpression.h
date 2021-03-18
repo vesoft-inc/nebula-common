@@ -25,8 +25,10 @@ public:
     std::string toString() const override;
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ArithmeticExpression>(
+        auto expr = std::make_unique<ArithmeticExpression>(
             kind(), left()->clone().release(), right()->clone().release());
+        expr->setParentheses(parentheses_);
+        return expr;
     }
 
     bool isArithmeticExpr() const override {
