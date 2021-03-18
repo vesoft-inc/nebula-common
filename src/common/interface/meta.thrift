@@ -1156,7 +1156,6 @@ struct ListClusterInfoResp {
 }
 
 struct ListClusterInfoReq {
-    1: optional list<SpaceItem>  spaces,
 }
 
 struct GetMetaDirInfoResp {
