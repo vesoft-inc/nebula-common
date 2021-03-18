@@ -511,6 +511,7 @@ public:
     StatusOr<std::vector<std::shared_ptr<cpp2::IndexItem>>>
     getEdgeIndexesFromCache(GraphSpaceID spaceId);
 
+    void updateStorageLeader(GraphSpaceID spaceId, PartitionID partId, const HostAddr &host);
     StatusOr<HostAddr> getStorageLeaderFromCache(std::pair<GraphSpaceID, PartitionID> part) const;
     StatusOr<LeaderMap> getStorageLeaderFromCache() const;
 

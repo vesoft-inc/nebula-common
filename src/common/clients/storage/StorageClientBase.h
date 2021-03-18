@@ -231,7 +231,7 @@ protected:
         return {req.get_part_id()};
     }
 
-    bool isValidHostPtr(const HostAddr* addr) {
+    static inline bool isValidHostPtr(const HostAddr* addr) {
         return addr != nullptr && !addr->host.empty() && addr->port != 0;
     }
 

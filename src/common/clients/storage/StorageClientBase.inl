@@ -113,6 +113,7 @@ StorageClientBase<ClientType>::collectResponse(
 
     for (auto& req : requests) {
         auto& host = req.first;
+        auto spaceId = req.second.get_space_id();
         auto res = context->insertRequest(host, std::move(req.second));
         DCHECK(res.second);
         evb = ioThreadPool_->getEventBase();
@@ -121,6 +122,7 @@ StorageClientBase<ClientType>::collectResponse(
                          evb,
                          context,
                          host,
+                         spaceId,
                          res] () mutable {
             auto client = clientsMan_->client(host,
                                               evb,
@@ -135,6 +137,7 @@ StorageClientBase<ClientType>::collectResponse(
             .via(evb).then([this,
                             context,
                             host,
+                            spaceId,
                             start] (folly::Try<Response>&& val) {
                 auto& r = context->findRequest(host);
                 if (val.hasException()) {
@@ -152,6 +155,14 @@ StorageClientBase<ClientType>::collectResponse(
                                 << ", failed code " << static_cast<int32_t>(code.get_code());
                         hasFailure = true;
                         context->resp.emplaceFailedPart(code.get_part_id(), code.get_code());
+                        if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
+                            auto* leader = code.get_leader();
+                            if (isValidHostPtr(leader)) {
+                                metaClient_->updateStorageLeader(spaceId,
+                                                                 code.get_part_id(),
+                                                                 *leader);
+                            }
+                        }
                     }
                     if (hasFailure) {
                         context->resp.markFailure();
@@ -213,12 +224,15 @@ void StorageClientBase<ClientType>::getResponseImpl(
                     pro = std::move(pro), this] () mutable {
         auto host = request.first;
         auto client = clientsMan_->client(host, evb, false, FLAGS_storage_client_timeout_ms);
+        auto spaceId = request.second.get_space_id();
         LOG(INFO) << "Send request to storage " << host;
         remoteFunc(DCHECK_NOTNULL(client.get()), request.second).via(evb)
              .then([
                     p = std::move(pro),
                     request = std::move(request),
-                    remoteFunc = std::move(remoteFunc)] (folly::Try<Response>&& t) mutable {
+                    remoteFunc = std::move(remoteFunc),
+                    spaceId,
+                    this] (folly::Try<Response>&& t) mutable {
             // exception occurred during RPC
             if (t.hasException()) {
                 p.setValue(
@@ -233,6 +247,12 @@ void StorageClientBase<ClientType>::getResponseImpl(
             for (auto& code : result.get_failed_parts()) {
                 VLOG(3) << "Failure! Failed part " << code.get_part_id()
                         << ", failed code " << static_cast<int32_t>(code.get_code());
+                if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
+                    auto* leader = code.get_leader();
+                    if (isValidHostPtr(leader)) {
+                        metaClient_->updateStorageLeader(spaceId, code.get_part_id(), *leader);
+                    }
+                }
             }
             p.setValue(std::move(resp));
         });

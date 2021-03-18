@@ -2146,6 +2146,12 @@ MetaClient::getEdgeIndexFromCache(GraphSpaceID spaceId, IndexID indexID) {
     }
 }
 
+void MetaClient::updateStorageLeader(const GraphSpaceID spaceId,
+                                     const PartitionID partId,
+                                     const HostAddr &host) {
+    folly::RWSpinLock::WriteHolder holder(localCacheLock_);
+    leaderMap_[std::pair<GraphSpaceID, PartitionID>(spaceId, partId)] = host;
+}
 
 StatusOr<HostAddr>
 MetaClient::getStorageLeaderFromCache(std::pair<GraphSpaceID, PartitionID> part) const {
@@ -3057,7 +3063,7 @@ StatusOr<LeaderMap> MetaClient::loadLeader(const SpaceNameIdMap &spaceNameId,
             return Status::Error("Get mismatched leaders.");
         }
         DCHECK_GT(space.second->spaceDesc_.get_partition_num(), 0);
-        if (find->second !=
+        if (find->second >
             static_cast<std::size_t>(space.second->spaceDesc_.get_partition_num())) {
             return Status::Error("Get mismatched leaders.");
         }
