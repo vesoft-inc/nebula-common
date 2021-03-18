@@ -1038,7 +1038,8 @@ struct BackupMeta {
     // backup
     3: binary                                     backup_name,
     4: bool                                       full,
-    5: i64                                        create_time,
+    5: bool                                       include_system_space,
+    6: i64                                        create_time,
 }
 
 struct CreateBackupReq {
