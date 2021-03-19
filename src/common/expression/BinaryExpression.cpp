@@ -22,7 +22,6 @@ void BinaryExpression::writeTo(Encoder& encoder) const {
     // kind_
     encoder << kind_;
 
-    encoder << parentheses_;
     // lhs_
     DCHECK(!!lhs_);
     encoder << *lhs_;
@@ -34,7 +33,6 @@ void BinaryExpression::writeTo(Encoder& encoder) const {
 
 
 void BinaryExpression::resetFrom(Decoder& decoder) {
-    parentheses_ = decoder.readValue().getBool();
     // Read lhs_
     lhs_ = decoder.readExpression();
     CHECK(!!lhs_);

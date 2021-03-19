@@ -25,8 +25,6 @@ void UnaryExpression::writeTo(Encoder& encoder) const {
     // kind_
     encoder << kind_;
 
-    encoder << parentheses_;
-
     // operand_
     DCHECK(!!operand_);
     encoder << *operand_;
@@ -34,7 +32,6 @@ void UnaryExpression::writeTo(Encoder& encoder) const {
 
 
 void UnaryExpression::resetFrom(Decoder& decoder) {
-    parentheses_ = decoder.readValue().getBool();
     // Read operand_
     operand_ = decoder.readExpression();
     CHECK(!!operand_);

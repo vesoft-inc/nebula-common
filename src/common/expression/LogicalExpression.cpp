@@ -140,7 +140,6 @@ void LogicalExpression::accept(ExprVisitor* visitor) {
 
 void LogicalExpression::writeTo(Encoder &encoder) const {
     encoder << kind();
-    encoder << parentheses_;
     encoder << operands_.size();
     for (auto &expr : operands_) {
         encoder << *expr;
@@ -148,7 +147,6 @@ void LogicalExpression::writeTo(Encoder &encoder) const {
 }
 
 void LogicalExpression::resetFrom(Decoder &decoder) {
-    parentheses_ = decoder.readValue().getBool();
     auto size = decoder.readSize();
     operands_.resize(size);
     for (auto i = 0u; i < size; i++) {

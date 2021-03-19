@@ -25,16 +25,12 @@ void ConstantExpression::writeTo(Encoder& encoder) const {
     // kind_
     encoder << kind_;
 
-    // parentheses_
-    encoder << parentheses_;
-
     // val_
     encoder << val_;
 }
 
 
 void ConstantExpression::resetFrom(Decoder& decoder) {
-    parentheses_ = decoder.readValue().getBool();
     // Deserialize val_
     val_ = decoder.readValue();
 }
