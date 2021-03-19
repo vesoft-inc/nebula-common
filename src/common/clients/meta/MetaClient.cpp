@@ -3015,6 +3015,18 @@ StatusOr<LeaderInfo> MetaClient::loadLeader() {
             auto spaceId = status.value();
             for (const auto& partId : spaceEntry.second) {
                 leaderInfo.leaderMap_[{spaceId, partId}] = item.hostAddr;
+                auto partHosts = getPartHostsFromCache(spaceId, partId);
+                size_t leaderIndex = 0;
+                if (partHosts.ok()) {
+                    const auto& peers = partHosts.value().hosts_;
+                    for (size_t i = 0; i < peers.size(); i++) {
+                        if (peers[i] == item.hostAddr) {
+                            leaderIndex = i;
+                            break;
+                        }
+                    }
+                }
+                leaderInfo.leaderIndex_[{spaceId, partId}] = leaderIndex;
             }
             leaderCount[spaceId] += spaceEntry.second.size();
         }

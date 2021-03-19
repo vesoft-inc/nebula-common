@@ -103,6 +103,7 @@ void StorageClientBase<ClientType>::loadLeader() const {
             folly::RWSpinLock::WriteHolder wh(leadersLock_);
             auto info = status.value();
             leaders_ = std::move(info.leaderMap_);
+            leaderIndex_ = std::move(info.leaderIndex_);
             allElected_ = info.allElected_;
         }
         isLoadingLeader_ = false;

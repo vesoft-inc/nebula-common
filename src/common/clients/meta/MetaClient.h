@@ -86,6 +86,8 @@ using SpaceAllEdgeMap = std::unordered_map<GraphSpaceID, std::vector<std::string
 struct LeaderInfo {
     // get leader host via spaceId and partId
     std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr> leaderMap_;
+    // leader index of all peers
+    std::unordered_map<std::pair<GraphSpaceID, PartitionID>, size_t> leaderIndex_;
     // indicated if meta has all leader of all spaces
     bool allElected_;
 };
