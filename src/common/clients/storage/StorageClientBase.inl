@@ -92,7 +92,7 @@ StorageClientBase<ClientType>::~StorageClientBase() {
 
 template<typename ClientType>
 void StorageClientBase<ClientType>::loadLeader() const {
-    if (allElected_) {
+    if (loadLeaderBefore_) {
         return;
     }
     bool expected = false;
@@ -104,7 +104,6 @@ void StorageClientBase<ClientType>::loadLeader() const {
             auto info = status.value();
             leaders_ = std::move(info.leaderMap_);
             leaderIndex_ = std::move(info.leaderIndex_);
-            allElected_ = info.allElected_;
         }
         isLoadingLeader_ = false;
     }

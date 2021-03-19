@@ -3033,19 +3033,7 @@ StatusOr<LeaderInfo> MetaClient::loadLeader() {
         LOG(INFO) << "Load leader of " << item.hostAddr
                   << " in " << item.get_leader_parts().size() << " space";
     }
-    // check if all partition has elected leader in each space
-    {
-        leaderInfo.allElected_ = true;
-        folly::RWSpinLock::ReadHolder holder(localCacheLock_);
-        for (const auto& spaceEntry : localCache_) {
-            auto spaceId = spaceEntry.first;
-            if (spaceEntry.second->partsAlloc_.size() != leaderCount[spaceId]) {
-                leaderInfo.allElected_ = false;
-                break;
-            }
-        }
-    }
-    LOG(INFO) << "Load leader ok, all elected: " << leaderInfo.allElected_;
+    LOG(INFO) << "Load leader ok";
     return leaderInfo;
 }
 

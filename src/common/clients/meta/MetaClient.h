@@ -88,8 +88,6 @@ struct LeaderInfo {
     std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr> leaderMap_;
     // leader index of all peers
     std::unordered_map<std::pair<GraphSpaceID, PartitionID>, size_t> leaderIndex_;
-    // indicated if meta has all leader of all spaces
-    bool allElected_;
 };
 
 using IndexStatus = std::tuple<std::string, std::string, std::string>;
