@@ -14,7 +14,7 @@ bool BinaryExpression::operator==(const Expression& rhs) const {
     }
 
     const auto& r = static_cast<const BinaryExpression&>(rhs);
-    return parentheses_ == r.parentheses_ && *lhs_ == *(r.lhs_) && *rhs_ == *(r.rhs_);
+    return *lhs_ == *(r.lhs_) && *rhs_ == *(r.rhs_);
 }
 
 

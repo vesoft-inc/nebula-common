@@ -16,7 +16,7 @@ bool UnaryExpression::operator==(const Expression& rhs) const {
     }
 
     const auto& r = static_cast<const UnaryExpression&>(rhs);
-    return parentheses_ == r.parentheses_ && *operand_ == *(r.operand_);
+    return *operand_ == *(r.operand_);
 }
 
 

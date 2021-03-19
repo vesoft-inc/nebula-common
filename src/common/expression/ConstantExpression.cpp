@@ -16,7 +16,7 @@ bool ConstantExpression::operator==(const Expression& rhs) const {
     }
 
     const auto& r = static_cast<const ConstantExpression&>(rhs);
-    return parentheses_ == r.parentheses_ && val_ == r.val_;
+    return val_ == r.val_;
 }
 
 

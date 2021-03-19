@@ -166,10 +166,6 @@ bool LogicalExpression::operator==(const Expression &rhs) const {
         return false;
     }
 
-    if (parentheses_ != logic.parentheses_) {
-        return false;
-    }
-
     for (auto i = 0u; i < operands_.size(); i++) {
         if (*operands_[i] != *logic.operands_[i]) {
             return false;
