@@ -811,8 +811,8 @@ TEST_F(ExpressionTest, FunctionCallTest) {
         TEST_FUNCTION(substr, args_["substr"], "cdef");
         TEST_FUNCTION(left, args_["side"], "abcde");
         TEST_FUNCTION(right, args_["side"], "mnopq");
-        TEST_FUNCTION(left, args_["neg_side"], "");
-        TEST_FUNCTION(right, args_["neg_side"], "");
+        TEST_FUNCTION(left, args_["neg_side"], Value::kNullValue);
+        TEST_FUNCTION(right, args_["neg_side"], Value::kNullValue);
 
         TEST_FUNCTION(lpad, args_["pad"], "1231abcdefghijkl");
         TEST_FUNCTION(rpad, args_["pad"], "abcdefghijkl1231");
@@ -4123,13 +4123,13 @@ TEST_F(ExpressionTest, AggregateExpression) {
              expected1 = {{"a", 3},
                           {"b", 4},
                           {"c", 8}};
-        TEST_AGG("", false, abs, vals1_, expected1);
+        TEST_AGG(, false, abs, vals1_, expected1);
 
         const std::unordered_map<std::string, Value>
              expected2 = {{"a", 3},
                           {"b", 4},
                           {"c", 5}};
-        TEST_AGG("", true, abs, vals1_, expected2);
+        TEST_AGG(, true, abs, vals1_, expected2);
     }
     {
         const std::unordered_map<std::string, Value>
