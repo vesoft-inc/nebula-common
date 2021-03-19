@@ -3004,7 +3004,6 @@ StatusOr<LeaderInfo> MetaClient::loadLeader() {
 
     LeaderInfo leaderInfo;
     auto hostItems = std::move(ret).value();
-    std::unordered_map<GraphSpaceID, size_t> leaderCount;
     for (auto& item : hostItems) {
         for (auto& spaceEntry : item.get_leader_parts()) {
             auto spaceName = spaceEntry.first;
@@ -3028,7 +3027,6 @@ StatusOr<LeaderInfo> MetaClient::loadLeader() {
                 }
                 leaderInfo.leaderIndex_[{spaceId, partId}] = leaderIndex;
             }
-            leaderCount[spaceId] += spaceEntry.second.size();
         }
         LOG(INFO) << "Load leader of " << item.hostAddr
                   << " in " << item.get_leader_parts().size() << " space";
