@@ -104,6 +104,7 @@ void StorageClientBase<ClientType>::loadLeader() const {
             auto info = status.value();
             leaders_ = std::move(info.leaderMap_);
             leaderIndex_ = std::move(info.leaderIndex_);
+            loadLeaderBefore_ = true;
         }
         isLoadingLeader_ = false;
     }
