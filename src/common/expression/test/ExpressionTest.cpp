@@ -812,8 +812,8 @@ TEST_F(ExpressionTest, FunctionCallTest) {
         TEST_FUNCTION(substr, args_["substr"], "cdef");
         TEST_FUNCTION(left, args_["side"], "abcde");
         TEST_FUNCTION(right, args_["side"], "mnopq");
-        TEST_FUNCTION(left, args_["neg_side"], "");
-        TEST_FUNCTION(right, args_["neg_side"], "");
+        TEST_FUNCTION(left, args_["neg_side"], Value::kNullValue);
+        TEST_FUNCTION(right, args_["neg_side"], Value::kNullValue);
 
         TEST_FUNCTION(lpad, args_["pad"], "1231abcdefghijkl");
         TEST_FUNCTION(rpad, args_["pad"], "abcdefghijkl1231");
@@ -1070,6 +1070,196 @@ TEST_F(ExpressionTest, Relation) {
     }
 }
 
+TEST_F(ExpressionTest, RelIn) {
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(1),
+                new ConstantExpression(List({1, 2})));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(3),
+                new ConstantExpression(List({1, 2})));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(Value::kNullValue),
+                new ConstantExpression(List({1, 2})));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+    }
+    {
+        auto list = List({1, 2});
+        list.emplace_back(Value::kNullValue);
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(1),
+                new ConstantExpression(list));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        auto list = List({3, 2});
+        list.emplace_back(Value::kNullValue);
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(1),
+                new ConstantExpression(list));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+    }
+    {
+        auto list = List({3, 2});
+        list.emplace_back(Value::kNullValue);
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(1),
+                new ConstantExpression(list));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+    }
+    {
+        auto list = List({3, 2});
+        list.emplace_back(Value::kNullValue);
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(list),
+                new ConstantExpression(list));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+    }
+    {
+        auto list1 = List({3, 2});
+        auto list2 = list1;
+        list1.emplace_back(Value::kNullValue);
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(list1),
+                new ConstantExpression(list2));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        auto list1 = List({3, 2});
+        auto list2 = List({1});
+        list2.emplace_back(list1);
+        list2.emplace_back(Value::kNullValue);
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(list1),
+                new ConstantExpression(list2));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+}
+
+TEST_F(ExpressionTest, RelNotIn) {
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelNotIn,
+                new ConstantExpression(1),
+                new ConstantExpression(List({1, 2})));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelNotIn,
+                new ConstantExpression(3),
+                new ConstantExpression(List({1, 2})));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelNotIn,
+                new ConstantExpression(Value::kNullValue),
+                new ConstantExpression(List({1, 2})));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+    }
+    {
+        auto list = List({1, 2});
+        list.emplace_back(Value::kNullValue);
+        RelationalExpression expr(
+                Expression::Kind::kRelNotIn,
+                new ConstantExpression(1),
+                new ConstantExpression(list));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        auto list = List({3, 2});
+        list.emplace_back(Value::kNullValue);
+        RelationalExpression expr(
+                Expression::Kind::kRelNotIn,
+                new ConstantExpression(1),
+                new ConstantExpression(list));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+    }
+    {
+        auto list = List({3, 2});
+        list.emplace_back(Value::kNullValue);
+        RelationalExpression expr(
+                Expression::Kind::kRelNotIn,
+                new ConstantExpression(1),
+                new ConstantExpression(list));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+    }
+    {
+        auto list = List({3, 2});
+        list.emplace_back(Value::kNullValue);
+        RelationalExpression expr(
+                Expression::Kind::kRelNotIn,
+                new ConstantExpression(list),
+                new ConstantExpression(list));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+    }
+    {
+        auto list1 = List({3, 2});
+        auto list2 = list1;
+        list1.emplace_back(Value::kNullValue);
+        RelationalExpression expr(
+                Expression::Kind::kRelNotIn,
+                new ConstantExpression(list1),
+                new ConstantExpression(list2));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        auto list1 = List({3, 2});
+        auto list2 = List({1});
+        list2.emplace_back(list1);
+        list2.emplace_back(Value::kNullValue);
+        RelationalExpression expr(
+                Expression::Kind::kRelNotIn,
+                new ConstantExpression(list1),
+                new ConstantExpression(list2));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+}
+
 TEST_F(ExpressionTest, UnaryINCR) {
     {
         // ++var_int
@@ -1296,11 +1486,11 @@ TEST_F(ExpressionTest, toStringTest) {
         EXPECT_EQ(no.toString(), "!(2)");
 
         UnaryExpression isNull(Expression::Kind::kIsNull, new ConstantExpression(2));
-        EXPECT_EQ(isNull.toString(), "IS NULL(2)");
+        EXPECT_EQ(isNull.toString(), "2 IS NULL");
 
         UnaryExpression isNotNull(Expression::Kind::kIsNotNull,
                                   new ConstantExpression(Value::kNullValue));
-        EXPECT_EQ(isNotNull.toString(), "IS NOT NULL(NULL)");
+        EXPECT_EQ(isNotNull.toString(), "NULL IS NOT NULL");
     }
     {
         VariableExpression var(new std::string("name"));
@@ -3840,13 +4030,13 @@ TEST_F(ExpressionTest, AggregateExpression) {
              expected1 = {{"a", 3},
                           {"b", 4},
                           {"c", 8}};
-        TEST_AGG("", false, abs, vals1_, expected1);
+        TEST_AGG(, false, abs, vals1_, expected1);
 
         const std::unordered_map<std::string, Value>
              expected2 = {{"a", 3},
                           {"b", 4},
                           {"c", 5}};
-        TEST_AGG("", true, abs, vals1_, expected2);
+        TEST_AGG(, true, abs, vals1_, expected2);
     }
     {
         const std::unordered_map<std::string, Value>

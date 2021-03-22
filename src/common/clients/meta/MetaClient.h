@@ -83,8 +83,12 @@ using SpaceEdgeTypeNameMap = std::unordered_map<std::pair<GraphSpaceID, EdgeType
 // get all edgeType edgeName via spaceId
 using SpaceAllEdgeMap = std::unordered_map<GraphSpaceID, std::vector<std::string>>;
 
-// get leader host via spaceId and partId
-using LeaderMap = std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr>;
+struct LeaderInfo {
+    // get leader host via spaceId and partId
+    std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr> leaderMap_;
+    // leader index of all peers
+    std::unordered_map<std::pair<GraphSpaceID, PartitionID>, size_t> leaderIndex_;
+};
 
 using IndexStatus = std::tuple<std::string, std::string, std::string>;
 
@@ -471,7 +475,7 @@ public:
 
     StatusOr<int32_t> partsNum(GraphSpaceID spaceId) const;
 
-    StatusOr<PartitionID> partId(GraphSpaceID spaceId, VertexID id) const;
+    StatusOr<PartitionID> partId(int32_t numParts, VertexID id) const;
 
     StatusOr<std::shared_ptr<const NebulaSchemaProvider>>
     getTagSchemaFromCache(GraphSpaceID spaceId, TagID tagID, SchemaVer ver = -1);
@@ -569,7 +573,7 @@ public:
 
     Status refreshCache();
 
-    StatusOr<LeaderMap> loadLeader();
+    StatusOr<LeaderInfo> loadLeader();
 
     folly::Future<StatusOr<cpp2::StatisItem>>
     getStatis(GraphSpaceID spaceId);
