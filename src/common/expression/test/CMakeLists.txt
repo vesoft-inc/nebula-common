@@ -63,6 +63,7 @@ nebula_add_executable(
         $<TARGET_OBJECTS:time_obj>
         $<TARGET_OBJECTS:time_utils_obj>
         $<TARGET_OBJECTS:fs_obj>
+        $<TARGET_OBJECTS:agg_function_manager_obj>
     LIBRARIES
         follybenchmark
         boost_regex

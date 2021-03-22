@@ -67,11 +67,9 @@ void FunctionCallExpression::resetFrom(Decoder& decoder) {
         args_->addArgument(decoder.readExpression());
     }
 
-    if (name_ != nullptr) {
-        auto funcResult = FunctionManager::get(*name_, args_->numArgs());
-        if (funcResult.ok()) {
-            func_ = std::move(funcResult).value();
-        }
+    auto funcResult = FunctionManager::get(*DCHECK_NOTNULL(name_), args_->numArgs());
+    if (funcResult.ok()) {
+        func_ = std::move(funcResult).value();
     }
 }
 

@@ -57,16 +57,8 @@ class FunctionCallExpression final : public Expression {
 
 public:
     FunctionCallExpression(std::string* name = nullptr,
-                           ArgumentList* args = nullptr)
-        : Expression(Kind::kFunctionCall) {
-        if (args == nullptr) {
-            args_ = std::make_unique<ArgumentList>();
-        } else {
-            args_.reset(args);
-        }
-
-        name_.reset(name);
-
+                           ArgumentList* args = new ArgumentList())
+        : Expression(Kind::kFunctionCall), name_(name), args_(args) {
         if (name_ != nullptr) {
             auto funcResult = FunctionManager::get(*name_, args_->numArgs());
             if (funcResult.ok()) {
