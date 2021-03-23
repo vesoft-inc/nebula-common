@@ -307,6 +307,8 @@ enum AdminCmd {
     DATA_BALANCE        = 5,
     DOWELOAD            = 6,
     INGEST              = 7,
+    DISK_BALANCE        = 8,
+    DISMISS_BALANCE     = 9,
     UNKNOWN             = 99,
 } (cpp.enum_strict)
 
