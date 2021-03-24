@@ -134,6 +134,34 @@ StorageClientBase<ClientType>::getLeader(const meta::PartHosts& partHosts) const
     }
 }
 
+template<typename ClientType>
+StatusOr<HostAddr>
+StorageClientBase<ClientType>::getLeader(GraphSpaceID spaceId, PartitionID partId) const {
+    loadLeader();
+    auto part = std::make_pair(spaceId, partId);
+    {
+        folly::RWSpinLock::ReadHolder rh(leadersLock_);
+        auto it = leaders_.find(part);
+        if (it != leaders_.end()) {
+            return it->second;
+        }
+    }
+    {
+        auto metaStatus = getPartHosts(spaceId, partId);
+        if (!metaStatus.ok()) {
+            return metaStatus.status();
+        }
+        auto partHosts = metaStatus.value();
+
+        folly::RWSpinLock::WriteHolder wh(leadersLock_);
+        VLOG(1) << "No leader exists. Choose one in round-robin.";
+        auto index = (leaderIndex_[part] + 1) % partHosts.hosts_.size();
+        auto picked = partHosts.hosts_[index];
+        leaders_[part] = picked;
+        leaderIndex_[part] = index;
+        return picked;
+    }
+}
 
 template<typename ClientType>
 void StorageClientBase<ClientType>::updateLeader(GraphSpaceID spaceId,
@@ -365,6 +393,14 @@ StorageClientBase<ClientType>::clusterIdsToHosts(GraphSpaceID spaceId,
         return Status::Error("Space not found, spaceid: %d", spaceId);
     }
     auto numParts = status.value();
+    std::unordered_map<PartitionID, HostAddr> leaders;
+    for (int32_t i = 1; i < numParts + 1; ++i) {
+        auto leader = getLeader(i, spaceId);
+        if (!leader.ok()) {
+            return leader.status();
+        }
+        leaders[i] = std::move(leader).value();
+    }
     for (auto& id : ids) {
         CHECK(!!metaClient_);
         status = metaClient_->partId(numParts, f(id));
@@ -373,14 +409,7 @@ StorageClientBase<ClientType>::clusterIdsToHosts(GraphSpaceID spaceId,
         }
 
         auto part = status.value();
-        auto metaStatus = getPartHosts(spaceId, part);
-        if (!metaStatus.ok()) {
-            return status.status();
-        }
-
-        auto partHosts = metaStatus.value();
-        CHECK_GT(partHosts.hosts_.size(), 0U);
-        const auto leader = this->getLeader(partHosts);
+        const auto& leader = leaders[part];
         clusters[leader][part].emplace_back(std::move(id));
     }
     return clusters;
