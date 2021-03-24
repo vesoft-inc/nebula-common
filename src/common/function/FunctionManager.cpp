@@ -31,6 +31,12 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"abs",
      {TypeSignature({Value::Type::INT}, Value::Type::INT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
+    {"bit_and",
+     {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::INT)}},
+    {"bit_or",
+     {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::INT)}},
+    {"bit_xor",
+     {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::INT)}},
     {"floor",
      {TypeSignature({Value::Type::INT}, Value::Type::INT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::INT)}},
@@ -279,6 +285,33 @@ FunctionManager::FunctionManager() {
                     return Value::kNullBadType;
                 }
             }
+        };
+    }
+    {
+        auto &attr = functions_["bit_and"];
+        attr.minArity_ = 2;
+        attr.maxArity_ = 2;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            return args[0] & args[1];
+        };
+    }
+    {
+        auto &attr = functions_["bit_or"];
+        attr.minArity_ = 2;
+        attr.maxArity_ = 2;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            return args[0] | args[1];
+        };
+    }
+    {
+        auto &attr = functions_["bit_xor"];
+        attr.minArity_ = 2;
+        attr.maxArity_ = 2;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            return args[0] ^ args[1];
         };
     }
     {
@@ -2051,6 +2084,13 @@ StatusOr<FunctionManager::Function> FunctionManager::get(const std::string &func
     auto result = instance().getInternal(func, arity);
     NG_RETURN_IF_ERROR(result);
     return result.value().body_;
+}
+
+// static
+Status FunctionManager::find(const std::string &func, const size_t arity) {
+    auto result = instance().getInternal(func, arity);
+    NG_RETURN_IF_ERROR(result);
+    return Status::OK();
 }
 
 /*static*/ StatusOr<bool> FunctionManager::getIsPure(const std::string &func, size_t arity) {
