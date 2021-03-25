@@ -112,29 +112,6 @@ void StorageClientBase<ClientType>::loadLeader() const {
 
 
 template<typename ClientType>
-const HostAddr
-StorageClientBase<ClientType>::getLeader(const meta::PartHosts& partHosts) const {
-    loadLeader();
-    auto part = std::make_pair(partHosts.spaceId_, partHosts.partId_);
-    {
-        folly::RWSpinLock::ReadHolder rh(leadersLock_);
-        auto it = leaders_.find(part);
-        if (it != leaders_.end()) {
-            return it->second;
-        }
-    }
-    {
-        folly::RWSpinLock::WriteHolder wh(leadersLock_);
-        VLOG(1) << "No leader exists. Choose one in round-robin.";
-        auto index = (leaderIndex_[part] + 1) % partHosts.hosts_.size();
-        auto picked = partHosts.hosts_[index];
-        leaders_[part] = picked;
-        leaderIndex_[part] = index;
-        return picked;
-    }
-}
-
-template<typename ClientType>
 StatusOr<HostAddr>
 StorageClientBase<ClientType>::getLeader(GraphSpaceID spaceId, PartitionID partId) const {
     loadLeader();
@@ -394,12 +371,12 @@ StorageClientBase<ClientType>::clusterIdsToHosts(GraphSpaceID spaceId,
     }
     auto numParts = status.value();
     std::unordered_map<PartitionID, HostAddr> leaders;
-    for (int32_t i = 1; i < numParts + 1; ++i) {
-        auto leader = getLeader(spaceId, i);
+    for (int32_t partId = 1; partId <= numParts; ++partId) {
+        auto leader = getLeader(spaceId, partId);
         if (!leader.ok()) {
             return leader.status();
         }
-        leaders[i] = std::move(leader).value();
+        leaders[partId] = std::move(leader).value();
     }
     for (auto& id : ids) {
         CHECK(!!metaClient_);
@@ -427,14 +404,11 @@ StorageClientBase<ClientType>::getHostParts(GraphSpaceID spaceId) const {
 
     auto parts = status.value();
     for (auto partId = 1; partId <= parts; partId++) {
-        auto metaStatus = getPartHosts(spaceId, partId);
-        if (!metaStatus.ok()) {
-            return metaStatus.status();
+        auto leader = getLeader(spaceId, partId);
+        if (!leader.ok()) {
+            return leader.status();
         }
-        auto partHosts = std::move(metaStatus).value();
-        DCHECK_GT(partHosts.hosts_.size(), 0U);
-        const auto leader = getLeader(partHosts);
-        hostParts[leader].emplace_back(partId);
+        hostParts[leader.value()].emplace_back(partId);
     }
     return hostParts;
 }
