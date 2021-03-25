@@ -395,7 +395,7 @@ StorageClientBase<ClientType>::clusterIdsToHosts(GraphSpaceID spaceId,
     auto numParts = status.value();
     std::unordered_map<PartitionID, HostAddr> leaders;
     for (int32_t i = 1; i < numParts + 1; ++i) {
-        auto leader = getLeader(i, spaceId);
+        auto leader = getLeader(spaceId, i);
         if (!leader.ok()) {
             return leader.status();
         }
