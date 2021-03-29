@@ -266,6 +266,7 @@ public:
                    std::string indexName,
                    std::string tagName,
                    std::vector<cpp2::IndexFieldDef> fields,
+                   const std::string *comment,
                    bool ifNotExists = false);
 
     // Remove the define of tag index
@@ -289,6 +290,7 @@ public:
                     std::string indexName,
                     std::string edgeName,
                     std::vector<cpp2::IndexFieldDef> fields,
+                    const std::string *comment,
                     bool ifNotExists = false);
 
     // Remove the definition of edge index
