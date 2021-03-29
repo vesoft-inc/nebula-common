@@ -16,7 +16,7 @@ namespace apache {
 namespace thrift {
 
 template<class T, class U>
-class Cpp2Ops;
+struct Cpp2Ops;
 
 }  // namespace thrift
 }  // namespace apache
