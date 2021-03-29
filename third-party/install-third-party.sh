@@ -20,14 +20,15 @@ then
     exit $?
 fi
 
-url_base=https://oss-cdn.nebula-graph.com.cn/third-party
+[[ $version -eq 0 ]] && version=2.0
+url_base=https://oss-cdn.nebula-graph.com.cn/third-party/$version
 this_dir=$(dirname $(readlink -f $0))
 cxx_cmd=${CXX:-g++}
 
 # We consider two derivatives: Red Hat and Debian
 # Place preset libc versions of each from newer to older
-libc_preset_versions=( 2.27 2.23 2.17 2.12 )
-gcc_preset_versions=( 9.2.0 9.1.0 8.3.0 7.5.0 7.1.0 )
+libc_preset_versions=( 2.32 2.31 2.27 2.23 2.17 )
+gcc_preset_versions=( 10.1.0 9.3.0 9.2.0 9.1.0 8.3.0 7.5.0 7.1.0 )
 
 selected_libc_version=
 selected_gcc_version=
@@ -90,7 +91,6 @@ selected_gcc_version=$(select_by_version $this_gcc_version "${gcc_preset_version
     exit 1
 }
 
-[[ $version -eq 0 ]] && version=2.0
 selected_archive=vesoft-third-party-$version-x86_64-libc-$selected_libc_version-gcc-$selected_gcc_version-abi-$this_abi_version.sh
 
 url=$url_base/$selected_archive

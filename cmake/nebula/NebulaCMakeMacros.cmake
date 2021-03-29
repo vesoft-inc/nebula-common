@@ -83,6 +83,9 @@ macro(nebula_link_libraries target)
         gflags
         boost_context
         boost_system
+        boost_regex
+        boost_filesystem
+        boost_program_options
         event
         double-conversion
         s2

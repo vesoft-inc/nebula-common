@@ -262,7 +262,7 @@ bool MetaClient::loadData() {
     std::vector<HostAddr> hosts(hostItems.size());
     std::transform(hostItems.begin(), hostItems.end(), hosts.begin(),
         [] (auto &hostItem) -> HostAddr {
-            return hostItem.hostAddr;
+            return *hostItem.hostAddr_ref();
         });
     decltype(localCache_) oldCache;
     {
