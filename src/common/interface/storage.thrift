@@ -406,8 +406,9 @@ struct AddVerticesRequest {
     //   in the NewVertex.NewTag.props
     3: map<common.TagID, list<binary>>
         (cpp.template = "std::unordered_map")   prop_names,
+    4: bool                                     if_not_exists,
     // If true, it equals an (up)sert operation.
-    4: bool                                     overwritable = true,
+    5: bool                                     overwritable = true,
 }
 
 struct AddEdgesRequest {

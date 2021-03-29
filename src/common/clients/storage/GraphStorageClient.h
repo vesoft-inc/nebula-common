@@ -66,6 +66,7 @@ public:
         GraphSpaceID space,
         std::vector<cpp2::NewVertex> vertices,
         std::unordered_map<TagID, std::vector<std::string>> propNames,
+        bool ifNotExists,
         bool overwritable,
         folly::EventBase* evb = nullptr);
 
