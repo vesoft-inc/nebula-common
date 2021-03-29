@@ -54,6 +54,10 @@ struct AuthResponse {
         errorMsg = nullptr;
     }
 
+    void clear() {
+        __clear();
+    }
+
     bool operator==(const AuthResponse &rhs) const {
         if (errorCode != rhs.errorCode) {
             return false;
@@ -76,6 +80,10 @@ struct ProfilingStats {
         execDurationInUs = 0;
         totalDurationInUs = 0;
         otherStats = nullptr;
+    }
+
+    void clear() {
+        __clear();
     }
 
     bool operator==(const ProfilingStats &rhs) const {
@@ -108,6 +116,10 @@ struct PlanNodeBranchInfo {
         conditionNodeId = -1;
     }
 
+    void clear() {
+        __clear();
+    }
+
     bool operator==(const PlanNodeBranchInfo &rhs) const {
         return isDoBranch == rhs.isDoBranch && conditionNodeId == rhs.conditionNodeId;
     }
@@ -122,6 +134,10 @@ struct Pair {
     void __clear() {
         key.clear();
         value.clear();
+    }
+
+    void clear() {
+        __clear();
     }
 
     bool operator==(const Pair &rhs) const {
@@ -141,6 +157,10 @@ struct PlanNodeDescription {
         profiles = nullptr;
         branchInfo = nullptr;
         dependencies = nullptr;
+    }
+
+    void clear() {
+        __clear();
     }
 
     bool operator==(const PlanNodeDescription &rhs) const;
@@ -163,6 +183,10 @@ struct PlanDescription {
         nodeIndexMap.clear();
         format.clear();
         optimize_time_in_us = 0;
+    }
+
+    void clear() {
+        __clear();
     }
 
     bool operator==(const PlanDescription &rhs) const {
@@ -189,6 +213,10 @@ struct ExecutionResponse {
         errorMsg.reset();
         planDesc.reset();
         comment.reset();
+    }
+
+    void clear() {
+        __clear();
     }
 
     bool operator==(const ExecutionResponse &rhs) const {
