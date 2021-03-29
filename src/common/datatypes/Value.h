@@ -106,7 +106,6 @@ struct Value {
     Value(double&& v);                    // NOLINT
     Value(const std::string& v);          // NOLINT
     Value(std::string&& v);               // NOLINT
-    template<>
     Value(const char* v);                 // NOLINT
     Value(const Date& v);                 // NOLINT
     Value(Date&& v);                      // NOLINT
