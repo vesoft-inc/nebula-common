@@ -336,8 +336,9 @@ Value::Value(std::string&& v) {
     setS(std::move(v));
 }
 
+template <>
 Value::Value(const char* v) {
-    setS(v);
+    setS(CHECK_NOTNULL(v));
 }
 
 Value::Value(const Date& v) {
