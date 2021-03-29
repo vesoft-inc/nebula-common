@@ -20,7 +20,7 @@ then
     exit $?
 fi
 
-[[ $version -eq 0 ]] && version=2.0
+[[ -z $version ]] && version=2.0
 url_base=https://oss-cdn.nebula-graph.com.cn/third-party/$version
 this_dir=$(dirname $(readlink -f $0))
 cxx_cmd=${CXX:-g++}
