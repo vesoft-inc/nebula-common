@@ -16,7 +16,7 @@ namespace apache {
 namespace thrift {
 
 template<class T, class U>
-class Cpp2Ops;
+struct Cpp2Ops;
 
 }  // namespace thrift
 }  // namespace apache
@@ -58,7 +58,7 @@ struct Value {
     static const uint64_t kEmptyNullType;
     static const uint64_t kNumericType;
 
-    friend class apache::thrift::Cpp2Ops<Value, void>;
+    friend struct apache::thrift::Cpp2Ops<Value, void>;
 
     enum class Type : uint64_t {
         __EMPTY__ = 1UL,
