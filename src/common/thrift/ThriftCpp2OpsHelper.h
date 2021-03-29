@@ -10,7 +10,8 @@
 
 #define SPECIALIZE_CPP2OPS(X)                                                           \
     template <>                                                                         \
-    struct Cpp2Ops<X> {                                                                 \
+    class Cpp2Ops<X> {                                                                  \
+    public:                                                                             \
         using Type = X;                                                                 \
         inline static constexpr protocol::TType thriftType();                           \
         template <class Protocol>                                                       \
