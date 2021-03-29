@@ -537,6 +537,8 @@ public:
 
     bool checkShadowAccountFromCache(const std::string& account) const;
 
+    StatusOr<std::vector<HostAddr>> getStorageHosts() const;
+
     folly::Future<StatusOr<bool>>
     addZone(std::string zoneName, std::vector<HostAddr> nodes);
 
@@ -726,6 +728,7 @@ private:
     std::vector<cpp2::ConfigItem> gflagsDeclared_;
     bool                  skipConfig_ = false;
     MetaClientOptions     options_;
+    std::vector<HostAddr> storageHosts_;
 };
 
 }  // namespace meta
