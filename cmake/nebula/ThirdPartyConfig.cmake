@@ -30,6 +30,8 @@ endif()
 
 if(NOT ${NEBULA_THIRDPARTY_ROOT} STREQUAL "")
     print_config(NEBULA_THIRDPARTY_ROOT)
+    file(READ ${NEBULA_THIRDPARTY_ROOT}/version-info third_party_build_info)
+    message(STATUS "Build info of nebula third party:\n${third_party_build_info}")
     list(INSERT CMAKE_INCLUDE_PATH 0 ${NEBULA_THIRDPARTY_ROOT}/include)
     list(INSERT CMAKE_LIBRARY_PATH 0 ${NEBULA_THIRDPARTY_ROOT}/lib)
     list(INSERT CMAKE_LIBRARY_PATH 0 ${NEBULA_THIRDPARTY_ROOT}/lib64)
