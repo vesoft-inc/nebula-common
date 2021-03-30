@@ -1925,7 +1925,8 @@ StatusOr<meta::cpp2::IsolationLevel> MetaClient::getIsolationLevel(GraphSpaceID 
     if (!spaceDescStatus.ok()) {
         return spaceDescStatus.status();
     }
-    return *spaceDescStatus.value().get_isolation_level();
+    using IsolationLevel = meta::cpp2::IsolationLevel;
+    return spaceDescStatus.value().isolation_level_ref().value_or(IsolationLevel::DEFAULT);
 }
 
 
