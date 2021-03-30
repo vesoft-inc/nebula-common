@@ -74,15 +74,11 @@ void FunctionCallExpression::resetFrom(Decoder& decoder) {
 }
 
 const Value& FunctionCallExpression::eval(ExpressionContext& ctx) {
-    if (func_.hasValue()) {
-        std::vector<Value> parameter;
-        for (const auto& arg : args_->args()) {
-            parameter.emplace_back(std::move(arg->eval(ctx)));
-        }
-        result_ = func_.value()(parameter);
-    } else {
-        result_ = Value::kNullBadData;
+    std::vector<Value> parameter;
+    for (const auto& arg : DCHECK_NOTNULL(args_)->args()) {
+        parameter.emplace_back(std::move(arg->eval(ctx)));
     }
+    result_ = DCHECK_NOTNULL(func_)(parameter);
     return result_;
 }
 

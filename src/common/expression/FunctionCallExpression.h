@@ -60,7 +60,7 @@ public:
                            ArgumentList* args = new ArgumentList())
         : Expression(Kind::kFunctionCall), name_(name), args_(args) {
         if (name_ != nullptr) {
-            auto funcResult = FunctionManager::get(*name_, args_->numArgs());
+            auto funcResult = FunctionManager::get(*name_, DCHECK_NOTNULL(args_)->numArgs());
             if (funcResult.ok()) {
                 func_ = std::move(funcResult).value();
             }
@@ -105,7 +105,7 @@ private:
 
     // runtime cache
     Value                                        result_;
-    folly::Optional<FunctionManager::Function>   func_;
+    FunctionManager::Function                    func_;
 };
 
 }  // namespace nebula
