@@ -88,7 +88,6 @@ GraphStorageClient::addVertices(GraphSpaceID space,
                                 std::vector<cpp2::NewVertex> vertices,
                                 std::unordered_map<TagID, std::vector<std::string>> propNames,
                                 bool ifNotExists,
-                                bool overwritable,
                                 folly::EventBase* evb) {
     auto cbStatus = getIdFromNewVertex(space);
     if (!cbStatus.ok()) {
@@ -109,7 +108,6 @@ GraphStorageClient::addVertices(GraphSpaceID space,
         auto& req = requests[host];
         req.set_space_id(space);
         req.set_if_not_exists(ifNotExists);
-        req.set_overwritable(overwritable);
         req.set_parts(std::move(c.second));
         req.set_prop_names(propNames);
     }
@@ -129,7 +127,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>>
 GraphStorageClient::addEdges(GraphSpaceID space,
                              std::vector<cpp2::NewEdge> edges,
                              std::vector<std::string> propNames,
-                             bool overwritable,
+                             bool ifNotExists,
                              folly::EventBase* evb,
                              bool useToss) {
     auto cbStatus = getIdFromNewEdge(space);
@@ -150,7 +148,7 @@ GraphStorageClient::addEdges(GraphSpaceID space,
         auto& host = c.first;
         auto& req = requests[host];
         req.set_space_id(space);
-        req.set_overwritable(overwritable);
+        req.set_if_not_exists(ifNotExists);
         req.set_parts(std::move(c.second));
         req.set_prop_names(propNames);
     }

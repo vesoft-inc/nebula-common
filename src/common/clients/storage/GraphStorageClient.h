@@ -67,14 +67,13 @@ public:
         std::vector<cpp2::NewVertex> vertices,
         std::unordered_map<TagID, std::vector<std::string>> propNames,
         bool ifNotExists,
-        bool overwritable,
         folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> addEdges(
         GraphSpaceID space,
         std::vector<cpp2::NewEdge> edges,
         std::vector<std::string> propNames,
-        bool overwritable,
+        bool ifNotExists,
         folly::EventBase* evb = nullptr,
         bool useToss = false);
 
