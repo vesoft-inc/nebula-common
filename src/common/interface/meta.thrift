@@ -620,11 +620,16 @@ enum HostRole {
     UNKNOWN     = 0x04
 } (cpp.enum_strict)
 
+struct RaftPartInfo {
+    1: common.PartitionID part_id,
+    2: i64 term
+}
+
 struct HBReq {
     1: HostRole   role,
     2: common.HostAddr host,
     3: ClusterID cluster_id,
-    4: optional map<common.GraphSpaceID, list<common.PartitionID>>
+    4: optional map<common.GraphSpaceID, list<RaftPartInfo>>
         (cpp.template = "std::unordered_map") leader_partIds;
     5: binary     git_info_sha
 }
