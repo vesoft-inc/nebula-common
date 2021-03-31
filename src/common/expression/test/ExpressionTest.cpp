@@ -203,6 +203,9 @@ protected:
         auto eval = Expression::eval(&functionCall, gExpCtxt);
         // EXPECT_EQ(eval.type(), expected.type());
         EXPECT_EQ(eval, expected);
+        eval = Expression::eval(&functionCall, gExpCtxt);
+        // EXPECT_EQ(eval.type(), expected.type());
+        EXPECT_EQ(eval, expected);
     }
 
     void testAggExpr(const char* name,
@@ -217,8 +220,6 @@ protected:
         if (!func->compare("isConst")) {
             isConst = true;
             arg = new ConstantExpression();
-        } else {
-            arg = new FunctionCallExpression(func.release());
         }
         AggregateExpression aggExpr(agg, arg, isDistinct);
         std::unordered_map<std::string, std::unique_ptr<AggData>> agg_data_map;
@@ -232,7 +233,7 @@ protected:
             } else {
                 auto args = std::make_unique<ArgumentList>(1);
                 args->addArgument(std::make_unique<ConstantExpression>(row.second));
-                static_cast<FunctionCallExpression*>(arg)->setArgs(std::move(args).release());
+                aggExpr.setArg(new FunctionCallExpression(new std::string(*func), args.release()));
             }
             aggExpr.setAggData(agg_data_map[row.first].get());
             auto eval = aggExpr.eval(gExpCtxt);
@@ -1369,6 +1370,93 @@ TEST_F(ExpressionTest, IsNotNull) {
     }
 }
 
+
+TEST_F(ExpressionTest, IsEmpty) {
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsEmpty,
+                new ConstantExpression(Value::kNullValue));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsEmpty,
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsEmpty,
+                new ConstantExpression(1.1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsEmpty,
+                new ConstantExpression(true));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsEmpty,
+                new ConstantExpression(Value::kEmpty));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+}
+
+TEST_F(ExpressionTest, IsNotEmpty) {
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNotEmpty,
+                new ConstantExpression(Value::kNullValue));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNotEmpty,
+                new ConstantExpression(1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNotEmpty,
+                new ConstantExpression(1.1));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNotEmpty,
+                new ConstantExpression(true));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, true);
+    }
+    {
+        UnaryExpression expr(
+                Expression::Kind::kIsNotEmpty,
+                new ConstantExpression(Value::kEmpty));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::BOOL);
+        EXPECT_EQ(eval, false);
+    }
+}
+
 TEST_F(ExpressionTest, UnaryDECR) {
     {
         // --var_int
@@ -1490,6 +1578,13 @@ TEST_F(ExpressionTest, toStringTest) {
         UnaryExpression isNotNull(Expression::Kind::kIsNotNull,
                                   new ConstantExpression(Value::kNullValue));
         EXPECT_EQ(isNotNull.toString(), "NULL IS NOT NULL");
+
+        UnaryExpression isEmpty(Expression::Kind::kIsEmpty, new ConstantExpression(2));
+        EXPECT_EQ(isEmpty.toString(), "2 IS EMPTY");
+
+        UnaryExpression isNotEmpty(Expression::Kind::kIsNotEmpty,
+                                  new ConstantExpression(Value::kEmpty));
+        EXPECT_EQ(isNotEmpty.toString(), "__EMPTY__ IS NOT EMPTY");
     }
     {
         VariableExpression var(new std::string("name"));
@@ -4232,8 +4327,8 @@ TEST_F(ExpressionTest, AggregateExpression) {
         TEST_AGG(COUNT, true, isConst, vals5_, expected2);
         TEST_AGG(COUNT, false, abs, vals9_, expected5);
         TEST_AGG(COUNT, true, abs, vals9_, expected5);
-        TEST_AGG(SUM, false, isConst, vals5_, expected1);
-        TEST_AGG(SUM, true, isConst, vals5_, expected1);
+        TEST_AGG(SUM, false, isConst, vals5_, expected2);
+        TEST_AGG(SUM, true, isConst, vals5_, expected2);
         TEST_AGG(SUM, false, isConst, vals9_, expected5);
         TEST_AGG(SUM, true, isConst, vals9_, expected5);
         TEST_AGG(AVG, false, isConst, vals5_, expected1);
