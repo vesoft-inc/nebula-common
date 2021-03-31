@@ -19,6 +19,14 @@ namespace nebula {
  */
 class VertexExpression final : public Expression {
 public:
+    VertexExpression() : Expression(Kind::kVertex) {
+        outPutName_.reset(new std::string("VERTEX"));
+    }
+
+    explicit VertexExpression(std::string* name) : Expression(Kind::kVertex) {
+        outPutName_.reset(name);
+    }
+
     static VertexExpression *make(ObjectPool *pool) {
         DCHECK(!!pool);
         return pool->add(new VertexExpression(pool));
@@ -33,7 +41,7 @@ public:
     }
 
     std::string toString() const override {
-        return "VERTEX";
+        return *outPutName_;
     }
 
     bool operator==(const Expression &expr) const override {
@@ -51,6 +59,7 @@ private:
 
 private:
     Value                                   result_;
+    std::unique_ptr<std::string>            outPutName_;
 };
 
 }   // namespace nebula

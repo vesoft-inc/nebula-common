@@ -19,6 +19,14 @@ namespace nebula {
  */
 class EdgeExpression final : public Expression {
 public:
+    EdgeExpression() : Expression(Kind::kEdge) {
+        outPutName_.reset(new std::string("EDGE"));
+    }
+
+    explicit EdgeExpression(std::string* name) : Expression(Kind::kEdge) {
+        outPutName_.reset(name);
+    }
+
     EdgeExpression& operator=(const EdgeExpression& rhs) = delete;
     EdgeExpression& operator=(EdgeExpression&&) = delete;
 
@@ -35,7 +43,7 @@ public:
     }
 
     std::string toString() const override {
-        return "EDGE";
+        return *outPutName_;
     }
 
     bool operator==(const Expression& expr) const override {
@@ -52,7 +60,8 @@ private:
     void resetFrom(Decoder&) override {}
 
 private:
-    Value result_;
+    Value                                   result_;
+    std::unique_ptr<std::string>            outPutName_;
 };
 
 }   // namespace nebula

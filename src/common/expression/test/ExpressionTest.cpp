@@ -106,6 +106,10 @@ TEST_F(ExpressionTest, toStringTest) {
         TEST_TOSTRING(8 % 2 + 1 == 1, "(((8%2)+1)==1)");
         TEST_TOSTRING(1 == 2, "(1==2)");
     }
+    {
+        VidExpression vidExpr;
+        ASSERT_EQ(vidExpr, *vidExpr.clone());
+    }
 }
 
 TEST_F(ExpressionTest, TestExprClone) {
@@ -271,3 +275,4 @@ int main(int argc, char **argv) {
 
     return RUN_ALL_TESTS();
 }
+

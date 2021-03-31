@@ -34,6 +34,7 @@
 #include "common/expression/PredicateExpression.h"
 #include "common/expression/ListComprehensionExpression.h"
 #include "common/expression/ReduceExpression.h"
+#include "common/expression/VidExpression.h"
 
 namespace nebula {
 
@@ -91,6 +92,8 @@ public:
     virtual void visit(ReduceExpression *expr) = 0;
     // subscript range expression
     virtual void visit(SubscriptRangeExpression *expr) = 0;
+    // vid expression
+    virtual void visit(VidExpression *expr) = 0;
 };
 
 }   // namespace nebula

@@ -127,7 +127,11 @@ std::string PathBuildExpression::toString() const {
         buf += item->toString();
         buf += ",";
     }
-    buf.back() = ']';
+    if (items_.empty()) {
+        buf += "]";
+    } else {
+        buf.back() = ']';
+    }
     return buf;
 }
 

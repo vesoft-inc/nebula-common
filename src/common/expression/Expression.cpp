@@ -33,6 +33,7 @@
 #include "common/expression/ListComprehensionExpression.h"
 #include "common/expression/PredicateExpression.h"
 #include "common/expression/ReduceExpression.h"
+#include "common/expression/VidExpression.h"
 
 namespace nebula {
 
@@ -523,6 +524,11 @@ Expression* Expression::decode(ObjectPool* pool, Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kVidExpr: {
+            exp = std::make_unique<VidExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kTSPrefix:
         case Expression::Kind::kTSWildcard:
         case Expression::Kind::kTSRegexp:
@@ -744,6 +750,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             break;
         case Expression::Kind::kReduce:
             os << "Reduce";
+            break;
+        case Expression::Kind::kVidExpr:
+            os << "VidExpr";
             break;
     }
     return os;
