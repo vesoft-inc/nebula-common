@@ -57,7 +57,9 @@ GflagsManager::parseConfigJson(const std::string& path) {
         {"meta_client_retry_times", {cpp2::ConfigMode::MUTABLE, false}},
         {"slow_op_threshhold_ms", {cpp2::ConfigMode::MUTABLE, false}},
         {"wal_ttl", {cpp2::ConfigMode::MUTABLE, false}},
-        {"enable_reservoir_sampling", {cpp2::ConfigMode::MUTABLE, false}},
+        {"clean_wal_interval_secs", {cpp2::ConfigMode::MUTABLE, false}},
+        {"custom_filter_interval_secs", {cpp2::ConfigMode::MUTABLE, false}},
+        {"accept_partial_success", {cpp2::ConfigMode::MUTABLE, false}},
 
         {"rocksdb_db_options", {cpp2::ConfigMode::MUTABLE, true}},
         {"rocksdb_column_family_options", {cpp2::ConfigMode::MUTABLE, true}},
@@ -129,10 +131,10 @@ std::vector<cpp2::ConfigItem> GflagsManager::declareGflags(const cpp2::ConfigMod
             continue;
         }
         cpp2::ConfigItem item;
-        item.name = name;
-        item.module = module;
-        item.mode = mode;
-        item.value = std::move(value);
+        item.set_name(name);
+        item.set_module(module);
+        item.set_mode(mode);
+        item.set_value(std::move(value));
         configItems.emplace_back(std::move(item));
     }
     LOG(INFO) << "Prepare to register " << configItems.size() << " gflags to meta";

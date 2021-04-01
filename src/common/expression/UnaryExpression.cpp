@@ -84,6 +84,14 @@ const Value& UnaryExpression::eval(ExpressionContext& ctx) {
             result_ = (operand_->eval(ctx)).isNull() ? false : true;
             break;
         }
+        case Kind::kIsEmpty: {
+            result_ = (operand_->eval(ctx)).empty() ? true : false;
+            break;
+        }
+        case Kind::kIsNotEmpty: {
+            result_ = (operand_->eval(ctx)).empty() ? false : true;
+            break;
+        }
        default:
            LOG(FATAL) << "Unknown type: " << kind_;
    }
@@ -109,11 +117,13 @@ std::string UnaryExpression::toString() const {
             op = "--";
             break;
         case Kind::kIsNull:
-            op = "IS NULL";
-            break;
+            return operand_->toString() + " IS NULL";
         case Kind::kIsNotNull:
-            op = "IS NOT NULL";
-            break;
+            return operand_->toString() + " IS NOT NULL";
+        case Kind::kIsEmpty:
+            return operand_->toString() + " IS EMPTY";
+        case Kind::kIsNotEmpty:
+            return operand_->toString() + " IS NOT EMPTY";
         default:
             op = "illegal symbol ";
     }
