@@ -57,15 +57,15 @@ bool Path::hasDuplicateEdges() const {
     if (steps.size() < 2) {
         return false;
     }
-    using Key = std::tuple<Value, Value, std::string, EdgeRanking>;
+    using Key = std::tuple<Value, Value, EdgeType, EdgeRanking>;
     std::unordered_set<Key> uniqueSet;
     auto srcVid = src.vid;
     for (const auto& step : steps) {
         const auto& dstVid = step.dst.vid;
         const auto& edgeSrc = step.type > 0 ? srcVid : dstVid;
         const auto& edgeDst = step.type > 0 ? dstVid : srcVid;
-        auto res = uniqueSet.emplace(std::make_tuple(edgeSrc, edgeDst, step.name, step.ranking));
-        if (!res.second) {
+        auto key = std::make_tuple(edgeSrc, edgeDst, std::abs(step.type), step.ranking);
+        if (!uniqueSet.emplace(std::move(key)).second) {
             return true;
         }
         srcVid = dstVid;
