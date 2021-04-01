@@ -9,11 +9,12 @@
 
 #include "common/base/Base.h"
 
-#include <thrift/lib/cpp2/GeneratedSerializationCodeHelper.h>
+#include <thrift/lib/cpp2/GeneratedCodeHelper.h>
 #include <thrift/lib/cpp2/gen/module_types_tcc.h>
 #include <thrift/lib/cpp2/protocol/ProtocolReaderStructReadState.h>
 
 #include "common/graph/Response.h"
+#include "common/graph/GraphCpp2Ops.h"
 
 namespace apache {
 namespace thrift {
@@ -40,23 +41,19 @@ struct TccStructTraits<::nebula::PlanDescription> {
         } else if (_fname == "format") {
             fid = 3;
             _ftype = apache::thrift::protocol::T_STRING;
+        } else if (_fname == "optimize_time_in_us") {
+            fid = 4;
+            _ftype = apache::thrift::protocol::T_I32;
         }
     }
 };
 
 }   // namespace detail
 
-template <>
-inline void Cpp2Ops<::nebula::PlanDescription>::clear(::nebula::PlanDescription* obj) {
-    return obj->clear();
-}
-
-template <>
 inline constexpr apache::thrift::protocol::TType Cpp2Ops<::nebula::PlanDescription>::thriftType() {
     return apache::thrift::protocol::T_STRUCT;
 }
 
-template <>
 template <class Protocol>
 uint32_t Cpp2Ops<::nebula::PlanDescription>::write(Protocol* proto,
                                                    ::nebula::PlanDescription const* obj) {
@@ -76,12 +73,17 @@ uint32_t Cpp2Ops<::nebula::PlanDescription>::write(Protocol* proto,
     xfer += proto->writeFieldBegin("format", apache::thrift::protocol::T_STRING, 3);
     xfer += proto->writeBinary(obj->format);
     xfer += proto->writeFieldEnd();
+    xfer += proto->writeFieldBegin("optimize_time_in_us", apache::thrift::protocol::T_I32, 4);
+    xfer +=
+        ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::integral,
+                                                       int32_t>::write(*proto,
+                                                                       obj->optimize_time_in_us);
+    xfer += proto->writeFieldEnd();
     xfer += proto->writeFieldStop();
     xfer += proto->writeStructEnd();
     return xfer;
 }
 
-template <>
 template <class Protocol>
 void Cpp2Ops<::nebula::PlanDescription>::read(Protocol* proto, ::nebula::PlanDescription* obj) {
     apache::thrift::detail::ProtocolReaderStructReadState<Protocol> _readState;
@@ -93,6 +95,7 @@ void Cpp2Ops<::nebula::PlanDescription>::read(Protocol* proto, ::nebula::PlanDes
     bool isset_plan_node_descs = false;
     bool isset_node_index_map = false;
     bool isset_format = false;
+    bool isset_optimize_time_in_us = false;
 
     if (UNLIKELY(!_readState.advanceToNextField(proto, 0, 1, apache::thrift::protocol::T_LIST))) {
         goto _loop;
@@ -128,7 +131,18 @@ _readField_format:
         isset_format = true;
     }
 
-    if (UNLIKELY(!_readState.advanceToNextField(proto, 3, 0, apache::thrift::protocol::T_STOP))) {
+    if (UNLIKELY(!_readState.advanceToNextField(proto, 3, 4, apache::thrift::protocol::T_I32))) {
+        goto _loop;
+    }
+_readField_optimize_in_us:
+    {
+        ::apache::thrift::detail::pm::protocol_methods<::apache::thrift::type_class::integral,
+                                                       int32_t>::read(*proto,
+                                                                      obj->optimize_time_in_us);
+        isset_optimize_time_in_us = true;
+    }
+
+    if (UNLIKELY(!_readState.advanceToNextField(proto, 4, 0, apache::thrift::protocol::T_STOP))) {
         goto _loop;
     }
 
@@ -143,6 +157,9 @@ _end:
     }
     if (!isset_format) {
         TProtocolException::throwMissingRequiredField("format", "PlanDescription");
+    }
+    if (!isset_optimize_time_in_us) {
+        TProtocolException::throwMissingRequiredField("optimize_time_in_us", "PlanDescription");
     }
     return;
 
@@ -177,6 +194,13 @@ _loop:
                 goto _skip;
             }
         }
+        case 4: {
+            if (LIKELY(_readState.fieldType == apache::thrift::protocol::T_I32)) {
+                goto _readField_optimize_in_us;
+            } else {
+                goto _skip;
+            }
+        }
         default: {
 _skip:
             proto->skip(_readState.fieldType);
@@ -187,7 +211,6 @@ _skip:
     }
 }
 
-template <>
 template <class Protocol>
 uint32_t Cpp2Ops<::nebula::PlanDescription>::serializedSize(Protocol const* proto,
                                                             ::nebula::PlanDescription const* obj) {
@@ -205,11 +228,14 @@ uint32_t Cpp2Ops<::nebula::PlanDescription>::serializedSize(Protocol const* prot
         std::unordered_map<int64_t, int64_t>>::serializedSize<false>(*proto, obj->nodeIndexMap);
     xfer += proto->serializedFieldSize("format", apache::thrift::protocol::T_STRING, 3);
     xfer += proto->serializedSizeBinary(obj->format);
+    xfer += proto->serializedFieldSize("optimize_time_in_us", apache::thrift::protocol::T_I32, 4);
+    xfer += ::apache::thrift::detail::pm::
+        protocol_methods<::apache::thrift::type_class::integral, int32_t>::serializedSize<false>(
+            *proto, obj->optimize_time_in_us);
     xfer += proto->serializedSizeStop();
     return xfer;
 }
 
-template <>
 template <class Protocol>
 uint32_t Cpp2Ops<::nebula::PlanDescription>::serializedSizeZC(
     Protocol const* proto,
@@ -228,6 +254,10 @@ uint32_t Cpp2Ops<::nebula::PlanDescription>::serializedSizeZC(
         std::unordered_map<int64_t, int64_t>>::serializedSize<false>(*proto, obj->nodeIndexMap);
     xfer += proto->serializedFieldSize("format", apache::thrift::protocol::T_STRING, 3);
     xfer += proto->serializedSizeZCBinary(obj->format);
+    xfer += proto->serializedFieldSize("optimize_time_in_us", apache::thrift::protocol::T_I32, 4);
+    xfer += ::apache::thrift::detail::pm::
+        protocol_methods<::apache::thrift::type_class::integral, int32_t>::serializedSize<false>(
+            *proto, obj->optimize_time_in_us);
     xfer += proto->serializedSizeStop();
     return xfer;
 }
