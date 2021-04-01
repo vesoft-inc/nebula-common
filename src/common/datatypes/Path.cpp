@@ -7,6 +7,7 @@
 #include "common/datatypes/Path.h"
 
 #include <algorithm>
+#include <tuple>
 #include <unordered_set>
 
 #include <folly/hash/Hash.h>
@@ -56,21 +57,14 @@ bool Path::hasDuplicateEdges() const {
     if (steps.size() < 2) {
         return false;
     }
-    std::unordered_set<std::string> uniqueSet;
-    auto srcVid = src.vid.toString();
+    using Key = std::tuple<Value, Value, std::string, EdgeRanking>;
+    std::unordered_set<Key> uniqueSet;
+    auto srcVid = src.vid;
     for (const auto& step : steps) {
-        auto dstVid = step.dst.vid.toString();
+        auto dstVid = step.dst.vid;
         const auto& edgeSrc = step.type > 0 ? srcVid : dstVid;
         const auto& edgeDst = step.type > 0 ? dstVid : srcVid;
-        auto edgeKey = folly::stringPrintf("%s%ld%s%ld%s%ld%ld",
-                                           edgeSrc.c_str(),
-                                           edgeSrc.size(),
-                                           edgeDst.c_str(),
-                                           edgeDst.size(),
-                                           step.name.c_str(),
-                                           step.name.size(),
-                                           step.ranking);
-        auto res = uniqueSet.emplace(std::move(edgeKey));
+        auto res = uniqueSet.emplace(std::make_tuple(edgeSrc, edgeDst, step.name, step.ranking));
         if (!res.second) {
             return true;
         }
