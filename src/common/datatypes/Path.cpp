@@ -10,8 +10,8 @@
 #include <tuple>
 #include <unordered_set>
 
-#include <folly/hash/Hash.h>
 #include <folly/String.h>
+#include <folly/hash/Hash.h>
 
 namespace nebula {
 void Path::reverse() {
@@ -61,7 +61,7 @@ bool Path::hasDuplicateEdges() const {
     std::unordered_set<Key> uniqueSet;
     auto srcVid = src.vid;
     for (const auto& step : steps) {
-        auto dstVid = step.dst.vid;
+        const auto& dstVid = step.dst.vid;
         const auto& edgeSrc = step.type > 0 ? srcVid : dstVid;
         const auto& edgeDst = step.type > 0 ? dstVid : srcVid;
         auto res = uniqueSet.emplace(std::make_tuple(edgeSrc, edgeDst, step.name, step.ranking));

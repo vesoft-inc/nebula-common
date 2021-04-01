@@ -242,6 +242,7 @@ TEST(Path, HasSameEdgeInPath) {
     path.addStep(Step(Vertex("3", {}), 1, "like", 0, {}));
     path.addStep(Step(Vertex("1", {}), 1, "like", 0, {}));
     path.addStep(Step(Vertex("23", {}), 1, "like", 0, {}));
+    ASSERT(!path.hasDuplicateEdges());
     path.addStep(Step(Vertex("1", {}), -1, "like", 0, {}));
     ASSERT(path.hasDuplicateEdges());
 }
