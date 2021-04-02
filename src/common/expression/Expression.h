@@ -138,11 +138,11 @@ public:
 
     static std::unique_ptr<Expression> decode(folly::StringPiece encoded);
 
-    virtual bool isLogicalExpr() {
+    virtual bool isLogicalExpr() const {
         return false;
     }
 
-    virtual bool isRelExpr() {
+    virtual bool isRelExpr() const {
         return false;
     }
 

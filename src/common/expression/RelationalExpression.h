@@ -28,7 +28,7 @@ public:
             kind(), left()->clone().release(), right()->clone().release());
     }
 
-    bool isRelExpr() override {
+    bool isRelExpr() const override {
         return true;
     }
 

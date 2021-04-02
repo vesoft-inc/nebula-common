@@ -66,7 +66,7 @@ public:
         operands_ = std::move(operands);
     }
 
-    bool isLogicalExpr() override {
+    bool isLogicalExpr() const override {
         return true;
     }
 
