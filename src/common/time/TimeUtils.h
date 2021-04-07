@@ -40,10 +40,7 @@ public:
     // check the validation of date
     // not check range limit in here
     // I.E. 2019-02-31
-    template <typename D,
-              typename = std::enable_if_t<std::is_same<D, Date>::value ||
-                                          std::is_same<D, DateTime>::value>>
-    static Status validateDate(const D &date) {
+    static Status validateDate(const Date &date) {
         const int64_t *p = isLeapYear(date.year) ? kLeapDaysSoFar : kDaysSoFar;
         if ((p[date.month] - p[date.month - 1]) < date.day) {
             return Status::Error("`%s' is not a valid date.", date.toString().c_str());
@@ -60,14 +57,14 @@ public:
             return Status::Error();
         }
         DateTime dt;
-        dt.year = tm.tm_year + 1900;
-        dt.month = tm.tm_mon + 1;
-        dt.day = tm.tm_mday;
-        dt.hour = tm.tm_hour;
-        dt.minute = tm.tm_min;
-        dt.sec = tm.tm_sec;
-        dt.microsec = 0;
-        NG_RETURN_IF_ERROR(validateDate(dt));
+        dt.d.year = tm.tm_year + 1900;
+        dt.d.month = tm.tm_mon + 1;
+        dt.d.day = tm.tm_mday;
+        dt.t.hour = tm.tm_hour;
+        dt.t.minute = tm.tm_min;
+        dt.t.sec = tm.tm_sec;
+        dt.t.microsec = 0;
+        NG_RETURN_IF_ERROR(validateDate(dt.date()));
         return dt;
     }
 
@@ -154,7 +151,7 @@ public:
 
     static Date unixSecondsToDate(int64_t seconds) {
         auto dateTime = unixSecondsToDateTime(seconds);
-        return Date(dateTime.year, dateTime.month, dateTime.day);
+        return dateTime.date();
     }
 
     // Shift the DateTime in timezone space
@@ -218,12 +215,8 @@ public:
     }
 
     static Time unixSecondsToTime(int64_t seconds) {
-        Time t;
         auto dt = unixSecondsToDateTime(seconds);
-        t.hour = dt.hour;
-        t.minute = dt.minute;
-        t.sec = dt.sec;
-        return t;
+        return dt.time();
     }
 
     // Shift the Time in timezone space

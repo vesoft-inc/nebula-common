@@ -256,7 +256,7 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(toString, args_["toString_bool"], "true");
         TEST_FUNCTION(toString, args_["string"], "AbcDeFG");
         TEST_FUNCTION(toString, args_["date"], "1984-10-11");
-        TEST_FUNCTION(toString, args_["datetime"], "1984-10-11T12:31:14.341");
+        TEST_FUNCTION(toString, args_["datetime"], "1984-10-11T12:31:14.000341");
         TEST_FUNCTION(toString, args_["nullvalue"], Value::kNullValue);
     }
     {

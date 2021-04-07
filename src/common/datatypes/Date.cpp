@@ -107,8 +107,7 @@ std::string Time::toString() const {
 
 std::string DateTime::toString() const {
     // It's in current timezone already
-    return folly::stringPrintf(
-        "%d-%02d-%02dT%02d:%02d:%02d.%d", year, month, day, hour, minute, sec, microsec);
+    return folly::stringPrintf("%sT%s", d.toString().c_str(), t.toString().c_str());
 }
 
 }   // namespace nebula
@@ -131,14 +130,14 @@ std::size_t hash<nebula::Time>::operator()(const nebula::Time& h) const noexcept
 }
 
 std::size_t hash<nebula::DateTime>::operator()(const nebula::DateTime& h) const noexcept {
-    size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year), sizeof(h.year));
-    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.month), sizeof(h.month), hv);
-    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.day), sizeof(h.day), hv);
-    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.hour), sizeof(h.hour), hv);
-    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.minute), sizeof(h.minute), hv);
-    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.sec), sizeof(h.sec), hv);
+    size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.d.year), sizeof(h.d.year));
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.d.month), sizeof(h.d.month), hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.d.day), sizeof(h.d.day), hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.t.hour), sizeof(h.t.hour), hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.t.minute), sizeof(h.t.minute), hv);
+    hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.t.sec), sizeof(h.t.sec), hv);
     return folly::hash::fnv64_buf(
-        reinterpret_cast<const void*>(&h.microsec), sizeof(h.microsec), hv);
+        reinterpret_cast<const void*>(&h.t.microsec), sizeof(h.t.microsec), hv);
 }
 
 }   // namespace std

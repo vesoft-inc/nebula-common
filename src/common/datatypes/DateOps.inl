@@ -458,27 +458,12 @@ struct TccStructTraits<nebula::DateTime> {
             MAYBE_UNUSED folly::StringPiece _fname,
             MAYBE_UNUSED int16_t& fid,
             MAYBE_UNUSED apache::thrift::protocol::TType& _ftype) {
-        if (_fname == "year") {
+        if (_fname == "d") {
             fid = 1;
-            _ftype = apache::thrift::protocol::T_I16;
-        } else if (_fname == "month") {
+            _ftype = apache::thrift::protocol::T_STRUCT;
+        } else if (_fname == "t") {
             fid = 2;
-            _ftype = apache::thrift::protocol::T_BYTE;
-        } else if (_fname == "day") {
-            fid = 3;
-            _ftype = apache::thrift::protocol::T_BYTE;
-        } else if (_fname == "hour") {
-            fid = 4;
-            _ftype = apache::thrift::protocol::T_BYTE;
-        } else if (_fname == "minute") {
-            fid = 5;
-            _ftype = apache::thrift::protocol::T_BYTE;
-        } else if (_fname == "sec") {
-            fid = 6;
-            _ftype = apache::thrift::protocol::T_BYTE;
-        } else if (_fname == "microsec") {
-            fid = 7;
-            _ftype = apache::thrift::protocol::T_I32;
+            _ftype = apache::thrift::protocol::T_STRUCT;
         }
     }
 };
@@ -496,39 +481,12 @@ uint32_t Cpp2Ops<nebula::DateTime>::write(Protocol* proto, nebula::DateTime cons
     uint32_t xfer = 0;
     xfer += proto->writeStructBegin("DateTime");
 
-    xfer += proto->writeFieldBegin("year", apache::thrift::protocol::T_I16, 1);
-    xfer += detail::pm::protocol_methods<type_class::integral, int16_t>
-        ::write(*proto, obj->year);
+    xfer += proto->writeFieldBegin("d", apache::thrift::protocol::T_STRUCT, 1);
+    xfer += ::apache::thrift::Cpp2Ops<nebula::Date>::write(proto, &obj->d);
     xfer += proto->writeFieldEnd();
 
-    xfer += proto->writeFieldBegin("month", apache::thrift::protocol::T_BYTE, 2);
-    xfer += detail::pm::protocol_methods<thrift::type_class::integral, int8_t>
-        ::write(*proto, obj->month);
-    xfer += proto->writeFieldEnd();
-
-    xfer += proto->writeFieldBegin("day", apache::thrift::protocol::T_BYTE, 3);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::write(*proto, obj->day);
-    xfer += proto->writeFieldEnd();
-
-    xfer += proto->writeFieldBegin("hour", apache::thrift::protocol::T_BYTE, 4);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::write(*proto, obj->hour);
-    xfer += proto->writeFieldEnd();
-
-    xfer += proto->writeFieldBegin("minute", apache::thrift::protocol::T_BYTE, 5);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::write(*proto, obj->minute);
-    xfer += proto->writeFieldEnd();
-
-    xfer += proto->writeFieldBegin("sec", apache::thrift::protocol::T_BYTE, 6);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::write(*proto, obj->sec);
-    xfer += proto->writeFieldEnd();
-
-    xfer += proto->writeFieldBegin("microsec", apache::thrift::protocol::T_I32, 7);
-    xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
-        ::write(*proto, obj->microsec);
+    xfer += proto->writeFieldBegin("t", apache::thrift::protocol::T_STRUCT, 2);
+    xfer += ::apache::thrift::Cpp2Ops<nebula::Time>::write(proto, &obj->t);
     xfer += proto->writeFieldEnd();
 
     xfer += proto->writeFieldStop();
@@ -545,71 +503,25 @@ void Cpp2Ops<nebula::DateTime>::read(Protocol* proto, nebula::DateTime* obj) {
 
     using apache::thrift::protocol::TProtocolException;
 
-    if (UNLIKELY(!readState.advanceToNextField(proto, 0, 1, protocol::T_I16))) {
+    if (UNLIKELY(!readState.advanceToNextField(proto, 0, 1, protocol::T_STRUCT))) {
         goto _loop;
     }
 
-_readField_year:
+_readField_d:
     {
-        detail::pm::protocol_methods<type_class::integral, int16_t>::read(*proto, obj->year);
+        ::apache::thrift::Cpp2Ops<nebula::Date>::read(proto, &obj->d);
     }
 
-    if (UNLIKELY(!readState.advanceToNextField(proto, 1, 2, protocol::T_BYTE))) {
+    if (UNLIKELY(!readState.advanceToNextField(proto, 1, 2, protocol::T_STRUCT))) {
         goto _loop;
     }
 
-_readField_month:
+_readField_t:
     {
-        detail::pm::protocol_methods<type_class::integral, int8_t>::read(*proto, obj->month);
+        ::apache::thrift::Cpp2Ops<nebula::Time>::read(proto, &obj->t);
     }
 
-    if (UNLIKELY(!readState.advanceToNextField(proto, 2, 3, protocol::T_BYTE))) {
-        goto _loop;
-    }
-
-_readField_day:
-    {
-        detail::pm::protocol_methods<type_class::integral, int8_t>::read(*proto, obj->day);
-    }
-
-    if (UNLIKELY(!readState.advanceToNextField(proto, 3, 4, protocol::T_BYTE))) {
-        goto _loop;
-    }
-
-_readField_hour:
-    {
-        detail::pm::protocol_methods<type_class::integral, int8_t>::read(*proto, obj->hour);
-    }
-
-    if (UNLIKELY(!readState.advanceToNextField(proto, 4, 5, protocol::T_BYTE))) {
-        goto _loop;
-    }
-
-_readField_minute:
-    {
-        detail::pm::protocol_methods<type_class::integral, int8_t>::read(*proto, obj->minute);
-    }
-
-    if (UNLIKELY(!readState.advanceToNextField(proto, 5, 6, protocol::T_BYTE))) {
-        goto _loop;
-    }
-
-_readField_sec:
-    {
-        detail::pm::protocol_methods<type_class::integral, int8_t>::read(*proto, obj->sec);
-    }
-
-    if (UNLIKELY(!readState.advanceToNextField(proto, 6, 7, protocol::T_I32))) {
-        goto _loop;
-    }
-
-_readField_microsec:
-    {
-        detail::pm::protocol_methods<type_class::integral, int32_t>
-            ::read(*proto, obj->microsec);
-    }
-
-    if (UNLIKELY(!readState.advanceToNextField(proto, 7, 8, protocol::T_I32))) {
+    if (UNLIKELY(!readState.advanceToNextField(proto, 2, 3, protocol::T_STRUCT))) {
         goto _loop;
     }
 
@@ -631,56 +543,16 @@ _loop:
     switch (readState.fieldId) {
         case 1:
         {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I16)) {
-                goto _readField_year;
+            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRUCT)) {
+                goto _readField_d;
             } else {
                 goto _skip;
             }
         }
         case 2:
         {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
-                goto _readField_month;
-            } else {
-                goto _skip;
-            }
-        }
-        case 3:
-        {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
-                goto _readField_day;
-            } else {
-                goto _skip;
-            }
-        }
-        case 4:
-        {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
-                goto _readField_hour;
-            } else {
-                goto _skip;
-            }
-        }
-        case 5:
-        {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
-                goto _readField_minute;
-            } else {
-                goto _skip;
-            }
-        }
-        case 6:
-        {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_BYTE)) {
-                goto _readField_sec;
-            } else {
-                goto _skip;
-            }
-        }
-        case 7:
-        {
-            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_I32)) {
-                goto _readField_microsec;
+            if (LIKELY(readState.fieldType == apache::thrift::protocol::T_STRUCT)) {
+                goto _readField_t;
             } else {
                 goto _skip;
             }
@@ -703,33 +575,11 @@ uint32_t Cpp2Ops<nebula::DateTime>::serializedSize(Protocol const* proto,
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("DateTime");
 
-    xfer += proto->serializedFieldSize("year", apache::thrift::protocol::T_I16, 1);
-    xfer += detail::pm::protocol_methods<type_class::integral, int16_t>
-        ::serializedSize<false>(*proto, obj->year);
+    xfer += proto->serializedFieldSize("d", apache::thrift::protocol::T_STRUCT, 1);
+    xfer += ::apache::thrift::Cpp2Ops<nebula::Date>::serializedSize(proto, &obj->d);
 
-    xfer += proto->serializedFieldSize("month", apache::thrift::protocol::T_BYTE, 2);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::serializedSize<false>(*proto, obj->month);
-
-    xfer += proto->serializedFieldSize("day", apache::thrift::protocol::T_BYTE, 3);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::serializedSize<false>(*proto, obj->day);
-
-    xfer += proto->serializedFieldSize("hour", apache::thrift::protocol::T_BYTE, 4);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::serializedSize<false>(*proto, obj->hour);
-
-    xfer += proto->serializedFieldSize("minute", apache::thrift::protocol::T_BYTE, 5);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::serializedSize<false>(*proto, obj->minute);
-
-    xfer += proto->serializedFieldSize("sec", apache::thrift::protocol::T_BYTE, 6);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::serializedSize<false>(*proto, obj->sec);
-
-    xfer += proto->serializedFieldSize("microsec", apache::thrift::protocol::T_I32, 7);
-    xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
-        ::serializedSize<false>(*proto, obj->microsec);
+    xfer += proto->serializedFieldSize("t", apache::thrift::protocol::T_STRUCT, 2);
+    xfer += ::apache::thrift::Cpp2Ops<nebula::Time>::serializedSize(proto, &obj->t);
 
     xfer += proto->serializedSizeStop();
     return xfer;
@@ -742,33 +592,11 @@ uint32_t Cpp2Ops<nebula::DateTime>::serializedSizeZC(Protocol const* proto,
     uint32_t xfer = 0;
     xfer += proto->serializedStructSize("DateTime");
 
-    xfer += proto->serializedFieldSize("year", apache::thrift::protocol::T_I16, 1);
-    xfer += detail::pm::protocol_methods<type_class::integral, int16_t>
-        ::serializedSize<false>(*proto, obj->year);
+    xfer += proto->serializedFieldSize("d", apache::thrift::protocol::T_STRUCT, 1);
+    xfer += ::apache::thrift::Cpp2Ops<nebula::Date>::serializedSizeZC(proto, &obj->d);
 
-    xfer += proto->serializedFieldSize("month", apache::thrift::protocol::T_BYTE, 2);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::serializedSize<false>(*proto, obj->month);
-
-    xfer += proto->serializedFieldSize("day", apache::thrift::protocol::T_BYTE, 3);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::serializedSize<false>(*proto, obj->day);
-
-    xfer += proto->serializedFieldSize("hour", apache::thrift::protocol::T_BYTE, 4);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::serializedSize<false>(*proto, obj->hour);
-
-    xfer += proto->serializedFieldSize("minute", apache::thrift::protocol::T_BYTE, 5);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::serializedSize<false>(*proto, obj->minute);
-
-    xfer += proto->serializedFieldSize("sec", apache::thrift::protocol::T_BYTE, 6);
-    xfer += detail::pm::protocol_methods<type_class::integral, int8_t>
-        ::serializedSize<false>(*proto, obj->sec);
-
-    xfer += proto->serializedFieldSize("microsec", apache::thrift::protocol::T_I32, 7);
-    xfer += detail::pm::protocol_methods<type_class::integral, int32_t>
-        ::serializedSize<false>(*proto, obj->microsec);
+    xfer += proto->serializedFieldSize("t", apache::thrift::protocol::T_STRUCT, 2);
+    xfer += ::apache::thrift::Cpp2Ops<nebula::Time>::serializedSizeZC(proto, &obj->t);
 
     xfer += proto->serializedSizeStop();
     return xfer;

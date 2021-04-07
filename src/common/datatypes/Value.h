@@ -414,6 +414,8 @@ private:
     void setG(DataSet&& v);
 };
 
+static_assert(sizeof(Value) == 40);
+
 void swap(Value& a, Value& b);
 
 constexpr auto kEpsilon = 1e-8;

@@ -47,6 +47,10 @@ struct Date {
                day == rhs.day;
     }
 
+    bool operator!=(const Date& rhs) const {
+        return !(*this == rhs);
+    }
+
     bool operator<(const Date& rhs) const {
         if (!(year == rhs.year)) {
             return year < rhs.year;
@@ -76,6 +80,8 @@ inline std::ostream &operator<<(std::ostream& os, const Date& d) {
     return os;
 }
 
+static_assert(sizeof(Date) == 4);
+
 struct Time {
     int8_t hour;
     int8_t minute;
@@ -104,6 +110,10 @@ struct Time {
                microsec == rhs.microsec;
     }
 
+    bool operator!=(const Time& rhs) const {
+        return !(*this == rhs);
+    }
+
     bool operator<(const Time& rhs) const {
         if (!(hour == rhs.hour)) {
             return hour < rhs.hour;
@@ -123,35 +133,34 @@ struct Time {
     std::string toString() const;
 };
 
+static_assert(sizeof(Time) == 8);
+
 inline std::ostream &operator<<(std::ostream& os, const Time& d) {
     os << d.toString();
     return os;
 }
 
 struct DateTime {
-    int16_t year;
-    int8_t month;
-    int8_t day;
-    int8_t hour;
-    int8_t minute;
-    int8_t sec;
-    int32_t microsec;
+    Date d;
+    Time t;
 
-    DateTime() : year{0}, month{1}, day{1}, hour{0}, minute{0}, sec{0}, microsec{0} {}
-    DateTime(int16_t y, int8_t m, int8_t d, int8_t h, int8_t min, int8_t s, int32_t us)
-        : year{y}, month{m}, day{d}, hour{h}, minute{min}, sec{s}, microsec{us} {}
+    DateTime() : d(), t() {}
+    DateTime(int16_t y, int8_t m, int8_t day, int8_t h, int8_t min, int8_t s, int32_t us)
+        : d(y, m, day), t(h, min, s, us) {}
     explicit DateTime(const Date &date)
-        : year{date.year}, month{date.month}, day{date.day},
-          hour{0}, minute{0}, sec{0}, microsec{0} {}
+        : d(date) {}
+
+    const auto& date() const {
+        return d;
+    }
+
+    const auto& time() const {
+        return t;
+    }
 
     void clear() {
-        year = 0;
-        month = 1;
-        day = 1;
-        hour = 0;
-        minute = 0;
-        sec = 0;
-        microsec = 0;
+        d.clear();
+        t.clear();
     }
 
     void __clear() {
@@ -159,41 +168,22 @@ struct DateTime {
     }
 
     bool operator==(const DateTime& rhs) const {
-        return year == rhs.year &&
-               month == rhs.month &&
-               day == rhs.day &&
-               hour == rhs.hour &&
-               minute == rhs.minute &&
-               sec == rhs.sec &&
-               microsec == rhs.microsec;
+        return d == rhs.d && t == rhs.t;
     }
     bool operator<(const DateTime& rhs) const {
-        if (!(year == rhs.year)) {
-            return year < rhs.year;
+        if (d != rhs.d) {
+            return d < rhs.d;
         }
-        if (!(month == rhs.month)) {
-            return month < rhs.month;
-        }
-        if (!(day == rhs.day)) {
-            return day < rhs.day;
-        }
-        if (!(hour == rhs.hour)) {
-            return hour < rhs.hour;
-        }
-        if (!(minute == rhs.minute)) {
-            return minute < rhs.minute;
-        }
-        if (!(sec == rhs.sec)) {
-            return sec < rhs.sec;
-        }
-        if (!(microsec == rhs.microsec)) {
-            return microsec < rhs.microsec;
+        if (t != rhs.t) {
+            return t < rhs.t;
         }
         return false;
     }
 
     std::string toString() const;
 };
+
+static_assert(sizeof(DateTime) == 12);
 
 
 inline std::ostream &operator<<(std::ostream& os, const DateTime& d) {

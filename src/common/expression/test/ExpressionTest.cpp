@@ -386,9 +386,9 @@ TEST_F(ExpressionTest, Constant) {
     }
     {
         DateTime dateTime;
-        dateTime.year = 1900;
-        dateTime.month = 2;
-        dateTime.day = 23;
+        dateTime.d.year = 1900;
+        dateTime.d.month = 2;
+        dateTime.d.day = 23;
         ConstantExpression datetime(dateTime);
         auto eval = Expression::eval(&datetime, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::DATETIME);

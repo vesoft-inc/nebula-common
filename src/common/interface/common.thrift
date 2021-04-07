@@ -69,13 +69,8 @@ struct Time {
 // !! Struct DateTime has a shadow data type defined in the Date.h
 // So any change here needs to be reflected to the shadow type there
 struct DateTime {
-    1: i16 year;
-    2: byte month;
-    3: byte day;
-    4: byte hour;         // Hour: 0 - 23
-    5: byte minute;       // Minute: 0 - 59
-    6: byte sec;          // Second: 0 - 59
-    7: i32 microsec;    // Micro-second: 0 - 999,999
+    1: Date d;
+    2: Time t;
 } (cpp.type = "nebula::DateTime")
 
 
