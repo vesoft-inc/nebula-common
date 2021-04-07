@@ -45,7 +45,7 @@ public:
         const std::vector<cpp2::Expr>* expressions,
         bool dedup = false,
         bool random = false,
-        const std::vector<cpp2::OrderBy>& orderBy = std::vector<cpp2::OrderBy>(),
+        const std::vector<cpp2::OrderBy>* orderBy = nullptr,
         int64_t limit = std::numeric_limits<int64_t>::max(),
         std::string filter = std::string(),
         folly::EventBase* evb = nullptr);
@@ -57,7 +57,7 @@ public:
         const std::vector<cpp2::EdgeProp>* edgeProps,
         const std::vector<cpp2::Expr>* expressions,
         bool dedup = false,
-        const std::vector<cpp2::OrderBy>& orderBy = std::vector<cpp2::OrderBy>(),
+        const std::vector<cpp2::OrderBy>* orderBy = nullptr,
         int64_t limit = std::numeric_limits<int64_t>::max(),
         std::string filter = std::string(),
         folly::EventBase* evb = nullptr);

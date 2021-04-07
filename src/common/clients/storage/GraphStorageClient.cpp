@@ -22,7 +22,7 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
                                  const std::vector<cpp2::Expr>* expressions,
                                  bool dedup,
                                  bool random,
-                                 const std::vector<cpp2::OrderBy>& orderBy,
+                                 const std::vector<cpp2::OrderBy>* orderBy,
                                  int64_t limit,
                                  std::string filter,
                                  folly::EventBase* evb) {
@@ -64,8 +64,8 @@ GraphStorageClient::getNeighbors(GraphSpaceID space,
         if (expressions != nullptr) {
             spec.set_expressions(*expressions);
         }
-        if (!orderBy.empty()) {
-            spec.set_order_by(orderBy);
+        if (orderBy != nullptr) {
+            spec.set_order_by(*orderBy);
         }
         spec.set_limit(limit);
         if (filter.size() > 0) {
@@ -168,7 +168,7 @@ GraphStorageClient::getProps(GraphSpaceID space,
                              const std::vector<cpp2::EdgeProp>* edgeProps,
                              const std::vector<cpp2::Expr>* expressions,
                              bool dedup,
-                             const std::vector<cpp2::OrderBy>& orderBy,
+                             const std::vector<cpp2::OrderBy>* orderBy,
                              int64_t limit,
                              std::string filter,
                              folly::EventBase* evb) {
@@ -201,8 +201,8 @@ GraphStorageClient::getProps(GraphSpaceID space,
         if (expressions != nullptr) {
             req.set_expressions(*expressions);
         }
-        if (!orderBy.empty()) {
-            req.set_order_by(orderBy);
+        if (orderBy != nullptr) {
+            req.set_order_by(*orderBy);
         }
         req.set_limit(limit);
         if (filter.size() > 0) {
