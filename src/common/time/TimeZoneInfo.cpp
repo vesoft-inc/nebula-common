@@ -6,7 +6,7 @@
 
 #include <gflags/gflags.h>
 
-#include "common/time/TimezoneInfo.h"
+#include "common/time/TimeZoneInfo.h"
 
 DEFINE_string(time_zone_file,
               "share/resources/date_time_zonespec.csv",
@@ -15,7 +15,7 @@ DEFINE_string(time_zone_file,
 namespace nebula {
 namespace time {
 
-/*static*/ ::boost::local_time::tz_database Timezone::tzdb;
+/*static*/ ::boost::local_time::tz_database TimeZone::tzdb;
 
 }   // namespace time
 }   // namespace nebula
