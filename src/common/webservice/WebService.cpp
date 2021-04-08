@@ -114,7 +114,7 @@ Status WebService::start() {
     auto status = Status::OK();
     bool serverStartedDone = false;
 
-    // Start HTTPServer mainloop in a separate thread
+    // Start HTTPServer main loop in a separate thread
     wsThread_ = std::make_unique<thread::NamedThread>(
         "webservice-listener",
         [&] () {
