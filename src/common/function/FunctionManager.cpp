@@ -1313,10 +1313,6 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             auto argSize = args.size();
-            if (argSize < 2 || argSize > 3) {
-                LOG(ERROR) <<  "Unexpected arguments count " << args.size();
-                return Value::kNullBadData;
-            }
             if (args[0].isNull()) {
                 return Value::kNullValue;
             }
@@ -1325,11 +1321,18 @@ FunctionManager::FunctionManager() {
             }
             auto value = args[0].getStr();
             auto start = args[1].getInt();
-            auto length =  (args.size() == 2) ? value.size() - start : args[2].getInt();
+            auto length = 0;
+            if (argSize == 3) {
+                length = args[2].getInt();
+            } else {
+                length = static_cast<size_t>(start) >= value.size()
+                             ? 0
+                             : value.size() - static_cast<size_t>(start);
+            }
             if (start < 0 || length < 0) {
                 return Value::kNullBadData;
             }
-            if (static_cast<size_t>(start) > value.size() || length == 0) {
+            if (static_cast<size_t>(start) >= value.size() || length == 0) {
                 return std::string("");
             }
             return value.substr(start, length);
