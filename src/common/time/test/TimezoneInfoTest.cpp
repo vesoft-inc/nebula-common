@@ -15,7 +15,7 @@ TEST(TimezoneInfo, PosixTimezone) {
         nebula::time::Timezone tz;
         ASSERT_TRUE(tz.parsePosixTimezone(posixTimezone).ok());
 
-        // std zonename
+        // std zone name
         EXPECT_EQ("EST", tz.stdZoneName());
 
         // std offset
@@ -27,7 +27,7 @@ TEST(TimezoneInfo, PosixTimezone) {
         nebula::time::Timezone tz;
         ASSERT_TRUE(tz.parsePosixTimezone(posixTimezone).ok());
 
-        // std zonename
+        // std zone name
         EXPECT_EQ("EST", tz.stdZoneName());
 
         // std offset
