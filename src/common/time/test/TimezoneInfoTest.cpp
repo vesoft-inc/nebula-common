@@ -6,14 +6,14 @@
 
 #include <gtest/gtest.h>
 
-#include "common/time/TimezoneInfo.h"
+#include "common/time/TimeZoneInfo.h"
 
-TEST(TimezoneInfo, PosixTimezone) {
+TEST(TimeZoneInfo, PosixTimeZone) {
     {
-        const std::string posixTimezone =
+        const std::string posixTimeZone =
             "EST-05:00:00EDT+01:00:00,M4.1.0/02:00:00,M10.5.0/02:00:00";
-        nebula::time::Timezone tz;
-        ASSERT_TRUE(tz.parsePosixTimezone(posixTimezone).ok());
+        nebula::time::TimeZone tz;
+        ASSERT_TRUE(tz.parsePosixTimeZone(posixTimeZone).ok());
 
         // std zone name
         EXPECT_EQ("EST", tz.stdZoneName());
@@ -23,9 +23,9 @@ TEST(TimezoneInfo, PosixTimezone) {
     }
     {
         // short case
-        const std::string posixTimezone = "EST-05:00:00";
-        nebula::time::Timezone tz;
-        ASSERT_TRUE(tz.parsePosixTimezone(posixTimezone).ok());
+        const std::string posixTimeZone = "EST-05:00:00";
+        nebula::time::TimeZone tz;
+        ASSERT_TRUE(tz.parsePosixTimeZone(posixTimeZone).ok());
 
         // std zone name
         EXPECT_EQ("EST", tz.stdZoneName());
@@ -35,10 +35,10 @@ TEST(TimezoneInfo, PosixTimezone) {
     }
 }
 
-TEST(TimezoneInfo, PosixTimezoneInvalid) {
-    const std::string posixTimezone = "233333333333";
-    nebula::time::Timezone tz;
-    ASSERT_FALSE(tz.parsePosixTimezone(posixTimezone).ok());
+TEST(TimeZoneInfo, PosixTimeZoneInvalid) {
+    const std::string posixTimeZone = "233333333333";
+    nebula::time::TimeZone tz;
+    ASSERT_FALSE(tz.parsePosixTimeZone(posixTimeZone).ok());
 }
 
 

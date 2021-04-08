@@ -8,7 +8,7 @@
 
 #include "common/time/TimezoneInfo.h"
 
-DEFINE_string(timezone_file,
+DEFINE_string(time_zone_file,
               "share/resources/date_time_zonespec.csv",
               "The file path to the timezone file.");
 

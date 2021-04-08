@@ -9,11 +9,11 @@
 
 #include "common/time/TimeUtils.h"
 
-// If it's invalid timezone the service initialize will failed.
+// If it's invalid time zone the service initialize will failed.
 // Empty for system default configuration
-DEFINE_string(timezone_name,
+DEFINE_string(time_zone_name,
               "UTC+00:00:00",
-              "The timezone used in current system, "
+              "The time zone used in current system, "
               "only used in nebula datetime compute won't "
               "affect process time (such as log time etc.).");
 
@@ -24,31 +24,31 @@ namespace time {
 constexpr int64_t kMaxTimestamp = std::numeric_limits<int64_t>::max() / 1000000000;
 
 const DateTime TimeUtils::kEpoch(1970, 1, 1, 0, 0, 0, 0);
-/*static*/ Timezone TimeUtils::globalTimezone;
+/*static*/ TimeZone TimeUtils::globalTimeZone;
 
-/*static*/ Status TimeUtils::initializeGlobalTimezone() {
-    // use system timezone configuration if not set.
-    if (FLAGS_timezone_name.empty()) {
+/*static*/ Status TimeUtils::initializeGlobalTimeZone() {
+    // use system time zone configuration if not set.
+    if (FLAGS_time_zone_name.empty()) {
         auto *tz = ::getenv("TZ");
         if (tz != nullptr) {
-            FLAGS_timezone_name.append(tz);
+            FLAGS_time_zone_name.append(tz);
         }
     }
-    if (!FLAGS_timezone_name.empty()) {
-        if (FLAGS_timezone_name.front() == ':') {
-            NG_RETURN_IF_ERROR(Timezone::init());
-            return globalTimezone.loadFromDb(
-                std::string(FLAGS_timezone_name.begin() + 1, FLAGS_timezone_name.end()));
+    if (!FLAGS_time_zone_name.empty()) {
+        if (FLAGS_time_zone_name.front() == ':') {
+            NG_RETURN_IF_ERROR(TimeZone::init());
+            return globalTimeZone.loadFromDb(
+                std::string(FLAGS_time_zone_name.begin() + 1, FLAGS_time_zone_name.end()));
         } else {
-            return globalTimezone.parsePosixTimezone(FLAGS_timezone_name);
+            return globalTimeZone.parsePosixTimeZone(FLAGS_time_zone_name);
         }
     } else {
-        return Status::Error("Don't allowed empty timezone.");
+        return Status::Error("Don't allowed empty time zone.");
     }
 }
 
 /*static*/ StatusOr<DateTime> TimeUtils::dateTimeFromMap(const Map &m) {
-    // TODO(shylock) support timezone parameter
+    // TODO(shylock) support time zone parameter
     DateTime dt;
     for (const auto &kv : m.kvs) {
         if (!kv.second.isInt()) {

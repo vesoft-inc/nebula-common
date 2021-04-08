@@ -15,21 +15,21 @@
 #include "common/base/Base.h"
 #include "common/base/Status.h"
 
-DECLARE_string(timezone_file);
+DECLARE_string(time_zone_file);
 
 namespace nebula {
 namespace time {
 
-class Timezone {
+class TimeZone {
 public:
-    Timezone() = default;
+    TimeZone() = default;
 
     static MUST_USE_RESULT Status init() {
         try {
-            tzdb.load_from_file(FLAGS_timezone_file);
+            tzdb.load_from_file(FLAGS_time_zone_file);
         } catch (const std::exception &e) {
-            return Status::Error("Invalid timezone file `%s', exception: `%s'.",
-                                 FLAGS_timezone_file.c_str(),
+            return Status::Error("Invalid time zone file `%s', exception: `%s'.",
+                                 FLAGS_time_zone_file.c_str(),
                                  e.what());
         }
         return Status::OK();
@@ -38,18 +38,18 @@ public:
     MUST_USE_RESULT Status loadFromDb(const std::string &region) {
         zoneInfo_ = tzdb.time_zone_from_region(region);
         if (zoneInfo_ == nullptr) {
-            return Status::Error("Not supported timezone `%s'.", region.c_str());
+            return Status::Error("Not supported time zone `%s'.", region.c_str());
         }
         return Status::OK();
     }
 
-    // see the posix timezone literal format in https://man7.org/linux/man-pages/man3/tzset.3.html
-    MUST_USE_RESULT Status parsePosixTimezone(const std::string &posixTimezone) {
+    // see the posix time zone literal format in https://man7.org/linux/man-pages/man3/tzset.3.html
+    MUST_USE_RESULT Status parsePosixTimeZone(const std::string &posixTimeZone) {
         try {
-            zoneInfo_.reset(new ::boost::local_time::posix_time_zone(posixTimezone));
+            zoneInfo_.reset(new ::boost::local_time::posix_time_zone(posixTimeZone));
         } catch (const std::exception &e) {
-            return Status::Error("Malformed timezone format: `%s', exception: `%s'.",
-                                 posixTimezone.c_str(),
+            return Status::Error("Malformed time zone format: `%s', exception: `%s'.",
+                                 posixTimeZone.c_str(),
                                  e.what());
         }
         return Status::OK();

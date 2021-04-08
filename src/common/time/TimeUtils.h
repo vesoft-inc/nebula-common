@@ -18,24 +18,24 @@
 #include "common/datatypes/Date.h"
 #include "common/datatypes/Map.h"
 #include "common/fs/FileUtils.h"
-#include "common/time/TimezoneInfo.h"
+#include "common/time/TimeZoneInfo.h"
 
-DECLARE_string(timezone_name);
+DECLARE_string(time_zone_name);
 
 namespace nebula {
 namespace time {
 
 // In nebula only store UTC time, and the interpretion of time value based on the
-// timezone configuration in current system.
+// time zone configuration in current system.
 
 class TimeUtils {
 public:
     explicit TimeUtils(...) = delete;
 
-    // TODO(shylock) Get Timzone info(I.E. GMT offset) directly from IANA tzdb
-    // to support non-global timezone configuration
-    // See the timezone format from https://man7.org/linux/man-pages/man3/tzset.3.html
-    static Status initializeGlobalTimezone();
+    // TODO(shylock) Get time zone info(I.E. GMT offset) directly from IANA tzdb
+    // to support non-global time zone configuration
+    // See the time zone format from https://man7.org/linux/man-pages/man3/tzset.3.html
+    static Status initializeGlobalTimeZone();
 
     // check the validation of date
     // not check range limit in here
@@ -95,7 +95,7 @@ public:
 
     static DateTime unixSecondsToDateTime(int64_t seconds);
 
-    // Shift the DateTime in timezone space
+    // Shift the DateTime in time zone space
     static DateTime dateTimeShift(const DateTime &dateTime, int64_t offsetSeconds) {
         if (offsetSeconds == 0) {
             return dateTime;
@@ -104,11 +104,11 @@ public:
     }
 
     static DateTime dateTimeToUTC(const DateTime &dateTime) {
-        return dateTimeShift(dateTime, getGlobalTimezone().utcOffsetSecs());
+        return dateTimeShift(dateTime, getGlobalTimeZone().utcOffsetSecs());
     }
 
     static DateTime utcToDateTime(const DateTime &dateTime) {
-        return dateTimeShift(dateTime, -getGlobalTimezone().utcOffsetSecs());
+        return dateTimeShift(dateTime, -getGlobalTimeZone().utcOffsetSecs());
     }
 
     static StatusOr<DateTime> localDateTime() {
@@ -117,7 +117,7 @@ public:
         if (unixTime == -1) {
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
-        return unixSecondsToDateTime(unixTime - getGlobalTimezone().utcOffsetSecs());
+        return unixSecondsToDateTime(unixTime - getGlobalTimeZone().utcOffsetSecs());
     }
 
     static StatusOr<DateTime> utcDateTime() {
@@ -157,7 +157,7 @@ public:
         return Date(dateTime.year, dateTime.month, dateTime.day);
     }
 
-    // Shift the DateTime in timezone space
+    // Shift the DateTime in time zone space
     static Date dateShift(const Date &date, int64_t offsetSeconds) {
         if (offsetSeconds == 0) {
             return date;
@@ -166,11 +166,11 @@ public:
     }
 
     static Date dateToUTC(const Date &date) {
-        return dateShift(date, getGlobalTimezone().utcOffsetSecs());
+        return dateShift(date, getGlobalTimeZone().utcOffsetSecs());
     }
 
     static Date utcToDate(const Date &date) {
-        return dateShift(date, -getGlobalTimezone().utcOffsetSecs());
+        return dateShift(date, -getGlobalTimeZone().utcOffsetSecs());
     }
 
     static StatusOr<Date> localDate() {
@@ -179,7 +179,7 @@ public:
         if (unixTime == -1) {
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
-        return unixSecondsToDate(unixTime - getGlobalTimezone().utcOffsetSecs());
+        return unixSecondsToDate(unixTime - getGlobalTimeZone().utcOffsetSecs());
     }
 
     static StatusOr<Date> utcDate() {
@@ -226,7 +226,7 @@ public:
         return t;
     }
 
-    // Shift the Time in timezone space
+    // Shift the Time in time zone space
     static Time timeShift(const Time &time, int64_t offsetSeconds) {
         if (offsetSeconds == 0) {
             return time;
@@ -235,11 +235,11 @@ public:
     }
 
     static Time timeToUTC(const Time &time) {
-        return timeShift(time, getGlobalTimezone().utcOffsetSecs());
+        return timeShift(time, getGlobalTimeZone().utcOffsetSecs());
     }
 
     static Time utcToTime(const Time &time) {
-        return timeShift(time, getGlobalTimezone().utcOffsetSecs());
+        return timeShift(time, getGlobalTimeZone().utcOffsetSecs());
     }
 
     static StatusOr<Time> localTime() {
@@ -248,7 +248,7 @@ public:
         if (unixTime == -1) {
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
-        return unixSecondsToTime(unixTime - getGlobalTimezone().utcOffsetSecs());
+        return unixSecondsToTime(unixTime - getGlobalTimeZone().utcOffsetSecs());
     }
 
     static StatusOr<Time> utcTime() {
@@ -260,8 +260,8 @@ public:
         return unixSecondsToTime(unixTime);
     }
 
-    static Timezone &getGlobalTimezone() {
-        return globalTimezone;
+    static TimeZone &getGlobalTimeZone() {
+        return globalTimeZone;
     }
 
     static StatusOr<Value> toTimestamp(const Value &val);
@@ -276,7 +276,7 @@ private:
 
     static const DateTime kEpoch;
 
-    static Timezone globalTimezone;
+    static TimeZone globalTimeZone;
 
     // The result of a right-shift of a signed negative number is implementation-dependent
     // (UB. see https://en.cppreference.com/w/cpp/language/operator_arithmetic).
