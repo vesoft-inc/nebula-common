@@ -56,14 +56,13 @@ public:
         if (ss.fail()) {
             return Status::Error();
         }
-        DateTime dt;
-        dt.d.year = tm.tm_year + 1900;
-        dt.d.month = tm.tm_mon + 1;
-        dt.d.day = tm.tm_mday;
-        dt.t.hour = tm.tm_hour;
-        dt.t.minute = tm.tm_min;
-        dt.t.sec = tm.tm_sec;
-        dt.t.microsec = 0;
+        DateTime dt(tm.tm_year + 1900,
+                    tm.tm_mon + 1,
+                    tm.tm_mday,
+                    tm.tm_hour,
+                    tm.tm_min,
+                    tm.tm_sec,
+                    0);
         NG_RETURN_IF_ERROR(validateDate(dt.date()));
         return dt;
     }
@@ -136,10 +135,9 @@ public:
         if (ss.fail()) {
             return Status::Error();
         }
-        Date d;
-        d.year = tm.tm_year + 1900;
-        d.month = tm.tm_mon + 1;
-        d.day = tm.tm_mday;
+        Date d(tm.tm_year + 1900,
+               tm.tm_mon + 1,
+               tm.tm_mday);
         NG_RETURN_IF_ERROR(validateDate(d));
         return d;
     }
@@ -198,11 +196,10 @@ public:
         if (ss.fail()) {
             return Status::Error();
         }
-        Time t;
-        t.hour = tm.tm_hour;
-        t.minute = tm.tm_min;
-        t.sec = tm.tm_sec;
-        t.microsec = 0;
+        Time t(tm.tm_hour,
+               tm.tm_min,
+               tm.tm_sec,
+               0);
         return t;
     }
 
