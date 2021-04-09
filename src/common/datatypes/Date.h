@@ -7,6 +7,8 @@
 #ifndef COMMON_DATATYPES_DATE_H_
 #define COMMON_DATATYPES_DATE_H_
 
+#include <limits>
+
 namespace nebula {
 
 // In nebula only store UTC time, and the interpretion of time value based on the
@@ -33,6 +35,14 @@ struct Date {
 
     void __clear() {
         clear();
+    }
+
+    static Date max() {
+        return Date(std::numeric_limits<int16_t>::max(), 12, 31);
+    }
+
+    static Date min() {
+        return Date(std::numeric_limits<int16_t>::min(), 1, 1);
     }
 
     void reset(int16_t y, int8_t m, int8_t d) {
@@ -103,6 +113,20 @@ struct Time {
         clear();
     }
 
+    static Time max() {
+        return Time(23,
+                    59,
+                    59,
+                    999999);
+    }
+
+    static Time min() {
+        return Time(0,
+                    0,
+                    0,
+                    0);
+    }
+
     bool operator==(const Time& rhs) const {
         return hour == rhs.hour &&
                minute == rhs.minute &&
@@ -167,6 +191,14 @@ struct DateTime {
 
     void __clear() {
         clear();
+    }
+
+    static DateTime max() {
+        return DateTime(Date::max(), Time::max());
+    }
+
+    static DateTime min() {
+        return DateTime(Date::min(), Time::min());
     }
 
     bool operator==(const DateTime& rhs) const {
