@@ -149,6 +149,8 @@ struct DateTime {
         : d(y, m, day), t(h, min, s, us) {}
     explicit DateTime(const Date &date)
         : d(date) {}
+    explicit DateTime(const Date &date, const Time &time)
+        : d(date), t(time) {}
 
     const auto& date() const {
         return d;
