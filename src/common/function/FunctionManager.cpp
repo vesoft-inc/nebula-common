@@ -1285,10 +1285,11 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             if (args[0].isStr() && args[1].isInt() && args[2].isStr()) {
                 auto value = args[0].getStr();
+                if (args[1].getInt() < 0) {
+                    return "";
+                }
                 size_t size = args[1].getInt();
-                if (size < 0) {
-                    return std::string("");
-                } else if (size < value.size()) {
+                if (size < value.size()) {
                     return value.substr(0, static_cast<int32_t>(size));
                 } else {
                     auto extra = args[2].getStr();
@@ -1313,32 +1314,29 @@ FunctionManager::FunctionManager() {
         attr.isPure_ = true;
         attr.body_ = [](const auto &args) -> Value {
             auto argSize = args.size();
-            if (argSize < 2 || argSize >3) {
-                LOG(ERROR) <<  "Unexpected arguments count " << args.size();
-                return Value::kNullBadData;
+            if (args[0].isNull()) {
+                return Value::kNullValue;
+            }
+            if (!args[0].isStr() || !args[1].isInt() || (argSize == 3 && !args[2].isInt())) {
+                return Value::kNullBadType;
             }
             auto value = args[0].getStr();
             auto start = args[1].getInt();
-            auto length =  (args.size() == 2) ? value.size() - start : args[2].getInt();
-            if (args[0].isStr() && args[1].isInt()) {
-                if (argSize == 3) {
-                    if (!args[2].isInt()) {
-                        return Value::kNullBadType;
-                    }
-                }
-                if (static_cast<size_t>(std::abs(start)) > value.size() || length == 0) {
-                    return std::string("");
-                }
-                if (start < 0) {
-                    LOG(ERROR) << "Invalid Start index " << start;
-                    return Value::kNullBadData;
-                }
-                if (start == 0) {
-                    return value;
-                }
-                return value.substr(start, length);
+            auto length = 0;
+            if (argSize == 3) {
+                length = args[2].getInt();
+            } else {
+                length = static_cast<size_t>(start) >= value.size()
+                             ? 0
+                             : value.size() - static_cast<size_t>(start);
             }
-            return Value::kNullBadType;
+            if (start < 0 || length < 0) {
+                return Value::kNullBadData;
+            }
+            if (static_cast<size_t>(start) >= value.size() || length == 0) {
+                return std::string("");
+            }
+            return value.substr(start, length);
         };
         functions_["substring"] = attr;
     }
@@ -2056,22 +2054,20 @@ FunctionManager::FunctionManager() {
             if (!args[0].isDataSet() || !args[1].isInt() || !(args[2].isInt() || args[2].isStr())) {
                 return Value::kNullBadType;
             }
-            auto &ds = args[0].getDataSet();
+            const auto &ds = args[0].getDataSet();
             if (ds.rowSize() < 1 || ds.colSize() < 1) {
                 return Value::kNullBadData;
             }
-            auto &colNames = ds.colNames;
-            size_t rowIndex = args[1].getInt();
-            size_t colIndex = -1;
-            if (args[2].isInt()) {
-                colIndex = args[2].getInt();
-            } else {
-                colIndex =
+            const auto &colNames = ds.colNames;
+            int64_t rowIndex = args[1].getInt();
+            int64_t colIndex = args[2].isInt() ? args[2].getInt() :
                     std::distance(colNames.begin(),
                                   std::find(colNames.begin(), colNames.end(), args[2].getStr()));
+            if (rowIndex < 0 || colIndex < 0) {
+                return Value::kNullBadData;
             }
-            if ((rowIndex >= ds.rowSize() || rowIndex < 0) ||
-                (colIndex >= ds.colSize() || colIndex < 0)) {
+            if (static_cast<size_t>(rowIndex) >= ds.rowSize() ||
+                static_cast<size_t>(colIndex) >= ds.colSize()) {
                 return Value::kNullBadData;
             }
             return ds.rows[rowIndex][colIndex];
