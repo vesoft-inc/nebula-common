@@ -14,6 +14,15 @@ std::string gitInfoSha() {
     return "@NEBULA_SERVER_GIT_INFO_SHA@";
 }
 
+std::string simpleVersionString() {
+    std::string version;
+#if defined(NEBULA_BUILD_VERSION)
+    version = folly::stringPrintf("%s, ", "@NEBULA_BUILD_VERSION@");
+#endif
+    version += folly::stringPrintf("Build Time: %s %s", __DATE__, __TIME__);
+    return version;
+}
+
 std::string versionString() {
     std::string version;
 #if defined(NEBULA_BUILD_VERSION)
