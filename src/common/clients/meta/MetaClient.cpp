@@ -1659,8 +1659,8 @@ MetaClient::createTagIndex(GraphSpaceID spaceID,
                            std::string indexName,
                            std::string tagName,
                            std::vector<cpp2::IndexFieldDef> fields,
-                           const std::string *comment,
-                           bool ifNotExists) {
+                           bool ifNotExists,
+                           const std::string *comment) {
     cpp2::CreateTagIndexReq req;
     req.set_space_id(spaceID);
     req.set_index_name(std::move(indexName));
@@ -1790,8 +1790,8 @@ MetaClient::createEdgeIndex(GraphSpaceID spaceID,
                             std::string indexName,
                             std::string edgeName,
                             std::vector<cpp2::IndexFieldDef> fields,
-                            const std::string *comment,
-                            bool ifNotExists) {
+                            bool ifNotExists,
+                            const std::string *comment) {
     cpp2::CreateEdgeIndexReq req;
     req.set_space_id(spaceID);
     req.set_index_name(std::move(indexName));
