@@ -116,7 +116,7 @@ namespace std {
 
 // Inject a customized hash function
 std::size_t hash<nebula::Date>::operator()(const nebula::Date& h) const noexcept {
-    size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year), sizeof(h.year));
+    std::size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.year), sizeof(h.year));
     hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.month), sizeof(h.month), hv);
     return folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.day), sizeof(h.day), hv);
 }
@@ -130,7 +130,8 @@ std::size_t hash<nebula::Time>::operator()(const nebula::Time& h) const noexcept
 }
 
 std::size_t hash<nebula::DateTime>::operator()(const nebula::DateTime& h) const noexcept {
-    size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.d.year), sizeof(h.d.year));
+    std::size_t hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.d.year),
+                                            sizeof(h.d.year));
     hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.d.month), sizeof(h.d.month), hv);
     hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.d.day), sizeof(h.d.day), hv);
     hv = folly::hash::fnv64_buf(reinterpret_cast<const void*>(&h.t.hour), sizeof(h.t.hour), hv);
