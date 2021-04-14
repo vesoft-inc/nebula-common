@@ -63,6 +63,9 @@ public:
     // get all version of all tags
     StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID space) override;
 
+    // get all version of all tags
+    StatusOr<EdgeSchema> getAllLatestVerEdgeSchema(GraphSpaceID space) override;
+
     StatusOr<std::vector<nebula::meta::cpp2::FTClient>> getFTClients() override;
 
     void init(MetaClient *client);
