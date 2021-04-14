@@ -167,11 +167,13 @@ struct ColumnDef {
     2: required ColumnTypeDef   type,
     3: optional binary          default_value,
     4: optional bool            nullable = false,
+    5: optional binary          comment,
 }
 
 struct SchemaProp {
     1: optional i64      ttl_duration,
     2: optional binary   ttl_col,
+    3: optional binary   comment,
 }
 
 struct Schema {
@@ -197,7 +199,8 @@ struct SpaceDesc {
     5: binary                   collate_name,
     6: ColumnTypeDef            vid_type = {"type": PropertyType.FIXED_STRING, "type_length": 8},
     7: optional binary          group_name,
-    8: optional IsolationLevel  isolation_level
+    8: optional IsolationLevel  isolation_level,
+    9: optional binary          comment,
 }
 
 struct SpaceItem {
@@ -235,6 +238,7 @@ struct IndexItem {
     3: SchemaID            schema_id
     4: binary              schema_name,
     5: list<ColumnDef>     fields,
+    6: optional binary     comment,
 }
 
 enum HostStatus {
@@ -625,11 +629,16 @@ enum HostRole {
     UNKNOWN     = 0x04
 } (cpp.enum_strict)
 
+struct LeaderInfo {
+    1: common.PartitionID part_id,
+    2: i64 term
+}
+
 struct HBReq {
     1: HostRole   role,
     2: common.HostAddr host,
     3: ClusterID cluster_id,
-    4: optional map<common.GraphSpaceID, list<common.PartitionID>>
+    4: optional map<common.GraphSpaceID, list<LeaderInfo>>
         (cpp.template = "std::unordered_map") leader_partIds;
     5: binary     git_info_sha
 }
@@ -646,6 +655,7 @@ struct CreateTagIndexReq {
     3: binary               tag_name,
     4: list<IndexFieldDef>  fields,
     5: bool                 if_not_exists,
+    6: optional binary      comment,
 }
 
 struct DropTagIndexReq {
@@ -681,6 +691,7 @@ struct CreateEdgeIndexReq {
     3: binary              	edge_name,
     4: list<IndexFieldDef>	fields,
     5: bool                	if_not_exists,
+    6: optional binary      comment,
 }
 
 struct DropEdgeIndexReq {
