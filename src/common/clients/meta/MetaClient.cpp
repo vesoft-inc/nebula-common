@@ -2024,7 +2024,7 @@ StatusOr<EdgeSchemas> MetaClient::getAllVerEdgeSchema(GraphSpaceID spaceId) {
     return iter->second->edgeSchemas_;
 }
 
-StatusOr<EdgeSchema> MetaClient::getAllLatestVerEdgeSchema(const GraphSpaceID& spaceId) {
+StatusOr<EdgeSchema> MetaClient::getAllLatestVerEdgeSchemaFromCache(const GraphSpaceID& spaceId) {
     if (!ready_) {
         return Status::Error("Not ready!");
     }

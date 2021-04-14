@@ -494,7 +494,7 @@ public:
 
     StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID spaceId);
 
-    StatusOr<EdgeSchema> getAllLatestVerEdgeSchema(const GraphSpaceID& spaceId);
+    StatusOr<EdgeSchema> getAllLatestVerEdgeSchemaFromCache(const GraphSpaceID& spaceId);
 
     StatusOr<std::shared_ptr<cpp2::IndexItem>>
     getTagIndexByNameFromCache(const GraphSpaceID space, const std::string& name);
