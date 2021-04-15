@@ -8,7 +8,7 @@
 #define UTIL_OBJECTPOOL_H_
 
 #include <functional>
-#include <list>
+#include <unordered_map>
 
 #include <folly/SpinLock.h>
 
@@ -18,51 +18,52 @@ namespace nebula {
 
 class ObjectPool final : private cpp::NonCopyable, private cpp::NonMovable {
 public:
-    ObjectPool() {}
+    using DeleteFn = std::function<void(void *)>;
 
-    ~ObjectPool() = default;
+    ObjectPool() = default;
+    ~ObjectPool() {
+        clear();
+    }
 
     void clear() {
         folly::SpinLockGuard g(lock_);
+        for (auto &obj : objects_) {
+            obj.second(obj.first);
+        }
         objects_.clear();
     }
 
     template <typename T>
     T *add(T *obj) {
-        folly::SpinLockGuard g(lock_);
-        objects_.emplace_back(obj);
-        return obj;
+        auto ptr = add(obj, [](void *p) { delete reinterpret_cast<T *>(p); });
+        return reinterpret_cast<T *>(ptr);
     }
 
     template <typename T, typename... Args>
-    T *makeAndAdd(Args&&... args) {
+    T *makeAndAdd(Args &&... args) {
         return add(new T(std::forward<Args>(args)...));
     }
 
-    bool empty() const {
-        return objects_.empty();
+    DeleteFn release(void *obj) {
+        folly::SpinLockGuard g(lock_);
+        auto iter = objects_.find(obj);
+        if (iter == objects_.end()) {
+            return [](void *) {};
+        }
+        auto fn = iter->second;
+        objects_.erase(obj);
+        return fn;
+    }
+
+    void *add(void *obj, DeleteFn fn) {
+        folly::SpinLockGuard g(lock_);
+        objects_.emplace(obj, std::move(fn));
+        return obj;
     }
 
 private:
-    // Holder the ownership of the any object
-    class OwnershipHolder {
-    public:
-        template <typename T>
-        explicit OwnershipHolder(T *obj)
-            : obj_(obj), deleteFn_([](void *p) { delete reinterpret_cast<T *>(p); }) {}
-
-        ~OwnershipHolder() {
-            deleteFn_(obj_);
-        }
-
-    private:
-        void *obj_;
-        std::function<void(void *)> deleteFn_;
-    };
-
-    std::list<OwnershipHolder> objects_;
-
     folly::SpinLock lock_;
+    std::unordered_map<void *, DeleteFn> objects_;
 };
 
 }   // namespace nebula

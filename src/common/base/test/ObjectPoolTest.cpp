@@ -6,11 +6,14 @@
 
 #include "common/base/ObjectPool.h"
 
+#include <atomic>
+#include <thread>
+
 #include <gtest/gtest.h>
 
 namespace nebula {
 
-static int instances = 0;
+static std::atomic<int> instances = 0;
 
 class MyClass {
 public:
@@ -29,6 +32,36 @@ TEST(ObjectPoolTest, TestPooling) {
     ASSERT_NE(pool.add(new MyClass), nullptr);
     ASSERT_NE(pool.add(new MyClass), nullptr);
     ASSERT_EQ(instances, 2);
+
+    pool.clear();
+    ASSERT_EQ(instances, 0);
+}
+
+TEST(ObjectPoolTest, TestTransfer) {
+    ObjectPool p1, p2;
+    auto ptr = new MyClass;
+    ASSERT_EQ(p1.add(ptr), ptr);
+    ASSERT_EQ(p2.add(ptr, p1.release(ptr)), ptr);
+
+    p1.clear();
+    p2.clear();
+    ASSERT_EQ(instances, 0);
+}
+
+TEST(ObjectPoolTest, TestThread) {
+    ObjectPool pool;
+    std::thread t1([&pool]() {
+        for (int i = 0; i < 10000; i++) {
+            pool.add(new MyClass);
+        }
+    });
+    std::thread t2([&pool]() {
+        for (int i = 10000; i < 20000; i++) {
+            pool.add(new MyClass);
+        }
+    });
+    t1.join();
+    t2.join();
 
     pool.clear();
     ASSERT_EQ(instances, 0);
