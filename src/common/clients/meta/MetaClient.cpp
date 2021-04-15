@@ -2030,6 +2030,23 @@ StatusOr<EdgeSchemas> MetaClient::getAllVerEdgeSchema(GraphSpaceID spaceId) {
     return iter->second->edgeSchemas_;
 }
 
+StatusOr<EdgeSchema> MetaClient::getAllLatestVerEdgeSchemaFromCache(const GraphSpaceID& spaceId) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto iter = localCache_.find(spaceId);
+    if (iter == localCache_.end()) {
+        return Status::Error("Space %d not found", spaceId);
+    }
+    EdgeSchema edgesSchema;
+    edgesSchema.reserve(iter->second->edgeSchemas_.size());
+    // fetch all edgeTypes
+    for (const auto& edgeSchema : iter->second->edgeSchemas_) {
+        edgesSchema.emplace(edgeSchema.first, edgeSchema.second.back());
+    }
+    return edgesSchema;
+}
 
 folly::Future<StatusOr<bool>>
 MetaClient::rebuildEdgeIndex(GraphSpaceID spaceID,
@@ -2325,7 +2342,7 @@ folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
                 FileBasedClusterIdMan::getClusterIdFromFile(FLAGS_cluster_id_path);
         }
         req.set_cluster_id(options_.clusterId_.load());
-        std::unordered_map<GraphSpaceID, std::vector<cpp2::LeaderInfo>> leaderIds;
+        std::unordered_map<GraphSpaceID, std::vector<PartitionID>> leaderIds;
         if (listener_ != nullptr) {
             listener_->fetchLeaderInfo(leaderIds);
             if (leaderIds_ != leaderIds) {
