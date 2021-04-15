@@ -831,8 +831,7 @@ struct PartitionInfoRequest {
 
 struct ListClusterInfoResp {
     1: required ResponseCommon  result,
-    2: binary                   root_dir,
-    3: list<binary>             data_dir,
+    2: common.DirInfo           dir,
 }
 
 struct ListClusterInfoReq {

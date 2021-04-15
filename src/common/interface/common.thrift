@@ -197,10 +197,14 @@ struct LogInfo {
     2: TermID term_id;
 }
 
+struct DirInfo {
+    1: binary                   root,
+    2: list<binary>             data,
+}
+
 struct NodeInfo {
     1: HostAddr      host,
-    2: binary        root_dir,
-    3: list<binary>  data_dir,
+    2: DirInfo       dir,
 }
 
 struct PartitionBackupInfo {

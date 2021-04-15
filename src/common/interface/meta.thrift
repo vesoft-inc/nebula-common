@@ -1171,9 +1171,8 @@ struct ListClusterInfoReq {
 }
 
 struct GetMetaDirInfoResp {
-    1: ErrorCode    code,
-    2: binary       root_dir,
-    3: list<binary> data_dir,
+    1: ErrorCode      code,
+    2: common.DirInfo dir,
 }
 
 struct GetMetaDirInfoReq {
