@@ -77,6 +77,7 @@ enum ErrorCode {
     E_BALANCER_FAILURE       = -58,
     E_JOB_NOT_FINISHED       = -59,
     E_TASK_REPORT_OUT_DATE   = -60,
+    E_INVALID_JOB            = -61,
 
     // Backup Failure
     E_BACKUP_FAILURE = -70,
@@ -629,11 +630,16 @@ enum HostRole {
     UNKNOWN     = 0x04
 } (cpp.enum_strict)
 
+struct LeaderInfo {
+    1: common.PartitionID part_id,
+    2: i64 term
+}
+
 struct HBReq {
     1: HostRole   role,
     2: common.HostAddr host,
     3: ClusterID cluster_id,
-    4: optional map<common.GraphSpaceID, list<common.PartitionID>>
+    4: optional map<common.GraphSpaceID, list<LeaderInfo>>
         (cpp.template = "std::unordered_map") leader_partIds;
     5: binary     git_info_sha
 }
