@@ -88,7 +88,6 @@ add_custom_command(
     --gen "csharp"
     --gen "java:hashcode"
     --gen "go:thrift_import=github.com/facebook/fbthrift/thrift/lib/go/thrift,package_prefix=github.com/vesoft-inc/nebula-go/,use_context"
-    --gen "mstch_rust"
     -o "." "${file_path}/${file_name}.thrift"
     && mv ./gen-rust/lib.rs ./gen-rust/${file_name}.rs
   DEPENDS "${file_path}/${file_name}.thrift"
