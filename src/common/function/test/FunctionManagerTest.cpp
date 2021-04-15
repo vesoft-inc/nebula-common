@@ -150,6 +150,11 @@ TEST_F(FunctionManagerTest, testNull) {
     TEST_FUNCTION(toUpper, args_["nullvalue"], Value::kNullValue);
     TEST_FUNCTION(split, std::vector<Value>({Value::kNullValue, ","}), Value::kNullValue);
     TEST_FUNCTION(split, std::vector<Value>({"123,22", Value::kNullValue}), Value::kNullValue);
+    TEST_FUNCTION(substr, std::vector<Value>({Value::kNullValue, 1, 2}), Value::kNullValue);
+    TEST_FUNCTION(substr, std::vector<Value>({"hello", Value::kNullValue, 2}), Value::kNullBadType);
+    TEST_FUNCTION(substr, std::vector<Value>({"hello", 2, Value::kNullValue}), Value::kNullBadType);
+    TEST_FUNCTION(substr, std::vector<Value>({"hello", -1, 10}), Value::kNullBadData);
+    TEST_FUNCTION(substr, std::vector<Value>({"hello", 1, -2}), Value::kNullBadData);
 }
 
 TEST_F(FunctionManagerTest, functionCall) {
@@ -873,14 +878,24 @@ TEST_F(FunctionManagerTest, returnType) {
         EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
+        auto result = FunctionManager::getReturnType("ceil", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("ceil", {Value::Type::FLOAT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
         auto result = FunctionManager::getReturnType("floor", {Value::Type::FLOAT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("floor", {Value::Type::INT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("floor", {Value::Type::STRING});
@@ -890,12 +905,12 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("round", {Value::Type::INT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("round", {Value::Type::FLOAT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("cbrt", {Value::Type::INT});
@@ -1838,6 +1853,37 @@ TEST_F(FunctionManagerTest, ReversePath) {
         expected.steps.emplace_back(Step(Vertex("1", {}), -1, "edge1", 0, {}));
         expected.steps.emplace_back(Step(Vertex("0", {}), -1, "edge1", 0, {}));
         TEST_FUNCTION(reversePath, args, expected);
+    }
+}
+
+TEST_F(FunctionManagerTest, DataSetRowCol) {
+    auto dataset = DataSet({"col0", "col1", "col2"});
+    dataset.emplace_back(Row({1, true, "233"}));
+    dataset.emplace_back(Row({4, false, "456"}));
+    Value datasetValue = Value(std::move(dataset));
+    // out of range
+    {
+        TEST_FUNCTION(dataSetRowCol,
+                      std::vector<Value>({datasetValue, Value(-1), Value(2)}),
+                      Value::kNullBadData);
+        TEST_FUNCTION(dataSetRowCol,
+                      std::vector<Value>({datasetValue, Value(4), Value(2)}),
+                      Value::kNullBadData);
+        TEST_FUNCTION(dataSetRowCol,
+                      std::vector<Value>({datasetValue, Value(0), Value(-1)}),
+                      Value::kNullBadData);
+        TEST_FUNCTION(dataSetRowCol,
+                      std::vector<Value>({datasetValue, Value(0), Value(3)}),
+                      Value::kNullBadData);
+    }
+    // ok
+    {
+        TEST_FUNCTION(dataSetRowCol,
+                      std::vector<Value>({datasetValue, Value(0), Value(0)}),
+                      Value(1));
+        TEST_FUNCTION(dataSetRowCol,
+                      std::vector<Value>({datasetValue, Value(1), Value(2)}),
+                      Value("456"));
     }
 }
 
