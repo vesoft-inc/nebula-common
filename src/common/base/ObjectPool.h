@@ -12,6 +12,7 @@
 
 #include <folly/SpinLock.h>
 
+#include "common/base/StatusOr.h"
 #include "common/cpp/helpers.h"
 
 namespace nebula {
@@ -44,11 +45,11 @@ public:
         return add(new T(std::forward<Args>(args)...));
     }
 
-    DeleteFn release(void *obj) {
+    StatusOr<DeleteFn> release(void *obj) {
         folly::SpinLockGuard g(lock_);
         auto iter = objects_.find(obj);
         if (iter == objects_.end()) {
-            return [](void *) {};
+            return Status::Error("Not found the pointer!");
         }
         auto fn = iter->second;
         objects_.erase(obj);

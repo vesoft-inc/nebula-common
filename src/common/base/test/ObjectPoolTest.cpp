@@ -41,7 +41,9 @@ TEST(ObjectPoolTest, TestTransfer) {
     ObjectPool p1, p2;
     auto ptr = new MyClass;
     ASSERT_EQ(p1.add(ptr), ptr);
-    ASSERT_EQ(p2.add(ptr, p1.release(ptr)), ptr);
+    auto status = p1.release(ptr);
+    ASSERT(status.ok());
+    ASSERT_EQ(p2.add(ptr, std::move(status).value()), ptr);
 
     p1.clear();
     p2.clear();
