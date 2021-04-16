@@ -743,6 +743,8 @@ Status MetaClient::handleResponse(const RESP& resp) {
             return Status::Error("The space is not found when backup!");
         case cpp2::ErrorCode::E_RESTORE_FAILURE:
             return Status::Error("Restore failure!");
+        case cpp2::ErrorCode::E_INVALID_JOB:
+            return Status::Error("No valid job!");
         case cpp2::ErrorCode::E_UNKNOWN:
             return Status::Error("Unknown error!");
     }
@@ -2336,7 +2338,7 @@ folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
                 FileBasedClusterIdMan::getClusterIdFromFile(FLAGS_cluster_id_path);
         }
         req.set_cluster_id(options_.clusterId_.load());
-        std::unordered_map<GraphSpaceID, std::vector<PartitionID>> leaderIds;
+        std::unordered_map<GraphSpaceID, std::vector<cpp2::LeaderInfo>> leaderIds;
         if (listener_ != nullptr) {
             listener_->fetchLeaderInfo(leaderIds);
             if (leaderIds_ != leaderIds) {
