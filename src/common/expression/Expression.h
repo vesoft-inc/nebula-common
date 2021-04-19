@@ -18,101 +18,20 @@ class ExprVisitor;
 class Expression {
 public:
     enum class Kind : uint8_t {
-<<<<<<< HEAD
-<<<<<<< HEAD
-        kConstant,
-        // Arithmetic
-        kAdd,
-        kMinus,
-        kMultiply,
-        kDivision,
-        kMod,
-        // Unary
-        kUnaryPlus,
-        kUnaryNegate,
-        kUnaryNot,
-        kUnaryIncr,
-        kUnaryDecr,
-        // Relational
-        kRelEQ,
-        kRelNE,
-        kRelLT,
-        kRelLE,
-        kRelGT,
-        kRelGE,
-        kRelREG,
-        kRelIn,
-        kRelNotIn,
-        kContains,
-        kNotContains,
-        kStartsWith,
-        kNotStartsWith,
-        kEndsWith,
-        kNotEndsWith,
-
-        kSubscript,
-        kAttribute,
-        kLabelAttribute,
-        kColumn,
-        // Logical
-        kLogicalAnd,
-        kLogicalOr,
-        kLogicalXor,
-
-        kTypeCasting,
-
-        kFunctionCall,
-        // Vertex/Edge/Path
-        kTagProperty,
-        kEdgeProperty,
-        kInputProperty,
-        kVarProperty,
-        kDstProperty,
-        kSrcProperty,
-        kEdgeSrc,
-        kEdgeType,
-        kEdgeRank,
-        kEdgeDst,
-        kVertex,
-        kEdge,
-
-        kUUID,
-
-        kVar,
-        kVersionedVar,
-        // Container
-        kList,
-        kSet,
-        kMap,
-
-        kLabel,
-
-        kCase,
-
-        kPredicate,
-        kListComprehension,
-        kReduce,
-
-        kPathBuild,
-=======
-=======
->>>>>>> rebase upstream
         kConstant = 0,
-
+        // Arithmetic
         kAdd = 1,
         kMinus = 2,
         kMultiply = 3,
         kDivision = 4,
         kMod = 5,
-
+        // Unary
         kUnaryPlus = 6,
         kUnaryNegate = 7,
         kUnaryNot = 8,
         kUnaryIncr = 9,
         kUnaryDecr = 10,
-        kIsNull = 64,
-        kIsNotNull = 65,
-
+        // Relational
         kRelEQ = 11,
         kRelNE = 12,
         kRelLT = 13,
@@ -128,11 +47,12 @@ public:
         kNotStartsWith = 23,
         kEndsWith = 24,
         kNotEndsWith = 25,
+
         kSubscript = 26,
         kAttribute = 27,
         kLabelAttribute = 28,
         kColumn = 29,
-
+        // Logical
         kLogicalAnd = 30,
         kLogicalOr = 31,
         kLogicalXor = 32,
@@ -140,7 +60,7 @@ public:
         kTypeCasting = 33,
 
         kFunctionCall = 34,
-
+        // Vertex/Edge/Path
         kTagProperty = 35,
         kEdgeProperty = 36,
         kInputProperty = 37,
@@ -158,7 +78,7 @@ public:
 
         kVar = 48,
         kVersionedVar = 49,
-
+        // Container
         kList = 50,
         kSet = 51,
         kMap = 52,
@@ -178,22 +98,11 @@ public:
         kTSRegexp = 61,
         kTSFuzzy = 62,
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-        kAggregate,
-        kIsNull,
-        kIsNotNull,
-<<<<<<< HEAD
-        kIsEmpty,
-        kIsNotEmpty,
-=======
-=======
         kAggregate = 63,
->>>>>>> add expression type enum value
->>>>>>> add expression type enum value
-=======
-        kAggregate = 63,
->>>>>>> rebase upstream
+        kIsNull = 64,
+        kIsNotNull = 65,
+        kIsEmpty = 66,
+        kIsNotEmpty = 67,
     };
 
 
