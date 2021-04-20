@@ -198,7 +198,9 @@ struct LogInfo {
 }
 
 struct DirInfo {
+    // Installation directory for nebula
     1: binary                   root,
+    // nebula's data directory
     2: list<binary>             data,
 }
 
