@@ -580,6 +580,17 @@ TEST_F(ExpressionTest, LogicalCalculation) {
         TEST_EXPR(2 / 0 AND 2 / 0, Value::kNullDivByZero);
         TEST_EXPR(empty AND null AND 2 / 0 AND empty, Value::kNullDivByZero);
 
+        TEST_EXPR(true AND 2, Value::kNullBadType);
+        TEST_EXPR(2 AND false, Value::kNullBadType);
+        TEST_EXPR(false AND 2, false);
+        TEST_EXPR(2 OR true, Value::kNullBadType);
+        TEST_EXPR(false OR 2, Value::kNullBadType);
+        TEST_EXPR(true OR 2, true);
+        TEST_EXPR(true XOR 2, Value::kNullBadType);
+        TEST_EXPR(false XOR 2, Value::kNullBadType);
+        TEST_EXPR(2 XOR true, Value::kNullBadType);
+        TEST_EXPR(2 XOR false, Value::kNullBadType);
+
         TEST_EXPR(2 / 0 OR true, Value::kNullDivByZero);
         TEST_EXPR(2 / 0 OR false, Value::kNullDivByZero);
         TEST_EXPR(true OR 2 / 0, true);

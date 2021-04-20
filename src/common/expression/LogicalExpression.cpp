@@ -28,6 +28,9 @@ const Value& LogicalExpression::evalAnd(ExpressionContext &ctx) {
     result_ = true;
     for (auto i = 0u; i < operands_.size(); i++) {
         auto& value = operands_[i]->eval(ctx);
+        if (!value.empty() && !value.isBool() && !value.isNull()) {
+            return Value::kNullBadType;
+        }
         if (value.isBadNull()
             || (value.isBool() && !value.getBool())) {
             result_ = value;
@@ -53,6 +56,9 @@ const Value& LogicalExpression::evalOr(ExpressionContext &ctx) {
     result_ = false;
     for (auto i = 0u; i < operands_.size(); i++) {
         auto& value = operands_[i]->eval(ctx);
+        if (!value.empty() && !value.isBool() && !value.isNull()) {
+            return Value::kNullBadType;
+        }
         if (value.isBadNull()
             || (value.isBool() && value.getBool())) {
             result_ = value;
@@ -79,6 +85,9 @@ const Value& LogicalExpression::evalXor(ExpressionContext &ctx) {
     auto firstBool = 1u;
     for (auto i = 0u; i < operands_.size(); i++) {
         auto &value = operands_[i]->eval(ctx);
+        if (!value.empty() && !value.isBool() && !value.isNull()) {
+            return Value::kNullBadType;
+        }
         if (value.isNull()) {
             result_ = value;
             return result_;
