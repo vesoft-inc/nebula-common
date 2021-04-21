@@ -125,6 +125,10 @@ public:
         cpp2::TraverseSpec traverseSpec,
         folly::EventBase* evb = nullptr);
 
+    folly::Future<StatusOr<cpp2::ScanEdgeResponse>> scanEdge(
+        cpp2::ScanEdgeRequest req,
+        folly::EventBase* evb = nullptr);
+
 private:
     StatusOr<std::function<const VertexID&(const Row&)>>
         getIdFromRow(GraphSpaceID space, bool isEdgeProps) const;
