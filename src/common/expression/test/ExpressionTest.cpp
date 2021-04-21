@@ -1139,6 +1139,24 @@ TEST_F(ExpressionTest, RelIn) {
         EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
     }
     {
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(Value::kNullValue),
+                new ConstantExpression(Value::kNullValue));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval.isBadNull(), false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelIn,
+                new ConstantExpression(2.3),
+                new ConstantExpression(Value::kNullValue));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval.isBadNull(), false);
+    }
+    {
         auto list1 = List({3, 2});
         auto list2 = list1;
         list1.emplace_back(Value::kNullValue);
@@ -1232,6 +1250,24 @@ TEST_F(ExpressionTest, RelNotIn) {
                 new ConstantExpression(list));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelNotIn,
+                new ConstantExpression(Value::kNullValue),
+                new ConstantExpression(Value::kNullValue));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval.isBadNull(), false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelNotIn,
+                new ConstantExpression(2.3),
+                new ConstantExpression(Value::kNullValue));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval.isBadNull(), false);
     }
     {
         auto list1 = List({3, 2});
@@ -2659,6 +2695,42 @@ TEST_F(ExpressionTest, RelationRegexMatch) {
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression(Value::kNullBadData),
+                new ConstantExpression(Value::kNullBadType));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval.isBadNull(), true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression(Value::kNullValue),
+                new ConstantExpression(3));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval.isBadNull(), true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression(3),
+                new ConstantExpression(true));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval.isBadNull(), true);
+    }
+    {
+        RelationalExpression expr(
+                Expression::Kind::kRelREG,
+                new ConstantExpression("abc"),
+                new ConstantExpression(Value::kNullValue));
+        auto eval = Expression::eval(&expr, gExpCtxt);
+        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
+        EXPECT_EQ(eval.isBadNull(), false);
     }
 }
 
@@ -4327,8 +4399,8 @@ TEST_F(ExpressionTest, AggregateExpression) {
         TEST_AGG(COUNT, true, isConst, vals5_, expected2);
         TEST_AGG(COUNT, false, abs, vals9_, expected5);
         TEST_AGG(COUNT, true, abs, vals9_, expected5);
-        TEST_AGG(SUM, false, isConst, vals5_, expected1);
-        TEST_AGG(SUM, true, isConst, vals5_, expected1);
+        TEST_AGG(SUM, false, isConst, vals5_, expected2);
+        TEST_AGG(SUM, true, isConst, vals5_, expected2);
         TEST_AGG(SUM, false, isConst, vals9_, expected5);
         TEST_AGG(SUM, true, isConst, vals9_, expected5);
         TEST_AGG(AVG, false, isConst, vals5_, expected1);
