@@ -20,15 +20,10 @@ const Value& PredicateExpression::evalExists(ExpressionContext& ctx) {
     DCHECK(collection_->kind() == Expression::Kind::kAttribute ||
            collection_->kind() == Expression::Kind::kSubscript);
 
-    BinaryExpression* containerExpr;
-    if (collection_->kind() == Expression::Kind::kAttribute) {
-        containerExpr = static_cast<AttributeExpression*>(collection_.get());
-    } else {
-        containerExpr = static_cast<SubscriptExpression*>(collection_.get());
-    }
+    auto* attributeExpr = static_cast<BinaryExpression*>(collection_.get());
+    auto& container = attributeExpr->left()->eval(ctx);
+    auto& key = attributeExpr->right()->eval(ctx);
 
-    auto& container = containerExpr->left()->eval(ctx);
-    auto& key = containerExpr->right()->eval(ctx);
     switch (container.type()) {
         case Value::Type::VERTEX: {
             result_ = container.getVertex().contains(key);
