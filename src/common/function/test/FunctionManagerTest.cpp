@@ -796,7 +796,8 @@ TEST_F(FunctionManagerTest, functionCall) {
     {
         auto result = FunctionManager::get("timestamp", {});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        auto res = std::move(result).value()({});
+        EXPECT_EQ(res.type(), Value::Type::INT);
     }
     {
         TEST_FUNCTION(e, args_["empty"], M_E);
