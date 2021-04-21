@@ -794,6 +794,11 @@ TEST_F(FunctionManagerTest, functionCall) {
         EXPECT_EQ(res, 1602324000);
     }
     {
+        auto result = FunctionManager::get("timestamp", {});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
         TEST_FUNCTION(e, args_["empty"], M_E);
         TEST_FUNCTION(pi, args_["empty"], M_PI);
         TEST_FUNCTION(radians, args_["radians"], M_PI);
