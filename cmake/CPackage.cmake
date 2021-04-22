@@ -16,6 +16,15 @@ macro(package to_one name home_page scripts_dir)
     set(CPACK_PACKAGE_RELOCATABLE ON)
     set(CPACK_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
     set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+    execute_process(
+        COMMAND echo ${CMAKE_HOST_SYSTEM_VERSION}
+	COMMAND rev
+        COMMAND cut -d "." -f 2
+	COMMAND rev
+        OUTPUT_VARIABLE HOST_SYSTEM_VER
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}.${HOST_SYSTEM_VER}.${CMAKE_HOST_SYSTEM_PROCESSOR})
     if (${to_one})
         set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
     else ()
@@ -23,14 +32,14 @@ macro(package to_one name home_page scripts_dir)
     endif()
 
     set(CPACK_DEB_COMPONENT_INSTALL YES)
-    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${CMAKE_HOST_SYSTEM_PROCESSOR})
     set(CPACK_DEBIAN_PACKAGE_HOMEPAGE ${home_page})
     set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA ${scripts_dir}/postinst)
 
     set(CPACK_RPM_SPEC_MORE_DEFINE "%define debug_package %{nil}
             %define __os_install_post %{nil}")
     set(CPACK_RPM_COMPONENT_INSTALL YES)
-    set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
+    set(CPACK_RPM_PACKAGE_ARCHITECTURE ${CMAKE_HOST_SYSTEM_PROCESSOR})
     set(CPACK_RPM_PACKAGE_URL ${home_page})
     set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE ${scripts_dir}/rpm_postinst)
     set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION /usr/local)
