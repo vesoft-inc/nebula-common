@@ -91,10 +91,10 @@ add_custom_command(
   COMMAND
     mkdir -p "./gen-rust/${file_name}"
     && ${THRIFT1}
-    --strict "--allow-neg-enum-vals"
-    --gen "mstch_rust"
-    -o "gen-rust/${file_name}"
-    "${file_path}/${file_name}.thrift"
+      --strict "--allow-neg-enum-vals"
+      --gen "mstch_rust"
+      -o "gen-rust/${file_name}"
+      "${file_path}/${file_name}.thrift"
     && ( mv ./gen-rust/${file_name}/gen-rust/lib.rs ./gen-rust/${file_name} )
     && ( rm -r ./gen-rust/${file_name}/gen-rust/ )
   DEPENDS "${file_path}/${file_name}.thrift"
