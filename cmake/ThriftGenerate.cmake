@@ -82,7 +82,6 @@ add_custom_command(
   COMMAND ${THRIFT1}
     --strict "--allow-neg-enum-vals"
     --gen "mstch_cpp2:include_prefix=${include_prefix},process_in_event_base,stack_arguments"
-    --gen "mstch_rust"
     --gen "py"
     --gen "js:node:"
     --gen "csharp"
