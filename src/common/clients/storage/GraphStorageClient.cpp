@@ -521,6 +521,25 @@ GraphStorageClient::scanEdge(cpp2::ScanEdgeRequest req,
         });
 }
 
+folly::Future<StatusOr<cpp2::ScanVertexResponse>>
+GraphStorageClient::scanVertex(cpp2::ScanVertexRequest req,
+                               folly::EventBase* evb) {
+    std::pair<HostAddr, cpp2::ScanVertexRequest> request;
+    auto host = this->getLeader(req.get_space_id(), req.get_part_id());
+    if (!host.ok()) {
+        return folly::makeFuture<StatusOr<cpp2::ScanVertexResponse>>(host.status());
+    }
+    request.first = std::move(host).value();
+    request.second = std::move(req);
+
+    return getResponse(
+        evb,
+        std::move(request),
+        [](cpp2::GraphStorageServiceAsyncClient* client, const cpp2::ScanVertexRequest& r) {
+            return client->future_scanVertex(r);
+        });
+}
+
 StatusOr<std::function<const VertexID&(const Row&)>> GraphStorageClient::getIdFromRow(
     GraphSpaceID space, bool isEdgeProps) const {
     auto vidTypeStatus = metaClient_->getSpaceVidType(space);
