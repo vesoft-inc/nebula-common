@@ -27,6 +27,13 @@ FunctionManager &FunctionManager::instance() {
     return instance;
 }
 
+std::unordered_map<std::string, Value::Type> FunctionManager::variadicFunReturnType_ = {
+    {"concat", Value::Type::STRING},
+    {"concat_ws", Value::Type::STRING},
+    {"udf_is_in", Value::Type::BOOL},
+    {"cos_similarity", Value::Type::FLOAT},
+};
+
 std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typeSignature_ = {
     {"abs",
      {TypeSignature({Value::Type::INT}, Value::Type::INT),
@@ -242,6 +249,10 @@ FunctionManager::getReturnType(const std::string& funcName,
                                const std::vector<Value::Type> &argsType) {
     auto func = funcName;
     std::transform(func.begin(), func.end(), func.begin(), ::tolower);
+    if (variadicFunReturnType_.find(func) != variadicFunReturnType_.end()) {
+        return variadicFunReturnType_[func];
+    }
+
     auto iter = typeSignature_.find(func);
     if (iter == typeSignature_.end()) {
         return Status::Error("Function `%s' not defined", funcName.c_str());

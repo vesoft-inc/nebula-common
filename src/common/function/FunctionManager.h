@@ -87,6 +87,9 @@ private:
 
     static std::unordered_map<std::string, std::vector<TypeSignature>> typeSignature_;
 
+    // The return type of a variadic function
+    static std::unordered_map<std::string, Value::Type> variadicFunReturnType_;
+
     std::unordered_map<std::string, FunctionAttributes> functions_;
 };
 
