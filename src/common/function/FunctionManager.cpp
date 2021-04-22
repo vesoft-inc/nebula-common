@@ -2119,12 +2119,81 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             std::stringstream os;
             for (size_t i = 0; i < args.size(); ++i) {
-                if (args[i].isNull()) {
-                    return Value::kNullValue;
+                switch (args[i].type()) {
+                    case Value::Type::NULLVALUE: {
+                        return Value::kNullValue;
+                    }
+                    case Value::Type::BOOL: {
+                        os << (args[i].getBool() ? "true" : "false");
+                        break;
+                    }
+                    case Value::Type::INT: {
+                        os << args[i].getInt();
+                        break;
+                    }
+                    case Value::Type::FLOAT: {
+                        os << args[i].getFloat();
+                        break;
+                    }
+                    case Value::Type::STRING: {
+                        os << args[i].getStr();
+                        break;
+                    }
+                    case Value::Type::DATETIME: {
+                        os << args[i].getDateTime();
+                        break;
+                    }
+                    case Value::Type::DATE: {
+                        os << args[i].getDate();
+                        break;
+                    }
+                    case Value::Type::TIME: {
+                        os << args[i].getTime();
+                        break;
+                    }
+                    default: {
+                        return Value::kNullBadData;
+                    }
                 }
-                os << args[i];
             }
             return os.str();
+        };
+    }
+    {
+        auto &attr = functions_["concat_ws"];
+        attr.minArity_ = 2;
+        attr.maxArity_ = INT64_MAX;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            if (args[0].isNull() || !args[0].isStr()) {
+                return Value::kNullValue;
+            }
+            std::vector<std::string> result;
+            result.reserve(args.size() - 1);
+            for (size_t i = 1; i < args.size(); ++i) {
+                switch (args[i].type()) {
+                    case Value::Type::NULLVALUE: {
+                        continue;
+                    }
+                    case Value::Type::BOOL:
+                    case Value::Type::INT:
+                    case Value::Type::FLOAT:
+                    case Value::Type::DATE:
+                    case Value::Type::DATETIME:
+                    case Value::Type::TIME: {
+                        result.emplace_back(args[i].toString());
+                        break;
+                    }
+                    case Value::Type::STRING: {
+                        result.emplace_back(args[i].getStr());
+                        break;
+                    }
+                    default: {
+                        return Value::kNullBadData;
+                    }
+                }
+            }
+            return folly::join(args[0].getStr(), result);
         };
     }
 }   // NOLINT
