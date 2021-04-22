@@ -2100,6 +2100,22 @@ FunctionManager::FunctionManager() {
             return ds.rows[rowIndex][colIndex];
         };
     }
+    {
+        auto &attr = functions_["concat"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = INT64_MAX;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            std::stringstream os;
+            for (size_t i = 0; i < args.size(); ++i) {
+                if (args[i].isNull()) {
+                    return Value::kNullValue;
+                }
+                os << args[i];
+            }
+            return os.str();
+        };
+    }
 }   // NOLINT
 
 // static
