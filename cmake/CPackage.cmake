@@ -16,14 +16,47 @@ macro(package to_one name home_page scripts_dir)
     set(CPACK_PACKAGE_RELOCATABLE ON)
     set(CPACK_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
     set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-    execute_process(
-        COMMAND echo ${CMAKE_HOST_SYSTEM_VERSION}
-	COMMAND rev
-        COMMAND cut -d "." -f 2
-	COMMAND rev
-        OUTPUT_VARIABLE HOST_SYSTEM_VER
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+    if (EXISTS "/etc/redhat-release")
+        set(CPACK_GENERATOR "RPM")
+        file (STRINGS "/etc/redhat-release" SYSTEM_NAME)
+        if (${SYSTEM_NAME} MATCHES "CentOS")
+            execute_process(
+                COMMAND echo ${SYSTEM_NAME}
+                COMMAND tr -dc "0-9."
+                COMMAND cut -d "." -f1
+                OUTPUT_VARIABLE HOST_SYSTEM_VER
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+            string(CONCAT HOST_SYSTEM_VER "el" ${HOST_SYSTEM_VER})
+        elseif (${SYSTEM_NAME} MATCHES "Fedora")
+            execute_process(
+                COMMAND echo ${SYSTEM_NAME}
+                COMMAND cut -d " " -f3
+                OUTPUT_VARIABLE HOST_SYSTEM_VER
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+            string(CONCAT HOST_SYSTEM_VER "fc" ${HOST_SYSTEM_VER})
+        else()
+            set(HOST_SYSTEM_VER "Unknown")
+        endif()
+    elseif (EXISTS "/etc/lsb-release")
+        set(CPACK_GENERATOR "DEB")
+        file (STRINGS "/etc/lsb-release" SYSTEM_NAME)
+        execute_process(
+            COMMAND echo "${SYSTEM_NAME}"
+            COMMAND cut -d ";" -f 2
+            COMMAND cut -d "=" -f 2
+            OUTPUT_VARIABLE HOST_SYSTEM_VER
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        string(REPLACE "." "" HOST_SYSTEM_VER ${HOST_SYSTEM_VER})
+        string(CONCAT HOST_SYSTEM_VER "ubuntu" ${HOST_SYSTEM_VER})
+    else()
+        set(HOST_SYSTEM_VER "Unknown")
+    endif()
+    message(STATUS "HOST_SYSTEM_VER is ${HOST_SYSTEM_VER}")
+    message(STATUS "CPACK_GENERATOR is ${CPACK_GENERATOR}")
+
     set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}.${HOST_SYSTEM_VER}.${CMAKE_HOST_SYSTEM_PROCESSOR})
     if (${to_one})
         set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
