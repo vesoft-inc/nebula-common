@@ -77,6 +77,7 @@ enum ErrorCode {
     E_BALANCER_FAILURE       = -58,
     E_JOB_NOT_FINISHED       = -59,
     E_TASK_REPORT_OUT_DATE   = -60,
+    E_INVALID_JOB            = -61,
 
     // Backup Failure
     E_BACKUP_FAILURE = -70,
@@ -162,11 +163,13 @@ struct ColumnDef {
     2: required ColumnTypeDef   type,
     3: optional binary          default_value,
     4: optional bool            nullable = false,
+    5: optional binary          comment,
 }
 
 struct SchemaProp {
     1: optional i64      ttl_duration,
     2: optional binary   ttl_col,
+    3: optional binary   comment,
 }
 
 struct Schema {
@@ -192,7 +195,8 @@ struct SpaceDesc {
     5: binary                   collate_name,
     6: ColumnTypeDef            vid_type = {"type": PropertyType.FIXED_STRING, "type_length": 8},
     7: optional binary          group_name,
-    8: optional IsolationLevel  isolation_level
+    8: optional IsolationLevel  isolation_level,
+    9: optional binary          comment,
 }
 
 struct SpaceItem {
@@ -230,6 +234,7 @@ struct IndexItem {
     3: SchemaID            schema_id
     4: binary              schema_name,
     5: list<ColumnDef>     fields,
+    6: optional binary     comment,
 }
 
 enum HostStatus {
@@ -305,6 +310,8 @@ enum AdminCmd {
     REBUILD_EDGE_INDEX  = 3,
     STATS               = 4,
     DATA_BALANCE        = 5,
+    DOWELOAD            = 6,
+    INGEST              = 7,
     UNKNOWN             = 99,
 } (cpp.enum_strict)
 
@@ -373,9 +380,15 @@ struct StatisItem {
     3: i64                                    space_vertices,
     // The number of edges of current space
     4: i64                                    space_edges,
+    // Used to describe the proportion of positive edges
+    // between the current partition and other partitions.
     5: map<common.PartitionID, list<Correlativity>>
-        (cpp.template = "std::unordered_map") part_corelativity,
-    6: JobStatus                              status,
+        (cpp.template = "std::unordered_map") positive_part_correlativity,
+    // Used to describe the proportion of negative edges
+    // between the current partition and other partitions.
+    6: map<common.PartitionID, list<Correlativity>>
+        (cpp.template = "std::unordered_map") negative_part_correlativity,
+    7: JobStatus                              status,
 }
 
 // Graph space related operations.
@@ -612,11 +625,16 @@ enum HostRole {
     UNKNOWN     = 0x04
 } (cpp.enum_strict)
 
+struct LeaderInfo {
+    1: common.PartitionID part_id,
+    2: i64 term
+}
+
 struct HBReq {
     1: HostRole   role,
     2: common.HostAddr host,
     3: ClusterID cluster_id,
-    4: optional map<common.GraphSpaceID, list<common.PartitionID>>
+    4: optional map<common.GraphSpaceID, list<LeaderInfo>>
         (cpp.template = "std::unordered_map") leader_partIds;
     5: binary     git_info_sha
 }
@@ -633,6 +651,7 @@ struct CreateTagIndexReq {
     3: binary               tag_name,
     4: list<IndexFieldDef>  fields,
     5: bool                 if_not_exists,
+    6: optional binary      comment,
 }
 
 struct DropTagIndexReq {
@@ -668,6 +687,7 @@ struct CreateEdgeIndexReq {
     3: binary              	edge_name,
     4: list<IndexFieldDef>	fields,
     5: bool                	if_not_exists,
+    6: optional binary      comment,
 }
 
 struct DropEdgeIndexReq {

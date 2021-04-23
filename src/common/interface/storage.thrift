@@ -45,7 +45,7 @@ enum ErrorCode {
     E_FIELD_UNSET          = -22,   // The field neither can be NULL, nor has a default value
     E_OUT_OF_RANGE         = -23,   // Value exceeds the range of type
     E_ATOMIC_OP_FAILED     = -24,   // Atomic operation failed
-    E_DATA_CONFLICT_ERROR  = -25,   // data conflict, for index write withnot toss.
+    E_DATA_CONFLICT_ERROR  = -25,   // data conflict, for index write without toss.
 
     // meta failures
     E_EDGE_PROP_NOT_FOUND    = -31,
@@ -406,8 +406,8 @@ struct AddVerticesRequest {
     //   in the NewVertex.NewTag.props
     3: map<common.TagID, list<binary>>
         (cpp.template = "std::unordered_map")   prop_names,
-    // If true, it equals an (up)sert operation.
-    4: bool                                     overwritable = true,
+    // if ture, when (vertexID,tagID) already exists, do nothing
+    4: bool                                     if_not_exists,
 }
 
 struct AddEdgesRequest {
@@ -418,8 +418,8 @@ struct AddEdgesRequest {
     // A list of property names. The order of the property names should match
     //   the data order specified in the NewEdge.props
     3: list<binary>                             prop_names,
-    // If true, it equals an upsert operation.
-    4: bool                                     overwritable = true,
+    // if ture, when edge already exists, do nothing
+    4: bool                                     if_not_exists,
 }
 
 /*

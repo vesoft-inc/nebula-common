@@ -125,7 +125,7 @@ protected:
     virtual ~StorageClientBase();
 
     virtual void loadLeader() const;
-    const HostAddr getLeader(const meta::PartHosts& partHosts) const;
+    StatusOr<HostAddr> getLeader(GraphSpaceID spaceId, PartitionID partId) const;
     void updateLeader(GraphSpaceID spaceId, PartitionID partId, const HostAddr& leader);
     void invalidLeader(GraphSpaceID spaceId, PartitionID partId);
     void invalidLeader(GraphSpaceID spaceId, std::vector<PartitionID> &partsId);
@@ -249,6 +249,8 @@ private:
     mutable folly::RWSpinLock leadersLock_;
     mutable std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr> leaders_;
     mutable std::atomic_bool loadLeaderBefore_{false};
+    // record the index of hosts we pick last time
+    mutable std::unordered_map<std::pair<GraphSpaceID, PartitionID>, size_t> leaderIndex_;
     mutable std::atomic_bool isLoadingLeader_{false};
 };
 

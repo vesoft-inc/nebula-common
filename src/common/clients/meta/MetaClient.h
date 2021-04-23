@@ -42,6 +42,9 @@ using TagSchema = std::unordered_map<TagID, std::shared_ptr<const NebulaSchemaPr
 using EdgeSchemas = std::unordered_map<EdgeType,
                                        std::vector<std::shared_ptr<const NebulaSchemaProvider>>>;
 
+// Mapping of edgeType and  a *single* edge schema
+using EdgeSchema = std::unordered_map<EdgeType, std::shared_ptr<const NebulaSchemaProvider>>;
+
 // Space and index Name => IndexID
 // Get IndexID via space ID and index name
 using NameIndexMap = std::unordered_map<std::pair<GraphSpaceID, std::string>, IndexID>;
@@ -83,8 +86,12 @@ using SpaceEdgeTypeNameMap = std::unordered_map<std::pair<GraphSpaceID, EdgeType
 // get all edgeType edgeName via spaceId
 using SpaceAllEdgeMap = std::unordered_map<GraphSpaceID, std::vector<std::string>>;
 
-// get leader host via spaceId and partId
-using LeaderMap = std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr>;
+struct LeaderInfo {
+    // get leader host via spaceId and partId
+    std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr> leaderMap_;
+    // leader index of all peers
+    std::unordered_map<std::pair<GraphSpaceID, PartitionID>, size_t> leaderIndex_;
+};
 
 using IndexStatus = std::tuple<std::string, std::string, std::string>;
 
@@ -113,7 +120,7 @@ public:
     virtual void onPartRemoved(GraphSpaceID spaceId, PartitionID partId) = 0;
     virtual void onPartUpdated(const PartHosts& partHosts) = 0;
     virtual void fetchLeaderInfo(
-        std::unordered_map<GraphSpaceID, std::vector<PartitionID>>& leaderIds) = 0;
+        std::unordered_map<GraphSpaceID, std::vector<cpp2::LeaderInfo>>& leaders) = 0;
     virtual void onListenerAdded(GraphSpaceID spaceId,
                                  PartitionID partId,
                                  const ListenerHosts& listenerHosts) = 0;
@@ -262,7 +269,8 @@ public:
                    std::string indexName,
                    std::string tagName,
                    std::vector<cpp2::IndexFieldDef> fields,
-                   bool ifNotExists = false);
+                   bool ifNotExists = false,
+                   const std::string *comment = nullptr);
 
     // Remove the define of tag index
     folly::Future<StatusOr<bool>>
@@ -285,7 +293,8 @@ public:
                     std::string indexName,
                     std::string edgeName,
                     std::vector<cpp2::IndexFieldDef> fields,
-                    bool ifNotExists = false);
+                    bool ifNotExists = false,
+                    const std::string *comment = nullptr);
 
     // Remove the definition of edge index
     folly::Future<StatusOr<bool>>
@@ -471,7 +480,7 @@ public:
 
     StatusOr<int32_t> partsNum(GraphSpaceID spaceId) const;
 
-    StatusOr<PartitionID> partId(GraphSpaceID spaceId, VertexID id) const;
+    StatusOr<PartitionID> partId(int32_t numParts, VertexID id) const;
 
     StatusOr<std::shared_ptr<const NebulaSchemaProvider>>
     getTagSchemaFromCache(GraphSpaceID spaceId, TagID tagID, SchemaVer ver = -1);
@@ -484,6 +493,8 @@ public:
     StatusOr<TagSchema> getAllLatestVerTagSchema(const GraphSpaceID& spaceId);
 
     StatusOr<EdgeSchemas> getAllVerEdgeSchema(GraphSpaceID spaceId);
+
+    StatusOr<EdgeSchema> getAllLatestVerEdgeSchemaFromCache(const GraphSpaceID& spaceId);
 
     StatusOr<std::shared_ptr<cpp2::IndexItem>>
     getTagIndexByNameFromCache(const GraphSpaceID space, const std::string& name);
@@ -531,6 +542,8 @@ public:
 
     bool checkShadowAccountFromCache(const std::string& account) const;
 
+    StatusOr<std::vector<HostAddr>> getStorageHosts() const;
+
     folly::Future<StatusOr<bool>>
     addZone(std::string zoneName, std::vector<HostAddr> nodes);
 
@@ -569,7 +582,7 @@ public:
 
     Status refreshCache();
 
-    StatusOr<LeaderMap> loadLeader();
+    StatusOr<LeaderInfo> loadLeader();
 
     folly::Future<StatusOr<cpp2::StatisItem>>
     getStatis(GraphSpaceID spaceId);
@@ -674,7 +687,7 @@ private:
     std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool_;
     std::shared_ptr<thrift::ThriftClientManager<cpp2::MetaServiceAsyncClient>> clientsMan_;
 
-    std::unordered_map<GraphSpaceID, std::vector<PartitionID>> leaderIds_;
+    std::unordered_map<GraphSpaceID, std::vector<cpp2::LeaderInfo>> leaderIds_;
     folly::RWSpinLock     leaderIdsLock_;
     int64_t               localLastUpdateTime_{0};
     int64_t               metadLastUpdateTime_{0};
@@ -720,6 +733,7 @@ private:
     std::vector<cpp2::ConfigItem> gflagsDeclared_;
     bool                  skipConfig_ = false;
     MetaClientOptions     options_;
+    std::vector<HostAddr> storageHosts_;
 };
 
 }  // namespace meta

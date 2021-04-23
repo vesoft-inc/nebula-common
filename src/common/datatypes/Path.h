@@ -47,6 +47,10 @@ struct Step {
         props.clear();
     }
 
+    void __clear() {
+        clear();
+    }
+
     std::string toString() const {
         std::stringstream os;
         os << "-[" << name << "(" << type << ")]->"
@@ -116,10 +120,17 @@ struct Path {
     Path(const Path& p) = default;
     Path(Path&& p) noexcept
         : src(std::move(p.src)), steps(std::move(p.steps)) {}
+    Path(Vertex v, std::vector<Step> s)
+        : src(std::move(v))
+        , steps(std::move(s)) {}
 
     void clear() {
         src.clear();
         steps.clear();
+    }
+
+    void __clear() {
+        clear();
     }
 
     std::string toString() const {

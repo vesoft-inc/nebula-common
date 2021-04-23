@@ -24,7 +24,7 @@ public:
     void TearDown() override {}
 
 protected:
-    void testFunction(const char *expr, std::vector<Value> &args, Value expect) {
+    void testFunction(const char *expr, const std::vector<Value> &args, Value expect) {
         auto result = FunctionManager::get(expr, args.size());
         ASSERT_TRUE(result.ok());
         auto res = result.value()(args);
@@ -88,12 +88,104 @@ std::unordered_map<std::string, std::vector<Value>> FunctionManagerTest::args_ =
         testFunction(#expr, args, expected);                                                       \
     } while (0);
 
+TEST_F(FunctionManagerTest, testNull) {
+    // scalar functions
+    TEST_FUNCTION(coalesce, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(endNode, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(startNode, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(head, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(id, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(last, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(length, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(properties, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(size, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(toBoolean, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(toString, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(toFloat, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(toInteger, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(type, args_["nullvalue"], Value::kNullValue);
+
+    // list functions
+    TEST_FUNCTION(keys, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(labels, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(nodes, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(relationships, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(reverse, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(tail, args_["nullvalue"], Value::kNullValue);
+
+    // mathematical function
+    TEST_FUNCTION(abs, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(ceil, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(floor, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(round, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(sign, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(exp, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(log, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(log2, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(log10, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(sqrt, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(acos, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(asin, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(atan, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(cos, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(sin, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(tan, args_["nullvalue"], Value::kNullValue);
+
+    // string functions
+    TEST_FUNCTION(left, std::vector<Value>({Value::kNullValue, 3}), Value::kNullValue);
+    TEST_FUNCTION(
+        left, std::vector<Value>({Value::kNullValue, Value::kNullValue}), Value::kNullValue);
+    TEST_FUNCTION(left, std::vector<Value>({"abc", Value::kNullValue}), Value::kNullBadType);
+    TEST_FUNCTION(left, std::vector<Value>({"abc", -2}), Value::kNullBadType);
+    TEST_FUNCTION(right, std::vector<Value>({Value::kNullValue, 3}), Value::kNullValue);
+    TEST_FUNCTION(
+        right, std::vector<Value>({Value::kNullValue, Value::kNullValue}), Value::kNullValue);
+    TEST_FUNCTION(right, std::vector<Value>({"abc", Value::kNullValue}), Value::kNullBadType);
+    TEST_FUNCTION(right, std::vector<Value>({"abc", -2}), Value::kNullBadType);
+    TEST_FUNCTION(ltrim, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(rtrim, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(trim, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(reverse, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(toLower, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(toUpper, args_["nullvalue"], Value::kNullValue);
+    TEST_FUNCTION(split, std::vector<Value>({Value::kNullValue, ","}), Value::kNullValue);
+    TEST_FUNCTION(split, std::vector<Value>({"123,22", Value::kNullValue}), Value::kNullValue);
+    TEST_FUNCTION(substr, std::vector<Value>({Value::kNullValue, 1, 2}), Value::kNullValue);
+    TEST_FUNCTION(substr, std::vector<Value>({"hello", Value::kNullValue, 2}), Value::kNullBadType);
+    TEST_FUNCTION(substr, std::vector<Value>({"hello", 2, Value::kNullValue}), Value::kNullBadType);
+    TEST_FUNCTION(substr, std::vector<Value>({"hello", -1, 10}), Value::kNullBadData);
+    TEST_FUNCTION(substr, std::vector<Value>({"hello", 1, -2}), Value::kNullBadData);
+}
+
 TEST_F(FunctionManagerTest, functionCall) {
     {
         TEST_FUNCTION(abs, args_["neg_int"], 1);
         TEST_FUNCTION(abs, args_["neg_float"], 1.1);
         TEST_FUNCTION(abs, args_["int"], 4);
         TEST_FUNCTION(abs, args_["float"], 1.1);
+    }
+    {
+        TEST_FUNCTION(bit_and, args_["two"], 0);
+        TEST_FUNCTION(bit_or, args_["two"], 6);
+        TEST_FUNCTION(bit_xor, args_["two"], 6);
+
+        TEST_FUNCTION(bit_and, std::vector<Value>({"abc", -2}), Value::kNullBadType);
+        TEST_FUNCTION(bit_and, std::vector<Value>({2.1, -2}), Value::kNullBadType);
+        TEST_FUNCTION(bit_and, std::vector<Value>({true, -2}), Value::kNullBadType);
+        TEST_FUNCTION(bit_and, std::vector<Value>({Value::kNullValue, -2}), Value::kNullBadType);
+        TEST_FUNCTION(bit_and, std::vector<Value>({Value::kEmpty, -2}), Value::kEmpty);
+
+        TEST_FUNCTION(bit_or, std::vector<Value>({"abc", -2}), Value::kNullBadType);
+        TEST_FUNCTION(bit_or, std::vector<Value>({2.1, -2}), Value::kNullBadType);
+        TEST_FUNCTION(bit_or, std::vector<Value>({true, -2}), Value::kNullBadType);
+        TEST_FUNCTION(bit_or, std::vector<Value>({Value::kNullValue, -2}), Value::kNullBadType);
+        TEST_FUNCTION(bit_or, std::vector<Value>({Value::kEmpty, -2}), Value::kEmpty);
+
+        TEST_FUNCTION(bit_xor, std::vector<Value>({"abc", -2}), Value::kNullBadType);
+        TEST_FUNCTION(bit_xor, std::vector<Value>({2.1, -2}), Value::kNullBadType);
+        TEST_FUNCTION(bit_xor, std::vector<Value>({true, -2}), Value::kNullBadType);
+        TEST_FUNCTION(bit_xor, std::vector<Value>({Value::kNullValue, -2}), Value::kNullBadType);
+        TEST_FUNCTION(bit_xor, std::vector<Value>({Value::kEmpty, -2}), Value::kEmpty);
     }
     {
         TEST_FUNCTION(floor, args_["neg_int"], -1.0);
@@ -152,8 +244,8 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(substring, args_["substring_outRange"], "");
         TEST_FUNCTION(left, args_["side"], "abcde");
         TEST_FUNCTION(right, args_["side"], "mnopq");
-        TEST_FUNCTION(left, args_["neg_side"], "");
-        TEST_FUNCTION(right, args_["neg_side"], "");
+        TEST_FUNCTION(left, args_["neg_side"], Value::kNullBadType);
+        TEST_FUNCTION(right, args_["neg_side"], Value::kNullBadType);
 
         TEST_FUNCTION(lpad, args_["pad"], "1231abcdefghijkl");
         TEST_FUNCTION(rpad, args_["pad"], "abcdefghijkl1231");
@@ -170,7 +262,34 @@ TEST_F(FunctionManagerTest, functionCall) {
         TEST_FUNCTION(toString, args_["string"], "AbcDeFG");
         TEST_FUNCTION(toString, args_["date"], "1984-10-11");
         TEST_FUNCTION(toString, args_["datetime"], "1984-10-11T12:31:14.341");
-        TEST_FUNCTION(toString, args_["nullvalue"], "NULL");
+        TEST_FUNCTION(toString, args_["nullvalue"], Value::kNullValue);
+    }
+    {
+        TEST_FUNCTION(toBoolean, args_["int"], Value::kNullBadType);
+        TEST_FUNCTION(toBoolean, args_["float"], Value::kNullBadType);
+        TEST_FUNCTION(toBoolean, {true}, true);
+        TEST_FUNCTION(toBoolean, {false}, false);
+        TEST_FUNCTION(toBoolean, {"fAlse"}, false);
+        TEST_FUNCTION(toBoolean, {"false "}, Value::kNullValue);
+        TEST_FUNCTION(toBoolean, {Value::kNullValue}, Value::kNullValue);
+    }
+    {
+        TEST_FUNCTION(toFloat, args_["int"], 4.0);
+        TEST_FUNCTION(toFloat, args_["float"], 1.1);
+        TEST_FUNCTION(toFloat, {true}, Value::kNullBadType);
+        TEST_FUNCTION(toFloat, {false}, Value::kNullBadType);
+        TEST_FUNCTION(toFloat, {"3.14"}, 3.14);
+        TEST_FUNCTION(toFloat, {"false "}, Value::kNullValue);
+        TEST_FUNCTION(toFloat, {Value::kNullValue}, Value::kNullValue);
+    }
+    {
+        TEST_FUNCTION(toInteger, args_["int"], 4);
+        TEST_FUNCTION(toInteger, args_["float"], 1);
+        TEST_FUNCTION(toInteger, {true}, Value::kNullBadType);
+        TEST_FUNCTION(toInteger, {false}, Value::kNullBadType);
+        TEST_FUNCTION(toInteger, {"1"}, 1);
+        TEST_FUNCTION(toInteger, {"false "}, Value::kNullValue);
+        TEST_FUNCTION(toInteger, {Value::kNullValue}, Value::kNullValue);
     }
     {
         auto result = FunctionManager::get("rand32", args_["rand"].size());
@@ -675,6 +794,12 @@ TEST_F(FunctionManagerTest, functionCall) {
         EXPECT_EQ(res, 1602324000);
     }
     {
+        auto result = FunctionManager::get("timestamp", {});
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({});
+        EXPECT_EQ(res.type(), Value::Type::INT);
+    }
+    {
         TEST_FUNCTION(e, args_["empty"], M_E);
         TEST_FUNCTION(pi, args_["empty"], M_PI);
         TEST_FUNCTION(radians, args_["radians"], M_PI);
@@ -685,6 +810,24 @@ TEST_F(FunctionManagerTest, functionCall) {
 TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("abs", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("bit_and",
+                                                    {Value::Type::INT, Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("bit_or",
+                                                    {Value::Type::INT, Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("bit_xor",
+                                                    {Value::Type::INT, Value::Type::INT});
         ASSERT_TRUE(result.ok());
         EXPECT_EQ(result.value(), Value::Type::INT);
     }
@@ -741,14 +884,24 @@ TEST_F(FunctionManagerTest, returnType) {
         EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
+        auto result = FunctionManager::getReturnType("ceil", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("ceil", {Value::Type::FLOAT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
         auto result = FunctionManager::getReturnType("floor", {Value::Type::FLOAT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("floor", {Value::Type::INT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("floor", {Value::Type::STRING});
@@ -758,12 +911,12 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("round", {Value::Type::INT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("round", {Value::Type::FLOAT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("cbrt", {Value::Type::INT});
@@ -975,6 +1128,46 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result = FunctionManager::getReturnType("toString", {Value::Type::DATE});
         ASSERT_TRUE(result.ok());
         EXPECT_EQ(result.value(), Value::Type::STRING);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toBoolean", {Value::Type::BOOL});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::BOOL);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toBoolean", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::BOOL);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toFloat", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toFloat", {Value::Type::FLOAT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toFloat", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toInteger", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toInteger", {Value::Type::FLOAT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("toInteger", {Value::Type::STRING});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::INT);
     }
     {
         auto result = FunctionManager::getReturnType("strcasecmp",
@@ -1666,6 +1859,37 @@ TEST_F(FunctionManagerTest, ReversePath) {
         expected.steps.emplace_back(Step(Vertex("1", {}), -1, "edge1", 0, {}));
         expected.steps.emplace_back(Step(Vertex("0", {}), -1, "edge1", 0, {}));
         TEST_FUNCTION(reversePath, args, expected);
+    }
+}
+
+TEST_F(FunctionManagerTest, DataSetRowCol) {
+    auto dataset = DataSet({"col0", "col1", "col2"});
+    dataset.emplace_back(Row({1, true, "233"}));
+    dataset.emplace_back(Row({4, false, "456"}));
+    Value datasetValue = Value(std::move(dataset));
+    // out of range
+    {
+        TEST_FUNCTION(dataSetRowCol,
+                      std::vector<Value>({datasetValue, Value(-1), Value(2)}),
+                      Value::kNullBadData);
+        TEST_FUNCTION(dataSetRowCol,
+                      std::vector<Value>({datasetValue, Value(4), Value(2)}),
+                      Value::kNullBadData);
+        TEST_FUNCTION(dataSetRowCol,
+                      std::vector<Value>({datasetValue, Value(0), Value(-1)}),
+                      Value::kNullBadData);
+        TEST_FUNCTION(dataSetRowCol,
+                      std::vector<Value>({datasetValue, Value(0), Value(3)}),
+                      Value::kNullBadData);
+    }
+    // ok
+    {
+        TEST_FUNCTION(dataSetRowCol,
+                      std::vector<Value>({datasetValue, Value(0), Value(0)}),
+                      Value(1));
+        TEST_FUNCTION(dataSetRowCol,
+                      std::vector<Value>({datasetValue, Value(1), Value(2)}),
+                      Value("456"));
     }
 }
 

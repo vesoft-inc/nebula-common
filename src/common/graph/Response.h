@@ -31,6 +31,7 @@ enum class ErrorCode {
     E_BAD_PERMISSION = -11,
     E_SEMANTIC_ERROR = -12,
     E_TOO_MANY_CONNECTIONS = -13,
+    E_PARTIAL_SUCCEEDED = -14,
 };
 
 template <typename T>
@@ -47,10 +48,14 @@ bool inline checkPointer(const T *lhs, const T *rhs) {
 // TODO(shylock) use optional for optional in thrift instead of pointer
 
 struct AuthResponse {
-    void clear() {
+    void __clear() {
         errorCode = ErrorCode::SUCCEEDED;
         sessionId = nullptr;
         errorMsg = nullptr;
+    }
+
+    void clear() {
+        __clear();
     }
 
     bool operator==(const AuthResponse &rhs) const {
@@ -70,11 +75,15 @@ struct AuthResponse {
 
 
 struct ProfilingStats {
-    void clear() {
+    void __clear() {
         rows = 0;
         execDurationInUs = 0;
         totalDurationInUs = 0;
         otherStats = nullptr;
+    }
+
+    void clear() {
+        __clear();
     }
 
     bool operator==(const ProfilingStats &rhs) const {
@@ -102,9 +111,13 @@ struct ProfilingStats {
 
 // The info used for select/loop.
 struct PlanNodeBranchInfo {
-    void clear() {
+    void __clear() {
         isDoBranch = false;
         conditionNodeId = -1;
+    }
+
+    void clear() {
+        __clear();
     }
 
     bool operator==(const PlanNodeBranchInfo &rhs) const {
@@ -118,9 +131,13 @@ struct PlanNodeBranchInfo {
 };
 
 struct Pair {
-    void clear() {
+    void __clear() {
         key.clear();
         value.clear();
+    }
+
+    void clear() {
+        __clear();
     }
 
     bool operator==(const Pair &rhs) const {
@@ -132,7 +149,7 @@ struct Pair {
 };
 
 struct PlanNodeDescription {
-    void clear() {
+    void __clear() {
         name.clear();
         id = -1;
         outputVar.clear();
@@ -140,6 +157,10 @@ struct PlanNodeDescription {
         profiles = nullptr;
         branchInfo = nullptr;
         dependencies = nullptr;
+    }
+
+    void clear() {
+        __clear();
     }
 
     bool operator==(const PlanNodeDescription &rhs) const;
@@ -157,10 +178,15 @@ struct PlanNodeDescription {
 };
 
 struct PlanDescription {
-    void clear() {
+    void __clear() {
         planNodeDescs.clear();
         nodeIndexMap.clear();
         format.clear();
+        optimize_time_in_us = 0;
+    }
+
+    void clear() {
+        __clear();
     }
 
     bool operator==(const PlanDescription &rhs) const {
@@ -174,17 +200,23 @@ struct PlanDescription {
     std::unordered_map<int64_t, int64_t> nodeIndexMap;
     // the print format of exec plan, lowercase string like `dot'
     std::string                          format;
+    // the optimization spent time
+    int32_t                              optimize_time_in_us{0};
 };
 
 struct ExecutionResponse {
-    void clear() {
+    void __clear() {
         errorCode = ErrorCode::SUCCEEDED;
         latencyInUs = 0;
-        data = nullptr;
-        spaceName = nullptr;
-        errorMsg = nullptr;
-        planDesc = nullptr;
-        comment = nullptr;
+        data.reset();
+        spaceName.reset();
+        errorMsg.reset();
+        planDesc.reset();
+        comment.reset();
+    }
+
+    void clear() {
+        __clear();
     }
 
     bool operator==(const ExecutionResponse &rhs) const {
@@ -206,7 +238,10 @@ struct ExecutionResponse {
         if (!checkPointer(planDesc.get(), rhs.planDesc.get())) {
             return false;
         }
-        return checkPointer(comment.get(), rhs.comment.get());
+        if (!checkPointer(comment.get(), rhs.comment.get())) {
+            return false;
+        }
+        return true;
     }
 
     ErrorCode errorCode{ErrorCode::SUCCEEDED};

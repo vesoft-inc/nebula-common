@@ -15,34 +15,31 @@ const Value& RelationalExpression::eval(ExpressionContext& ctx) {
     auto& lhs = lhs_->eval(ctx);
     auto& rhs = rhs_->eval(ctx);
 
-    if (kind_ != Kind::kRelEQ && kind_ != Kind::kRelNE) {
-        auto lhsEmptyOrNull = lhs.type() & Value::kEmptyNullType;
-        auto rhsEmptyOrNull = rhs.type() & Value::kEmptyNullType;
-        if (lhsEmptyOrNull || rhsEmptyOrNull) {
-            return lhsEmptyOrNull ? lhs : rhs;
-        }
-    }
     switch (kind_) {
         case Kind::kRelEQ:
-            result_ = lhs == rhs;
+            result_ = lhs.equal(rhs);
             break;
         case Kind::kRelNE:
-            result_ = lhs != rhs;
+            result_ = !lhs.equal(rhs);
             break;
         case Kind::kRelLT:
-            result_ = lhs < rhs;
+            result_ = lhs.lessThan(rhs);
             break;
         case Kind::kRelLE:
-            result_ = lhs <= rhs;
+            result_ = lhs.lessThan(rhs) || lhs.equal(rhs);
             break;
         case Kind::kRelGT:
-            result_ = lhs > rhs;
+            result_ = !lhs.lessThan(rhs) && !lhs.equal(rhs);
             break;
         case Kind::kRelGE:
-            result_ = lhs >= rhs;
+            result_ = !lhs.lessThan(rhs) || lhs.equal(rhs);
             break;
         case Kind::kRelREG: {
-            if (lhs.isStr() && rhs.isStr()) {
+            if (lhs.isBadNull() || rhs.isBadNull()) {
+                result_ = Value::kNullBadType;
+            } else if ((!lhs.isNull() && !lhs.isStr()) || (!rhs.isNull() && !rhs.isStr())) {
+                result_ = Value::kNullBadType;
+            } else if (lhs.isStr() && rhs.isStr()) {
                 try {
                     const auto& r = ctx.getRegex(rhs.getStr());
                     result_ = std::regex_match(lhs.getStr(), r);
@@ -51,87 +48,161 @@ const Value& RelationalExpression::eval(ExpressionContext& ctx) {
                     result_ = Value::kNullBadType;
                 }
             } else {
-                result_ = Value::kNullBadType;
+                result_ = Value::kNullValue;
             }
             break;
         }
         case Kind::kRelIn: {
-            if (rhs.isList()) {
-                result_ = rhs.getList().contains(lhs);
+            if (rhs.isNull() && !rhs.isBadNull()) {
+                result_ = Value::kNullValue;
+            } else if (rhs.isList()) {
+                auto& list = rhs.getList();
+                result_ = list.contains(lhs);
+                if (UNLIKELY(result_.isBool() &&
+                             !result_.getBool() &&
+                             list.contains(Value::kNullValue))) {
+                    result_ = Value::kNullValue;
+                }
             } else if (rhs.isSet()) {
-                result_ = rhs.getSet().contains(lhs);
+                auto& set = rhs.getSet();
+                result_ = set.contains(lhs);
+                if (UNLIKELY(result_.isBool() &&
+                             !result_.getBool() &&
+                             set.contains(Value::kNullValue))) {
+                    result_ = Value::kNullValue;
+                }
             } else if (rhs.isMap()) {
-                result_ = rhs.getMap().contains(lhs);
+                auto& map = rhs.getMap();
+                result_ = map.contains(lhs);
+                if (UNLIKELY(result_.isBool() &&
+                             !result_.getBool() &&
+                             map.contains(Value::kNullValue))) {
+                    result_ = Value::kNullValue;
+                }
             } else {
                 result_ = Value(NullType::BAD_TYPE);
+            }
+
+            if (UNLIKELY(!result_.isBadNull() && lhs.isNull())) {
+                result_ = Value::kNullValue;
             }
             break;
         }
         case Kind::kRelNotIn: {
-            if (rhs.isList()) {
-                result_ = !rhs.getList().contains(lhs);
+            if (rhs.isNull() && !rhs.isBadNull()) {
+                result_ = Value::kNullValue;
+            } else if (rhs.isList()) {
+                auto& list = rhs.getList();
+                result_ = !list.contains(lhs);
+                if (UNLIKELY(result_.isBool() &&
+                             result_.getBool() &&
+                             list.contains(Value::kNullValue))) {
+                    result_ = Value::kNullValue;
+                }
             } else if (rhs.isSet()) {
-                result_ = !rhs.getSet().contains(lhs);
+                auto& set = rhs.getSet();
+                result_ = !set.contains(lhs);
+                if (UNLIKELY(result_.isBool() &&
+                             result_.getBool() &&
+                             set.contains(Value::kNullValue))) {
+                    result_ = Value::kNullValue;
+                }
             } else if (rhs.isMap()) {
-                result_ = !rhs.getMap().contains(lhs);
+                auto& map = rhs.getMap();
+                result_ = !map.contains(lhs);
+                if (UNLIKELY(result_.isBool() &&
+                             result_.getBool() &&
+                             map.contains(Value::kNullValue))) {
+                    result_ = Value::kNullValue;
+                }
             } else {
                 result_ = Value(NullType::BAD_TYPE);
+            }
+
+            if (UNLIKELY(!result_.isBadNull() && lhs.isNull())) {
+                result_ = Value::kNullValue;
             }
             break;
         }
         case Kind::kContains: {
-            if (lhs.isStr() && rhs.isStr()) {
+            if (lhs.isBadNull() || rhs.isBadNull()) {
+                result_ = Value::kNullBadType;
+            } else if ((!lhs.isNull() && !lhs.isStr()) || (!rhs.isNull() && !rhs.isStr())) {
+                result_ = Value::kNullBadType;
+            } else if (lhs.isStr() && rhs.isStr()) {
                 result_ = lhs.getStr().size() >= rhs.getStr().size() &&
-                    lhs.getStr().find(rhs.getStr()) != std::string::npos;
+                          lhs.getStr().find(rhs.getStr()) != std::string::npos;
             } else {
-                return Value::kNullBadType;
+                result_ = Value::kNullValue;
             }
             break;
         }
         case Kind::kNotContains: {
-            if (lhs.isStr() && rhs.isStr()) {
+            if (lhs.isBadNull() || rhs.isBadNull()) {
+                result_ = Value::kNullBadType;
+            } else if ((!lhs.isNull() && !lhs.isStr()) || (!rhs.isNull() && !rhs.isStr())) {
+                result_ = Value::kNullBadType;
+            } else if (lhs.isStr() && rhs.isStr()) {
                 result_ = !(lhs.getStr().size() >= rhs.getStr().size() &&
-                    lhs.getStr().find(rhs.getStr()) != std::string::npos);
+                            lhs.getStr().find(rhs.getStr()) != std::string::npos);
             } else {
-                return Value::kNullBadType;
+                result_ = Value::kNullValue;
             }
             break;
         }
         case Kind::kStartsWith: {
-            if (lhs.isStr() && rhs.isStr()) {
+            if (lhs.isBadNull() || rhs.isBadNull()) {
+                result_ = Value::kNullBadType;
+            } else if ((!lhs.isNull() && !lhs.isStr()) || (!rhs.isNull() && !rhs.isStr())) {
+                result_ = Value::kNullBadType;
+            } else if (lhs.isStr() && rhs.isStr()) {
                 result_ = lhs.getStr().size() >= rhs.getStr().size() &&
-                    lhs.getStr().find(rhs.getStr()) == 0;
+                          lhs.getStr().find(rhs.getStr()) == 0;
             } else {
-                return Value::kNullBadType;
+                result_ = Value::kNullValue;
             }
             break;
         }
         case Kind::kNotStartsWith: {
-            if (lhs.isStr() && rhs.isStr()) {
+            if (lhs.isBadNull() || rhs.isBadNull()) {
+                result_ = Value::kNullBadType;
+            } else if ((!lhs.isNull() && !lhs.isStr()) || (!rhs.isNull() && !rhs.isStr())) {
+                result_ = Value::kNullBadType;
+            } else if (lhs.isStr() && rhs.isStr()) {
                 result_ = !(lhs.getStr().size() >= rhs.getStr().size() &&
-                    lhs.getStr().find(rhs.getStr()) == 0);
+                            lhs.getStr().find(rhs.getStr()) == 0);
             } else {
-                return Value::kNullBadType;
+                result_ = Value::kNullValue;
             }
             break;
         }
         case Kind::kEndsWith: {
-            if (lhs.isStr() && rhs.isStr()) {
+            if (lhs.isBadNull() || rhs.isBadNull()) {
+                result_ = Value::kNullBadType;
+            } else if ((!lhs.isNull() && !lhs.isStr()) || (!rhs.isNull() && !rhs.isStr())) {
+                result_ = Value::kNullBadType;
+            } else if (lhs.isStr() && rhs.isStr()) {
                 result_ = lhs.getStr().size() >= rhs.getStr().size() &&
-                    lhs.getStr().compare(lhs.getStr().size() - rhs.getStr().size(),
-                    rhs.getStr().size(), rhs.getStr()) == 0;
+                          lhs.getStr().compare(lhs.getStr().size() - rhs.getStr().size(),
+                                               rhs.getStr().size(),
+                                               rhs.getStr()) == 0;
             } else {
-                return Value::kNullBadType;
+                result_ = Value::kNullValue;
             }
             break;
         }
         case Kind::kNotEndsWith: {
-            if (lhs.isStr() && rhs.isStr()) {
+            if (lhs.isBadNull() || rhs.isBadNull()) {
+                result_ = Value::kNullBadType;
+            } else if ((!lhs.isNull() && !lhs.isStr()) || (!rhs.isNull() && !rhs.isStr())) {
+                result_ = Value::kNullBadType;
+            } else if (lhs.isStr() && rhs.isStr()) {
                 result_ = !(lhs.getStr().size() >= rhs.getStr().size() &&
-                    lhs.getStr().compare(lhs.getStr().size() - rhs.getStr().size(),
-                    rhs.getStr().size(), rhs.getStr()) == 0);
+                            lhs.getStr().compare(lhs.getStr().size() - rhs.getStr().size(),
+                                                 rhs.getStr().size(),
+                                                 rhs.getStr()) == 0);
             } else {
-                return Value::kNullBadType;
+                result_ = Value::kNullValue;
             }
             break;
         }

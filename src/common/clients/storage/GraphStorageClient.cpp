@@ -87,7 +87,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>>
 GraphStorageClient::addVertices(GraphSpaceID space,
                                 std::vector<cpp2::NewVertex> vertices,
                                 std::unordered_map<TagID, std::vector<std::string>> propNames,
-                                bool overwritable,
+                                bool ifNotExists,
                                 folly::EventBase* evb) {
     auto cbStatus = getIdFromNewVertex(space);
     if (!cbStatus.ok()) {
@@ -107,7 +107,7 @@ GraphStorageClient::addVertices(GraphSpaceID space,
         auto& host = c.first;
         auto& req = requests[host];
         req.set_space_id(space);
-        req.set_overwritable(overwritable);
+        req.set_if_not_exists(ifNotExists);
         req.set_parts(std::move(c.second));
         req.set_prop_names(propNames);
     }
@@ -127,7 +127,7 @@ folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>>
 GraphStorageClient::addEdges(GraphSpaceID space,
                              std::vector<cpp2::NewEdge> edges,
                              std::vector<std::string> propNames,
-                             bool overwritable,
+                             bool ifNotExists,
                              folly::EventBase* evb,
                              bool useToss) {
     auto cbStatus = getIdFromNewEdge(space);
@@ -148,7 +148,7 @@ GraphStorageClient::addEdges(GraphSpaceID space,
         auto& host = c.first;
         auto& req = requests[host];
         req.set_space_id(space);
-        req.set_overwritable(overwritable);
+        req.set_if_not_exists(ifNotExists);
         req.set_parts(std::move(c.second));
         req.set_prop_names(propNames);
     }
@@ -307,21 +307,22 @@ GraphStorageClient::updateVertex(GraphSpaceID space,
     std::pair<HostAddr, cpp2::UpdateVertexRequest> request;
 
     DCHECK(!!metaClient_);
-    auto status = metaClient_->partId(space, std::move(cbStatus).value()(vertexId));
+    auto status = metaClient_->partsNum(space);
+    if (!status.ok()) {
+        return Status::Error("Space not found, spaceid: %d", space);
+    }
+    auto numParts = status.value();
+    status = metaClient_->partId(numParts, std::move(cbStatus).value()(vertexId));
     if (!status.ok()) {
         return folly::makeFuture<StatusOr<storage::cpp2::UpdateResponse>>(status.status());
     }
 
     auto part = status.value();
-    auto hStatus = getPartHosts(space, part);
-    if (!hStatus.ok()) {
-        return folly::makeFuture<StatusOr<storage::cpp2::UpdateResponse>>(hStatus.status());
+    auto host = this->getLeader(space, part);
+    if (!host.ok()) {
+        return folly::makeFuture<StatusOr<storage::cpp2::UpdateResponse>>(host.status());
     }
-
-    auto partHosts = hStatus.value();
-    CHECK_GT(partHosts.hosts_.size(), 0U);
-    const auto& host = this->getLeader(partHosts);
-    request.first = std::move(host);
+    request.first = std::move(host).value();
     cpp2::UpdateVertexRequest req;
     req.set_space_id(space);
     req.set_vertex_id(vertexId);
@@ -360,21 +361,22 @@ GraphStorageClient::updateEdge(GraphSpaceID space,
     std::pair<HostAddr, cpp2::UpdateEdgeRequest> request;
 
     DCHECK(!!metaClient_);
-    auto status = metaClient_->partId(space, std::move(cbStatus).value()(edgeKey));
+    auto status = metaClient_->partsNum(space);
+    if (!status.ok()) {
+        return Status::Error("Space not found, spaceid: %d", space);
+    }
+    auto numParts = status.value();
+    status = metaClient_->partId(numParts, std::move(cbStatus).value()(edgeKey));
     if (!status.ok()) {
         return folly::makeFuture<StatusOr<storage::cpp2::UpdateResponse>>(status.status());
     }
 
     auto part = status.value();
-    auto hStatus = getPartHosts(space, part);
-    if (!hStatus.ok()) {
-        return folly::makeFuture<StatusOr<storage::cpp2::UpdateResponse>>(hStatus.status());
+    auto host = this->getLeader(space, part);
+    if (!host.ok()) {
+        return folly::makeFuture<StatusOr<storage::cpp2::UpdateResponse>>(host.status());
     }
-    auto partHosts = hStatus.value();
-    CHECK_GT(partHosts.hosts_.size(), 0U);
-
-    const auto& host = this->getLeader(partHosts);
-    request.first = std::move(host);
+    request.first = std::move(host).value();
     cpp2::UpdateEdgeRequest req;
     req.set_space_id(space);
     req.set_edge_key(edgeKey);
@@ -402,21 +404,22 @@ GraphStorageClient::getUUID(GraphSpaceID space,
                             folly::EventBase* evb) {
     std::pair<HostAddr, cpp2::GetUUIDReq> request;
     DCHECK(!!metaClient_);
-    auto status = metaClient_->partId(space, name);
+    auto status = metaClient_->partsNum(space);
+    if (!status.ok()) {
+        return Status::Error("Space not found, spaceid: %d", space);
+    }
+    auto numParts = status.value();
+    status = metaClient_->partId(numParts, name);
     if (!status.ok()) {
         return folly::makeFuture<StatusOr<cpp2::GetUUIDResp>>(status.status());
     }
 
     auto part = status.value();
-    auto hStatus = getPartHosts(space, part);
-    if (!hStatus.ok()) {
-        return folly::makeFuture<StatusOr<cpp2::GetUUIDResp>>(hStatus.status());
+    auto host = this->getLeader(space, part);
+    if (!host.ok()) {
+        return folly::makeFuture<StatusOr<storage::cpp2::GetUUIDResp>>(host.status());
     }
-    auto partHosts = hStatus.value();
-    CHECK_GT(partHosts.hosts_.size(), 0U);
-
-    const auto& leader = this->getLeader(partHosts);
-    request.first = leader;
+    request.first = std::move(host).value();
     cpp2::GetUUIDReq req;
     req.set_space_id(space);
     req.set_part_id(part);
@@ -555,16 +558,16 @@ GraphStorageClient::getIdFromNewVertex(GraphSpaceID space) const {
     std::function<const VertexID&(const cpp2::NewVertex&)> cb;
     if (vidType == meta::cpp2::PropertyType::INT64) {
         cb = [](const cpp2::NewVertex& v) -> const VertexID& {
-                DCHECK_EQ(Value::Type::INT, v.id.type());
+                DCHECK_EQ(Value::Type::INT, v.get_id().type());
                 auto& mutableV = const_cast<cpp2::NewVertex&>(v);
-                mutableV.id = Value(
-                        std::string(reinterpret_cast<const char*>(&v.id.getInt()), 8));
-                return mutableV.id.getStr();
+                mutableV.set_id(Value(
+                        std::string(reinterpret_cast<const char*>(&v.get_id().getInt()), 8)));
+                return mutableV.get_id().getStr();
             };
     } else if (vidType == meta::cpp2::PropertyType::FIXED_STRING) {
         cb = [](const cpp2::NewVertex& v) -> const VertexID& {
-                DCHECK_EQ(Value::Type::STRING, v.id.type());
-                return v.id.getStr();
+                DCHECK_EQ(Value::Type::STRING, v.get_id().type());
+                return v.get_id().getStr();
             };
     } else {
         return Status::Error("Only support integer/string type vid.");
@@ -583,20 +586,24 @@ StatusOr<std::function<const VertexID&(const cpp2::NewEdge&)>> GraphStorageClien
     std::function<const VertexID&(const cpp2::NewEdge&)> cb;
     if (vidType == meta::cpp2::PropertyType::INT64) {
         cb = [](const cpp2::NewEdge& e) -> const VertexID& {
-                DCHECK_EQ(Value::Type::INT, e.key.src.type());
-                DCHECK_EQ(Value::Type::INT, e.key.dst.type());
+                DCHECK_EQ(Value::Type::INT, e.get_key().get_src().type());
+                DCHECK_EQ(Value::Type::INT, e.get_key().get_dst().type());
                 auto& mutableE = const_cast<cpp2::NewEdge&>(e);
-                mutableE.key.src = Value(
-                        std::string(reinterpret_cast<const char*>(&e.key.src.getInt()), 8));
-                mutableE.key.dst = Value(
-                        std::string(reinterpret_cast<const char*>(&e.key.dst.getInt()), 8));
-                return mutableE.key.src.getStr();
+                (*mutableE.key_ref()).src_ref().emplace(
+                        Value(std::string(
+                                reinterpret_cast<const char*>(&e.get_key().get_src().getInt()),
+                                8)));
+                (*mutableE.key_ref()).dst_ref().emplace(
+                        Value(std::string(
+                                reinterpret_cast<const char*>(&e.get_key().get_dst().getInt()),
+                                8)));
+                return mutableE.get_key().get_src().getStr();
             };
     } else if (vidType == meta::cpp2::PropertyType::FIXED_STRING) {
         cb = [](const cpp2::NewEdge& e) -> const VertexID& {
-                DCHECK_EQ(Value::Type::STRING, e.key.src.type());
-                DCHECK_EQ(Value::Type::STRING, e.key.dst.type());
-                return e.key.src.getStr();
+                DCHECK_EQ(Value::Type::STRING, e.get_key().get_src().type());
+                DCHECK_EQ(Value::Type::STRING, e.get_key().get_dst().type());
+                return e.get_key().get_src().getStr();
             };
     } else {
         return Status::Error("Only support integer/string type vid.");
@@ -615,20 +622,20 @@ StatusOr<std::function<const VertexID&(const cpp2::EdgeKey&)>> GraphStorageClien
     std::function<const VertexID&(const cpp2::EdgeKey&)> cb;
     if (vidType == meta::cpp2::PropertyType::INT64) {
         cb = [](const cpp2::EdgeKey& eKey) -> const VertexID& {
-                DCHECK_EQ(Value::Type::INT, eKey.src.type());
-                DCHECK_EQ(Value::Type::INT, eKey.dst.type());
+                DCHECK_EQ(Value::Type::INT, eKey.get_src().type());
+                DCHECK_EQ(Value::Type::INT, eKey.get_dst().type());
                 auto& mutableEK = const_cast<cpp2::EdgeKey&>(eKey);
-                mutableEK.src = Value(
-                        std::string(reinterpret_cast<const char*>(&eKey.src.getInt()), 8));
-                mutableEK.dst = Value(
-                        std::string(reinterpret_cast<const char*>(&eKey.dst.getInt()), 8));
-                return mutableEK.src.getStr();
+                mutableEK.set_src(Value(
+                        std::string(reinterpret_cast<const char*>(&eKey.get_src().getInt()), 8)));
+                mutableEK.set_dst(Value(
+                        std::string(reinterpret_cast<const char*>(&eKey.get_dst().getInt()), 8)));
+                return mutableEK.get_src().getStr();
             };
     } else if (vidType == meta::cpp2::PropertyType::FIXED_STRING) {
         cb = [](const cpp2::EdgeKey& eKey) -> const VertexID& {
-                DCHECK_EQ(Value::Type::STRING, eKey.src.type());
-                DCHECK_EQ(Value::Type::STRING, eKey.dst.type());
-                return eKey.src.getStr();
+                DCHECK_EQ(Value::Type::STRING, eKey.get_src().type());
+                DCHECK_EQ(Value::Type::STRING, eKey.get_dst().type());
+                return eKey.get_src().getStr();
             };
     } else {
         return Status::Error("Only support integer/string type vid.");
