@@ -54,7 +54,7 @@ private:
  */
 class VersionedVariableExpression final : public Expression {
 public:
-    explicit VersionedVariableExpression(const std::string& var, Expression* version = nullptr)
+    explicit VersionedVariableExpression(const std::string& var = "", Expression* version = nullptr)
         : Expression(Kind::kVersionedVar), var_(var) {
         version_.reset(version);
     }

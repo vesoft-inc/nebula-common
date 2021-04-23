@@ -72,10 +72,10 @@ public:
     std::string toString() const;
 
 private:
-    std::string from_{nullptr};
-    std::string prop_{nullptr};
-    std::string val_{nullptr};
-    std::string op_{nullptr};
+    std::string from_;
+    std::string prop_;
+    std::string val_;
+    std::string op_;
     int32_t fuzziness_{-2};
     int32_t limit_{100};
     int32_t timeout_{200};
