@@ -15,6 +15,13 @@ TEST(TimeParser, DateTime) {
         ASSERT_TRUE(result.ok()) << result.status();
         EXPECT_EQ(nebula::DateTime(2019, 1, 3, 22, 22, 3, 2333), result.value());
     }
+    // with offset
+    {
+        nebula::time::TimeParser parser;
+        auto result = parser.parseDateTime("2019-01-03T22:22:3.2333+02:30");
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(nebula::DateTime(2019, 1, 4, 00, 52, 3, 2333), result.value());
+    }
     // lack day
     {
         nebula::time::TimeParser parser;
@@ -53,6 +60,12 @@ TEST(TimeParser, DateTime) {
 }
 
 TEST(TimeParser, DateTimeFailed) {
+    // out of range offset
+    {
+        nebula::time::TimeParser parser;
+        auto result = parser.parseDateTime("2019-01-03T22:22:3.2333+24:30");
+        EXPECT_FALSE(result.ok()) << result.status();
+    }
     // only time
     {
         nebula::time::TimeParser parser;
@@ -119,6 +132,12 @@ TEST(TimeParser, Date) {
 }
 
 TEST(TimeParser, DateFailed) {
+    // don't support offset
+    {
+        nebula::time::TimeParser parser;
+        auto result = parser.parseDate("2019-01-03+23:00");
+        EXPECT_FALSE(result.ok()) << result.status();
+    }
     // with unexpected character
     {
         nebula::time::TimeParser parser;
@@ -152,6 +171,13 @@ TEST(TimeParser, Time) {
         ASSERT_TRUE(result.ok()) << result.status();
         EXPECT_EQ(nebula::Time(22, 22, 3, 2333), result.value());
     }
+    // with offset
+    {
+        nebula::time::TimeParser parser;
+        auto result = parser.parseTime("22:22:3.2333-03:30");
+        ASSERT_TRUE(result.ok()) << result.status();
+        EXPECT_EQ(nebula::Time(18, 52, 3, 2333), result.value());
+    }
     // lack us
     {
         nebula::time::TimeParser parser;
@@ -176,6 +202,12 @@ TEST(TimeParser, Time) {
 }
 
 TEST(TimeParser, TimeFailed) {
+    // out of range offset
+    {
+        nebula::time::TimeParser parser;
+        auto result = parser.parseTime("22:22:3.2333-03:60");
+        EXPECT_FALSE(result.ok()) << result.status();
+    }
     // unexpected character
     {
         nebula::time::TimeParser parser;

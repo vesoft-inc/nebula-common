@@ -89,7 +89,9 @@ public:
         if (offsetSeconds == 0) {
             return dateTime;
         }
-        return unixSecondsToDateTime(dateTimeToUnixSeconds(dateTime) + offsetSeconds);
+        auto dt = unixSecondsToDateTime(dateTimeToUnixSeconds(dateTime) + offsetSeconds);
+        dt.microsec = dateTime.microsec;
+        return dt;
     }
 
     static DateTime dateTimeToUTC(const DateTime &dateTime) {
@@ -201,7 +203,9 @@ public:
         if (offsetSeconds == 0) {
             return time;
         }
-        return unixSecondsToTime(timeToSeconds(time) + offsetSeconds);
+        auto t = unixSecondsToTime(timeToSeconds(time) + offsetSeconds);
+        t.microsec = time.microsec;
+        return t;
     }
 
     static Time timeToUTC(const Time &time) {

@@ -42,13 +42,12 @@ public:
     }
 
 private:
-    static constexpr char kDateDelimiter = '-';
     static constexpr char kTimeDelimiter = ':';
 
     static constexpr char kTimePrefix = 'T';
     static constexpr char kMicroSecondPrefix = '.';
-    static constexpr char kUTCoffsetPrefixPlus = '+';
-    static constexpr char kUTCoffsetPrefixMinus = '-';
+    static constexpr char kPlus = '+';
+    static constexpr char kMinus = '-';
 
     enum class ExpectType {
         kDate,
@@ -60,12 +59,11 @@ private:
         kUnknown,
         kPlaceHolder,   // Only for read-ahead placeholder
         kNumber,
-        kDateDelimiter,
+        kPlus,
+        kMinus,
         kTimeDelimiter,
         kTimePrefix,
         kMicroSecondPrefix,
-        kUTCoffsetPrefixPlus,
-        kUTCoffsetPrefixMinus,
     };
 
     static const char* toString(TokenType t);
@@ -87,14 +85,17 @@ private:
         kTimeSecond,        // 6
         kTimeMicroSecond,   // 7
         kUtcOffset,         // 8
-        kEnd,               // 9
+        kUtcOffsetHour,     // 9
+        kUtcOffsetMinute,   // 10
+        kEnd,               // 11
         kSize,              // Just for count
     };
 
     struct Component {
         const State state;   // current state
         // State shift function
-        std::function<StatusOr<State>(Token, Token, DateTime&, ExpectType)> next;
+        std::function<StatusOr<State>(Token, Token, DateTime&, ExpectType, TokenType&, int32_t&)>
+            next;
     };
 
     // All states of datetime
@@ -108,6 +109,9 @@ private:
     std::vector<Token> tokens_;
     DateTime result_;
     ExpectType type_;
+
+    TokenType utcSign_{TokenType::kUnknown};
+    int32_t utcOffsetSecs_{0};
 };
 
 }   // namespace time

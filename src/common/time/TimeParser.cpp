@@ -5,6 +5,7 @@
  */
 
 #include "common/time/TimeParser.h"
+#include "common/time/TimeUtils.h"
 
 namespace nebula {
 namespace time {
@@ -12,7 +13,7 @@ namespace time {
 /*static*/ const std::vector<TimeParser::Component> TimeParser::dateTimeStates = {
     // State, ShiftMap
     {kInitial,
-     [](Token, Token, DateTime&, ExpectType type) -> StatusOr<State> {
+     [](Token, Token, DateTime&, ExpectType type, TokenType&, int32_t&) -> StatusOr<State> {
          if (type == ExpectType::kDateTime) {
              return kDateYear;
          } else if (type == ExpectType::kDate) {
@@ -23,7 +24,7 @@ namespace time {
          return Status::Error("Unknown time type.");
      }},
     {kDateYear,
-     [](Token t, Token n, DateTime& val, ExpectType type) -> StatusOr<State> {
+     [](Token t, Token n, DateTime& val, ExpectType type, TokenType&, int32_t&) -> StatusOr<State> {
          if (t.type == TokenType::kNumber) {
              if (t.val < std::numeric_limits<decltype(val.year)>::min() ||
                  t.val > std::numeric_limits<decltype(val.year)>::max()) {
@@ -31,7 +32,7 @@ namespace time {
              }
              val.year = t.val;
              switch (n.type) {
-                 case TokenType::kDateDelimiter:
+                 case TokenType::kMinus:
                      return kDateMonth;
                  case TokenType::kTimePrefix:
                      if (type == ExpectType::kDate) {
@@ -42,16 +43,15 @@ namespace time {
                  case TokenType::kPlaceHolder:
                      return kEnd;
                  default:
-                     return Status::Error("Unexpected read-ahead token `%s'.",
-                                          toString(n.type));
+                     return Status::Error("Unexpected read-ahead token `%s'.", toString(n.type));
              }
          } else {
              return Status::Error("Unexpected token `%s'.", toString(n.type));
          }
      }},
     {kDateMonth,
-     [](Token t, Token n, DateTime& val, ExpectType type) -> StatusOr<State> {
-         if (t.type == TokenType::kDateDelimiter) {
+     [](Token t, Token n, DateTime& val, ExpectType type, TokenType&, int32_t&) -> StatusOr<State> {
+         if (t.type == TokenType::kMinus) {
              return kDateMonth;
          }
          if (t.type == TokenType::kNumber) {
@@ -60,7 +60,7 @@ namespace time {
              }
              val.month = t.val;
              switch (n.type) {
-                 case TokenType::kDateDelimiter:
+                 case TokenType::kMinus:
                      return kDateDay;
                  case TokenType::kTimePrefix:
                      if (type == ExpectType::kDate) {
@@ -71,16 +71,15 @@ namespace time {
                  case TokenType::kPlaceHolder:
                      return kEnd;
                  default:
-                     return Status::Error("Unexpected read-ahead token `%s'.",
-                                          toString(n.type));
+                     return Status::Error("Unexpected read-ahead token `%s'.", toString(n.type));
              }
          } else {
              return Status::Error("Unexpected token `%s'.", toString(n.type));
          }
      }},
     {kDateDay,
-     [](Token t, Token n, DateTime& val, ExpectType type) -> StatusOr<State> {
-         if (t.type == TokenType::kDateDelimiter) {
+     [](Token t, Token n, DateTime& val, ExpectType type, TokenType&, int32_t&) -> StatusOr<State> {
+         if (t.type == TokenType::kMinus) {
              return kDateDay;
          }
          if (t.type == TokenType::kNumber) {
@@ -98,15 +97,14 @@ namespace time {
                  case TokenType::kPlaceHolder:
                      return kEnd;
                  default:
-                     return Status::Error("Unexpected read-ahead token `%s'.",
-                                          toString(n.type));
+                     return Status::Error("Unexpected read-ahead token `%s'.", toString(n.type));
              }
          } else {
              return Status::Error("Unexpected token `%s'.", toString(n.type));
          }
      }},
     {kTimeHour,
-     [](Token t, Token n, DateTime& val, ExpectType) -> StatusOr<State> {
+     [](Token t, Token n, DateTime& val, ExpectType, TokenType&, int32_t&) -> StatusOr<State> {
          if (t.type == TokenType::kTimePrefix) {
              return kTimeHour;
          }
@@ -118,11 +116,13 @@ namespace time {
              switch (n.type) {
                  case TokenType::kTimeDelimiter:
                      return kTimeMinute;
+                 case TokenType::kPlus:
+                 case TokenType::kMinus:
+                     return kUtcOffset;
                  case TokenType::kPlaceHolder:
                      return kEnd;
                  default:
-                     return Status::Error("Unexpected read-ahead token `%s'.",
-                                          toString(n.type));
+                     return Status::Error("Unexpected read-ahead token `%s'.", toString(n.type));
              }
          } else {
              return Status::Error("Unexpected token `%s'.", toString(n.type));
@@ -130,7 +130,7 @@ namespace time {
          return Status::OK();
      }},
     {kTimeMinute,
-     [](Token t, Token n, DateTime& val, ExpectType) -> StatusOr<State> {
+     [](Token t, Token n, DateTime& val, ExpectType, TokenType&, int32_t&) -> StatusOr<State> {
          if (t.type == TokenType::kTimeDelimiter) {
              return kTimeMinute;
          }
@@ -142,11 +142,13 @@ namespace time {
              switch (n.type) {
                  case TokenType::kTimeDelimiter:
                      return kTimeSecond;
+                 case TokenType::kPlus:
+                 case TokenType::kMinus:
+                     return kUtcOffset;
                  case TokenType::kPlaceHolder:
                      return kEnd;
                  default:
-                     return Status::Error("Unexpected read-ahead token `%s'.",
-                                          toString(n.type));
+                     return Status::Error("Unexpected read-ahead token `%s'.", toString(n.type));
              }
          } else {
              return Status::Error("Unexpected token `%s'.", toString(n.type));
@@ -154,7 +156,7 @@ namespace time {
          return Status::OK();
      }},
     {kTimeSecond,
-     [](Token t, Token n, DateTime& val, ExpectType) -> StatusOr<State> {
+     [](Token t, Token n, DateTime& val, ExpectType, TokenType&, int32_t&) -> StatusOr<State> {
          if (t.type == TokenType::kTimeDelimiter) {
              return kTimeSecond;
          }
@@ -166,14 +168,13 @@ namespace time {
              switch (n.type) {
                  case TokenType::kMicroSecondPrefix:
                      return kTimeMicroSecond;
-                 case TokenType::kUTCoffsetPrefixPlus:
-                 case TokenType::kUTCoffsetPrefixMinus:
+                 case TokenType::kPlus:
+                 case TokenType::kMinus:
                      return kUtcOffset;
                  case TokenType::kPlaceHolder:
                      return kEnd;
                  default:
-                     return Status::Error("Unexpected read-ahead token `%s'.",
-                                          toString(n.type));
+                     return Status::Error("Unexpected read-ahead token `%s'.", toString(n.type));
              }
          } else {
              return Status::Error("Unexpected token `%s'.", toString(n.type));
@@ -181,7 +182,7 @@ namespace time {
          return Status::OK();
      }},
     {kTimeMicroSecond,
-     [](Token t, Token n, DateTime& val, ExpectType) -> StatusOr<State> {
+     [](Token t, Token n, DateTime& val, ExpectType, TokenType&, int32_t&) -> StatusOr<State> {
          if (t.type == TokenType::kMicroSecondPrefix) {
              return kTimeMicroSecond;
          }
@@ -194,8 +195,8 @@ namespace time {
              switch (n.type) {
                  case TokenType::kMicroSecondPrefix:
                      return kTimeMicroSecond;
-                 case TokenType::kUTCoffsetPrefixPlus:
-                 case TokenType::kUTCoffsetPrefixMinus:
+                 case TokenType::kPlus:
+                 case TokenType::kMinus:
                      return kUtcOffset;
                  case TokenType::kPlaceHolder:
                      return kEnd;
@@ -208,11 +209,57 @@ namespace time {
          return Status::OK();
      }},
     {kUtcOffset,
-     [](Token, Token, DateTime&, ExpectType) -> StatusOr<State> {
-         // TODD(shylock) support when has the timezone info
-         return Status::NotSupported("Utc offset not supported now.");
+     [](Token t, Token, DateTime&, ExpectType, TokenType& utcSign, int32_t&) -> StatusOr<State> {
+         switch (t.type) {
+             case TokenType::kPlus:
+             case TokenType::kMinus:
+                 if (utcSign != TokenType::kUnknown) {
+                     return Status::Error("Unexpected token `%s'.", toString(t.type));
+                 }
+                 utcSign = t.type;
+                 return kUtcOffsetHour;
+             default:
+                 return Status::Error("Unexpected token `%s'.", toString(t.type));
+         }
      }},
-    {kEnd, [](Token, Token, DateTime&, ExpectType) -> StatusOr<State> { return Status::OK(); }},
+    {kUtcOffsetHour,
+     [](Token t, Token, DateTime&, ExpectType, TokenType& utcSign, int32_t& utcOffsetSecs)
+         -> StatusOr<State> {
+         switch (t.type) {
+             case TokenType::kNumber:
+                 if (t.val > 23) {
+                     return Status::Error("Unexpected utc offset hours number `%d'.", t.val);
+                 }
+                 utcOffsetSecs = (utcSign == TokenType::kPlus ? t.val * 60 * 60 : -t.val * 60 * 60);
+                 return kUtcOffsetMinute;
+             default:
+                 return Status::Error("Unexpected token `%s'.", toString(t.type));
+         }
+     }},
+    {kUtcOffsetMinute,
+     [](Token t, Token n, DateTime& val, ExpectType, TokenType& utcSign, int32_t& utcOffsetSecs)
+         -> StatusOr<State> {
+         switch (t.type) {
+             case TokenType::kTimeDelimiter:
+                 if (n.type != TokenType::kNumber) {
+                     return Status::Error("Unexpected token `%s'.", toString(t.type));
+                 }
+                 return kUtcOffsetMinute;
+             case TokenType::kNumber:
+                 if (t.val > 59) {
+                     return Status::Error("Unexpected utc offset minutes number `%d'.", t.val);
+                 }
+                 utcOffsetSecs += (utcSign == TokenType::kPlus ? t.val * 60 : -t.val * 60);
+                 val = TimeUtils::dateTimeShift(val, utcOffsetSecs);
+                 return kEnd;
+             default:
+                 return Status::Error("Unexpected token `%s'.", toString(t.type));
+         }
+     }},
+    {kEnd,
+     [](Token, Token, DateTime&, ExpectType, TokenType&, int32_t&) -> StatusOr<State> {
+         return Status::OK();
+     }},
 };
 
 /*static*/ const char* TimeParser::toString(TokenType t) {
@@ -223,18 +270,16 @@ namespace time {
             return "PlaceHolder";
         case TokenType::kNumber:
             return "Number";
-        case TokenType::kDateDelimiter:
-            return "DateDelimiter";
+        case TokenType::kPlus:
+            return "+";
+        case TokenType::kMinus:
+            return "-";
         case TokenType::kTimeDelimiter:
             return "TimeDelimiter";
         case TokenType::kTimePrefix:
             return "TimePrefix";
         case TokenType::kMicroSecondPrefix:
             return "MicroSecondPrefix";
-        case TokenType::kUTCoffsetPrefixPlus:
-            return "UTCoffsetPrefixPlus";
-        case TokenType::kUTCoffsetPrefixMinus:
-            return "UTCoffsetPrefixMinus";
     }
     LOG(FATAL) << "Unknown token " << static_cast<int>(t);
 }
@@ -258,18 +303,16 @@ Status TimeParser::lex(folly::StringPiece str) {
                 tokens_.emplace_back(t);
                 digits.clear();
             }
-        } else if (kDateDelimiter == *c) {
-            tokens_.emplace_back(Token{TokenType::kDateDelimiter, 0});
         } else if (kTimeDelimiter == *c) {
             tokens_.emplace_back(Token{TokenType::kTimeDelimiter, 0});
         } else if (kTimePrefix == *c) {
             tokens_.emplace_back(Token{TokenType::kTimePrefix, 0});
         } else if (kMicroSecondPrefix == *c) {
             tokens_.emplace_back(Token{TokenType::kMicroSecondPrefix, 0});
-        } else if (kUTCoffsetPrefixPlus == *c) {
-            tokens_.emplace_back(Token{TokenType::kUTCoffsetPrefixPlus, 0});
-        } else if (kUTCoffsetPrefixMinus == *c) {
-            tokens_.emplace_back(Token{TokenType::kUTCoffsetPrefixMinus, 0});
+        } else if (kPlus == *c) {
+            tokens_.emplace_back(Token{TokenType::kPlus, 0});
+        } else if (kMinus == *c) {
+            tokens_.emplace_back(Token{TokenType::kMinus, 0});
         } else {
             return Status::Error("Illegal character `%c'.", *c);
         }
@@ -281,11 +324,12 @@ Status TimeParser::lex(folly::StringPiece str) {
 }
 
 Status TimeParser::parse() {
-    auto result = dateTimeStates[kInitial].next({}, {}, result_, type_);
+    auto result = dateTimeStates[kInitial].next({}, {}, result_, type_, utcSign_, utcOffsetSecs_);
     NG_RETURN_IF_ERROR(result);
     auto current = result.value();
     for (std::size_t i = 0; i < tokens_.size() - 1; ++i) {
-        result = dateTimeStates[current].next(tokens_[i], tokens_[i + 1], result_, type_);
+        result = dateTimeStates[current].next(
+            tokens_[i], tokens_[i + 1], result_, type_, utcSign_, utcOffsetSecs_);
         NG_RETURN_IF_ERROR(result);
         current = result.value();
         if (current == kEnd) {
