@@ -148,6 +148,7 @@ public:
 
     virtual bool isArithmeticExpr() const {
         return false;
+    }
 
     void setParentheses(bool val) {
         parentheses_ = val;
