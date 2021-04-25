@@ -49,6 +49,9 @@ private:
     static constexpr char kPlus = '+';
     static constexpr char kMinus = '-';
 
+    static constexpr char kLeftBracket = '[';
+    static constexpr char kRightBracket = ']';
+
     enum class ExpectType {
         kDate,
         kTime,
@@ -64,6 +67,7 @@ private:
         kTimeDelimiter,
         kTimePrefix,
         kMicroSecondPrefix,
+        kTimeZoneName,
     };
 
     static const char* toString(TokenType t);
@@ -71,7 +75,10 @@ private:
     struct Token {
         TokenType type;
         int32_t val;   // only used for number token
+        std::string str;
     };
+
+    static std::string toString(const Token& t);
 
     // TODO(shylock) support weeks/days format when support the convertion
     // The state of current parser

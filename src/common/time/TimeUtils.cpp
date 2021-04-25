@@ -27,6 +27,8 @@ const DateTime TimeUtils::kEpoch(1970, 1, 1, 0, 0, 0, 0);
 /*static*/ Timezone TimeUtils::globalTimezone;
 
 /*static*/ Status TimeUtils::initializeGlobalTimezone() {
+    // load the time zone data
+    NG_RETURN_IF_ERROR(Timezone::init());
     // use system timezone configuration if not set.
     if (FLAGS_timezone_name.empty()) {
         auto *tz = ::getenv("TZ");
@@ -36,7 +38,6 @@ const DateTime TimeUtils::kEpoch(1970, 1, 1, 0, 0, 0, 0);
     }
     if (!FLAGS_timezone_name.empty()) {
         if (FLAGS_timezone_name.front() == ':') {
-            NG_RETURN_IF_ERROR(Timezone::init());
             return globalTimezone.loadFromDb(
                 std::string(FLAGS_timezone_name.begin() + 1, FLAGS_timezone_name.end()));
         } else {

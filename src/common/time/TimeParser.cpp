@@ -5,7 +5,9 @@
  */
 
 #include "common/time/TimeParser.h"
+#include <sstream>
 #include "common/time/TimeUtils.h"
+#include "common/time/TimezoneInfo.h"
 
 namespace nebula {
 namespace time {
@@ -118,6 +120,7 @@ namespace time {
                      return kTimeMinute;
                  case TokenType::kPlus:
                  case TokenType::kMinus:
+                 case TokenType::kTimeZoneName:
                      return kUtcOffset;
                  case TokenType::kPlaceHolder:
                      return kEnd;
@@ -144,6 +147,7 @@ namespace time {
                      return kTimeSecond;
                  case TokenType::kPlus:
                  case TokenType::kMinus:
+                 case TokenType::kTimeZoneName:
                      return kUtcOffset;
                  case TokenType::kPlaceHolder:
                      return kEnd;
@@ -170,6 +174,7 @@ namespace time {
                      return kTimeMicroSecond;
                  case TokenType::kPlus:
                  case TokenType::kMinus:
+                 case TokenType::kTimeZoneName:
                      return kUtcOffset;
                  case TokenType::kPlaceHolder:
                      return kEnd;
@@ -197,11 +202,12 @@ namespace time {
                      return kTimeMicroSecond;
                  case TokenType::kPlus:
                  case TokenType::kMinus:
+                 case TokenType::kTimeZoneName:
                      return kUtcOffset;
                  case TokenType::kPlaceHolder:
                      return kEnd;
                  default:
-                     return Status::Error("Unexpected token `%s'.", toString(n.type));
+                     return Status::Error("Unexpected read-ahead token `%s'.", toString(n.type));
              }
          } else {
              return Status::Error("Unexpected token `%s'.", toString(n.type));
@@ -209,7 +215,8 @@ namespace time {
          return Status::OK();
      }},
     {kUtcOffset,
-     [](Token t, Token, DateTime&, ExpectType, TokenType& utcSign, int32_t&) -> StatusOr<State> {
+     [](Token t, Token, DateTime& val, ExpectType, TokenType& utcSign, int32_t&)
+         -> StatusOr<State> {
          switch (t.type) {
              case TokenType::kPlus:
              case TokenType::kMinus:
@@ -218,6 +225,13 @@ namespace time {
                  }
                  utcSign = t.type;
                  return kUtcOffsetHour;
+             case TokenType::kTimeZoneName: {
+                 Timezone tz;
+                 auto result = tz.loadFromDb(t.str);
+                 NG_RETURN_IF_ERROR(result);
+                 val = TimeUtils::dateTimeShift(val, tz.utcOffsetSecs());
+                 return kEnd;
+             }
              default:
                  return Status::Error("Unexpected token `%s'.", toString(t.type));
          }
@@ -242,7 +256,7 @@ namespace time {
          switch (t.type) {
              case TokenType::kTimeDelimiter:
                  if (n.type != TokenType::kNumber) {
-                     return Status::Error("Unexpected token `%s'.", toString(t.type));
+                     return Status::Error("Unexpected read-ahead token `%s'.", toString(n.type));
                  }
                  return kUtcOffsetMinute;
              case TokenType::kNumber:
@@ -280,8 +294,24 @@ namespace time {
             return "TimePrefix";
         case TokenType::kMicroSecondPrefix:
             return "MicroSecondPrefix";
+        case TokenType::kTimeZoneName:
+            return "TimeZoneName";
     }
     LOG(FATAL) << "Unknown token " << static_cast<int>(t);
+}
+
+/*static*/ std::string TimeParser::toString(const Token& t) {
+    std::stringstream ss;
+    ss << toString(t.type);
+    ss << "(";
+    if (t.type == TokenType::kNumber) {
+        ss << t.val;
+    }
+    if (t.type == TokenType::kTimeZoneName) {
+        ss << t.str;
+    }
+    ss << ")";
+    return ss.str();
 }
 
 Status TimeParser::lex(folly::StringPiece str) {
@@ -304,22 +334,31 @@ Status TimeParser::lex(folly::StringPiece str) {
                 digits.clear();
             }
         } else if (kTimeDelimiter == *c) {
-            tokens_.emplace_back(Token{TokenType::kTimeDelimiter, 0});
+            tokens_.emplace_back(Token{TokenType::kTimeDelimiter, 0, ""});
         } else if (kTimePrefix == *c) {
-            tokens_.emplace_back(Token{TokenType::kTimePrefix, 0});
+            tokens_.emplace_back(Token{TokenType::kTimePrefix, 0, ""});
         } else if (kMicroSecondPrefix == *c) {
-            tokens_.emplace_back(Token{TokenType::kMicroSecondPrefix, 0});
+            tokens_.emplace_back(Token{TokenType::kMicroSecondPrefix, 0, ""});
         } else if (kPlus == *c) {
-            tokens_.emplace_back(Token{TokenType::kPlus, 0});
+            tokens_.emplace_back(Token{TokenType::kPlus, 0, ""});
         } else if (kMinus == *c) {
-            tokens_.emplace_back(Token{TokenType::kMinus, 0});
+            tokens_.emplace_back(Token{TokenType::kMinus, 0, ""});
+        } else if (kLeftBracket == *c) {
+            std::string s;
+            while (*(++c) != kRightBracket) {
+                if (*c == '\0') {
+                    return Status::Error("Unterminated bracket.");
+                }
+                s.push_back(*c);
+            }
+            tokens_.emplace_back(Token{TokenType::kTimeZoneName, 0, std::move(s)});
         } else {
             return Status::Error("Illegal character `%c'.", *c);
         }
         ++c;
     }
     // Only for read-ahead placeholder
-    tokens_.emplace_back(Token{TokenType::kPlaceHolder, 0});
+    tokens_.emplace_back(Token{TokenType::kPlaceHolder, 0, ""});
     return Status::OK();
 }
 
