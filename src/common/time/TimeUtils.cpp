@@ -27,8 +27,6 @@ const DateTime TimeUtils::kEpoch(1970, 1, 1, 0, 0, 0, 0);
 /*static*/ Timezone TimeUtils::globalTimezone;
 
 /*static*/ Status TimeUtils::initializeGlobalTimezone() {
-    // load the time zone data
-    NG_RETURN_IF_ERROR(Timezone::init());
     // use system timezone configuration if not set.
     if (FLAGS_timezone_name.empty()) {
         auto *tz = ::getenv("TZ");
