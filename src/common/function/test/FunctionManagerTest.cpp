@@ -794,6 +794,12 @@ TEST_F(FunctionManagerTest, functionCall) {
         EXPECT_EQ(res, 1602324000);
     }
     {
+        auto result = FunctionManager::get("timestamp", {});
+        ASSERT_TRUE(result.ok());
+        auto res = std::move(result).value()({});
+        EXPECT_EQ(res.type(), Value::Type::INT);
+    }
+    {
         TEST_FUNCTION(e, args_["empty"], M_E);
         TEST_FUNCTION(pi, args_["empty"], M_PI);
         TEST_FUNCTION(radians, args_["radians"], M_PI);
@@ -878,14 +884,24 @@ TEST_F(FunctionManagerTest, returnType) {
         EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
+        auto result = FunctionManager::getReturnType("ceil", {Value::Type::INT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
+        auto result = FunctionManager::getReturnType("ceil", {Value::Type::FLOAT});
+        ASSERT_TRUE(result.ok());
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
+    }
+    {
         auto result = FunctionManager::getReturnType("floor", {Value::Type::FLOAT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("floor", {Value::Type::INT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("floor", {Value::Type::STRING});
@@ -895,12 +911,12 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("round", {Value::Type::INT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("round", {Value::Type::FLOAT});
         ASSERT_TRUE(result.ok());
-        EXPECT_EQ(result.value(), Value::Type::INT);
+        EXPECT_EQ(result.value(), Value::Type::FLOAT);
     }
     {
         auto result = FunctionManager::getReturnType("cbrt", {Value::Type::INT});

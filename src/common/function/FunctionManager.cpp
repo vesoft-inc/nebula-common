@@ -38,14 +38,14 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"bit_xor",
      {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::INT)}},
     {"floor",
-     {TypeSignature({Value::Type::INT}, Value::Type::INT),
-      TypeSignature({Value::Type::FLOAT}, Value::Type::INT)}},
+     {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
+      TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
     {"ceil",
-     {TypeSignature({Value::Type::INT}, Value::Type::INT),
-      TypeSignature({Value::Type::FLOAT}, Value::Type::INT)}},
+     {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
+      TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
     {"round",
-     {TypeSignature({Value::Type::INT}, Value::Type::INT),
-      TypeSignature({Value::Type::FLOAT}, Value::Type::INT)}},
+     {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
+      TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
     {"sqrt",
      {TypeSignature({Value::Type::INT}, Value::Type::FLOAT),
       TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT)}},
@@ -119,9 +119,9 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"strcasecmp",
      {TypeSignature({Value::Type::STRING, Value::Type::STRING}, Value::Type::STRING)}},
     {"lower", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
-    {"toLower", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
+    {"tolower", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
     {"upper", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
-    {"toUpper", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
+    {"toupper", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
     {"length", {TypeSignature({Value::Type::STRING}, Value::Type::INT),
                 TypeSignature({Value::Type::PATH}, Value::Type::INT), }},
     {"trim", {TypeSignature({Value::Type::STRING}, Value::Type::STRING)}},
@@ -146,7 +146,7 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"substring",
      {TypeSignature({Value::Type::STRING, Value::Type::INT, Value::Type::INT}, Value::Type::STRING),
             TypeSignature({Value::Type::STRING, Value::Type::INT}, Value::Type::STRING)}},
-    {"toString", {TypeSignature({Value::Type::INT}, Value::Type::STRING),
+    {"tostring", {TypeSignature({Value::Type::INT}, Value::Type::STRING),
                   TypeSignature({Value::Type::FLOAT}, Value::Type::STRING),
                   TypeSignature({Value::Type::STRING}, Value::Type::STRING),
                   TypeSignature({Value::Type::BOOL}, Value::Type::STRING),
@@ -154,16 +154,16 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
                   TypeSignature({Value::Type::TIME}, Value::Type::STRING),
                   TypeSignature({Value::Type::DATETIME}, Value::Type::STRING)
                 }},
-    {"toBoolean", {TypeSignature({Value::Type::STRING}, Value::Type::BOOL),
+    {"toboolean", {TypeSignature({Value::Type::STRING}, Value::Type::BOOL),
                    TypeSignature({Value::Type::STRING}, Value::Type::NULLVALUE),
                    TypeSignature({Value::Type::BOOL}, Value::Type::BOOL)
                 }},
-    {"toFloat", {TypeSignature({Value::Type::STRING}, Value::Type::FLOAT),
+    {"tofloat", {TypeSignature({Value::Type::STRING}, Value::Type::FLOAT),
                  TypeSignature({Value::Type::STRING}, Value::Type::NULLVALUE),
                  TypeSignature({Value::Type::FLOAT}, Value::Type::FLOAT),
                  TypeSignature({Value::Type::INT}, Value::Type::FLOAT)
                 }},
-    {"toInteger", {TypeSignature({Value::Type::STRING}, Value::Type::INT),
+    {"tointeger", {TypeSignature({Value::Type::STRING}, Value::Type::INT),
                    TypeSignature({Value::Type::STRING}, Value::Type::NULLVALUE),
                    TypeSignature({Value::Type::FLOAT}, Value::Type::INT),
                    TypeSignature({Value::Type::INT}, Value::Type::INT)
@@ -197,8 +197,9 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"datetime", {TypeSignature({}, Value::Type::DATETIME),
               TypeSignature({Value::Type::STRING}, Value::Type::DATETIME),
               TypeSignature({Value::Type::MAP}, Value::Type::DATETIME)}},
-    {"timestamp", {TypeSignature({Value::Type::STRING}, Value::Type::INT),
-                   TypeSignature({Value::Type::INT}, Value::Type::INT)}},
+    {"timestamp", {TypeSignature({}, Value::Type::INT),
+                TypeSignature({Value::Type::STRING}, Value::Type::INT),
+                TypeSignature({Value::Type::INT}, Value::Type::INT)}},
     {"tags", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
              }},
     {"labels", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
@@ -211,9 +212,9 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
              }},
     {"rank", {TypeSignature({Value::Type::EDGE}, Value::Type::INT),
              }},
-    {"startNode", {TypeSignature({Value::Type::EDGE}, Value::Type::VERTEX),
+    {"startnode", {TypeSignature({Value::Type::EDGE}, Value::Type::VERTEX),
                    TypeSignature({Value::Type::PATH}, Value::Type::VERTEX), }},
-    {"endNode", {TypeSignature({Value::Type::EDGE}, Value::Type::VERTEX),
+    {"endnode", {TypeSignature({Value::Type::EDGE}, Value::Type::VERTEX),
                  TypeSignature({Value::Type::PATH}, Value::Type::VERTEX), }},
     {"keys", {TypeSignature({Value::Type::VERTEX}, Value::Type::LIST),
               TypeSignature({Value::Type::EDGE}, Value::Type::LIST),
@@ -227,10 +228,10 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
     {"range",
      {TypeSignature({Value::Type::INT, Value::Type::INT}, Value::Type::LIST),
       TypeSignature({Value::Type::INT, Value::Type::INT, Value::Type::INT}, Value::Type::LIST)}},
-    {"hasSameEdgeInPath", { TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
-    {"hasSameVertexInPath", {TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
-    {"reversePath", {TypeSignature({Value::Type::PATH}, Value::Type::PATH), }},
-    {"dataSetRowCol", {TypeSignature({Value::Type::DATASET, Value::Type::INT, Value::Type::INT},
+    {"hassameedgeinpath", { TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
+    {"hassamevertexinpath", {TypeSignature({Value::Type::PATH}, Value::Type::BOOL), }},
+    {"reversepath", {TypeSignature({Value::Type::PATH}, Value::Type::PATH), }},
+    {"datasetrowcol", {TypeSignature({Value::Type::DATASET, Value::Type::INT, Value::Type::INT},
                                       Value::Type::__EMPTY__),
                        TypeSignature({Value::Type::DATASET, Value::Type::INT, Value::Type::STRING},
                                       Value::Type::__EMPTY__), }},
@@ -238,11 +239,13 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
 
 // static
 StatusOr<Value::Type>
-FunctionManager::getReturnType(const std::string &funName,
+FunctionManager::getReturnType(const std::string& funcName,
                                const std::vector<Value::Type> &argsType) {
-    auto iter = typeSignature_.find(funName);
+    auto func = funcName;
+    std::transform(func.begin(), func.end(), func.begin(), ::tolower);
+    auto iter = typeSignature_.find(func);
     if (iter == typeSignature_.end()) {
-        return Status::Error("Function `%s' not defined", funName.c_str());
+        return Status::Error("Function `%s' not defined", funcName.c_str());
     }
 
     for (const auto &args : iter->second) {
@@ -338,7 +341,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        // to nearest integer value not less than x
+        // returns the smallest floating point number that is not less than x
         auto &attr = functions_["ceil"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
@@ -361,7 +364,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        // to nearest integer value
+        // to nearest integral (as a floating-point value)
         auto &attr = functions_["round"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
@@ -932,7 +935,7 @@ FunctionManager::FunctionManager() {
                 }
             }
         };
-        functions_["toLower"] = attr;
+        functions_["tolower"] = attr;
     }
     {
         auto &attr = functions_["upper"];
@@ -956,7 +959,7 @@ FunctionManager::FunctionManager() {
                 }
             }
         };
-        functions_["toUpper"] = attr;
+        functions_["toupper"] = attr;
     }
     {
         auto &attr = functions_["length"];
@@ -1181,7 +1184,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        auto &attr = functions_["toString"];
+        auto &attr = functions_["tostring"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.isPure_ = true;
@@ -1222,7 +1225,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        auto &attr = functions_["toBoolean"];
+        auto &attr = functions_["toboolean"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.isPure_ = true;
@@ -1231,7 +1234,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        auto &attr = functions_["toFloat"];
+        auto &attr = functions_["tofloat"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.isPure_ = true;
@@ -1240,7 +1243,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        auto &attr = functions_["toInteger"];
+        auto &attr = functions_["tointeger"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.isPure_ = true;
@@ -1579,9 +1582,13 @@ FunctionManager::FunctionManager() {
     }
     {
         auto &attr = functions_["timestamp"];
-        attr.minArity_ = 1;
+        attr.minArity_ = 0;
         attr.maxArity_ = 1;
+        attr.isPure_ = false;
         attr.body_ = [](const auto &args) -> Value {
+            if (args.size() == 0) {
+                return time::WallClock::fastNowInSec();
+            }
             auto status = time::TimeUtils::toTimestamp(args[0]);
             if (!status.ok()) {
                 return Value::kNullBadData;
@@ -1770,7 +1777,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        auto &attr = functions_["startNode"];
+        auto &attr = functions_["startnode"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.isPure_ = true;
@@ -1792,7 +1799,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        auto &attr = functions_["endNode"];
+        auto &attr = functions_["endnode"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.isPure_ = true;
@@ -2006,7 +2013,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        auto &attr = functions_["hasSameEdgeInPath"];
+        auto &attr = functions_["hassameedgeinpath"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.isPure_ = true;
@@ -2019,7 +2026,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        auto &attr = functions_["hasSameVertexInPath"];
+        auto &attr = functions_["hassamevertexinpath"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.isPure_ = true;
@@ -2032,7 +2039,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        auto &attr = functions_["reversePath"];
+        auto &attr = functions_["reversepath"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
         attr.isPure_ = true;
@@ -2046,7 +2053,7 @@ FunctionManager::FunctionManager() {
         };
     }
     {
-        auto &attr = functions_["dataSetRowCol"];
+        auto &attr = functions_["datasetrowcol"];
         attr.minArity_ = 3;
         attr.maxArity_ = 3;
         attr.isPure_ = true;
@@ -2096,9 +2103,10 @@ Status FunctionManager::find(const std::string &func, const size_t arity) {
 }
 
 /*static*/ StatusOr<const FunctionManager::FunctionAttributes>
-FunctionManager::getInternal(const std::string &func,
+FunctionManager::getInternal(std::string func,
                              size_t arity) const {
     // check existence
+    std::transform(func.begin(), func.end(), func.begin(), ::tolower);
     auto iter = functions_.find(func);
     if (iter == functions_.end()) {
         return Status::Error("Function `%s' not defined", func.c_str());

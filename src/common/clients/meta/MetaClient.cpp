@@ -744,6 +744,8 @@ Status MetaClient::handleResponse(const RESP& resp) {
             return Status::Error("The space is not found when backup!");
         case cpp2::ErrorCode::E_RESTORE_FAILURE:
             return Status::Error("Restore failure!");
+        case cpp2::ErrorCode::E_INVALID_JOB:
+            return Status::Error("No valid job!");
         case cpp2::ErrorCode::E_UNKNOWN:
             return Status::Error("Unknown error!");
     }
@@ -1660,13 +1662,17 @@ MetaClient::createTagIndex(GraphSpaceID spaceID,
                            std::string indexName,
                            std::string tagName,
                            std::vector<cpp2::IndexFieldDef> fields,
-                           bool ifNotExists) {
+                           bool ifNotExists,
+                           const std::string *comment) {
     cpp2::CreateTagIndexReq req;
     req.set_space_id(spaceID);
     req.set_index_name(std::move(indexName));
     req.set_tag_name(std::move(tagName));
     req.set_fields(std::move(fields));
     req.set_if_not_exists(ifNotExists);
+    if (comment != nullptr) {
+        req.set_comment(*comment);
+    }
 
     folly::Promise<StatusOr<IndexID>> promise;
     auto future = promise.getFuture();
@@ -1787,13 +1793,17 @@ MetaClient::createEdgeIndex(GraphSpaceID spaceID,
                             std::string indexName,
                             std::string edgeName,
                             std::vector<cpp2::IndexFieldDef> fields,
-                            bool ifNotExists) {
+                            bool ifNotExists,
+                            const std::string *comment) {
     cpp2::CreateEdgeIndexReq req;
     req.set_space_id(spaceID);
     req.set_index_name(std::move(indexName));
     req.set_edge_name(std::move(edgeName));
     req.set_fields(std::move(fields));
     req.set_if_not_exists(ifNotExists);
+    if (comment != nullptr) {
+        req.set_comment(*comment);
+    }
 
     folly::Promise<StatusOr<IndexID>> promise;
     auto future = promise.getFuture();
@@ -2017,6 +2027,23 @@ StatusOr<EdgeSchemas> MetaClient::getAllVerEdgeSchema(GraphSpaceID spaceId) {
     return iter->second->edgeSchemas_;
 }
 
+StatusOr<EdgeSchema> MetaClient::getAllLatestVerEdgeSchemaFromCache(const GraphSpaceID& spaceId) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto iter = localCache_.find(spaceId);
+    if (iter == localCache_.end()) {
+        return Status::Error("Space %d not found", spaceId);
+    }
+    EdgeSchema edgesSchema;
+    edgesSchema.reserve(iter->second->edgeSchemas_.size());
+    // fetch all edgeTypes
+    for (const auto& edgeSchema : iter->second->edgeSchemas_) {
+        edgesSchema.emplace(edgeSchema.first, edgeSchema.second.back());
+    }
+    return edgesSchema;
+}
 
 folly::Future<StatusOr<bool>>
 MetaClient::rebuildEdgeIndex(GraphSpaceID spaceID,
@@ -2315,7 +2342,7 @@ folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
                 FileBasedClusterIdMan::getClusterIdFromFile(FLAGS_cluster_id_path);
         }
         req.set_cluster_id(options_.clusterId_.load());
-        std::unordered_map<GraphSpaceID, std::vector<PartitionID>> leaderIds;
+        std::unordered_map<GraphSpaceID, std::vector<cpp2::LeaderInfo>> leaderIds;
         if (listener_ != nullptr) {
             listener_->fetchLeaderInfo(leaderIds);
             if (leaderIds_ != leaderIds) {
