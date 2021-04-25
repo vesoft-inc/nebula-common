@@ -21,24 +21,24 @@ public:
     TimeParser() = default;
 
     StatusOr<Date> parseDate(folly::StringPiece str) {
-        type_ = ExpectType::kDate;
+        ctx_.type = ExpectType::kDate;
         NG_RETURN_IF_ERROR(lex(str));
         NG_RETURN_IF_ERROR(parse());
-        return Date{result_.year, result_.month, result_.day};
+        return Date{ctx_.result.year, ctx_.result.month, ctx_.result.day};
     }
 
     StatusOr<Time> parseTime(folly::StringPiece str) {
-        type_ = ExpectType::kTime;
+        ctx_.type = ExpectType::kTime;
         NG_RETURN_IF_ERROR(lex(str));
         NG_RETURN_IF_ERROR(parse());
-        return Time{result_.hour, result_.minute, result_.sec, result_.microsec};
+        return Time{ctx_.result.hour, ctx_.result.minute, ctx_.result.sec, ctx_.result.microsec};
     }
 
     StatusOr<DateTime> parseDateTime(folly::StringPiece str) {
-        type_ = ExpectType::kDateTime;
+        ctx_.type = ExpectType::kDateTime;
         NG_RETURN_IF_ERROR(lex(str));
         NG_RETURN_IF_ERROR(parse());
-        return result_;
+        return ctx_.result;
     }
 
 private:
@@ -98,11 +98,18 @@ private:
         kSize,              // Just for count
     };
 
+    struct Context {
+        DateTime result;
+        ExpectType type;
+
+        TokenType utcSign{TokenType::kUnknown};
+        int32_t utcOffsetSecs{0};
+    };
+
     struct Component {
         const State state;   // current state
         // State shift function
-        std::function<StatusOr<State>(Token, Token, DateTime&, ExpectType, TokenType&, int32_t&)>
-            next;
+        std::function<StatusOr<State>(Token, Token, Context&)> next;
     };
 
     // All states of datetime
@@ -114,11 +121,7 @@ private:
 
 private:
     std::vector<Token> tokens_;
-    DateTime result_;
-    ExpectType type_;
-
-    TokenType utcSign_{TokenType::kUnknown};
-    int32_t utcOffsetSecs_{0};
+    Context ctx_;
 };
 
 }   // namespace time

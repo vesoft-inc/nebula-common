@@ -15,29 +15,29 @@ namespace time {
 /*static*/ const std::vector<TimeParser::Component> TimeParser::dateTimeStates = {
     // State, ShiftMap
     {kInitial,
-     [](Token, Token, DateTime&, ExpectType type, TokenType&, int32_t&) -> StatusOr<State> {
-         if (type == ExpectType::kDateTime) {
+     [](Token, Token, Context &ctx) -> StatusOr<State> {
+         if (ctx.type == ExpectType::kDateTime) {
              return kDateYear;
-         } else if (type == ExpectType::kDate) {
+         } else if (ctx.type == ExpectType::kDate) {
              return kDateYear;
-         } else if (type == ExpectType::kTime) {
+         } else if (ctx.type == ExpectType::kTime) {
              return kTimeHour;
          }
-         return Status::Error("Unknown time type.");
+         return Status::Error("Unknown time ctx.type.");
      }},
     {kDateYear,
-     [](Token t, Token n, DateTime& val, ExpectType type, TokenType&, int32_t&) -> StatusOr<State> {
+     [](Token t, Token n, Context &ctx) -> StatusOr<State> {
          if (t.type == TokenType::kNumber) {
-             if (t.val < std::numeric_limits<decltype(val.year)>::min() ||
-                 t.val > std::numeric_limits<decltype(val.year)>::max()) {
+             if (t.val < std::numeric_limits<decltype(ctx.result.year)>::min() ||
+                 t.val > std::numeric_limits<decltype(ctx.result.year)>::max()) {
                  return Status::Error("The year number `%d' exceed the number limit.", t.val);
              }
-             val.year = t.val;
+             ctx.result.year = t.val;
              switch (n.type) {
                  case TokenType::kMinus:
                      return kDateMonth;
                  case TokenType::kTimePrefix:
-                     if (type == ExpectType::kDate) {
+                     if (ctx.type == ExpectType::kDate) {
                          return Status::Error("Unexpected read-ahead token `%s'.",
                                               toString(n.type));
                      }
@@ -52,7 +52,7 @@ namespace time {
          }
      }},
     {kDateMonth,
-     [](Token t, Token n, DateTime& val, ExpectType type, TokenType&, int32_t&) -> StatusOr<State> {
+     [](Token t, Token n, Context &ctx) -> StatusOr<State> {
          if (t.type == TokenType::kMinus) {
              return kDateMonth;
          }
@@ -60,12 +60,12 @@ namespace time {
              if (t.val < 1 || t.val > 12) {
                  return Status::Error("The month number `%d' exceed the number limit.", t.val);
              }
-             val.month = t.val;
+             ctx.result.month = t.val;
              switch (n.type) {
                  case TokenType::kMinus:
                      return kDateDay;
                  case TokenType::kTimePrefix:
-                     if (type == ExpectType::kDate) {
+                     if (ctx.type == ExpectType::kDate) {
                          return Status::Error("Unexpected read-ahead token `%s'.",
                                               toString(n.type));
                      }
@@ -80,7 +80,7 @@ namespace time {
          }
      }},
     {kDateDay,
-     [](Token t, Token n, DateTime& val, ExpectType type, TokenType&, int32_t&) -> StatusOr<State> {
+     [](Token t, Token n, Context &ctx) -> StatusOr<State> {
          if (t.type == TokenType::kMinus) {
              return kDateDay;
          }
@@ -88,10 +88,10 @@ namespace time {
              if (t.val < 1 || t.val > 31) {
                  return Status::Error("The day number `%d' exceed the number limit.", t.val);
              }
-             val.day = t.val;
+             ctx.result.day = t.val;
              switch (n.type) {
                  case TokenType::kTimePrefix:
-                     if (type == ExpectType::kDate) {
+                     if (ctx.type == ExpectType::kDate) {
                          return Status::Error("Unexpected read-ahead token `%s'.",
                                               toString(n.type));
                      }
@@ -106,7 +106,7 @@ namespace time {
          }
      }},
     {kTimeHour,
-     [](Token t, Token n, DateTime& val, ExpectType, TokenType&, int32_t&) -> StatusOr<State> {
+     [](Token t, Token n, Context &ctx) -> StatusOr<State> {
          if (t.type == TokenType::kTimePrefix) {
              return kTimeHour;
          }
@@ -114,7 +114,7 @@ namespace time {
              if (t.val < 0 || t.val > 23) {
                  return Status::Error("The hour number `%d' exceed the number limit.", t.val);
              }
-             val.hour = t.val;
+             ctx.result.hour = t.val;
              switch (n.type) {
                  case TokenType::kTimeDelimiter:
                      return kTimeMinute;
@@ -133,7 +133,7 @@ namespace time {
          return Status::OK();
      }},
     {kTimeMinute,
-     [](Token t, Token n, DateTime& val, ExpectType, TokenType&, int32_t&) -> StatusOr<State> {
+     [](Token t, Token n, Context &ctx) -> StatusOr<State> {
          if (t.type == TokenType::kTimeDelimiter) {
              return kTimeMinute;
          }
@@ -141,7 +141,7 @@ namespace time {
              if (t.val < 0 || t.val > 59) {
                  return Status::Error("The minute number `%d' exceed the number limit.", t.val);
              }
-             val.minute = t.val;
+             ctx.result.minute = t.val;
              switch (n.type) {
                  case TokenType::kTimeDelimiter:
                      return kTimeSecond;
@@ -160,7 +160,7 @@ namespace time {
          return Status::OK();
      }},
     {kTimeSecond,
-     [](Token t, Token n, DateTime& val, ExpectType, TokenType&, int32_t&) -> StatusOr<State> {
+     [](Token t, Token n, Context &ctx) -> StatusOr<State> {
          if (t.type == TokenType::kTimeDelimiter) {
              return kTimeSecond;
          }
@@ -168,7 +168,7 @@ namespace time {
              if (t.val < 0 || t.val > 59) {
                  return Status::Error("The second number `%d' exceed the number limit.", t.val);
              }
-             val.sec = t.val;
+             ctx.result.sec = t.val;
              switch (n.type) {
                  case TokenType::kMicroSecondPrefix:
                      return kTimeMicroSecond;
@@ -187,7 +187,7 @@ namespace time {
          return Status::OK();
      }},
     {kTimeMicroSecond,
-     [](Token t, Token n, DateTime& val, ExpectType, TokenType&, int32_t&) -> StatusOr<State> {
+     [](Token t, Token n, Context &ctx) -> StatusOr<State> {
          if (t.type == TokenType::kMicroSecondPrefix) {
              return kTimeMicroSecond;
          }
@@ -196,7 +196,7 @@ namespace time {
                  return Status::Error("The microsecond number `%d' exceed the number limit.",
                                       t.val);
              }
-             val.microsec = t.val;
+             ctx.result.microsec = t.val;
              switch (n.type) {
                  case TokenType::kMicroSecondPrefix:
                      return kTimeMicroSecond;
@@ -215,21 +215,20 @@ namespace time {
          return Status::OK();
      }},
     {kUtcOffset,
-     [](Token t, Token, DateTime& val, ExpectType, TokenType& utcSign, int32_t&)
-         -> StatusOr<State> {
+     [](Token t, Token, Context &ctx) -> StatusOr<State> {
          switch (t.type) {
              case TokenType::kPlus:
              case TokenType::kMinus:
-                 if (utcSign != TokenType::kUnknown) {
+                 if (ctx.utcSign != TokenType::kUnknown) {
                      return Status::Error("Unexpected token `%s'.", toString(t.type));
                  }
-                 utcSign = t.type;
+                 ctx.utcSign = t.type;
                  return kUtcOffsetHour;
              case TokenType::kTimeZoneName: {
                  Timezone tz;
                  auto result = tz.loadFromDb(t.str);
                  NG_RETURN_IF_ERROR(result);
-                 val = TimeUtils::dateTimeShift(val, tz.utcOffsetSecs());
+                 ctx.result = TimeUtils::dateTimeShift(ctx.result, tz.utcOffsetSecs());
                  return kEnd;
              }
              default:
@@ -237,22 +236,21 @@ namespace time {
          }
      }},
     {kUtcOffsetHour,
-     [](Token t, Token, DateTime&, ExpectType, TokenType& utcSign, int32_t& utcOffsetSecs)
-         -> StatusOr<State> {
+     [](Token t, Token, Context &ctx) -> StatusOr<State> {
          switch (t.type) {
              case TokenType::kNumber:
                  if (t.val > 23) {
                      return Status::Error("Unexpected utc offset hours number `%d'.", t.val);
                  }
-                 utcOffsetSecs = (utcSign == TokenType::kPlus ? t.val * 60 * 60 : -t.val * 60 * 60);
+                 ctx.utcOffsetSecs =
+                     (ctx.utcSign == TokenType::kPlus ? t.val * 60 * 60 : -t.val * 60 * 60);
                  return kUtcOffsetMinute;
              default:
                  return Status::Error("Unexpected token `%s'.", toString(t.type));
          }
      }},
     {kUtcOffsetMinute,
-     [](Token t, Token n, DateTime& val, ExpectType, TokenType& utcSign, int32_t& utcOffsetSecs)
-         -> StatusOr<State> {
+     [](Token t, Token n, Context &ctx) -> StatusOr<State> {
          switch (t.type) {
              case TokenType::kTimeDelimiter:
                  if (n.type != TokenType::kNumber) {
@@ -263,20 +261,17 @@ namespace time {
                  if (t.val > 59) {
                      return Status::Error("Unexpected utc offset minutes number `%d'.", t.val);
                  }
-                 utcOffsetSecs += (utcSign == TokenType::kPlus ? t.val * 60 : -t.val * 60);
-                 val = TimeUtils::dateTimeShift(val, utcOffsetSecs);
+                 ctx.utcOffsetSecs += (ctx.utcSign == TokenType::kPlus ? t.val * 60 : -t.val * 60);
+                 ctx.result = TimeUtils::dateTimeShift(ctx.result, ctx.utcOffsetSecs);
                  return kEnd;
              default:
                  return Status::Error("Unexpected token `%s'.", toString(t.type));
          }
      }},
-    {kEnd,
-     [](Token, Token, DateTime&, ExpectType, TokenType&, int32_t&) -> StatusOr<State> {
-         return Status::OK();
-     }},
+    {kEnd, [](Token, Token, Context &) -> StatusOr<State> { return Status::OK(); }},
 };
 
-/*static*/ const char* TimeParser::toString(TokenType t) {
+/*static*/ const char *TimeParser::toString(TokenType t) {
     switch (t) {
         case TokenType::kUnknown:
             return "Unknown";
@@ -300,7 +295,7 @@ namespace time {
     LOG(FATAL) << "Unknown token " << static_cast<int>(t);
 }
 
-/*static*/ std::string TimeParser::toString(const Token& t) {
+/*static*/ std::string TimeParser::toString(const Token &t) {
     std::stringstream ss;
     ss << toString(t.type);
     ss << "(";
@@ -326,7 +321,7 @@ Status TimeParser::lex(folly::StringPiece str) {
                 Token t;
                 try {
                     t.val = folly::to<int32_t>(digits);
-                } catch (std::exception& e) {
+                } catch (std::exception &e) {
                     return Status::Error("%s", e.what());
                 }
                 t.type = TokenType::kNumber;
@@ -363,12 +358,11 @@ Status TimeParser::lex(folly::StringPiece str) {
 }
 
 Status TimeParser::parse() {
-    auto result = dateTimeStates[kInitial].next({}, {}, result_, type_, utcSign_, utcOffsetSecs_);
+    auto result = dateTimeStates[kInitial].next({}, {}, ctx_);
     NG_RETURN_IF_ERROR(result);
     auto current = result.value();
     for (std::size_t i = 0; i < tokens_.size() - 1; ++i) {
-        result = dateTimeStates[current].next(
-            tokens_[i], tokens_[i + 1], result_, type_, utcSign_, utcOffsetSecs_);
+        result = dateTimeStates[current].next(tokens_[i], tokens_[i + 1], ctx_);
         NG_RETURN_IF_ERROR(result);
         current = result.value();
         if (current == kEnd) {
