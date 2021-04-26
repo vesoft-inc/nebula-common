@@ -365,6 +365,8 @@ namespace time {
         case kSize:
             return "Size";
     }
+    DLOG(FATAL) << "Unknown state " << static_cast<int>(state);
+    return "Unknown";
 }
 
 Status TimeParser::lex(folly::StringPiece str) {
