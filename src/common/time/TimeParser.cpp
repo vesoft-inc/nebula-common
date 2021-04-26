@@ -120,8 +120,9 @@ namespace time {
                      return kTimeMinute;
                  case TokenType::kPlus:
                  case TokenType::kMinus:
-                 case TokenType::kTimeZoneName:
                      return kUtcOffset;
+                 case TokenType::kTimeZoneName:
+                     return kTimeZone;
                  case TokenType::kPlaceHolder:
                      return kEnd;
                  default:
@@ -147,8 +148,9 @@ namespace time {
                      return kTimeSecond;
                  case TokenType::kPlus:
                  case TokenType::kMinus:
-                 case TokenType::kTimeZoneName:
                      return kUtcOffset;
+                 case TokenType::kTimeZoneName:
+                     return kTimeZone;
                  case TokenType::kPlaceHolder:
                      return kEnd;
                  default:
@@ -174,8 +176,9 @@ namespace time {
                      return kTimeMicroSecond;
                  case TokenType::kPlus:
                  case TokenType::kMinus:
-                 case TokenType::kTimeZoneName:
                      return kUtcOffset;
+                 case TokenType::kTimeZoneName:
+                     return kTimeZone;
                  case TokenType::kPlaceHolder:
                      return kEnd;
                  default:
@@ -202,8 +205,9 @@ namespace time {
                      return kTimeMicroSecond;
                  case TokenType::kPlus:
                  case TokenType::kMinus:
-                 case TokenType::kTimeZoneName:
                      return kUtcOffset;
+                 case TokenType::kTimeZoneName:
+                     return kTimeZone;
                  case TokenType::kPlaceHolder:
                      return kEnd;
                  default:
@@ -224,13 +228,6 @@ namespace time {
                  }
                  ctx.utcSign = t.type;
                  return kUtcOffsetHour;
-             case TokenType::kTimeZoneName: {
-                 Timezone tz;
-                 auto result = tz.loadFromDb(t.str);
-                 NG_RETURN_IF_ERROR(result);
-                 ctx.result = TimeUtils::dateTimeShift(ctx.result, tz.utcOffsetSecs());
-                 return kEnd;
-             }
              default:
                  return Status::Error("Unexpected token `%s'.", toString(t.type));
          }
@@ -262,11 +259,39 @@ namespace time {
                      return Status::Error("Unexpected utc offset minutes number `%d'.", t.val);
                  }
                  ctx.utcOffsetSecs += (ctx.utcSign == TokenType::kPlus ? t.val * 60 : -t.val * 60);
-                 ctx.result = TimeUtils::dateTimeShift(ctx.result, ctx.utcOffsetSecs);
-                 return kEnd;
+                 if (n.type == TokenType::kPlaceHolder) {
+                     ctx.result = TimeUtils::dateTimeShift(ctx.result, ctx.utcOffsetSecs);
+                     return kEnd;
+                 } else if (n.type == TokenType::kTimeZoneName) {
+                     return kTimeZone;
+                 } else {
+                     return Status::Error("Unexpected read-head token `%s'.", toString(n.type));
+                 }
              default:
                  return Status::Error("Unexpected token `%s'.", toString(t.type));
          }
+     }},
+    {kTimeZone,
+     [](Token t, Token n, Context &ctx) -> StatusOr<State> {
+         DCHECK(t.type == TokenType::kTimeZoneName);
+         if (n.type != TokenType::kPlaceHolder) {
+             return Status::Error("Unexpected read-head token `%s'.", toString(n.type));
+         }
+         int32_t utcOffsetSecs = 0;
+         Timezone tz;
+         auto result = tz.loadFromDb(t.str);
+         NG_RETURN_IF_ERROR(result);
+         if (ctx.utcSign != TokenType::kUnknown) {
+             if (tz.utcOffsetSecs() != ctx.utcOffsetSecs) {
+                 return Status::Error("Mismatched time zone offset and time zone name.");
+             } else {
+                 utcOffsetSecs = ctx.utcOffsetSecs;
+             }
+         } else {
+             utcOffsetSecs = tz.utcOffsetSecs();
+         }
+         ctx.result = TimeUtils::dateTimeShift(ctx.result, utcOffsetSecs);
+         return kEnd;
      }},
     {kEnd, [](Token, Token, Context &) -> StatusOr<State> { return Status::OK(); }},
 };
@@ -307,6 +332,39 @@ namespace time {
     }
     ss << ")";
     return ss.str();
+}
+
+/*static*/ const char *TimeParser::toString(State state) {
+    switch (state) {
+        case kInitial:
+            return "Initial";
+        case kDateYear:
+            return "DateYear";
+        case kDateMonth:
+            return "DateMonth";
+        case kDateDay:
+            return "DateDay";
+        case kTimeHour:
+            return "TimeHour";
+        case kTimeMinute:
+            return "TimeMinute";
+        case kTimeSecond:
+            return "TimeSecond";
+        case kTimeMicroSecond:
+            return "TimeMicroSecond";
+        case kUtcOffset:
+            return "UtcOffset";
+        case kUtcOffsetHour:
+            return "UtcOffsetHour";
+        case kUtcOffsetMinute:
+            return "UtcOffsetMinute";
+        case kTimeZone:
+            return "TimeZone";
+        case kEnd:
+            return "End";
+        case kSize:
+            return "Size";
+    }
 }
 
 Status TimeParser::lex(folly::StringPiece str) {

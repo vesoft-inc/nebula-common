@@ -94,9 +94,12 @@ private:
         kUtcOffset,         // 8
         kUtcOffsetHour,     // 9
         kUtcOffsetMinute,   // 10
-        kEnd,               // 11
+        kTimeZone,          // 11
+        kEnd,               // 12
         kSize,              // Just for count
     };
+
+    static const char* toString(State state);
 
     struct Context {
         DateTime result;
