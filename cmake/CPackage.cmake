@@ -51,6 +51,16 @@ macro(package to_one name home_page scripts_dir)
         )
         string(REPLACE "." "" HOST_SYSTEM_VER ${HOST_SYSTEM_VER})
         string(CONCAT HOST_SYSTEM_VER "ubuntu" ${HOST_SYSTEM_VER})
+    elseif (EXISTS "/etc/issue")
+        set(CPACK_GENERATOR "DEB")
+        file (STRINGS "/etc/issue" SYSTEM_NAME)
+        execute_process(
+            COMMAND echo "${SYSTEM_NAME}"
+            COMMAND cut -d " " -f 3
+            OUTPUT_VARIABLE HOST_SYSTEM_VER
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        string(CONCAT HOST_SYSTEM_VER "debian" ${HOST_SYSTEM_VER})
     else()
         set(HOST_SYSTEM_VER "Unknown")
     endif()
