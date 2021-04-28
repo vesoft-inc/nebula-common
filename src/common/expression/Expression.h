@@ -49,6 +49,7 @@ public:
         kNotEndsWith,
 
         kSubscript,
+        kSubscriptRange,
         kAttribute,
         kLabelAttribute,
         kColumn,
