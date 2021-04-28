@@ -87,8 +87,9 @@ enum ErrorCode {
     E_FILTER_OUT             = -81,
     E_INVALID_DATA           = -82,
 
+    E_MUTATE_EDGE_CONFLICT   = -83,
+    E_MUTATE_TAG_CONFLICT    = -84,
     // transaction
-    E_MUTATE_EDGE_CONFLICT   = -85,
     E_OUTDATED_LOCK          = -86,
 
     // task manager failed
@@ -814,19 +815,9 @@ struct RebuildIndexRequest {
 }
 
 struct CreateCPResp {
-    1: required ResponseCommon result,
-    2: binary                  path,
-}
-
-struct PartitionInfoResp {
-    1: required ResponseCommon          result,
-    2: binary                           backup_name,
-    3: common.PartitionBackupInfo       partition_info,
-}
-
-struct PartitionInfoRequest {
-    1: common.GraphSpaceID                  space_id,
-    2: binary                               backup_name,
+    1: required ResponseCommon    result,
+    2: binary                     path,
+    3: common.PartitionBackupInfo partition_info,
 }
 
 struct ListClusterInfoResp {
