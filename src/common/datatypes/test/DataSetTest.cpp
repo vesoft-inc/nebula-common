@@ -15,11 +15,11 @@ TEST(DataSetTest, Basic) {
     data.emplace_back(nebula::Row({4, 5, 6}));
     data.emplace_back(nebula::Row({7, 8, 9}));
 
-    EXPECT_EQ(std::vector<std::string>({"col1", "col2", "col3"}), data.keys());
+    EXPECT_EQ(folly::fbvector<std::string>({"col1", "col2", "col3"}), data.keys());
 
-    EXPECT_EQ(std::vector<nebula::Value>({4, 5, 6}), data.rowValues(1));
+    EXPECT_EQ(folly::fbvector<nebula::Value>({4, 5, 6}), data.rowValues(1));
 
-    EXPECT_EQ(std::vector<nebula::Value>({2, 5, 8}), data.colValues("col2"));
+    EXPECT_EQ(folly::fbvector<nebula::Value>({2, 5, 8}), data.colValues("col2"));
 
     nebula::DataSet data2({"col1", "col2", "col3"});
     for (const auto &it : data) {

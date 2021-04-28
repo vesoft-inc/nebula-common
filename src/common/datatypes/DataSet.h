@@ -20,11 +20,11 @@ namespace nebula {
 using Row = List;
 
 struct DataSet {
-    std::vector<std::string> colNames;
-    std::vector<Row> rows;
+    folly::fbvector<std::string> colNames;
+    folly::fbvector<Row> rows;
 
     DataSet() = default;
-    explicit DataSet(std::vector<std::string>&& colNames_) : colNames(std::move(colNames_)) {}
+    explicit DataSet(folly::fbvector<std::string>&& colNames_) : colNames(std::move(colNames_)) {}
     DataSet(const DataSet& ds) noexcept {
         colNames = ds.colNames;
         rows = ds.rows;
@@ -48,16 +48,16 @@ struct DataSet {
         return *this;
     }
 
-    const std::vector<std::string>& keys() const {
+    const folly::fbvector<std::string>& keys() const {
         return colNames;
     }
 
-    const std::vector<Value>& rowValues(std::size_t index) const {
+    const folly::fbvector<Value>& rowValues(std::size_t index) const {
         return rows[index].values;
     }
 
-    std::vector<Value> colValues(const std::string &colName) const {
-        std::vector<Value> col;
+    folly::fbvector<Value> colValues(const std::string &colName) const {
+        folly::fbvector<Value> col;
         const auto find = std::find(colNames.begin(), colNames.end(), colName);
         if (find == colNames.end()) {
             return col;
@@ -70,8 +70,8 @@ struct DataSet {
         return col;
     }
 
-    using iterator = std::vector<Row>::iterator;
-    using const_iterator = std::vector<Row>::const_iterator;
+    using iterator = folly::fbvector<Row>::iterator;
+    using const_iterator = folly::fbvector<Row>::const_iterator;
 
     iterator begin() {
         return rows.begin();

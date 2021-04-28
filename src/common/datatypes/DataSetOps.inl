@@ -59,14 +59,14 @@ uint32_t Cpp2Ops<nebula::DataSet>::write(Protocol* proto,
     xfer += proto->writeFieldBegin("column_names", protocol::T_LIST, 1);
     xfer += detail::pm::protocol_methods<
             type_class::list<type_class::binary>,
-            std::vector<std::string>
+            folly::fbvector<std::string>
         >::write(*proto, obj->colNames);
     xfer += proto->writeFieldEnd();
 
     xfer += proto->writeFieldBegin("rows", apache::thrift::protocol::T_LIST, 2);
     xfer += detail::pm::protocol_methods<
             type_class::list<type_class::structure>,
-            std::vector<nebula::Row>
+            folly::fbvector<nebula::Row>
         >::write(*proto, obj->rows);
     xfer += proto->writeFieldEnd();
 
@@ -90,10 +90,10 @@ void Cpp2Ops<nebula::DataSet>::read(Protocol* proto, nebula::DataSet* obj) {
 
 _readField_column_names:
     {
-        obj->colNames = std::vector<std::string>();
+        obj->colNames = folly::fbvector<std::string>();
         detail::pm::protocol_methods<
                 type_class::list<type_class::binary>,
-                std::vector<std::string>
+                folly::fbvector<std::string>
             >::read(*proto, obj->colNames);
     }
 
@@ -103,10 +103,10 @@ _readField_column_names:
 
 _readField_rows:
     {
-        obj->rows = std::vector<nebula::Row>();
+        obj->rows = folly::fbvector<nebula::Row>();
         detail::pm::protocol_methods<
                 type_class::list<type_class::structure>,
-                std::vector<nebula::Row>
+                folly::fbvector<nebula::Row>
             >::read(*proto, obj->rows);
     }
 
@@ -169,13 +169,13 @@ uint32_t Cpp2Ops<nebula::DataSet>::serializedSize(Protocol const* proto,
     xfer += proto->serializedFieldSize("column_names", protocol::T_LIST, 1);
     xfer += detail::pm::protocol_methods<
             type_class::list<type_class::binary>,
-            std::vector<std::string>
+            folly::fbvector<std::string>
         >::serializedSize<false>(*proto, obj->colNames);
 
     xfer += proto->serializedFieldSize("rows", apache::thrift::protocol::T_LIST, 2);
     xfer += detail::pm::protocol_methods<
             type_class::list<type_class::structure>,
-            std::vector<nebula::Row>
+            folly::fbvector<nebula::Row>
         >::serializedSize<false>(*proto, obj->rows);
 
     xfer += proto->serializedSizeStop();
@@ -192,13 +192,13 @@ uint32_t Cpp2Ops<nebula::DataSet>::serializedSizeZC(Protocol const* proto,
     xfer += proto->serializedFieldSize("column_names", protocol::T_LIST, 1);
     xfer += detail::pm::protocol_methods<
             type_class::list<type_class::binary>,
-            std::vector<std::string>
+            folly::fbvector<std::string>
         >::serializedSize<false>(*proto, obj->colNames);
 
     xfer += proto->serializedFieldSize("rows", protocol::T_LIST, 2);
     xfer += detail::pm::protocol_methods<
             type_class::list<type_class::structure>,
-            std::vector<nebula::Row>
+            folly::fbvector<nebula::Row>
         >::serializedSize<false>(*proto, obj->rows);
 
     xfer += proto->serializedSizeStop();

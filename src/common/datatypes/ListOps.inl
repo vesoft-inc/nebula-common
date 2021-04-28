@@ -50,7 +50,7 @@ uint32_t Cpp2Ops<nebula::List>::write(Protocol* proto, nebula::List const* obj) 
     xfer += proto->writeFieldBegin("values", apache::thrift::protocol::T_LIST, 1);
     xfer += detail::pm::protocol_methods<
             type_class::list<type_class::structure>,
-            std::vector<nebula::Value>
+            folly::fbvector<nebula::Value>
         >::write(*proto, obj->values);
     xfer += proto->writeFieldEnd();
 
@@ -74,10 +74,10 @@ void Cpp2Ops<nebula::List>::read(Protocol* proto, nebula::List* obj) {
 
 _readField_values:
     {
-        obj->values = std::vector<nebula::Value>();
+        obj->values = folly::fbvector<nebula::Value>();
         detail::pm::protocol_methods<
                 type_class::list<type_class::structure>,
-                std::vector<nebula::Value>
+                folly::fbvector<nebula::Value>
             >::read(*proto, obj->values);
     }
 
@@ -130,7 +130,7 @@ uint32_t Cpp2Ops<nebula::List>::serializedSize(Protocol const* proto,
     xfer += proto->serializedFieldSize("values", apache::thrift::protocol::T_LIST, 1);
     xfer += detail::pm::protocol_methods<
             type_class::list<type_class::structure>,
-            std::vector<nebula::Value>
+            folly::fbvector<nebula::Value>
         >::serializedSize<false>(*proto, obj->values);
     xfer += proto->serializedSizeStop();
     return xfer;
@@ -146,7 +146,7 @@ uint32_t Cpp2Ops<nebula::List>::serializedSizeZC(Protocol const* proto,
     xfer += proto->serializedFieldSize("values", apache::thrift::protocol::T_LIST, 1);
     xfer += detail::pm::protocol_methods<
             type_class::list<type_class::structure>,
-            std::vector<nebula::Value>
+            folly::fbvector<nebula::Value>
         >::serializedSize<false>(*proto, obj->values);
     xfer += proto->serializedSizeStop();
     return xfer;

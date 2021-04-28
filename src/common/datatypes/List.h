@@ -9,21 +9,37 @@
 
 #include <vector>
 #include <algorithm>
+#include <folly/FBVector.h>
 
 #include "common/datatypes/Value.h"
 
 namespace nebula {
 
 struct List {
-    std::vector<Value> values;
+    folly::fbvector<Value> values;
 
     List() = default;
     List(const List&) = default;
     List(List&&) noexcept = default;
-    explicit List(std::vector<Value>&& vals) {
+    explicit List(folly::fbvector<Value>&& vals) {
         values = std::move(vals);
     }
-    explicit List(const std::vector<Value> &l) : values(l) {}
+
+    explicit List(const folly::fbvector<Value> &l) : values(l) {}
+
+    explicit List(std::vector<Value>&& vals) {
+        values.insert(values.begin(),
+                      std::make_move_iterator(vals.begin()),
+                      std::make_move_iterator(vals.end()));
+    }
+
+    explicit List(const std::vector<Value> &l) {
+        values.insert(values.begin(), l.begin(), l.end());
+    }
+
+    explicit List(std::initializer_list<Value> il) {
+        values.insert(values.begin(), il.begin(), il.end());
+    }
 
     bool empty() const {
         return values.empty();
