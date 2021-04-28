@@ -327,12 +327,30 @@ TEST(ExpressionEncodeDecode, SubscriptExpression) {
 }
 
 TEST(ExpressionEncodeDecode, SubscriptRangeExpression) {
-    auto *list = new ListExpression();
-    auto *left = new ConstantExpression(1);
-    auto *right = new ConstantExpression(2);
-    auto origin = std::make_unique<SubscriptRangeExpression>(list, left, right);
-    auto decoded = Expression::decode(Expression::encode(*origin));
-    ASSERT_EQ(*origin, *decoded);
+    {
+        auto *list = new ListExpression();
+        auto *left = new ConstantExpression(1);
+        auto *right = new ConstantExpression(2);
+        auto origin = std::make_unique<SubscriptRangeExpression>(list, left, right);
+        auto decoded = Expression::decode(Expression::encode(*origin));
+        ASSERT_EQ(*origin, *decoded);
+    }
+    {
+        auto *list = new ListExpression();
+        Expression *left = nullptr;
+        auto *right = new ConstantExpression(2);
+        auto origin = std::make_unique<SubscriptRangeExpression>(list, left, right);
+        auto decoded = Expression::decode(Expression::encode(*origin));
+        ASSERT_EQ(*origin, *decoded);
+    }
+    {
+        auto *list = new ListExpression();
+        auto *left = new ConstantExpression(1);
+        Expression *right = nullptr;
+        auto origin = std::make_unique<SubscriptRangeExpression>(list, left, right);
+        auto decoded = Expression::decode(Expression::encode(*origin));
+        ASSERT_EQ(*origin, *decoded);
+    }
 }
 
 TEST(ExpressionEncodeDecode, LabelExpression) {
