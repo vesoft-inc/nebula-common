@@ -212,3 +212,9 @@ struct NodeInfo {
 struct PartitionBackupInfo {
     1: map<PartitionID, LogInfo> (cpp.template = "std::unordered_map")  info,
 }
+
+struct CheckpointInfo {
+    1: PartitionBackupInfo   partition_info,
+    // storage checkpoint directory name
+    2: binary                path,
+}

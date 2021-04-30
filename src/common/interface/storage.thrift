@@ -815,9 +815,8 @@ struct RebuildIndexRequest {
 }
 
 struct CreateCPResp {
-    1: required ResponseCommon    result,
-    2: binary                     path,
-    3: common.PartitionBackupInfo partition_info,
+    1: required ResponseCommon      result,
+    2: list<common.CheckpointInfo>  info,
 }
 
 struct ListClusterInfoResp {

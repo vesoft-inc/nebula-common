@@ -1036,16 +1036,14 @@ struct GetStatisResp {
     3: StatisItem       statis,
 }
 
-struct CheckpointInfo {
+struct BackupInfo {
     1: common.HostAddr host,
-    2: binary          checkpoint_dir,
+    2: list<common.CheckpointInfo> info,
 }
 
 struct SpaceBackupInfo {
-    1: SpaceDesc                    space,
-    2: common.PartitionBackupInfo   partition_info,
-    // storage checkpoint directory name
-    3: list<CheckpointInfo>         cp_dirs,
+    1: SpaceDesc           space,
+    2: list<BackupInfo>    info,
 }
 
 struct BackupMeta {
