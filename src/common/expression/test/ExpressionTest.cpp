@@ -2286,6 +2286,24 @@ TEST_F(ExpressionTest, ListSubscriptRange) {
         EXPECT_TRUE(value.isList());
         EXPECT_EQ(List(), value.getList());
     }
+    // [0,1,2,3,4,5][2..-3] => [2]
+    {
+        auto *lo = new ConstantExpression(2);
+        auto *hi = new ConstantExpression(-3);
+        SubscriptRangeExpression expr(list->clone().release(), lo, hi);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        EXPECT_TRUE(value.isList());
+        EXPECT_EQ(List({2}), value.getList());
+    }
+    // [0,1,2,3,4,5][-2..3] => []
+    {
+        auto *lo = new ConstantExpression(-2);
+        auto *hi = new ConstantExpression(3);
+        SubscriptRangeExpression expr(list->clone().release(), lo, hi);
+        auto value = Expression::eval(&expr, gExpCtxt);
+        EXPECT_TRUE(value.isList());
+        EXPECT_EQ(List(), value.getList());
+    }
 }
 
 TEST_F(ExpressionTest, MapSubscript) {

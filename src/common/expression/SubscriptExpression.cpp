@@ -5,7 +5,6 @@
  */
 
 #include "common/expression/SubscriptExpression.h"
-#include <bits/c++config.h>
 #include "common/datatypes/Map.h"
 #include "common/datatypes/List.h"
 #include "common/expression/ExprVisitor.h"
@@ -190,16 +189,18 @@ const Value& SubscriptRangeExpression::eval(ExpressionContext &ctx) {
         }
     }
 
-    // The unclosed range
-    if (lo > hi) {
+    const auto begin = lo < 0 ? list.values.end() + lo : list.values.begin() + lo;
+    const auto end = hi < 0 ? list.values.end() + hi : list.values.begin() + hi;
+    using iterCategory = typename std::iterator_traits<decltype(begin)>::iterator_category;
+    static_assert(std::is_base_of_v<std::random_access_iterator_tag, iterCategory>);
+    if (std::distance(begin, end) < 0) {
+        // The unclosed range
         result_ = List();
         return result_;
     }
 
     List r;
-    r.values.insert(r.values.end(),
-                    lo < 0 ? list.values.end() + lo : list.values.begin() + lo,
-                    hi < 0 ? list.values.end() + hi : list.values.begin() + hi);
+    r.values.insert(r.values.end(), begin, end);
     result_ = std::move(r);
     return result_;
 }
