@@ -14,7 +14,7 @@ template <typename T>
 nebula::cpp2::ErrorCode extractErrorCode(T& tryResp) {
     if (!tryResp.hasValue()) {
         LOG(ERROR) << tryResp.exception().what();
-        return nebula::cpp2::ErrorCode::E_RPC_FAILURE;
+        return nebula::cpp2::ErrorCode::E_RPC_FAILED;
     }
 
     auto& stResp = tryResp.value();
@@ -26,7 +26,7 @@ nebula::cpp2::ErrorCode extractErrorCode(T& tryResp) {
                 LOG(ERROR) << "not impl error transform: code="
                            << static_cast<int32_t>(stResp.status().code());
         }
-        return nebula::cpp2::ErrorCode::E_UNKNOWN;
+        return nebula::cpp2::ErrorCode::E_INTERNAL_ERROR;
     }
 
     auto& failedPart = stResp.value().get_result().get_failed_parts();

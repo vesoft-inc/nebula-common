@@ -659,37 +659,81 @@ Status MetaClient::handleResponse(const RESP& resp) {
             return Status::Error("Disconnected!");
         case nebula::cpp2::ErrorCode::E_FAIL_TO_CONNECT:
             return Status::Error("Fail to connect!");
-        case nebula::cpp2::ErrorCode::E_RPC_FAILURE:
+        case nebula::cpp2::ErrorCode::E_RPC_FAILED:
             return Status::Error("Rpc failure!");
         case nebula::cpp2::ErrorCode::E_LEADER_CHANGED:
             return Status::LeaderChanged("Leader changed!");
-        case nebula::cpp2::ErrorCode::E_INVALID_PARM:
-            return Status::Error("Invalid parm!");
-        case nebula::cpp2::ErrorCode::E_NO_HOSTS:
-            return Status::Error("No hosts!");
-        case nebula::cpp2::ErrorCode::E_EXISTED:
-            return Status::Error("Existed!");
         case nebula::cpp2::ErrorCode::E_SPACE_NOT_FOUND:
             return Status::Error("Space not existed!");
+        case nebula::cpp2::ErrorCode::E_TAG_NOT_FOUND:
+            return Status::Error("Tag not existed!");
+        case nebula::cpp2::ErrorCode::E_EDGE_NOT_FOUND:
+            return Status::Error("Edge not existed!");
+        case nebula::cpp2::ErrorCode::E_INDEX_NOT_FOUND:
+            return Status::Error("Index not existed!");
+        case nebula::cpp2::ErrorCode::E_EDGE_PROP_NOT_FOUND:
+           return Status::Error("Edge prop not existed!");
+        case nebula::cpp2::ErrorCode::E_TAG_PROP_NOT_FOUND:
+            return Status::Error("Tag prop not existed!");
+        case nebula::cpp2::ErrorCode::E_ROLE_NOT_FOUND:
+            return Status::Error("Role not existed!");
+        case nebula::cpp2::ErrorCode::E_CONFIG_NOT_FOUND:
+            return Status::Error("Conf not existed!");
         case nebula::cpp2::ErrorCode::E_PART_NOT_FOUND:
             return Status::Error("Part not existed!");
+        case nebula::cpp2::ErrorCode::E_USER_NOT_FOUND:
+            return Status::Error("User not existed!");
+        case nebula::cpp2::ErrorCode::E_BACKUP_EMPTY_TABLE:
+            return Status::Error("Backup empty table!");
+        case nebula::cpp2::ErrorCode::E_BACKUP_TABLE_FAILED:
+            return Status::Error("Backup table failure!");
+        case nebula::cpp2::ErrorCode::E_PARTIAL_RESULT:
+            return Status::Error("Partial result!");
+        case nebula::cpp2::ErrorCode::E_INVALID_PARAM:
+            return Status::Error("Invalid param!");
+        case nebula::cpp2::ErrorCode::E_NO_HOSTS:
+            return Status::Error("No hosts!");
+        case nebula::cpp2::ErrorCode::E_SPACE_EXISTED:
+            return Status::Error("Space existed!");
+        case nebula::cpp2::ErrorCode::E_TAG_EXISTED:
+            return Status::Error("Tag existed!");
+        case nebula::cpp2::ErrorCode::E_EDGE_EXISTED:
+            return Status::Error("Edge existed!");
+        case nebula::cpp2::ErrorCode::E_INDEX_EXISTED:
+            return Status::Error("Index existed!");
+        case nebula::cpp2::ErrorCode::E_TAG_PROP_EXISTED:
+            return Status::Error("Tag prop existed!");
+        case nebula::cpp2::ErrorCode::E_EDGE_PROP_EXISTED:
+            return Status::Error("Edge prop existed!");
+        case nebula::cpp2::ErrorCode::E_USER_EXISTED:
+            return Status::Error("User existed!");
+        case nebula::cpp2::ErrorCode::E_ZONE_EXISTED:
+            return Status::Error("Zone existed!");
+        case nebula::cpp2::ErrorCode::E_LISTENER_EXISTED:
+            return Status::Error("Listener existed!");
+        case nebula::cpp2::ErrorCode::E_GROUP_NOT_FOUND:
+            return Status::Error("Group not existed!");
+        case nebula::cpp2::ErrorCode::E_ZONE_NOT_FOUND:
+            return Status::Error("Zone not existed!");
         case nebula::cpp2::ErrorCode::E_KEY_NOT_FOUND:
             return Status::Error("Key not existed!");
         case nebula::cpp2::ErrorCode::E_INVALID_HOST:
             return Status::Error("Invalid host!");
         case nebula::cpp2::ErrorCode::E_UNSUPPORTED:
             return Status::Error("Unsupported!");
-        case nebula::cpp2::ErrorCode::E_NOT_DROP:
-            return Status::Error("Not allowed to drop!");
+        case nebula::cpp2::ErrorCode::E_NOT_DROP_GROUP:
+            return Status::Error("Not allowed to drop group!");
+        case nebula::cpp2::ErrorCode::E_NOT_DROP_ZONE:
+            return Status::Error("Not allowed to drop zone!");
+        case nebula::cpp2::ErrorCode::E_NOT_DROP_PROP:
+            return Status::Error("Not allowed to drop prop!");
         case nebula::cpp2::ErrorCode::E_BALANCER_RUNNING:
             return Status::Error("The balancer is running!");
         case nebula::cpp2::ErrorCode::E_CONFIG_IMMUTABLE:
             return Status::Error("Config immutable!");
-        case nebula::cpp2::ErrorCode::E_CONFLICT:
-            return Status::Error("Conflict!");
-        case nebula::cpp2::ErrorCode::E_WRONGCLUSTER:
+        case nebula::cpp2::ErrorCode::E_WRONG_CLUSTER:
             return Status::Error("Wrong cluster!");
-        case nebula::cpp2::ErrorCode::E_STORE_FAILURE:
+        case nebula::cpp2::ErrorCode::E_STORE_FAILED:
             return Status::Error("Store failure!");
         case nebula::cpp2::ErrorCode::E_STORE_SEGMENT_ILLEGAL:
             return Status::Error("Store segment illegal!");
@@ -697,14 +741,10 @@ Status MetaClient::handleResponse(const RESP& resp) {
             return Status::Error("Bad balance plan!");
         case nebula::cpp2::ErrorCode::E_BALANCED:
             return Status::Error("The cluster is balanced!");
-        case nebula::cpp2::ErrorCode::E_NO_RUNNING_BALANCE_PLAN:
-            return Status::Error("No running balance plan!");
-        case nebula::cpp2::ErrorCode::E_NO_VALID_HOST:
-            return Status::Error("No valid host hold the partition!");
-        case nebula::cpp2::ErrorCode::E_CORRUPTTED_BALANCE_PLAN:
-            return Status::Error("No corrupted blance plan!");
         case nebula::cpp2::ErrorCode::E_NO_INVALID_BALANCE_PLAN:
             return Status::Error("No invalid balance plan!");
+        case nebula::cpp2::ErrorCode::E_INVALID_BALANCE_HOST:
+            return Status::Error("No invalid balance host!");
         case nebula::cpp2::ErrorCode::E_INVALID_PASSWORD:
             return Status::Error("Invalid password!");
         case nebula::cpp2::ErrorCode::E_IMPROPER_ROLE:
@@ -719,21 +759,21 @@ Status MetaClient::handleResponse(const RESP& resp) {
             return Status::Error("No valid collate!");
         case nebula::cpp2::ErrorCode::E_CHARSET_COLLATE_NOT_MATCH:
             return Status::Error("Charset and collate not match!");
-        case nebula::cpp2::ErrorCode::E_SNAPSHOT_FAILURE:
+        case nebula::cpp2::ErrorCode::E_SNAPSHOT_FAILED:
             return Status::Error("Snapshot failure!");
-        case nebula::cpp2::ErrorCode::E_BLOCK_WRITE_FAILURE:
+        case nebula::cpp2::ErrorCode::E_BLOCK_WRITE_FAILED:
             return Status::Error("Block write failure!");
+        case nebula::cpp2::ErrorCode::E_ALTER_WITH_INDEX_TTL_CONFLICT:
+            return Status::Error("Alter ttl prop failure when has index!");
         case nebula::cpp2::ErrorCode::E_REBUILD_INDEX_FAILED:
             return Status::Error("Rebuild index failed!");
-        case nebula::cpp2::ErrorCode::E_INDEX_WITH_TTL:
-            return Status::Error("Index with ttl!");
-        case nebula::cpp2::ErrorCode::E_ADD_JOB_FAILURE:
+        case nebula::cpp2::ErrorCode::E_ADD_JOB_FAILED:
             return Status::Error("Add job failure!");
-        case nebula::cpp2::ErrorCode::E_STOP_JOB_FAILURE:
+        case nebula::cpp2::ErrorCode::E_STOP_JOB_FAILED:
             return Status::Error("Stop job failure!");
-        case nebula::cpp2::ErrorCode::E_SAVE_JOB_FAILURE:
+        case nebula::cpp2::ErrorCode::E_SAVE_JOB_FAILED:
             return Status::Error("Save job failure!");
-        case nebula::cpp2::ErrorCode::E_BALANCER_FAILURE:
+        case nebula::cpp2::ErrorCode::E_BALANCER_FAILED:
             return Status::Error("Balance failure!");
         case nebula::cpp2::ErrorCode::E_JOB_NOT_FINISHED:
             return Status::Error("Job is not finished!");
@@ -747,8 +787,24 @@ Status MetaClient::handleResponse(const RESP& resp) {
             return Status::Error("Backup building indexes!");
         case nebula::cpp2::ErrorCode::E_BACKUP_SPACE_NOT_FOUND:
             return Status::Error("The space is not found when backup!");
-        case nebula::cpp2::ErrorCode::E_RESTORE_FAILURE:
+        case nebula::cpp2::ErrorCode::E_RESTORE_FAILED:
             return Status::Error("Restore failure!");
+        case nebula::cpp2::ErrorCode::E_ZONE_CONFLICT:
+            return Status::Error("Zone conflict!");
+        case nebula::cpp2::ErrorCode::E_HOST_CONFLICT:
+            return Status::Error("Host conflict!");
+        case nebula::cpp2::ErrorCode::E_INDEX_CONFLICT:
+            return Status::Error("Index conflict!");
+        case nebula::cpp2::ErrorCode::E_PROP_NAME_CONFLICT:
+            return Status::Error("Prop name conflict!");
+        case nebula::cpp2::ErrorCode::E_TOO_MANY_PROPS_IN_INDEX:
+            return Status::Error("Too many props int index!");
+        case nebula::cpp2::ErrorCode::E_SCHEMA_TAG_CONFLICT:
+            return Status::Error("Tag schema conflict!");
+        case nebula::cpp2::ErrorCode::E_SCHEMA_EDGE_CONFLICT:
+            return Status::Error("Edge schema conflict!");
+        case nebula::cpp2::ErrorCode::E_ALTER_WITH_TTL:
+            return Status::Error("Alter ttl prop failure!");
         default:
             return Status::Error("Unknown error!");
     }

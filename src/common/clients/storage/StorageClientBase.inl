@@ -214,7 +214,7 @@ StorageClientBase<ClientType>::collectResponse(
                     LOG(ERROR) << "Request to " << host
                                << " failed: " << val.exception().what();
                     auto parts = getReqPartsId(r);
-                    context->resp.appendFailedParts(parts, nebula::cpp2::ErrorCode::E_RPC_FAILURE);
+                    context->resp.appendFailedParts(parts, nebula::cpp2::ErrorCode::E_RPC_FAILED);
                     invalidLeader(spaceId, parts);
                     context->resp.markFailure();
                 } else {
