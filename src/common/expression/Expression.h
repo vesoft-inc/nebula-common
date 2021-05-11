@@ -17,21 +17,23 @@ class ExprVisitor;
 
 class Expression {
 public:
+    // Warning: this expression will be encoded and store in meta as default value
+    // So don't add enum in middle, just append it!
     enum class Kind : uint8_t {
         kConstant,
-
+        // Arithmetic
         kAdd,
         kMinus,
         kMultiply,
         kDivision,
         kMod,
-
+        // Unary
         kUnaryPlus,
         kUnaryNegate,
         kUnaryNot,
         kUnaryIncr,
         kUnaryDecr,
-
+        // Relational
         kRelEQ,
         kRelNE,
         kRelLT,
@@ -47,11 +49,12 @@ public:
         kNotStartsWith,
         kEndsWith,
         kNotEndsWith,
+
         kSubscript,
         kAttribute,
         kLabelAttribute,
         kColumn,
-
+        // Logical
         kLogicalAnd,
         kLogicalOr,
         kLogicalXor,
@@ -59,7 +62,7 @@ public:
         kTypeCasting,
 
         kFunctionCall,
-
+        // Vertex/Edge/Path
         kTagProperty,
         kEdgeProperty,
         kInputProperty,
@@ -77,7 +80,7 @@ public:
 
         kVar,
         kVersionedVar,
-
+        // Container
         kList,
         kSet,
         kMap,
@@ -98,6 +101,12 @@ public:
         kTSFuzzy,
 
         kAggregate,
+        kIsNull,
+        kIsNotNull,
+        kIsEmpty,
+        kIsNotEmpty,
+
+        kSubscriptRange,
     };
 
 
@@ -132,6 +141,18 @@ public:
     static std::string encode(const Expression& exp);
 
     static std::unique_ptr<Expression> decode(folly::StringPiece encoded);
+
+    virtual bool isLogicalExpr() const {
+        return false;
+    }
+
+    virtual bool isRelExpr() const {
+        return false;
+    }
+
+    virtual bool isArithmeticExpr() const {
+        return false;
+    }
 
 protected:
     class Encoder final {

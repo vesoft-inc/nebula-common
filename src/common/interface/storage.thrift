@@ -45,7 +45,7 @@ enum ErrorCode {
     E_FIELD_UNSET          = -22,   // The field neither can be NULL, nor has a default value
     E_OUT_OF_RANGE         = -23,   // Value exceeds the range of type
     E_ATOMIC_OP_FAILED     = -24,   // Atomic operation failed
-    E_DATA_CONFLICT_ERROR  = -25,   // data conflict, for index write withnot toss.
+    E_DATA_CONFLICT_ERROR  = -25,   // data conflict, for index write without toss.
 
     // meta failures
     E_EDGE_PROP_NOT_FOUND    = -31,
@@ -84,8 +84,9 @@ enum ErrorCode {
     E_FILTER_OUT             = -81,
     E_INVALID_DATA           = -82,
 
+    E_MUTATE_EDGE_CONFLICT   = -83,
+    E_MUTATE_TAG_CONFLICT    = -84,
     // transaction
-    E_MUTATE_EDGE_CONFLICT   = -85,
     E_OUTDATED_LOCK          = -86,
 
     // task manager failed
@@ -406,8 +407,8 @@ struct AddVerticesRequest {
     //   in the NewVertex.NewTag.props
     3: map<common.TagID, list<binary>>
         (cpp.template = "std::unordered_map")   prop_names,
-    // If true, it equals an (up)sert operation.
-    4: bool                                     overwritable = true,
+    // if ture, when (vertexID,tagID) already exists, do nothing
+    4: bool                                     if_not_exists,
 }
 
 struct AddEdgesRequest {
@@ -418,8 +419,8 @@ struct AddEdgesRequest {
     // A list of property names. The order of the property names should match
     //   the data order specified in the NewEdge.props
     3: list<binary>                             prop_names,
-    // If true, it equals an upsert operation.
-    4: bool                                     overwritable = true,
+    // if ture, when edge already exists, do nothing
+    4: bool                                     if_not_exists,
 }
 
 /*
@@ -811,19 +812,9 @@ struct RebuildIndexRequest {
 }
 
 struct CreateCPResp {
-    1: required ResponseCommon result,
-    2: binary                  path,
-}
-
-struct PartitionInfoResp {
-    1: required ResponseCommon          result,
-    2: binary                           backup_name,
-    3: common.PartitionBackupInfo       partition_info,
-}
-
-struct PartitionInfoRequest {
-    1: common.GraphSpaceID                  space_id,
-    2: binary                               backup_name,
+    1: required ResponseCommon    result,
+    2: binary                     path,
+    3: common.PartitionBackupInfo partition_info,
 }
 
 service StorageAdminService {

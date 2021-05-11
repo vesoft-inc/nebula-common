@@ -15,7 +15,8 @@ DEFINE_int64(int64_test, 10, "Test flag for int64 type");
 DEFINE_bool(bool_test, false, "Test flag for bool type");
 DEFINE_double(double_test, 3.14159, "Test flag for double type");
 DEFINE_string(string_test, "Hello World", "Test flag for string type");
-DEFINE_uint32(crash_test, 1024, "The flag could not be read, test for issue #312");
+DEFINE_uint32(uint32_test, 10, "Test flag for uint32 type");
+DEFINE_uint64(uint64_test, 10, "Test flag for uint64 type");
 
 namespace nebula {
 
@@ -41,29 +42,45 @@ private:
 
 TEST(FlagsAccessTest, GetSetTest) {
     std::string resp;
-    ASSERT_TRUE(getUrl("/get_flags?flags=int32_test", resp));
+    ASSERT_TRUE(getUrl("/flags?flags=int32_test", resp));
     EXPECT_EQ(folly::stringPrintf("int32_test=%d\n", FLAGS_int32_test), resp);
 
-    ASSERT_TRUE(getUrl("/get_flags?flags=int64_test,bool_test,string_test", resp));
+    ASSERT_TRUE(getUrl("/flags?flags=int64_test,bool_test,string_test", resp));
     EXPECT_EQ(folly::stringPrintf("int64_test=%ld\nbool_test=%s\nstring_test=\"%s\"\n",
                                   FLAGS_int64_test,
                                   (FLAGS_bool_test ? "1" : "0"),
                                   FLAGS_string_test.c_str()),
               resp);
 
-    ASSERT_TRUE(getUrl("/set_flag?flag=int64_test&value=20", resp));
-    ASSERT_EQ("true", resp);
-    ASSERT_TRUE(getUrl("/get_flags?flags=int64_test", resp));
+    folly::dynamic data = folly::dynamic::object("int64_test", 20);
+    auto status = putUrl("/flags", data);
+    ASSERT_TRUE(status.ok());
+    folly::dynamic json = folly::parseJson(status.value());
+    ASSERT_EQ(0, json["errCode"].asInt());
+    ASSERT_TRUE(getUrl("/flags?flags=int64_test", resp));
     EXPECT_EQ(std::string("int64_test=20\n"), resp);
 
-    ASSERT_TRUE(getUrl("/get_flags", resp));
-    ASSERT_TRUE(resp.find("crash_test=nullptr") != std::string::npos);
+    ASSERT_TRUE(getUrl("/flags?flags=uint32_test", resp));
+    EXPECT_EQ(folly::stringPrintf("uint32_test=%u\n", FLAGS_uint32_test), resp);
+
+    ASSERT_TRUE(getUrl("/flags?flags=uint64_test", resp));
+    EXPECT_EQ(folly::stringPrintf("uint64_test=%lu\n", FLAGS_uint64_test), resp);
+}
+
+TEST(FlagsAccessTest, TestSetFlagsFailure) {
+    folly::dynamic data = folly::dynamic::object("int64_test", 20)("float_test", 10.0f);
+    auto status = putUrl("/flags", data);
+    ASSERT_TRUE(status.ok());
+    folly::dynamic json = folly::parseJson(status.value());
+    folly::dynamic failedOptions = json["failedOptions"];
+    ASSERT_TRUE(failedOptions.isArray());
+    ASSERT_EQ(failedOptions, folly::dynamic::array("float_test"));
 }
 
 TEST(FlagsAccessTest, JsonTest) {
     std::string resp;
-    ASSERT_TRUE(getUrl("/get_flags?flags=double_test&returnjson", resp));
-    auto json = folly::parseJson(resp);
+    ASSERT_TRUE(getUrl("/flags?flags=double_test&format=json", resp));
+    auto json = folly::parseJson(resp)["flags"];
     ASSERT_TRUE(json.isArray());
     ASSERT_EQ(1UL, json.size());
     ASSERT_TRUE(json[0].isObject());
@@ -80,11 +97,10 @@ TEST(FlagsAccessTest, JsonTest) {
     EXPECT_DOUBLE_EQ(FLAGS_double_test, it->second.getDouble());
 }
 
-
 TEST(FlagsAccessTest, VerboseTest) {
     std::string resp;
-    ASSERT_TRUE(getUrl("/get_flags?flags=int32_test&returnjson&verbose", resp));
-    auto json = folly::parseJson(resp);
+    ASSERT_TRUE(getUrl("/flags?flags=int32_test&format=json&verbose=true", resp));
+    auto json = folly::parseJson(resp)["flags"];
     ASSERT_TRUE(json.isArray());
     ASSERT_EQ(1UL, json.size());
     ASSERT_TRUE(json[0].isObject());
@@ -115,7 +131,6 @@ TEST(FlagsAccessTest, VerboseTest) {
     ASSERT_TRUE(it->second.isBool());
     EXPECT_TRUE(it->second.getBool());
 }
-
 
 TEST(FlagsAccessTest, ErrorTest) {
     std::string resp;

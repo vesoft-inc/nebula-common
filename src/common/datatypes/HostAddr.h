@@ -31,9 +31,13 @@ struct HostAddr {
         port = 0;
     }
 
+    void __clear() {
+        clear();
+    }
+
     std::string toString() const {
         std::stringstream os;
-        os << "[" << host << ":" << port << "]";
+        os << "\"" << host << "\"" << ":" << port;
         return os.str();
     }
 

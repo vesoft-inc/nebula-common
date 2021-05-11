@@ -7,8 +7,6 @@
 #include "common/base/Base.h"
 #include "common/stats/StatsManager.h"
 #include <folly/String.h>
-#include <folly/stats/MultiLevelTimeSeries-defs.h>
-#include <folly/stats/TimeseriesHistogram-defs.h>
 
 namespace nebula {
 namespace stats {
@@ -262,9 +260,9 @@ StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName
 void StatsManager::readAllValue(folly::dynamic& vals) {
     auto& sm = get();
 
-    for (auto &statsName : sm.nameMap_) {
+    for (auto const& statsName : sm.nameMap_) {
         // Add stats
-        for (auto& method : statsName.second.methods_) {
+        for (auto const& method : statsName.second.methods_) {
             std::string metricPrefix = statsName.first;
             switch (method) {
                 case StatsMethod::SUM:

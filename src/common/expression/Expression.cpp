@@ -260,6 +260,26 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kIsNull: {
+            exp = std::make_unique<UnaryExpression>(Expression::Kind::kIsNull);
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kIsNotNull: {
+            exp = std::make_unique<UnaryExpression>(Expression::Kind::kIsNotNull);
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kIsEmpty: {
+            exp = std::make_unique<UnaryExpression>(Expression::Kind::kIsEmpty);
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kIsNotEmpty: {
+            exp = std::make_unique<UnaryExpression>(Expression::Kind::kIsNotEmpty);
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kRelEQ: {
             exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelEQ);
             exp->resetFrom(decoder);
@@ -337,6 +357,11 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
         }
         case Expression::Kind::kSubscript: {
             exp = std::make_unique<SubscriptExpression>();
+            exp->resetFrom(decoder);
+            return exp;
+        }
+        case Expression::Kind::kSubscriptRange: {
+            exp = std::make_unique<SubscriptRangeExpression>();
             exp->resetFrom(decoder);
             return exp;
         }
@@ -444,7 +469,8 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             return exp;
         }
         case Expression::Kind::kVar: {
-            LOG(FATAL) << "Should not decode variable expression";
+            exp = std::make_unique<VariableExpression>();
+            exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kVersionedVar: {
@@ -549,6 +575,18 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
         case Expression::Kind::kUnaryDecr:
             os << "AutoDecrement";
             break;
+        case Expression::Kind::kIsNull:
+            os << "IsNull";
+            break;
+        case Expression::Kind::kIsNotNull:
+            os << "IsNotNull";
+            break;
+        case Expression::Kind::kIsEmpty:
+            os << "IsEmpty";
+            break;
+        case Expression::Kind::kIsNotEmpty:
+            os << "IsNotEmpty";
+            break;
         case Expression::Kind::kRelEQ:
             os << "Equal";
             break;
@@ -596,6 +634,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             break;
         case Expression::Kind::kSubscript:
             os << "Subscript";
+            break;
+        case Expression::Kind::kSubscriptRange:
+            os << "SubscriptRange";
             break;
         case Expression::Kind::kColumn:
             os << "Column";

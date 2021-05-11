@@ -17,10 +17,9 @@ nebula_add_test(
         $<TARGET_OBJECTS:stats_obj>
         $<TARGET_OBJECTS:time_obj>
         $<TARGET_OBJECTS:base_obj>
+        $<TARGET_OBJECTS:version_obj>
     LIBRARIES
-        proxygenhttpserver
-        proxygenlib
-        wangle
+        ${PROXYGEN_LIBRARIES}
         gtest
         gtest_main
 )

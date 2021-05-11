@@ -315,6 +315,18 @@ TEST(Path, BasicManipulate) {
     }
 }
 
+TEST(Path, HasSameEdgeInPath) {
+    Path path;
+    path.src = Vertex("10", {});
+    path.addStep(Step(Vertex("12", {}), 1, "like", 0, {}));
+    path.addStep(Step(Vertex("3", {}), 1, "like", 0, {}));
+    path.addStep(Step(Vertex("1", {}), 1, "like", 0, {}));
+    path.addStep(Step(Vertex("23", {}), 1, "like", 0, {}));
+    ASSERT(!path.hasDuplicateEdges());
+    path.addStep(Step(Vertex("1", {}), -1, "like", 0, {}));
+    ASSERT(path.hasDuplicateEdges());
+}
+
 }   // namespace nebula
 
 int main(int argc, char** argv) {
