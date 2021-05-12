@@ -89,6 +89,25 @@ TEST(HttpClient, get) {
     }
 }
 
+TEST(HttpClient, post) {
+    {
+        auto url = folly::stringPrintf("http://%s:%d%s", FLAGS_ws_ip.c_str(),
+                                       FLAGS_ws_http_port, "/post_path");
+        std::string message = "Hello World!";
+        auto result = HttpClient::post(url, message);
+        ASSERT_TRUE(result.ok());
+        ASSERT_EQ("HttpClientHandler successfully", result.value());
+    }
+    {
+        auto url = folly::stringPrintf("http://%s:%d%s", FLAGS_ws_ip.c_str(),
+                                       FLAGS_ws_http_port, "/not_exist");
+        std::string message = "Hello World!";
+        auto result = HttpClient::post(url, message);
+        ASSERT_TRUE(result.ok());
+        ASSERT_TRUE(result.value().empty());
+    }
+}
+
 }   // namespace http
 }   // namespace nebula
 
