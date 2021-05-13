@@ -89,6 +89,7 @@ const Value Value::kNullNaN(NullType::NaN);
 const Value Value::kNullBadData(NullType::BAD_DATA);
 const Value Value::kNullBadType(NullType::BAD_TYPE);
 const Value Value::kNullOverflow(NullType::ERR_OVERFLOW);
+const Value Value::kNullUnderflow(NullType::ERR_UNDERFLOW);
 const Value Value::kNullUnknownProp(NullType::UNKNOWN_PROP);
 const Value Value::kNullDivByZero(NullType::DIV_BY_ZERO);
 const Value Value::kNullOutOfRange(NullType::OUT_OF_RANGE);
@@ -1493,6 +1494,8 @@ std::string Value::toString() const {
                     return "__NULL_DIV_BY_ZERO__";
                 case NullType::ERR_OVERFLOW:
                     return "__NULL_OVERFLOW__";
+                case NullType::ERR_UNDERFLOW:
+                    return "__NULL_UNDERFLOW__";
                 case NullType::NaN:
                     return "__NULL_NaN__";
                 case NullType::UNKNOWN_PROP:
@@ -1923,7 +1926,14 @@ Value operator+(const Value& lhs, const Value& rhs) {
         case Value::Type::INT: {
             switch (rhs.type()) {
                 case Value::Type::INT: {
-                    return lhs.getInt() + rhs.getInt();
+                    auto lVal = lhs.getInt();
+                    auto rVal = rhs.getInt();
+                    if (lVal > 0 && rVal > INT64_MAX - lVal) {
+                        return Value::kNullOverflow;
+                    } else if (lVal < 0 && rVal < INT64_MIN - lVal) {
+                        return Value::kNullUnderflow;
+                    }
+                    return lVal + rVal;
                 }
                 case Value::Type::FLOAT: {
                     return lhs.getInt() + rhs.getFloat();
@@ -2171,7 +2181,14 @@ Value operator-(const Value& lhs, const Value& rhs) {
         case Value::Type::INT: {
             switch (rhs.type()) {
                 case Value::Type::INT: {
-                    return lhs.getInt() - rhs.getInt();
+                    auto lVal = lhs.getInt();
+                    auto rVal = rhs.getInt();
+                    if (lVal < 0 && rVal > INT64_MAX + lVal) {
+                        return Value::kNullOverflow;
+                    } else if (lVal > 0 && rVal < INT64_MIN + lVal) {
+                        return Value::kNullUnderflow;
+                    }
+                    return lVal - rVal;
                 }
                 case Value::Type::FLOAT: {
                     return lhs.getInt() - rhs.getFloat();
@@ -2226,7 +2243,18 @@ Value operator*(const Value& lhs, const Value& rhs) {
         case Value::Type::INT: {
             switch (rhs.type()) {
                 case Value::Type::INT: {
-                    return lhs.getInt() * rhs.getInt();
+                    auto lVal = lhs.getInt();
+                    auto rVal = rhs.getInt();
+                    // -1 * min causes overflow
+                    if ((lVal == -1 && rVal == INT64_MIN) || (rVal == -1 && lVal == INT64_MIN)) {
+                        return Value::kNullOverflow;
+                    }
+                    if (lVal > INT64_MAX / rVal || lVal < INT64_MIN / rVal) {
+                        return Value::kNullOverflow;
+                    } else if (lVal < INT64_MIN / rVal) {
+                        return Value::kNullUnderflow;
+                    }
+                    return lVal * rVal;
                 }
                 case Value::Type::FLOAT: {
                     return lhs.getInt() * rhs.getFloat();
@@ -2269,11 +2297,15 @@ Value operator/(const Value& lhs, const Value& rhs) {
             switch (rhs.type()) {
                 case Value::Type::INT: {
                     int64_t denom = rhs.getInt();
-                    if (denom != 0) {
-                        return lhs.getInt() / denom;
-                    } else {
+                    if (denom == 0) {
                         return Value::kNullDivByZero;
                     }
+                    auto lVal = lhs.getInt();
+                    // INT_MIN/-1 causes overflow
+                    if (lVal == INT64_MIN && denom == -1) {
+                        return Value::kNullOverflow;
+                    }
+                    return lVal / denom;
                 }
                 case Value::Type::FLOAT: {
                     double denom = rhs.getFloat();
