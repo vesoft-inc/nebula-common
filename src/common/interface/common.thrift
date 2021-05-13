@@ -234,7 +234,6 @@ enum ErrorCode {
     E_KEY_NOT_FOUND                   = -17,
     E_USER_NOT_FOUND                  = -18,
 
-
     // backup failed
     E_BACKUP_FAILED                   = -24,
     E_BACKUP_EMPTY_TABLE              = -25,
@@ -307,6 +306,7 @@ enum ErrorCode {
 
     // RESTORE Failure
     E_RESTORE_FAILURE                 = -2068,
+    E_SESSION_NOT_FOUND               = -2069,
 
 
     // 3xxx for storaged

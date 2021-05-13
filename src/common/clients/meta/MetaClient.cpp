@@ -773,6 +773,8 @@ Status MetaClient::handleResponse(const RESP& resp) {
             return Status::Error("Backup empty table!");
         case nebula::cpp2::ErrorCode::E_BACKUP_TABLE_FAILED:
             return Status::Error("Backup table failure!");
+        case nebula::cpp2::ErrorCode::E_SESSION_NOT_FOUND:
+            return Status::Error("Session not existed!");
         default:
             return Status::Error("Unknown error!");
     }
