@@ -248,6 +248,10 @@ TEST(Value, Arithmetics) {
         EXPECT_EQ(Value::Type::FLOAT, v.type());
         EXPECT_DOUBLE_EQ(-3.14, v.getFloat());
 
+        // Overflow
+        v = -Value(INT64_MIN);
+        EXPECT_EQ(Value::kNullOverflow, v);
+
         v = !vBool1;
         EXPECT_EQ(Value::Type::BOOL, v.type());
         EXPECT_DOUBLE_EQ(true, v.getBool());

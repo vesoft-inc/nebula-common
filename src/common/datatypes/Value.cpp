@@ -2418,7 +2418,11 @@ Value operator-(const Value& rhs) {
 
     switch (rhs.type()) {
         case Value::Type::INT: {
-            auto val = -rhs.getInt();
+            auto rVal = rhs.getInt();
+            if (rVal == INT64_MIN) {
+                return Value::kNullOverflow;
+            }
+            auto val = -rVal;
             return val;
         }
         case Value::Type::FLOAT: {
