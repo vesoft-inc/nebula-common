@@ -451,6 +451,7 @@ const std::string& Value::typeName() const {
         { NullType::BAD_DATA, "BAD_DATA" },
         { NullType::BAD_TYPE, "BAD_TYPE" },
         { NullType::ERR_OVERFLOW, "ERR_OVERFLOW" },
+        { NullType::ERR_UNDERFLOW, "ERR_UNDERFLOW" },
         { NullType::UNKNOWN_PROP, "UNKNOWN_PROP" },
         { NullType::DIV_BY_ZERO, "DIV_BY_ZERO" },
     };
@@ -2183,9 +2184,9 @@ Value operator-(const Value& lhs, const Value& rhs) {
                 case Value::Type::INT: {
                     auto lVal = lhs.getInt();
                     auto rVal = rhs.getInt();
-                    if (lVal < 0 && rVal > INT64_MAX + lVal) {
+                    if (rVal < 0 && lVal > INT64_MAX + rVal) {
                         return Value::kNullOverflow;
-                    } else if (lVal > 0 && rVal < INT64_MIN + lVal) {
+                    } else if (rVal > 0 && lVal < INT64_MIN + rVal) {
                         return Value::kNullUnderflow;
                     }
                     return lVal - rVal;
@@ -2249,7 +2250,7 @@ Value operator*(const Value& lhs, const Value& rhs) {
                     if ((lVal == -1 && rVal == INT64_MIN) || (rVal == -1 && lVal == INT64_MIN)) {
                         return Value::kNullOverflow;
                     }
-                    if (lVal > INT64_MAX / rVal || lVal < INT64_MIN / rVal) {
+                    if (lVal > INT64_MAX / rVal) {
                         return Value::kNullOverflow;
                     } else if (lVal < INT64_MIN / rVal) {
                         return Value::kNullUnderflow;
