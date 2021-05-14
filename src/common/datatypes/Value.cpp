@@ -89,7 +89,6 @@ const Value Value::kNullNaN(NullType::NaN);
 const Value Value::kNullBadData(NullType::BAD_DATA);
 const Value Value::kNullBadType(NullType::BAD_TYPE);
 const Value Value::kNullOverflow(NullType::ERR_OVERFLOW);
-const Value Value::kNullUnderflow(NullType::ERR_UNDERFLOW);
 const Value Value::kNullUnknownProp(NullType::UNKNOWN_PROP);
 const Value Value::kNullDivByZero(NullType::DIV_BY_ZERO);
 const Value Value::kNullOutOfRange(NullType::OUT_OF_RANGE);
@@ -451,7 +450,6 @@ const std::string& Value::typeName() const {
         { NullType::BAD_DATA, "BAD_DATA" },
         { NullType::BAD_TYPE, "BAD_TYPE" },
         { NullType::ERR_OVERFLOW, "ERR_OVERFLOW" },
-        { NullType::ERR_UNDERFLOW, "ERR_UNDERFLOW" },
         { NullType::UNKNOWN_PROP, "UNKNOWN_PROP" },
         { NullType::DIV_BY_ZERO, "DIV_BY_ZERO" },
     };
@@ -1495,8 +1493,6 @@ std::string Value::toString() const {
                     return "__NULL_DIV_BY_ZERO__";
                 case NullType::ERR_OVERFLOW:
                     return "__NULL_OVERFLOW__";
-                case NullType::ERR_UNDERFLOW:
-                    return "__NULL_UNDERFLOW__";
                 case NullType::NaN:
                     return "__NULL_NaN__";
                 case NullType::UNKNOWN_PROP:
@@ -1929,10 +1925,9 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::INT: {
                     auto lVal = lhs.getInt();
                     auto rVal = rhs.getInt();
-                    if (lVal > 0 && rVal > INT64_MAX - lVal) {
+                    if ((lVal > 0 && rVal > INT64_MAX - lVal) ||
+                        (lVal < 0 && rVal < INT64_MIN - lVal)) {
                         return Value::kNullOverflow;
-                    } else if (lVal < 0 && rVal < INT64_MIN - lVal) {
-                        return Value::kNullUnderflow;
                     }
                     return lVal + rVal;
                 }
@@ -2184,10 +2179,9 @@ Value operator-(const Value& lhs, const Value& rhs) {
                 case Value::Type::INT: {
                     auto lVal = lhs.getInt();
                     auto rVal = rhs.getInt();
-                    if (rVal < 0 && lVal > INT64_MAX + rVal) {
+                    if ((rVal < 0 && lVal > INT64_MAX + rVal) ||
+                        (rVal > 0 && lVal < INT64_MIN + rVal)) {
                         return Value::kNullOverflow;
-                    } else if (rVal > 0 && lVal < INT64_MIN + rVal) {
-                        return Value::kNullUnderflow;
                     }
                     return lVal - rVal;
                 }
@@ -2250,10 +2244,8 @@ Value operator*(const Value& lhs, const Value& rhs) {
                     if ((lVal == -1 && rVal == INT64_MIN) || (rVal == -1 && lVal == INT64_MIN)) {
                         return Value::kNullOverflow;
                     }
-                    if (lVal > INT64_MAX / rVal) {
+                    if ((lVal > INT64_MAX / rVal) || (lVal < INT64_MIN / rVal)) {
                         return Value::kNullOverflow;
-                    } else if (lVal < INT64_MIN / rVal) {
-                        return Value::kNullUnderflow;
                     }
                     return lVal * rVal;
                 }
@@ -2419,9 +2411,9 @@ Value operator-(const Value& rhs) {
     switch (rhs.type()) {
         case Value::Type::INT: {
             auto rVal = rhs.getInt();
-            if (rVal == INT64_MIN) {
-                return Value::kNullOverflow;
-            }
+            // if (rVal == INT64_MIN) {
+            //     return Value::kNullOverflow;
+            // }
             auto val = -rVal;
             return val;
         }

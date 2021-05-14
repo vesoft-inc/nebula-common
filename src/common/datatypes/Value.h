@@ -41,7 +41,6 @@ enum class NullType {
     UNKNOWN_PROP = 5,
     DIV_BY_ZERO = 6,
     OUT_OF_RANGE = 7,
-    ERR_UNDERFLOW = 8,
 };
 
 
@@ -52,7 +51,6 @@ struct Value {
     static const Value kNullBadData;
     static const Value kNullBadType;
     static const Value kNullOverflow;
-    static const Value kNullUnderflow;
     static const Value kNullUnknownProp;
     static const Value kNullDivByZero;
     static const Value kNullOutOfRange;

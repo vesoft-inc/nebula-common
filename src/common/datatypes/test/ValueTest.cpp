@@ -47,10 +47,8 @@ TEST(Value, Arithmetics) {
         // overflow
         v = Value(INT64_MAX) + 1;
         EXPECT_EQ(Value::kNullOverflow, v);
-
-        // underflow
         v = Value(INT64_MIN) + -1;
-        EXPECT_EQ(Value::kNullUnderflow, v);
+        EXPECT_EQ(Value::kNullOverflow, v);
 
         v = vFloat1 + vFloat2;
         EXPECT_EQ(Value::Type::FLOAT, v.type());
@@ -133,10 +131,8 @@ TEST(Value, Arithmetics) {
         // overflow
         v = Value(INT64_MAX) - -1;
         EXPECT_EQ(Value::kNullOverflow, v);
-
-        // underflow
         v = Value(INT64_MIN) - 1;
-        EXPECT_EQ(Value::kNullUnderflow, v);
+        EXPECT_EQ(Value::kNullOverflow, v);
 
         v = vFloat1 - vFloat2;
         EXPECT_EQ(Value::Type::FLOAT, v.type());
@@ -168,10 +164,8 @@ TEST(Value, Arithmetics) {
         EXPECT_EQ(Value::kNullOverflow, v);
         v = -1 * Value(INT64_MIN);
         EXPECT_EQ(Value::kNullOverflow, v);
-
-        // underflow
         v = Value(INT64_MIN) * 2;
-        EXPECT_EQ(Value::kNullUnderflow, v);
+        EXPECT_EQ(Value::kNullOverflow, v);
 
         v = vInt2 * vFloat1;
         EXPECT_EQ(Value::Type::FLOAT, v.type());
@@ -905,7 +899,6 @@ TEST(Value, typeName) {
     EXPECT_EQ("BAD_DATA", Value::kNullBadData.typeName());
     EXPECT_EQ("BAD_TYPE", Value::kNullBadType.typeName());
     EXPECT_EQ("ERR_OVERFLOW", Value::kNullOverflow.typeName());
-    EXPECT_EQ("ERR_UNDERFLOW", Value::kNullUnderflow.typeName());
     EXPECT_EQ("UNKNOWN_PROP", Value::kNullUnknownProp.typeName());
     EXPECT_EQ("DIV_BY_ZERO", Value::kNullDivByZero.typeName());
 }
@@ -922,7 +915,6 @@ TEST(Value, DecodeEncode) {
         Value(NullType::DIV_BY_ZERO),
         Value(NullType::BAD_DATA),
         Value(NullType::ERR_OVERFLOW),
-        Value(NullType::ERR_UNDERFLOW),
         Value(NullType::OUT_OF_RANGE),
         Value(NullType::UNKNOWN_PROP),
 
