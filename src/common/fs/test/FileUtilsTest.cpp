@@ -308,7 +308,7 @@ TEST(FileUtils, readLinkDir) {
     snprintf(subDirTemp, sizeof(subDirTemp), "%s/subDir.XXXXXX", dirTemp);
     ASSERT_NE(mkdtemp(subDirTemp), nullptr);
 
-    char endWithSlash[64];
+    char endWithSlash[70];
     snprintf(endWithSlash, sizeof(endWithSlash), "%s/", subDirTemp);
 
     // Check canonical paths of subDirTemp and endWithSlash are equal
