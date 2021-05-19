@@ -1,4 +1,4 @@
-message(">>>> Configuring third party for '${PROJECT_NAME}' <<<<")
+message(STATUS">>>> Configuring third party for '${PROJECT_NAME}' <<<<")
 # The precedence to decide NEBULA_THIRDPARTY_ROOT is:
 #   1. The path defined with CMake argument, i.e -DNEBULA_THIRDPARTY_ROOT=path
 #   2. ${CMAKE_BINARY_DIR}/third-party/install, if exists
@@ -8,6 +8,7 @@ message(">>>> Configuring third party for '${PROJECT_NAME}' <<<<")
 
 set(NEBULA_THIRDPARTY_VERSION "2.0")
 
+
 if(${DISABLE_CXX11_ABI})
     SET(NEBULA_THIRDPARTY_ROOT ${CMAKE_BINARY_DIR}/third-party-98/install)
     if(NOT EXISTS ${CMAKE_BINARY_DIR}/third-party-98/install)
@@ -16,6 +17,7 @@ if(${DISABLE_CXX11_ABI})
     endif()
 else()
     if("${NEBULA_THIRDPARTY_ROOT}" STREQUAL "")
+        message(STATUS"!!!!!!!!!!!!!!!!!!!!1111111")
         if(EXISTS ${CMAKE_BINARY_DIR}/third-party/install)
             SET(NEBULA_THIRDPARTY_ROOT ${CMAKE_BINARY_DIR}/third-party/install)
         elseif(NOT $ENV{NEBULA_THIRDPARTY_ROOT} STREQUAL "")
@@ -36,10 +38,19 @@ if(NOT ${NEBULA_THIRDPARTY_ROOT} STREQUAL "")
     list(INSERT CMAKE_LIBRARY_PATH 0 ${NEBULA_THIRDPARTY_ROOT}/lib)
     list(INSERT CMAKE_LIBRARY_PATH 0 ${NEBULA_THIRDPARTY_ROOT}/lib64)
     list(INSERT CMAKE_PROGRAM_PATH 0 ${NEBULA_THIRDPARTY_ROOT}/bin)
-    include_directories(SYSTEM ${NEBULA_THIRDPARTY_ROOT}/include)
+    #change of tongheihei
+    List(INSERT CMAKE_INCLUDE_PATH 0 /usr/local/include)
+    List(INSERT CMAKE_LIBRARY_PATH 0 /usr/local/lib)
+    include_directories(SYSTEM ${NEBULA_THIRDPARTY_ROOT}/include /usr/local/include)
+    message(STATUS "Build info of nebula third party:\n${third_party_build_info}")
+    #change of tongheihei
+    #include_directories(/usr/local/include)
     link_directories(
         ${NEBULA_THIRDPARTY_ROOT}/lib
         ${NEBULA_THIRDPARTY_ROOT}/lib64
+        #change of tongheiehei
+        /usr/local/lib
+       
     )
 endif()
 
@@ -89,6 +100,7 @@ find_package(Googletest REQUIRED)
 if(ENABLE_JEMALLOC)
     find_package(Jemalloc REQUIRED)
 endif()
+find_package(Libcurl REQUIRED)
 find_package(Libevent REQUIRED)
 find_package(Proxygen REQUIRED)
 find_package(Rocksdb REQUIRED)
@@ -149,5 +161,5 @@ if (NOT ENABLE_JEMALLOC OR ENABLE_ASAN OR ENABLE_UBSAN)
 else()
     set(JEMALLOC_LIB jemalloc)
 endif()
-
+message(STATUS"****************************************"${CMAKE_BINARY_DIR})
 message(">>>> Configuring third party for '${PROJECT_NAME}' done <<<<")

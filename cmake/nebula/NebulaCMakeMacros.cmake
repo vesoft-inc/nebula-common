@@ -87,6 +87,7 @@ macro(nebula_link_libraries target)
         boost_filesystem
         boost_program_options
         event
+        curl
         double-conversion
         s2
         ${OPENSSL_SSL_LIBRARY}
