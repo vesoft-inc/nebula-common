@@ -531,6 +531,12 @@ StatusOr<std::function<const VertexID&(const Row&)>> GraphStorageClient::getIdFr
                 auto& mutableR = const_cast<Row&>(r);
                 mutableR.values[0] = Value(
                         std::string(reinterpret_cast<const char*>(&r.values[0].getInt()), 8));
+                // The second column dst
+                if (r.values.size() == 2) {
+                    DCHECK_EQ(Value::Type::INT, r.values[1].type());
+                    mutableR.values[1] = Value(
+                        std::string(reinterpret_cast<const char*>(&r.values[1].getInt()), 8));
+                }
                 return mutableR.values[0].getStr();
             };
         }

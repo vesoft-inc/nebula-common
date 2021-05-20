@@ -11,6 +11,7 @@
 #include <iterator>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "common/datatypes/Value.h"
 #include "common/datatypes/List.h"
@@ -25,6 +26,7 @@ struct DataSet {
 
     DataSet() = default;
     explicit DataSet(std::vector<std::string>&& colNames_) : colNames(std::move(colNames_)) {}
+    explicit DataSet(const std::vector<std::string>& colNames_) : colNames(colNames_) {}
     DataSet(const DataSet& ds) noexcept {
         colNames = ds.colNames;
         rows = ds.rows;
