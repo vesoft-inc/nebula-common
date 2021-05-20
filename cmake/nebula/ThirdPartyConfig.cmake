@@ -41,6 +41,21 @@ if(NOT ${NEBULA_THIRDPARTY_ROOT} STREQUAL "")
         ${NEBULA_THIRDPARTY_ROOT}/lib
         ${NEBULA_THIRDPARTY_ROOT}/lib64
     )
+
+    # check the GCC version of the building third-party is less than the using GCC version
+    execute_process(
+        COMMAND echo ${third_party_build_info}
+        COMMAND grep "Compiler"
+        COMMAND cut -d ":" -f 2
+        COMMAND cut -d " " -f 3
+        OUTPUT_VARIABLE THIRD_PARTY__GCC_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    string(COMPARE GREATER_EQUAL ${CMAKE_CXX_COMPILER_VERSION} ${THIRD_PARTY__GCC_VERSION} VERSION_COMPARE_RESULT)
+    if(NOT ${VERSION_COMPARE_RESULT})
+        message(FATAL_ERROR "Current GCC version \"${CMAKE_CXX_COMPILER_VERSION}\" is less than "
+                            "the version \"${THIRD_PARTY__GCC_VERSION}\" of the building third-party")
+    endif()
 endif()
 
 if(NOT ${NEBULA_OTHER_ROOT} STREQUAL "")
