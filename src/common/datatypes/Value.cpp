@@ -1925,11 +1925,11 @@ Value operator+(const Value& lhs, const Value& rhs) {
                 case Value::Type::INT: {
                     auto lVal = lhs.getInt();
                     auto rVal = rhs.getInt();
-                    if ((lVal > 0 && rVal > INT64_MAX - lVal) ||
-                        (lVal < 0 && rVal < INT64_MIN - lVal)) {
+                    int sum;
+                    if (__builtin_add_overflow(lVal, rVal, &sum)) {
                         return Value::kNullOverflow;
                     }
-                    return lVal + rVal;
+                    return sum;
                 }
                 case Value::Type::FLOAT: {
                     return lhs.getInt() + rhs.getFloat();
@@ -2179,11 +2179,11 @@ Value operator-(const Value& lhs, const Value& rhs) {
                 case Value::Type::INT: {
                     auto lVal = lhs.getInt();
                     auto rVal = rhs.getInt();
-                    if ((rVal < 0 && lVal > INT64_MAX + rVal) ||
-                        (rVal > 0 && lVal < INT64_MIN + rVal)) {
+                    int res;
+                    if (__builtin_sub_overflow(lVal, rVal, &res)) {
                         return Value::kNullOverflow;
                     }
-                    return lVal - rVal;
+                    return res;
                 }
                 case Value::Type::FLOAT: {
                     return lhs.getInt() - rhs.getFloat();
@@ -2244,10 +2244,11 @@ Value operator*(const Value& lhs, const Value& rhs) {
                     if ((lVal == -1 && rVal == INT64_MIN) || (rVal == -1 && lVal == INT64_MIN)) {
                         return Value::kNullOverflow;
                     }
-                    if ((lVal > INT64_MAX / rVal) || (lVal < INT64_MIN / rVal)) {
+                    int res;
+                    if (__builtin_mul_overflow(lVal, rVal, &res)) {
                         return Value::kNullOverflow;
                     }
-                    return lVal * rVal;
+                    return res;
                 }
                 case Value::Type::FLOAT: {
                     return lhs.getInt() * rhs.getFloat();
