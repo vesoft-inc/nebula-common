@@ -30,7 +30,6 @@ FunctionManager &FunctionManager::instance() {
 std::unordered_map<std::string, Value::Type> FunctionManager::variadicFunReturnType_ = {
     {"concat", Value::Type::STRING},
     {"concat_ws", Value::Type::STRING},
-    {"udf_is_in", Value::Type::BOOL},
     {"cos_similarity", Value::Type::FLOAT},
 };
 
@@ -1379,15 +1378,6 @@ FunctionManager::FunctionManager() {
                     LOG(ERROR) << "Hash has not been implemented for " << args[0].type();
                     return Value::kNullBadType;
             }
-        };
-    }
-    {
-        auto &attr = functions_["udf_is_in"];
-        attr.minArity_ = 2;
-        attr.maxArity_ = INT64_MAX;
-        attr.isPure_ = true;
-        attr.body_ = [](const auto &args) -> Value {
-            return std::find(args.begin() + 1, args.end(), args[0]) != args.end();
         };
     }
     {
