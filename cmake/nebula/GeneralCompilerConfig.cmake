@@ -20,6 +20,8 @@ add_compile_options(-Wshadow)
 add_compile_options(-Wnon-virtual-dtor)
 add_compile_options(-Woverloaded-virtual)
 add_compile_options(-Wignored-qualifiers)
+add_compile_options(-Wno-gnu-anonymous-struct)
+add_compile_options(-Wno-nested-anon-types)
 
 add_definitions(-DS2_USE_GLOG)
 
