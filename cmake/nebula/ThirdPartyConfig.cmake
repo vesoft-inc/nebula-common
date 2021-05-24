@@ -28,6 +28,44 @@ else()
     endif()
 endif()
 
+function(nebula_check_gcc_version third_party_info)
+    # check the GCC version of the building third-party is less than the using GCC version
+    # | Current GCC Version | Thrid-party GCC Version |
+    # |---------------------|-------------------------|
+    # |       7.5/7.1       |        7.5/7.1          |
+    # |       >= 8.x        |          8.x            |
+
+    set(HELP_MESSAGE "\n| Current GCC Version | Thrid-party GCC Version |\n"
+                     "|---------------------|-------------------------|\n"
+                     "|       7.5/7.1       |        7.5/7.1          |\n"
+                     "|       >= 8.x        |          8.x            |\n")
+    string(REPLACE ";" "" HELP_MESSAGE ${HELP_MESSAGE})
+    execute_process(
+        COMMAND echo ${third_party_info}
+        COMMAND grep "Compiler"
+        COMMAND cut -d ":" -f 2
+        COMMAND cut -d " " -f 3
+        OUTPUT_VARIABLE THIRD_PARTY_GCC_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    string(REPLACE "." ";" T_VERSION_LIST ${THIRD_PARTY_GCC_VERSION})
+    list(GET T_VERSION_LIST 0 third_part_gcc_major_version)
+
+    string(REPLACE "." ";" C_VERSION_LIST ${CMAKE_CXX_COMPILER_VERSION})
+    list(GET C_VERSION_LIST 0 current_gcc_major_version)
+    if(${third_part_gcc_major_version} STREQUAL "7" AND NOT ${current_gcc_major_version} STREQUAL "7")
+        message(FATAL_ERROR "Current g++ version is \"${CMAKE_CXX_COMPILER_VERSION}\", "
+                "the building third-party g++ version is \"${THIRD_PARTY_GCC_VERSION}\"."
+                "The version map is ${HELP_MESSAGE}")
+    endif()
+    string(COMPARE GREATER_EQUAL ${CMAKE_CXX_COMPILER_VERSION} ${THIRD_PARTY_GCC_VERSION} VERSION_COMPARE_RESULT)
+    if(NOT ${VERSION_COMPARE_RESULT})
+        message(FATAL_ERROR "Current g++ version is \"${CMAKE_CXX_COMPILER_VERSION}\", "
+                "the building third-party g++ version is \"${THIRD_PARTY_GCC_VERSION}\"."
+                "The version map is ${HELP_MESSAGE}")
+    endif()
+endfunction()
+
 if(NOT ${NEBULA_THIRDPARTY_ROOT} STREQUAL "")
     print_config(NEBULA_THIRDPARTY_ROOT)
     file(READ ${NEBULA_THIRDPARTY_ROOT}/version-info third_party_build_info)
@@ -42,20 +80,7 @@ if(NOT ${NEBULA_THIRDPARTY_ROOT} STREQUAL "")
         ${NEBULA_THIRDPARTY_ROOT}/lib64
     )
 
-    # check the GCC version of the building third-party is less than the using GCC version
-    execute_process(
-        COMMAND echo ${third_party_build_info}
-        COMMAND grep "Compiler"
-        COMMAND cut -d ":" -f 2
-        COMMAND cut -d " " -f 3
-        OUTPUT_VARIABLE THIRD_PARTY__GCC_VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-    string(COMPARE GREATER_EQUAL ${CMAKE_CXX_COMPILER_VERSION} ${THIRD_PARTY__GCC_VERSION} VERSION_COMPARE_RESULT)
-    if(NOT ${VERSION_COMPARE_RESULT})
-        message(FATAL_ERROR "Current GCC version \"${CMAKE_CXX_COMPILER_VERSION}\" is less than "
-                            "the version \"${THIRD_PARTY__GCC_VERSION}\" of the building third-party")
-    endif()
+    nebula_check_gcc_version(${third_party_build_info})
 endif()
 
 if(NOT ${NEBULA_OTHER_ROOT} STREQUAL "")
@@ -166,3 +191,4 @@ else()
 endif()
 
 message(">>>> Configuring third party for '${PROJECT_NAME}' done <<<<")
+
