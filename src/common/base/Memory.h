@@ -17,9 +17,7 @@ namespace nebula {
 
 class MemInfo final : protected cpp::NonCopyable, protected cpp::NonMovable {
 public:
-    MemInfo() noexcept {
-        sysinfo(&info_);
-    }
+    MemInfo() noexcept;
 
     uint64_t totalInKB() const {
         return (info_.totalram * info_.mem_unit) >> 10;
@@ -33,7 +31,7 @@ public:
         return totalInKB() - freeInKB();
     }
 
-    bool hitsHighWatermark(float ratio = 0.9f) const {
+    bool hitsHighWatermark(float ratio = 0.8f) const {
         return usedInKB() > totalInKB() * ratio;
     }
 
