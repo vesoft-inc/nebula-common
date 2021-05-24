@@ -24,73 +24,6 @@ typedef i64 (cpp.type = "nebula::SchemaVer") SchemaVer
 
 typedef i64 (cpp.type = "nebula::ClusterID") ClusterID
 
-
-enum ErrorCode {
-    SUCCEEDED          = 0,
-
-    // RPC Failure
-    E_DISCONNECTED     = -1,
-    E_FAIL_TO_CONNECT  = -2,
-    E_RPC_FAILURE      = -3,
-
-    E_LEADER_CHANGED   = -11,
-
-    // Operation Failure
-    E_NO_HOSTS         = -21,
-    E_EXISTED          = -22,
-    E_NOT_FOUND        = -23,
-    E_INVALID_HOST     = -24,
-    E_UNSUPPORTED      = -25,
-    E_NOT_DROP         = -26,
-    E_BALANCER_RUNNING = -27,
-    E_CONFIG_IMMUTABLE = -28,
-    E_CONFLICT         = -29,
-    E_INVALID_PARM     = -30,
-    E_WRONGCLUSTER     = -31,
-
-    E_STORE_FAILURE             = -32,
-    E_STORE_SEGMENT_ILLEGAL     = -33,
-    E_BAD_BALANCE_PLAN          = -34,
-    E_BALANCED                  = -35,
-    E_NO_RUNNING_BALANCE_PLAN   = -36,
-    E_NO_VALID_HOST             = -37,
-    E_CORRUPTTED_BALANCE_PLAN   = -38,
-    E_NO_INVALID_BALANCE_PLAN   = -39,
-
-    // Authentication Failure
-    E_INVALID_PASSWORD          = -41,
-    E_IMPROPER_ROLE             = -42,
-    E_INVALID_PARTITION_NUM     = -43,
-    E_INVALID_REPLICA_FACTOR    = -44,
-    E_INVALID_CHARSET           = -45,
-    E_INVALID_COLLATE           = -46,
-    E_CHARSET_COLLATE_NOT_MATCH = -47,
-
-    // Admin Failure
-    E_SNAPSHOT_FAILURE       = -51,
-    E_BLOCK_WRITE_FAILURE    = -52,
-    E_REBUILD_INDEX_FAILURE  = -53,
-    E_INDEX_WITH_TTL         = -54,
-    E_ADD_JOB_FAILURE        = -55,
-    E_STOP_JOB_FAILURE       = -56,
-    E_SAVE_JOB_FAILURE       = -57,
-    E_BALANCER_FAILURE       = -58,
-    E_JOB_NOT_FINISHED       = -59,
-    E_TASK_REPORT_OUT_DATE   = -60,
-    E_INVALID_JOB            = -61,
-
-    // Backup Failure
-    E_BACKUP_FAILURE = -70,
-    E_BACKUP_BUILDING_INDEX = -71,
-    E_BACKUP_SPACE_NOT_FOUND = -72,
-
-    // RESTORE Failure
-    E_RESTORE_FAILURE = -80,
-
-    E_UNKNOWN        = -99,
-} (cpp.enum_strict)
-
-
 enum AlterSchemaOp {
     ADD    = 0x01,
     CHANGE = 0x02,
@@ -283,7 +216,7 @@ struct RoleItem {
 }
 
 struct ExecResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     // For custom kv operations, it is useless.
     2: ID               id,
     // Valid if ret equals E_LEADER_CHANGED.
@@ -312,7 +245,7 @@ enum AdminCmd {
     REBUILD_EDGE_INDEX  = 3,
     STATS               = 4,
     DATA_BALANCE        = 5,
-    DOWELOAD            = 6,
+    DOWNLOAD            = 6,
     INGEST              = 7,
     UNKNOWN             = 99,
 } (cpp.enum_strict)
@@ -361,7 +294,7 @@ struct AdminJobResult {
 }
 
 struct AdminJobResp {
-    1: ErrorCode                    code,
+    1: common.ErrorCode             code,
     2: common.HostAddr              leader,
     3: AdminJobResult               result,
 }
@@ -408,7 +341,7 @@ struct ListSpacesReq {
 }
 
 struct ListSpacesResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     // Valid if ret equals E_LEADER_CHANGED.
     2: common.HostAddr  leader,
     3: list<IdName>     spaces,
@@ -419,7 +352,7 @@ struct GetSpaceReq {
 }
 
 struct GetSpaceResp {
-    1: ErrorCode         code,
+    1: common.ErrorCode  code,
     2: common.HostAddr   leader,
     3: SpaceItem         item,
 }
@@ -450,7 +383,7 @@ struct ListTagsReq {
 }
 
 struct ListTagsResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     // Valid if ret equals E_LEADER_CHANGED.
     2: common.HostAddr  leader,
     3: list<TagItem>    tags,
@@ -463,7 +396,7 @@ struct GetTagReq {
 }
 
 struct GetTagResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     2: common.HostAddr  leader,
     3: Schema           schema,
 }
@@ -490,7 +423,7 @@ struct GetEdgeReq {
 }
 
 struct GetEdgeResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     2: common.HostAddr  leader,
     3: Schema           schema,
 }
@@ -506,7 +439,7 @@ struct ListEdgesReq {
 }
 
 struct ListEdgesResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     // Valid if ret equals E_LEADER_CHANGED.
     2: common.HostAddr  leader,
     3: list<EdgeItem>   edges,
@@ -525,7 +458,7 @@ struct ListHostsReq {
 }
 
 struct ListHostsResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     // Valid if ret equals E_LEADER_CHANGED.
     2: common.HostAddr  leader,
     3: list<HostItem>   hosts,
@@ -544,9 +477,9 @@ struct ListPartsReq {
 }
 
 struct ListPartsResp {
-    1: ErrorCode       code,
-    2: common.HostAddr leader,
-    3: list<PartItem>  parts,
+    1: common.ErrorCode code,
+    2: common.HostAddr  leader,
+    3: list<PartItem>   parts,
 }
 
 struct GetPartsAllocReq {
@@ -554,7 +487,7 @@ struct GetPartsAllocReq {
 }
 
 struct GetPartsAllocResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     // Valid if ret equals E_LEADER_CHANGED.
     2: common.HostAddr  leader,
     3: map<common.PartitionID, list<common.HostAddr>>(cpp.template = "std::unordered_map") parts,
@@ -573,7 +506,7 @@ struct GetReq {
 }
 
 struct GetResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     2: common.HostAddr  leader,
     3: binary           value,
 }
@@ -584,7 +517,7 @@ struct MultiGetReq {
 }
 
 struct MultiGetResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     2: common.HostAddr  leader,
     3: list<binary>     values,
 }
@@ -607,13 +540,13 @@ struct ScanReq {
 }
 
 struct ScanResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     2: common.HostAddr  leader,
     3: list<binary>     values,
 }
 
 struct HBResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     2: common.HostAddr  leader,
     3: ClusterID        cluster_id,
     4: i64              last_update_time_in_ms,
@@ -629,7 +562,7 @@ enum HostRole {
 
 struct LeaderInfo {
     1: common.PartitionID part_id,
-    2: i64 term
+    2: i64                term
 }
 
 struct HBReq {
@@ -670,7 +603,7 @@ struct GetTagIndexReq {
 }
 
 struct GetTagIndexResp {
-    1: ErrorCode			code,
+    1: common.ErrorCode		code,
     2: common.HostAddr      leader,
     3: IndexItem           	item,
 }
@@ -680,7 +613,7 @@ struct ListTagIndexesReq {
 }
 
 struct ListTagIndexesResp {
-    1: ErrorCode            code,
+    1: common.ErrorCode     code,
     2: common.HostAddr      leader,
     3: list<IndexItem>		items,
 }
@@ -706,7 +639,7 @@ struct GetEdgeIndexReq {
 }
 
 struct GetEdgeIndexResp {
-    1: ErrorCode            code,
+    1: common.ErrorCode     code,
     2: common.HostAddr      leader,
     3: IndexItem          	item,
 }
@@ -716,7 +649,7 @@ struct ListEdgeIndexesReq {
 }
 
 struct ListEdgeIndexesResp {
-    1: ErrorCode            code,
+    1: common.ErrorCode     code,
     2: common.HostAddr      leader,
     3: list<IndexItem>    	items,
 }
@@ -754,7 +687,7 @@ struct ListUsersReq {
 }
 
 struct ListUsersResp {
-    1: ErrorCode code,
+    1: common.ErrorCode code,
     // Valid if ret equals E_LEADER_CHANGED.
     2: common.HostAddr  leader,
     // map<account, encoded password>
@@ -766,7 +699,7 @@ struct ListRolesReq {
 }
 
 struct ListRolesResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     // Valid if ret equals E_LEADER_CHANGED.
     2: common.HostAddr  leader,
     3: list<RoleItem>   roles,
@@ -805,7 +738,7 @@ struct BalanceTask {
 }
 
 struct BalanceResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     2: i64              id,
     // Valid if code equals E_LEADER_CHANGED.
     3: common.HostAddr  leader,
@@ -846,7 +779,7 @@ struct GetConfigReq {
 }
 
 struct GetConfigResp {
-    1: ErrorCode            code,
+    1: common.ErrorCode     code,
     2: common.HostAddr      leader,
     3: list<ConfigItem>     items,
 }
@@ -861,7 +794,7 @@ struct ListConfigsReq {
 }
 
 struct ListConfigsResp {
-    1: ErrorCode            code,
+    1: common.ErrorCode     code,
     2: common.HostAddr      leader,
     3: list<ConfigItem>     items,
 }
@@ -883,7 +816,7 @@ struct Snapshot {
 }
 
 struct ListSnapshotsResp {
-    1: ErrorCode            code,
+    1: common.ErrorCode     code,
     // Valid if code equals E_LEADER_CHANGED.
     2: common.HostAddr      leader,
     3: list<Snapshot>       snapshots,
@@ -899,7 +832,7 @@ struct IndexStatus {
 }
 
 struct ListIndexStatusResp {
-    1: ErrorCode            code,
+    1: common.ErrorCode     code,
     2: common.HostAddr      leader,
     3: list<IndexStatus>    statuses,
 }
@@ -929,7 +862,7 @@ struct GetZoneReq {
 }
 
 struct GetZoneResp {
-    1: ErrorCode              code,
+    1: common.ErrorCode       code,
     2: common.HostAddr        leader,
     3: list<common.HostAddr>  hosts,
 }
@@ -943,7 +876,7 @@ struct Zone {
 }
 
 struct ListZonesResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     2: common.HostAddr  leader,
     3: list<Zone>       zones,
 }
@@ -972,7 +905,7 @@ struct GetGroupReq {
 }
 
 struct GetGroupResp {
-    1: ErrorCode             code,
+    1: common.ErrorCode      code,
     2: common.HostAddr       leader,
     3: list<binary>          zone_names,
 }
@@ -986,7 +919,7 @@ struct Group {
 }
 
 struct ListGroupsResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     2: common.HostAddr  leader,
     3: list<Group>      groups,
 }
@@ -1019,7 +952,7 @@ struct ListenerInfo {
 }
 
 struct ListListenerResp {
-    1: ErrorCode               code,
+    1: common.ErrorCode        code,
     2: common.HostAddr         leader,
     3: list<ListenerInfo>      listeners,
 }
@@ -1029,7 +962,7 @@ struct GetStatisReq {
 }
 
 struct GetStatisResp {
-    1: ErrorCode        code,
+    1: common.ErrorCode code,
     // Valid if ret equals E_LEADER_CHANGED.
     2: common.HostAddr  leader,
     3: StatisItem       statis,
@@ -1062,7 +995,7 @@ struct CreateBackupReq {
 }
 
 struct CreateBackupResp {
-    1: ErrorCode          code,
+    1: common.ErrorCode   code,
     2: common.HostAddr    leader,
     3: BackupMeta         meta,
 }
@@ -1099,7 +1032,7 @@ struct ListFTClientsReq {
 }
 
 struct ListFTClientsResp {
-    1: ErrorCode           code,
+    1: common.ErrorCode    code,
     2: common.HostAddr     leader,
     3: list<FTClient>      clients,
 }
@@ -1123,7 +1056,7 @@ struct CreateSessionReq {
 }
 
 struct CreateSessionResp {
-    1: ErrorCode            code,
+    1: common.ErrorCode     code,
     2: common.HostAddr      leader,
     3: Session              session,
 }
@@ -1136,7 +1069,7 @@ struct ListSessionsReq {
 }
 
 struct ListSessionsResp {
-    1: ErrorCode             code,
+    1: common.ErrorCode      code,
     2: common.HostAddr       leader,
     3: list<Session>         sessions,
 }
@@ -1146,7 +1079,7 @@ struct GetSessionReq {
 }
 
 struct GetSessionResp {
-    1: ErrorCode            code,
+    1: common.ErrorCode     code,
     2: common.HostAddr      leader,
     3: Session              session,
 }
@@ -1156,7 +1089,7 @@ struct RemoveSessionReq {
 }
 
 struct ReportTaskReq {
-    1: ErrorCode            code,
+    1: common.ErrorCode     code,
     2: i32                  job_id,
     3: i32                  task_id,
     4: optional StatisItem  statis
