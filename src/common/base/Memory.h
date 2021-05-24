@@ -7,7 +7,6 @@
 #ifndef COMMON_BASE_MEMORY_H_
 #define COMMON_BASE_MEMORY_H_
 
-#include <bits/stdint-uintn.h>
 #include <sys/sysinfo.h>
 
 #include <cstdint>
@@ -26,12 +25,12 @@ public:
         return (info_.totalram * info_.mem_unit) >> 10;
     }
 
-    uint64_t usedInKB() const {
-        return ((info_.totalram - info_.freeram) * info_.mem_unit) >> 10;
-    }
-
     uint64_t freeInKB() const {
         return (info_.freeram * info_.mem_unit) >> 10;
+    }
+
+    uint64_t usedInKB() const {
+        return totalInKB() - freeInKB();
     }
 
     bool hitsHighWatermark(float ratio = 0.9f) const {
