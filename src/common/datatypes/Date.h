@@ -129,6 +129,10 @@ inline std::ostream &operator<<(std::ostream& os, const Time& d) {
 }
 
 struct DateTime {
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif  // defined(__GNUC__)
     union {
         struct {
             uint64_t year:16;
@@ -141,6 +145,9 @@ struct DateTime {
         };
         uint64_t qword;
     };
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif  // defined(__GNUC__)
 
     DateTime() : year{0}, month{1}, day{1}, hour{0}, minute{0}, sec{0}, microsec{0} {}
     DateTime(int16_t y, int8_t m, int8_t d, int8_t h, int8_t min, int8_t s, int32_t us) {
