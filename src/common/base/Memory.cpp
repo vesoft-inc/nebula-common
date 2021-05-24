@@ -6,14 +6,16 @@
 
 #include "common/base/Memory.h"
 
+#include <errno.h>
+
 #include "common/base/Logging.h"
 
 namespace nebula {
 
 MemInfo::MemInfo() noexcept {
     info_ = std::make_unique<struct sysinfo>();
-    auto err = sysinfo(info_.get());
-    if (err != 0) {
+    if (sysinfo(info_.get()) == -1) {
+        auto err = errno;
         LOG(ERROR) << "Fail to call sysinfo to get memory info, errno: " << err;
     }
 }
