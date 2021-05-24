@@ -12,12 +12,22 @@
 
 namespace nebula {
 
+StatusOr<std::unique_ptr<MemInfo>> MemInfo::make() {
+    std::unique_ptr<MemInfo> mem(new MemInfo);
+    NG_RETURN_IF_ERROR(mem->init());
+    return mem;
+}
+
 MemInfo::MemInfo() noexcept {
     info_ = std::make_unique<struct sysinfo>();
+}
+
+Status MemInfo::init() {
     if (sysinfo(info_.get()) == -1) {
         auto err = errno;
-        LOG(ERROR) << "Fail to call sysinfo to get memory info, errno: " << err;
+        return Status::Error("Fail to call sysinfo to get memory info, errno: %d", err);
     }
+    return Status::OK();
 }
 
 }   // namespace nebula

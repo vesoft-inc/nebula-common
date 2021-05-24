@@ -12,13 +12,14 @@
 #include <cstdint>
 #include <memory>
 
+#include "common/base/StatusOr.h"
 #include "common/cpp/helpers.h"
 
 namespace nebula {
 
 class MemInfo final : protected cpp::NonCopyable, protected cpp::NonMovable {
 public:
-    MemInfo() noexcept;
+    static StatusOr<std::unique_ptr<MemInfo>> make();
 
     uint64_t totalInKB() const {
         return (info_->totalram * info_->mem_unit) >> 10;
@@ -37,6 +38,10 @@ public:
     }
 
 private:
+    MemInfo() noexcept;
+
+    Status init();
+
     std::unique_ptr<struct sysinfo> info_;
 };
 
