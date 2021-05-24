@@ -10,6 +10,7 @@
 #include <sys/sysinfo.h>
 
 #include <cstdint>
+#include <memory>
 
 #include "common/cpp/helpers.h"
 
@@ -20,11 +21,11 @@ public:
     MemInfo() noexcept;
 
     uint64_t totalInKB() const {
-        return (info_.totalram * info_.mem_unit) >> 10;
+        return (info_->totalram * info_->mem_unit) >> 10;
     }
 
     uint64_t freeInKB() const {
-        return (info_.freeram * info_.mem_unit) >> 10;
+        return (info_->freeram * info_->mem_unit) >> 10;
     }
 
     uint64_t usedInKB() const {
@@ -36,7 +37,7 @@ public:
     }
 
 private:
-    struct sysinfo info_;
+    std::unique_ptr<struct sysinfo> info_;
 };
 
 }   // namespace nebula

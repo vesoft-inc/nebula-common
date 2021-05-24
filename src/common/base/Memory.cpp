@@ -11,7 +11,8 @@
 namespace nebula {
 
 MemInfo::MemInfo() noexcept {
-    auto err = sysinfo(&info_);
+    info_ = std::make_unique<struct sysinfo>();
+    auto err = sysinfo(info_.get());
     if (err != 0) {
         LOG(ERROR) << "Fail to call sysinfo to get memory info, errno: " << err;
     }
