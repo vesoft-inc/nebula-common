@@ -11,7 +11,6 @@
 #include <iterator>
 #include <sstream>
 #include <string>
-#include <vector>
 
 #include "common/datatypes/Value.h"
 #include "common/datatypes/List.h"
