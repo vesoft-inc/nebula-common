@@ -135,7 +135,7 @@ struct DateTime {
 #endif  // defined(__GNUC__)
     union {
         struct {
-            uint64_t year:16;
+            int64_t year:16;
             uint64_t month:4;
             uint64_t day:5;
             uint64_t hour:5;
