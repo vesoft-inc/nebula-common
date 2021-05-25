@@ -112,14 +112,14 @@ public:
         return dateTimeShift(dateTime, -getGlobalTimezone().utcOffsetSecs());
     }
 
-    static StatusOr<DateTime> localDateTime() {
+    static DateTime localDateTime() {
         auto time = unixTime();
         auto dt = unixSecondsToDateTime(time.seconds - getGlobalTimezone().utcOffsetSecs());
         dt.microsec = time.milliseconds * 1000;
         return dt;
     }
 
-    static StatusOr<DateTime> utcDateTime() {
+    static DateTime utcDateTime() {
         auto time = unixTime();
         auto dt = unixSecondsToDateTime(time.seconds);
         dt.microsec = time.milliseconds * 1000;
@@ -239,14 +239,14 @@ public:
         return timeShift(time, getGlobalTimezone().utcOffsetSecs());
     }
 
-    static StatusOr<Time> localTime() {
+    static Time localTime() {
         auto time = unixTime();
         auto t = unixSecondsToTime(time.seconds - getGlobalTimezone().utcOffsetSecs());
         t.microsec = time.milliseconds * 1000;
         return t;
     }
 
-    static StatusOr<Time> utcTime() {
+    static Time utcTime() {
         auto time = unixTime();
         auto t = unixSecondsToTime(time.seconds);
         t.microsec = time.milliseconds * 1000;
