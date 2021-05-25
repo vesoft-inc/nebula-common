@@ -208,10 +208,9 @@ std::unordered_map<std::string, std::vector<TypeSignature>> FunctionManager::typ
                     TypeSignature({Value::Type::EDGE}, Value::Type::MAP),
                     TypeSignature({Value::Type::MAP}, Value::Type::MAP),
              }},
-    {"type", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING),
-             }},
-    {"rank", {TypeSignature({Value::Type::EDGE}, Value::Type::INT),
-             }},
+    {"type", {TypeSignature({Value::Type::EDGE}, Value::Type::STRING), }},
+    {"typeid", {TypeSignature({Value::Type::EDGE}, Value::Type::INT), }},
+    {"rank", {TypeSignature({Value::Type::EDGE}, Value::Type::INT), }},
     {"startnode", {TypeSignature({Value::Type::EDGE}, Value::Type::VERTEX),
                    TypeSignature({Value::Type::PATH}, Value::Type::VERTEX), }},
     {"endnode", {TypeSignature({Value::Type::EDGE}, Value::Type::VERTEX),
@@ -1720,6 +1719,25 @@ FunctionManager::FunctionManager() {
         };
     }
     {
+        auto &attr = functions_["typeid"];
+        attr.minArity_ = 1;
+        attr.maxArity_ = 1;
+        attr.isPure_ = true;
+        attr.body_ = [](const auto &args) -> Value {
+            switch (args[0].type()) {
+                case Value::Type::NULLVALUE: {
+                    return Value::kNullValue;
+                }
+                case Value::Type::EDGE: {
+                    return args[0].getEdge().type;
+                }
+                default: {
+                    return Value::kNullBadType;
+                }
+            }
+        };
+    }
+    {
         auto &attr = functions_["src"];
         attr.minArity_ = 1;
         attr.maxArity_ = 1;
@@ -1730,7 +1748,8 @@ FunctionManager::FunctionManager() {
                     return Value::kNullValue;
                 }
                 case Value::Type::EDGE: {
-                    return args[0].getEdge().src;
+                    const auto &edge = args[0].getEdge();
+                    return edge.type > 0 ? edge.src : edge.dst;
                 }
                 default: {
                     return Value::kNullBadType;
@@ -1749,7 +1768,8 @@ FunctionManager::FunctionManager() {
                     return Value::kNullValue;
                 }
                 case Value::Type::EDGE: {
-                    return args[0].getEdge().dst;
+                    const auto &edge = args[0].getEdge();
+                    return edge.type > 0 ? edge.dst : edge.src;
                 }
                 default: {
                     return Value::kNullBadType;
