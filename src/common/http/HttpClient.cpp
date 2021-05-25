@@ -1,4 +1,4 @@
-/* Copyright (c) 2021 vesoft inc. All rights reserved.
+/* Copyright (c) 2019 vesoft inc. All rights reserved.
  *
  * This source code is licensed under Apache 2.0 License,
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
@@ -17,9 +17,6 @@ namespace http {
  StatusOr<std::string> HttpClient::get(const std::string& path, const std::string& /*options*/) {
     CURL *curl;
     CURLcode res;
-    // create a new pointer of a newseesion;
-    // path="http://wwww.baidu.com";
-    // std::string mypath="http://www.baidu.luxian";
     FILE *f;
     curl = curl_easy_init();
     f = fopen("temp.txt", "w");
@@ -59,16 +56,6 @@ namespace http {
 }
 
 StatusOr<std::string> HttpClient::post(const std::string& path, const std::string& header) {
-    auto command =
-        folly::stringPrintf("/usr/bin/curl -X POST %s \"%s\"", header.c_str(), path.c_str());
-    LOG(INFO) << "HTTP POST Command: " << command;
-
-    // auto result = nebula::ProcessUtils::runCommand(command.c_str());
-    // if (result.ok()) {
-    //     return result.value();
-    // } else {
-    //     return Status::Error(folly::stringPrintf("Http Post Failed: %s", path.c_str()));
-    // }
     CURL *curl;
     CURLcode res;
     struct curl_slist *my_curl_list = nullptr;
@@ -135,15 +122,6 @@ StatusOr<std::string> HttpClient::put(const std::string& path,
 }
 
 StatusOr<std::string> HttpClient::put(const std::string& path, const std::string& header) {
-    auto command =
-        folly::stringPrintf("/usr/bin/curl -X PUT %s \"%s\"", header.c_str(), path.c_str());
-    LOG(INFO) << "HTTP PUT Command: " << command;
-    // auto result = nebula::ProcessUtils::runCommand(command.c_str());
-    // if (result.ok()) {
-    //     return result.value();
-    // } else {
-    //     return Status::Error(folly::stringPrintf("Http Put Failed: %s", path.c_str()));
-    // }
     CURL *curl;
     CURLcode res;
     struct curl_slist *my_curl_list = nullptr;
@@ -231,7 +209,6 @@ StatusOr<std::string> HttpClient::sendRequest(const std::string& path,
         }
         StatusOr<std::string> result = out.str();
         if (result.ok()) {
-            std:: cout<< "ok!!!!!!" << std::endl;
             return result.value();
         } else {
             return Status::Error(folly::stringPrintf("Http Get Failed: %s", path.c_str()));

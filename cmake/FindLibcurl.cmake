@@ -9,9 +9,9 @@
 #
 # Variables defined by this module:
 #
-#  Libevent_FOUND            System has Libevent, include and lib dirs found
-#  Libevent_INCLUDE_DIR      The Libevent includes directories.
-#  Libevent_LIBRARY          The Libevent library.
+#  Libcurl_FOUND            System has Libcurl, include and lib dirs found
+#  Libcurl_INCLUDE_DIR      The Libcurl includes directories.
+#  Libcurl_LIBRARY          The Libcurl library.
 
 find_path(Libcurl_INCLUDE_DIR NAMES curl/curl.h PATHS /usr/local/include)
 find_library(Libcurl_LIBRARY NAMES  libcurl curl PATHS /usr/local/lib)
