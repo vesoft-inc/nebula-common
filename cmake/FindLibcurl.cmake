@@ -15,8 +15,6 @@
 
 find_path(Libcurl_INCLUDE_DIR NAMES curl/curl.h PATHS /usr/local/include)
 find_library(Libcurl_LIBRARY NAMES  libcurl curl PATHS /usr/local/lib)
-message(STATUS "********Libcurl_INCLUDE_DIR is ${Libcurl_INCLUDE_DIR}")
-message(STATUS "********Libcurl_LIBRARY is ${Libcurl_LIBRARY}")
 
 if(Libcurl_INCLUDE_DIR AND Libcurl_LIBRARY)
     set(Libcurl_FOUND TRUE)
