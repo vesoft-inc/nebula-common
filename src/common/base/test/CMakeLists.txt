@@ -114,3 +114,9 @@ nebula_add_test(
     SOURCES ObjectPoolTest.cpp
     LIBRARIES gtest gtest_main
 )
+
+nebula_add_test(
+    NAME hold_ptr_test
+    SOURCES HoldPtrTest.cpp
+    LIBRARIES gtest gtest_main
+)

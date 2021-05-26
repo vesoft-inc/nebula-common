@@ -13,6 +13,7 @@
 #include <folly/SpinLock.h>
 
 #include "common/cpp/helpers.h"
+#include "common/base/HoldPtr.h"
 
 namespace nebula {
 
@@ -28,15 +29,15 @@ public:
     }
 
     template <typename T>
-    T *add(T *obj) {
+    HoldPtr<T> add(T *obj) {
         folly::SpinLockGuard g(lock_);
         objects_.emplace_back(obj);
-        return obj;
+        return HoldPtr<T>(obj);
     }
 
     template <typename T, typename... Args>
-    T *makeAndAdd(Args&&... args) {
-        return add(new T(std::forward<Args>(args)...));
+    HoldPtr<T> makeAndAdd(Args&&... args) {
+        return HoldPtr<T>(add(new T(std::forward<Args>(args)...)));
     }
 
     bool empty() const {
