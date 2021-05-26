@@ -27,9 +27,9 @@ void AggregateExpression::writeTo(Encoder& encoder) const {
 }
 
 void AggregateExpression::resetFrom(Decoder& decoder) {
-    name_ = decoder.readStr();
+    name_ = decoder.readStr().get();
     distinct_ = decoder.readValue().getBool();
-    arg_ = decoder.readExpression();
+    arg_ = decoder.readExpression().get();
     auto aggFuncResult = AggFunctionManager::get(name_);
     if (aggFuncResult.ok()) {
         aggFunc_ = std::move(aggFuncResult).value();
@@ -61,7 +61,7 @@ std::string AggregateExpression::toString() const {
     // TODO fix it
     std::string arg;
     if (arg_->kind() == Expression::Kind::kConstant) {
-        const auto* argExpr = static_cast<const ConstantExpression*>(arg_.get());
+        const auto* argExpr = static_cast<const ConstantExpression*>(arg_);
         if (argExpr->value().isStr()) {
             arg = argExpr->value().getStr();
         } else {

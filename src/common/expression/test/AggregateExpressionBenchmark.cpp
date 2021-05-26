@@ -6,6 +6,7 @@
 
 #include <folly/Benchmark.h>
 #include <memory>
+#include "common/base/ObjectPool.h"
 #include "common/expression/AggregateExpression.h"
 #include "common/expression/ConstantExpression.h"
 #include "common/expression/test/ExpressionContextMock.h"
@@ -14,11 +15,11 @@ nebula::ExpressionContextMock gExpCtxt;
 
 namespace nebula {
 
-static std::unique_ptr<AggregateExpression> expr = nullptr;
+static AggregateExpression* expr = nullptr;
 
 size_t aggFuncCall(size_t iters) {
     for (size_t i = 0; i < iters; ++i) {
-        Expression::eval(expr.get(), gExpCtxt);
+        Expression::eval(expr, gExpCtxt);
     }
     return iters;
 }
@@ -31,7 +32,9 @@ using nebula::AggregateExpression;
 using nebula::ConstantExpression;
 
 int main(int argc, char** argv) {
-    nebula::expr.reset(new AggregateExpression("avg", new ConstantExpression(2), false));
+    ObjectPool pool;
+    nebula::expr.reset(new nebula::AggregateExpression::make(
+        &pool, "avg", new nebula::ConstantExpression(2), false));
     nebula::AggData aggData;
     nebula::expr->setAggData(&aggData);
 

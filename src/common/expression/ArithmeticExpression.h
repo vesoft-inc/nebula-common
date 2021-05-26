@@ -13,9 +13,33 @@ namespace nebula {
 
 class ArithmeticExpression final : public BinaryExpression {
 public:
-    ArithmeticExpression(Kind kind,
-                         Expression* lhs = nullptr,
-                         Expression* rhs = nullptr)
+    static ArithmeticExpression* makeAdd(ObjectPool* pool = nullptr,
+                                         Expression* lhs = nullptr,
+                                         Expression* rhs = nullptr) {
+        return pool->add(new ArithmeticExpression(Expression::Kind::kAdd, lhs, rhs));
+    }
+    static ArithmeticExpression* makeMinus(ObjectPool* pool = nullptr,
+                                         Expression* lhs = nullptr,
+                                         Expression* rhs = nullptr) {
+        return pool->add(new ArithmeticExpression(Expression::Kind::kMinus, lhs, rhs));
+    }
+    static ArithmeticExpression* makeMultiply(ObjectPool* pool = nullptr,
+                                         Expression* lhs = nullptr,
+                                         Expression* rhs = nullptr) {
+        return pool->add(new ArithmeticExpression(Expression::Kind::kMultiply, lhs, rhs));
+    }
+    static ArithmeticExpression* makeDivision(ObjectPool* pool = nullptr,
+                                         Expression* lhs = nullptr,
+                                         Expression* rhs = nullptr) {
+        return pool->add(new ArithmeticExpression(Expression::Kind::kDivision, lhs, rhs));
+    }
+    static ArithmeticExpression* makeMod(ObjectPool* pool = nullptr,
+                                         Expression* lhs = nullptr,
+                                         Expression* rhs = nullptr) {
+        return pool->add(new ArithmeticExpression(Expression::Kind::kMod, lhs, rhs));
+    }
+
+    explicit ArithmeticExpression(Kind kind, Expression* lhs = nullptr, Expression* rhs = nullptr)
         : BinaryExpression(kind, lhs, rhs) {}
 
     const Value& eval(ExpressionContext& ctx) override;

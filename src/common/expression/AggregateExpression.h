@@ -21,11 +21,18 @@ public:
                                  Expression* arg = nullptr,
                                  bool distinct = false)
         : Expression(Kind::kAggregate), name_(name), distinct_(distinct) {
-        arg_.reset(arg);
+        arg_ = arg;
         auto aggFuncResult = AggFunctionManager::get(name_);
         if (aggFuncResult.ok()) {
             aggFunc_ = std::move(aggFuncResult).value();
         }
+    }
+
+    static AggregateExpression* make(ObjectPool* pool = nullptr,
+                                     std::string* name = nullptr,
+                                     Expression* arg = nullptr,
+                                     bool distinct = false) {
+        return pool->add(new AggregateExpression(name, arg, distinct));
     }
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -48,15 +55,15 @@ public:
     }
 
     const Expression* arg() const {
-        return arg_.get();
+        return arg_;
     }
 
     Expression* arg() {
-        return arg_.get();
+        return arg_;
     }
 
     void setArg(Expression* arg) {
-        arg_.reset(arg);
+        arg_ = arg;
     }
 
     bool distinct() {
@@ -84,7 +91,7 @@ private:
     void resetFrom(Decoder& decoder) override;
 
     std::string name_;
-    std::unique_ptr<Expression> arg_;
+    Expression* arg_;
     bool distinct_{false};
     AggData* aggData_{nullptr};
 

@@ -17,6 +17,10 @@ namespace nebula {
  */
 class ColumnExpression final : public Expression {
 public:
+    static ColumnExpression* make(ObjectPool* pool = nullptr, int32_t index = 0) {
+        return pool->add(new ColumnExpression(index));
+    }
+
     explicit ColumnExpression(int32_t index = 0) : Expression(Kind::kColumn), index_(index) {}
 
     const Value& eval(ExpressionContext &ctx) override;

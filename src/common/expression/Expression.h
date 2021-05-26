@@ -8,6 +8,7 @@
 #define COMMON_EXPRESSION_EXPRESSION_H_
 
 #include "common/base/Base.h"
+#include "common/base/ObjectPool.h"
 #include "common/datatypes/Value.h"
 #include "common/context/ExpressionContext.h"
 

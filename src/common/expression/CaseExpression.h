@@ -40,6 +40,12 @@ class CaseExpression final : public Expression {
     friend class Expression;
 
 public:
+    static CaseExpression* make(ObjectPool* pool = nullptr,
+                                CaseList* cases = nullptr,
+                                bool isGeneric = true) {
+        return pool->add(new CaseExpression(cases, isGeneric));
+    }
+
     CaseExpression() : Expression(Kind::kCase), isGeneric_(true) {}
 
     explicit CaseExpression(CaseList* cases,
@@ -58,11 +64,11 @@ public:
     }
 
     void setCondition(Expression* cond) {
-        condition_.reset(cond);
+        condition_ = cond;
     }
 
     void setDefault(Expression* defaultResult) {
-        default_.reset(defaultResult);
+        default_ = defaultResult;
     }
 
     void setCases(CaseList* cases) {
@@ -97,11 +103,11 @@ public:
     }
 
     Expression* condition() const {
-        return condition_.get();
+        return condition_;
     }
 
     Expression* defaultResult() const {
-        return default_.get();
+        return default_;
     }
 
     const std::vector<CaseList::Item>& cases() const {
@@ -132,8 +138,8 @@ private:
 
     bool isGeneric_;
     std::vector<CaseList::Item> cases_;
-    std::unique_ptr<Expression> condition_{nullptr};
-    std::unique_ptr<Expression> default_{nullptr};
+    Expression* condition_{nullptr};
+    Expression* default_{nullptr};
     Value result_;
 };
 

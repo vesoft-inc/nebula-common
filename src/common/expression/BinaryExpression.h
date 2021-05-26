@@ -18,35 +18,33 @@ class BinaryExpression : public Expression {
     friend class Expression;
 
 public:
-    BinaryExpression(Kind kind,
-                     Expression* lhs,
-                     Expression* rhs)
+    BinaryExpression(Kind kind, Expression* lhs, Expression* rhs)
         : Expression(kind), lhs_(lhs), rhs_(rhs) {}
 
     bool operator==(const Expression& rhs) const override;
 
     const Expression* left() const {
-        return lhs_.get();
+        return lhs_;
     }
 
     Expression* left() {
-        return lhs_.get();
+        return lhs_;
     }
 
     void setLeft(Expression* expr) {
-        lhs_.reset(expr);
+        lhs_ = expr;
     }
 
     const Expression* right() const {
-        return rhs_.get();
+        return rhs_;
     }
 
     Expression* right() {
-        return rhs_.get();
+        return rhs_;
     }
 
     void setRight(Expression* expr) {
-        rhs_.reset(expr);
+        rhs_ = expr;
     }
 
 protected:
@@ -54,8 +52,8 @@ protected:
 
     void resetFrom(Decoder& decoder) override;
 
-    std::unique_ptr<Expression>                 lhs_;
-    std::unique_ptr<Expression>                 rhs_;
+    Expression*                 lhs_;
+    Expression*                 rhs_;
 };
 
 }  // namespace nebula

@@ -5,21 +5,15 @@
  */
 
 #include <folly/Benchmark.h>
-#include "common/expression/test/ExpressionContextMock.h"
-#include "common/expression/ArithmeticExpression.h"
-#include "common/expression/ConstantExpression.h"
-#include "common/expression/PropertyExpression.h"
-#include "common/expression/RelationalExpression.h"
-
-nebula::ExpressionContextMock gExpCtxt;
+#include "common/expression/test/TestBase.h"
 
 namespace nebula {
 size_t add2Constant(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    ArithmeticExpression expr(
-            Expression::Kind::kAdd, new ConstantExpression(1), new ConstantExpression(2));
+    auto expr =
+        ArithmeticExpression::makeAdd(&pool, new ConstantExpression(1), new ConstantExpression(2));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(&expr, gExpCtxt);
+        Value eval = Expression::eval(expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -27,14 +21,12 @@ size_t add2Constant(size_t iters) {
 
 size_t add3Constant(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    ArithmeticExpression expr(
-            Expression::Kind::kAdd,
-            new ArithmeticExpression(
-                Expression::Kind::kAdd,
-                new ConstantExpression(1), new ConstantExpression(2)),
-            new ConstantExpression(3));
+    auto expr = ArithmeticExpression::makeAdd(
+        &pool,
+        ArithmeticExpression::makeAdd(&pool, new ConstantExpression(1), new ConstantExpression(2)),
+        new ConstantExpression(3));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(&expr, gExpCtxt);
+        Value eval = Expression::eval(expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -42,14 +34,14 @@ size_t add3Constant(size_t iters) {
 
 size_t add2Constant1EdgeProp(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    ArithmeticExpression expr(
-            Expression::Kind::kAdd,
+    auto expr = ArithmeticExpression::makeAdd(
+            &pool,
             new ArithmeticExpression(
                 Expression::Kind::kAdd,
                 new ConstantExpression(1), new ConstantExpression(2)),
             new EdgePropertyExpression("e1", "int"));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(&expr, gExpCtxt);
+        Value eval = Expression::eval(expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -57,12 +49,12 @@ size_t add2Constant1EdgeProp(size_t iters) {
 
 size_t concat2String(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    ArithmeticExpression expr(
-            Expression::Kind::kAdd,
+    auto expr = ArithmeticExpression::makeAdd(
+            &pool,
             new EdgePropertyExpression("e1", "string16"),
             new EdgePropertyExpression("e1", "string16"));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(&expr, gExpCtxt);
+        Value eval = Expression::eval(expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;

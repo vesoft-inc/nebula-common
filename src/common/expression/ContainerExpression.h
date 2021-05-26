@@ -13,6 +13,10 @@ namespace nebula {
 
 class ExpressionList final {
 public:
+    static ExpressionList* make(ObjectPool *pool = nullptr, size_t sz = 0) {
+        return pool->add(new ExpressionList(sz));
+    }
+
     ExpressionList() = default;
     explicit ExpressionList(size_t sz) {
         items_.reserve(sz);
@@ -23,17 +27,21 @@ public:
         return *this;
     }
 
-    auto get() && {
-        return std::move(items_);
+    auto get() {
+        return items_;
     }
 
 private:
-    std::vector<std::unique_ptr<Expression>>    items_;
+    std::vector<Expression*>    items_;
 };
 
 
 class MapItemList final {
 public:
+    static MapItemList* make(ObjectPool *pool = nullptr, size_t sz = 0) {
+        return pool->add(new MapItemList(sz));
+    }
+
     MapItemList() = default;
     explicit MapItemList(size_t sz) {
         items_.reserve(sz);
@@ -44,43 +52,47 @@ public:
         return *this;
     }
 
-    auto get() && {
-        return std::move(items_);
+    auto get() {
+        return items_;
     }
 
 private:
-    using Pair = std::pair<std::string, std::unique_ptr<Expression>>;
-    std::vector<Pair>                           items_;
+    using Pair = std::pair<std::string, Expression*>;
+    std::vector<Pair>                         items_;
 };
 
 
 class ListExpression final : public Expression {
 public:
+    static ListExpression *make(ObjectPool *pool = nullptr, ExpressionList *items = nullptr) {
+        return pool->add(new ListExpression(items));
+    }
+
     ListExpression() : Expression(Kind::kList) {
     }
 
     explicit ListExpression(ExpressionList *items) : Expression(Kind::kList) {
-        items_ = std::move(*items).get();
+        items_ = (*items).get();
         delete items;
     }
 
     const Value& eval(ExpressionContext &ctx) override;
 
-    const std::vector<std::unique_ptr<Expression>> &items() const {
+    const std::vector<Expression*> &items() const {
         return items_;
     }
 
-    void setItem(size_t index, std::unique_ptr<Expression> item) {
+    void setItem(size_t index, Expression *item) {
         DCHECK_LT(index, items_.size());
-        items_[index] = std::move(item);
+        items_[index] = item;
     }
 
-    std::vector<std::unique_ptr<Expression>> get() && {
-        return std::move(items_);
+    std::vector<Expression*> get() {
+        return items_;
     }
 
-    void setItems(std::vector<std::unique_ptr<Expression>> items) {
-        items_ = std::move(items);
+    void setItems(std::vector<Expression*> items) {
+        items_ = items;
     }
 
     size_t size() const {
@@ -107,38 +119,42 @@ private:
     void resetFrom(Decoder &decoder) override;
 
 private:
-    std::vector<std::unique_ptr<Expression>>    items_;
-    Value                                       result_;
+    std::vector<Expression*>    items_;
+    Value                       result_;
 };
 
 
 class SetExpression final : public Expression {
 public:
+    static SetExpression *make(ObjectPool *pool = nullptr, ExpressionList *items = nullptr) {
+        return pool->add(new SetExpression(items));
+    }
+
     SetExpression() : Expression(Kind::kSet) {
     }
 
     explicit SetExpression(ExpressionList *items) : Expression(Kind::kSet) {
-        items_ = std::move(*items).get();
+        items_ = (*items).get();
         delete items;
     }
 
     const Value& eval(ExpressionContext &ctx) override;
 
-    const std::vector<std::unique_ptr<Expression>> &items() const {
+    const std::vector<Expression*> &items() const {
         return items_;
     }
 
-    void setItem(size_t index, std::unique_ptr<Expression> item) {
+    void setItem(size_t index, Expression* item) {
         DCHECK_LT(index, items_.size());
-        items_[index] = std::move(item);
+        items_[index] = item;
     }
 
-    std::vector<std::unique_ptr<Expression>> get() && {
-        return std::move(items_);
+    std::vector<Expression*> get() {
+        return items_;
     }
 
-    void setItems(std::vector<std::unique_ptr<Expression>> items) {
-        items_ = std::move(items);
+    void setItems(std::vector<Expression*> items) {
+        items_ = items;
     }
 
     size_t size() const {
@@ -165,20 +181,24 @@ private:
     void resetFrom(Decoder &decoder) override;
 
 private:
-    std::vector<std::unique_ptr<Expression>>    items_;
-    Value                                       result_;
+    std::vector<Expression*>    items_;
+    Value                       result_;
 };
 
 
 class MapExpression final : public Expression {
 public:
-    using Item = std::pair<std::string, std::unique_ptr<Expression>>;
+    static MapExpression *make(ObjectPool *pool = nullptr, MapItemList *items = nullptr) {
+        return pool->add(new MapExpression(items));
+    }
+
+    using Item = std::pair<std::string, Expression *>;
 
     MapExpression() : Expression(Kind::kMap) {
     }
 
     explicit MapExpression(MapItemList *items) : Expression(Kind::kMap) {
-        items_ = std::move(*items).get();
+        items_ = (*items).get();
         delete items;
     }
 
@@ -189,16 +209,16 @@ public:
     }
 
     void setItems(std::vector<Item> items) {
-        items_ = std::move(items);
+        items_ = items;
     }
 
     void setItem(size_t index, Item item) {
         DCHECK_LT(index, items_.size());
-        items_[index] = std::move(item);
+        items_[index] = item;
     }
 
-    std::vector<Item> get() && {
-        return std::move(items_);
+    std::vector<Item> get() {
+        return items_;
     }
 
     size_t size() const {

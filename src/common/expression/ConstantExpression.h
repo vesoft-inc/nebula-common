@@ -16,6 +16,11 @@ class ConstantExpression : public Expression {
     friend class Expression;
 
 public:
+    static ConstantExpression* make(ObjectPool* pool = nullptr,
+                                    Value v = Value(NullType::__NULL__)) {
+        return pool->add(new ConstantExpression(v));
+    }
+
     explicit ConstantExpression(Value v = Value(NullType::__NULL__))
         : Expression(Kind::kConstant)
         , val_(std::move(v)) {}

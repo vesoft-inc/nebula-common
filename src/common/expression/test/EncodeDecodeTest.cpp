@@ -4,26 +4,7 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
-#include <gtest/gtest.h>
-#include "common/base/Base.h"
-#include "common/expression/ArithmeticExpression.h"
-#include "common/expression/ConstantExpression.h"
-#include "common/expression/ContainerExpression.h"
-#include "common/expression/FunctionCallExpression.h"
-#include "common/expression/AggregateExpression.h"
-#include "common/expression/LabelExpression.h"
-#include "common/expression/LogicalExpression.h"
-#include "common/expression/PathBuildExpression.h"
-#include "common/expression/PropertyExpression.h"
-#include "common/expression/RelationalExpression.h"
-#include "common/expression/SubscriptExpression.h"
-#include "common/expression/TypeCastingExpression.h"
-#include "common/expression/UUIDExpression.h"
-#include "common/expression/UnaryExpression.h"
-#include "common/expression/CaseExpression.h"
-#include "common/expression/PredicateExpression.h"
-#include "common/expression/ListComprehensionExpression.h"
-#include "common/expression/ReduceExpression.h"
+#include "common/expression/test/TestBase.h"
 
 namespace nebula {
 
@@ -59,7 +40,6 @@ TEST(ExpressionEncodeDecode, ConstantExpression) {
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(val6, *decoded);
 }
-
 
 TEST(ExpressionEncodeDecode, SymbolPropertyExpression) {
     SourcePropertyExpression spEx("tag", "prop");
@@ -98,47 +78,40 @@ TEST(ExpressionEncodeDecode, SymbolPropertyExpression) {
     EXPECT_EQ(edgeEx, *decoded);
 }
 
-
 TEST(ExpressionEncodeDecode, ArithmeticExpression) {
-    ArithmeticExpression addEx(Expression::Kind::kAdd,
-                               new ConstantExpression(123),
-                               new ConstantExpression("Hello"));
-    std::string encoded = Expression::encode(addEx);
+    auto addEx = ArithmeticExpression::makeAdd(
+        &pool, new ConstantExpression(123), new ConstantExpression("Hello"));
+    std::string encoded = Expression::encode(*addEx);
     auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
-    EXPECT_EQ(addEx, *decoded);
+    EXPECT_EQ(*addEx, *decoded);
 
-    ArithmeticExpression minusEx(Expression::Kind::kMinus,
-                                 new ConstantExpression(3.14),
-                                 new ConstantExpression("Hello"));
-    encoded = Expression::encode(minusEx);
+    auto minusEx = ArithmeticExpression::makeMinus(
+        &pool, new ConstantExpression(3.14), new ConstantExpression("Hello"));
+    encoded = Expression::encode(*minusEx);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
-    EXPECT_EQ(minusEx, *decoded);
+    EXPECT_EQ(*minusEx, *decoded);
 
-    ArithmeticExpression multiEx(Expression::Kind::kMultiply,
-                                 new ConstantExpression(3.14),
-                                 new ConstantExpression(1234));
-    encoded = Expression::encode(multiEx);
+    auto multiEx = ArithmeticExpression::makeMinus(
+        &pool, new ConstantExpression(3.14), new ConstantExpression(1234));
+    encoded = Expression::encode(*multiEx);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
-    EXPECT_EQ(multiEx, *decoded);
+    EXPECT_EQ(*multiEx, *decoded);
 
-    ArithmeticExpression divEx(Expression::Kind::kDivision,
-                               new ConstantExpression(3.14),
-                               new ConstantExpression(1234));
-    encoded = Expression::encode(divEx);
+    auto divEx = ArithmeticExpression::makeDivision(
+        &pool, new ConstantExpression(3.14), new ConstantExpression(1234));
+    encoded = Expression::encode(*divEx);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
-    EXPECT_EQ(divEx, *decoded);
+    EXPECT_EQ(*divEx, *decoded);
 
-    ArithmeticExpression modEx(Expression::Kind::kDivision,
-                               new ConstantExpression(1234567),
-                               new ConstantExpression(123));
-    encoded = Expression::encode(modEx);
+    auto modEx = ArithmeticExpression::makeMod(
+        &pool, new ConstantExpression(1234567), new ConstantExpression(123));
+    encoded = Expression::encode(*modEx);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
-    EXPECT_EQ(modEx, *decoded);
+    EXPECT_EQ(*modEx, *decoded);
 }
 
-
 TEST(ExpressionEncodeDecode, FunctionCallExpression) {
-    ArgumentList* args = new ArgumentList();
+    ArgumentList *args = new ArgumentList();
     args->addArgument(std::make_unique<ConstantExpression>(123));
     args->addArgument(std::make_unique<ConstantExpression>(3.14));
     args->addArgument(std::make_unique<ConstantExpression>("Hello world"));
@@ -148,113 +121,88 @@ TEST(ExpressionEncodeDecode, FunctionCallExpression) {
     EXPECT_EQ(fcEx, *decoded);
 }
 
-
 TEST(ExpressionEncodeDecode, AggregateExpression) {
-    auto arg = std::make_unique<ConstantExpression>(123);
-    AggregateExpression aggEx("COUNT", arg.release(), true);
-    std::string encoded = Expression::encode(aggEx);
+    auto aggEx = AggregateExpression::make(&pool, "COUNT", new ConstantExpression(123), true);
+    std::string encoded = Expression::encode(*aggEx);
     auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
-    EXPECT_EQ(aggEx, *decoded);
+    EXPECT_EQ(*aggEx, *decoded);
 }
 
-
 TEST(ExpressionEncodeDecode, RelationalExpression) {
-    RelationalExpression eqEx(Expression::Kind::kRelEQ,
-                              new ConstantExpression(123),
-                              new ConstantExpression(123));
+    RelationalExpression eqEx(
+        Expression::Kind::kRelEQ, new ConstantExpression(123), new ConstantExpression(123));
     std::string encoded = Expression::encode(eqEx);
     auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(eqEx, *decoded);
 
-    RelationalExpression neEx(Expression::Kind::kRelEQ,
-                              new ConstantExpression(123),
-                              new ConstantExpression("Hello"));
+    RelationalExpression neEx(
+        Expression::Kind::kRelEQ, new ConstantExpression(123), new ConstantExpression("Hello"));
     encoded = Expression::encode(neEx);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(neEx, *decoded);
 
-    RelationalExpression ltEx(Expression::Kind::kRelEQ,
-                              new ConstantExpression(123),
-                              new ConstantExpression(12345));
+    RelationalExpression ltEx(
+        Expression::Kind::kRelEQ, new ConstantExpression(123), new ConstantExpression(12345));
     encoded = Expression::encode(ltEx);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(ltEx, *decoded);
 
-    RelationalExpression leEx(Expression::Kind::kRelEQ,
-                              new ConstantExpression(123),
-                              new ConstantExpression(12345));
+    RelationalExpression leEx(
+        Expression::Kind::kRelEQ, new ConstantExpression(123), new ConstantExpression(12345));
     encoded = Expression::encode(leEx);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(leEx, *decoded);
 
-    RelationalExpression gtEx(Expression::Kind::kRelEQ,
-                              new ConstantExpression(12345),
-                              new ConstantExpression(123));
+    RelationalExpression gtEx(
+        Expression::Kind::kRelEQ, new ConstantExpression(12345), new ConstantExpression(123));
     encoded = Expression::encode(gtEx);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(gtEx, *decoded);
 
-    RelationalExpression geEx(Expression::Kind::kRelEQ,
-                              new ConstantExpression(12345),
-                              new ConstantExpression(123));
+    RelationalExpression geEx(
+        Expression::Kind::kRelEQ, new ConstantExpression(12345), new ConstantExpression(123));
     encoded = Expression::encode(geEx);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(geEx, *decoded);
 
     RelationalExpression containEx(Expression::Kind::kContains,
-                              new ConstantExpression("12345"),
-                              new ConstantExpression("123"));
+                                   new ConstantExpression("12345"),
+                                   new ConstantExpression("123"));
     encoded = Expression::encode(containEx);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(containEx, *decoded);
 }
 
-
 TEST(ExpressionEncodeDecode, LogicalExpression) {
-    LogicalExpression andEx(Expression::Kind::kLogicalAnd,
-                            new ConstantExpression(true),
-                            new ConstantExpression(false));
+    LogicalExpression andEx(
+        Expression::Kind::kLogicalAnd, new ConstantExpression(true), new ConstantExpression(false));
     auto decoded = Expression::decode(Expression::encode(andEx));
     EXPECT_EQ(andEx, *decoded);
 
     auto lhs = new RelationalExpression(
-        Expression::Kind::kRelLT,
-        new ConstantExpression(123),
-        new ConstantExpression(12345));
+        Expression::Kind::kRelLT, new ConstantExpression(123), new ConstantExpression(12345));
     auto rhs = new RelationalExpression(
-        Expression::Kind::kRelEQ,
-        new ConstantExpression("Hello"),
-        new ConstantExpression("World"));
+        Expression::Kind::kRelEQ, new ConstantExpression("Hello"), new ConstantExpression("World"));
     LogicalExpression orEx(Expression::Kind::kLogicalOr, lhs, rhs);
     decoded = Expression::decode(Expression::encode(orEx));
     EXPECT_EQ(orEx, *decoded);
 
-    auto arEx = new ArithmeticExpression(
-        Expression::Kind::kAdd,
-        new ConstantExpression(123),
-        new ConstantExpression(456));
-    lhs = new RelationalExpression(
-        Expression::Kind::kRelLT,
-        new ConstantExpression(12345),
-        arEx);
+    auto arEx = ArithmeticExpression::makeAdd(
+        &pool, new ConstantExpression(123), new ConstantExpression(456));
+    lhs = new RelationalExpression(Expression::Kind::kRelLT, new ConstantExpression(12345), arEx);
     rhs = new RelationalExpression(
-        Expression::Kind::kRelEQ,
-        new ConstantExpression("Hello"),
-        new ConstantExpression("World"));
+        Expression::Kind::kRelEQ, new ConstantExpression("Hello"), new ConstantExpression("World"));
     LogicalExpression xorEx(Expression::Kind::kLogicalXor, lhs, rhs);
     decoded = Expression::decode(Expression::encode(xorEx));
     EXPECT_EQ(xorEx, *decoded);
 }
 
-
 TEST(ExpressionEncodeDecode, TypeCastingExpression) {
-    TypeCastingExpression tcEx(Value::Type::INT,
-                               new ConstantExpression(3.14));
+    TypeCastingExpression tcEx(Value::Type::INT, new ConstantExpression(3.14));
     std::string encoded = Expression::encode(tcEx);
     auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(tcEx, *decoded);
 }
-
 
 TEST(ExpressionEncodeDecode, UUIDExpression) {
     UUIDExpression uuidEx("field");
@@ -263,60 +211,55 @@ TEST(ExpressionEncodeDecode, UUIDExpression) {
     EXPECT_EQ(uuidEx, *decoded);
 }
 
-
 TEST(ExpressionEncodeDecode, UnaryExpression) {
-    UnaryExpression plusEx(Expression::Kind::kUnaryPlus,
-                           new ConstantExpression(12345));
+    UnaryExpression plusEx(Expression::Kind::kUnaryPlus, new ConstantExpression(12345));
     std::string encoded = Expression::encode(plusEx);
     auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(plusEx, *decoded);
 
-    UnaryExpression negEx(Expression::Kind::kUnaryNegate,
-                          new ConstantExpression(12345));
+    UnaryExpression negEx(Expression::Kind::kUnaryNegate, new ConstantExpression(12345));
     encoded = Expression::encode(negEx);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(negEx, *decoded);
 
-    UnaryExpression notEx(Expression::Kind::kUnaryNot,
-                          new ConstantExpression(false));
+    UnaryExpression notEx(Expression::Kind::kUnaryNot, new ConstantExpression(false));
     encoded = Expression::encode(notEx);
     decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(notEx, *decoded);
 }
 
-
 TEST(ExpressionEncodeDecode, ListExpression) {
     auto *list = new ExpressionList();
-    (*list).add(new ConstantExpression(1))
-           .add(new ConstantExpression("Hello"))
-           .add(new ConstantExpression(true));
+    (*list)
+        .add(new ConstantExpression(1))
+        .add(new ConstantExpression("Hello"))
+        .add(new ConstantExpression(true));
     auto origin = std::make_unique<ListExpression>(list);
     auto decoded = Expression::decode(Expression::encode(*origin));
     ASSERT_EQ(*origin, *decoded);
 }
 
-
 TEST(ExpressionEncodeDecode, SetExpression) {
     auto *list = new ExpressionList();
-    (*list).add(new ConstantExpression(1))
-           .add(new ConstantExpression("Hello"))
-           .add(new ConstantExpression(true));
+    (*list)
+        .add(new ConstantExpression(1))
+        .add(new ConstantExpression("Hello"))
+        .add(new ConstantExpression(true));
     auto origin = std::make_unique<SetExpression>(list);
     auto decoded = Expression::decode(Expression::encode(*origin));
     ASSERT_EQ(*origin, *decoded);
 }
 
-
 TEST(ExpressionEncodeDecode, MapExpression) {
     auto *list = new MapItemList();
-    (*list).add("key1", new ConstantExpression(1))
-           .add("key2", new ConstantExpression(2))
-           .add("key3", new ConstantExpression(3));
+    (*list)
+        .add("key1", new ConstantExpression(1))
+        .add("key2", new ConstantExpression(2))
+        .add("key3", new ConstantExpression(3));
     auto origin = std::make_unique<MapExpression>(list);
     auto decoded = Expression::decode(Expression::encode(*origin));
     ASSERT_EQ(*origin, *decoded);
 }
-
 
 TEST(ExpressionEncodeDecode, SubscriptExpression) {
     auto *left = new ConstantExpression(1);
@@ -389,8 +332,8 @@ TEST(ExpressionEncodeDecode, CaseExpression) {
         cases->add(new ConstantExpression(true), new ConstantExpression(2));
         auto origin = std::make_unique<CaseExpression>(cases);
         origin->setCondition(new RelationalExpression(Expression::Kind::kStartsWith,
-                                                    new ConstantExpression("nebula"),
-                                                    new ConstantExpression("nebu")));
+                                                      new ConstantExpression("nebula"),
+                                                      new ConstantExpression("nebu")));
         origin->setDefault(new ConstantExpression(3));
         std::string encoded = Expression::encode(*origin);
         auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
@@ -403,8 +346,8 @@ TEST(ExpressionEncodeDecode, CaseExpression) {
         cases->add(new ConstantExpression(8), new ConstantExpression(2));
         cases->add(new ConstantExpression(8), new ConstantExpression("jack"));
         auto origin = std::make_unique<CaseExpression>(cases);
-        origin->setCondition(new ArithmeticExpression(
-            Expression::Kind::kAdd, new ConstantExpression(3), new ConstantExpression(5)));
+        origin->setCondition(ArithmeticExpression::makeAdd(
+            &pool, new ConstantExpression(3), new ConstantExpression(5)));
         origin->setDefault(new ConstantExpression("no"));
         std::string encoded = Expression::encode(*origin);
         auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
@@ -496,9 +439,7 @@ TEST(ExpressionEncodeDecode, PredicateExpression) {
             "n",
             new FunctionCallExpression("range", argList),
             new RelationalExpression(
-                Expression::Kind::kRelGE,
-                new LabelExpression("n"),
-                new ConstantExpression(2)));
+                Expression::Kind::kRelGE, new LabelExpression("n"), new ConstantExpression(2)));
         auto decoded = Expression::decode(Expression::encode(*origin));
         ASSERT_EQ(*origin, *decoded);
     }
@@ -512,16 +453,15 @@ TEST(ExpressionEncodeDecode, ReduceExpression) {
         argList->addArgument(std::make_unique<ConstantExpression>(5));
         auto origin = std::make_unique<ReduceExpression>(
             "totalNum",
-            new ArithmeticExpression(
-                Expression::Kind::kMultiply, new ConstantExpression(2), new ConstantExpression(10)),
+            ArithmeticExpression::makeMultiply(
+                &pool, new ConstantExpression(2), new ConstantExpression(10)),
             "n",
             new FunctionCallExpression("range", argList),
-            new ArithmeticExpression(
-                Expression::Kind::kAdd,
+            ArithmeticExpression::makeAdd(
+                &pool,
                 new LabelExpression("totalNum"),
-                new ArithmeticExpression(Expression::Kind::kMultiply,
-                                         new LabelExpression("n"),
-                                         new ConstantExpression(2))));
+                ArithmeticExpression::makeMultiply(
+                    &pool, new LabelExpression("n"), new ConstantExpression(2))));
         auto decoded = Expression::decode(Expression::encode(*origin));
         ASSERT_EQ(*origin, *decoded);
     }
@@ -546,9 +486,7 @@ TEST(ExpressionEncodeDecode, ListComprehensionExpression) {
             "n",
             new FunctionCallExpression("range", argList),
             new RelationalExpression(
-                Expression::Kind::kRelGE,
-                new LabelExpression("n"),
-                new ConstantExpression(2)));
+                Expression::Kind::kRelGE, new LabelExpression("n"), new ConstantExpression(2)));
         auto decoded = Expression::decode(Expression::encode(*origin));
         ASSERT_EQ(*origin, *decoded);
     }
@@ -559,10 +497,8 @@ TEST(ExpressionEncodeDecode, ListComprehensionExpression) {
             "n",
             new FunctionCallExpression("nodes", argList),
             nullptr,
-            new ArithmeticExpression(
-                Expression::Kind::kAdd,
-                new LabelExpression("n"),
-                new ConstantExpression(10)));
+            ArithmeticExpression::makeAdd(
+                &pool, new LabelExpression("n"), new ConstantExpression(10)));
         auto decoded = Expression::decode(Expression::encode(*origin));
         ASSERT_EQ(*origin, *decoded);
     }
@@ -573,22 +509,19 @@ TEST(ExpressionEncodeDecode, ListComprehensionExpression) {
         auto origin = std::make_unique<ListComprehensionExpression>(
             "n",
             new FunctionCallExpression("range", argList),
-            new RelationalExpression(Expression::Kind::kRelGE,
-                                    new LabelExpression("n"),
-                                    new ConstantExpression(2)),
-            new ArithmeticExpression(Expression::Kind::kAdd,
-                                    new LabelExpression("n"),
-                                    new ConstantExpression(10)));
+            new RelationalExpression(
+                Expression::Kind::kRelGE, new LabelExpression("n"), new ConstantExpression(2)),
+            ArithmeticExpression::makeAdd(
+                &pool, new LabelExpression("n"), new ConstantExpression(10)));
 
         auto decoded = Expression::decode(Expression::encode(*origin));
         ASSERT_EQ(*origin, *decoded);
     }
 }
 
-}  // namespace nebula
+}   // namespace nebula
 
-
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     folly::init(&argc, &argv, true);
     google::SetStderrLogging(google::INFO);
