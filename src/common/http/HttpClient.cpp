@@ -78,7 +78,7 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const std::strin
         }
     curl = curl_easy_init();
     if (curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, path);
+    curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
     curl_easy_setopt(curl, CURLOPT_POST, 1L);
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, my_curl_list);
     /* if we don't provide POSTFIELDSIZE, libcurl will strlen() by
@@ -144,7 +144,7 @@ StatusOr<std::string> HttpClient::put(const std::string& path, const std::string
         }
     curl = curl_easy_init();
     if (curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, path);
+    curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, my_curl_list);
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "put");
     /* if we don't provide POSTFIELDSIZE, libcurl will strlen() by
