@@ -80,7 +80,8 @@ public:
     // get all latest version of all edge schema
     virtual StatusOr<EdgeSchema> getAllLatestVerEdgeSchema(GraphSpaceID space) = 0;
 
-    virtual StatusOr<std::vector<nebula::meta::cpp2::FTClient>> getFTClients() = 0;
+    virtual StatusOr<std::vector<nebula::meta::cpp2::ServiceClient>>
+    getServiceClients(nebula::meta::cpp2::ServiceType type) = 0;
 
     // Get the TagID or EdgeType by the name.
     // The first one is a bool which is used to distinguish the type.

@@ -77,6 +77,8 @@ macro(nebula_link_libraries target)
     target_link_libraries(
         ${target}
         ${ARGN}
+        rdkafka
+        rdkafka++
         folly
         fmt
         glog

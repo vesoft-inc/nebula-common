@@ -113,8 +113,7 @@ bool ESStorageAdapter::checkBulk(const std::string& ret) const {
     } catch (std::exception &e) {
         LOG(ERROR) << "result error : " << e.what();
     }
-    VLOG(3) << "Bulk insert failed";
-    VLOG(3) << ret;
+    VLOG(3) << "Bulk insert failed " << ret;
     return false;
 }
 
@@ -136,8 +135,7 @@ StatusOr<bool> ESStorageAdapter::bulk(const HttpClient& client,
     }
     auto ret = nebula::ProcessUtils::runCommand(command.c_str());
     if (!ret.ok() || ret.value().empty()) {
-        VLOG(3) << "Http PUT Failed";
-        VLOG(3) << command;
+        VLOG(3) << "Http PUT Failed " << command;
         return Status::Error("bulk command failed");
     }
     return checkBulk(ret.value());

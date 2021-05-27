@@ -100,10 +100,10 @@ struct DocItem {
     ~DocItem() = default;
 
     explicit DocItem(DocItem&& v) noexcept
-    : index(std::move(v.index))
-    , column(std::move(v.column))
-    , part(std::move(v.part))
-    , val(std::move(v.val)) {}
+        : index(std::move(v.index))
+        , column(std::move(v.column))
+        , part(std::move(v.part))
+        , val(std::move(v.val)) {}
 
     explicit DocItem(const DocItem& v) noexcept
         : index(v.index)

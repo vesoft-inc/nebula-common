@@ -188,6 +188,11 @@ bool MetaClient::loadData() {
         return false;
     }
 
+    if (!loadStreamingClients()) {
+        LOG(ERROR) << "Load streaming services Failed";
+        return false;
+    }
+
     auto ret = listSpaces().get();
     if (!ret.ok()) {
         LOG(ERROR) << "List space failed, status:" << ret.status();
@@ -491,17 +496,31 @@ bool MetaClient::loadListeners(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCa
 }
 
 bool MetaClient::loadFulltextClients() {
-     auto ftRet = listFTClients().get();
+     auto ftRet = listServiceClients(cpp2::ServiceType::ELASTICSEARCH).get();
      if (!ftRet.ok()) {
-         LOG(ERROR) << "List fulltext services failed, status:" << ftRet.status();
+         LOG(ERROR) << "List fulltext services failed, status: " << ftRet.status();
          return false;
      }
      {
          folly::RWSpinLock::WriteHolder holder(localCacheLock_);
-         fulltextClientList_ = std::move(ftRet).value();
+         fulltextClients_ = std::move(ftRet).value();
      }
      return true;
  }
+
+bool MetaClient::loadStreamingClients() {
+    auto streamRet = listServiceClients(cpp2::ServiceType::KAFKA).get();
+     if (!streamRet.ok()) {
+         LOG(ERROR) << "List streaming services failed, status: "
+                    << streamRet.status();
+         return false;
+     }
+     {
+         folly::RWSpinLock::WriteHolder holder(localCacheLock_);
+         streamingClients_ = std::move(streamRet).value();
+     }
+     return true;
+}
 
 bool MetaClient::loadFulltextIndexes() {
      auto ftRet = listFTIndexes().get();
@@ -3485,16 +3504,16 @@ folly::Future<StatusOr<nebula::cpp2::ErrorCode>> MetaClient::reportTaskFinish(
     return fut;
 }
 
-folly::Future<StatusOr<bool>> MetaClient::signInFTService(
-    cpp2::FTServiceType type, const std::vector<cpp2::FTClient>& clients) {
-    cpp2::SignInFTServiceReq req;
+folly::Future<StatusOr<bool>> MetaClient::signInService(
+    cpp2::ServiceType type, const std::vector<cpp2::ServiceClient>& clients) {
+    cpp2::SignInServiceReq req;
     req.set_type(type);
     req.set_clients(clients);
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
-                    return client->future_signInFTService(request);
+                    return client->future_signInService(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.get_code() == nebula::cpp2::ErrorCode::SUCCEEDED;
@@ -3505,13 +3524,13 @@ folly::Future<StatusOr<bool>> MetaClient::signInFTService(
 }
 
 
-folly::Future<StatusOr<bool>> MetaClient::signOutFTService() {
-    cpp2::SignOutFTServiceReq req;
+folly::Future<StatusOr<bool>> MetaClient::signOutService() {
+    cpp2::SignOutServiceReq req;
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
-                    return client->future_signOutFTService(request);
+                    return client->future_signOutService(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.get_code() == nebula::cpp2::ErrorCode::SUCCEEDED;
@@ -3522,27 +3541,36 @@ folly::Future<StatusOr<bool>> MetaClient::signOutFTService() {
 }
 
 
-folly::Future<StatusOr<std::vector<cpp2::FTClient>>>
-MetaClient::listFTClients() {
-    cpp2::ListFTClientsReq req;
-    folly::Promise<StatusOr<std::vector<cpp2::FTClient>>> promise;
+folly::Future<StatusOr<std::vector<cpp2::ServiceClient>>>
+MetaClient::listServiceClients(cpp2::ServiceType type) {
+    cpp2::ListServiceClientsReq req;
+    req.set_type(type);
+    folly::Promise<StatusOr<std::vector<cpp2::ServiceClient>>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
-                    return client->future_listFTClients(request);
+                    return client->future_listServiceClients(request);
                 },
-                [] (cpp2::ListFTClientsResp&& resp) -> decltype(auto){
+                [] (cpp2::ListServiceClientsResp&& resp) -> decltype(auto){
                     return std::move(resp).get_clients();
                 },
                 std::move(promise));
     return future;
 }
 
-StatusOr<std::vector<cpp2::FTClient>> MetaClient::getFTClientsFromCache() {
+StatusOr<std::vector<cpp2::ServiceClient>>
+MetaClient::getServiceClientsFromCache(nebula::meta::cpp2::ServiceType type) {
     if (!ready_) {
         return Status::Error("Not ready!");
     }
-    return fulltextClientList_;
+
+    switch (type) {
+        case nebula::meta::cpp2::ServiceType::ELASTICSEARCH:
+            return fulltextClients_;
+        case nebula::meta::cpp2::ServiceType::KAFKA:
+            return streamingClients_;
+    }
+    return Status::Error(folly::stringPrintf("Invalid type %d", static_cast<uint16_t>(type)));
 }
 
 folly::Future<StatusOr<bool>>

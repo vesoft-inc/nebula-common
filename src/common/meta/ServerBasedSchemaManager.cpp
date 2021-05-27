@@ -148,13 +148,14 @@ StatusOr<EdgeSchema> ServerBasedSchemaManager::getAllLatestVerEdgeSchema(GraphSp
     return metaClient_->getAllLatestVerEdgeSchemaFromCache(space);
 }
 
-StatusOr<std::vector<nebula::meta::cpp2::FTClient>> ServerBasedSchemaManager::getFTClients() {
-    auto ret = metaClient_->getFTClientsFromCache();
+StatusOr<std::vector<nebula::meta::cpp2::ServiceClient>>
+ServerBasedSchemaManager::getServiceClients(nebula::meta::cpp2::ServiceType type) {
+    auto ret = metaClient_->getServiceClientsFromCache(type);
     if (!ret.ok()) {
         return ret.status();
     }
     if (ret.value().empty()) {
-        return Status::Error("fulltext client list is empty");
+        return Status::Error("Service client list is empty");
     }
     return std::move(ret).value();
 }

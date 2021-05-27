@@ -90,6 +90,7 @@ if(ENABLE_JEMALLOC)
     find_package(Jemalloc REQUIRED)
 endif()
 find_package(Libevent REQUIRED)
+find_package(Librdkafka REQUIRED)
 find_package(Proxygen REQUIRED)
 find_package(Rocksdb REQUIRED)
 find_package(Snappy REQUIRED)
@@ -136,6 +137,8 @@ set(PROXYGEN_LIBRARIES
 )
 
 set(ROCKSDB_LIBRARIES ${Rocksdb_LIBRARY})
+
+set(KAFKA_LIBRARIES rdkafka rdkafka++)
 
 # All compression libraries
 set(COMPRESSION_LIBRARIES bz2 snappy zstd z lz4)

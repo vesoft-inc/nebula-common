@@ -1,0 +1,38 @@
+/* Copyright (c) 2020 vesoft inc. All rights reserved.
+ *
+ * This source code is licensed under Apache 2.0 License,
+ * attached with Common Clause Condition 1.0, found in the LICENSES directory.
+ */
+
+#include "common/version/Version.h"
+
+#include <folly/String.h>
+
+namespace nebula {
+
+std::string gitInfoSha() {
+    return "8020ed8";
+}
+
+std::string simpleVersionString() {
+    std::string version;
+#if defined(NEBULA_BUILD_VERSION)
+    version = folly::stringPrintf("%s, ", "");
+#endif
+    version += folly::stringPrintf("Build Time: %s %s", __DATE__, __TIME__);
+    return version;
+}
+
+std::string versionString() {
+    std::string version;
+#if defined(NEBULA_BUILD_VERSION)
+    version = folly::stringPrintf("%s, ", "");
+#endif
+    version += folly::stringPrintf("Git: %s", gitInfoSha().c_str());
+    version += folly::stringPrintf(", Build Time: %s %s", __DATE__, __TIME__);
+    version += "\nThis source code is licensed under Apache 2.0 License,"
+               " attached with Common Clause Condition 1.0.";
+    return version;
+}
+
+}   // namespace nebula

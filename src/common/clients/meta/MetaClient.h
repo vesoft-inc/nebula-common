@@ -107,9 +107,6 @@ using UserPasswordMap = std::unordered_map<std::string, std::string>;
 using MetaConfigMap = std::unordered_map<std::pair<cpp2::ConfigModule, std::string>,
                                          cpp2::ConfigItem>;
 
-// get fulltext services
-using FulltextClientsList = std::vector<cpp2::FTClient>;
-
 using FTIndexMap = std::unordered_map<std::string, cpp2::FTIndex>;
 
 class MetaChangedListener {
@@ -419,13 +416,15 @@ public:
 
     // Operations for fulltext services
     folly::Future<StatusOr<bool>>
-    signInFTService(cpp2::FTServiceType type, const std::vector<cpp2::FTClient>& clients);
+    signInService(cpp2::ServiceType type, const std::vector<cpp2::ServiceClient>& clients);
 
-    folly::Future<StatusOr<bool>> signOutFTService();
+    folly::Future<StatusOr<bool>> signOutService();
 
-    folly::Future<StatusOr<std::vector<cpp2::FTClient>>> listFTClients();
+    folly::Future<StatusOr<std::vector<cpp2::ServiceClient>>>
+    listServiceClients(cpp2::ServiceType type);
 
-    StatusOr<std::vector<cpp2::FTClient>> getFTClientsFromCache();
+    StatusOr<std::vector<cpp2::ServiceClient>>
+    getServiceClientsFromCache(nebula::meta::cpp2::ServiceType type);
 
     // Opeartions for fulltext index.
 
@@ -669,6 +668,8 @@ protected:
 
     bool loadFulltextClients();
 
+    bool loadStreamingClients();
+
     bool loadFulltextIndexes();
 
     void loadLeader(const std::vector<cpp2::HostItem>& hostItems,
@@ -762,10 +763,11 @@ private:
     UserRolesMap          userRolesMap_;
     UserPasswordMap       userPasswordMap_;
 
-    NameIndexMap          tagNameIndexMap_;
-    NameIndexMap          edgeNameIndexMap_;
-    FulltextClientsList   fulltextClientList_;
-    FTIndexMap            fulltextIndexMap_;
+    NameIndexMap                       tagNameIndexMap_;
+    NameIndexMap                       edgeNameIndexMap_;
+    std::vector<cpp2::ServiceClient>   fulltextClients_;
+    std::vector<cpp2::ServiceClient>   streamingClients_;
+    FTIndexMap                         fulltextIndexMap_;
 
     mutable folly::RWSpinLock     localCacheLock_;
     // The listener_ is the NebulaStore

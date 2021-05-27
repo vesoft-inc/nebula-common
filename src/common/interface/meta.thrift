@@ -929,6 +929,7 @@ struct ListGroupsResp {
 enum ListenerType {
     UNKNOWN       = 0x00,
     ELASTICSEARCH = 0x01,
+    KAFKA         = 0x02,
 } (cpp.enum_strict)
 
 struct AddListenerReq {
@@ -1013,31 +1014,34 @@ struct RestoreMetaReq {
     2: list<HostPair>   hosts,
 }
 
-enum FTServiceType {
+enum ServiceType {
     ELASTICSEARCH = 0x01,
-} (cpp.enum_strict)
+    KAFKA         = 0x02,
+}(cpp.enum_strict)
 
-struct FTClient {
+struct ServiceClient {
     1: required common.HostAddr    host,
     2: optional binary             user,
     3: optional binary             pwd,
 }
 
-struct SignInFTServiceReq {
-    1: FTServiceType                type,
-    2: list<FTClient>               clients,
+struct SignInServiceReq {
+    1: ServiceType                type,
+    2: list<ServiceClient>        clients,
 }
 
-struct SignOutFTServiceReq {
+struct SignOutServiceReq {
+    1: ServiceType                type,
 }
 
-struct ListFTClientsReq {
+struct ListServiceClientsReq {
+    1: ServiceType                type,
 }
 
-struct ListFTClientsResp {
+struct ListServiceClientsResp {
     1: common.ErrorCode    code,
     2: common.HostAddr     leader,
-    3: list<FTClient>      clients,
+    3: list<ServiceClient> clients,
 }
 
 struct FTIndex {
@@ -1258,9 +1262,9 @@ service MetaService {
     ListListenerResp listListener(1: ListListenerReq req);
 
     GetStatisResp  getStatis(1: GetStatisReq req);
-    ExecResp signInFTService(1: SignInFTServiceReq req);
-    ExecResp signOutFTService(1: SignOutFTServiceReq req);
-    ListFTClientsResp listFTClients(1: ListFTClientsReq req);
+    ExecResp signInService(1: SignInServiceReq req);
+    ExecResp signOutService(1: SignOutServiceReq req);
+    ListServiceClientsResp listServiceClients(1: ListServiceClientsReq req);
 
     ExecResp createFTIndex(1: CreateFTIndexReq req);
     ExecResp dropFTIndex(1: DropFTIndexReq req);
