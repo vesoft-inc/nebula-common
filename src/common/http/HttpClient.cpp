@@ -41,7 +41,8 @@ struct MemoryStruct {
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, reinterpret_cast<void *> (&chunk));
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemory);
         res = curl_easy_perform(curl);
-        StatusOr<std::string> result = chunk.memory;
+        StatusOr<std::string> result;
+        if (chunk.size != 0) result=chunk.memory;
         if (chunk.size == 0) result = "";
         free(chunk.memory);
         curl_easy_cleanup(curl);
@@ -178,7 +179,8 @@ StatusOr<std::string> HttpClient::sendRequest(const std::string& path,
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         res = curl_easy_perform(curl);
         LOG(INFO) << "HTTP return Code: " << res;
-        StatusOr<std::string> result = chunk.memory;
+        StatusOr<std::string> result;
+        if (chunk.size != 0) result=chunk.memory;
         if (chunk.size == 0) result = "";
         free(chunk.memory);
         curl_easy_cleanup(curl);
