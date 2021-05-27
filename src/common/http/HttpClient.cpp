@@ -64,7 +64,7 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const std::strin
     int len = header.length();
     int now_total = 0;
     std::string newString = "";
-   for ( int i = 0 ; i < len ; i++ ) {
+    for ( int i = 0 ; i < len ; i++ ) {
             if (header[i] == '\"') {
                 now_total++;
                 if (now_total%2 == 1) {
@@ -77,7 +77,7 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const std::strin
                 continue;
             }
             newString+=header[i];
-        }
+    }
     curl = curl_easy_init();
     if (curl) {
     curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
@@ -123,7 +123,7 @@ StatusOr<std::string> HttpClient::put(const std::string& path, const std::string
     int len = header.length();
     int now_total = 0;
     std::string newString = "";
-   for ( int i = 0 ; i < len ; i++ ) {
+    for ( int i = 0 ; i < len ; i++ ) {
             if (header[i] == '\"') {
                 now_total++;
                 if (now_total%2 == 1) {
@@ -136,7 +136,7 @@ StatusOr<std::string> HttpClient::put(const std::string& path, const std::string
                 continue;
             }
             newString+=header[i];
-        }
+    }
     curl = curl_easy_init();
     if (curl) {
     curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
