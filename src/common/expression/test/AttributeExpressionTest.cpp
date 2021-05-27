@@ -1,0 +1,136 @@
+/* Copyright (c) 2021 vesoft inc. All rights reserved.
+ *
+ * This source code is licensed under Apache 2.0 License,
+ * attached with Common Clause Condition 1.0, found in the LICENSES directory.
+ */
+#include "common/expression/test/TestBase.h"
+
+namespace nebula {
+
+class AttributeExpressionTest : public ExpressionTest {};
+
+TEST_F(AttributeExpressionTest, MapAttribute) {
+    // {"key1":1, "key2":2, "key3":3}.key1
+    {
+        auto *items = new MapItemList();
+        (*items)
+            .add(new std::string("key1"), new ConstantExpression(1))
+            .add(new std::string("key2"), new ConstantExpression(2))
+            .add(new std::string("key3"), new ConstantExpression(3));
+        auto *map = new MapExpression(items);
+        auto *key = new LabelExpression(new std::string("key1"));
+        auto expr = AttributeExpression::make(&pool, map, key);
+        auto value = Expression::eval(expr, gExpCtxt);
+        ASSERT_TRUE(value.isInt());
+        ASSERT_EQ(1, value.getInt());
+    }
+}
+
+TEST_F(AttributeExpressionTest, EdgeAttribute) {
+    Edge edge;
+    edge.name = "type";
+    edge.src = "src";
+    edge.dst = "dst";
+    edge.ranking = 123;
+    edge.props = {
+        {"Magill", "Nancy"},
+        {"Gideon", "Bible"},
+        {"Rocky", "Raccoon"},
+    };
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string("Rocky"));
+        auto expr = AttributeExpression::make(&pool, left, right);
+        auto value = Expression::eval(expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("Raccoon", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string(kType));
+        auto expr = AttributeExpression::make(&pool, left, right);
+        auto value = Expression::eval(expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("type", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string(kSrc));
+        auto expr = AttributeExpression::make(&pool, left, right);
+        auto value = Expression::eval(expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("src", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string(kDst));
+        auto expr = AttributeExpression::make(&pool, left, right);
+        auto value = Expression::eval(expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("dst", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(edge));
+        auto *right = new LabelExpression(new std::string(kRank));
+        auto expr = AttributeExpression::make(&pool, left, right);
+        auto value = Expression::eval(expr, gExpCtxt);
+        ASSERT_TRUE(value.isInt());
+        ASSERT_EQ(123, value.getInt());
+    }
+}
+
+TEST_F(AttributeExpressionTest, VertexAttribute) {
+    Vertex vertex;
+    vertex.vid = "vid";
+    vertex.tags.resize(2);
+    vertex.tags[0].props = {
+        {"Venus", "Mars"},
+        {"Mull", "Kintyre"},
+    };
+    vertex.tags[1].props = {
+        {"Bip", "Bop"},
+        {"Tug", "War"},
+        {"Venus", "RocksShow"},
+    };
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new LabelExpression(new std::string("Mull"));
+        auto expr = AttributeExpression::make(&pool, left, right);
+        auto value = Expression::eval(expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("Kintyre", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new LabelExpression(new std::string("Bip"));
+        auto expr = AttributeExpression::make(&pool, left, right);
+        auto value = Expression::eval(expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("Bop", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new LabelExpression(new std::string("Venus"));
+        auto expr = AttributeExpression::make(&pool, left, right);
+        auto value = Expression::eval(expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("Mars", value.getStr());
+    }
+    {
+        auto *left = new ConstantExpression(Value(vertex));
+        auto *right = new LabelExpression(new std::string("_vid"));
+        auto expr = AttributeExpression::make(&pool, left, right);
+        auto value = Expression::eval(expr, gExpCtxt);
+        ASSERT_TRUE(value.isStr());
+        ASSERT_EQ("vid", value.getStr());
+    }
+}
+}   // namespace nebula
+
+int main(int argc, char **argv) {
+    testing::InitGoogleTest(&argc, argv);
+    folly::init(&argc, &argv, true);
+    google::SetStderrLogging(google::INFO);
+
+    return RUN_ALL_TESTS();
+}
