@@ -53,6 +53,7 @@ struct MemoryStruct {
             return Status::Error(folly::stringPrintf("Http Get Failed: %s", path.c_str()));
         }
     }
+    free(chunk.memory);
     return "Libcurl failed";
 }
 
@@ -183,6 +184,7 @@ StatusOr<std::string> HttpClient::sendRequest(const std::string& path,
         if (chunk.size != 0) result=chunk.memory;
         if (chunk.size == 0) result = "";
         free(chunk.memory);
+        curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
         curl_global_cleanup();
         if (result.ok()) {
@@ -191,6 +193,7 @@ StatusOr<std::string> HttpClient::sendRequest(const std::string& path,
             return Status::Error(folly::stringPrintf("Http Get Failed: %s", path.c_str()));
         }
     }
+    free(chunk.memory);
     return "libcurl failed";
 }
 }   // namespace http
