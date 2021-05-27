@@ -13,46 +13,46 @@
 
 namespace nebula {
 namespace http {
+struct MemoryStruct {
+  char *memory;
+  size_t size;
+};
 
+ static size_t WriteMemory(void *contents, size_t size, size_t nmemb, void *userp) {
+  size_t realsize = size * nmemb;
+  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+  char *ptr = reinterpret_cast<char *> (realloc(mem->memory, mem->size + realsize + 1));
+  mem->memory = ptr;
+  memcpy(&(mem->memory[mem->size]), contents, realsize);
+  mem->size += realsize;
+  mem->memory[mem->size] = 0;
+  return realsize;
+}
  StatusOr<std::string> HttpClient::get(const std::string& path, const std::string& /*options*/) {
     CURL *curl;
     CURLcode res;
-    FILE *f;
     curl = curl_easy_init();
-    f = fopen("temp.txt", "w");
+    struct MemoryStruct chunk;
+    chunk.memory = reinterpret_cast<char *> (malloc(1));
+    chunk.size = 0;
     if (curl) {
-        // set the get url of the libcurl option;
         curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
-        // define the dedirect path of the session;
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, f);
-        // curl_easy_setopt(curl,CURLOPT_HEADERDATA,f);
-
-        // perform the request,res will get the return code;
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, reinterpret_cast<void *> (&chunk));
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemory);
         res = curl_easy_perform(curl);
-        LOG(INFO) << "HTTP return Code: " << res;
-       // sleep(1);
-        fclose(f);
-        f = fopen("temp.txt", "rw");
-        Cord out;
-        char buf[1024];
-        size_t len;
-        do {
-            len = fread(buf, 1, 1024, f);
-            if (len > 0) {
-                out.write(buf, len);
-            }
-        } while (len == 1024);
-        fclose(f);
-        StatusOr<std::string> result = out.str();
+        StatusOr<std::string> result = chunk.memory;
+        if (chunk.size == 0) result = "";
+        free(chunk.memory);
         curl_easy_cleanup(curl);
+        LOG(INFO) << "HTTP return Code: " << res;
         if (result.ok()) {
             return result.value();
         } else {
             return Status::Error(folly::stringPrintf("Http Get Failed: %s", path.c_str()));
         }
     }
-    return "";
+    return "Libcurl failed";
 }
 
 StatusOr<std::string> HttpClient::post(const std::string& path, const std::string& header) {
@@ -81,17 +81,12 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const std::strin
     curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
     curl_easy_setopt(curl, CURLOPT_POST, 1L);
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, my_curl_list);
-    /* if we don't provide POSTFIELDSIZE, libcurl will strlen() by
-       itself */
-    /* Perform the request, res will get the return code */
     res = curl_easy_perform(curl);
     curl_slist_free_all(my_curl_list);
-    /* Check for errors */
     if (res != CURLE_OK) {
         fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
         return "HttpClientHandler failed";
     }
-    /* always cleanup */
     curl_easy_cleanup(curl);
   }
   return "HttpClientHandler successfully";
@@ -100,7 +95,6 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const std::strin
 StatusOr<std::string> HttpClient::post(const std::string& path,
                                        const std::unordered_map<std::string, std::string>& header) {
     folly::dynamic mapData = folly::dynamic::object;
-    // Build a dynamic object from map
     for (auto const& it : header) {
         mapData[it.first] = it.second;
     }
@@ -114,7 +108,6 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const folly::dyn
 StatusOr<std::string> HttpClient::put(const std::string& path,
                                        const std::unordered_map<std::string, std::string>& header) {
     folly::dynamic mapData = folly::dynamic::object;
-    // Build a dynamic object from map
     for (auto const& it : header) {
         mapData[it.first] = it.second;
     }
@@ -147,17 +140,12 @@ StatusOr<std::string> HttpClient::put(const std::string& path, const std::string
     curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, my_curl_list);
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "put");
-    /* if we don't provide POSTFIELDSIZE, libcurl will strlen() by
-       itself */
-    /* Perform the request, res will get the return code */
     res = curl_easy_perform(curl);
     curl_slist_free_all(my_curl_list);
-    /* Check for errors */
     if (res != CURLE_OK) {
         fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
         return "HttpClientHandler failed";
     }
-    /* always cleanup */
     curl_easy_cleanup(curl);
   }
   return "HttpClientHandler successfully";
@@ -174,47 +162,33 @@ StatusOr<std::string> HttpClient::sendRequest(const std::string& path,
     CURLcode res;
     curl_global_init(CURL_GLOBAL_ALL);
     curl = curl_easy_init();
-    FILE *f;
-    f = fopen("tempput.txt", "w");
+    struct MemoryStruct chunk;
+    chunk.memory = reinterpret_cast<char *> (malloc(1));
+    chunk.size = 0;
     if (curl) {
         struct curl_slist *headers = nullptr;
         std::string mydata = folly::toJson(data);
         headers = curl_slist_append(headers, "Content-Type: application/json");
-        std::string jsonObj = "{\"int64_test\":20}";
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, reqType.c_str());
         curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, f);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, reinterpret_cast<void *> (&chunk));
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemory);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, mydata.c_str());
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         res = curl_easy_perform(curl);
-        fclose(f);
-        f = fopen("tempput.txt", "rw");
-        Cord out;
-        char buf[1024];
-        size_t len;
-        do {
-            len = fread(buf, 1, 1024, f);
-            if (len > 0) {
-                out.write(buf, len);
-            }
-        } while (len == 1024);
-        fclose(f);
-        curl_slist_free_all(headers);
+        LOG(INFO) << "HTTP return Code: " << res;
+        StatusOr<std::string> result = chunk.memory;
+        if (chunk.size == 0) result = "";
+        free(chunk.memory);
         curl_easy_cleanup(curl);
         curl_global_cleanup();
-        if (res != CURLE_OK) {
-            fprintf(stderr, "curl_easy_perform() failed: %s\n",
-              curl_easy_strerror(res));
-        }
-        StatusOr<std::string> result = out.str();
         if (result.ok()) {
             return result.value();
         } else {
             return Status::Error(folly::stringPrintf("Http Get Failed: %s", path.c_str()));
         }
     }
-    std::cout << "libcurl failed" << std::endl;
     return "libcurl failed";
 }
 }   // namespace http

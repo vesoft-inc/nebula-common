@@ -13,8 +13,8 @@
 #  Libcurl_INCLUDE_DIR      The Libcurl includes directories.
 #  Libcurl_LIBRARY          The Libcurl library.
 
-find_path(Libcurl_INCLUDE_DIR NAMES curl/curl.h PATHS /usr/local/include)
-find_library(Libcurl_LIBRARY NAMES  libcurl curl PATHS /usr/local/lib)
+find_path(Libcurl_INCLUDE_DIR NAMES curl/curl.h )
+find_library(Libcurl_LIBRARY NAMES  libcurl curl )
 
 if(Libcurl_INCLUDE_DIR AND Libcurl_LIBRARY)
     set(Libcurl_FOUND TRUE)
