@@ -112,9 +112,9 @@ TEST(ExpressionEncodeDecode, ArithmeticExpression) {
 
 TEST(ExpressionEncodeDecode, FunctionCallExpression) {
     ArgumentList *args = new ArgumentList();
-    args->addArgument(std::make_unique<ConstantExpression>(123));
-    args->addArgument(std::make_unique<ConstantExpression>(3.14));
-    args->addArgument(std::make_unique<ConstantExpression>("Hello world"));
+    args->addArgument(ConstantExpression::make(&pool, 123));
+    args->addArgument(ConstantExpression::make(&pool, 3.14));
+    args->addArgument(ConstantExpression::make(&pool, "Hello world"));
     FunctionCallExpression fcEx("func", args);
     std::string encoded = Expression::encode(fcEx);
     auto decoded = Expression::decode(folly::StringPiece(encoded.data(), encoded.size()));
@@ -229,34 +229,34 @@ TEST(ExpressionEncodeDecode, UnaryExpression) {
 }
 
 TEST(ExpressionEncodeDecode, ListExpression) {
-    auto *list = new ExpressionList();
+    auto list = ExpressionList::make(&pool);
     (*list)
         .add(new ConstantExpression(1))
         .add(new ConstantExpression("Hello"))
         .add(new ConstantExpression(true));
-    auto origin = std::make_unique<ListExpression>(list);
+    auto origin = ListExpression::make(&pool, list);
     auto decoded = Expression::decode(Expression::encode(*origin));
     ASSERT_EQ(*origin, *decoded);
 }
 
 TEST(ExpressionEncodeDecode, SetExpression) {
-    auto *list = new ExpressionList();
+    auto list = ExpressionList::make(&pool);
     (*list)
         .add(new ConstantExpression(1))
         .add(new ConstantExpression("Hello"))
         .add(new ConstantExpression(true));
-    auto origin = std::make_unique<SetExpression>(list);
+    auto origin = SetExpression::make(&pool, list);
     auto decoded = Expression::decode(Expression::encode(*origin));
     ASSERT_EQ(*origin, *decoded);
 }
 
 TEST(ExpressionEncodeDecode, MapExpression) {
-    auto *list = new MapItemList();
+    auto list = MapItemList::make(&pool);
     (*list)
         .add("key1", new ConstantExpression(1))
         .add("key2", new ConstantExpression(2))
         .add("key3", new ConstantExpression(3));
-    auto origin = std::make_unique<MapExpression>(list);
+    auto origin = MapExpression::make(&pool, list);
     auto decoded = Expression::decode(Expression::encode(*origin));
     ASSERT_EQ(*origin, *decoded);
 }
@@ -297,7 +297,7 @@ TEST(ExpressionEncodeDecode, SubscriptRangeExpression) {
 }
 
 TEST(ExpressionEncodeDecode, LabelExpression) {
-    auto origin = std::make_unique<LabelExpression>("name");
+    auto origin = LabelExpression::make(&pool, "name");
     auto decoded = Expression::decode(Expression::encode(*origin));
     ASSERT_EQ(*origin, *decoded);
 }
@@ -432,8 +432,8 @@ TEST(ExpressionEncodeDecode, PredicateExpression) {
     {
         // all(n IN range(1, 5) WHERE n >= 2)
         ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<ConstantExpression>(1));
-        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        argList->addArgument(ConstantExpression::make(&pool, 1));
+        argList->addArgument(ConstantExpression::make(&pool, 5));
         auto origin = std::make_unique<PredicateExpression>(
             "all",
             "n",
@@ -449,8 +449,8 @@ TEST(ExpressionEncodeDecode, ReduceExpression) {
     {
         // reduce(totalNum = 2 * 10, n IN range(1, 5) | totalNum + n * 2)
         ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<ConstantExpression>(1));
-        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        argList->addArgument(ConstantExpression::make(&pool, 1));
+        argList->addArgument(ConstantExpression::make(&pool, 5));
         auto origin = std::make_unique<ReduceExpression>(
             "totalNum",
             ArithmeticExpression::makeMultiply(
@@ -480,8 +480,8 @@ TEST(ExpressionEncodeDecode, PathBuildExpression) {
 TEST(ExpressionEncodeDecode, ListComprehensionExpression) {
     {
         ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<ConstantExpression>(1));
-        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        argList->addArgument(ConstantExpression::make(&pool, 1));
+        argList->addArgument(ConstantExpression::make(&pool, 5));
         auto origin = std::make_unique<ListComprehensionExpression>(
             "n",
             new FunctionCallExpression("range", argList),
@@ -492,7 +492,7 @@ TEST(ExpressionEncodeDecode, ListComprehensionExpression) {
     }
     {
         ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<LabelExpression>("p"));
+        argList->addArgument(LabelExpression::make(&pool, "p"));
         auto origin = std::make_unique<ListComprehensionExpression>(
             "n",
             new FunctionCallExpression("nodes", argList),
@@ -504,8 +504,8 @@ TEST(ExpressionEncodeDecode, ListComprehensionExpression) {
     }
     {
         ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<ConstantExpression>(1));
-        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        argList->addArgument(ConstantExpression::make(&pool, 1));
+        argList->addArgument(ConstantExpression::make(&pool, 5));
         auto origin = std::make_unique<ListComprehensionExpression>(
             "n",
             new FunctionCallExpression("range", argList),

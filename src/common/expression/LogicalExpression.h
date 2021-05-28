@@ -12,6 +12,43 @@
 namespace nebula {
 class LogicalExpression final : public Expression {
 public:
+    static LogicalExpression* makeAnd(ObjectPool* pool = nullptr,
+                                      Expression* lhs = nullptr,
+                                      Expression* rhs = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new LogicalExpression(Kind::kLogicalAnd, lhs, rhs));
+    }
+
+    static LogicalExpression* makeOr(ObjectPool* pool = nullptr,
+                                     Expression* lhs = nullptr,
+                                     Expression* rhs = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new LogicalExpression(Kind::kLogicalOr, lhs, rhs));
+    }
+
+    static LogicalExpression* makeXor(ObjectPool* pool = nullptr,
+                                      Expression* lhs = nullptr,
+                                      Expression* rhs = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new LogicalExpression(Kind::kLogicalXor, lhs, rhs));
+    }
+
+    // Construct without adding operands
+    static LogicalExpression* makeAnd(ObjectPool* pool = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new LogicalExpression(Kind::kLogicalAnd));
+    }
+
+    static LogicalExpression* makeOr(ObjectPool* pool = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new LogicalExpression(Kind::kLogicalOr));
+    }
+
+    static LogicalExpression* makeXor(ObjectPool* pool = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new LogicalExpression(Kind::kLogicalXor));
+    }
+
     explicit LogicalExpression(Kind kind) : Expression(kind) {}
 
     LogicalExpression(Kind kind, Expression* lhs, Expression* rhs)
@@ -30,7 +67,7 @@ public:
         auto copy = std::make_unique<LogicalExpression>(kind());
         copy->operands_.resize(operands_.size());
         for (auto i = 0u; i < operands_.size(); i++) {
-            copy->operands_[i] = operands_[i]->clone();
+            copy->operands_[i] = operands_[i]->clone().get();
         }
         return copy;
     }
@@ -46,11 +83,11 @@ public:
     }
 
     auto* operand(size_t index) {
-        return operands_[index].get();
+        return operands_[index];
     }
 
     const auto* operand(size_t index) const {
-        return operands_[index].get();
+        return operands_[index];
     }
 
     void addOperand(Expression *expr) {
@@ -59,11 +96,11 @@ public:
 
     void setOperand(size_t i, Expression *operand) {
         DCHECK_LT(i, operands_.size());
-        operands_[i].reset(operand);
+        operands_[i] = operand;
     }
 
-    void setOperands(std::vector<std::unique_ptr<Expression>> operands) {
-        operands_ = std::move(operands);
+    void setOperands(std::vector<Expression*> operands) {
+        operands_ = operands;
     }
 
     bool isLogicalExpr() const override {
@@ -78,8 +115,8 @@ private:
     const Value& evalXor(ExpressionContext &ctx);
 
 private:
-    Value                                       result_;
-    std::vector<std::unique_ptr<Expression>>    operands_;
+    Value                       result_;
+    std::vector<Expression*>    operands_;
 };
 
 }   // namespace nebula

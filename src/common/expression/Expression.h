@@ -113,6 +113,8 @@ public:
 
     explicit Expression(Kind kind) : kind_(kind) {}
 
+    // explicit Expression(Kind kind, ObjectPool* pool) : kind_(kind), pool_(pool) {}
+
     virtual ~Expression() = default;
 
     Kind kind() const {
@@ -207,6 +209,8 @@ protected:
     virtual void resetFrom(Decoder& decoder) = 0;
 
     Kind kind_;
+
+    ObjectPool* pool_ = nullptr;
 };
 
 std::ostream& operator<<(std::ostream& os, Expression::Kind kind);

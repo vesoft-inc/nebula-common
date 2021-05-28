@@ -58,13 +58,13 @@ void FunctionCallExpression::writeTo(Encoder& encoder) const {
 
 void FunctionCallExpression::resetFrom(Decoder& decoder) {
     // Read name_
-    name_ = decoder.readStr();
+    name_ = decoder.readStr().get();
 
     // Read args_
     size_t sz = decoder.readSize();
-    args_ = std::make_unique<ArgumentList>();
+    args_ = new ArgumentList();
     for (size_t i = 0;  i < sz; i++) {
-        args_->addArgument(decoder.readExpression());
+        args_->addArgument(decoder.readExpression().get());
     }
 
     auto funcResult = FunctionManager::get(name_, args_->numArgs());

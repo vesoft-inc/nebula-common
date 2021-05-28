@@ -38,7 +38,7 @@ void LabelExpression::writeTo(Encoder& encoder) const {
 
 void LabelExpression::resetFrom(Decoder& decoder) {
     // Read name_
-    name_ = decoder.readStr();
+    name_ = decoder.readStr().get();
 }
 
 void LabelExpression::accept(ExprVisitor* visitor) {

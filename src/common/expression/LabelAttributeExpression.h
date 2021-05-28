@@ -17,12 +17,19 @@ namespace nebula {
 // label.label
 class LabelAttributeExpression final : public Expression {
 public:
-    explicit LabelAttributeExpression(LabelExpression *lhs = nullptr,
-                                      ConstantExpression *rhs = nullptr)
+    static LabelAttributeExpression* make(ObjectPool* pool = nullptr,
+                                          LabelExpression* lhs = nullptr,
+                                          ConstantExpression* rhs = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new LabelAttributeExpression(lhs, rhs));
+    }
+
+    explicit LabelAttributeExpression(LabelExpression* lhs = nullptr,
+                                      ConstantExpression* rhs = nullptr)
         : Expression(Kind::kLabelAttribute) {
         DCHECK(rhs == nullptr || rhs->value().isStr());
-        lhs_.reset(lhs);
-        rhs_.reset(rhs);
+        lhs_ = lhs;
+        rhs_ = rhs;
     }
 
     bool operator==(const Expression &rhs) const override {
@@ -47,19 +54,19 @@ public:
     }
 
     const LabelExpression* left() const {
-        return lhs_.get();
+        return lhs_;
     }
 
     LabelExpression* left() {
-        return lhs_.get();
+        return lhs_;
     }
 
     const ConstantExpression* right() const {
-        return rhs_.get();
+        return rhs_;
     }
 
     ConstantExpression* right() {
-        return rhs_.get();
+        return rhs_;
     }
 
     std::string toString() const override;
@@ -74,8 +81,8 @@ private:
     }
 
 private:
-    std::unique_ptr<LabelExpression>    lhs_;
-    std::unique_ptr<ConstantExpression> rhs_;
+    LabelExpression*    lhs_;
+    ConstantExpression* rhs_;
 };
 
 }   // namespace nebula

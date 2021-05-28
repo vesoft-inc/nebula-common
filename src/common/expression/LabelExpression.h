@@ -15,6 +15,11 @@ namespace nebula {
 
 class LabelExpression: public Expression {
 public:
+    static LabelExpression* make(ObjectPool* pool = nullptr, const std::string& name = "") {
+        DCHECK(!!pool);
+        return pool->add(new LabelExpression(pool, name));
+    }
+
     explicit LabelExpression(const std::string& name = "")
         : Expression(Kind::kLabel), name_(name) {}
 

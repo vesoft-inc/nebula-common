@@ -19,6 +19,10 @@ namespace nebula {
  */
 class EdgeExpression final : public Expression {
 public:
+    static EdgeExpression* make(ObjectPool* pool = nullptr) {
+        return pool->add(new EdgeExpression());
+    }
+
     EdgeExpression() : Expression(Kind::kEdge) {}
 
     const Value& eval(ExpressionContext &ctx) override;

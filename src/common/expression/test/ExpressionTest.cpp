@@ -364,421 +364,6 @@ TEST_F(ExpressionTest, LiteralConstantsRelational) {
     }
 }
 
-
-TEST_F(ExpressionTest, FunctionCallTest) {
-    {
-        TEST_FUNCTION(abs, args_["neg_int"], 1);
-        TEST_FUNCTION(abs, args_["neg_float"], 1.1);
-        TEST_FUNCTION(abs, args_["int"], 4);
-        TEST_FUNCTION(abs, args_["float"], 1.1);
-    }
-    {
-        TEST_FUNCTION(floor, args_["neg_int"], -1);
-        TEST_FUNCTION(floor, args_["float"], 1);
-        TEST_FUNCTION(floor, args_["neg_float"], -2);
-        TEST_FUNCTION(floor, args_["int"], 4);
-    }
-    {
-        TEST_FUNCTION(sqrt, args_["int"], 2);
-        TEST_FUNCTION(sqrt, args_["float"], std::sqrt(1.1));
-    }
-    {
-        TEST_FUNCTION(pow, args_["pow"], 8);
-        TEST_FUNCTION(exp, args_["int"], std::exp(4));
-        TEST_FUNCTION(exp2, args_["int"], 16);
-
-        TEST_FUNCTION(log, args_["int"], std::log(4));
-        TEST_FUNCTION(log2, args_["int"], 2);
-    }
-    {
-        TEST_FUNCTION(lower, args_["string"], "abcdefg");
-        TEST_FUNCTION(upper, args_["string"], "ABCDEFG");
-        TEST_FUNCTION(length, args_["string"], 7);
-
-        TEST_FUNCTION(trim, args_["trim"], "abc");
-        TEST_FUNCTION(ltrim, args_["trim"], "abc  ");
-        TEST_FUNCTION(rtrim, args_["trim"], " abc");
-    }
-    {
-        TEST_FUNCTION(substr, args_["substr"], "cdef");
-        TEST_FUNCTION(left, args_["side"], "abcde");
-        TEST_FUNCTION(right, args_["side"], "mnopq");
-        TEST_FUNCTION(left, args_["neg_side"], Value::kNullValue);
-        TEST_FUNCTION(right, args_["neg_side"], Value::kNullValue);
-
-        TEST_FUNCTION(lpad, args_["pad"], "1231abcdefghijkl");
-        TEST_FUNCTION(rpad, args_["pad"], "abcdefghijkl1231");
-        TEST_FUNCTION(udf_is_in, args_["udf_is_in"], true);
-    }
-    {
-        // hasSameEdgeInPath
-        Path path;
-        path.src.vid = "1";
-        STEP("2", "edge", 0, 1);
-        STEP("1", "edge", 0, -1);
-        TEST_FUNCTION(hasSameEdgeInPath, {path}, true);
-    }
-    {
-        // hasSameEdgeInPath
-        Path path;
-        path.src.vid = "0";
-        Step step1, step2, step3;
-        STEP("2", "edge", 0, 1);
-        STEP("1", "edge", 0, -1);
-        STEP("2", "edge", 0, 1);
-        TEST_FUNCTION(hasSameEdgeInPath, {path}, true);
-    }
-    {
-        // hasSameEdgeInPath
-        Path path;
-        path.src.vid = "0";
-        Step step1, step2, step3;
-        STEP("2", "edge", 0, 1);
-        STEP("1", "edge", 0, 1);
-        STEP("2", "edge", 0, 1);
-        TEST_FUNCTION(hasSameEdgeInPath, {path}, false);
-    }
-    {
-        // hasSameEdgeInPath
-        Path path;
-        path.src.vid = "0";
-        Step step1, step2, step3;
-        STEP("2", "edge", 0, 1);
-        STEP("1", "edge", 0, -1);
-        STEP("2", "edge", 1, 1);
-        TEST_FUNCTION(hasSameEdgeInPath, {path}, false);
-    }
-    // Check function
-    {
-        FunctionCallExpression expr("TimE");
-        EXPECT_TRUE(expr.isFunc("time"));
-        EXPECT_FALSE(expr.isFunc("time_"));
-    }
-}
-
-TEST_F(ExpressionTest, Relation) {
-    {
-        // e1.list == NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelEQ,
-                new EdgePropertyExpression("e1", "list"),
-                new ConstantExpression(Value(NullType::NaN)));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        // e1.list_of_list == NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelEQ,
-                new EdgePropertyExpression("e1", "list_of_list"),
-                new ConstantExpression(Value(NullType::NaN)));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        // e1.list == e1.list
-        RelationalExpression expr(
-                Expression::Kind::kRelEQ,
-                new EdgePropertyExpression("e1", "list"),
-                new EdgePropertyExpression("e1", "list"));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, true);
-    }
-    {
-        // e1.list_of_list == e1.list_of_list
-        RelationalExpression expr(
-                Expression::Kind::kRelEQ,
-                new EdgePropertyExpression("e1", "list_of_list"),
-                new EdgePropertyExpression("e1", "list_of_list"));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, true);
-    }
-    {
-        // 1 == NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelEQ,
-                new ConstantExpression(Value(1)),
-                new ConstantExpression(Value(NullType::NaN)));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        // NULL == NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelEQ,
-                new ConstantExpression(Value(NullType::NaN)),
-                new ConstantExpression(Value(NullType::NaN)));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        // 1 != NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelNE,
-                new ConstantExpression(Value(1)),
-                new ConstantExpression(Value(NullType::NaN)));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        // NULL != NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelNE,
-                new ConstantExpression(Value(NullType::NaN)),
-                new ConstantExpression(Value(NullType::NaN)));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        // 1 < NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelLT,
-                new ConstantExpression(Value(1)),
-                new ConstantExpression(Value(NullType::NaN)));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-        EXPECT_EQ(eval, Value::kNullValue);
-    }
-    {
-        // NULL < NULL
-        RelationalExpression expr(
-                Expression::Kind::kRelLT,
-                new ConstantExpression(Value(NullType::NaN)),
-                new ConstantExpression(Value(NullType::NaN)));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-        EXPECT_EQ(eval, Value::kNullValue);
-    }
-}
-
-TEST_F(ExpressionTest, RelIn) {
-    {
-        RelationalExpression expr(
-                Expression::Kind::kRelIn,
-                new ConstantExpression(1),
-                new ConstantExpression(List({1, 2})));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, true);
-    }
-    {
-        RelationalExpression expr(
-                Expression::Kind::kRelIn,
-                new ConstantExpression(3),
-                new ConstantExpression(List({1, 2})));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, false);
-    }
-    {
-        RelationalExpression expr(
-                Expression::Kind::kRelIn,
-                new ConstantExpression(Value::kNullValue),
-                new ConstantExpression(List({1, 2})));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        auto list = List({1, 2});
-        list.emplace_back(Value::kNullValue);
-        RelationalExpression expr(
-                Expression::Kind::kRelIn,
-                new ConstantExpression(1),
-                new ConstantExpression(list));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, true);
-    }
-    {
-        auto list = List({3, 2});
-        list.emplace_back(Value::kNullValue);
-        RelationalExpression expr(
-                Expression::Kind::kRelIn,
-                new ConstantExpression(1),
-                new ConstantExpression(list));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        auto list = List({3, 2});
-        list.emplace_back(Value::kNullValue);
-        RelationalExpression expr(
-                Expression::Kind::kRelIn,
-                new ConstantExpression(1),
-                new ConstantExpression(list));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        auto list = List({3, 2});
-        list.emplace_back(Value::kNullValue);
-        RelationalExpression expr(
-                Expression::Kind::kRelIn,
-                new ConstantExpression(list),
-                new ConstantExpression(list));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        RelationalExpression expr(
-                Expression::Kind::kRelIn,
-                new ConstantExpression(Value::kNullValue),
-                new ConstantExpression(Value::kNullValue));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-        EXPECT_EQ(eval.isBadNull(), false);
-    }
-    {
-        RelationalExpression expr(
-                Expression::Kind::kRelIn,
-                new ConstantExpression(2.3),
-                new ConstantExpression(Value::kNullValue));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-        EXPECT_EQ(eval.isBadNull(), false);
-    }
-    {
-        auto list1 = List({3, 2});
-        auto list2 = list1;
-        list1.emplace_back(Value::kNullValue);
-        RelationalExpression expr(
-                Expression::Kind::kRelIn,
-                new ConstantExpression(list1),
-                new ConstantExpression(list2));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, false);
-    }
-    {
-        auto list1 = List({3, 2});
-        auto list2 = List({1});
-        list2.emplace_back(list1);
-        list2.emplace_back(Value::kNullValue);
-        RelationalExpression expr(
-                Expression::Kind::kRelIn,
-                new ConstantExpression(list1),
-                new ConstantExpression(list2));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, true);
-    }
-}
-
-TEST_F(ExpressionTest, RelNotIn) {
-    {
-        RelationalExpression expr(
-                Expression::Kind::kRelNotIn,
-                new ConstantExpression(1),
-                new ConstantExpression(List({1, 2})));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, false);
-    }
-    {
-        RelationalExpression expr(
-                Expression::Kind::kRelNotIn,
-                new ConstantExpression(3),
-                new ConstantExpression(List({1, 2})));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, true);
-    }
-    {
-        RelationalExpression expr(
-                Expression::Kind::kRelNotIn,
-                new ConstantExpression(Value::kNullValue),
-                new ConstantExpression(List({1, 2})));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        auto list = List({1, 2});
-        list.emplace_back(Value::kNullValue);
-        RelationalExpression expr(
-                Expression::Kind::kRelNotIn,
-                new ConstantExpression(1),
-                new ConstantExpression(list));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, false);
-    }
-    {
-        auto list = List({3, 2});
-        list.emplace_back(Value::kNullValue);
-        RelationalExpression expr(
-                Expression::Kind::kRelNotIn,
-                new ConstantExpression(1),
-                new ConstantExpression(list));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        auto list = List({3, 2});
-        list.emplace_back(Value::kNullValue);
-        RelationalExpression expr(
-                Expression::Kind::kRelNotIn,
-                new ConstantExpression(1),
-                new ConstantExpression(list));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        auto list = List({3, 2});
-        list.emplace_back(Value::kNullValue);
-        RelationalExpression expr(
-                Expression::Kind::kRelNotIn,
-                new ConstantExpression(list),
-                new ConstantExpression(list));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-    }
-    {
-        RelationalExpression expr(
-                Expression::Kind::kRelNotIn,
-                new ConstantExpression(Value::kNullValue),
-                new ConstantExpression(Value::kNullValue));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-        EXPECT_EQ(eval.isBadNull(), false);
-    }
-    {
-        RelationalExpression expr(
-                Expression::Kind::kRelNotIn,
-                new ConstantExpression(2.3),
-                new ConstantExpression(Value::kNullValue));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
-        EXPECT_EQ(eval.isBadNull(), false);
-    }
-    {
-        auto list1 = List({3, 2});
-        auto list2 = list1;
-        list1.emplace_back(Value::kNullValue);
-        RelationalExpression expr(
-                Expression::Kind::kRelNotIn,
-                new ConstantExpression(list1),
-                new ConstantExpression(list2));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, true);
-    }
-    {
-        auto list1 = List({3, 2});
-        auto list2 = List({1});
-        list2.emplace_back(list1);
-        list2.emplace_back(Value::kNullValue);
-        RelationalExpression expr(
-                Expression::Kind::kRelNotIn,
-                new ConstantExpression(list1),
-                new ConstantExpression(list2));
-        auto eval = Expression::eval(&expr, gExpCtxt);
-        EXPECT_EQ(eval.type(), Value::Type::BOOL);
-        EXPECT_EQ(eval, false);
-    }
-}
-
 TEST_F(ExpressionTest, UnaryINCR) {
     {
         // ++var_int
@@ -1122,37 +707,6 @@ TEST_F(ExpressionTest, toStringTest) {
         TEST_TOSTRING(76 - 100 / 20 * 4, "(76-((100/20)*4))");
         TEST_TOSTRING(8 % 2 + 1 == 1, "(((8%2)+1)==1)");
         TEST_TOSTRING(1 == 2, "(1==2)");
-    }
-}
-
-TEST_F(ExpressionTest, FunctionCallToStringTest) {
-    {
-        ArgumentList *argList = new ArgumentList();
-        for (const auto &i : args_["pow"]) {
-            argList->addArgument(std::make_unique<ConstantExpression>(std::move(i)));
-        }
-        FunctionCallExpression ep("pow", argList);
-        EXPECT_EQ(ep.toString(), "pow(2,3)");
-    }
-    {
-        ArgumentList *argList = new ArgumentList();
-        for (const auto &i : args_["udf_is_in"]) {
-            argList->addArgument(std::make_unique<ConstantExpression>(std::move(i)));
-        }
-        FunctionCallExpression ep("udf_is_in", argList);
-        EXPECT_EQ(ep.toString(), "udf_is_in(4,1,2,8,4,3,1,0)");
-    }
-    {
-        ArgumentList *argList = new ArgumentList();
-        for (const auto &i : args_["neg_int"]) {
-            argList->addArgument(std::make_unique<ConstantExpression>(std::move(i)));
-        }
-        FunctionCallExpression ep("abs", argList);
-        EXPECT_EQ(ep.toString(), "abs(-1)");
-    }
-    {
-        FunctionCallExpression ep("now");
-        EXPECT_EQ(ep.toString(), "now()");
     }
 }
 
@@ -2797,18 +2351,6 @@ TEST_F(ExpressionTest, NotContainsToString) {
     }
 }
 
-TEST_F(ExpressionTest, LabelExprToString) {
-    LabelExpression expr("name");
-    ASSERT_EQ("name", expr.toString());
-}
-
-TEST_F(ExpressionTest, LabelEvaluate) {
-    LabelExpression expr("name");
-    auto value = Expression::eval(&expr, gExpCtxt);
-    ASSERT_TRUE(value.isStr());
-    ASSERT_EQ("name", value.getStr());
-}
-
 TEST_F(ExpressionTest, CaseExprToString) {
     {
         auto *cases = new CaseList();
@@ -3034,128 +2576,15 @@ TEST_F(ExpressionTest, CaseEvaluate) {
     }
 }
 
-TEST_F(ExpressionTest, ListComprehensionExprToString) {
-    {
-        ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<ConstantExpression>(1));
-        argList->addArgument(std::make_unique<ConstantExpression>(5));
-        ListComprehensionExpression expr(
-            "n",
-            new FunctionCallExpression("range", argList),
-            new RelationalExpression(
-                Expression::Kind::kRelGE,
-                new LabelExpression("n"),
-                new ConstantExpression(2)));
-        ASSERT_EQ("[n IN range(1,5) WHERE (n>=2)]", expr.toString());
-    }
-    {
-        ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<LabelExpression>("p"));
-        ListComprehensionExpression expr(
-            "n",
-            new FunctionCallExpression("nodes", argList),
-            nullptr,
-            ArithmeticExpression::makeAdd(
-                &pool,
-                new LabelAttributeExpression(new LabelExpression("n"),
-                                             new ConstantExpression("age")),
-                new ConstantExpression(10)));
-        ASSERT_EQ("[n IN nodes(p) | (n.age+10)]", expr.toString());
-    }
-    {
-        auto *listItems = new ExpressionList();
-        (*listItems)
-            .add(new ConstantExpression(0))
-            .add(new ConstantExpression(1))
-            .add(new ConstantExpression(2));
-        ListComprehensionExpression expr(
-            "n",
-            new ListExpression(listItems),
-            new RelationalExpression(
-                Expression::Kind::kRelGE,
-                new LabelExpression("n"),
-                new ConstantExpression(2)),
-            ArithmeticExpression::makeAdd(&pool,
-                new LabelExpression("n"),
-                new ConstantExpression(10)));
-        ASSERT_EQ("[n IN [0,1,2] WHERE (n>=2) | (n+10)]", expr.toString());
-    }
-}
-
-TEST_F(ExpressionTest, ListComprehensionEvaluate) {
-    {
-        // [n IN [0, 1, 2, 4, 5] WHERE n >= 2 | n + 10]
-        auto *listItems = new ExpressionList();
-        (*listItems)
-            .add(new ConstantExpression(0))
-            .add(new ConstantExpression(1))
-            .add(new ConstantExpression(2))
-            .add(new ConstantExpression(4))
-            .add(new ConstantExpression(5));
-        ListComprehensionExpression expr(
-            "n",
-            new ListExpression(listItems),
-            new RelationalExpression(
-                Expression::Kind::kRelGE,
-                new VariableExpression("n"),
-                new ConstantExpression(2)),
-            ArithmeticExpression::makeAdd(&pool,
-                new VariableExpression("n"),
-                new ConstantExpression(10)));
-
-        auto value = Expression::eval(&expr, gExpCtxt);
-        List expected;
-        expected.reserve(3);
-        expected.emplace_back(12);
-        expected.emplace_back(14);
-        expected.emplace_back(15);
-        ASSERT_TRUE(value.isList());
-        ASSERT_EQ(expected, value.getList());
-    }
-    {
-        // [n IN nodes(p) | n.age + 5]
-        auto v1 = Vertex("101", {Tag("player", {{"name", "joe"}, {"age", 18}})});
-        auto v2 = Vertex("102", {Tag("player", {{"name", "amber"}, {"age", 19}})});
-        auto v3 = Vertex("103", {Tag("player", {{"name", "shawdan"}, {"age", 20}})});
-        Path path;
-        path.src = v1;
-        path.steps.emplace_back(Step(v2, 1, "like", 0, {}));
-        path.steps.emplace_back(Step(v3, 1, "like", 0, {}));
-        gExpCtxt.setVar("p", path);
-
-        ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<VariableExpression>("p"));
-        ListComprehensionExpression expr(
-            "n",
-            new FunctionCallExpression("nodes", argList),
-            nullptr,
-            ArithmeticExpression::makeAdd(
-                &pool,
-                AttributeExpression::make(&pool,
-                                          new VariableExpression("n"),
-                                          new ConstantExpression("age")),
-                new ConstantExpression(5)));
-
-        auto value = Expression::eval(&expr, gExpCtxt);
-        List expected;
-        expected.reserve(3);
-        expected.emplace_back(23);
-        expected.emplace_back(24);
-        expected.emplace_back(25);
-        ASSERT_TRUE(value.isList());
-        ASSERT_EQ(expected, value.getList());
-    }
-}
-
 TEST_F(ExpressionTest, PredicateExprToString) {
     {
-        ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<ConstantExpression>(1));
-        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        ArgumentList *argList = ArgumentList::make(&pool);
+        argList->addArgument(ConstantExpression::make(&pool, 1));
+        argList->addArgument(ConstantExpression::make(&pool, 5));
         PredicateExpression expr(
             "all",
             "n",
-            new FunctionCallExpression("range", argList),
+            FunctionCallExpression::make(&pool, "range", argList),
             new RelationalExpression(
                 Expression::Kind::kRelGE,
                 new LabelExpression("n"),
@@ -3198,12 +2627,12 @@ TEST_F(ExpressionTest, PredicateEvaluate) {
         path.steps.emplace_back(Step(v3, 1, "like", 0, {}));
         gExpCtxt.setVar("p", path);
 
-        ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<VariableExpression>("p"));
+        ArgumentList *argList = ArgumentList::make(&pool);
+        argList->addArgument(new VariableExpression("p"));
         PredicateExpression expr(
             "any",
             "n",
-            new FunctionCallExpression("nodes", argList),
+            FunctionCallExpression::make(&pool, "nodes", argList),
             new RelationalExpression(
                 Expression::Kind::kRelGE,
                 AttributeExpression::make(&pool, new VariableExpression("n"),
@@ -3247,12 +2676,12 @@ TEST_F(ExpressionTest, PredicateEvaluate) {
         path.steps.emplace_back(Step(v3, 1, "like", 0, {}));
         gExpCtxt.setVar("p", path);
 
-        ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<VariableExpression>("p"));
+        ArgumentList *argList = ArgumentList::make(&pool);
+        argList->addArgument(new VariableExpression("p"));
         PredicateExpression expr(
             "none",
             "n",
-            new FunctionCallExpression("nodes", argList),
+            FunctionCallExpression::make(&pool, "nodes", argList),
             new RelationalExpression(
                 Expression::Kind::kRelGE,
                 AttributeExpression::make(&pool, new VariableExpression("n"),
@@ -3282,15 +2711,15 @@ TEST_F(ExpressionTest, PredicateEvaluate) {
 TEST_F(ExpressionTest, ReduceExprToString) {
     {
         // reduce(totalNum = 2 * 10, n IN range(1, 5) | totalNum + n * 2)
-        ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<ConstantExpression>(1));
-        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        ArgumentList *argList = ArgumentList::make(&pool);
+        argList->addArgument(ConstantExpression::make(&pool, 1));
+        argList->addArgument(ConstantExpression::make(&pool, 5));
         ReduceExpression expr(
             "totalNum",
             ArithmeticExpression::makeMultiply(
                 &pool, new ConstantExpression(2), new ConstantExpression(10)),
             "n",
-            new FunctionCallExpression("range", argList),
+            FunctionCallExpression::make(&pool, "range", argList),
             ArithmeticExpression::makeAdd(
                 &pool,
                 new LabelExpression("totalNum"),
@@ -3303,15 +2732,15 @@ TEST_F(ExpressionTest, ReduceExprToString) {
 TEST_F(ExpressionTest, ReduceEvaluate) {
     {
         // reduce(totalNum = 2 * 10, n IN range(1, 5) | totalNum + n * 2)
-        ArgumentList *argList = new ArgumentList();
-        argList->addArgument(std::make_unique<ConstantExpression>(1));
-        argList->addArgument(std::make_unique<ConstantExpression>(5));
+        ArgumentList *argList = ArgumentList::make(&pool);
+        argList->addArgument(ConstantExpression::make(&pool, 1));
+        argList->addArgument(ConstantExpression::make(&pool, 5));
         ReduceExpression expr(
             "totalNum",
             ArithmeticExpression::makeMultiply(
                 &pool, new ConstantExpression(2), new ConstantExpression(10)),
             "n",
-            new FunctionCallExpression("range", argList),
+            FunctionCallExpression::make(&pool, "range", argList),
             ArithmeticExpression::makeAdd(
                 &pool,
                 new VariableExpression("totalNum"),
@@ -3339,28 +2768,31 @@ TEST_F(ExpressionTest, TestExprClone) {
         &pool, "COUNT", new ConstantExpression("$-.*"), true);
     ASSERT_EQ(*aggExpr, *aggExpr->clone());
 
-    EdgeExpression edgeExpr;
-    ASSERT_EQ(edgeExpr, *edgeExpr.clone());
+    auto edgeExpr = EdgeExpression::make(&pool);
+    ASSERT_EQ(*edgeExpr, *edgeExpr->clone());
 
     VertexExpression vertExpr;
     ASSERT_EQ(vertExpr, *vertExpr.clone());
 
-    LabelExpression labelExpr("label");
-    ASSERT_EQ(labelExpr, *labelExpr.clone());
+    auto labelExpr = LabelExpression::make(&pool, "label");
+    ASSERT_EQ(*labelExpr, *labelExpr->clone());
 
     auto attrExpr = AttributeExpression::make(
-        &pool, new LabelExpression("label"), new LabelExpression("label"));
+        &pool, LabelExpression::make(&pool, "label"), LabelExpression::make(&pool, "label"));
     ASSERT_EQ(*attrExpr, *attrExpr->clone());
 
-    LabelAttributeExpression labelAttrExpr(new LabelExpression("label"),
-                                           new ConstantExpression("prop"));
-    ASSERT_EQ(labelAttrExpr, *labelAttrExpr.clone());
+    auto labelAttrExpr =
+        LabelAttributeExpression::make(&pool,
+                                       LabelExpression::make(&pool, "label"),
+                                       ConstantExpression::make(&pool, "prop"));
+    ASSERT_EQ(*labelAttrExpr, *labelAttrExpr->clone());
 
     TypeCastingExpression typeCastExpr(Value::Type::STRING, new ConstantExpression(100));
     ASSERT_EQ(typeCastExpr, *typeCastExpr.clone());
 
-    FunctionCallExpression fnCallExpr("count", new ArgumentList);
-    ASSERT_EQ(fnCallExpr, *fnCallExpr.clone());
+    auto fnCallExpr =
+        FunctionCallExpression::make(&pool, "count", ArgumentList::make(&pool));
+    ASSERT_EQ(*fnCallExpr, *fnCallExpr->clone());
 
     UUIDExpression uuidExpr("hello");
     ASSERT_EQ(uuidExpr, *uuidExpr.clone());
@@ -3428,43 +2860,45 @@ TEST_F(ExpressionTest, TestExprClone) {
         .add(std::make_unique<VariablePropertyExpression>("var1", "path_v1"));
     ASSERT_EQ(pathBuild, *pathBuild.clone());
 
-    ArgumentList *argList = new ArgumentList();
-    argList->addArgument(std::make_unique<ConstantExpression>(1));
-    argList->addArgument(std::make_unique<ConstantExpression>(5));
-    ListComprehensionExpression lcExpr(
-        "n",
-        new FunctionCallExpression("range", argList),
+    auto argList = ArgumentList::make(&pool);
+    argList->addArgument(ConstantExpression::make(&pool, 1));
+    argList->addArgument(ConstantExpression::make(&pool, 5));
+    auto lcExpr = ListComprehensionExpression::make(
+        &pool,
+        pool.add("n"),
+        FunctionCallExpression::make(&pool, "range", argList),
         new RelationalExpression(Expression::Kind::kRelGE,
-                                 new LabelExpression("n"),
-                                 new ConstantExpression(2)));
-    ASSERT_EQ(lcExpr, *lcExpr.clone());
+                                 LabelExpression::make(&pool, pool.add("n")),
+                                 ConstantExpression::make(&pool, 2)));
+    ASSERT_EQ(*lcExpr, *lcExpr->clone());
 
-    argList = new ArgumentList();
-    argList->addArgument(std::make_unique<ConstantExpression>(1));
-    argList->addArgument(std::make_unique<ConstantExpression>(5));
+    argList = ArgumentList::make(&pool);
+    argList->addArgument(ConstantExpression::make(&pool, 1));
+    argList->addArgument(ConstantExpression::make(&pool, 5));
     PredicateExpression predExpr(
         "all",
         "n",
-        new FunctionCallExpression("range", argList),
+        FunctionCallExpression::make(&pool, "range", argList),
         new RelationalExpression(Expression::Kind::kRelGE,
-                                 new LabelExpression("n"),
-                                 new ConstantExpression(2)));
+                                 LabelExpression::make(&pool, "n"),
+                                 ConstantExpression::make(&pool, 2)));
     ASSERT_EQ(predExpr, *predExpr.clone());
 
-    argList = new ArgumentList();
-    argList->addArgument(std::make_unique<ConstantExpression>(1));
-    argList->addArgument(std::make_unique<ConstantExpression>(5));
+    argList = ArgumentList::make(&pool);
+    argList->addArgument(ConstantExpression::make(&pool, 1));
+    argList->addArgument(ConstantExpression::make(&pool, 5));
     ReduceExpression reduceExpr(
         "totalNum",
         ArithmeticExpression::makeMultiply(
             &pool, new ConstantExpression(2), new ConstantExpression(10)),
         "n",
-        new FunctionCallExpression("range", argList),
+        FunctionCallExpression::make(&pool, "range", argList),
         ArithmeticExpression::makeAdd(
             &pool,
-            new LabelExpression("totalNum"),
-            ArithmeticExpression::makeMultiply(
-                &pool, new LabelExpression("n"), new ConstantExpression(2))));
+            LabelExpression::make(&pool, "totalNum"),
+            ArithmeticExpression::makeMultiply(&pool,
+                                               LabelExpression::make(&pool, "n"),
+                                               new ConstantExpression(2))));
     ASSERT_EQ(reduceExpr, *reduceExpr.clone());
 }
 

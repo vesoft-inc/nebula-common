@@ -217,3 +217,75 @@ nebula_add_test(
         gtest
         ${THRIFT_LIBRARIES}
 )
+
+nebula_add_test(
+    NAME function_call_expression_test
+    SOURCES FunctionCallExpressionTest.cpp
+    OBJECTS
+        $<TARGET_OBJECTS:base_obj>
+        $<TARGET_OBJECTS:expression_obj>
+        $<TARGET_OBJECTS:datatypes_obj>
+        $<TARGET_OBJECTS:expr_ctx_mock_obj>
+        $<TARGET_OBJECTS:function_manager_obj>
+        $<TARGET_OBJECTS:agg_function_manager_obj>
+        $<TARGET_OBJECTS:time_obj>
+        $<TARGET_OBJECTS:time_utils_obj>
+        $<TARGET_OBJECTS:fs_obj>
+    LIBRARIES
+        gtest
+        ${THRIFT_LIBRARIES}
+)
+
+nebula_add_test(
+    NAME label_expression_test
+    SOURCES LabelExpressionTest.cpp
+    OBJECTS
+        $<TARGET_OBJECTS:base_obj>
+        $<TARGET_OBJECTS:expression_obj>
+        $<TARGET_OBJECTS:datatypes_obj>
+        $<TARGET_OBJECTS:expr_ctx_mock_obj>
+        $<TARGET_OBJECTS:function_manager_obj>
+        $<TARGET_OBJECTS:agg_function_manager_obj>
+        $<TARGET_OBJECTS:time_obj>
+        $<TARGET_OBJECTS:time_utils_obj>
+        $<TARGET_OBJECTS:fs_obj>
+    LIBRARIES
+        gtest
+        ${THRIFT_LIBRARIES}
+)
+
+nebula_add_test(
+    NAME list_comprehension_expression_test
+    SOURCES ListComprehensionExpressionTest.cpp
+    OBJECTS
+        $<TARGET_OBJECTS:base_obj>
+        $<TARGET_OBJECTS:expression_obj>
+        $<TARGET_OBJECTS:datatypes_obj>
+        $<TARGET_OBJECTS:expr_ctx_mock_obj>
+        $<TARGET_OBJECTS:function_manager_obj>
+        $<TARGET_OBJECTS:agg_function_manager_obj>
+        $<TARGET_OBJECTS:time_obj>
+        $<TARGET_OBJECTS:time_utils_obj>
+        $<TARGET_OBJECTS:fs_obj>
+    LIBRARIES
+        gtest
+        ${THRIFT_LIBRARIES}
+)
+
+nebula_add_test(
+    NAME relational_expression_test
+    SOURCES RelationalExpressionTest.cpp
+    OBJECTS
+        $<TARGET_OBJECTS:base_obj>
+        $<TARGET_OBJECTS:expression_obj>
+        $<TARGET_OBJECTS:datatypes_obj>
+        $<TARGET_OBJECTS:expr_ctx_mock_obj>
+        $<TARGET_OBJECTS:function_manager_obj>
+        $<TARGET_OBJECTS:agg_function_manager_obj>
+        $<TARGET_OBJECTS:time_obj>
+        $<TARGET_OBJECTS:time_utils_obj>
+        $<TARGET_OBJECTS:fs_obj>
+    LIBRARIES
+        gtest
+        ${THRIFT_LIBRARIES}
+)

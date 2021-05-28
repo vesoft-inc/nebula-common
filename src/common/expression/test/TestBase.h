@@ -121,6 +121,10 @@ public:
 protected:
     static std::unordered_map<std::string, Value> boolen_;
     static std::unordered_map<std::string, Expression::Kind> op_;
+    static std::unordered_map<
+        std::string,
+        std::function<Expression *(ObjectPool *pool, Expression *lhs, Expression *rhs)>>
+        op_2;
 
 protected:
     Expression *ExpressionCalu(const std::vector<std::string> &expr) {
@@ -202,13 +206,10 @@ protected:
     void testFunction(const char *name, const std::vector<Value> &args, const Value &expected) {
         ArgumentList *argList = new ArgumentList();
         for (const auto &i : args) {
-            argList->addArgument(std::make_unique<ConstantExpression>(std::move(i)));
+            argList->addArgument(ConstantExpression::make(&pool, i));
         }
-        FunctionCallExpression functionCall(new std::string(name), argList);
-        auto eval = Expression::eval(&functionCall, gExpCtxt);
-        // EXPECT_EQ(eval.type(), expected.type());
-        EXPECT_EQ(eval, expected);
-        eval = Expression::eval(&functionCall, gExpCtxt);
+        auto functionCall = FunctionCallExpression::make(&pool, new std::string(name), argList);
+        auto eval = Expression::eval(functionCall, gExpCtxt);
         // EXPECT_EQ(eval.type(), expected.type());
         EXPECT_EQ(eval, expected);
     }
@@ -256,6 +257,41 @@ std::unordered_map<std::string, Expression::Kind> ExpressionTest::op_ = {
     {"==", Expression::Kind::kRelEQ},
     {"!=", Expression::Kind::kRelNE},
     {"!", Expression::Kind::kUnaryNot}};
+
+// Functions used to construct corresponding expressions
+using expressionGen =
+    std::function<Expression *(ObjectPool *pool, Expression *lhs, Expression *rhs)>;
+
+expressionGen makeAddExpr{&ArithmeticExpression::makeAdd};
+expressionGen makeMinusExpr{&ArithmeticExpression::makeMinus};
+expressionGen makeMultiplyExpr{&ArithmeticExpression::makeMultiply};
+expressionGen makeDivisionExpr{&ArithmeticExpression::makeDivision};
+expressionGen makeModExpr{&ArithmeticExpression::makeMod};
+expressionGen makeOrExpr{
+    static_cast<LogicalExpression *(*)(ObjectPool *pool, Expression *lhs, Expression *rhs)>(
+        &LogicalExpression::makeOr)};
+expressionGen makeAndExpr{
+    static_cast<LogicalExpression *(*)(ObjectPool *pool, Expression *lhs, Expression *rhs)>(
+        &LogicalExpression::makeAnd)};
+expressionGen makeXorExpr{
+    static_cast<LogicalExpression *(*)(ObjectPool *pool, Expression *lhs, Expression *rhs)>(
+        &LogicalExpression::makeXor)};
+
+std::unordered_map<std::string, expressionGen> ExpressionTest::op_2 = {{"+", makeAddExpr},
+                                                                       {"-", makeMinusExpr},
+                                                                       {"*", makeMultiplyExpr},
+                                                                       {"/", makeDivisionExpr},
+                                                                       {"%", makeModExpr},
+                                                                       {"OR", makeOrExpr},
+                                                                       {"AND", makeAndExpr},
+                                                                       {"XOR", makeXorExpr},
+                                                                       {">", makeAddExpr},
+                                                                       {"<", makeAddExpr},
+                                                                       {">=", makeAddExpr},
+                                                                       {"<=", makeAddExpr},
+                                                                       {"==", makeAddExpr},
+                                                                       {"!=", makeAddExpr},
+                                                                       {"!", makeAddExpr}};
 
 std::unordered_map<std::string, Value> ExpressionTest::boolen_ = {
     {"true", Value(true)},

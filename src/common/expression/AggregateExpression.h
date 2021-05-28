@@ -17,6 +17,14 @@ class AggregateExpression final : public Expression {
     friend class Expression;
 
 public:
+    static AggregateExpression* make(ObjectPool* pool = nullptr,
+                                     const std::string& name = "",
+                                     Expression* arg = nullptr,
+                                     bool distinct = false) {
+        DCHECK(!!pool);
+        return pool->add(new AggregateExpression(name, arg, distinct));
+    }
+
     explicit AggregateExpression(const std::string& name = "",
                                  Expression* arg = nullptr,
                                  bool distinct = false)
@@ -28,12 +36,20 @@ public:
         }
     }
 
-    static AggregateExpression* make(ObjectPool* pool = nullptr,
-                                     std::string* name = nullptr,
-                                     Expression* arg = nullptr,
-                                     bool distinct = false) {
-        return pool->add(new AggregateExpression(name, arg, distinct));
-    }
+    // explicit AggregateExpression(std::string* name = nullptr,
+    //                              Expression* arg = nullptr,
+    //                              bool distinct = false)
+    //     : Expression(Kind::kAggregate) {
+    //     arg_ = arg;
+    //     name_ = name;
+    //     distinct_ = distinct;
+    //     if (name_) {
+    //         auto aggFuncResult = AggFunctionManager::get(*name_);
+    //         if (aggFuncResult.ok()) {
+    //             aggFunc_ = std::move(aggFuncResult).value();
+    //         }
+    //     }
+    // }
 
     const Value& eval(ExpressionContext& ctx) override;
 

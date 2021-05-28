@@ -17,6 +17,7 @@ public:
     static AttributeExpression *make(ObjectPool *pool = nullptr,
                                      Expression *lhs = nullptr,
                                      Expression *rhs = nullptr) {
+        DCHECK(!!pool);
         return pool->add(new AttributeExpression(lhs, rhs));
     }
     explicit AttributeExpression(Expression *lhs = nullptr,
