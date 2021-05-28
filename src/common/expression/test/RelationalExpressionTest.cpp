@@ -15,7 +15,7 @@ TEST_F(RelationalExpressionTest, RelationEQ) {
         // e1.list == NULL
         auto expr = RelationalExpression::makeRelEQ(
             &pool,
-            new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
+            new EdgePropertyExpression("e1", "list"),
             ConstantExpression::make(&pool, Value(NullType::NaN)));
         auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
@@ -24,7 +24,7 @@ TEST_F(RelationalExpressionTest, RelationEQ) {
         // e1.list_of_list == NULL
         auto expr = RelationalExpression::makeRelEQ(
             &pool,
-            new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
+            new EdgePropertyExpression("e1", "list_of_list"),
             ConstantExpression::make(&pool, Value(NullType::NaN)));
         auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::NULLVALUE);
@@ -33,8 +33,8 @@ TEST_F(RelationalExpressionTest, RelationEQ) {
         // e1.list == e1.list
         auto expr = RelationalExpression::makeRelEQ(
             &pool,
-            new EdgePropertyExpression(new std::string("e1"), new std::string("list")),
-            new EdgePropertyExpression(new std::string("e1"), new std::string("list")));
+            new EdgePropertyExpression("e1", "list"),
+            new EdgePropertyExpression("e1", "list"));
         auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
@@ -43,8 +43,8 @@ TEST_F(RelationalExpressionTest, RelationEQ) {
         // e1.list_of_list == e1.list_of_list
         auto expr = RelationalExpression::makeRelEQ(
             &pool,
-            new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")),
-            new EdgePropertyExpression(new std::string("e1"), new std::string("list_of_list")));
+            new EdgePropertyExpression("e1", "list_of_list"),
+            new EdgePropertyExpression("e1", "list_of_list"));
         auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);

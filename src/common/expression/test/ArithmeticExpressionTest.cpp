@@ -55,7 +55,7 @@ TEST_F(ArithmeticExpressionTest, TestArithmeticExpression) {
             &pool,
             ArithmeticExpression::makeAdd(
                 &pool, ConstantExpression::make(&pool, 1), ConstantExpression::make(&pool, 2)),
-            new EdgePropertyExpression(new std::string("e1"), new std::string("int")));
+            new EdgePropertyExpression("e1", "int"));
         auto eval = Expression::eval(add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 4);
@@ -64,8 +64,8 @@ TEST_F(ArithmeticExpressionTest, TestArithmeticExpression) {
         // e1.string16 + e1.string16
         ArithmeticExpression add(
             Expression::Kind::kAdd,
-            new EdgePropertyExpression(new std::string("e1"), new std::string("string16")),
-            new EdgePropertyExpression(new std::string("e1"), new std::string("string16")));
+            new EdgePropertyExpression("e1", "string16"),
+            new EdgePropertyExpression("e1", "string16"));
         auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::STRING);
         EXPECT_EQ(eval, std::string(32, 'a'));
@@ -74,8 +74,8 @@ TEST_F(ArithmeticExpressionTest, TestArithmeticExpression) {
         // $^.source.string16 + $$.dest.string16
         ArithmeticExpression add(
             Expression::Kind::kAdd,
-            new SourcePropertyExpression(new std::string("source"), new std::string("string16")),
-            new DestPropertyExpression(new std::string("dest"), new std::string("string16")));
+            new SourcePropertyExpression("source", "string16"),
+            new DestPropertyExpression("dest", "string16"));
         auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::STRING);
         EXPECT_EQ(eval, std::string(32, 'a'));
@@ -85,7 +85,7 @@ TEST_F(ArithmeticExpressionTest, TestArithmeticExpression) {
         ArithmeticExpression minus(
             Expression::Kind::kMinus,
             ConstantExpression::make(&pool, 10),
-            new EdgePropertyExpression(new std::string("e1"), new std::string("int")));
+            new EdgePropertyExpression("e1", "int"));
         auto eval = Expression::eval(&minus, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 9);
@@ -95,7 +95,7 @@ TEST_F(ArithmeticExpressionTest, TestArithmeticExpression) {
         ArithmeticExpression minus(
             Expression::Kind::kMinus,
             ConstantExpression::make(&pool, 10),
-            new SourcePropertyExpression(new std::string("source"), new std::string("int")));
+            new SourcePropertyExpression("source", "int"));
         auto eval = Expression::eval(&minus, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 9);
@@ -104,8 +104,8 @@ TEST_F(ArithmeticExpressionTest, TestArithmeticExpression) {
         // e1.string128 - e1.string64
         ArithmeticExpression minus(
             Expression::Kind::kMinus,
-            new EdgePropertyExpression(new std::string("e1"), new std::string("string128")),
-            new EdgePropertyExpression(new std::string("e1"), new std::string("string64")));
+            new EdgePropertyExpression("e1", "string128"),
+            new EdgePropertyExpression("e1", "string64"));
         auto eval = Expression::eval(&minus, gExpCtxt);
         EXPECT_NE(eval.type(), Value::Type::STRING);
         EXPECT_NE(eval, std::string(64, 'a'));
@@ -114,8 +114,8 @@ TEST_F(ArithmeticExpressionTest, TestArithmeticExpression) {
         // $^.source.srcProperty % $$.dest.dstProperty
         ArithmeticExpression mod(
             Expression::Kind::kMod,
-            new SourcePropertyExpression(new std::string("source"), new std::string("srcProperty")),
-            new DestPropertyExpression(new std::string("dest"), new std::string("dstProperty")));
+            new SourcePropertyExpression("source", "srcProperty"),
+            new DestPropertyExpression("dest", "dstProperty"));
         auto eval = Expression::eval(&mod, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 1);

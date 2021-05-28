@@ -20,13 +20,13 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionEvaluate) {
             .add(ConstantExpression::make(&pool, 4))
             .add(ConstantExpression::make(&pool, 5));
         ListComprehensionExpression expr(
-            new std::string("n"),
+            "n",
             new ListExpression(listItems),
             new RelationalExpression(Expression::Kind::kRelGE,
-                                     new VariableExpression(new std::string("n")),
+                                     new VariableExpression("n"),
                                      ConstantExpression::make(&pool, 2)),
             ArithmeticExpression::makeAdd(&pool,
-                                          new VariableExpression(new std::string("n")),
+                                          new VariableExpression("n"),
                                           ConstantExpression::make(&pool, 10)));
 
         auto value = Expression::eval(&expr, gExpCtxt);
@@ -50,15 +50,15 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionEvaluate) {
         gExpCtxt.setVar("p", path);
 
         ArgumentList *argList = ArgumentList::make(&pool);
-        argList->addArgument(new VariableExpression(new std::string("p")));
+        argList->addArgument(new VariableExpression("p"));
         ListComprehensionExpression expr(
-            new std::string("n"),
-            FunctionCallExpression::make(&pool, new std::string("nodes"), argList),
+            "n",
+            FunctionCallExpression::make(&pool, "nodes", argList),
             nullptr,
             ArithmeticExpression::makeAdd(
                 &pool,
                 AttributeExpression::make(&pool,
-                                          new VariableExpression(new std::string("n")),
+                                          new VariableExpression("n"),
                                           ConstantExpression::make(&pool, "age")),
                 ConstantExpression::make(&pool, 5)));
 
@@ -79,23 +79,23 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionExprToString) {
         argList->addArgument(ConstantExpression::make(&pool, 1));
         argList->addArgument(ConstantExpression::make(&pool, 5));
         ListComprehensionExpression expr(
-            new std::string("n"),
-            FunctionCallExpression::make(&pool, new std::string("range"), argList),
+            "n",
+            FunctionCallExpression::make(&pool, "range", argList),
             new RelationalExpression(Expression::Kind::kRelGE,
-                                     new LabelExpression(new std::string("n")),
+                                     new LabelExpression("n"),
                                      ConstantExpression::make(&pool, 2)));
         ASSERT_EQ("[n IN range(1,5) WHERE (n>=2)]", expr.toString());
     }
     {
         ArgumentList *argList = ArgumentList::make(&pool);
-        argList->addArgument(new LabelExpression(new std::string("p")));
+        argList->addArgument(new LabelExpression("p"));
         ListComprehensionExpression expr(
-            new std::string("n"),
-            FunctionCallExpression::make(&pool, new std::string("nodes"), argList),
+            "n",
+            FunctionCallExpression::make(&pool, "nodes", argList),
             nullptr,
             ArithmeticExpression::makeAdd(
                 &pool,
-                new LabelAttributeExpression(new LabelExpression(new std::string("n")),
+                new LabelAttributeExpression(new LabelExpression("n"),
                                              ConstantExpression::make(&pool, "age")),
                 ConstantExpression::make(&pool, 10)));
         ASSERT_EQ("[n IN nodes(p) | (n.age+10)]", expr.toString());
@@ -107,13 +107,13 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionExprToString) {
             .add(ConstantExpression::make(&pool, 1))
             .add(ConstantExpression::make(&pool, 2));
         ListComprehensionExpression expr(
-            new std::string("n"),
+            "n",
             new ListExpression(listItems),
             new RelationalExpression(Expression::Kind::kRelGE,
-                                     new LabelExpression(new std::string("n")),
+                                     new LabelExpression("n"),
                                      ConstantExpression::make(&pool, 2)),
             ArithmeticExpression::makeAdd(&pool,
-                                          new LabelExpression(new std::string("n")),
+                                          new LabelExpression("n"),
                                           ConstantExpression::make(&pool, 10)));
         ASSERT_EQ("[n IN [0,1,2] WHERE (n>=2) | (n+10)]", expr.toString());
     }

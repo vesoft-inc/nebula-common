@@ -116,7 +116,7 @@ private:
     Expression* collection_;
     Expression* filter_;    // filter_ is optional
     Expression* mapping_;   // mapping_ is optional
-    std::string* originString_;
+    std::string originString_;
     Value result_;
 };
 

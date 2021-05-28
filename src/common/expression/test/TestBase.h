@@ -208,7 +208,7 @@ protected:
         for (const auto &i : args) {
             argList->addArgument(ConstantExpression::make(&pool, i));
         }
-        auto functionCall = FunctionCallExpression::make(&pool, new std::string(name), argList);
+        auto functionCall = FunctionCallExpression::make(&pool, name, argList);
         auto eval = Expression::eval(functionCall, gExpCtxt);
         // EXPECT_EQ(eval.type(), expected.type());
         EXPECT_EQ(eval, expected);

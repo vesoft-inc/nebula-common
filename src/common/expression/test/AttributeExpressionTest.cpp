@@ -14,11 +14,11 @@ TEST_F(AttributeExpressionTest, MapAttribute) {
     {
         auto *items = new MapItemList();
         (*items)
-            .add(new std::string("key1"), ConstantExpression::make(&pool, 1))
-            .add(new std::string("key2"), ConstantExpression::make(&pool, 2))
-            .add(new std::string("key3"), ConstantExpression::make(&pool, 3));
+            .add("key1", ConstantExpression::make(&pool, 1))
+            .add("key2", ConstantExpression::make(&pool, 2))
+            .add("key3", ConstantExpression::make(&pool, 3));
         auto *map = new MapExpression(items);
-        auto *key = new LabelExpression(new std::string("key1"));
+        auto *key = new LabelExpression("key1");
         auto expr = AttributeExpression::make(&pool, map, key);
         auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isInt());
@@ -39,7 +39,7 @@ TEST_F(AttributeExpressionTest, EdgeAttribute) {
     };
     {
         auto *left = ConstantExpression::make(&pool, Value(edge));
-        auto *right = new LabelExpression(new std::string("Rocky"));
+        auto *right = new LabelExpression("Rocky");
         auto expr = AttributeExpression::make(&pool, left, right);
         auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
@@ -47,7 +47,7 @@ TEST_F(AttributeExpressionTest, EdgeAttribute) {
     }
     {
         auto *left = ConstantExpression::make(&pool, Value(edge));
-        auto *right = new LabelExpression(new std::string(kType));
+        auto *right = new LabelExpression(kType);
         auto expr = AttributeExpression::make(&pool, left, right);
         auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
@@ -55,7 +55,7 @@ TEST_F(AttributeExpressionTest, EdgeAttribute) {
     }
     {
         auto *left = ConstantExpression::make(&pool, Value(edge));
-        auto *right = new LabelExpression(new std::string(kSrc));
+        auto *right = new LabelExpression(kSrc);
         auto expr = AttributeExpression::make(&pool, left, right);
         auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
@@ -63,7 +63,7 @@ TEST_F(AttributeExpressionTest, EdgeAttribute) {
     }
     {
         auto *left = ConstantExpression::make(&pool, Value(edge));
-        auto *right = new LabelExpression(new std::string(kDst));
+        auto *right = new LabelExpression(kDst);
         auto expr = AttributeExpression::make(&pool, left, right);
         auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
@@ -71,7 +71,7 @@ TEST_F(AttributeExpressionTest, EdgeAttribute) {
     }
     {
         auto *left = ConstantExpression::make(&pool, Value(edge));
-        auto *right = new LabelExpression(new std::string(kRank));
+        auto *right = new LabelExpression(kRank);
         auto expr = AttributeExpression::make(&pool, left, right);
         auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isInt());
@@ -94,7 +94,7 @@ TEST_F(AttributeExpressionTest, VertexAttribute) {
     };
     {
         auto *left = ConstantExpression::make(&pool, Value(vertex));
-        auto *right = new LabelExpression(new std::string("Mull"));
+        auto *right = new LabelExpression("Mull");
         auto expr = AttributeExpression::make(&pool, left, right);
         auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
@@ -102,7 +102,7 @@ TEST_F(AttributeExpressionTest, VertexAttribute) {
     }
     {
         auto *left = ConstantExpression::make(&pool, Value(vertex));
-        auto *right = new LabelExpression(new std::string("Bip"));
+        auto *right = new LabelExpression("Bip");
         auto expr = AttributeExpression::make(&pool, left, right);
         auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
@@ -110,7 +110,7 @@ TEST_F(AttributeExpressionTest, VertexAttribute) {
     }
     {
         auto *left = ConstantExpression::make(&pool, Value(vertex));
-        auto *right = new LabelExpression(new std::string("Venus"));
+        auto *right = new LabelExpression("Venus");
         auto expr = AttributeExpression::make(&pool, left, right);
         auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());
@@ -118,7 +118,7 @@ TEST_F(AttributeExpressionTest, VertexAttribute) {
     }
     {
         auto *left = ConstantExpression::make(&pool, Value(vertex));
-        auto *right = new LabelExpression(new std::string("_vid"));
+        auto *right = new LabelExpression("_vid");
         auto expr = AttributeExpression::make(&pool, left, right);
         auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isStr());

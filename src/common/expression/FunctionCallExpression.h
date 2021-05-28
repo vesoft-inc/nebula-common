@@ -109,11 +109,7 @@ public:
         return std::make_unique<FunctionCallExpression>(name_, arguments);
     }
 
-<<<<<<< HEAD
     const std::string& name() const {
-=======
-    const std::string* name() const {
->>>>>>> Refactor expressions up to LogiacalExpression
         return name_;
     }
 
@@ -133,13 +129,8 @@ private:
     void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
-<<<<<<< HEAD
-    std::string name_;
-    std::unique_ptr<ArgumentList> args_;
-=======
-    std::string*                                 name_;
+    std::string                                  name_;
     ArgumentList*                                args_;
->>>>>>> Refactor expressions up to LogiacalExpression
 
     // runtime cache
     Value                                        result_;

@@ -10,12 +10,12 @@ namespace nebula {
 class LabelExpressionTest : public ExpressionTest {};
 
 TEST_F(LabelExpressionTest, LabelExprToString) {
-    auto expr = LabelExpression::make(&pool, new std::string("name"));
+    auto expr = LabelExpression::make(&pool, "name");
     ASSERT_EQ("name", expr->toString());
 }
 
 TEST_F(LabelExpressionTest, LabelEvaluate) {
-    auto expr = LabelExpression::make(&pool, new std::string("name"));
+    auto expr = LabelExpression::make(&pool, "name");
     auto value = Expression::eval(expr, gExpCtxt);
     ASSERT_TRUE(value.isStr());
     ASSERT_EQ("name", value.getStr());

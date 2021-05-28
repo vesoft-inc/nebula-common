@@ -22,7 +22,7 @@ public:
                      const char* expr,
                      std::vector<std::pair<std::string, Value>> inputVar,
                      const std::unordered_map<std::string, Value>& expected) {
-        auto agg = new std::string(name);
+        auto agg = name;
         auto func = std::make_unique<std::string>(expr);
         Expression* arg = nullptr;
         auto isConst = false;
@@ -41,8 +41,8 @@ public:
                 static_cast<ConstantExpression*>(arg)->setValue(row.second);
             } else {
                 auto args = std::make_unique<ArgumentList>(1);
-                args->addArgument(std::make_unique<ConstantExpression>(row.second));
-                aggExpr->setArg(new FunctionCallExpression(new std::string(*func), args.release()));
+                args->addArgument(ConstantExpression::make(&pool, row.second));
+                aggExpr->setArg(new FunctionCallExpression(*func, args.release()));
             }
             aggExpr->setAggData(agg_data_map[row.first].get());
             auto eval = aggExpr->eval(gExpCtxt);
@@ -333,7 +333,7 @@ TEST_F(AggregateExpressionTest, AggregateExpression) {
 
 TEST_F(ExpressionTest, AggregateToString) {
     auto arg = ConstantExpression::make(&pool, "$-.age");
-    auto* aggName = new std::string("COUNT");
+    auto* aggName = "COUNT";
     auto expr = AggregateExpression::make(&pool, aggName, arg, true);
     ASSERT_EQ("COUNT(distinct $-.age)", expr->toString());
 }

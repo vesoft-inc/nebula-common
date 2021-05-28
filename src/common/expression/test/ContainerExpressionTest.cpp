@@ -33,10 +33,10 @@ TEST_F(ExpressionTest, SetToString) {
 TEST_F(ExpressionTest, MapTostring) {
     auto *items = MapItemList::make(&pool);
     (*items)
-        .add(new std::string("key1"), new ConstantExpression(12345))
-        .add(new std::string("key2"), new ConstantExpression(12345))
-        .add(new std::string("key3"), new ConstantExpression("Hello"))
-        .add(new std::string("key4"), new ConstantExpression(true));
+        .add("key1", new ConstantExpression(12345))
+        .add("key2", new ConstantExpression(12345))
+        .add("key3", new ConstantExpression("Hello"))
+        .add("key4", new ConstantExpression(true));
     auto expr = MapExpression::make(&pool, items);
     auto expected = "{"
                     "key1:12345,"
@@ -76,10 +76,10 @@ TEST_F(ExpressionTest, MapEvaluate) {
     {
         auto *items = MapItemList::make(&pool);
         (*items)
-            .add(new std::string("key1"), new ConstantExpression(12345))
-            .add(new std::string("key2"), new ConstantExpression(12345))
-            .add(new std::string("key3"), new ConstantExpression("Hello"))
-            .add(new std::string("key4"), new ConstantExpression(true));
+            .add("key1", new ConstantExpression(12345))
+            .add("key2", new ConstantExpression(12345))
+            .add("key3", new ConstantExpression("Hello"))
+            .add("key4", new ConstantExpression(true));
         auto expr = MapExpression::make(&pool, items);
         auto expected =
             Value(Map({{"key1", 12345}, {"key2", 12345}, {"key3", "Hello"}, {"key4", true}}));
@@ -89,11 +89,11 @@ TEST_F(ExpressionTest, MapEvaluate) {
     {
         auto *items = MapItemList::make(&pool);
         (*items)
-            .add(new std::string("key1"), new ConstantExpression(12345))
-            .add(new std::string("key2"), new ConstantExpression(12345))
-            .add(new std::string("key3"), new ConstantExpression("Hello"))
-            .add(new std::string("key4"), new ConstantExpression(false))
-            .add(new std::string("key4"), new ConstantExpression(true));
+            .add("key1", new ConstantExpression(12345))
+            .add("key2", new ConstantExpression(12345))
+            .add("key3", new ConstantExpression("Hello"))
+            .add("key4", new ConstantExpression(false))
+            .add("key4", new ConstantExpression(true));
         auto expr = MapExpression::make(&pool, items);
         auto expected =
             Value(Map({{"key1", 12345}, {"key2", 12345}, {"key3", "Hello"}, {"key4", false}}));

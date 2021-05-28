@@ -125,7 +125,7 @@ void ListComprehensionExpression::resetFrom(Decoder& decoder) {
     bool hasMapping = decoder.readValue().getBool();
     bool hasString = decoder.readValue().getBool();
 
-    innerVar_ = decoder.readStr().get();
+    innerVar_ = decoder.readStr();
     collection_ = decoder.readExpression().get();
     if (hasFilter) {
         filter_ = decoder.readExpression().get();
@@ -134,7 +134,7 @@ void ListComprehensionExpression::resetFrom(Decoder& decoder) {
         mapping_ = decoder.readExpression().get();
     }
     if (hasString) {
-        originString_ = decoder.readStr().get();
+        originString_ = decoder.readStr();
     }
 }
 

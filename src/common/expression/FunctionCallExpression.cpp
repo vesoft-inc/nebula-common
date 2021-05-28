@@ -58,7 +58,7 @@ void FunctionCallExpression::writeTo(Encoder& encoder) const {
 
 void FunctionCallExpression::resetFrom(Decoder& decoder) {
     // Read name_
-    name_ = decoder.readStr().get();
+    name_ = decoder.readStr();
 
     // Read args_
     size_t sz = decoder.readSize();
