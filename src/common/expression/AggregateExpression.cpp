@@ -29,7 +29,7 @@ void AggregateExpression::writeTo(Encoder& encoder) const {
 void AggregateExpression::resetFrom(Decoder& decoder) {
     name_ = decoder.readStr();
     distinct_ = decoder.readValue().getBool();
-    arg_ = decoder.readExpression().get();
+    arg_ = decoder.readExpression();
     auto aggFuncResult = AggFunctionManager::get(name_);
     if (aggFuncResult.ok()) {
         aggFunc_ = std::move(aggFuncResult).value();

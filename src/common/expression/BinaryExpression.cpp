@@ -34,10 +34,10 @@ void BinaryExpression::writeTo(Encoder& encoder) const {
 // TODO(aiee)
 void BinaryExpression::resetFrom(Decoder& decoder) {
     // Read lhs_
-    lhs_ = decoder.readExpression().get();
+    lhs_ = decoder.readExpression();
     CHECK(!!lhs_);
     // Read rhs_
-    rhs_ = decoder.readExpression().get();
+    rhs_ = decoder.readExpression();
     CHECK(!!rhs_);
 }
 

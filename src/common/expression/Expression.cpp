@@ -166,7 +166,7 @@ Value::Type Expression::Decoder::readValueType() noexcept {
 }
 
 
-std::unique_ptr<Expression> Expression::Decoder::readExpression() noexcept {
+Expression* Expression::Decoder::readExpression() noexcept {
     return Expression::decode(*this);
 }
 
@@ -189,7 +189,7 @@ std::string Expression::encode() const {
 
 
 // static
-std::unique_ptr<Expression> Expression::decode(folly::StringPiece encoded) {
+Expression* Expression::decode(folly::StringPiece encoded) {
     Decoder decoder(encoded);
     if (decoder.finished()) {
         return nullptr;
@@ -199,212 +199,212 @@ std::unique_ptr<Expression> Expression::decode(folly::StringPiece encoded) {
 
 
 // static
-std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
-    std::unique_ptr<Expression> exp = nullptr;
+Expression* Expression::decode(Expression::Decoder& decoder) {
+    Expression* exp = nullptr;
     Kind kind = decoder.readKind();
     switch (kind) {
         case Expression::Kind::kConstant: {
-            exp = std::make_unique<ConstantExpression>();
+            exp = new ConstantExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kAdd: {
-            exp = std::make_unique<ArithmeticExpression>(Expression::Kind::kAdd);
+            exp = new ArithmeticExpression(Expression::Kind::kAdd);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kMinus: {
-            exp = std::make_unique<ArithmeticExpression>(Expression::Kind::kMinus);
+            exp = new ArithmeticExpression(Expression::Kind::kMinus);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kMultiply: {
-            exp = std::make_unique<ArithmeticExpression>(Expression::Kind::kMultiply);
+            exp = new ArithmeticExpression(Expression::Kind::kMultiply);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kDivision: {
-            exp = std::make_unique<ArithmeticExpression>(Expression::Kind::kDivision);
+            exp = new ArithmeticExpression(Expression::Kind::kDivision);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kMod: {
-            exp = std::make_unique<ArithmeticExpression>(Expression::Kind::kMod);
+            exp = new ArithmeticExpression(Expression::Kind::kMod);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kUnaryPlus: {
-            exp = std::make_unique<UnaryExpression>(Expression::Kind::kUnaryPlus);
+            exp = new UnaryExpression(Expression::Kind::kUnaryPlus);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kUnaryNegate: {
-            exp = std::make_unique<UnaryExpression>(Expression::Kind::kUnaryNegate);
+            exp = new UnaryExpression(Expression::Kind::kUnaryNegate);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kUnaryNot: {
-            exp = std::make_unique<UnaryExpression>(Expression::Kind::kUnaryNot);
+            exp = new UnaryExpression(Expression::Kind::kUnaryNot);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kUnaryIncr: {
-            exp = std::make_unique<UnaryExpression>(Expression::Kind::kUnaryIncr);
+            exp = new UnaryExpression(Expression::Kind::kUnaryIncr);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kUnaryDecr: {
-            exp = std::make_unique<UnaryExpression>(Expression::Kind::kUnaryDecr);
+            exp = new UnaryExpression(Expression::Kind::kUnaryDecr);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kIsNull: {
-            exp = std::make_unique<UnaryExpression>(Expression::Kind::kIsNull);
+            exp = new UnaryExpression(Expression::Kind::kIsNull);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kIsNotNull: {
-            exp = std::make_unique<UnaryExpression>(Expression::Kind::kIsNotNull);
+            exp = new UnaryExpression(Expression::Kind::kIsNotNull);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kIsEmpty: {
-            exp = std::make_unique<UnaryExpression>(Expression::Kind::kIsEmpty);
+            exp = new UnaryExpression(Expression::Kind::kIsEmpty);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kIsNotEmpty: {
-            exp = std::make_unique<UnaryExpression>(Expression::Kind::kIsNotEmpty);
+            exp = new UnaryExpression(Expression::Kind::kIsNotEmpty);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelEQ: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelEQ);
+            exp = new RelationalExpression(Expression::Kind::kRelEQ);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelNE: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelNE);
+            exp = new RelationalExpression(Expression::Kind::kRelNE);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelLT: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelLT);
+            exp = new RelationalExpression(Expression::Kind::kRelLT);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelLE: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelLE);
+            exp = new RelationalExpression(Expression::Kind::kRelLE);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelGT: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelGT);
+            exp = new RelationalExpression(Expression::Kind::kRelGT);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelGE: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelGE);
+            exp = new RelationalExpression(Expression::Kind::kRelGE);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelREG: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelREG);
+            exp = new RelationalExpression(Expression::Kind::kRelREG);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelIn: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelIn);
+            exp = new RelationalExpression(Expression::Kind::kRelIn);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelNotIn: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kRelNotIn);
+            exp = new RelationalExpression(Expression::Kind::kRelNotIn);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kContains: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kContains);
+            exp = new RelationalExpression(Expression::Kind::kContains);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kNotContains: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kNotContains);
+            exp = new RelationalExpression(Expression::Kind::kNotContains);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kStartsWith: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kStartsWith);
+            exp = new RelationalExpression(Expression::Kind::kStartsWith);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kNotStartsWith: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kNotStartsWith);
+            exp = new RelationalExpression(Expression::Kind::kNotStartsWith);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEndsWith: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kEndsWith);
+            exp = new RelationalExpression(Expression::Kind::kEndsWith);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kNotEndsWith: {
-            exp = std::make_unique<RelationalExpression>(Expression::Kind::kNotEndsWith);
+            exp = new RelationalExpression(Expression::Kind::kNotEndsWith);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kSubscript: {
-            exp = std::make_unique<SubscriptExpression>();
+            exp = new SubscriptExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kSubscriptRange: {
-            exp = std::make_unique<SubscriptRangeExpression>();
+            exp = new SubscriptRangeExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kColumn: {
-            exp = std::make_unique<ColumnExpression>();
+            exp = new ColumnExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kAttribute: {
-            exp = std::make_unique<AttributeExpression>();
+            exp = new AttributeExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kLabelAttribute: {
-            exp = std::make_unique<LabelAttributeExpression>();
+            exp = new LabelAttributeExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kLogicalAnd: {
-            exp = std::make_unique<LogicalExpression>(Expression::Kind::kLogicalAnd);
+            exp = new LogicalExpression(Expression::Kind::kLogicalAnd);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kLogicalOr: {
-            exp = std::make_unique<LogicalExpression>(Expression::Kind::kLogicalOr);
+            exp = new LogicalExpression(Expression::Kind::kLogicalOr);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kLogicalXor: {
-            exp = std::make_unique<LogicalExpression>(Expression::Kind::kLogicalXor);
+            exp = new LogicalExpression(Expression::Kind::kLogicalXor);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kTypeCasting: {
-            exp = std::make_unique<TypeCastingExpression>();
+            exp = new TypeCastingExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kFunctionCall: {
-            exp = std::make_unique<FunctionCallExpression>();
+            exp = new FunctionCallExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kAggregate: {
-            exp = std::make_unique<AggregateExpression>();
+            exp = new AggregateExpression();
             exp->resetFrom(decoder);
             return exp;
         }
@@ -417,57 +417,57 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             return exp;
         }
         case Expression::Kind::kDstProperty: {
-            exp = std::make_unique<DestPropertyExpression>();
+            exp = new DestPropertyExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kSrcProperty: {
-            exp = std::make_unique<SourcePropertyExpression>();
+            exp = new SourcePropertyExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdgeProperty: {
-            exp = std::make_unique<EdgePropertyExpression>();
+            exp = new EdgePropertyExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kTagProperty: {
-            exp = std::make_unique<TagPropertyExpression>();
+            exp = new TagPropertyExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdgeSrc: {
-            exp = std::make_unique<EdgeSrcIdExpression>();
+            exp = new EdgeSrcIdExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdgeType: {
-            exp = std::make_unique<EdgeTypeExpression>();
+            exp = new EdgeTypeExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdgeRank: {
-            exp = std::make_unique<EdgeRankExpression>();
+            exp = new EdgeRankExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdgeDst: {
-            exp = std::make_unique<EdgeDstIdExpression>();
+            exp = new EdgeDstIdExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kVertex: {
-            exp = std::make_unique<VertexExpression>();
+            exp = new VertexExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdge: {
-            exp = std::make_unique<EdgeExpression>();
+            exp = new EdgeExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kVar: {
-            exp = std::make_unique<VariableExpression>();
+            exp = new VariableExpression();
             exp->resetFrom(decoder);
             return exp;
         }
@@ -476,52 +476,52 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             return exp;
         }
         case Expression::Kind::kUUID: {
-            exp = std::make_unique<UUIDExpression>();
+            exp = new UUIDExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kList: {
-            exp = std::make_unique<ListExpression>();
+            exp = new ListExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kSet: {
-            exp = std::make_unique<SetExpression>();
+            exp = new SetExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kMap: {
-            exp = std::make_unique<MapExpression>();
+            exp = new MapExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kLabel: {
-            exp = std::make_unique<LabelExpression>();
+            exp = new LabelExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kCase: {
-            exp = std::make_unique<CaseExpression>();
+            exp = new CaseExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kPathBuild: {
-            exp = std::make_unique<PathBuildExpression>();
+            exp = new PathBuildExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kListComprehension: {
-            exp = std::make_unique<ListComprehensionExpression>();
+            exp = new ListComprehensionExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kPredicate: {
-            exp = std::make_unique<PredicateExpression>();
+            exp = new PredicateExpression();
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kReduce: {
-            exp = std::make_unique<ReduceExpression>();
+            exp = new ReduceExpression();
             exp->resetFrom(decoder);
             return exp;
         }

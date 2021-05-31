@@ -14,6 +14,14 @@ namespace nebula {
 
 class TextSearchArgument final {
 public:
+    static TextSearchArgument* make(ObjectPool* pool = nullptr,
+                                    const std::string& from = "",
+                                    const std::string& prop = "",
+                                    const std::string& val = "") {
+        DCHECK(!!pool);
+        return pool->add(new TextSearchArgument(from, prop, val));
+    }
+
     TextSearchArgument(const std::string& from, const std::string& prop, const std::string& val)
         : from_(from), prop_(prop), val_(val) {}
 
@@ -83,9 +91,32 @@ private:
 
 class TextSearchExpression : public Expression {
 public:
-    TextSearchExpression(Kind kind, TextSearchArgument* arg)
-        : Expression(kind) {
-        arg_.reset(arg);
+    static TextSearchExpression* makePrefix(ObjectPool* pool = nullptr,
+                                            TextSearchArgument* arg = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new TextSearchExpression(Kind::kTSPrefix, arg));
+    }
+
+    static TextSearchExpression* makeWildcard(ObjectPool* pool = nullptr,
+                                              TextSearchArgument* arg = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new TextSearchExpression(Kind::kTSWildcard, arg));
+    }
+
+    static TextSearchExpression* makeRegexp(ObjectPool* pool = nullptr,
+                                            TextSearchArgument* arg = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new TextSearchExpression(Kind::kTSRegexp, arg));
+    }
+
+    static TextSearchExpression* makeFuzzy(ObjectPool* pool = nullptr,
+                                           TextSearchArgument* arg = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new TextSearchExpression(Kind::kTSFuzzy, arg));
+    }
+
+    TextSearchExpression(Kind kind, TextSearchArgument* arg) : Expression(kind) {
+        arg_ = arg;
     }
 
     bool operator==(const Expression& rhs) const override;
@@ -102,19 +133,19 @@ public:
     std::string toString() const override;
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<TextSearchExpression>(kind_, arg_.get());
+        return std::make_unique<TextSearchExpression>(kind_, arg_);
     }
 
     const TextSearchArgument* arg() const {
-        return arg_.get();
+        return arg_;
     }
 
     TextSearchArgument* arg() {
-        return arg_.get();
+        return arg_;
     }
 
     void setArgs(TextSearchArgument* arg) {
-        arg_.reset(arg);
+        arg_ = arg;
     }
 
 private:
@@ -127,7 +158,7 @@ private:
     }
 
 private:
-    std::unique_ptr<TextSearchArgument>   arg_;
+    TextSearchArgument*   arg_;
 };
 
 }   // namespace nebula

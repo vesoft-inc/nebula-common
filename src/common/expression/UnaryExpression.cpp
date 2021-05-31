@@ -61,7 +61,7 @@ const Value& UnaryExpression::eval(ExpressionContext& ctx) {
                 break;
             }
             result_ = operand_->eval(ctx) + 1;
-            auto* varExpr = static_cast<VariableExpression*>(operand_.get());
+            auto* varExpr = static_cast<VariableExpression*>(operand_);
             ctx.setVar(varExpr->var(), result_);
             break;
         }
@@ -72,7 +72,7 @@ const Value& UnaryExpression::eval(ExpressionContext& ctx) {
                 break;
             }
             result_ = operand_->eval(ctx) - 1;
-            auto* varExpr = static_cast<VariableExpression*>(operand_.get());
+            auto* varExpr = static_cast<VariableExpression*>(operand_);
             ctx.setVar(varExpr->var(), result_);
             break;
         }

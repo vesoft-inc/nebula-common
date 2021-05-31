@@ -15,6 +15,11 @@ class UUIDExpression final : public Expression {
     friend class Expression;
 
 public:
+    static UUIDExpression* make(ObjectPool* pool = nullptr, const std::string& field = "") {
+        DCHECK(!!pool);
+        pool->add(new UUIDExpression(field));
+    }
+
     explicit UUIDExpression(const std::string& field = "")
         : Expression(Kind::kUUID)
         , field_(field) {}

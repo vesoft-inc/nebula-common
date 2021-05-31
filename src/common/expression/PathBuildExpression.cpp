@@ -138,7 +138,7 @@ void PathBuildExpression::accept(ExprVisitor* visitor) {
 std::unique_ptr<Expression> PathBuildExpression::clone() const {
     auto pathBuild = std::make_unique<PathBuildExpression>();
     for (auto& item : items_) {
-        pathBuild->add(item->clone());
+        pathBuild->add(item->clone().get());
     }
     return pathBuild;
 }
@@ -156,7 +156,7 @@ void PathBuildExpression::resetFrom(Decoder &decoder) {
     items_.reserve(size);
     for (auto i = 0u; i < size; ++i) {
         auto item = decoder.readExpression();
-        items_.emplace_back(std::move(item));
+        items_.emplace_back(item);
     }
 }
 }  // namespace nebula

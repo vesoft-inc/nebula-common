@@ -20,7 +20,7 @@ const Value& PredicateExpression::evalExists(ExpressionContext& ctx) {
     DCHECK(collection_->kind() == Expression::Kind::kAttribute ||
            collection_->kind() == Expression::Kind::kSubscript);
 
-    auto* attributeExpr = static_cast<BinaryExpression*>(collection_.get());
+    auto* attributeExpr = static_cast<BinaryExpression*>(collection_);
     auto& container = attributeExpr->left()->eval(ctx);
     auto& key = attributeExpr->right()->eval(ctx);
 

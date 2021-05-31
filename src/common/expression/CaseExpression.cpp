@@ -141,11 +141,11 @@ void CaseExpression::resetFrom(Decoder& decoder) {
 
     isGeneric_ = isGeneric;
     if (hasCondition) {
-        condition_ = decoder.readExpression().get();
+        condition_ = decoder.readExpression();
         CHECK(!!condition_);
     }
     if (hasDefault) {
-        default_ = decoder.readExpression().get();
+        default_ = decoder.readExpression();
         CHECK(!!default_);
     }
     cases_.reserve(numCases);
@@ -154,7 +154,7 @@ void CaseExpression::resetFrom(Decoder& decoder) {
         CHECK(!!when);
         auto then = decoder.readExpression();
         CHECK(!!then);
-        cases_.emplace_back(when.release(), then.release());
+        cases_.emplace_back(when, then);
     }
 }
 

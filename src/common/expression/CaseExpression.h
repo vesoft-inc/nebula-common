@@ -13,10 +13,14 @@ namespace nebula {
 
 class CaseList final {
 public:
+    static CaseList* make(ObjectPool* pool = nullptr, size_t sz = 0) {
+        DCHECK(!!pool);
+        return pool->add(new CaseList(sz));
+    }
     struct Item {
         Item(Expression* wh, Expression* th) : when(wh), then(th) {}
-        std::unique_ptr<Expression> when;
-        std::unique_ptr<Expression> then;
+        Expression* when;
+        Expression* then;
     };
     CaseList() = default;
 
@@ -28,8 +32,8 @@ public:
         items_.emplace_back(when, then);
     }
 
-    auto items() && {
-        return std::move(items_);
+    auto items() {
+        return items_;
     }
 
 private:
@@ -43,6 +47,7 @@ public:
     static CaseExpression* make(ObjectPool* pool = nullptr,
                                 CaseList* cases = nullptr,
                                 bool isGeneric = true) {
+        DCHECK(!!pool);
         return pool->add(new CaseExpression(cases, isGeneric));
     }
 
@@ -72,18 +77,17 @@ public:
     }
 
     void setCases(CaseList* cases) {
-        cases_ = std::move(*cases).items();
-        delete cases;
+        cases_ = cases->items();
     }
 
     void setWhen(size_t index, Expression* when) {
         DCHECK_LT(index, cases_.size());
-        cases_[index].when.reset(when);
+        cases_[index].when = when;
     }
 
     void setThen(size_t index, Expression* then) {
         DCHECK_LT(index, cases_.size());
-        cases_[index].then.reset(then);
+        cases_[index].then = then;
     }
 
     bool hasCondition() const {

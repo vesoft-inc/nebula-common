@@ -12,6 +12,13 @@
 namespace nebula {
 class VariableExpression final : public Expression {
 public:
+    static VariableExpression* make(ObjectPool* pool = nullptr,
+                                    const std::string& var = "",
+                                    bool isInner = false) {
+        DCHECK(!!pool);
+        return pool->add(new VariableExpression(var, isInner));
+    }
+
     explicit VariableExpression(const std::string& var = "", bool isInner = false)
         : Expression(Kind::kVar), isInner_(isInner), var_(var) {}
 
@@ -54,10 +61,15 @@ private:
  */
 class VersionedVariableExpression final : public Expression {
 public:
-    explicit VersionedVariableExpression(const std::string& var = "", Expression* version = nullptr)
-        : Expression(Kind::kVersionedVar), var_(var) {
-        version_.reset(version);
+    static VersionedVariableExpression* make(ObjectPool* pool = nullptr,
+                                             const std::string& var = "",
+                                             Expression* version = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new VersionedVariableExpression(var, version));
     }
+
+    explicit VersionedVariableExpression(const std::string& var = "", Expression* version = nullptr)
+        : Expression(Kind::kVersionedVar), var_(var), version_(version) {}
 
     const std::string& var() const {
         return var_;
@@ -98,7 +110,7 @@ private:
     std::string var_;
     // 0 means the latest, -1 the previous one, and so on.
     // 1 means the eldest, 2 the second elder one, and so on.
-    std::unique_ptr<Expression> version_;
+    Expression* version_;
 };
 }  // namespace nebula
 #endif

@@ -2372,7 +2372,7 @@ TEST_F(ExpressionTest, CaseExprToString) {
         cases->add(new ConstantExpression(false), new ConstantExpression(1));
         cases->add(new ConstantExpression(true), new ConstantExpression(2));
         CaseExpression expr(cases);
-        expr.setCondition(new RelationalExpression(Expression::Kind::kStartsWith,
+        expr.setCondition(RelationalExpression::makeStartsWith(&pool,
                                                    new ConstantExpression("nebula"),
                                                    new ConstantExpression("nebu")));
         expr.setDefault(new ConstantExpression(3));
@@ -2407,7 +2407,7 @@ TEST_F(ExpressionTest, CaseExprToString) {
     }
     {
         auto *cases = new CaseList();
-        cases->add(new RelationalExpression(Expression::Kind::kStartsWith,
+        cases->add(RelationalExpression::makeStartsWith(&pool,
                                             new ConstantExpression("nebula"),
                                             new ConstantExpression("nebu")),
                    new ConstantExpression("yes"));
@@ -2481,7 +2481,7 @@ TEST_F(ExpressionTest, CaseEvaluate) {
         cases->add(new ConstantExpression(false), new ConstantExpression(1));
         cases->add(new ConstantExpression(true), new ConstantExpression(2));
         CaseExpression expr(cases);
-        expr.setCondition(new RelationalExpression(Expression::Kind::kStartsWith,
+        expr.setCondition(RelationalExpression::makeStartsWith(&pool,
                                                    new ConstantExpression("nebula"),
                                                    new ConstantExpression("nebu")));
         expr.setDefault(new ConstantExpression(3));
@@ -2854,10 +2854,10 @@ TEST_F(ExpressionTest, TestExprClone) {
     caseExpr.setDefault(new ConstantExpression(8));
     ASSERT_EQ(caseExpr, *caseExpr.clone());
 
-    PathBuildExpression pathBuild;
-    pathBuild.add(std::make_unique<VariablePropertyExpression>("var1", "path_src"))
-        .add(std::make_unique<VariablePropertyExpression>("var1", "path_edge1"))
-        .add(std::make_unique<VariablePropertyExpression>("var1", "path_v1"));
+    auto pathBuild = *PathBuildExpression::make(&pool);
+    pathBuild.add(new VariablePropertyExpression("var1", "path_src"))
+        .add(new VariablePropertyExpression("var1", "path_edge1"))
+        .add(new VariablePropertyExpression("var1", "path_v1"));
     ASSERT_EQ(pathBuild, *pathBuild.clone());
 
     auto argList = ArgumentList::make(&pool);
@@ -2867,9 +2867,8 @@ TEST_F(ExpressionTest, TestExprClone) {
         &pool,
         "n",
         FunctionCallExpression::make(&pool, "range", argList),
-        new RelationalExpression(Expression::Kind::kRelGE,
-                                 LabelExpression::make(&pool, "n"),
-                                 ConstantExpression::make(&pool, 2)));
+        RelationalExpression::makeGE(
+            &pool, LabelExpression::make(&pool, "n"), ConstantExpression::make(&pool, 2)));
     ASSERT_EQ(*lcExpr, *lcExpr->clone());
 
     argList = ArgumentList::make(&pool);
@@ -2879,7 +2878,7 @@ TEST_F(ExpressionTest, TestExprClone) {
         "all",
         "n",
         FunctionCallExpression::make(&pool, "range", argList),
-        new RelationalExpression(Expression::Kind::kRelGE,
+        RelationalExpression::makeGE(&pool,
                                  LabelExpression::make(&pool, "n"),
                                  ConstantExpression::make(&pool, 2)));
     ASSERT_EQ(predExpr, *predExpr.clone());
@@ -2904,10 +2903,10 @@ TEST_F(ExpressionTest, TestExprClone) {
 
 TEST_F(ExpressionTest, PathBuild) {
     {
-        PathBuildExpression expr;
-        expr.add(std::make_unique<VariablePropertyExpression>("var1", "path_src"))
-            .add(std::make_unique<VariablePropertyExpression>("var1", "path_edge1"))
-            .add(std::make_unique<VariablePropertyExpression>("var1", "path_v1"));
+        auto expr = *(PathBuildExpression::make(&pool));
+        expr.add(new VariablePropertyExpression("var1", "path_src"))
+            .add(new VariablePropertyExpression("var1", "path_edge1"))
+            .add(new VariablePropertyExpression("var1", "path_v1"));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::PATH);
         Path expected;
@@ -2916,12 +2915,12 @@ TEST_F(ExpressionTest, PathBuild) {
         EXPECT_EQ(eval.getPath(), expected);
     }
     {
-        PathBuildExpression expr;
-        expr.add(std::make_unique<VariablePropertyExpression>("var1", "path_src"))
-            .add(std::make_unique<VariablePropertyExpression>("var1", "path_edge1"))
-            .add(std::make_unique<VariablePropertyExpression>("var1", "path_v1"))
-            .add(std::make_unique<VariablePropertyExpression>("var1", "path_edge2"))
-            .add(std::make_unique<VariablePropertyExpression>("var1", "path_v2"));
+        auto expr = *(PathBuildExpression::make(&pool));
+        expr.add(new VariablePropertyExpression("var1", "path_src"))
+            .add(new VariablePropertyExpression("var1", "path_edge1"))
+            .add(new VariablePropertyExpression("var1", "path_v1"))
+            .add(new VariablePropertyExpression("var1", "path_edge2"))
+            .add(new VariablePropertyExpression("var1", "path_v2"));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::PATH);
         Path expected;
@@ -2931,8 +2930,8 @@ TEST_F(ExpressionTest, PathBuild) {
         EXPECT_EQ(eval.getPath(), expected);
     }
     {
-        PathBuildExpression expr;
-        expr.add(std::make_unique<VariablePropertyExpression>("var1", "path_src"));
+        auto expr = *(PathBuildExpression::make(&pool));
+        expr.add(new VariablePropertyExpression("var1", "path_src"));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::PATH);
         Path expected;
@@ -2940,41 +2939,40 @@ TEST_F(ExpressionTest, PathBuild) {
         EXPECT_EQ(eval.getPath(), expected);
     }
     {
-        PathBuildExpression expr;
-
-        expr.add(std::make_unique<VariablePropertyExpression>("var1", "path_src"))
-            .add(std::make_unique<VariablePropertyExpression>("var1", "path_edge1"));
+        auto expr = *(PathBuildExpression::make(&pool));
+        expr.add(new VariablePropertyExpression("var1", "path_src"))
+            .add(new VariablePropertyExpression("var1", "path_edge1"));
         auto eval = Expression::eval(&expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::PATH);
     }
 
     auto varPropExpr = [](const std::string &name) {
-        return std::make_unique<VariablePropertyExpression>("var1", name);
+        return new VariablePropertyExpression("var1", name);
     };
 
     {
-        auto expr0 = std::make_unique<PathBuildExpression>();
+        auto expr0 = PathBuildExpression::make(&pool);
         expr0->add(varPropExpr("path_src"));
-        auto expr = std::make_unique<PathBuildExpression>();
-        expr->add(std::move(expr0));
+        auto expr = PathBuildExpression::make(&pool);
+        expr->add(expr0);
         expr->add(varPropExpr("path_edge1"));
 
         {
             // Test: Path + Edge
-            auto result = Expression::eval(expr.get(), gExpCtxt);
+            auto result = Expression::eval(expr, gExpCtxt);
             EXPECT_EQ(result.type(), Value::Type::PATH);
             const auto &path = result.getPath();
             EXPECT_EQ(path.steps.size(), 1);
             EXPECT_EQ(path.steps.back().dst.vid, "2");
         }
 
-        auto expr1 = std::make_unique<PathBuildExpression>();
+        auto expr1 = PathBuildExpression::make(&pool);
         expr1->add(varPropExpr("path_v1"));
-        expr->add(std::move(expr1));
+        expr->add(expr1);
 
         {
             // Test: Path + Edge + Path
-            auto result = Expression::eval(expr.get(), gExpCtxt);
+            auto result = Expression::eval(expr, gExpCtxt);
             EXPECT_EQ(result.type(), Value::Type::PATH);
             const auto &path = result.getPath();
             EXPECT_EQ(path.steps.size(), 1);
@@ -2985,24 +2983,24 @@ TEST_F(ExpressionTest, PathBuild) {
 
         {
             // Test: Path + Edge + Path + Edge
-            auto result = Expression::eval(expr.get(), gExpCtxt);
+            auto result = Expression::eval(expr, gExpCtxt);
             EXPECT_EQ(result.type(), Value::Type::PATH);
             const auto &path = result.getPath();
             EXPECT_EQ(path.steps.size(), 2);
             EXPECT_EQ(path.steps.back().dst.vid, "3");
         }
 
-        auto pathExpr2 = std::make_unique<PathBuildExpression>();
+        auto pathExpr2 = PathBuildExpression::make(&pool);
         pathExpr2->add(varPropExpr("path_v2"));
         pathExpr2->add(varPropExpr("path_edge3"));
 
-        auto pathExpr3 = std::make_unique<PathBuildExpression>();
+        auto pathExpr3 = PathBuildExpression::make(&pool);
         pathExpr3->add(std::move(expr));
         pathExpr3->add(std::move(pathExpr2));
 
         {
             // Test: Path + Path
-            auto result = Expression::eval(pathExpr3.get(), gExpCtxt);
+            auto result = Expression::eval(pathExpr3, gExpCtxt);
             EXPECT_EQ(result.type(), Value::Type::PATH);
             const auto &path = result.getPath();
             EXPECT_EQ(path.steps.size(), 3);
@@ -3013,10 +3011,10 @@ TEST_F(ExpressionTest, PathBuild) {
 
 TEST_F(ExpressionTest, PathBuildToString) {
     {
-        PathBuildExpression expr;
-        expr.add(std::make_unique<VariablePropertyExpression>("var1", "path_src"))
-            .add(std::make_unique<VariablePropertyExpression>("var1", "path_edge1"))
-            .add(std::make_unique<VariablePropertyExpression>("var1", "path_v1"));
+        auto expr = *(PathBuildExpression::make(&pool));
+        expr.add(new VariablePropertyExpression("var1", "path_src"))
+            .add(new VariablePropertyExpression("var1", "path_edge1"))
+            .add(new VariablePropertyExpression("var1", "path_v1"));
         EXPECT_EQ(expr.toString(), "PathBuild[$var1.path_src,$var1.path_edge1,$var1.path_v1]");
     }
 }

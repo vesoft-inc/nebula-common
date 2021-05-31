@@ -331,7 +331,7 @@ TEST(ExpressionEncodeDecode, CaseExpression) {
         cases->add(new ConstantExpression(false), new ConstantExpression(1));
         cases->add(new ConstantExpression(true), new ConstantExpression(2));
         auto origin = std::make_unique<CaseExpression>(cases);
-        origin->setCondition(new RelationalExpression(Expression::Kind::kStartsWith,
+        origin->setCondition(RelationalExpression::makeStartsWith(&pool,
                                                       new ConstantExpression("nebula"),
                                                       new ConstantExpression("nebu")));
         origin->setDefault(new ConstantExpression(3));

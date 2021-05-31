@@ -12,63 +12,63 @@
 namespace nebula {
 class RelationalExpression final : public BinaryExpression {
 public:
-    static RelationalExpression* makeRelEQ(ObjectPool* pool = nullptr,
+    static RelationalExpression* makeEQ(ObjectPool* pool = nullptr,
                                            Expression* lhs = nullptr,
                                            Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new RelationalExpression(Kind::kRelEQ, lhs, rhs));
     }
 
-    static RelationalExpression* makeRelNE(ObjectPool* pool = nullptr,
+    static RelationalExpression* makeNE(ObjectPool* pool = nullptr,
                                            Expression* lhs = nullptr,
                                            Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new RelationalExpression(Kind::kRelNE, lhs, rhs));
     }
 
-    static RelationalExpression* makeRelLT(ObjectPool* pool = nullptr,
+    static RelationalExpression* makeLT(ObjectPool* pool = nullptr,
                                            Expression* lhs = nullptr,
                                            Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new RelationalExpression(Kind::kRelLT, lhs, rhs));
     }
 
-    static RelationalExpression* makeRelLE(ObjectPool* pool = nullptr,
+    static RelationalExpression* makeLE(ObjectPool* pool = nullptr,
                                            Expression* lhs = nullptr,
                                            Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new RelationalExpression(Kind::kRelLE, lhs, rhs));
     }
 
-    static RelationalExpression* makeRelGT(ObjectPool* pool = nullptr,
+    static RelationalExpression* makeGT(ObjectPool* pool = nullptr,
                                            Expression* lhs = nullptr,
                                            Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new RelationalExpression(Kind::kRelGT, lhs, rhs));
     }
 
-    static RelationalExpression* makeRelGE(ObjectPool* pool = nullptr,
+    static RelationalExpression* makeGE(ObjectPool* pool = nullptr,
                                            Expression* lhs = nullptr,
                                            Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new RelationalExpression(Kind::kRelGE, lhs, rhs));
     }
 
-    static RelationalExpression* makeRelREG(ObjectPool* pool = nullptr,
+    static RelationalExpression* makeREG(ObjectPool* pool = nullptr,
                                             Expression* lhs = nullptr,
                                             Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new RelationalExpression(Kind::kRelREG, lhs, rhs));
     }
 
-    static RelationalExpression* makeRelIn(ObjectPool* pool = nullptr,
+    static RelationalExpression* makeIn(ObjectPool* pool = nullptr,
                                            Expression* lhs = nullptr,
                                            Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new RelationalExpression(Kind::kRelIn, lhs, rhs));
     }
 
-    static RelationalExpression* makeRelNotIn(ObjectPool* pool = nullptr,
+    static RelationalExpression* makeNotIn(ObjectPool* pool = nullptr,
                                               Expression* lhs = nullptr,
                                               Expression* rhs = nullptr) {
         DCHECK(!!pool);

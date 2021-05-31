@@ -15,6 +15,53 @@ class UnaryExpression final : public Expression {
     friend class Expression;
 
 public:
+    static UnaryExpression* makePlus(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new UnaryExpression(Kind::kUnaryPlus, operand));
+    }
+
+    static UnaryExpression* makeNegate(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new UnaryExpression(Kind::kUnaryNegate, operand));
+    }
+
+    static UnaryExpression* makeNot(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new UnaryExpression(Kind::kUnaryNot, operand));
+    }
+
+    static UnaryExpression* makeIncr(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new UnaryExpression(Kind::kUnaryIncr, operand));
+    }
+
+    static UnaryExpression* makeDecr(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new UnaryExpression(Kind::kUnaryDecr, operand));
+    }
+
+    static UnaryExpression* makeIsNull(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new UnaryExpression(Kind::kIsNull, operand));
+    }
+
+    static UnaryExpression* makeIsNotNull(ObjectPool* pool = nullptr,
+                                          Expression* operand = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new UnaryExpression(Kind::kIsNotNull, operand));
+    }
+
+    static UnaryExpression* makeIsEmpty(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new UnaryExpression(Kind::kIsEmpty, operand));
+    }
+
+    static UnaryExpression* makeIsNotEmpty(ObjectPool* pool = nullptr,
+                                           Expression* operand = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new UnaryExpression(Kind::kIsNotEmpty, operand));
+    }
+
     explicit UnaryExpression(Kind kind, Expression* operand = nullptr)
         : Expression(kind), operand_(operand) {}
 
@@ -31,15 +78,15 @@ public:
     }
 
     const Expression* operand() const {
-        return operand_.get();
+        return operand_;
     }
 
     Expression* operand() {
-        return operand_.get();
+        return operand_;
     }
 
     void setOperand(Expression* expr) {
-        operand_.reset(expr);
+        operand_ = expr;
     }
 
 private:
@@ -47,8 +94,8 @@ private:
 
     void resetFrom(Decoder& decoder) override;
 
-    std::unique_ptr<Expression> operand_;
-    Value                       result_;
+    Expression* operand_;
+    Value result_;
 };
 
 }  // namespace nebula

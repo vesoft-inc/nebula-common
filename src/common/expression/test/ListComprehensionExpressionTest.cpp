@@ -22,7 +22,7 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionEvaluate) {
         ListComprehensionExpression expr(
             "n",
             new ListExpression(listItems),
-            new RelationalExpression(Expression::Kind::kRelGE,
+            RelationalExpression::makeRelGE(&pool,
                                      new VariableExpression("n"),
                                      ConstantExpression::make(&pool, 2)),
             ArithmeticExpression::makeAdd(&pool,
@@ -81,7 +81,7 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionExprToString) {
         ListComprehensionExpression expr(
             "n",
             FunctionCallExpression::make(&pool, "range", argList),
-            new RelationalExpression(Expression::Kind::kRelGE,
+            RelationalExpression::makeRelGE(&pool,
                                      new LabelExpression("n"),
                                      ConstantExpression::make(&pool, 2)));
         ASSERT_EQ("[n IN range(1,5) WHERE (n>=2)]", expr.toString());
@@ -109,7 +109,7 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionExprToString) {
         ListComprehensionExpression expr(
             "n",
             new ListExpression(listItems),
-            new RelationalExpression(Expression::Kind::kRelGE,
+            RelationalExpression::makeRelGE(&pool,
                                      new LabelExpression("n"),
                                      ConstantExpression::make(&pool, 2)),
             ArithmeticExpression::makeAdd(&pool,

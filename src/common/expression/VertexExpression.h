@@ -19,6 +19,11 @@ namespace nebula {
  */
 class VertexExpression final : public Expression {
 public:
+    static VertexExpression *make(ObjectPool *pool = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new VertexExpression());
+    }
+
     VertexExpression() : Expression(Kind::kVertex) {}
 
     const Value& eval(ExpressionContext &ctx) override;

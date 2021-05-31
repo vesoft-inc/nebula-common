@@ -14,8 +14,14 @@ namespace nebula {
 
 class SubscriptExpression final : public BinaryExpression {
 public:
-    explicit SubscriptExpression(Expression *lhs = nullptr,
-                                 Expression *rhs = nullptr)
+    static SubscriptExpression* make(ObjectPool* pool = nullptr,
+                                     Expression* lhs = nullptr,
+                                     Expression* rhs = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new SubscriptExpression(lhs, rhs));
+    }
+
+    explicit SubscriptExpression(Expression* lhs = nullptr, Expression* rhs = nullptr)
         : BinaryExpression(Kind::kSubscript, lhs, rhs) {}
 
     const Value& eval(ExpressionContext &ctx) override;
@@ -35,6 +41,13 @@ private:
 
 class SubscriptRangeExpression final : public Expression {
 public:
+    static SubscriptRangeExpression* make(ObjectPool* pool = nullptr,
+                                          Expression* list = nullptr,
+                                          Expression* lo = nullptr,
+                                          Expression* hi = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new SubscriptRangeExpression(list, lo, hi));
+    }
     // for decode ctor
     SubscriptRangeExpression()
         : Expression(Kind::kSubscriptRange),
@@ -65,39 +78,39 @@ public:
     bool operator==(const Expression& rhs) const override;
 
     const Expression* list() const {
-        return list_.get();
+        return list_;
     }
 
     Expression* list() {
-        return list_.get();
+        return list_;
     }
 
-    void setList(Expression *list) {
-        list_.reset(list);
+    void setList(Expression* list) {
+        list_ = list;
     }
 
     const Expression* lo() const {
-        return lo_.get();
+        return lo_;
     }
 
     Expression* lo() {
-        return lo_.get();
+        return lo_;
     }
 
-    void setLo(Expression *lo) {
-        lo_.reset(lo);
+    void setLo(Expression* lo) {
+        lo_ = lo;
     }
 
     const Expression* hi() const {
-        return hi_.get();
+        return hi_;
     }
 
     Expression* hi() {
-        return hi_.get();
+        return hi_;
     }
 
-    void setHi(Expression *hi) {
-        hi_.reset(hi);
+    void setHi(Expression* hi) {
+        hi_ = hi;
     }
 
 private:
@@ -106,11 +119,11 @@ private:
     void resetFrom(Decoder& decoder) override;
 
     // It's must list typed
-    std::unique_ptr<Expression> list_;
+    Expression* list_;
 
     // range is [lo, hi), they could be any integer
-    std::unique_ptr<Expression> lo_;
-    std::unique_ptr<Expression> hi_;
+    Expression* lo_;
+    Expression* hi_;
 
     // runtime cache
     Value                       result_;

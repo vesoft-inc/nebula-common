@@ -15,6 +15,13 @@ class TypeCastingExpression final : public Expression {
     friend class Expression;
 
 public:
+    static TypeCastingExpression* make(ObjectPool* pool = nullptr,
+                                       Value::Type vType = Value::Type::__EMPTY__,
+                                       Expression* operand = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new TypeCastingExpression(vType, operand));
+    }
+
     explicit TypeCastingExpression(Value::Type vType = Value::Type::__EMPTY__,
                                    Expression* operand = nullptr)
         : Expression(Kind::kTypeCasting), vType_(vType), operand_(operand) {}
@@ -32,15 +39,15 @@ public:
     }
 
     const Expression* operand() const {
-        return operand_.get();
+        return operand_;
     }
 
     Expression* operand() {
-        return operand_.get();
+        return operand_;
     }
 
     void setOperand(Expression* expr) {
-        operand_.reset(expr);
+        operand_ = expr;
     }
 
     Value::Type type() const {
@@ -54,9 +61,9 @@ private:
 
     void resetFrom(Decoder& decoder) override;
 
-    Value::Type                 vType_{Value::Type::__EMPTY__};
-    std::unique_ptr<Expression> operand_;
-    Value                       result_;
+    Value::Type vType_{Value::Type::__EMPTY__};
+    Expression* operand_;
+    Value result_;
 };
 
 }  // namespace nebula

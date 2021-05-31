@@ -64,7 +64,7 @@ void FunctionCallExpression::resetFrom(Decoder& decoder) {
     size_t sz = decoder.readSize();
     args_ = new ArgumentList();
     for (size_t i = 0;  i < sz; i++) {
-        args_->addArgument(decoder.readExpression().get());
+        args_->addArgument(decoder.readExpression());
     }
 
     auto funcResult = FunctionManager::get(name_, args_->numArgs());

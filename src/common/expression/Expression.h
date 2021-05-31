@@ -147,7 +147,7 @@ public:
 
     static std::string encode(const Expression& exp);
 
-    static std::unique_ptr<Expression> decode(folly::StringPiece encoded);
+    static Expression* decode(folly::StringPiece encoded);
 
     virtual bool isLogicalExpr() const {
         return false;
@@ -189,7 +189,7 @@ protected:
         Value readValue() noexcept;
         size_t readSize() noexcept;
         Value::Type readValueType() noexcept;
-        std::unique_ptr<Expression> readExpression() noexcept;
+        Expression* readExpression() noexcept;
 
         // Convert the unprocessed part into the hex string
         std::string getHexStr() const;
@@ -200,7 +200,7 @@ protected:
     };
 
 protected:
-    static std::unique_ptr<Expression> decode(Decoder& decoder);
+    static Expression* decode(Decoder& decoder);
 
     // Serialize the content of the expression to the given encoder
     virtual void writeTo(Encoder& encoder) const = 0;

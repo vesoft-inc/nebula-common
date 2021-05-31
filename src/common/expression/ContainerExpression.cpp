@@ -76,7 +76,7 @@ void ListExpression::resetFrom(Decoder &decoder) {
     auto size = decoder.readSize();
     items_.reserve(size);
     for (auto i = 0u; i < size; i++) {
-        items_.emplace_back(decoder.readExpression().get());
+        items_.emplace_back(decoder.readExpression());
     }
 }
 
@@ -148,7 +148,7 @@ void SetExpression::resetFrom(Decoder &decoder) {
     auto size = decoder.readSize();
     items_.reserve(size);
     for (auto i = 0u; i < size; i++) {
-        items_.emplace_back(decoder.readExpression().get());
+        items_.emplace_back(decoder.readExpression());
     }
 }
 
@@ -228,7 +228,7 @@ void MapExpression::resetFrom(Decoder &decoder) {
     for (auto i = 0u; i < size; i++) {
         auto str = decoder.readStr();
         auto expr = decoder.readExpression();
-        items_.emplace_back(str, expr.get());
+        items_.emplace_back(str, expr);
     }
 }
 
