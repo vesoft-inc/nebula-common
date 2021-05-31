@@ -37,7 +37,7 @@ public:
     ~HoldPtr<T>() = default;
 
     // Take care the ownership
-    // Don't own the retrun raw pointer
+    // Don't own the return raw pointer
     T* get() const {
         return ptr_;
     }
