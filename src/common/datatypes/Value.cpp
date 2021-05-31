@@ -1923,9 +1923,9 @@ Value operator+(const Value& lhs, const Value& rhs) {
         case Value::Type::INT: {
             switch (rhs.type()) {
                 case Value::Type::INT: {
-                    auto lVal = lhs.getInt();
-                    auto rVal = rhs.getInt();
-                    int sum;
+                    int64_t lVal = lhs.getInt();
+                    int64_t rVal = rhs.getInt();
+                    int64_t sum;
                     if (__builtin_add_overflow(lVal, rVal, &sum)) {
                         return Value::kNullOverflow;
                     }
@@ -2177,9 +2177,9 @@ Value operator-(const Value& lhs, const Value& rhs) {
         case Value::Type::INT: {
             switch (rhs.type()) {
                 case Value::Type::INT: {
-                    auto lVal = lhs.getInt();
-                    auto rVal = rhs.getInt();
-                    int res;
+                    int64_t lVal = lhs.getInt();
+                    int64_t rVal = rhs.getInt();
+                    int64_t res;
                     if (__builtin_sub_overflow(lVal, rVal, &res)) {
                         return Value::kNullOverflow;
                     }
@@ -2238,13 +2238,13 @@ Value operator*(const Value& lhs, const Value& rhs) {
         case Value::Type::INT: {
             switch (rhs.type()) {
                 case Value::Type::INT: {
-                    auto lVal = lhs.getInt();
-                    auto rVal = rhs.getInt();
+                    int64_t lVal = lhs.getInt();
+                    int64_t rVal = rhs.getInt();
                     // -1 * min causes overflow
                     if ((lVal == -1 && rVal == INT64_MIN) || (rVal == -1 && lVal == INT64_MIN)) {
                         return Value::kNullOverflow;
                     }
-                    int res;
+                    int64_t res;
                     if (__builtin_mul_overflow(lVal, rVal, &res)) {
                         return Value::kNullOverflow;
                     }
@@ -2294,7 +2294,7 @@ Value operator/(const Value& lhs, const Value& rhs) {
                     if (denom == 0) {
                         return Value::kNullDivByZero;
                     }
-                    auto lVal = lhs.getInt();
+                    int64_t lVal = lhs.getInt();
                     // INT_MIN/-1 causes overflow
                     if (lVal == INT64_MIN && denom == -1) {
                         return Value::kNullOverflow;
@@ -2411,7 +2411,7 @@ Value operator-(const Value& rhs) {
 
     switch (rhs.type()) {
         case Value::Type::INT: {
-            auto rVal = rhs.getInt();
+            int64_t rVal = rhs.getInt();
             if (rVal == INT64_MIN) {
                 return Value::kNullOverflow;
             }
