@@ -457,12 +457,12 @@ std::unique_ptr<Expression> Expression::decode(Expression::Decoder& decoder) {
             return exp;
         }
         case Expression::Kind::kVertex: {
-            exp = std::make_unique<VertexExpression>();
+            exp = std::make_unique<VertexExpression>("");
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdge: {
-            exp = std::make_unique<EdgeExpression>();
+            exp = std::make_unique<EdgeExpression>("");
             exp->resetFrom(decoder);
             return exp;
         }

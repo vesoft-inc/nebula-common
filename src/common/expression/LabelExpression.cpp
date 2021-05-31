@@ -10,8 +10,7 @@
 namespace nebula {
 
 const Value& LabelExpression::eval(ExpressionContext&) {
-    result_.setStr(name_);
-    return result_;
+    LOG(FATAL) << "Unimplemented eval method.";
 }
 
 std::string LabelExpression::toString() const {

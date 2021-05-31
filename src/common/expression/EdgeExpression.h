@@ -7,7 +7,7 @@
 #ifndef COMMON_EXPRESSION_EDGEEXPRESSION_H_
 #define COMMON_EXPRESSION_EDGEEXPRESSION_H_
 
-#include "common/expression/Expression.h"
+#include "common/expression/LabelExpression.h"
 
 namespace nebula {
 
@@ -17,32 +17,19 @@ namespace nebula {
  * It is generated from LabelExpression during semantic analysis
  * and expression rewrite.
  */
-class EdgeExpression final : public Expression {
+class EdgeExpression final : public LabelExpression {
 public:
-    EdgeExpression() : Expression(Kind::kEdge) {}
+    explicit EdgeExpression(std::string name) : LabelExpression(std::move(name)) {
+        kind_ = Kind::kEdge;
+    }
 
     const Value& eval(ExpressionContext &ctx) override;
 
     void accept(ExprVisitor *visitor) override;
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<EdgeExpression>();
+        return std::make_unique<EdgeExpression>(name_);
     }
-
-    std::string toString() const override {
-        return "EDGE";
-    }
-
-    bool operator==(const Expression &expr) const override {
-        return kind() == expr.kind();
-    }
-
-private:
-    void writeTo(Encoder &encoder) const override {
-        encoder << kind();
-    }
-
-    void resetFrom(Decoder&) override {}
 
 private:
     Value                                   result_;

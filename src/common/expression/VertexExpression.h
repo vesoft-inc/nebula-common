@@ -7,7 +7,7 @@
 #ifndef COMMON_EXPRESSION_VERTEXEXPRESSION_H_
 #define COMMON_EXPRESSION_VERTEXEXPRESSION_H_
 
-#include "common/expression/Expression.h"
+#include "common/expression/LabelExpression.h"
 
 namespace nebula {
 
@@ -17,32 +17,19 @@ namespace nebula {
  * It is generated from LabelExpression during semantic analysis
  * and expression rewrite.
  */
-class VertexExpression final : public Expression {
+class VertexExpression final : public LabelExpression {
 public:
-    VertexExpression() : Expression(Kind::kVertex) {}
+    explicit VertexExpression(std::string name) : LabelExpression(std::move(name)) {
+        kind_ = Kind::kVertex;
+    }
 
     const Value& eval(ExpressionContext &ctx) override;
 
     void accept(ExprVisitor *visitor) override;
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<VertexExpression>();
+        return std::make_unique<VertexExpression>(name_);
     }
-
-    std::string toString() const override {
-        return "VERTEX";
-    }
-
-    bool operator==(const Expression &expr) const override {
-        return kind() == expr.kind();
-    }
-
-private:
-    void writeTo(Encoder &encoder) const override {
-        encoder << kind();
-    }
-
-    void resetFrom(Decoder&) override {}
 
 private:
     Value                                   result_;

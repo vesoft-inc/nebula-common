@@ -39,7 +39,6 @@ protected:
     void resetFrom(Decoder& decoder) override;
 
     std::string name_;
-    Value result_;
 };
 
 }  // namespace nebula
