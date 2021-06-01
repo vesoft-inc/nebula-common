@@ -14,6 +14,7 @@ namespace nebula {
 class ExpressionList final {
 public:
     static ExpressionList* make(ObjectPool *pool = nullptr, size_t sz = 0) {
+        DCHECK(!!pool);
         return pool->add(new ExpressionList(sz));
     }
 
@@ -39,6 +40,7 @@ private:
 class MapItemList final {
 public:
     static MapItemList* make(ObjectPool *pool = nullptr, size_t sz = 0) {
+        DCHECK(!!pool);
         return pool->add(new MapItemList(sz));
     }
 
@@ -65,15 +67,15 @@ private:
 class ListExpression final : public Expression {
 public:
     static ListExpression *make(ObjectPool *pool = nullptr, ExpressionList *items = nullptr) {
-        return pool->add(new ListExpression(items));
+        DCHECK(!!pool);
+        return pool->add(new ListExpression(pool, items));
     }
 
-    ListExpression() : Expression(Kind::kList) {
-    }
+    explicit ListExpression(ObjectPool *pool) : Expression(pool, Kind::kList) {}
 
-    explicit ListExpression(ExpressionList *items) : Expression(Kind::kList) {
-        items_ = (*items).get();
-        delete items;
+    explicit ListExpression(ObjectPool *pool, ExpressionList *items)
+        : Expression(pool, Kind::kList) {
+        items_ = items->get();
     }
 
     const Value& eval(ExpressionContext &ctx) override;
@@ -105,12 +107,12 @@ public:
 
     void accept(ExprVisitor *visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
+    Expression* clone() const override {
         auto items = new ExpressionList(items_.size());
         for (auto &item : items_) {
-            items->add(item->clone().release());
+            items->add(item->clone());
         }
-        return std::make_unique<ListExpression>(items);
+        return ListExpression::make(pool_, items);
     }
 
 private:
@@ -127,15 +129,15 @@ private:
 class SetExpression final : public Expression {
 public:
     static SetExpression *make(ObjectPool *pool = nullptr, ExpressionList *items = nullptr) {
-        return pool->add(new SetExpression(items));
+        DCHECK(!!pool);
+        return pool->add(new SetExpression(pool, items));
     }
 
-    SetExpression() : Expression(Kind::kSet) {
-    }
+    explicit SetExpression(ObjectPool *pool = nullptr) : Expression(pool, Kind::kSet) {}
 
-    explicit SetExpression(ExpressionList *items) : Expression(Kind::kSet) {
-        items_ = (*items).get();
-        delete items;
+    explicit SetExpression(ObjectPool *pool, ExpressionList *items)
+        : Expression(pool, Kind::kSet) {
+        items_ = items->get();
     }
 
     const Value& eval(ExpressionContext &ctx) override;
@@ -167,12 +169,12 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
+    Expression* clone() const override {
         auto items = new ExpressionList(items_.size());
         for (auto &item : items_) {
-            items->add(item->clone().release());
+            items->add(item->clone());
         }
-        return std::make_unique<SetExpression>(items);
+        return SetExpression::make(pool_, items);
     }
 
 private:
@@ -185,21 +187,20 @@ private:
     Value                       result_;
 };
 
-
 class MapExpression final : public Expression {
 public:
     static MapExpression *make(ObjectPool *pool = nullptr, MapItemList *items = nullptr) {
-        return pool->add(new MapExpression(items));
+        DCHECK(!!pool);
+        return pool->add(new MapExpression(pool, items));
     }
 
     using Item = std::pair<std::string, Expression *>;
 
-    MapExpression() : Expression(Kind::kMap) {
-    }
+    explicit MapExpression(ObjectPool *pool) : Expression(pool, Kind::kMap) {}
 
-    explicit MapExpression(MapItemList *items) : Expression(Kind::kMap) {
-        items_ = (*items).get();
-        delete items;
+    explicit MapExpression(ObjectPool *pool, MapItemList *items)
+        : Expression(pool, Kind::kMap) {
+        items_ = items->get();
     }
 
     const Value& eval(ExpressionContext &ctx) override;
@@ -231,12 +232,12 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
+    Expression* clone() const override {
         auto items = new MapItemList(items_.size());
         for (auto &item : items_) {
-            items->add(item.first, item.second->clone().release());
+            items->add(item.first, item.second->clone());
         }
-        return std::make_unique<MapExpression>(items);
+        return MapExpression::make(pool_, items);
     }
 
 private:

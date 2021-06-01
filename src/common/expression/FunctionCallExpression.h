@@ -67,12 +67,13 @@ public:
     static FunctionCallExpression* make(ObjectPool* pool = nullptr,
                                         const std::string& name = "",
                                         ArgumentList* args = new ArgumentList()) {
-        return pool->add(new FunctionCallExpression(name, args));
+        return pool->add(new FunctionCallExpression(pool, name, args));
     }
 
-    explicit FunctionCallExpression(const std::string& name = "",
+    explicit FunctionCallExpression(ObjectPool* pool = nullptr,
+                                    const std::string& name = "",
                                     ArgumentList* args = new ArgumentList())
-        : Expression(Kind::kFunctionCall), name_(name), args_(args) {
+        : Expression(pool, Kind::kFunctionCall), name_(name), args_(args) {
         if (!name_.empty()) {
             auto funcResult = FunctionManager::get(name_, DCHECK_NOTNULL(args_)->numArgs());
             if (funcResult.ok()) {
@@ -80,18 +81,6 @@ public:
             }
         }
     }
-
-    // FunctionCallExpression(ObjectPool* pool = nullptr,
-    //                        std::string* name = nullptr,
-    //                        ArgumentList* args  = new ArgumentList())
-    //     : Expression(Kind::kFunctionCall), name_(name), args_(pool->add(args)) {
-    //     if (name_ != nullptr) {
-    //         auto funcResult = FunctionManager::get(*name_, DCHECK_NOTNULL(args_)->numArgs());
-    //         if (funcResult.ok()) {
-    //             func_ = funcResult.value();
-    //         }
-    //     }
-    // }
 
     const Value& eval(ExpressionContext& ctx) override;
 
@@ -101,12 +90,12 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
+    Expression* clone() const override {
         auto arguments = new ArgumentList(args_->numArgs());
         for (auto& arg : args_->args()) {
-            arguments->addArgument(arg->clone().get());
+            arguments->addArgument(arg->clone());
         }
-        return std::make_unique<FunctionCallExpression>(name_, arguments);
+        return FunctionCallExpression::make(pool_, name_, arguments);
     }
 
     const std::string& name() const {

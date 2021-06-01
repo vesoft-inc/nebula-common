@@ -10,8 +10,8 @@
 namespace nebula {
 size_t add2Constant(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    auto expr =
-        ArithmeticExpression::makeAdd(&pool, new ConstantExpression(1), new ConstantExpression(2));
+    auto expr = ArithmeticExpression::makeAdd(
+        &pool, ConstantExpression::make(&pool, 1), ConstantExpression::make(&pool, 2));
     for (size_t i = 0; i < iters * ops; ++i) {
         Value eval = Expression::eval(expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
@@ -23,8 +23,9 @@ size_t add3Constant(size_t iters) {
     constexpr size_t ops = 1000000UL;
     auto expr = ArithmeticExpression::makeAdd(
         &pool,
-        ArithmeticExpression::makeAdd(&pool, new ConstantExpression(1), new ConstantExpression(2)),
-        new ConstantExpression(3));
+        ArithmeticExpression::makeAdd(
+            &pool, ConstantExpression::make(&pool, 1), ConstantExpression::make(&pool, 2)),
+        ConstantExpression::make(&pool, 3));
     for (size_t i = 0; i < iters * ops; ++i) {
         Value eval = Expression::eval(expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
@@ -34,12 +35,13 @@ size_t add3Constant(size_t iters) {
 
 size_t add2Constant1EdgeProp(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    auto expr = ArithmeticExpression::makeAdd(
-            &pool,
-            new ArithmeticExpression(
-                Expression::Kind::kAdd,
-                new ConstantExpression(1), new ConstantExpression(2)),
-            new EdgePropertyExpression("e1", "int"));
+    auto expr =
+        ArithmeticExpression::makeAdd(&pool,
+                                      new ArithmeticExpression(&pool,
+                                                               Expression::Kind::kAdd,
+                                                               ConstantExpression::make(&pool, 1),
+                                                               ConstantExpression::make(&pool, 2)),
+                                      new EdgePropertyExpression("e1", "int"));
     for (size_t i = 0; i < iters * ops; ++i) {
         Value eval = Expression::eval(expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
@@ -64,7 +66,7 @@ size_t inList(size_t iters) {
     constexpr size_t ops = 1000000UL;
     RelationalExpression expr(
             Expression::Kind::kRelIn,
-            new ConstantExpression("aaaa"),
+            ConstantExpression::make(&pool, "aaaa"),
             new VariablePropertyExpression("var", "list"));
     for (size_t i = 0; i < iters * ops; ++i) {
         Value eval = Expression::eval(&expr, gExpCtxt);
@@ -148,7 +150,7 @@ BENCHMARK_NAMED_PARAM_MULTI(getDstProp, ger_dst_prop_int, "int")
 BENCHMARK_NAMED_PARAM_MULTI(getDstProp, ger_dst_prop_string, "string16")
 BENCHMARK_NAMED_PARAM_MULTI(getEdgeProp, ger_edge_prop_int, "int")
 BENCHMARK_NAMED_PARAM_MULTI(getEdgeProp, ger_edge_prop_string, "string16")
-}  // namespace nebula
+}   // namespace nebula
 
 int main(int argc, char** argv) {
     folly::init(&argc, &argv, true);

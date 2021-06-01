@@ -13,112 +13,115 @@ namespace nebula {
 class RelationalExpression final : public BinaryExpression {
 public:
     static RelationalExpression* makeEQ(ObjectPool* pool = nullptr,
-                                           Expression* lhs = nullptr,
-                                           Expression* rhs = nullptr) {
+                                        Expression* lhs = nullptr,
+                                        Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kRelEQ, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kRelEQ, lhs, rhs));
     }
 
     static RelationalExpression* makeNE(ObjectPool* pool = nullptr,
-                                           Expression* lhs = nullptr,
-                                           Expression* rhs = nullptr) {
+                                        Expression* lhs = nullptr,
+                                        Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kRelNE, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kRelNE, lhs, rhs));
     }
 
     static RelationalExpression* makeLT(ObjectPool* pool = nullptr,
-                                           Expression* lhs = nullptr,
-                                           Expression* rhs = nullptr) {
+                                        Expression* lhs = nullptr,
+                                        Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kRelLT, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kRelLT, lhs, rhs));
     }
 
     static RelationalExpression* makeLE(ObjectPool* pool = nullptr,
-                                           Expression* lhs = nullptr,
-                                           Expression* rhs = nullptr) {
+                                        Expression* lhs = nullptr,
+                                        Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kRelLE, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kRelLE, lhs, rhs));
     }
 
     static RelationalExpression* makeGT(ObjectPool* pool = nullptr,
-                                           Expression* lhs = nullptr,
-                                           Expression* rhs = nullptr) {
+                                        Expression* lhs = nullptr,
+                                        Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kRelGT, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kRelGT, lhs, rhs));
     }
 
     static RelationalExpression* makeGE(ObjectPool* pool = nullptr,
-                                           Expression* lhs = nullptr,
-                                           Expression* rhs = nullptr) {
+                                        Expression* lhs = nullptr,
+                                        Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kRelGE, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kRelGE, lhs, rhs));
     }
 
     static RelationalExpression* makeREG(ObjectPool* pool = nullptr,
-                                            Expression* lhs = nullptr,
-                                            Expression* rhs = nullptr) {
+                                         Expression* lhs = nullptr,
+                                         Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kRelREG, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kRelREG, lhs, rhs));
     }
 
     static RelationalExpression* makeIn(ObjectPool* pool = nullptr,
-                                           Expression* lhs = nullptr,
-                                           Expression* rhs = nullptr) {
+                                        Expression* lhs = nullptr,
+                                        Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kRelIn, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kRelIn, lhs, rhs));
     }
 
     static RelationalExpression* makeNotIn(ObjectPool* pool = nullptr,
-                                              Expression* lhs = nullptr,
-                                              Expression* rhs = nullptr) {
+                                           Expression* lhs = nullptr,
+                                           Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kRelNotIn, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kRelNotIn, lhs, rhs));
     }
 
     static RelationalExpression* makeContains(ObjectPool* pool = nullptr,
                                               Expression* lhs = nullptr,
                                               Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kContains, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kContains, lhs, rhs));
     }
 
     static RelationalExpression* makeNotContains(ObjectPool* pool = nullptr,
                                                  Expression* lhs = nullptr,
                                                  Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kNotContains, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kNotContains, lhs, rhs));
     }
 
     static RelationalExpression* makeStartsWith(ObjectPool* pool = nullptr,
                                                 Expression* lhs = nullptr,
                                                 Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kStartsWith, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kStartsWith, lhs, rhs));
     }
 
     static RelationalExpression* makeNotStartsWith(ObjectPool* pool = nullptr,
                                                    Expression* lhs = nullptr,
                                                    Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kNotStartsWith, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kNotStartsWith, lhs, rhs));
     }
 
     static RelationalExpression* makeEndsWith(ObjectPool* pool = nullptr,
                                               Expression* lhs = nullptr,
                                               Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kEndsWith, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kEndsWith, lhs, rhs));
     }
 
     static RelationalExpression* makeNotEndsWith(ObjectPool* pool = nullptr,
                                                  Expression* lhs = nullptr,
                                                  Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new RelationalExpression(Kind::kNotEndsWith, lhs, rhs));
+        return pool->add(new RelationalExpression(pool, Kind::kNotEndsWith, lhs, rhs));
     }
 
-    explicit RelationalExpression(Kind kind, Expression* lhs = nullptr, Expression* rhs = nullptr)
-        : BinaryExpression(kind, lhs, rhs) {}
+    explicit RelationalExpression(ObjectPool* pool,
+                                  Kind kind,
+                                  Expression* lhs,
+                                  Expression* rhs)
+        : BinaryExpression(pool, kind, lhs, rhs) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
@@ -126,9 +129,9 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<RelationalExpression>(
-            kind(), left()->clone().release(), right()->clone().release());
+    Expression* clone() const override {
+        return pool_->add(
+            new RelationalExpression(pool_, kind(), left()->clone(), right()->clone()));
     }
 
     bool isRelExpr() const override {

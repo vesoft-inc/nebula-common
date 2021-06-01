@@ -132,7 +132,7 @@ void CaseExpression::writeTo(Encoder& encoder) const {
         encoder << *whenThen.then;
     }
 }
-// Todo aiee
+
 void CaseExpression::resetFrom(Decoder& decoder) {
     bool isGeneric = decoder.readValue().getBool();
     bool hasCondition = decoder.readValue().getBool();
@@ -141,18 +141,18 @@ void CaseExpression::resetFrom(Decoder& decoder) {
 
     isGeneric_ = isGeneric;
     if (hasCondition) {
-        condition_ = decoder.readExpression();
+        condition_ = decoder.readExpression(pool_);
         CHECK(!!condition_);
     }
     if (hasDefault) {
-        default_ = decoder.readExpression();
+        default_ = decoder.readExpression(pool_);
         CHECK(!!default_);
     }
     cases_.reserve(numCases);
     for (auto i = 0u; i < numCases; i++) {
-        auto when = decoder.readExpression();
+        auto when = decoder.readExpression(pool_);
         CHECK(!!when);
-        auto then = decoder.readExpression();
+        auto then = decoder.readExpression(pool_);
         CHECK(!!then);
         cases_.emplace_back(when, then);
     }

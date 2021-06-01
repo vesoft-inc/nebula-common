@@ -136,13 +136,13 @@ protected:
         if (symbol.size() == 1) {
             // TEST_EXPR(true, true)
             if (boolen_.find(symbol.front()) != boolen_.end()) {
-                return new ConstantExpression(boolen_[symbol.front()]);
+                return ConstantExpression::make(&pool, boolen_[symbol.front()]);
             } else if (symbol.front().find('.') != std::string::npos) {
                 // TEST_EXPR(123.0, 123.0)
-                return new ConstantExpression(::atof(symbol.front().c_str()));
+                return ConstantExpression::make(&pool, ::atof(symbol.front().c_str()));
             }
             // TEST_EXPR(123, 123)
-            return new ConstantExpression(::atoi(symbol.front().c_str()));
+            return ConstantExpression::make(&pool, ::atoi(symbol.front().c_str()));
         }
 
         // calu suffix expression
@@ -151,11 +151,11 @@ protected:
             if (op_.find(str) == op_.end()) {
                 Expression *ep = nullptr;
                 if (boolen_.find(str) != boolen_.end()) {
-                    ep = new ConstantExpression(boolen_[str.c_str()]);
+                    ep = ConstantExpression::make(&pool, boolen_[str.c_str()]);
                 } else if (str.find('.') != std::string::npos) {
-                    ep = new ConstantExpression(::atof(str.c_str()));
+                    ep = ConstantExpression::make(&pool, ::atof(str.c_str()));
                 } else {
-                    ep = new ConstantExpression(::atoi(str.c_str()));
+                    ep = ConstantExpression::make(&pool, ::atoi(str.c_str()));
                 }
                 value.push(ep);
             } else {
@@ -173,7 +173,7 @@ protected:
                 } else if (std::find(logicalOp.begin(), logicalOp.end(), str) != logicalOp.end()) {
                     result = op_[str](&pool, lhs, rhs);
                 } else {
-                    return new ConstantExpression(NullType::UNKNOWN_PROP);
+                    return ConstantExpression::make(&pool, NullType::UNKNOWN_PROP);
                 }
                 value.push(result);
             }

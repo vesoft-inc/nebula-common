@@ -22,34 +22,31 @@ public:
                                      Expression* arg = nullptr,
                                      bool distinct = false) {
         DCHECK(!!pool);
-        return pool->add(new AggregateExpression(name, arg, distinct));
+        return pool->add(new AggregateExpression(pool, name, arg, distinct));
     }
 
-    explicit AggregateExpression(const std::string& name = "",
+    // explicit AggregateExpression(const std::string& name = "",
+    //                              Expression* arg = nullptr,
+    //                              bool distinct = false)
+    //     : Expression(Kind::kAggregate), name_(name), distinct_(distinct) {
+    //     arg_ = arg;
+    //     auto aggFuncResult = AggFunctionManager::get(name_);
+    //     if (aggFuncResult.ok()) {
+    //         aggFunc_ = std::move(aggFuncResult).value();
+    //     }
+    // }
+
+    explicit AggregateExpression(ObjectPool* pool = nullptr,
+                                 const std::string& name = "",
                                  Expression* arg = nullptr,
                                  bool distinct = false)
-        : Expression(Kind::kAggregate), name_(name), distinct_(distinct) {
+        : Expression(pool, Kind::kAggregate), name_(name), distinct_(distinct) {
         arg_ = arg;
         auto aggFuncResult = AggFunctionManager::get(name_);
         if (aggFuncResult.ok()) {
             aggFunc_ = std::move(aggFuncResult).value();
         }
     }
-
-    // explicit AggregateExpression(std::string* name = nullptr,
-    //                              Expression* arg = nullptr,
-    //                              bool distinct = false)
-    //     : Expression(Kind::kAggregate) {
-    //     arg_ = arg;
-    //     name_ = name;
-    //     distinct_ = distinct;
-    //     if (name_) {
-    //         auto aggFuncResult = AggFunctionManager::get(*name_);
-    //         if (aggFuncResult.ok()) {
-    //             aggFunc_ = std::move(aggFuncResult).value();
-    //         }
-    //     }
-    // }
 
     const Value& eval(ExpressionContext& ctx) override;
 
@@ -61,9 +58,9 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        auto arg = arg_->clone();
-        return std::make_unique<AggregateExpression>(name_, std::move(arg).release(), distinct_);
+    Expression* clone() const override {
+        auto argCopy = arg()->clone();
+        return pool_->add(AggregateExpression::make(pool_, name_, argCopy, distinct_));
     }
 
     const std::string& name() const {

@@ -15,14 +15,13 @@ namespace nebula {
 
 class LabelExpression: public Expression {
 public:
-    static LabelExpression* make(ObjectPool* pool = nullptr,
-                                 const std::string& name = "") {
+    static LabelExpression* make(ObjectPool* pool = nullptr, const std::string& name = "") {
         DCHECK(!!pool);
-        return pool->add(new LabelExpression(name));
+        return pool->add(new LabelExpression(pool, name));
     }
 
-    explicit LabelExpression(const std::string& name = "")
-        : Expression(Kind::kLabel), name_(name) {}
+    explicit LabelExpression(ObjectPool* pool = nullptr, const std::string& name = "")
+        : Expression(pool, Kind::kLabel), name_(name) {}
 
     bool operator==(const Expression& rhs) const override;
 
@@ -36,8 +35,8 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<LabelExpression>(name());
+    Expression* clone() const override {
+        return LabelExpression::make(pool_, name());
     }
 
 protected:

@@ -19,12 +19,13 @@ public:
                                        Value::Type vType = Value::Type::__EMPTY__,
                                        Expression* operand = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new TypeCastingExpression(vType, operand));
+        return pool->add(new TypeCastingExpression(pool, vType, operand));
     }
 
-    explicit TypeCastingExpression(Value::Type vType = Value::Type::__EMPTY__,
+    explicit TypeCastingExpression(ObjectPool* pool = nullptr,
+                                   Value::Type vType = Value::Type::__EMPTY__,
                                    Expression* operand = nullptr)
-        : Expression(Kind::kTypeCasting), vType_(vType), operand_(operand) {}
+        : Expression(pool, Kind::kTypeCasting), vType_(vType), operand_(operand) {}
 
     bool operator==(const Expression& rhs) const override;
 
@@ -34,8 +35,8 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<TypeCastingExpression>(type(), operand()->clone().release());
+    Expression* clone() const override {
+        return TypeCastingExpression::make(pool_, type(), operand()->clone());
     }
 
     const Expression* operand() const {

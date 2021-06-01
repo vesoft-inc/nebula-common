@@ -20,17 +20,17 @@ namespace nebula {
 class EdgeExpression final : public Expression {
 public:
     static EdgeExpression* make(ObjectPool* pool = nullptr) {
-        return pool->add(new EdgeExpression());
+        return pool->add(new EdgeExpression(pool));
     }
 
-    EdgeExpression() : Expression(Kind::kEdge) {}
+    explicit EdgeExpression(ObjectPool* pool = nullptr) : Expression(pool, Kind::kEdge) {}
 
-    const Value& eval(ExpressionContext &ctx) override;
+    const Value& eval(ExpressionContext& ctx) override;
 
-    void accept(ExprVisitor *visitor) override;
+    void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<EdgeExpression>();
+    Expression* clone() const override {
+        return EdgeExpression::make(pool_);
     }
 
     std::string toString() const override {

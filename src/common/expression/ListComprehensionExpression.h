@@ -20,14 +20,16 @@ public:
                                              Expression* collection = nullptr,
                                              Expression* filter = nullptr,
                                              Expression* mapping = nullptr) {
-        return pool->add(new ListComprehensionExpression(innerVar, collection, filter, mapping));
+        return pool->add(
+            new ListComprehensionExpression(pool, innerVar, collection, filter, mapping));
     }
 
-    explicit ListComprehensionExpression(const std::string& innerVar = "",
+    explicit ListComprehensionExpression(ObjectPool* pool = nullptr,
+                                         const std::string& innerVar = "",
                                          Expression* collection = nullptr,
                                          Expression* filter = nullptr,
                                          Expression* mapping = nullptr)
-        : Expression(Kind::kListComprehension),
+        : Expression(pool, Kind::kListComprehension),
           innerVar_(innerVar),
           collection_(collection),
           filter_(filter),
@@ -45,7 +47,7 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override;
+    Expression* clone() const override;
 
     const std::string& innerVar() const {
         return innerVar_;

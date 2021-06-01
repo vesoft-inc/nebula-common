@@ -18,7 +18,7 @@ static std::unique_ptr<FunctionCallExpression> expr = nullptr;
 
 size_t funcCall(size_t iters) {
     for (size_t i = 0; i < iters; ++i) {
-        Value eval = Expression::eval(expr.get(), gExpCtxt);
+        Value eval = Expression::eval(expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters;

@@ -33,7 +33,7 @@ void UnaryExpression::writeTo(Encoder& encoder) const {
 
 void UnaryExpression::resetFrom(Decoder& decoder) {
     // Read operand_
-    operand_ = decoder.readExpression();
+    operand_ = decoder.readExpression(pool_);
     CHECK(!!operand_);
 }
 

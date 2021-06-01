@@ -16,11 +16,13 @@ public:
                                     const std::string& var = "",
                                     bool isInner = false) {
         DCHECK(!!pool);
-        return pool->add(new VariableExpression(var, isInner));
+        return pool->add(new VariableExpression(pool, var, isInner));
     }
 
-    explicit VariableExpression(const std::string& var = "", bool isInner = false)
-        : Expression(Kind::kVar), isInner_(isInner), var_(var) {}
+    explicit VariableExpression(ObjectPool* pool = nullptr,
+                                const std::string& var = "",
+                                bool isInner = false)
+        : Expression(pool, Kind::kVar), isInner_(isInner), var_(var) {}
 
     const std::string& var() const {
         return var_;
@@ -43,8 +45,8 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<VariableExpression>(var(), isInner_);
+    Expression* clone() const override {
+        return VariableExpression::make(pool_, var(), isInner_);
     }
 
 private:
@@ -65,11 +67,13 @@ public:
                                              const std::string& var = "",
                                              Expression* version = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new VersionedVariableExpression(var, version));
+        return pool->add(new VersionedVariableExpression(pool, var, version));
     }
 
-    explicit VersionedVariableExpression(const std::string& var = "", Expression* version = nullptr)
-        : Expression(Kind::kVersionedVar), var_(var), version_(version) {}
+    explicit VersionedVariableExpression(ObjectPool* pool = nullptr,
+                                         const std::string& var = "",
+                                         Expression* version = nullptr)
+        : Expression(pool, Kind::kVersionedVar), var_(var), version_(version) {}
 
     const std::string& var() const {
         return var_;
@@ -94,8 +98,8 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<VersionedVariableExpression>(var(), version_->clone().release());
+    Expression* clone() const override {
+        return VersionedVariableExpression::make(pool_, var(), version_->clone());
     }
 
 private:

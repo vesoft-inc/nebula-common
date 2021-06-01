@@ -186,12 +186,12 @@ bool PredicateExpression::operator==(const Expression& rhs) const {
     return true;
 }
 
-std::unique_ptr<Expression> PredicateExpression::clone() const {
-    auto expr = std::make_unique<PredicateExpression>(
-        name_,
-        innerVar_,
-        collection_->clone().release(),
-        filter_ != nullptr ? filter_->clone().release() : nullptr);
+Expression* PredicateExpression::clone() const {
+    auto expr = PredicateExpression::make(pool_,
+                                          name_,
+                                          innerVar_,
+                                          collection_->clone(),
+                                          filter_ != nullptr ? filter_->clone() : nullptr);
     if (hasOriginString()) {
         expr->setOriginString(originString_);
     }
@@ -226,9 +226,9 @@ void PredicateExpression::resetFrom(Decoder& decoder) {
     if (hasInnerVar) {
         innerVar_ = decoder.readStr();
     }
-    collection_ = decoder.readExpression();
+    collection_ = decoder.readExpression(pool_);
     if (hasFilter) {
-        filter_ = decoder.readExpression();
+        filter_ = decoder.readExpression(pool_);
     }
     if (hasString) {
         originString_ = decoder.readStr();

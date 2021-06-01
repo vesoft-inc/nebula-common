@@ -22,15 +22,17 @@ public:
                                   Expression* collection = nullptr,
                                   Expression* mapping = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new ReduceExpression(accumulator, initial, innerVar, collection, mapping));
+        return pool->add(
+            new ReduceExpression(pool, accumulator, initial, innerVar, collection, mapping));
     }
 
-    explicit ReduceExpression(const std::string& accumulator = "",
+    explicit ReduceExpression(ObjectPool* pool = nullptr,
+                              const std::string& accumulator = "",
                               Expression* initial = nullptr,
                               const std::string& innerVar = "",
                               Expression* collection = nullptr,
                               Expression* mapping = nullptr)
-        : Expression(Kind::kReduce),
+        : Expression(pool, Kind::kReduce),
           accumulator_(accumulator),
           initial_(initial),
           innerVar_(innerVar),
@@ -49,7 +51,7 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override;
+    Expression* clone() const override;
 
     const std::string& accumulator() const {
         return accumulator_;

@@ -18,11 +18,13 @@ public:
                                      Expression *lhs = nullptr,
                                      Expression *rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new AttributeExpression(lhs, rhs));
+        return pool->add(new AttributeExpression(pool, lhs, rhs));
     }
-    explicit AttributeExpression(Expression *lhs = nullptr,
+
+    explicit AttributeExpression(ObjectPool *pool = nullptr,
+                                 Expression *lhs = nullptr,
                                  Expression *rhs = nullptr)
-        : BinaryExpression(Kind::kAttribute, lhs, rhs) {}
+        : BinaryExpression(pool, Kind::kAttribute, lhs, rhs) {}
 
     const Value& eval(ExpressionContext &ctx) override;
 
@@ -30,9 +32,8 @@ public:
 
     std::string toString() const override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<AttributeExpression>(left()->clone().release(),
-                                                     right()->clone().release());
+    Expression* clone() const override {
+        return AttributeExpression::make(pool_, left()->clone(), right()->clone());
     }
 
 private:

@@ -48,16 +48,18 @@ public:
                                 CaseList* cases = nullptr,
                                 bool isGeneric = true) {
         DCHECK(!!pool);
-        return pool->add(new CaseExpression(cases, isGeneric));
+        return pool->add(new CaseExpression(pool, cases, isGeneric));
     }
 
-    CaseExpression() : Expression(Kind::kCase), isGeneric_(true) {}
+    explicit CaseExpression(ObjectPool* pool = nullptr)
+        : Expression(pool, Kind::kCase), isGeneric_(true) {}
 
-    explicit CaseExpression(CaseList* cases,
+    explicit CaseExpression(ObjectPool* pool = nullptr,
+                            CaseList* cases = nullptr,
                             bool isGeneric = true)
-            : Expression(Kind::kCase), isGeneric_(isGeneric) {
-        cases_ = std::move(*cases).items();
-        delete cases;
+        : Expression(pool, Kind::kCase), isGeneric_(isGeneric) {
+        DCHECK(!!cases);
+        cases_ = cases->items();
     }
 
     bool operator==(const Expression& rhs) const override;
@@ -122,14 +124,14 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        auto caseList = new CaseList(cases_.size());
+    Expression* clone() const override {
+        auto caseList = CaseList::make(pool_, cases_.size());
         for (const auto& whenThen : cases_) {
-            caseList->add(whenThen.when->clone().release(), whenThen.then->clone().release());
+            caseList->add(whenThen.when->clone(), whenThen.then->clone());
         }
-        auto expr = std::make_unique<CaseExpression>(caseList, isGeneric_);
-        auto cond = condition_ != nullptr ? condition_->clone().release() : nullptr;
-        auto defaultResult = default_ != nullptr ? default_->clone().release() : nullptr;
+        auto expr = CaseExpression::make(pool_, caseList, isGeneric_);
+        auto cond = condition_ != nullptr ? condition_->clone() : nullptr;
+        auto defaultResult = default_ != nullptr ? default_->clone() : nullptr;
         expr->setCondition(cond);
         expr->setDefault(defaultResult);
         return expr;

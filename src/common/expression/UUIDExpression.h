@@ -17,12 +17,11 @@ class UUIDExpression final : public Expression {
 public:
     static UUIDExpression* make(ObjectPool* pool = nullptr, const std::string& field = "") {
         DCHECK(!!pool);
-        pool->add(new UUIDExpression(field));
+        return pool->add(new UUIDExpression(pool, field));
     }
 
-    explicit UUIDExpression(const std::string& field = "")
-        : Expression(Kind::kUUID)
-        , field_(field) {}
+    explicit UUIDExpression(ObjectPool* pool = nullptr, const std::string& field = "")
+        : Expression(pool, Kind::kUUID), field_(field) {}
 
     bool operator==(const Expression& rhs) const override;
 
@@ -32,8 +31,8 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<UUIDExpression>(field_);
+    Expression* clone() const override {
+        return UUIDExpression::make(pool_, field_);
     }
 
 private:

@@ -21,17 +21,17 @@ class VertexExpression final : public Expression {
 public:
     static VertexExpression *make(ObjectPool *pool = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new VertexExpression());
+        return pool->add(new VertexExpression(pool));
     }
 
-    VertexExpression() : Expression(Kind::kVertex) {}
+    explicit VertexExpression(ObjectPool *pool = nullptr) : Expression(pool, Kind::kVertex) {}
 
-    const Value& eval(ExpressionContext &ctx) override;
+    const Value &eval(ExpressionContext &ctx) override;
 
     void accept(ExprVisitor *visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<VertexExpression>();
+    Expression* clone() const override {
+        return VertexExpression::make(pool_);
     }
 
     std::string toString() const override {

@@ -18,21 +18,22 @@ public:
                                      Expression* lhs = nullptr,
                                      Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new SubscriptExpression(lhs, rhs));
+        return pool->add(new SubscriptExpression(pool, lhs, rhs));
     }
 
-    explicit SubscriptExpression(Expression* lhs = nullptr, Expression* rhs = nullptr)
-        : BinaryExpression(Kind::kSubscript, lhs, rhs) {}
+    explicit SubscriptExpression(ObjectPool* pool = nullptr,
+                                 Expression* lhs = nullptr,
+                                 Expression* rhs = nullptr)
+        : BinaryExpression(pool, Kind::kSubscript, lhs, rhs) {}
 
-    const Value& eval(ExpressionContext &ctx) override;
+    const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<SubscriptExpression>(left()->clone().release(),
-                                                     right()->clone().release());
+    Expression* clone() const override {
+        return SubscriptExpression::make(pool_, left()->clone(), right()->clone());
     }
 
 private:
@@ -46,33 +47,31 @@ public:
                                           Expression* lo = nullptr,
                                           Expression* hi = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new SubscriptRangeExpression(list, lo, hi));
+        return pool->add(new SubscriptRangeExpression(pool, list, lo, hi));
     }
     // for decode ctor
-    SubscriptRangeExpression()
-        : Expression(Kind::kSubscriptRange),
-          list_(nullptr),
-          lo_(nullptr),
-          hi_(nullptr) {}
-    SubscriptRangeExpression(Expression *list, Expression *lo, Expression *hi)
-        : Expression(Kind::kSubscriptRange),
-          list_(DCHECK_NOTNULL(list)),
-          lo_(lo),
-          hi_(hi) {
-              DCHECK(!(lo_ == nullptr && hi_ == nullptr));
-          }
+    explicit SubscriptRangeExpression(ObjectPool* pool = nullptr)
+        : Expression(pool, Kind::kSubscriptRange), list_(nullptr), lo_(nullptr), hi_(nullptr) {}
 
-    const Value& eval(ExpressionContext &ctx) override;
+    SubscriptRangeExpression(ObjectPool* pool = nullptr,
+                             Expression* list = nullptr,
+                             Expression* lo = nullptr,
+                             Expression* hi = nullptr)
+        : Expression(pool, Kind::kSubscriptRange), list_(DCHECK_NOTNULL(list)), lo_(lo), hi_(hi) {
+        DCHECK(!(lo_ == nullptr && hi_ == nullptr));
+    }
+
+    const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<SubscriptRangeExpression>(
-            list_->clone().release(),
-            lo_ == nullptr ? nullptr : lo_->clone().release(),
-            hi_ == nullptr ? nullptr : hi_->clone().release());
+    Expression* clone() const override {
+        return SubscriptRangeExpression::make(pool_,
+                                              list_->clone(),
+                                              lo_ == nullptr ? nullptr : lo_->clone(),
+                                              hi_ == nullptr ? nullptr : hi_->clone());
     }
 
     bool operator==(const Expression& rhs) const override;

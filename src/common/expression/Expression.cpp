@@ -166,8 +166,8 @@ Value::Type Expression::Decoder::readValueType() noexcept {
 }
 
 
-Expression* Expression::Decoder::readExpression() noexcept {
-    return Expression::decode(*this);
+Expression* Expression::Decoder::readExpression(ObjectPool* pool) noexcept {
+    return Expression::decode(pool, *this);
 }
 
 
@@ -187,224 +187,222 @@ std::string Expression::encode() const {
     return encoder.moveStr();
 }
 
-
 // static
-Expression* Expression::decode(folly::StringPiece encoded) {
+Expression* Expression::decode(ObjectPool* pool, folly::StringPiece encoded) {
     Decoder decoder(encoded);
     if (decoder.finished()) {
         return nullptr;
     }
-    return decode(decoder);
+    return decode(pool, decoder);
 }
 
-
 // static
-Expression* Expression::decode(Expression::Decoder& decoder) {
+Expression* Expression::decode(ObjectPool* pool, Expression::Decoder& decoder) {
     Expression* exp = nullptr;
     Kind kind = decoder.readKind();
     switch (kind) {
         case Expression::Kind::kConstant: {
-            exp = new ConstantExpression();
+            exp = ConstantExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kAdd: {
-            exp = new ArithmeticExpression(Expression::Kind::kAdd);
+            exp = ArithmeticExpression::makeAdd(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kMinus: {
-            exp = new ArithmeticExpression(Expression::Kind::kMinus);
+            exp = ArithmeticExpression::makeMinus(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kMultiply: {
-            exp = new ArithmeticExpression(Expression::Kind::kMultiply);
+            exp = ArithmeticExpression::makeMultiply(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kDivision: {
-            exp = new ArithmeticExpression(Expression::Kind::kDivision);
+            exp = ArithmeticExpression::makeDivision(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kMod: {
-            exp = new ArithmeticExpression(Expression::Kind::kMod);
+            exp = ArithmeticExpression::makeMod(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kUnaryPlus: {
-            exp = new UnaryExpression(Expression::Kind::kUnaryPlus);
+            exp = UnaryExpression::makePlus(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kUnaryNegate: {
-            exp = new UnaryExpression(Expression::Kind::kUnaryNegate);
+            exp = UnaryExpression::makeNegate(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kUnaryNot: {
-            exp = new UnaryExpression(Expression::Kind::kUnaryNot);
+            exp = UnaryExpression::makeNot(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kUnaryIncr: {
-            exp = new UnaryExpression(Expression::Kind::kUnaryIncr);
+            exp = UnaryExpression::makeIncr(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kUnaryDecr: {
-            exp = new UnaryExpression(Expression::Kind::kUnaryDecr);
+            exp = UnaryExpression::makeDecr(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kIsNull: {
-            exp = new UnaryExpression(Expression::Kind::kIsNull);
+            exp = UnaryExpression::makeIsNull(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kIsNotNull: {
-            exp = new UnaryExpression(Expression::Kind::kIsNotNull);
+            exp = UnaryExpression::makeIsNotNull(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kIsEmpty: {
-            exp = new UnaryExpression(Expression::Kind::kIsEmpty);
+            exp = UnaryExpression::makeIsEmpty(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kIsNotEmpty: {
-            exp = new UnaryExpression(Expression::Kind::kIsNotEmpty);
+            exp = UnaryExpression::makeIsNotEmpty(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelEQ: {
-            exp = new RelationalExpression(Expression::Kind::kRelEQ);
+            exp = RelationalExpression::makeEQ(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelNE: {
-            exp = new RelationalExpression(Expression::Kind::kRelNE);
+            exp = RelationalExpression::makeNE(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelLT: {
-            exp = new RelationalExpression(Expression::Kind::kRelLT);
+            exp = RelationalExpression::makeLT(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelLE: {
-            exp = new RelationalExpression(Expression::Kind::kRelLE);
+            exp = RelationalExpression::makeLE(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelGT: {
-            exp = new RelationalExpression(Expression::Kind::kRelGT);
+            exp = RelationalExpression::makeGT(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelGE: {
-            exp = new RelationalExpression(Expression::Kind::kRelGE);
+            exp = RelationalExpression::makeGE(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelREG: {
-            exp = new RelationalExpression(Expression::Kind::kRelREG);
+            exp = RelationalExpression::makeREG(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelIn: {
-            exp = new RelationalExpression(Expression::Kind::kRelIn);
+            exp = RelationalExpression::makeIn(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kRelNotIn: {
-            exp = new RelationalExpression(Expression::Kind::kRelNotIn);
+            exp = RelationalExpression::makeNotIn(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kContains: {
-            exp = new RelationalExpression(Expression::Kind::kContains);
+            exp = RelationalExpression::makeContains(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kNotContains: {
-            exp = new RelationalExpression(Expression::Kind::kNotContains);
+            exp = RelationalExpression::makeNotContains(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kStartsWith: {
-            exp = new RelationalExpression(Expression::Kind::kStartsWith);
+            exp = RelationalExpression::makeStartsWith(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kNotStartsWith: {
-            exp = new RelationalExpression(Expression::Kind::kNotStartsWith);
+            exp = RelationalExpression::makeNotStartsWith(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEndsWith: {
-            exp = new RelationalExpression(Expression::Kind::kEndsWith);
+            exp = RelationalExpression::makeEndsWith(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kNotEndsWith: {
-            exp = new RelationalExpression(Expression::Kind::kNotEndsWith);
+            exp = RelationalExpression::makeNotEndsWith(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kSubscript: {
-            exp = new SubscriptExpression();
+            exp = SubscriptExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kSubscriptRange: {
-            exp = new SubscriptRangeExpression();
+            exp = SubscriptRangeExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kColumn: {
-            exp = new ColumnExpression();
+            exp = ColumnExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kAttribute: {
-            exp = new AttributeExpression();
+            exp = AttributeExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kLabelAttribute: {
-            exp = new LabelAttributeExpression();
+            exp = LabelAttributeExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kLogicalAnd: {
-            exp = new LogicalExpression(Expression::Kind::kLogicalAnd);
+            exp = LogicalExpression::makeAnd(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kLogicalOr: {
-            exp = new LogicalExpression(Expression::Kind::kLogicalOr);
+            exp = LogicalExpression::makeOr(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kLogicalXor: {
-            exp = new LogicalExpression(Expression::Kind::kLogicalXor);
+            exp = LogicalExpression::makeXor(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kTypeCasting: {
-            exp = new TypeCastingExpression();
+            exp = TypeCastingExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kFunctionCall: {
-            exp = new FunctionCallExpression();
+            exp = FunctionCallExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kAggregate: {
-            exp = new AggregateExpression();
+            exp = AggregateExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
@@ -417,57 +415,57 @@ Expression* Expression::decode(Expression::Decoder& decoder) {
             return exp;
         }
         case Expression::Kind::kDstProperty: {
-            exp = new DestPropertyExpression();
+            exp = DestPropertyExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kSrcProperty: {
-            exp = new SourcePropertyExpression();
+            exp = SourcePropertyExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdgeProperty: {
-            exp = new EdgePropertyExpression();
+            exp = EdgePropertyExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kTagProperty: {
-            exp = new TagPropertyExpression();
+            exp = TagPropertyExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdgeSrc: {
-            exp = new EdgeSrcIdExpression();
+            exp = EdgeSrcIdExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdgeType: {
-            exp = new EdgeTypeExpression();
+            exp = EdgeTypeExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdgeRank: {
-            exp = new EdgeRankExpression();
+            exp = EdgeRankExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdgeDst: {
-            exp = new EdgeDstIdExpression();
+            exp = EdgeDstIdExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kVertex: {
-            exp = new VertexExpression();
+            exp = VertexExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kEdge: {
-            exp = new EdgeExpression();
+            exp = EdgeExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kVar: {
-            exp = new VariableExpression();
+            exp = VariableExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
@@ -476,52 +474,52 @@ Expression* Expression::decode(Expression::Decoder& decoder) {
             return exp;
         }
         case Expression::Kind::kUUID: {
-            exp = new UUIDExpression();
+            exp = UUIDExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kList: {
-            exp = new ListExpression();
+            exp = ListExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kSet: {
-            exp = new SetExpression();
+            exp = SetExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kMap: {
-            exp = new MapExpression();
+            exp = MapExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kLabel: {
-            exp = new LabelExpression();
+            exp = LabelExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kCase: {
-            exp = new CaseExpression();
+            exp = CaseExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kPathBuild: {
-            exp = new PathBuildExpression();
+            exp = PathBuildExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kListComprehension: {
-            exp = new ListComprehensionExpression();
+            exp = ListComprehensionExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kPredicate: {
-            exp = new PredicateExpression();
+            exp = PredicateExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
         case Expression::Kind::kReduce: {
-            exp = new ReduceExpression();
+            exp = ReduceExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }

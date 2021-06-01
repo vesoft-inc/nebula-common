@@ -16,43 +16,43 @@ public:
                                       Expression* lhs = nullptr,
                                       Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new LogicalExpression(Kind::kLogicalAnd, lhs, rhs));
+        return pool->add(new LogicalExpression(pool, Kind::kLogicalAnd, lhs, rhs));
     }
 
     static LogicalExpression* makeOr(ObjectPool* pool = nullptr,
                                      Expression* lhs = nullptr,
                                      Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new LogicalExpression(Kind::kLogicalOr, lhs, rhs));
+        return pool->add(new LogicalExpression(pool, Kind::kLogicalOr, lhs, rhs));
     }
 
     static LogicalExpression* makeXor(ObjectPool* pool = nullptr,
                                       Expression* lhs = nullptr,
                                       Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new LogicalExpression(Kind::kLogicalXor, lhs, rhs));
+        return pool->add(new LogicalExpression(pool, Kind::kLogicalXor, lhs, rhs));
     }
 
     // Construct without adding operands
-    static LogicalExpression* makeAnd(ObjectPool* pool = nullptr) {
-        DCHECK(!!pool);
-        return pool->add(new LogicalExpression(Kind::kLogicalAnd));
-    }
+    // static LogicalExpression* makeAnd(ObjectPool* pool = nullptr) {
+    //     DCHECK(!!pool);
+    //     return pool->add(new LogicalExpression(pool, Kind::kLogicalAnd));
+    // }
 
-    static LogicalExpression* makeOr(ObjectPool* pool = nullptr) {
-        DCHECK(!!pool);
-        return pool->add(new LogicalExpression(Kind::kLogicalOr));
-    }
+    // static LogicalExpression* makeOr(ObjectPool* pool = nullptr) {
+    //     DCHECK(!!pool);
+    //     return pool->add(new LogicalExpression(pool, Kind::kLogicalOr));
+    // }
 
-    static LogicalExpression* makeXor(ObjectPool* pool = nullptr) {
-        DCHECK(!!pool);
-        return pool->add(new LogicalExpression(Kind::kLogicalXor));
-    }
+    // static LogicalExpression* makeXor(ObjectPool* pool = nullptr) {
+    //     DCHECK(!!pool);
+    //     return pool->add(new LogicalExpression(pool, Kind::kLogicalXor));
+    // }
 
-    explicit LogicalExpression(Kind kind) : Expression(kind) {}
+    explicit LogicalExpression(ObjectPool* pool, Kind kind) : Expression(pool, kind) {}
 
-    LogicalExpression(Kind kind, Expression* lhs, Expression* rhs)
-        : Expression(kind) {
+    LogicalExpression(ObjectPool* pool, Kind kind, Expression* lhs, Expression* rhs)
+        : Expression(pool, kind) {
         operands_.emplace_back(lhs);
         operands_.emplace_back(rhs);
     }
@@ -63,13 +63,13 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        auto copy = std::make_unique<LogicalExpression>(kind());
+    Expression* clone() const override {
+        auto copy = new LogicalExpression(pool_, kind());
         copy->operands_.resize(operands_.size());
         for (auto i = 0u; i < operands_.size(); i++) {
-            copy->operands_[i] = operands_[i]->clone().get();
+            copy->operands_[i] = operands_[i]->clone();
         }
-        return copy;
+        return pool_->add(copy);
     }
 
     bool operator==(const Expression &rhs) const override;

@@ -18,8 +18,8 @@ class BinaryExpression : public Expression {
     friend class Expression;
 
 public:
-    BinaryExpression(Kind kind, Expression* lhs, Expression* rhs)
-        : Expression(kind), lhs_(lhs), rhs_(rhs) {}
+    BinaryExpression(ObjectPool* pool, Kind kind, Expression* lhs, Expression* rhs)
+        : Expression(pool, kind), lhs_(lhs), rhs_(rhs) {}
 
     bool operator==(const Expression& rhs) const override;
 

@@ -21,12 +21,13 @@ public:
                                           LabelExpression* lhs = nullptr,
                                           ConstantExpression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new LabelAttributeExpression(lhs, rhs));
+        return pool->add(new LabelAttributeExpression(pool, lhs, rhs));
     }
 
-    explicit LabelAttributeExpression(LabelExpression* lhs = nullptr,
+    explicit LabelAttributeExpression(ObjectPool* pool = nullptr,
+                                      LabelExpression* lhs = nullptr,
                                       ConstantExpression* rhs = nullptr)
-        : Expression(Kind::kLabelAttribute) {
+        : Expression(pool, Kind::kLabelAttribute) {
         DCHECK(rhs == nullptr || rhs->value().isStr());
         lhs_ = lhs;
         rhs_ = rhs;
@@ -47,10 +48,10 @@ public:
 
     void accept(ExprVisitor *visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<LabelAttributeExpression>(
-            static_cast<LabelExpression *>(left()->clone().release()),
-            static_cast<ConstantExpression *>(right()->clone().release()));
+    Expression* clone() const override {
+        return LabelAttributeExpression::make(pool_,
+                                              static_cast<LabelExpression*>(left()->clone()),
+                                              static_cast<ConstantExpression*>(right()->clone()));
     }
 
     const LabelExpression* left() const {

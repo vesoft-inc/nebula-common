@@ -94,28 +94,29 @@ public:
     static TextSearchExpression* makePrefix(ObjectPool* pool = nullptr,
                                             TextSearchArgument* arg = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new TextSearchExpression(Kind::kTSPrefix, arg));
+        return pool->add(new TextSearchExpression(pool, Kind::kTSPrefix, arg));
     }
 
     static TextSearchExpression* makeWildcard(ObjectPool* pool = nullptr,
                                               TextSearchArgument* arg = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new TextSearchExpression(Kind::kTSWildcard, arg));
+        return pool->add(new TextSearchExpression(pool, Kind::kTSWildcard, arg));
     }
 
     static TextSearchExpression* makeRegexp(ObjectPool* pool = nullptr,
                                             TextSearchArgument* arg = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new TextSearchExpression(Kind::kTSRegexp, arg));
+        return pool->add(new TextSearchExpression(pool, Kind::kTSRegexp, arg));
     }
 
     static TextSearchExpression* makeFuzzy(ObjectPool* pool = nullptr,
                                            TextSearchArgument* arg = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new TextSearchExpression(Kind::kTSFuzzy, arg));
+        return pool->add(new TextSearchExpression(pool, Kind::kTSFuzzy, arg));
     }
 
-    TextSearchExpression(Kind kind, TextSearchArgument* arg) : Expression(kind) {
+    TextSearchExpression(ObjectPool* pool, Kind kind, TextSearchArgument* arg)
+        : Expression(pool, kind) {
         arg_ = arg;
     }
 
@@ -132,8 +133,9 @@ public:
 
     std::string toString() const override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<TextSearchExpression>(kind_, arg_);
+    Expression* clone() const override {
+        auto arg = TextSearchArgument::make(pool_, arg_->from(), arg_->prop(), arg_->val());
+        return pool_->add(new TextSearchExpression(pool_, kind_, arg));
     }
 
     const TextSearchArgument* arg() const {

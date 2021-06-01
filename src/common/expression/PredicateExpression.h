@@ -29,14 +29,15 @@ public:
                                      Expression* collection = nullptr,
                                      Expression* filter = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new PredicateExpression(name, innerVar, collection, filter));
+        return pool->add(new PredicateExpression(pool, name, innerVar, collection, filter));
     }
 
-    explicit PredicateExpression(const std::string& name = "",
+    explicit PredicateExpression(ObjectPool* pool = nullptr,
+                                 const std::string& name = "",
                                  const std::string& innerVar = "",
                                  Expression* collection = nullptr,
                                  Expression* filter = nullptr)
-        : Expression(Kind::kPredicate),
+        : Expression(pool, Kind::kPredicate),
           name_(name),
           innerVar_(innerVar),
           collection_(collection),
@@ -54,7 +55,7 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override;
+    Expression* clone() const override;
 
     const std::string& name() const {
         return name_;

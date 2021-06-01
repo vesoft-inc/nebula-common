@@ -135,10 +135,10 @@ void PathBuildExpression::accept(ExprVisitor* visitor) {
     visitor->visit(this);
 }
 
-std::unique_ptr<Expression> PathBuildExpression::clone() const {
-    auto pathBuild = std::make_unique<PathBuildExpression>();
+Expression* PathBuildExpression::clone() const {
+    auto pathBuild = PathBuildExpression::make(pool_);
     for (auto& item : items_) {
-        pathBuild->add(item->clone().get());
+        pathBuild->add(item->clone());
     }
     return pathBuild;
 }
@@ -155,7 +155,7 @@ void PathBuildExpression::resetFrom(Decoder &decoder) {
     auto size = decoder.readSize();
     items_.reserve(size);
     for (auto i = 0u; i < size; ++i) {
-        auto item = decoder.readExpression();
+        auto item = decoder.readExpression(pool_);
         items_.emplace_back(item);
     }
 }

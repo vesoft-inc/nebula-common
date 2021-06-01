@@ -17,35 +17,35 @@ public:
                                          Expression* lhs = nullptr,
                                          Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new ArithmeticExpression(Expression::Kind::kAdd, lhs, rhs));
+        return pool->add(new ArithmeticExpression(pool, Expression::Kind::kAdd, lhs, rhs));
     }
     static ArithmeticExpression* makeMinus(ObjectPool* pool = nullptr,
                                            Expression* lhs = nullptr,
                                            Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new ArithmeticExpression(Expression::Kind::kMinus, lhs, rhs));
+        return pool->add(new ArithmeticExpression(pool, Expression::Kind::kMinus, lhs, rhs));
     }
     static ArithmeticExpression* makeMultiply(ObjectPool* pool = nullptr,
                                               Expression* lhs = nullptr,
                                               Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new ArithmeticExpression(Expression::Kind::kMultiply, lhs, rhs));
+        return pool->add(new ArithmeticExpression(pool, Expression::Kind::kMultiply, lhs, rhs));
     }
     static ArithmeticExpression* makeDivision(ObjectPool* pool = nullptr,
                                               Expression* lhs = nullptr,
                                               Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new ArithmeticExpression(Expression::Kind::kDivision, lhs, rhs));
+        return pool->add(new ArithmeticExpression(pool, Expression::Kind::kDivision, lhs, rhs));
     }
     static ArithmeticExpression* makeMod(ObjectPool* pool = nullptr,
                                          Expression* lhs = nullptr,
                                          Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new ArithmeticExpression(Expression::Kind::kMod, lhs, rhs));
+        return pool->add(new ArithmeticExpression(pool, Expression::Kind::kMod, lhs, rhs));
     }
 
-    explicit ArithmeticExpression(Kind kind, Expression* lhs = nullptr, Expression* rhs = nullptr)
-        : BinaryExpression(kind, lhs, rhs) {}
+    explicit ArithmeticExpression(ObjectPool* pool, Kind kind, Expression* lhs, Expression* rhs)
+        : BinaryExpression(pool, kind, lhs, rhs) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
@@ -53,9 +53,9 @@ public:
 
     std::string toString() const override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ArithmeticExpression>(
-            kind(), left()->clone().release(), right()->clone().release());
+    Expression* clone() const override {
+        return pool_->add(new ArithmeticExpression(pool_,
+            kind(), left()->clone(), right()->clone()));
     }
 
     bool isArithmeticExpr() const override {

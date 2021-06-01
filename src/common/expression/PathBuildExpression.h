@@ -15,12 +15,12 @@
 namespace nebula {
 class PathBuildExpression final : public Expression {
 public:
-    static PathBuildExpression* make(ObjectPool* pool) {
-        return pool->add(new PathBuildExpression());
+    static PathBuildExpression* make(ObjectPool* pool = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new PathBuildExpression(pool));
     }
 
-    PathBuildExpression() : Expression(Kind::kPathBuild) {
-    }
+    explicit PathBuildExpression(ObjectPool* pool = nullptr) : Expression(pool, Kind::kPathBuild) {}
 
     const Value& eval(ExpressionContext& ctx) override;
 
@@ -30,7 +30,7 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override;
+    Expression* clone() const override;
 
     PathBuildExpression& add(Expression* expr) {
         items_.emplace_back(expr);

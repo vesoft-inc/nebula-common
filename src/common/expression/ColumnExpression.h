@@ -18,17 +18,18 @@ namespace nebula {
 class ColumnExpression final : public Expression {
 public:
     static ColumnExpression* make(ObjectPool* pool = nullptr, int32_t index = 0) {
-        return pool->add(new ColumnExpression(index));
+        return pool->add(new ColumnExpression(pool, index));
     }
 
-    explicit ColumnExpression(int32_t index = 0) : Expression(Kind::kColumn), index_(index) {}
+    explicit ColumnExpression(ObjectPool* pool = nullptr, int32_t index = 0)
+        : Expression(pool, Kind::kColumn), index_(index) {}
 
     const Value& eval(ExpressionContext &ctx) override;
 
     void accept(ExprVisitor *visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ColumnExpression>(index_);
+    Expression* clone() const override {
+        return ColumnExpression::make(pool_, index_);
     }
 
     std::string toString() const override;

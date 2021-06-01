@@ -12,9 +12,9 @@ class ConstantExpressionTest : public ExpressionTest {};
 TEST_F(ExpressionTest, ListToString) {
     auto elist = ExpressionList::make(&pool);
     (*elist)
-        .add(new ConstantExpression(12345))
-        .add(new ConstantExpression("Hello"))
-        .add(new ConstantExpression(true));
+        .add(ConstantExpression::make(&pool, 12345))
+        .add(ConstantExpression::make(&pool, "Hello"))
+        .add(ConstantExpression::make(&pool, true));
     auto expr = ListExpression::make(&pool, elist);
     ASSERT_EQ("[12345,\"Hello\",true]", expr->toString());
 }
@@ -22,10 +22,10 @@ TEST_F(ExpressionTest, ListToString) {
 TEST_F(ExpressionTest, SetToString) {
     auto elist = ExpressionList::make(&pool);
     (*elist)
-        .add(new ConstantExpression(12345))
-        .add(new ConstantExpression(12345))
-        .add(new ConstantExpression("Hello"))
-        .add(new ConstantExpression(true));
+        .add(ConstantExpression::make(&pool, 12345))
+        .add(ConstantExpression::make(&pool, 12345))
+        .add(ConstantExpression::make(&pool, "Hello"))
+        .add(ConstantExpression::make(&pool, true));
     auto expr = SetExpression::make(&pool, elist);
     ASSERT_EQ("{12345,12345,\"Hello\",true}", expr->toString());
 }
@@ -33,10 +33,10 @@ TEST_F(ExpressionTest, SetToString) {
 TEST_F(ExpressionTest, MapTostring) {
     auto *items = MapItemList::make(&pool);
     (*items)
-        .add("key1", new ConstantExpression(12345))
-        .add("key2", new ConstantExpression(12345))
-        .add("key3", new ConstantExpression("Hello"))
-        .add("key4", new ConstantExpression(true));
+        .add("key1", ConstantExpression::make(&pool, 12345))
+        .add("key2", ConstantExpression::make(&pool, 12345))
+        .add("key3", ConstantExpression::make(&pool, "Hello"))
+        .add("key4", ConstantExpression::make(&pool, true));
     auto expr = MapExpression::make(&pool, items);
     auto expected = "{"
                     "key1:12345,"
@@ -50,9 +50,9 @@ TEST_F(ExpressionTest, MapTostring) {
 TEST_F(ExpressionTest, ListEvaluate) {
     auto elist = ExpressionList::make(&pool);
     (*elist)
-        .add(new ConstantExpression(12345))
-        .add(new ConstantExpression("Hello"))
-        .add(new ConstantExpression(true));
+        .add(ConstantExpression::make(&pool, 12345))
+        .add(ConstantExpression::make(&pool, "Hello"))
+        .add(ConstantExpression::make(&pool, true));
     auto expr = ListExpression::make(&pool, elist);
     auto expected = Value(List({12345, "Hello", true}));
     auto value = Expression::eval(expr, gExpCtxt);
@@ -62,10 +62,10 @@ TEST_F(ExpressionTest, ListEvaluate) {
 TEST_F(ExpressionTest, SetEvaluate) {
     auto elist = ExpressionList::make(&pool);
     (*elist)
-        .add(new ConstantExpression(12345))
-        .add(new ConstantExpression(12345))
-        .add(new ConstantExpression("Hello"))
-        .add(new ConstantExpression(true));
+        .add(ConstantExpression::make(&pool, 12345))
+        .add(ConstantExpression::make(&pool, 12345))
+        .add(ConstantExpression::make(&pool, "Hello"))
+        .add(ConstantExpression::make(&pool, true));
     auto expr = SetExpression::make(&pool, elist);
     auto expected = Value(Set({12345, "Hello", true}));
     auto value = Expression::eval(expr, gExpCtxt);
@@ -76,10 +76,10 @@ TEST_F(ExpressionTest, MapEvaluate) {
     {
         auto *items = MapItemList::make(&pool);
         (*items)
-            .add("key1", new ConstantExpression(12345))
-            .add("key2", new ConstantExpression(12345))
-            .add("key3", new ConstantExpression("Hello"))
-            .add("key4", new ConstantExpression(true));
+            .add("key1", ConstantExpression::make(&pool, 12345))
+            .add("key2", ConstantExpression::make(&pool, 12345))
+            .add("key3", ConstantExpression::make(&pool, "Hello"))
+            .add("key4", ConstantExpression::make(&pool, true));
         auto expr = MapExpression::make(&pool, items);
         auto expected =
             Value(Map({{"key1", 12345}, {"key2", 12345}, {"key3", "Hello"}, {"key4", true}}));
@@ -89,11 +89,11 @@ TEST_F(ExpressionTest, MapEvaluate) {
     {
         auto *items = MapItemList::make(&pool);
         (*items)
-            .add("key1", new ConstantExpression(12345))
-            .add("key2", new ConstantExpression(12345))
-            .add("key3", new ConstantExpression("Hello"))
-            .add("key4", new ConstantExpression(false))
-            .add("key4", new ConstantExpression(true));
+            .add("key1", ConstantExpression::make(&pool, 12345))
+            .add("key2", ConstantExpression::make(&pool, 12345))
+            .add("key3", ConstantExpression::make(&pool, "Hello"))
+            .add("key4", ConstantExpression::make(&pool, false))
+            .add("key4", ConstantExpression::make(&pool, true));
         auto expr = MapExpression::make(&pool, items);
         auto expected =
             Value(Map({{"key1", 12345}, {"key2", 12345}, {"key3", "Hello"}, {"key4", false}}));

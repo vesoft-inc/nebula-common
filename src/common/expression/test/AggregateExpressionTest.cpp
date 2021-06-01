@@ -40,9 +40,9 @@ public:
             if (isConst) {
                 static_cast<ConstantExpression*>(arg)->setValue(row.second);
             } else {
-                auto args = std::make_unique<ArgumentList>(1);
+                auto args = ArgumentList::make(&pool, 1);
                 args->addArgument(ConstantExpression::make(&pool, row.second));
-                aggExpr->setArg(new FunctionCallExpression(*func, args.release()));
+                aggExpr->setArg(FunctionCallExpression::make(&pool, *func, args));
             }
             aggExpr->setAggData(agg_data_map[row.first].get());
             auto eval = aggExpr->eval(gExpCtxt);
