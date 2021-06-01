@@ -190,7 +190,6 @@ protected:
         auto eval = Expression::eval(ep, gExpCtxt);
         EXPECT_EQ(eval.type(), expected.type()) << "type check failed: " << ep->toString();
         EXPECT_EQ(eval, expected) << "check failed: " << ep->toString();
-        delete ep;
     }
 
     void testToString(const std::string &exprSymbol, const char *expected) {
@@ -200,11 +199,10 @@ protected:
         boost::split(splitString, expr, boost::is_any_of(" \t"));
         Expression *ep = ExpressionCalu(splitString);
         EXPECT_EQ(ep->toString(), expected);
-        delete ep;
     }
 
     void testFunction(const char *name, const std::vector<Value> &args, const Value &expected) {
-        ArgumentList *argList = new ArgumentList();
+        ArgumentList *argList = ArgumentList::make(&pool);
         for (const auto &i : args) {
             argList->addArgument(ConstantExpression::make(&pool, i));
         }
@@ -240,23 +238,6 @@ protected:
         step.type = TYPE;                                                                          \
         path.steps.emplace_back(std::move(step));                                                  \
     } while (0)
-
-// std::unordered_map<std::string, Expression::Kind> ExpressionTest::op_ = {
-//     {"+", Expression::Kind::kAdd},
-//     {"-", Expression::Kind::kMinus},
-//     {"*", Expression::Kind::kMultiply},
-//     {"/", Expression::Kind::kDivision},
-//     {"%", Expression::Kind::kMod},
-//     {"OR", Expression::Kind::kLogicalOr},
-//     {"AND", Expression::Kind::kLogicalAnd},
-//     {"XOR", Expression::Kind::kLogicalXor},
-//     {">", Expression::Kind::kRelGT},
-//     {"<", Expression::Kind::kRelLT},
-//     {">=", Expression::Kind::kRelGE},
-//     {"<=", Expression::Kind::kRelLE},
-//     {"==", Expression::Kind::kRelEQ},
-//     {"!=", Expression::Kind::kRelNE},
-//     {"!", Expression::Kind::kUnaryNot}};
 
 // Functions used to construct corresponding expressions
 using expressionGen =
@@ -296,19 +277,19 @@ expressionGen makeRelNE{
         &RelationalExpression::makeNE)};
 
 std::unordered_map<std::string, expressionGen> ExpressionTest::op_ = {{"+", makeAddExpr},
-                                                                       {"-", makeMinusExpr},
-                                                                       {"*", makeMultiplyExpr},
-                                                                       {"/", makeDivisionExpr},
-                                                                       {"%", makeModExpr},
-                                                                       {"OR", makeOrExpr},
-                                                                       {"AND", makeAndExpr},
-                                                                       {"XOR", makeXorExpr},
-                                                                       {">", makeRelGT},
-                                                                       {"<", makeRelLT},
-                                                                       {">=", makeRelGE},
-                                                                       {"<=", makeRelLE},
-                                                                       {"==", makeRelEQ},
-                                                                       {"!=", makeRelNE}};
+                                                                      {"-", makeMinusExpr},
+                                                                      {"*", makeMultiplyExpr},
+                                                                      {"/", makeDivisionExpr},
+                                                                      {"%", makeModExpr},
+                                                                      {"OR", makeOrExpr},
+                                                                      {"AND", makeAndExpr},
+                                                                      {"XOR", makeXorExpr},
+                                                                      {">", makeRelGT},
+                                                                      {"<", makeRelLT},
+                                                                      {">=", makeRelGE},
+                                                                      {"<=", makeRelLE},
+                                                                      {"==", makeRelEQ},
+                                                                      {"!=", makeRelNE}};
 
 std::unordered_map<std::string, Value> ExpressionTest::boolen_ = {
     {"true", Value(true)},

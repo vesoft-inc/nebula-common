@@ -48,17 +48,14 @@ public:
                                 CaseList* cases = nullptr,
                                 bool isGeneric = true) {
         DCHECK(!!pool);
-        return pool->add(new CaseExpression(pool, cases, isGeneric));
+        return !cases ? pool->add(new CaseExpression(pool))
+                      : pool->add(new CaseExpression(pool, cases, isGeneric));
     }
 
-    explicit CaseExpression(ObjectPool* pool = nullptr)
-        : Expression(pool, Kind::kCase), isGeneric_(true) {}
+    explicit CaseExpression(ObjectPool* pool) : Expression(pool, Kind::kCase), isGeneric_(true) {}
 
-    explicit CaseExpression(ObjectPool* pool = nullptr,
-                            CaseList* cases = nullptr,
-                            bool isGeneric = true)
+    explicit CaseExpression(ObjectPool* pool, CaseList* cases, bool isGeneric)
         : Expression(pool, Kind::kCase), isGeneric_(isGeneric) {
-        DCHECK(!!cases);
         cases_ = cases->items();
     }
 

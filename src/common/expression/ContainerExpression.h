@@ -68,7 +68,8 @@ class ListExpression final : public Expression {
 public:
     static ListExpression *make(ObjectPool *pool = nullptr, ExpressionList *items = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new ListExpression(pool, items));
+        return items == nullptr ? pool->add(new ListExpression(pool))
+                                : pool->add(new ListExpression(pool, items));
     }
 
     explicit ListExpression(ObjectPool *pool) : Expression(pool, Kind::kList) {}
@@ -130,7 +131,8 @@ class SetExpression final : public Expression {
 public:
     static SetExpression *make(ObjectPool *pool = nullptr, ExpressionList *items = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new SetExpression(pool, items));
+        return items == nullptr ? pool->add(new SetExpression(pool))
+                                : pool->add(new SetExpression(pool, items));
     }
 
     explicit SetExpression(ObjectPool *pool = nullptr) : Expression(pool, Kind::kSet) {}
@@ -191,7 +193,8 @@ class MapExpression final : public Expression {
 public:
     static MapExpression *make(ObjectPool *pool = nullptr, MapItemList *items = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new MapExpression(pool, items));
+        return items == nullptr ? pool->add(new MapExpression(pool))
+                                : pool->add(new MapExpression(pool, items));
     }
 
     using Item = std::pair<std::string, Expression *>;

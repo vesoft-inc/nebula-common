@@ -47,16 +47,17 @@ public:
                                           Expression* lo = nullptr,
                                           Expression* hi = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new SubscriptRangeExpression(pool, list, lo, hi));
+        return !list && !lo && !hi ? pool->add(new SubscriptRangeExpression(pool))
+                                   : pool->add(new SubscriptRangeExpression(pool, list, lo, hi));
     }
     // for decode ctor
-    explicit SubscriptRangeExpression(ObjectPool* pool = nullptr)
+    explicit SubscriptRangeExpression(ObjectPool* pool)
         : Expression(pool, Kind::kSubscriptRange), list_(nullptr), lo_(nullptr), hi_(nullptr) {}
 
-    SubscriptRangeExpression(ObjectPool* pool = nullptr,
-                             Expression* list = nullptr,
-                             Expression* lo = nullptr,
-                             Expression* hi = nullptr)
+    explicit SubscriptRangeExpression(ObjectPool* pool,
+                                      Expression* list,
+                                      Expression* lo,
+                                      Expression* hi)
         : Expression(pool, Kind::kSubscriptRange), list_(DCHECK_NOTNULL(list)), lo_(lo), hi_(hi) {
         DCHECK(!(lo_ == nullptr && hi_ == nullptr));
     }

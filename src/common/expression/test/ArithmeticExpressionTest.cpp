@@ -51,71 +51,71 @@ TEST_F(ArithmeticExpressionTest, TestArithmeticExpression) {
     }
     {
         // 1 + 2 + e1.int
-        auto add = ArithmeticExpression::makeAdd(
+        auto add = *ArithmeticExpression::makeAdd(
             &pool,
             ArithmeticExpression::makeAdd(
                 &pool, ConstantExpression::make(&pool, 1), ConstantExpression::make(&pool, 2)),
-            new EdgePropertyExpression("e1", "int"));
-        auto eval = Expression::eval(add, gExpCtxt);
+            EdgePropertyExpression::make(&pool, "e1", "int"));
+        auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 4);
     }
     {
         // e1.string16 + e1.string16
-        ArithmeticExpression add(
-            Expression::Kind::kAdd,
-            new EdgePropertyExpression("e1", "string16"),
-            new EdgePropertyExpression("e1", "string16"));
+        auto add =
+            *ArithmeticExpression::makeAdd(&pool,
+                                           EdgePropertyExpression::make(&pool, "e1", "string16"),
+                                           EdgePropertyExpression::make(&pool, "e1", "string16"));
         auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::STRING);
         EXPECT_EQ(eval, std::string(32, 'a'));
     }
     {
         // $^.source.string16 + $$.dest.string16
-        ArithmeticExpression add(
-            Expression::Kind::kAdd,
-            new SourcePropertyExpression("source", "string16"),
-            new DestPropertyExpression("dest", "string16"));
+        auto add = *ArithmeticExpression::makeAdd(
+            &pool,
+            SourcePropertyExpression::make(&pool, "source", "string16"),
+            DestPropertyExpression::make(&pool, "dest", "string16"));
         auto eval = Expression::eval(&add, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::STRING);
         EXPECT_EQ(eval, std::string(32, 'a'));
     }
     {
         // 10 - e1.int
-        ArithmeticExpression minus(
-            Expression::Kind::kMinus,
-            ConstantExpression::make(&pool, 10),
-            new EdgePropertyExpression("e1", "int"));
+        auto minus =
+            *ArithmeticExpression::makeMinus(&pool,
+                                             ConstantExpression::make(&pool, 10),
+                                             EdgePropertyExpression::make(&pool, "e1", "int"));
         auto eval = Expression::eval(&minus, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 9);
     }
     {
         // 10 - $^.source.int
-        ArithmeticExpression minus(
-            Expression::Kind::kMinus,
+        auto minus = *ArithmeticExpression::makeMinus(
+            &pool,
             ConstantExpression::make(&pool, 10),
-            new SourcePropertyExpression("source", "int"));
+            SourcePropertyExpression::make(&pool, "source", "int"));
         auto eval = Expression::eval(&minus, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 9);
     }
     {
         // e1.string128 - e1.string64
-        ArithmeticExpression minus(
-            Expression::Kind::kMinus,
-            new EdgePropertyExpression("e1", "string128"),
-            new EdgePropertyExpression("e1", "string64"));
+        auto minus =
+            *ArithmeticExpression::makeMinus(&pool,
+                                             EdgePropertyExpression::make(&pool, "e1", "string128"),
+                                             EdgePropertyExpression::make(&pool, "e1", "string64"));
         auto eval = Expression::eval(&minus, gExpCtxt);
         EXPECT_NE(eval.type(), Value::Type::STRING);
         EXPECT_NE(eval, std::string(64, 'a'));
     }
     {
         // $^.source.srcProperty % $$.dest.dstProperty
-        ArithmeticExpression mod(
-            Expression::Kind::kMod,
-            new SourcePropertyExpression("source", "srcProperty"),
-            new DestPropertyExpression("dest", "dstProperty"));
+        auto mod = *ArithmeticExpression::makeMod(
+            &pool,
+            SourcePropertyExpression::make(&pool, "source", "srcProperty"),
+            DestPropertyExpression::make(&pool, "dest", "dstProperty"));
         auto eval = Expression::eval(&mod, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 1);
