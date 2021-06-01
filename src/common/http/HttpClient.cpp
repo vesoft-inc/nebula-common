@@ -18,33 +18,58 @@ struct MemoryStruct {
   size_t size;
 };
 
- static size_t WriteMemory(void *contents, size_t size, size_t nmemb, void *userp) {
-    size_t realsize = size * nmemb;
-    struct MemoryStruct *mem = (struct MemoryStruct *)userp;
-    char *ptr = reinterpret_cast<char *> (realloc(mem->memory, mem->size + realsize + 1));
-    mem->memory = ptr;
-    memcpy(&(mem->memory[mem->size]), contents, realsize);
-    mem->size += realsize;
-    mem->memory[mem->size] = 0;
-    return realsize;
+static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
+    reinterpret_cast<std::string*>(userp)->append(reinterpret_cast<char*>(contents), size * nmemb);
+    return size * nmemb;
 }
+//  static size_t WriteMemory(void *contents, size_t size, size_t nmemb, void *userp) {
+//     size_t realsize = size * nmemb;
+//     struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+//     char *ptr = reinterpret_cast<char *> (realloc(mem->memory, mem->size + realsize + 1));
+//     mem->memory = ptr;
+//     memcpy(&(mem->memory[mem->size]), contents, realsize);
+//     mem->size += realsize;
+//     mem->memory[mem->size] = 0;
+//     return realsize;
+// }
  StatusOr<std::string> HttpClient::get(const std::string& path, const std::string& /*options*/) {
+    // CURL *curl;
+    // CURLcode res;
+    // curl = curl_easy_init();
+    // struct MemoryStruct chunk;
+    // chunk.memory = reinterpret_cast<char *> (malloc(1));
+    // chunk.size = 0;
+    // if (curl) {
+    //     curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
+    //     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    //     curl_easy_setopt(curl, CURLOPT_WRITEDATA, reinterpret_cast<void *> (&chunk));
+    //     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemory);
+    //     res = curl_easy_perform(curl);
+    //     StatusOr<std::string> result;
+    //     if (chunk.size != 0) result=chunk.memory;
+    //     if (chunk.size == 0) result = "";
+    //     free(chunk.memory);
+    //     curl_easy_cleanup(curl);
+    //     LOG(INFO) << "HTTP return Code: " << res;
+    //     if (result.ok()) {
+    //         return result.value();
+    //     } else {
+    //         return Status::Error(folly::stringPrintf("Http Get Failed: %s", path.c_str()));
+    //     }
+    // }
+    // free(chunk.memory);
+    // return Status::Error(folly::stringPrintf("Libcurl Failed: %s", path.c_str()));
     CURL *curl;
     CURLcode res;
     curl = curl_easy_init();
-    struct MemoryStruct chunk;
-    chunk.memory = reinterpret_cast<char *> (malloc(1));
-    chunk.size = 0;
+    std::string return_string;
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, reinterpret_cast<void *> (&chunk));
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemory);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &return_string);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         res = curl_easy_perform(curl);
-        StatusOr<std::string> result;
-        if (chunk.size != 0) result=chunk.memory;
-        if (chunk.size == 0) result = "";
-        free(chunk.memory);
+        StatusOr<std::string> result = return_string;
         curl_easy_cleanup(curl);
         LOG(INFO) << "HTTP return Code: " << res;
         if (result.ok()) {
@@ -53,7 +78,6 @@ struct MemoryStruct {
             return Status::Error(folly::stringPrintf("Http Get Failed: %s", path.c_str()));
         }
     }
-    free(chunk.memory);
     return Status::Error(folly::stringPrintf("Libcurl Failed: %s", path.c_str()));
 }
 
@@ -164,26 +188,21 @@ StatusOr<std::string> HttpClient::sendRequest(const std::string& path,
     CURLcode res;
     curl_global_init(CURL_GLOBAL_ALL);
     curl = curl_easy_init();
-    struct MemoryStruct chunk;
-    chunk.memory = reinterpret_cast<char *> (malloc(1));
-    chunk.size = 0;
+    std::string return_string;
     if (curl) {
         struct curl_slist *headers = nullptr;
         std::string mydata = folly::toJson(data);
         headers = curl_slist_append(headers, "Content-Type: application/json");
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, reqType.c_str());
         curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, reinterpret_cast<void *> (&chunk));
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemory);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &return_string);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, mydata.c_str());
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         res = curl_easy_perform(curl);
         LOG(INFO) << "HTTP return Code: " << res;
-        StatusOr<std::string> result;
-        if (chunk.size != 0) result=chunk.memory;
-        if (chunk.size == 0) result = "";
-        free(chunk.memory);
+        StatusOr<std::string> result = return_string;
         curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
         curl_global_cleanup();
@@ -193,7 +212,6 @@ StatusOr<std::string> HttpClient::sendRequest(const std::string& path,
             return Status::Error(folly::stringPrintf("Http Get Failed: %s", path.c_str()));
         }
     }
-    free(chunk.memory);
     return Status::Error(folly::stringPrintf("Libcurl Failed: %s", path.c_str()));
 }
 }   // namespace http
