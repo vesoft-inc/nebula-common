@@ -1459,8 +1459,9 @@ Status MetaClient::checkPartExistInCache(const HostAddr& host,
                     return Status::OK();
                 }
             }
-        } else {
             return Status::PartNotFound();
+        } else {
+            return Status::HostNotFound();
         }
     }
     return Status::SpaceNotFound();
