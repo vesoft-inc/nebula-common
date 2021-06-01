@@ -13,52 +13,12 @@
 
 namespace nebula {
 namespace http {
-struct MemoryStruct {
-  char *memory;
-  size_t size;
-};
 
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     reinterpret_cast<std::string*>(userp)->append(reinterpret_cast<char*>(contents), size * nmemb);
     return size * nmemb;
 }
-//  static size_t WriteMemory(void *contents, size_t size, size_t nmemb, void *userp) {
-//     size_t realsize = size * nmemb;
-//     struct MemoryStruct *mem = (struct MemoryStruct *)userp;
-//     char *ptr = reinterpret_cast<char *> (realloc(mem->memory, mem->size + realsize + 1));
-//     mem->memory = ptr;
-//     memcpy(&(mem->memory[mem->size]), contents, realsize);
-//     mem->size += realsize;
-//     mem->memory[mem->size] = 0;
-//     return realsize;
-// }
  StatusOr<std::string> HttpClient::get(const std::string& path, const std::string& /*options*/) {
-    // CURL *curl;
-    // CURLcode res;
-    // curl = curl_easy_init();
-    // struct MemoryStruct chunk;
-    // chunk.memory = reinterpret_cast<char *> (malloc(1));
-    // chunk.size = 0;
-    // if (curl) {
-    //     curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
-    //     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    //     curl_easy_setopt(curl, CURLOPT_WRITEDATA, reinterpret_cast<void *> (&chunk));
-    //     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemory);
-    //     res = curl_easy_perform(curl);
-    //     StatusOr<std::string> result;
-    //     if (chunk.size != 0) result=chunk.memory;
-    //     if (chunk.size == 0) result = "";
-    //     free(chunk.memory);
-    //     curl_easy_cleanup(curl);
-    //     LOG(INFO) << "HTTP return Code: " << res;
-    //     if (result.ok()) {
-    //         return result.value();
-    //     } else {
-    //         return Status::Error(folly::stringPrintf("Http Get Failed: %s", path.c_str()));
-    //     }
-    // }
-    // free(chunk.memory);
-    // return Status::Error(folly::stringPrintf("Libcurl Failed: %s", path.c_str()));
     CURL *curl;
     CURLcode res;
     curl = curl_easy_init();
