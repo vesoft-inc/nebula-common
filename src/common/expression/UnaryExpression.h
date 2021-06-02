@@ -62,9 +62,6 @@ public:
         return pool->add(new UnaryExpression(pool, Kind::kIsNotEmpty, operand));
     }
 
-    explicit UnaryExpression(ObjectPool* pool, Kind kind, Expression* operand = nullptr)
-        : Expression(pool, kind), operand_(operand) {}
-
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -90,10 +87,13 @@ public:
     }
 
 private:
-    void writeTo(Encoder& encoder) const override;
+    explicit UnaryExpression(ObjectPool* pool, Kind kind, Expression* operand = nullptr)
+        : Expression(pool, kind), operand_(operand) {}
 
+    void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
+private:
     Expression* operand_;
     Value result_;
 };

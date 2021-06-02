@@ -19,11 +19,6 @@ public:
         return pool->add(new VariableExpression(pool, var, isInner));
     }
 
-    explicit VariableExpression(ObjectPool* pool = nullptr,
-                                const std::string& var = "",
-                                bool isInner = false)
-        : Expression(pool, Kind::kVar), isInner_(isInner), var_(var) {}
-
     const std::string& var() const {
         return var_;
     }
@@ -50,9 +45,15 @@ public:
     }
 
 private:
+    explicit VariableExpression(ObjectPool* pool = nullptr,
+                                const std::string& var = "",
+                                bool isInner = false)
+        : Expression(pool, Kind::kVar), isInner_(isInner), var_(var) {}
+
     void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
+private:
     bool isInner_{false};
     std::string var_;
 };
@@ -69,11 +70,6 @@ public:
         DCHECK(!!pool);
         return pool->add(new VersionedVariableExpression(pool, var, version));
     }
-
-    explicit VersionedVariableExpression(ObjectPool* pool = nullptr,
-                                         const std::string& var = "",
-                                         Expression* version = nullptr)
-        : Expression(pool, Kind::kVersionedVar), var_(var), version_(version) {}
 
     const std::string& var() const {
         return var_;
@@ -103,6 +99,11 @@ public:
     }
 
 private:
+    explicit VersionedVariableExpression(ObjectPool* pool = nullptr,
+                                         const std::string& var = "",
+                                         Expression* version = nullptr)
+        : Expression(pool, Kind::kVersionedVar), var_(var), version_(version) {}
+
     void writeTo(Encoder&) const override {
         LOG(FATAL) << "VersionedVairableExpression not support to encode.";
     }
@@ -111,6 +112,7 @@ private:
         LOG(FATAL) << "VersionedVairableExpression not support to decode.";
     }
 
+private:
     std::string var_;
     // 0 means the latest, -1 the previous one, and so on.
     // 1 means the eldest, 2 the second elder one, and so on.

@@ -21,9 +21,6 @@ public:
         return pool->add(new ColumnExpression(pool, index));
     }
 
-    explicit ColumnExpression(ObjectPool* pool = nullptr, int32_t index = 0)
-        : Expression(pool, Kind::kColumn), index_(index) {}
-
     const Value& eval(ExpressionContext &ctx) override;
 
     void accept(ExprVisitor *visitor) override;
@@ -37,7 +34,10 @@ public:
     bool operator==(const Expression &expr) const override;
 
 private:
-    void writeTo(Encoder &encoder) const override;
+    explicit ColumnExpression(ObjectPool* pool = nullptr, int32_t index = 0)
+        : Expression(pool, Kind::kColumn), index_(index) {}
+
+    void writeTo(Encoder& encoder) const override;
 
     void resetFrom(Decoder&) override;
 

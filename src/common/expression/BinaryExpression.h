@@ -18,9 +18,6 @@ class BinaryExpression : public Expression {
     friend class Expression;
 
 public:
-    BinaryExpression(ObjectPool* pool, Kind kind, Expression* lhs, Expression* rhs)
-        : Expression(pool, kind), lhs_(lhs), rhs_(rhs) {}
-
     bool operator==(const Expression& rhs) const override;
 
     const Expression* left() const {
@@ -48,12 +45,16 @@ public:
     }
 
 protected:
+    BinaryExpression(ObjectPool* pool, Kind kind, Expression* lhs, Expression* rhs)
+        : Expression(pool, kind), lhs_(lhs), rhs_(rhs) {}
+
     void writeTo(Encoder& encoder) const override;
 
     void resetFrom(Decoder& decoder) override;
 
-    Expression*                 lhs_;
-    Expression*                 rhs_;
+protected:
+    Expression* lhs_;
+    Expression* rhs_;
 };
 
 }  // namespace nebula

@@ -20,9 +20,6 @@ public:
         return pool->add(new UUIDExpression(pool, field));
     }
 
-    explicit UUIDExpression(ObjectPool* pool = nullptr, const std::string& field = "")
-        : Expression(pool, Kind::kUUID), field_(field) {}
-
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -36,9 +33,13 @@ public:
     }
 
 private:
+    explicit UUIDExpression(ObjectPool* pool = nullptr, const std::string& field = "")
+        : Expression(pool, Kind::kUUID), field_(field) {}
+
     void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
+private:
     std::string field_;
     Value result_;
 };

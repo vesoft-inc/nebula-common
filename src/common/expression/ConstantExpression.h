@@ -18,11 +18,9 @@ class ConstantExpression : public Expression {
 public:
     static ConstantExpression* make(ObjectPool* pool = nullptr,
                                     Value v = Value(NullType::__NULL__)) {
+        DCHECK(!!pool);
         return pool->add(new ConstantExpression(pool, v));
     }
-
-    explicit ConstantExpression(ObjectPool* pool = nullptr, Value v = Value(NullType::__NULL__))
-        : Expression(pool, Kind::kConstant), val_(std::move(v)) {}
 
     bool operator==(const Expression& rhs) const override;
 
@@ -48,10 +46,13 @@ public:
     }
 
 private:
-    void writeTo(Encoder& encoder) const override;
+    explicit ConstantExpression(ObjectPool* pool = nullptr, Value v = Value(NullType::__NULL__))
+        : Expression(pool, Kind::kConstant), val_(std::move(v)) {}
 
+    void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
+private:
     Value val_;
 };
 

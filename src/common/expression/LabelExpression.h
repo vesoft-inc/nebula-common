@@ -20,9 +20,6 @@ public:
         return pool->add(new LabelExpression(pool, name));
     }
 
-    explicit LabelExpression(ObjectPool* pool = nullptr, const std::string& name = "")
-        : Expression(pool, Kind::kLabel), name_(name) {}
-
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -40,9 +37,13 @@ public:
     }
 
 protected:
+    explicit LabelExpression(ObjectPool* pool = nullptr, const std::string& name = "")
+        : Expression(pool, Kind::kLabel), name_(name) {}
+
     void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
+protected:
     std::string name_;
     Value result_;
 };

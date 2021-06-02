@@ -44,9 +44,6 @@ public:
         return pool->add(new ArithmeticExpression(pool, Expression::Kind::kMod, lhs, rhs));
     }
 
-    explicit ArithmeticExpression(ObjectPool* pool, Kind kind, Expression* lhs, Expression* rhs)
-        : BinaryExpression(pool, kind, lhs, rhs) {}
-
     const Value& eval(ExpressionContext& ctx) override;
 
     void accept(ExprVisitor* visitor) override;
@@ -61,6 +58,10 @@ public:
     bool isArithmeticExpr() const override {
         return true;
     }
+
+private:
+    explicit ArithmeticExpression(ObjectPool* pool, Kind kind, Expression* lhs, Expression* rhs)
+        : BinaryExpression(pool, kind, lhs, rhs) {}
 
 private:
     Value result_;

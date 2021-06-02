@@ -24,8 +24,6 @@ public:
         return pool->add(new VertexExpression(pool));
     }
 
-    explicit VertexExpression(ObjectPool *pool = nullptr) : Expression(pool, Kind::kVertex) {}
-
     const Value &eval(ExpressionContext &ctx) override;
 
     void accept(ExprVisitor *visitor) override;
@@ -43,11 +41,13 @@ public:
     }
 
 private:
+    explicit VertexExpression(ObjectPool *pool = nullptr) : Expression(pool, Kind::kVertex) {}
+
     void writeTo(Encoder &encoder) const override {
         encoder << kind();
     }
 
-    void resetFrom(Decoder&) override {}
+    void resetFrom(Decoder &) override {}
 
 private:
     Value                                   result_;

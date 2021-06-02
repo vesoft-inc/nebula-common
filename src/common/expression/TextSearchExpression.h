@@ -22,9 +22,6 @@ public:
         return pool->add(new TextSearchArgument(from, prop, val));
     }
 
-    TextSearchArgument(const std::string& from, const std::string& prop, const std::string& val)
-        : from_(from), prop_(prop), val_(val) {}
-
     ~TextSearchArgument() = default;
 
     void setVal(const std::string &val) {
@@ -80,6 +77,10 @@ public:
     std::string toString() const;
 
 private:
+    TextSearchArgument(const std::string& from, const std::string& prop, const std::string& val)
+        : from_(from), prop_(prop), val_(val) {}
+
+private:
     std::string from_;
     std::string prop_;
     std::string val_;
@@ -115,11 +116,6 @@ public:
         return pool->add(new TextSearchExpression(pool, Kind::kTSFuzzy, arg));
     }
 
-    TextSearchExpression(ObjectPool* pool, Kind kind, TextSearchArgument* arg)
-        : Expression(pool, kind) {
-        arg_ = arg;
-    }
-
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext&) override {
@@ -151,6 +147,11 @@ public:
     }
 
 private:
+    TextSearchExpression(ObjectPool* pool, Kind kind, TextSearchArgument* arg)
+        : Expression(pool, kind) {
+        arg_ = arg;
+    }
+
     void writeTo(Encoder&) const override {
         LOG(FATAL) << "TextSearchExpression has to be rewritten";
     }
@@ -160,7 +161,7 @@ private:
     }
 
 private:
-    TextSearchArgument*   arg_;
+    TextSearchArgument* arg_;
 };
 
 }   // namespace nebula

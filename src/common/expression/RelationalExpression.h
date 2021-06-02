@@ -117,12 +117,6 @@ public:
         return pool->add(new RelationalExpression(pool, Kind::kNotEndsWith, lhs, rhs));
     }
 
-    explicit RelationalExpression(ObjectPool* pool,
-                                  Kind kind,
-                                  Expression* lhs,
-                                  Expression* rhs)
-        : BinaryExpression(pool, kind, lhs, rhs) {}
-
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
@@ -139,7 +133,11 @@ public:
     }
 
 private:
-    Value                                       result_;
+    explicit RelationalExpression(ObjectPool* pool, Kind kind, Expression* lhs, Expression* rhs)
+        : BinaryExpression(pool, kind, lhs, rhs) {}
+
+private:
+    Value result_;
 };
 
 }  // namespace nebula

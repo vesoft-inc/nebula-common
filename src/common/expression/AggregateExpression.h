@@ -25,29 +25,6 @@ public:
         return pool->add(new AggregateExpression(pool, name, arg, distinct));
     }
 
-    // explicit AggregateExpression(const std::string& name = "",
-    //                              Expression* arg = nullptr,
-    //                              bool distinct = false)
-    //     : Expression(Kind::kAggregate), name_(name), distinct_(distinct) {
-    //     arg_ = arg;
-    //     auto aggFuncResult = AggFunctionManager::get(name_);
-    //     if (aggFuncResult.ok()) {
-    //         aggFunc_ = std::move(aggFuncResult).value();
-    //     }
-    // }
-
-    explicit AggregateExpression(ObjectPool* pool = nullptr,
-                                 const std::string& name = "",
-                                 Expression* arg = nullptr,
-                                 bool distinct = false)
-        : Expression(pool, Kind::kAggregate), name_(name), distinct_(distinct) {
-        arg_ = arg;
-        auto aggFuncResult = AggFunctionManager::get(name_);
-        if (aggFuncResult.ok()) {
-            aggFunc_ = std::move(aggFuncResult).value();
-        }
-    }
-
     const Value& eval(ExpressionContext& ctx) override;
 
     void apply(AggData* aggData, const Value& val);
@@ -100,9 +77,22 @@ public:
     }
 
 private:
+    explicit AggregateExpression(ObjectPool* pool = nullptr,
+                                 const std::string& name = "",
+                                 Expression* arg = nullptr,
+                                 bool distinct = false)
+        : Expression(pool, Kind::kAggregate), name_(name), distinct_(distinct) {
+        arg_ = arg;
+        auto aggFuncResult = AggFunctionManager::get(name_);
+        if (aggFuncResult.ok()) {
+            aggFunc_ = std::move(aggFuncResult).value();
+        }
+    }
+
     void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
+private:
     std::string name_;
     Expression* arg_;
     bool distinct_{false};

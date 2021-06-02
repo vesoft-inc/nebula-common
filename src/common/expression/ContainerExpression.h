@@ -18,11 +18,6 @@ public:
         return pool->add(new ExpressionList(sz));
     }
 
-    ExpressionList() = default;
-    explicit ExpressionList(size_t sz) {
-        items_.reserve(sz);
-    }
-
     ExpressionList& add(Expression *expr) {
         items_.emplace_back(expr);
         return *this;
@@ -30,6 +25,12 @@ public:
 
     auto get() {
         return items_;
+    }
+
+private:
+    ExpressionList() = default;
+    explicit ExpressionList(size_t sz) {
+        items_.reserve(sz);
     }
 
 private:
@@ -44,11 +45,6 @@ public:
         return pool->add(new MapItemList(sz));
     }
 
-    MapItemList() = default;
-    explicit MapItemList(size_t sz) {
-        items_.reserve(sz);
-    }
-
     MapItemList &add(const std::string &key, Expression *value) {
         items_.emplace_back(key, value);
         return *this;
@@ -56,6 +52,12 @@ public:
 
     auto get() {
         return items_;
+    }
+
+private:
+    MapItemList() = default;
+    explicit MapItemList(size_t sz) {
+        items_.reserve(sz);
     }
 
 private:
@@ -70,13 +72,6 @@ public:
         DCHECK(!!pool);
         return items == nullptr ? pool->add(new ListExpression(pool))
                                 : pool->add(new ListExpression(pool, items));
-    }
-
-    explicit ListExpression(ObjectPool *pool) : Expression(pool, Kind::kList) {}
-
-    explicit ListExpression(ObjectPool *pool, ExpressionList *items)
-        : Expression(pool, Kind::kList) {
-        items_ = items->get();
     }
 
     const Value& eval(ExpressionContext &ctx) override;
@@ -109,7 +104,7 @@ public:
     void accept(ExprVisitor *visitor) override;
 
     Expression* clone() const override {
-        auto items = new ExpressionList(items_.size());
+        auto items = ExpressionList::make(pool_, items_.size());
         for (auto &item : items_) {
             items->add(item->clone());
         }
@@ -117,6 +112,13 @@ public:
     }
 
 private:
+    explicit ListExpression(ObjectPool *pool) : Expression(pool, Kind::kList) {}
+
+    explicit ListExpression(ObjectPool *pool, ExpressionList *items)
+        : Expression(pool, Kind::kList) {
+        items_ = items->get();
+    }
+
     void writeTo(Encoder &encoder) const override;
 
     void resetFrom(Decoder &decoder) override;
@@ -133,13 +135,6 @@ public:
         DCHECK(!!pool);
         return items == nullptr ? pool->add(new SetExpression(pool))
                                 : pool->add(new SetExpression(pool, items));
-    }
-
-    explicit SetExpression(ObjectPool *pool = nullptr) : Expression(pool, Kind::kSet) {}
-
-    explicit SetExpression(ObjectPool *pool, ExpressionList *items)
-        : Expression(pool, Kind::kSet) {
-        items_ = items->get();
     }
 
     const Value& eval(ExpressionContext &ctx) override;
@@ -172,7 +167,7 @@ public:
     void accept(ExprVisitor* visitor) override;
 
     Expression* clone() const override {
-        auto items = new ExpressionList(items_.size());
+        auto items = ExpressionList::make(pool_, items_.size());
         for (auto &item : items_) {
             items->add(item->clone());
         }
@@ -180,6 +175,12 @@ public:
     }
 
 private:
+    explicit SetExpression(ObjectPool *pool = nullptr) : Expression(pool, Kind::kSet) {}
+
+    explicit SetExpression(ObjectPool *pool, ExpressionList *items) : Expression(pool, Kind::kSet) {
+        items_ = items->get();
+    }
+
     void writeTo(Encoder &encoder) const override;
 
     void resetFrom(Decoder &decoder) override;
@@ -198,13 +199,6 @@ public:
     }
 
     using Item = std::pair<std::string, Expression *>;
-
-    explicit MapExpression(ObjectPool *pool) : Expression(pool, Kind::kMap) {}
-
-    explicit MapExpression(ObjectPool *pool, MapItemList *items)
-        : Expression(pool, Kind::kMap) {
-        items_ = items->get();
-    }
 
     const Value& eval(ExpressionContext &ctx) override;
 
@@ -236,7 +230,7 @@ public:
     void accept(ExprVisitor* visitor) override;
 
     Expression* clone() const override {
-        auto items = new MapItemList(items_.size());
+        auto items = MapItemList::make(pool_, items_.size());
         for (auto &item : items_) {
             items->add(item.first, item.second->clone());
         }
@@ -244,6 +238,12 @@ public:
     }
 
 private:
+    explicit MapExpression(ObjectPool *pool) : Expression(pool, Kind::kMap) {}
+
+    explicit MapExpression(ObjectPool *pool, MapItemList *items) : Expression(pool, Kind::kMap) {
+        items_ = items->get();
+    }
+
     void writeTo(Encoder &encoder) const override;
 
     void resetFrom(Decoder &decoder) override;

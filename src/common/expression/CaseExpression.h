@@ -52,13 +52,6 @@ public:
                       : pool->add(new CaseExpression(pool, cases, isGeneric));
     }
 
-    explicit CaseExpression(ObjectPool* pool) : Expression(pool, Kind::kCase), isGeneric_(true) {}
-
-    explicit CaseExpression(ObjectPool* pool, CaseList* cases, bool isGeneric)
-        : Expression(pool, Kind::kCase), isGeneric_(isGeneric) {
-        cases_ = cases->items();
-    }
-
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -135,10 +128,17 @@ public:
     }
 
 private:
+    explicit CaseExpression(ObjectPool* pool) : Expression(pool, Kind::kCase), isGeneric_(true) {}
+
+    explicit CaseExpression(ObjectPool* pool, CaseList* cases, bool isGeneric)
+        : Expression(pool, Kind::kCase), isGeneric_(isGeneric) {
+        cases_ = cases->items();
+    }
     void writeTo(Encoder& encoder) const override;
 
     void resetFrom(Decoder& decoder) override;
 
+private:
     bool isGeneric_;
     std::vector<CaseList::Item> cases_;
     Expression* condition_{nullptr};

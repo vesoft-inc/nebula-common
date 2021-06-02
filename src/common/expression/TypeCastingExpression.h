@@ -22,11 +22,6 @@ public:
         return pool->add(new TypeCastingExpression(pool, vType, operand));
     }
 
-    explicit TypeCastingExpression(ObjectPool* pool = nullptr,
-                                   Value::Type vType = Value::Type::__EMPTY__,
-                                   Expression* operand = nullptr)
-        : Expression(pool, Kind::kTypeCasting), vType_(vType), operand_(operand) {}
-
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -58,10 +53,15 @@ public:
     static bool validateTypeCast(Value::Type operandType, Value::Type type);
 
 private:
-    void writeTo(Encoder& encoder) const override;
+    explicit TypeCastingExpression(ObjectPool* pool = nullptr,
+                                   Value::Type vType = Value::Type::__EMPTY__,
+                                   Expression* operand = nullptr)
+        : Expression(pool, Kind::kTypeCasting), vType_(vType), operand_(operand) {}
 
+    void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
+private:
     Value::Type vType_{Value::Type::__EMPTY__};
     Expression* operand_;
     Value result_;

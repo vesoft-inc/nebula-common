@@ -33,30 +33,6 @@ public:
         return pool->add(new LogicalExpression(pool, Kind::kLogicalXor, lhs, rhs));
     }
 
-    // Construct without adding operands
-    // static LogicalExpression* makeAnd(ObjectPool* pool = nullptr) {
-    //     DCHECK(!!pool);
-    //     return pool->add(new LogicalExpression(pool, Kind::kLogicalAnd));
-    // }
-
-    // static LogicalExpression* makeOr(ObjectPool* pool = nullptr) {
-    //     DCHECK(!!pool);
-    //     return pool->add(new LogicalExpression(pool, Kind::kLogicalOr));
-    // }
-
-    // static LogicalExpression* makeXor(ObjectPool* pool = nullptr) {
-    //     DCHECK(!!pool);
-    //     return pool->add(new LogicalExpression(pool, Kind::kLogicalXor));
-    // }
-
-    explicit LogicalExpression(ObjectPool* pool, Kind kind) : Expression(pool, kind) {}
-
-    LogicalExpression(ObjectPool* pool, Kind kind, Expression* lhs, Expression* rhs)
-        : Expression(pool, kind) {
-        operands_.emplace_back(lhs);
-        operands_.emplace_back(rhs);
-    }
-
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
@@ -108,11 +84,19 @@ public:
     }
 
 private:
-    void writeTo(Encoder &encoder) const override;
-    void resetFrom(Decoder &decoder) override;
-    const Value& evalAnd(ExpressionContext &ctx);
-    const Value& evalOr(ExpressionContext &ctx);
-    const Value& evalXor(ExpressionContext &ctx);
+    explicit LogicalExpression(ObjectPool* pool, Kind kind) : Expression(pool, kind) {}
+
+    LogicalExpression(ObjectPool* pool, Kind kind, Expression* lhs, Expression* rhs)
+        : Expression(pool, kind) {
+        operands_.emplace_back(lhs);
+        operands_.emplace_back(rhs);
+    }
+
+    void writeTo(Encoder& encoder) const override;
+    void resetFrom(Decoder& decoder) override;
+    const Value& evalAnd(ExpressionContext& ctx);
+    const Value& evalOr(ExpressionContext& ctx);
+    const Value& evalXor(ExpressionContext& ctx);
 
 private:
     Value                       result_;

@@ -26,19 +26,6 @@ public:
             new ReduceExpression(pool, accumulator, initial, innerVar, collection, mapping));
     }
 
-    explicit ReduceExpression(ObjectPool* pool = nullptr,
-                              const std::string& accumulator = "",
-                              Expression* initial = nullptr,
-                              const std::string& innerVar = "",
-                              Expression* collection = nullptr,
-                              Expression* mapping = nullptr)
-        : Expression(pool, Kind::kReduce),
-          accumulator_(accumulator),
-          initial_(initial),
-          innerVar_(innerVar),
-          collection_(collection),
-          mapping_(mapping) {}
-
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -114,10 +101,23 @@ public:
     }
 
 private:
-    void writeTo(Encoder& encoder) const override;
+    explicit ReduceExpression(ObjectPool* pool = nullptr,
+                              const std::string& accumulator = "",
+                              Expression* initial = nullptr,
+                              const std::string& innerVar = "",
+                              Expression* collection = nullptr,
+                              Expression* mapping = nullptr)
+        : Expression(pool, Kind::kReduce),
+          accumulator_(accumulator),
+          initial_(initial),
+          innerVar_(innerVar),
+          collection_(collection),
+          mapping_(mapping) {}
 
+    void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
+private:
     std::string accumulator_;
     Expression* initial_;
     std::string innerVar_;

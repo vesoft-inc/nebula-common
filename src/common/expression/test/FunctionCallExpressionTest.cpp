@@ -100,7 +100,7 @@ TEST_F(FunctionCallExpressionTest, FunctionCallToStringTest) {
         for (const auto &i : args_["pow"]) {
             argList->addArgument(ConstantExpression::make(&pool, i));
         }
-        FunctionCallExpression ep("pow", argList);
+        auto ep = *FunctionCallExpression::make(&pool, "pow", argList);
         EXPECT_EQ(ep.toString(), "pow(2,3)");
     }
     {
@@ -108,7 +108,7 @@ TEST_F(FunctionCallExpressionTest, FunctionCallToStringTest) {
         for (const auto &i : args_["udf_is_in"]) {
             argList->addArgument(ConstantExpression::make(&pool, i));
         }
-        FunctionCallExpression ep("udf_is_in", argList);
+        auto ep = *FunctionCallExpression::make(&pool, "udf_is_in", argList);
         EXPECT_EQ(ep.toString(), "udf_is_in(4,1,2,8,4,3,1,0)");
     }
     {
@@ -116,11 +116,11 @@ TEST_F(FunctionCallExpressionTest, FunctionCallToStringTest) {
         for (const auto &i : args_["neg_int"]) {
             argList->addArgument(ConstantExpression::make(&pool, i));
         }
-        FunctionCallExpression ep("abs", argList);
+        auto ep = *FunctionCallExpression::make(&pool, "abs", argList);
         EXPECT_EQ(ep.toString(), "abs(-1)");
     }
     {
-        FunctionCallExpression ep("now");
+        auto ep = *FunctionCallExpression::make(&pool, "now");
         EXPECT_EQ(ep.toString(), "now()");
     }
 }

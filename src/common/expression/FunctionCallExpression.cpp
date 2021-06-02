@@ -62,7 +62,7 @@ void FunctionCallExpression::resetFrom(Decoder& decoder) {
 
     // Read args_
     size_t sz = decoder.readSize();
-    args_ = new ArgumentList();
+    args_ = ArgumentList::make(pool_);
     for (size_t i = 0;  i < sz; i++) {
         args_->addArgument(decoder.readExpression(pool_));
     }

@@ -23,8 +23,6 @@ public:
         return pool->add(new EdgeExpression(pool));
     }
 
-    explicit EdgeExpression(ObjectPool* pool = nullptr) : Expression(pool, Kind::kEdge) {}
-
     const Value& eval(ExpressionContext& ctx) override;
 
     void accept(ExprVisitor* visitor) override;
@@ -42,7 +40,9 @@ public:
     }
 
 private:
-    void writeTo(Encoder &encoder) const override {
+    explicit EdgeExpression(ObjectPool* pool = nullptr) : Expression(pool, Kind::kEdge) {}
+
+    void writeTo(Encoder& encoder) const override {
         encoder << kind();
     }
 

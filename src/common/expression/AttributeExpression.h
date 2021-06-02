@@ -21,11 +21,6 @@ public:
         return pool->add(new AttributeExpression(pool, lhs, rhs));
     }
 
-    explicit AttributeExpression(ObjectPool *pool = nullptr,
-                                 Expression *lhs = nullptr,
-                                 Expression *rhs = nullptr)
-        : BinaryExpression(pool, Kind::kAttribute, lhs, rhs) {}
-
     const Value& eval(ExpressionContext &ctx) override;
 
     void accept(ExprVisitor *visitor) override;
@@ -35,6 +30,12 @@ public:
     Expression* clone() const override {
         return AttributeExpression::make(pool_, left()->clone(), right()->clone());
     }
+
+private:
+    explicit AttributeExpression(ObjectPool *pool = nullptr,
+                                 Expression *lhs = nullptr,
+                                 Expression *rhs = nullptr)
+        : BinaryExpression(pool, Kind::kAttribute, lhs, rhs) {}
 
 private:
     Value                       result_;

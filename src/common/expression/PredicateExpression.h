@@ -32,17 +32,6 @@ public:
         return pool->add(new PredicateExpression(pool, name, innerVar, collection, filter));
     }
 
-    explicit PredicateExpression(ObjectPool* pool = nullptr,
-                                 const std::string& name = "",
-                                 const std::string& innerVar = "",
-                                 Expression* collection = nullptr,
-                                 Expression* filter = nullptr)
-        : Expression(pool, Kind::kPredicate),
-          name_(name),
-          innerVar_(innerVar),
-          collection_(collection),
-          filter_(filter) {}
-
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -110,12 +99,22 @@ public:
     }
 
 private:
+    explicit PredicateExpression(ObjectPool* pool = nullptr,
+                                 const std::string& name = "",
+                                 const std::string& innerVar = "",
+                                 Expression* collection = nullptr,
+                                 Expression* filter = nullptr)
+        : Expression(pool, Kind::kPredicate),
+          name_(name),
+          innerVar_(innerVar),
+          collection_(collection),
+          filter_(filter) {}
+
     const Value& evalExists(ExpressionContext& ctx);
-
     void writeTo(Encoder& encoder) const override;
-
     void resetFrom(Decoder& decoder) override;
 
+private:
     static std::unordered_map<std::string, Type> typeMap_;
 
     std::string name_;

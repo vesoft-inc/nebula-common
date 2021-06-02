@@ -21,11 +21,6 @@ public:
         return pool->add(new SubscriptExpression(pool, lhs, rhs));
     }
 
-    explicit SubscriptExpression(ObjectPool* pool = nullptr,
-                                 Expression* lhs = nullptr,
-                                 Expression* rhs = nullptr)
-        : BinaryExpression(pool, Kind::kSubscript, lhs, rhs) {}
-
     const Value& eval(ExpressionContext& ctx) override;
 
     std::string toString() const override;
@@ -37,7 +32,13 @@ public:
     }
 
 private:
-    Value                               result_;
+    explicit SubscriptExpression(ObjectPool* pool = nullptr,
+                                 Expression* lhs = nullptr,
+                                 Expression* rhs = nullptr)
+        : BinaryExpression(pool, Kind::kSubscript, lhs, rhs) {}
+
+private:
+    Value result_;
 };
 
 class SubscriptRangeExpression final : public Expression {
@@ -49,17 +50,6 @@ public:
         DCHECK(!!pool);
         return !list && !lo && !hi ? pool->add(new SubscriptRangeExpression(pool))
                                    : pool->add(new SubscriptRangeExpression(pool, list, lo, hi));
-    }
-    // for decode ctor
-    explicit SubscriptRangeExpression(ObjectPool* pool)
-        : Expression(pool, Kind::kSubscriptRange), list_(nullptr), lo_(nullptr), hi_(nullptr) {}
-
-    explicit SubscriptRangeExpression(ObjectPool* pool,
-                                      Expression* list,
-                                      Expression* lo,
-                                      Expression* hi)
-        : Expression(pool, Kind::kSubscriptRange), list_(DCHECK_NOTNULL(list)), lo_(lo), hi_(hi) {
-        DCHECK(!(lo_ == nullptr && hi_ == nullptr));
     }
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -114,11 +104,23 @@ public:
     }
 
 private:
+    // for decode ctor
+    explicit SubscriptRangeExpression(ObjectPool* pool)
+        : Expression(pool, Kind::kSubscriptRange), list_(nullptr), lo_(nullptr), hi_(nullptr) {}
+
+    explicit SubscriptRangeExpression(ObjectPool* pool,
+                                      Expression* list,
+                                      Expression* lo,
+                                      Expression* hi)
+        : Expression(pool, Kind::kSubscriptRange), list_(DCHECK_NOTNULL(list)), lo_(lo), hi_(hi) {
+        DCHECK(!(lo_ == nullptr && hi_ == nullptr));
+    }
     void writeTo(Encoder& encoder) const override;
 
     void resetFrom(Decoder& decoder) override;
 
-    // It's must list typed
+private:
+    // It's must be list type
     Expression* list_;
 
     // range is [lo, hi), they could be any integer
@@ -126,7 +128,7 @@ private:
     Expression* hi_;
 
     // runtime cache
-    Value                       result_;
+    Value result_;
 };
 
 }   // namespace nebula

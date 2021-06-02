@@ -20,8 +20,6 @@ public:
         return pool->add(new PathBuildExpression(pool));
     }
 
-    explicit PathBuildExpression(ObjectPool* pool = nullptr) : Expression(pool, Kind::kPathBuild) {}
-
     const Value& eval(ExpressionContext& ctx) override;
 
     bool operator==(const Expression &rhs) const override;
@@ -55,6 +53,8 @@ public:
     }
 
 private:
+    explicit PathBuildExpression(ObjectPool* pool = nullptr) : Expression(pool, Kind::kPathBuild) {}
+
     void writeTo(Encoder &encoder) const override;
 
     void resetFrom(Decoder &decoder) override;

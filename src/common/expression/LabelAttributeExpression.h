@@ -24,15 +24,6 @@ public:
         return pool->add(new LabelAttributeExpression(pool, lhs, rhs));
     }
 
-    explicit LabelAttributeExpression(ObjectPool* pool = nullptr,
-                                      LabelExpression* lhs = nullptr,
-                                      ConstantExpression* rhs = nullptr)
-        : Expression(pool, Kind::kLabelAttribute) {
-        DCHECK(rhs == nullptr || rhs->value().isStr());
-        lhs_ = lhs;
-        rhs_ = rhs;
-    }
-
     bool operator==(const Expression &rhs) const override {
         if (rhs.kind() != kind()) {
             return false;
@@ -73,6 +64,15 @@ public:
     std::string toString() const override;
 
 private:
+    explicit LabelAttributeExpression(ObjectPool* pool = nullptr,
+                                      LabelExpression* lhs = nullptr,
+                                      ConstantExpression* rhs = nullptr)
+        : Expression(pool, Kind::kLabelAttribute) {
+        DCHECK(rhs == nullptr || rhs->value().isStr());
+        lhs_ = lhs;
+        rhs_ = rhs;
+    }
+
     void writeTo(Encoder&) const override {
         LOG(FATAL) << "LabelAttributeExpression not supporte to encode.";
     }

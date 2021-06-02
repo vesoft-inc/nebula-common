@@ -24,17 +24,6 @@ public:
             new ListComprehensionExpression(pool, innerVar, collection, filter, mapping));
     }
 
-    explicit ListComprehensionExpression(ObjectPool* pool = nullptr,
-                                         const std::string& innerVar = "",
-                                         Expression* collection = nullptr,
-                                         Expression* filter = nullptr,
-                                         Expression* mapping = nullptr)
-        : Expression(pool, Kind::kListComprehension),
-          innerVar_(innerVar),
-          collection_(collection),
-          filter_(filter),
-          mapping_(mapping) {}
-
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -110,10 +99,22 @@ public:
     }
 
 private:
+    explicit ListComprehensionExpression(ObjectPool* pool = nullptr,
+                                         const std::string& innerVar = "",
+                                         Expression* collection = nullptr,
+                                         Expression* filter = nullptr,
+                                         Expression* mapping = nullptr)
+        : Expression(pool, Kind::kListComprehension),
+          innerVar_(innerVar),
+          collection_(collection),
+          filter_(filter),
+          mapping_(mapping) {}
+
     void writeTo(Encoder& encoder) const override;
 
     void resetFrom(Decoder& decoder) override;
 
+private:
     std::string innerVar_;
     Expression* collection_;
     Expression* filter_;    // filter_ is optional
