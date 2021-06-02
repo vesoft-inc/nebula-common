@@ -22,14 +22,14 @@ static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *use
     CURL *curl;
     CURLcode res;
     curl = curl_easy_init();
-    std::string ReturnString;
+    std::string returnString;
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ReturnString);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &returnString);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         res = curl_easy_perform(curl);
-        StatusOr<std::string> result = ReturnString;
+        StatusOr<std::string> result = returnString;
         curl_easy_cleanup(curl);
         LOG(INFO) << "HTTP return Code: " << res;
         if (result.ok()) {
@@ -46,33 +46,33 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const std::strin
     CURLcode res;
     struct curl_slist *headers = nullptr;
     auto len = header.length();
-    auto NowTotal = 0;
-    std::string ReturnString;
-    std::string NewString = "";
+    auto nowTotal = 0;
+    std::string returnString;
+    std::string newString = "";
     for ( size_t i = 0 ; i < len ; i++ ) {
         if (header[i] == '\"') {
-            NowTotal++;
-            if (NowTotal%2 == 1) {
-                NewString = "";
+            nowTotal++;
+            if (nowTotal%2 == 1) {
+                newString = "";
                 continue;
             }
-            if (NowTotal%2 == 0) {
-                headers = curl_slist_append(headers, NewString.c_str());
+            if (nowTotal%2 == 0) {
+                headers = curl_slist_append(headers, newString.c_str());
             }
             continue;
         }
-        NewString += header[i];
+        newString += header[i];
     }
     curl = curl_easy_init();
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ReturnString);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &returnString);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         res = curl_easy_perform(curl);
         curl_slist_free_all(headers);
-        StatusOr<std::string> result = ReturnString;
+        StatusOr<std::string> result = returnString;
         curl_easy_cleanup(curl);
         LOG(INFO) << "HTTP return Code: " << res;
         if (result.ok()) {
@@ -111,33 +111,33 @@ StatusOr<std::string> HttpClient::put(const std::string& path, const std::string
     CURLcode res;
     struct curl_slist *headers = nullptr;
     auto len = header.length();
-    auto NowTotal = 0;
-    std::string ReturnString;
-    std::string NewString = "";
+    auto nowTotal = 0;
+    std::string returnString;
+    std::string newString = "";
     for ( size_t i = 0 ; i < len ; i++ ) {
         if (header[i] == '\"') {
-            NowTotal++;
-            if (NowTotal%2 == 1) {
-                NewString = "";
+            nowTotal++;
+            if (nowTotal%2 == 1) {
+                newString = "";
                 continue;
             }
-            if (NowTotal%2 == 0) {
-                headers = curl_slist_append(headers, NewString.c_str());
+            if (nowTotal%2 == 0) {
+                headers = curl_slist_append(headers, newString.c_str());
             }
             continue;
         }
-        NewString += header[i];
+        newString += header[i];
     }
     curl = curl_easy_init();
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "put");
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ReturnString);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &returnString);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         res = curl_easy_perform(curl);
         curl_slist_free_all(headers);
-        StatusOr<std::string> result = ReturnString;
+        StatusOr<std::string> result = returnString;
         curl_easy_cleanup(curl);
         LOG(INFO) << "HTTP return Code: " << res;
         if (result.ok()) {
@@ -160,21 +160,21 @@ StatusOr<std::string> HttpClient::sendRequest(const std::string& path,
     CURLcode res;
     curl_global_init(CURL_GLOBAL_ALL);
     curl = curl_easy_init();
-    std::string ReturnString;
+    std::string returnString;
     if (curl) {
         struct curl_slist *headers = nullptr;
         std::string mydata = folly::toJson(data);
         headers = curl_slist_append(headers, "Content-Type: application/json");
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, reqType.c_str());
         curl_easy_setopt(curl, CURLOPT_URL, path.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ReturnString);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &returnString);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, mydata.c_str());
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         res = curl_easy_perform(curl);
         LOG(INFO) << "HTTP return Code: " << res;
-        StatusOr<std::string> result = ReturnString;
+        StatusOr<std::string> result = returnString;
         curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
         curl_global_cleanup();
