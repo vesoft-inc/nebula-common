@@ -12,7 +12,7 @@
 #include "common/expression/test/ExpressionContextMock.h"
 
 nebula::ExpressionContextMock gExpCtxt;
-
+nebula::ObjectPool pool;
 namespace nebula {
 
 static AggregateExpression* expr = nullptr;
@@ -32,9 +32,8 @@ using nebula::AggregateExpression;
 using nebula::ConstantExpression;
 
 int main(int argc, char** argv) {
-    ObjectPool pool;
-    nebula::expr.reset(new nebula::AggregateExpression::make(
-        &pool, "avg", new nebula::ConstantExpression(2), false));
+    nebula::expr = (nebula::AggregateExpression::make(
+        &pool, "avg", nebula::ConstantExpression::make(&pool, 2), false));
     nebula::AggData aggData;
     nebula::expr->setAggData(&aggData);
 

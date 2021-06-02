@@ -37,7 +37,7 @@ public:
 
     Expression* clone() const override {
         auto argCopy = arg()->clone();
-        return pool_->add(AggregateExpression::make(pool_, name_, argCopy, distinct_));
+        return AggregateExpression::make(pool_, name_, argCopy, distinct_);
     }
 
     const std::string& name() const {

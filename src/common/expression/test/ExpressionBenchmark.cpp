@@ -10,10 +10,10 @@
 namespace nebula {
 size_t add2Constant(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    auto expr = ArithmeticExpression::makeAdd(
+    auto expr = *ArithmeticExpression::makeAdd(
         &pool, ConstantExpression::make(&pool, 1), ConstantExpression::make(&pool, 2));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(expr, gExpCtxt);
+        Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -21,13 +21,13 @@ size_t add2Constant(size_t iters) {
 
 size_t add3Constant(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    auto expr = ArithmeticExpression::makeAdd(
+    auto expr = *ArithmeticExpression::makeAdd(
         &pool,
         ArithmeticExpression::makeAdd(
             &pool, ConstantExpression::make(&pool, 1), ConstantExpression::make(&pool, 2)),
         ConstantExpression::make(&pool, 3));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(expr, gExpCtxt);
+        Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -35,13 +35,13 @@ size_t add3Constant(size_t iters) {
 
 size_t add2Constant1EdgeProp(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    auto expr = ArithmeticExpression::makeAdd(
+    auto expr = *ArithmeticExpression::makeAdd(
         &pool,
         ArithmeticExpression::makeAdd(
             &pool, ConstantExpression::make(&pool, 1), ConstantExpression::make(&pool, 2)),
         EdgePropertyExpression::make(&pool, "e1", "int"));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(expr, gExpCtxt);
+        Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -49,12 +49,12 @@ size_t add2Constant1EdgeProp(size_t iters) {
 
 size_t concat2String(size_t iters) {
     constexpr size_t ops = 1000000UL;
-    auto expr = ArithmeticExpression::makeAdd(
-            &pool,
-            EdgePropertyExpression::make(&pool, "e1", "string16"),
-            EdgePropertyExpression::make(&pool, "e1", "string16"));
+    auto expr =
+        *ArithmeticExpression::makeAdd(&pool,
+                                       EdgePropertyExpression::make(&pool, "e1", "string16"),
+                                       EdgePropertyExpression::make(&pool, "e1", "string16"));
     for (size_t i = 0; i < iters * ops; ++i) {
-        Value eval = Expression::eval(expr, gExpCtxt);
+        Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
     }
     return iters * ops;
@@ -101,7 +101,7 @@ size_t isListEq(size_t iters, const char* prop) {
 size_t getSrcProp(size_t iters, const char* prop) {
     constexpr size_t ops = 1000000UL;
     // $^.source.int
-    SourcePropertyExpression expr("source", prop);
+    auto expr = *SourcePropertyExpression::make(&pool, "source", prop);
     for (size_t i = 0; i < iters * ops; ++i) {
         Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
@@ -112,7 +112,7 @@ size_t getSrcProp(size_t iters, const char* prop) {
 size_t getDstProp(size_t iters, const char* prop) {
     constexpr size_t ops = 1000000UL;
     // $^.dest.int
-    DestPropertyExpression expr("dest", prop);
+    auto expr = *DestPropertyExpression::make(&pool, "dest", prop);
     for (size_t i = 0; i < iters * ops; ++i) {
         Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
@@ -123,7 +123,7 @@ size_t getDstProp(size_t iters, const char* prop) {
 size_t getEdgeProp(size_t iters, const char* prop) {
     constexpr size_t ops = 1000000UL;
     // e1.int
-    EdgePropertyExpression expr("e1", prop);
+    auto expr = *EdgePropertyExpression::make(&pool, "e1", prop);
     for (size_t i = 0; i < iters * ops; ++i) {
         Value eval = Expression::eval(&expr, gExpCtxt);
         folly::doNotOptimizeAway(eval);
