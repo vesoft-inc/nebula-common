@@ -49,7 +49,7 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const std::strin
     int32_t nowTotal = 0;
     std::string returnString;
     std::string newString = "";
-    for ( size_t i = 0 ; i < len ; i++ ) {
+    for ( int32_t i = 0 ; i < len ; i++ ) {
         if (header[i] == '\"') {
             nowTotal++;
             if (nowTotal%2 == 1) {
@@ -114,7 +114,7 @@ StatusOr<std::string> HttpClient::put(const std::string& path, const std::string
     int32_t nowTotal = 0;
     std::string returnString;
     std::string newString = "";
-    for ( size_t i = 0 ; i < len ; i++ ) {
+    for ( int32_t i = 0 ; i < len ; i++ ) {
         if (header[i] == '\"') {
             nowTotal++;
             if (nowTotal%2 == 1) {
