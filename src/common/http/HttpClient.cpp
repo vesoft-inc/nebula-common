@@ -46,17 +46,17 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const std::strin
     CURLcode res;
     struct curl_slist *headers = nullptr;
     auto len = header.length();
-    auto now_total = 0;
+    auto NowTotal = 0;
     std::string ReturnString;
     std::string NewString = "";
     for ( size_t i = 0 ; i < len ; i++ ) {
         if (header[i] == '\"') {
-            now_total++;
-            if (now_total%2 == 1) {
+            NowTotal++;
+            if (NowTotal%2 == 1) {
                 NewString = "";
                 continue;
             }
-            if (now_total%2 == 0) {
+            if (NowTotal%2 == 0) {
                 headers = curl_slist_append(headers, NewString.c_str());
             }
             continue;
@@ -111,17 +111,17 @@ StatusOr<std::string> HttpClient::put(const std::string& path, const std::string
     CURLcode res;
     struct curl_slist *headers = nullptr;
     auto len = header.length();
-    auto now_total = 0;
+    auto NowTotal = 0;
     std::string ReturnString;
     std::string NewString = "";
     for ( size_t i = 0 ; i < len ; i++ ) {
         if (header[i] == '\"') {
-            now_total++;
-            if (now_total%2 == 1) {
+            NowTotal++;
+            if (NowTotal%2 == 1) {
                 NewString = "";
                 continue;
             }
-            if (now_total%2 == 0) {
+            if (NowTotal%2 == 0) {
                 headers = curl_slist_append(headers, NewString.c_str());
             }
             continue;
@@ -181,7 +181,9 @@ StatusOr<std::string> HttpClient::sendRequest(const std::string& path,
         if (result.ok()) {
             return result.value();
         } else {
-            return Status::Error(folly::stringPrintf("Http Request Failed: %s", path.c_str()));
+            return Status::Error(folly::stringPrintf("Http %s Failed: %s",
+                                                     reqType.c_str(),
+                                                     path.c_str()));
         }
     }
     return Status::Error(folly::stringPrintf("Libcurl Failed: %s", path.c_str()));
