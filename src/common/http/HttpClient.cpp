@@ -45,8 +45,8 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const std::strin
     CURL *curl;
     CURLcode res;
     struct curl_slist *headers = nullptr;
-    auto len = header.length();
-    auto nowTotal = 0;
+    int32_t len = header.length();
+    int32_t nowTotal = 0;
     std::string returnString;
     std::string newString = "";
     for ( size_t i = 0 ; i < len ; i++ ) {
@@ -110,8 +110,8 @@ StatusOr<std::string> HttpClient::put(const std::string& path, const std::string
     CURL *curl;
     CURLcode res;
     struct curl_slist *headers = nullptr;
-    auto len = header.length();
-    auto nowTotal = 0;
+    int32_t len = header.length();
+    int32_t nowTotal = 0;
     std::string returnString;
     std::string newString = "";
     for ( size_t i = 0 ; i < len ; i++ ) {
