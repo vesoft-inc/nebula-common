@@ -14,6 +14,7 @@
 #include "common/stats/StatsManager.h"
 #include "common/clients/meta/FileBasedClusterIdMan.h"
 #include "common/webservice/Common.h"
+#include "common/version/Version.h"
 #include <folly/hash/Hash.h>
 #include <folly/ScopeGuard.h>
 #include <folly/executors/Async.h>
@@ -785,6 +786,12 @@ Status MetaClient::handleResponse(const RESP& resp) {
             return Status::Error("The space is not found when backup!");
         case nebula::cpp2::ErrorCode::E_RESTORE_FAILURE:
             return Status::Error("Restore failure!");
+        case nebula::cpp2::ErrorCode::E_LIST_CLUSTER_FAILURE:
+            return Status::Error("list cluster failure!");
+        case nebula::cpp2::ErrorCode::E_LIST_CLUSTER_GET_ABS_PATH_FAILURE:
+            return Status::Error("Failed to get the absolute path!");
+        case nebula::cpp2::ErrorCode::E_GET_META_DIR_FAILURE:
+            return Status::Error("Failed to get meta dir!");
         case nebula::cpp2::ErrorCode::E_INVALID_JOB:
             return Status::Error("No valid job!");
         case nebula::cpp2::ErrorCode::E_BACKUP_EMPTY_TABLE:
@@ -2379,6 +2386,9 @@ folly::Future<StatusOr<bool>> MetaClient::heartbeat() {
     req.set_host(options_.localHost_);
     req.set_role(options_.role_);
     req.set_git_info_sha(options_.gitInfoSHA_);
+#if defined(NEBULA_BUILD_VERSION)
+    req.set_version(simpleVersionString());
+#endif
     if (options_.role_ == cpp2::HostRole::STORAGE) {
         if (options_.clusterId_.load() == 0) {
             options_.clusterId_ =
@@ -3691,4 +3701,3 @@ folly::Future<StatusOr<bool>> MetaClient::ingest(GraphSpaceID spaceId) {
 
 }  // namespace meta
 }  // namespace nebula
-
