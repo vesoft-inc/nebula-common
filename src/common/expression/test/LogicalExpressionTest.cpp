@@ -163,8 +163,8 @@ TEST_F(LogicalExpressionTest, LogicalCalculation) {
 
         TEST_EXPR(empty OR false AND true AND null XOR empty, Value::kEmpty);
         TEST_EXPR(empty OR false AND true XOR empty OR true, true);
-        // FIXME(aiee)
-        // TEST_EXPR((empty OR false)AND true XOR empty XOR null AND 2 / 0, Value::kNullValue);
+
+        TEST_EXPR((empty OR false) AND true XOR empty XOR null AND 2 / 0, Value::kNullValue);
         // empty OR false AND 2/0
         TEST_EXPR(empty OR false AND true XOR empty XOR null AND 2 / 0, Value::kEmpty);
         TEST_EXPR(empty AND true XOR empty XOR null AND 2 / 0, Value::kNullValue);
