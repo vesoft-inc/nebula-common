@@ -102,13 +102,13 @@ std::string Date::toString() const {
 
 std::string Time::toString() const {
     // It's in current timezone already
-    return folly::stringPrintf("%02d:%02d:%02d.%06d", hour, minute, sec, microsec);
+    return folly::stringPrintf("%02d:%02d:%02d.%09d", hour, minute, sec, microsec / 100000);
 }
 
 std::string DateTime::toString() const {
     // It's in current timezone already
     return folly::stringPrintf(
-        "%d-%02d-%02dT%02d:%02d:%02d.%d", year, month, day, hour, minute, sec, microsec);
+        "%d-%02d-%02dT%02d:%02d:%02d.%09d", year, month, day, hour, minute, sec, microsec / 100000);
 }
 
 }   // namespace nebula

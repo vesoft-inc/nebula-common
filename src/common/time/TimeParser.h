@@ -45,7 +45,7 @@ private:
     static constexpr char kTimeDelimiter = ':';
 
     static constexpr char kTimePrefix = 'T';
-    static constexpr char kMicroSecondPrefix = '.';
+    static constexpr char kFractionPrefix = '.';
     static constexpr char kPlus = '+';
     static constexpr char kMinus = '-';
 
@@ -66,7 +66,6 @@ private:
         kMinus,
         kTimeDelimiter,
         kTimePrefix,
-        kMicroSecondPrefix,
         kTimeZoneName,
     };
 
@@ -74,7 +73,7 @@ private:
 
     struct Token {
         TokenType type;
-        int32_t val;   // only used for number token
+        double val;   // only used for number token
         std::string str;
     };
 
@@ -90,7 +89,6 @@ private:
         kTimeHour,          // 4
         kTimeMinute,        // 5
         kTimeSecond,        // 6
-        kTimeMicroSecond,   // 7
         kUtcOffset,         // 8
         kUtcOffsetHour,     // 9
         kUtcOffsetMinute,   // 10

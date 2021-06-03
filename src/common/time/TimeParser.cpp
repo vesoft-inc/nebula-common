@@ -30,7 +30,8 @@ namespace time {
          if (t.type == TokenType::kNumber) {
              if (t.val < std::numeric_limits<decltype(ctx.result.year)>::min() ||
                  t.val > std::numeric_limits<decltype(ctx.result.year)>::max()) {
-                 return Status::Error("The year number `%d' exceed the number limit.", t.val);
+                 return Status::Error("The year number `%d' exceed the number limit.",
+                                      static_cast<uint32_t>(t.val));
              }
              ctx.result.year = t.val;
              switch (n.type) {
@@ -58,7 +59,8 @@ namespace time {
          }
          if (t.type == TokenType::kNumber) {
              if (t.val < 1 || t.val > 12) {
-                 return Status::Error("The month number `%d' exceed the number limit.", t.val);
+                 return Status::Error("The month number `%d' exceed the number limit.",
+                                      static_cast<uint32_t>(t.val));
              }
              ctx.result.month = t.val;
              switch (n.type) {
@@ -86,7 +88,8 @@ namespace time {
          }
          if (t.type == TokenType::kNumber) {
              if (t.val < 1 || t.val > 31) {
-                 return Status::Error("The day number `%d' exceed the number limit.", t.val);
+                 return Status::Error("The day number `%d' exceed the number limit.",
+                                      static_cast<uint32_t>(t.val));
              }
              ctx.result.day = t.val;
              switch (n.type) {
@@ -112,7 +115,8 @@ namespace time {
          }
          if (t.type == TokenType::kNumber) {
              if (t.val < 0 || t.val > 23) {
-                 return Status::Error("The hour number `%d' exceed the number limit.", t.val);
+                 return Status::Error("The hour number `%d' exceed the number limit.",
+                                      static_cast<uint32_t>(t.val));
              }
              ctx.result.hour = t.val;
              switch (n.type) {
@@ -140,7 +144,8 @@ namespace time {
          }
          if (t.type == TokenType::kNumber) {
              if (t.val < 0 || t.val > 59) {
-                 return Status::Error("The minute number `%d' exceed the number limit.", t.val);
+                 return Status::Error("The minute number `%d' exceed the number limit.",
+                                      static_cast<uint32_t>(t.val));
              }
              ctx.result.minute = t.val;
              switch (n.type) {
@@ -167,42 +172,14 @@ namespace time {
              return kTimeSecond;
          }
          if (t.type == TokenType::kNumber) {
-             if (t.val < 0 || t.val > 59) {
-                 return Status::Error("The second number `%d' exceed the number limit.", t.val);
+             if (t.val < 0 || t.val >= 60) {
+                 return Status::Error("The second number `%f' exceed the number limit.", t.val);
              }
-             ctx.result.sec = t.val;
+             double integer{0};
+             double fraction = std::modf(t.val, &integer);
+             ctx.result.sec = integer;
+             ctx.result.microsec = std::round(fraction * 100000);
              switch (n.type) {
-                 case TokenType::kMicroSecondPrefix:
-                     return kTimeMicroSecond;
-                 case TokenType::kPlus:
-                 case TokenType::kMinus:
-                     return kUtcOffset;
-                 case TokenType::kTimeZoneName:
-                     return kTimeZone;
-                 case TokenType::kPlaceHolder:
-                     return kEnd;
-                 default:
-                     return Status::Error("Unexpected read-ahead token `%s'.", toString(n.type));
-             }
-         } else {
-             return Status::Error("Unexpected token `%s'.", toString(n.type));
-         }
-         return Status::OK();
-     }},
-    {kTimeMicroSecond,
-     [](Token t, Token n, Context &ctx) -> StatusOr<State> {
-         if (t.type == TokenType::kMicroSecondPrefix) {
-             return kTimeMicroSecond;
-         }
-         if (t.type == TokenType::kNumber) {
-             if (t.val < 0 || t.val > 999999) {
-                 return Status::Error("The microsecond number `%d' exceed the number limit.",
-                                      t.val);
-             }
-             ctx.result.microsec = t.val;
-             switch (n.type) {
-                 case TokenType::kMicroSecondPrefix:
-                     return kTimeMicroSecond;
                  case TokenType::kPlus:
                  case TokenType::kMinus:
                      return kUtcOffset;
@@ -237,7 +214,8 @@ namespace time {
          switch (t.type) {
              case TokenType::kNumber:
                  if (t.val > 23) {
-                     return Status::Error("Unexpected utc offset hours number `%d'.", t.val);
+                     return Status::Error("Unexpected utc offset hours number `%d'.",
+                                          static_cast<uint32_t>(t.val));
                  }
                  ctx.utcOffsetSecs =
                      (ctx.utcSign == TokenType::kPlus ? t.val * 60 * 60 : -t.val * 60 * 60);
@@ -256,7 +234,8 @@ namespace time {
                  return kUtcOffsetMinute;
              case TokenType::kNumber:
                  if (t.val > 59) {
-                     return Status::Error("Unexpected utc offset minutes number `%d'.", t.val);
+                     return Status::Error("Unexpected utc offset minutes number `%d'.",
+                                          static_cast<uint32_t>(t.val));
                  }
                  ctx.utcOffsetSecs += (ctx.utcSign == TokenType::kPlus ? t.val * 60 : -t.val * 60);
                  if (n.type == TokenType::kPlaceHolder) {
@@ -312,8 +291,6 @@ namespace time {
             return "TimeDelimiter";
         case TokenType::kTimePrefix:
             return "TimePrefix";
-        case TokenType::kMicroSecondPrefix:
-            return "MicroSecondPrefix";
         case TokenType::kTimeZoneName:
             return "TimeZoneName";
     }
@@ -350,8 +327,6 @@ namespace time {
             return "TimeMinute";
         case kTimeSecond:
             return "TimeSecond";
-        case kTimeMicroSecond:
-            return "TimeMicroSecond";
         case kUtcOffset:
             return "UtcOffset";
         case kUtcOffsetHour:
@@ -375,12 +350,18 @@ Status TimeParser::lex(folly::StringPiece str) {
     digits.reserve(8);
     auto c = str.start();
     while (*c != '\0') {
-        if (std::isdigit(*c)) {
+        if (std::isdigit(*c) || kFractionPrefix == *c) {
             digits.push_back(*c);
-            if (!std::isdigit(*(c + 1))) {
+            if (!(std::isdigit(*(c + 1)) || kFractionPrefix == *(c + 1))) {
+                if (digits.front() == '.') {
+                    return Status::Error("Unexpected character `%c'.", digits.front());
+                }
+                if (digits.back() == '.') {
+                    return Status::Error("Expected character fraction.");
+                }
                 Token t;
                 try {
-                    t.val = folly::to<int32_t>(digits);
+                    t.val = folly::to<double>(digits);
                 } catch (std::exception &e) {
                     return Status::Error("%s", e.what());
                 }
@@ -392,8 +373,6 @@ Status TimeParser::lex(folly::StringPiece str) {
             tokens_.emplace_back(Token{TokenType::kTimeDelimiter, 0, ""});
         } else if (kTimePrefix == *c) {
             tokens_.emplace_back(Token{TokenType::kTimePrefix, 0, ""});
-        } else if (kMicroSecondPrefix == *c) {
-            tokens_.emplace_back(Token{TokenType::kMicroSecondPrefix, 0, ""});
         } else if (kPlus == *c) {
             tokens_.emplace_back(Token{TokenType::kPlus, 0, ""});
         } else if (kMinus == *c) {
