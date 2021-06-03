@@ -36,7 +36,7 @@ public:
         return Time{static_cast<int8_t>(ctx_.result.hour),
                     static_cast<int8_t>(ctx_.result.minute),
                     static_cast<int8_t>(ctx_.result.sec),
-                    ctx_.result.microsec};
+                    static_cast<int32_t>(ctx_.result.microsec)};
     }
 
     StatusOr<DateTime> parseDateTime(folly::StringPiece str) {
