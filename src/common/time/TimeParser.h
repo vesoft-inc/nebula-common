@@ -24,14 +24,19 @@ public:
         ctx_.type = ExpectType::kDate;
         NG_RETURN_IF_ERROR(lex(str));
         NG_RETURN_IF_ERROR(parse());
-        return Date{ctx_.result.year, ctx_.result.month, ctx_.result.day};
+        return Date{static_cast<int16_t>(ctx_.result.year),
+                    static_cast<int8_t>(ctx_.result.month),
+                    static_cast<int8_t>(ctx_.result.day)};
     }
 
     StatusOr<Time> parseTime(folly::StringPiece str) {
         ctx_.type = ExpectType::kTime;
         NG_RETURN_IF_ERROR(lex(str));
         NG_RETURN_IF_ERROR(parse());
-        return Time{ctx_.result.hour, ctx_.result.minute, ctx_.result.sec, ctx_.result.microsec};
+        return Time{static_cast<int8_t>(ctx_.result.hour),
+                    static_cast<int8_t>(ctx_.result.minute),
+                    static_cast<int8_t>(ctx_.result.sec),
+                    ctx_.result.microsec};
     }
 
     StatusOr<DateTime> parseDateTime(folly::StringPiece str) {

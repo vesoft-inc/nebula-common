@@ -13,28 +13,28 @@ TEST(TimeParser, DateTime) {
         nebula::time::TimeParser parser;
         auto result = parser.parseDateTime("2019-01-03T22:22:3.2333");
         ASSERT_TRUE(result.ok()) << result.status();
-        EXPECT_EQ(nebula::DateTime(2019, 1, 3, 22, 22, 3, 23330), result.value());
+        EXPECT_EQ(nebula::DateTime(2019, 1, 3, 22, 22, 3, 233300), result.value());
     }
     // with offset
     {
         nebula::time::TimeParser parser;
         auto result = parser.parseDateTime("2019-01-03T22:22:3.2333+02:30");
         ASSERT_TRUE(result.ok()) << result.status();
-        EXPECT_EQ(nebula::DateTime(2019, 1, 4, 00, 52, 3, 23330), result.value());
+        EXPECT_EQ(nebula::DateTime(2019, 1, 4, 00, 52, 3, 233300), result.value());
     }
     // lack day
     {
         nebula::time::TimeParser parser;
         auto result = parser.parseDateTime("2019-01T22:22:3.2333");
         ASSERT_TRUE(result.ok()) << result.status();
-        EXPECT_EQ(nebula::DateTime(2019, 1, 1, 22, 22, 3, 23330), result.value());
+        EXPECT_EQ(nebula::DateTime(2019, 1, 1, 22, 22, 3, 233300), result.value());
     }
     // lack month
     {
         nebula::time::TimeParser parser;
         auto result = parser.parseDateTime("2019T22:22:3.2333");
         ASSERT_TRUE(result.ok()) << result.status();
-        EXPECT_EQ(nebula::DateTime(2019, 1, 1, 22, 22, 3, 23330), result.value());
+        EXPECT_EQ(nebula::DateTime(2019, 1, 1, 22, 22, 3, 233300), result.value());
     }
     // lack us
     {
@@ -169,14 +169,14 @@ TEST(TimeParser, Time) {
         nebula::time::TimeParser parser;
         auto result = parser.parseTime("22:22:3.2333");
         ASSERT_TRUE(result.ok()) << result.status();
-        EXPECT_EQ(nebula::Time(22, 22, 3, 23330), result.value());
+        EXPECT_EQ(nebula::Time(22, 22, 3, 233300), result.value());
     }
     // with offset
     {
         nebula::time::TimeParser parser;
         auto result = parser.parseTime("22:22:3.2333-03:30");
         ASSERT_TRUE(result.ok()) << result.status();
-        EXPECT_EQ(nebula::Time(18, 52, 3, 23330), result.value());
+        EXPECT_EQ(nebula::Time(18, 52, 3, 233300), result.value());
     }
     // lack us
     {

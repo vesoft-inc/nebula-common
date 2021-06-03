@@ -28,8 +28,8 @@ namespace time {
     {kDateYear,
      [](Token t, Token n, Context &ctx) -> StatusOr<State> {
          if (t.type == TokenType::kNumber) {
-             if (t.val < std::numeric_limits<decltype(ctx.result.year)>::min() ||
-                 t.val > std::numeric_limits<decltype(ctx.result.year)>::max()) {
+             if (t.val < std::numeric_limits<int16_t>::min() ||
+                 t.val > std::numeric_limits<int16_t>::max()) {
                  return Status::Error("The year number `%d' exceed the number limit.",
                                       static_cast<uint32_t>(t.val));
              }
@@ -178,7 +178,7 @@ namespace time {
              double integer{0};
              double fraction = std::modf(t.val, &integer);
              ctx.result.sec = integer;
-             ctx.result.microsec = std::round(fraction * 100000);
+             ctx.result.microsec = std::round(fraction * 1000000);
              switch (n.type) {
                  case TokenType::kPlus:
                  case TokenType::kMinus:

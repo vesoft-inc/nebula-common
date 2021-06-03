@@ -191,6 +191,8 @@ struct HostItem {
     5: HostRole             role,
     6: binary               git_info_sha,
     7: optional binary      zone_name,
+    // version of binary
+    8: optional binary      version,
 }
 
 struct UserItem {
@@ -569,7 +571,9 @@ struct HBReq {
     3: ClusterID cluster_id,
     4: optional map<common.GraphSpaceID, list<LeaderInfo>>
         (cpp.template = "std::unordered_map") leader_partIds;
-    5: binary     git_info_sha
+    5: binary     git_info_sha,
+    // version of binary
+    6: optional binary version,
 }
 
 struct IndexFieldDef {
@@ -964,16 +968,14 @@ struct GetStatisResp {
     3: StatisItem       statis,
 }
 
-struct CheckpointInfo {
+struct BackupInfo {
     1: common.HostAddr host,
-    2: binary          checkpoint_dir,
+    2: list<common.CheckpointInfo> info,
 }
 
 struct SpaceBackupInfo {
-    1: SpaceDesc                    space,
-    2: common.PartitionBackupInfo   partition_info,
-    // storage checkpoint directory name
-    3: list<CheckpointInfo>         cp_dirs,
+    1: SpaceDesc           space,
+    2: list<BackupInfo>    info,
 }
 
 struct BackupMeta {
@@ -983,6 +985,9 @@ struct BackupMeta {
     2: list<binary>                               meta_files,
     // backup
     3: binary                                     backup_name,
+    4: bool                                       full,
+    5: bool                                       include_system_space,
+    6: i64                                        create_time,
 }
 
 struct CreateBackupReq {
@@ -1032,6 +1037,32 @@ struct ListFTClientsResp {
     2: common.HostAddr     leader,
     3: list<FTClient>      clients,
 }
+
+struct FTIndex {
+    1: common.GraphSpaceID  space_id,
+    2: SchemaID             depend_schema,
+    3: list<binary>         fields,
+}
+
+struct CreateFTIndexReq {
+    1: binary              fulltext_index_name,
+    2: FTIndex             index,
+}
+
+struct DropFTIndexReq {
+    1: common.GraphSpaceID space_id,
+    2: binary              fulltext_index_name,
+}
+
+struct ListFTIndexesReq {
+}
+
+struct ListFTIndexesResp {
+    1: common.ErrorCode     code,
+    2: common.HostAddr      leader,
+    3: map<binary, FTIndex> (cpp.template = "std::unordered_map") indexes,
+}
+
 
 struct Session {
     1: common.SessionID session_id,
@@ -1089,6 +1120,24 @@ struct ReportTaskReq {
     2: i32                  job_id,
     3: i32                  task_id,
     4: optional StatisItem  statis
+}
+
+struct ListClusterInfoResp {
+    1: common.ErrorCode         code,
+    2: common.HostAddr          leader,
+    3: list<common.HostAddr>    meta_servers,
+    4: list<common.NodeInfo>    storage_servers,
+}
+
+struct ListClusterInfoReq {
+}
+
+struct GetMetaDirInfoResp {
+    1: common.ErrorCode  code,
+    2: common.DirInfo    dir,
+}
+
+struct GetMetaDirInfoReq {
 }
 
 service MetaService {
@@ -1184,6 +1233,10 @@ service MetaService {
     ExecResp signOutFTService(1: SignOutFTServiceReq req);
     ListFTClientsResp listFTClients(1: ListFTClientsReq req);
 
+    ExecResp createFTIndex(1: CreateFTIndexReq req);
+    ExecResp dropFTIndex(1: DropFTIndexReq req);
+    ListFTIndexesResp listFTIndexes(1: ListFTIndexesReq req);
+
     CreateSessionResp createSession(1: CreateSessionReq req);
     ExecResp updateSessions(1: UpdateSessionsReq req);
     ListSessionsResp listSessions(1: ListSessionsReq req);
@@ -1191,4 +1244,7 @@ service MetaService {
     ExecResp removeSession(1: RemoveSessionReq req);
 
     ExecResp reportTaskFinish(1: ReportTaskReq req);
+
+    ListClusterInfoResp listCluster(1: ListClusterInfoReq req);
+    GetMetaDirInfoResp getMetaDirInfo(1: GetMetaDirInfoReq req);
 }

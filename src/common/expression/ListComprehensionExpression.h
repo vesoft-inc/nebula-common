@@ -15,7 +15,7 @@ class ListComprehensionExpression final : public Expression {
     friend class Expression;
 
 public:
-    explicit ListComprehensionExpression(std::string* innerVar = nullptr,
+    explicit ListComprehensionExpression(const std::string& innerVar = "",
                                          Expression* collection = nullptr,
                                          Expression* filter = nullptr,
                                          Expression* mapping = nullptr)
@@ -31,16 +31,16 @@ public:
 
     std::string toString() const override;
 
+    std::string rawString() const override {
+        return hasOriginString() ? originString_ : toString();
+    }
+
     void accept(ExprVisitor* visitor) override;
 
     std::unique_ptr<Expression> clone() const override;
 
-    const std::string* innerVar() const {
-        return innerVar_.get();
-    }
-
-    std::string* innerVar() {
-        return innerVar_.get();
+    const std::string& innerVar() const {
+        return innerVar_;
     }
 
     const Expression* collection() const {
@@ -67,8 +67,8 @@ public:
         return mapping_.get();
     }
 
-    void setInnerVar(std::string* name) {
-        innerVar_.reset(name);
+    void setInnerVar(const std::string& name) {
+        innerVar_ = name;
     }
 
     void setCollection(Expression* expr) {
@@ -91,14 +91,12 @@ public:
         return mapping_ != nullptr;
     }
 
-    void setOriginString(std::string* s) {
-        originString_.reset(s);
+    void setOriginString(const std::string& s) {
+        originString_ = s;
     }
 
-    std::string makeString() const;
-
     bool hasOriginString() const {
-        return originString_ != nullptr;
+        return !originString_.empty();
     }
 
 private:
@@ -106,11 +104,11 @@ private:
 
     void resetFrom(Decoder& decoder) override;
 
-    std::unique_ptr<std::string> innerVar_;
+    std::string innerVar_;
     std::unique_ptr<Expression> collection_;
     std::unique_ptr<Expression> filter_;    // filter_ is optional
     std::unique_ptr<Expression> mapping_;   // mapping_ is optional
-    std::unique_ptr<std::string> originString_;
+    std::string originString_;
     Value result_;
 };
 
