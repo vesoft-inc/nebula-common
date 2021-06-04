@@ -12,21 +12,37 @@
 
 namespace nebula {
 
-StatusOr<std::unique_ptr<MemInfo>> MemInfo::make() {
-    std::unique_ptr<MemInfo> mem(new MemInfo);
-    NG_RETURN_IF_ERROR(mem->init());
-    return mem;
+std::unique_ptr<MemInfo> MemInfo::make() {
+    return std::unique_ptr<MemInfo>(new MemInfo);;
 }
 
 MemInfo::MemInfo() noexcept {
-    info_ = std::make_unique<struct sysinfo>();
+    system_memory_info_ = std::make_unique<struct sysinfo>();
+    process_memory_info_ = std::make_unique<struct ProcessMemInfo>();
 }
 
-Status MemInfo::init() {
-    if (sysinfo(info_.get()) == -1) {
+Status MemInfo::initSysMemInfo() {
+    if (sysinfo(system_memory_info_.get()) == -1) {
         auto err = errno;
-        return Status::Error("Fail to call sysinfo to get memory info, errno: %d", err);
+        return Status::Error("Fail to call sysinfo to get system memory info, errno: %d", err);
     }
+    return Status::OK();
+}
+
+
+Status MemInfo::initProcessMemInfo() {
+#ifdef ENABLE_JEMALLOC_STATS
+    uint64_t epoch = 1;
+    size_t sz = sizeof(uint64_t);
+    // refreshing of cached dynamic statistics
+    mallctl("epoch", 0, 0, &epoch, sz);
+    if (mallctl("stats.allocated", &(process_memory_info_->allocated), &sz, NULL, 0) ||
+        mallctl("stats.active", &(process_memory_info_->active), &sz, NULL, 0) ||
+        mallctl("stats.resident", &(process_memory_info_->resident), &sz, NULL, 0) ||
+        mallctl("stats.mapped", &(process_memory_info_->mapped), &sz, NULL, 0)) {
+        return Status::Error("Fail to call jemalloc mallctl to get process memory info");
+    }
+#endif
     return Status::OK();
 }
 

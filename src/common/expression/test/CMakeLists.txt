@@ -91,6 +91,19 @@ nebula_add_executable(
         ${THRIFT_LIBRARIES}
 )
 
+nebula_add_executable(
+    NAME
+        mallctl_bm
+    SOURCES
+        jemallocStatsBenchmark.cpp
+    OBJECTS
+        $<TARGET_OBJECTS:base_obj>
+    LIBRARIES
+        follybenchmark
+        boost_regex
+        ${THRIFT_LIBRARIES}
+)
+
 
 nebula_add_test(
     NAME expression_encode_decode_test

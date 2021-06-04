@@ -1,5 +1,7 @@
 if(ENABLE_ASAN OR ENABLE_UBSAN)
     add_definitions(-DBUILT_WITH_SANITIZER)
+else()
+    add_definitions(-DENABLE_JEMALLOC_STATS)
 endif()
 
 if(ENABLE_ASAN)

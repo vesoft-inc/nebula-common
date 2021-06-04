@@ -11,9 +11,9 @@
 namespace nebula {
 
 TEST(MemInfoTest, TestMemInfo) {
-    auto status = MemInfo::make();
-    ASSERT(status.ok());
-    auto mem = std::move(status).value();
+    auto mem = MemInfo::make();
+    ASSERT(mem->initProcessMemInfo().ok());
+    ASSERT(mem->initSysMemInfo().ok());
     ASSERT_GE(mem->totalInKB(), mem->usedInKB());
     ASSERT_GE(mem->totalInKB(), mem->freeInKB());
     ASSERT_GE(mem->totalInKB(), mem->bufferInKB());
