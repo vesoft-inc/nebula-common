@@ -16,8 +16,10 @@ namespace meta {
 Value GflagsManager::gflagsValueToValue(const std::string &type, const std::string &flagValue) {
     // all int32/uint32/uint64 gflags are converted to int64 for now
     folly::StringPiece view(type);
-    if (view.startsWith("int") || view.startsWith("uint")) {
+    if (view.startsWith("int")) {
         return Value(folly::to<int64_t>(flagValue));
+    } else if (view.startsWith("uint")) {
+        return Value(folly::to<uint64_t>(flagValue));
     } else if (type == "double") {
         return Value(folly::to<double>(flagValue));
     } else if (type == "bool") {
