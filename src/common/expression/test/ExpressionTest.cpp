@@ -861,6 +861,7 @@ TEST_F(ExpressionTest, FunctionCallTest) {
     {
         FunctionCallExpression expr("TimE");
         EXPECT_TRUE(expr.isFunc("time"));
+        EXPECT_FALSE(expr.isFunc("time_"));
     }
 }
 
