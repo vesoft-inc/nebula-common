@@ -92,6 +92,12 @@ TEST_F(FunctionCallExpressionTest, FunctionCallTest) {
         STEP("2", "edge", 1, 1);
         TEST_FUNCTION(hasSameEdgeInPath, {path}, false);
     }
+    // Check function
+    {
+        auto expr = *FunctionCallExpression::make(&pool, "TimE");
+        EXPECT_TRUE(expr.isFunc("time"));
+        EXPECT_FALSE(expr.isFunc("time_"));
+    }
 }
 
 TEST_F(FunctionCallExpressionTest, FunctionCallToStringTest) {
