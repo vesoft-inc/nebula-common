@@ -12,7 +12,7 @@
 namespace nebula {
 class VariableExpression final : public Expression {
 public:
-    static VariableExpression* make(ObjectPool* pool = nullptr,
+    static VariableExpression* make(ObjectPool* pool ,
                                     const std::string& var = "",
                                     bool isInner = false) {
         DCHECK(!!pool);
@@ -45,7 +45,7 @@ public:
     }
 
 private:
-    explicit VariableExpression(ObjectPool* pool = nullptr,
+    explicit VariableExpression(ObjectPool* pool ,
                                 const std::string& var = "",
                                 bool isInner = false)
         : Expression(pool, Kind::kVar), isInner_(isInner), var_(var) {}
@@ -64,7 +64,7 @@ private:
  */
 class VersionedVariableExpression final : public Expression {
 public:
-    static VersionedVariableExpression* make(ObjectPool* pool = nullptr,
+    static VersionedVariableExpression* make(ObjectPool* pool ,
                                              const std::string& var = "",
                                              Expression* version = nullptr) {
         DCHECK(!!pool);
@@ -99,7 +99,7 @@ public:
     }
 
 private:
-    explicit VersionedVariableExpression(ObjectPool* pool = nullptr,
+    explicit VersionedVariableExpression(ObjectPool* pool ,
                                          const std::string& var = "",
                                          Expression* version = nullptr)
         : Expression(pool, Kind::kVersionedVar), var_(var), version_(version) {}

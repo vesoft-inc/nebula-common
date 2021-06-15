@@ -16,7 +16,7 @@ class ConstantExpression : public Expression {
     friend class Expression;
 
 public:
-    static ConstantExpression* make(ObjectPool* pool = nullptr,
+    static ConstantExpression* make(ObjectPool* pool ,
                                     Value v = Value(NullType::__NULL__)) {
         DCHECK(!!pool);
         return pool->add(new ConstantExpression(pool, v));
@@ -46,7 +46,7 @@ public:
     }
 
 private:
-    explicit ConstantExpression(ObjectPool* pool = nullptr, Value v = Value(NullType::__NULL__))
+    explicit ConstantExpression(ObjectPool* pool , Value v = Value(NullType::__NULL__))
         : Expression(pool, Kind::kConstant), val_(std::move(v)) {}
 
     void writeTo(Encoder& encoder) const override;

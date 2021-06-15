@@ -15,7 +15,7 @@
 namespace nebula {
 class PathBuildExpression final : public Expression {
 public:
-    static PathBuildExpression* make(ObjectPool* pool = nullptr) {
+    static PathBuildExpression* make(ObjectPool* pool ) {
         DCHECK(!!pool);
         return pool->add(new PathBuildExpression(pool));
     }
@@ -53,9 +53,9 @@ public:
     }
 
 private:
-    explicit PathBuildExpression(ObjectPool* pool = nullptr) : Expression(pool, Kind::kPathBuild) {}
+    explicit PathBuildExpression(ObjectPool* pool) : Expression(pool, Kind::kPathBuild) {}
 
-    void writeTo(Encoder &encoder) const override;
+    void writeTo(Encoder& encoder) const override;
 
     void resetFrom(Decoder &decoder) override;
 

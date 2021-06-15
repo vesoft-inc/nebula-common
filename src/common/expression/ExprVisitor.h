@@ -7,6 +7,7 @@
 #ifndef EXPRESSION_EXPRVISITOR_H_
 #define EXPRESSION_EXPRVISITOR_H_
 
+#include "common/base/ObjectPool.h"
 #include "common/expression/ArithmeticExpression.h"
 #include "common/expression/AttributeExpression.h"
 #include "common/expression/CaseExpression.h"
@@ -90,6 +91,9 @@ public:
     virtual void visit(ReduceExpression *expr) = 0;
     // subscript range expression
     virtual void visit(SubscriptRangeExpression *expr) = 0;
+
+protected:
+    ObjectPool* pool;
 };
 
 }   // namespace nebula

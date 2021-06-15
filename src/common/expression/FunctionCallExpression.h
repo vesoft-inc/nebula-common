@@ -16,7 +16,7 @@ namespace nebula {
 
 class ArgumentList final {
 public:
-    static ArgumentList* make(ObjectPool* pool = nullptr, size_t sz = 0) {
+    static ArgumentList* make(ObjectPool* pool , size_t sz = 0) {
         DCHECK(!!pool);
         return pool->add(new ArgumentList(sz));
     }
@@ -63,7 +63,7 @@ class FunctionCallExpression final : public Expression {
     friend class Expression;
 
 public:
-    static FunctionCallExpression* make(ObjectPool* pool = nullptr,
+    static FunctionCallExpression* make(ObjectPool* pool ,
                                         const std::string& name = "",
                                         ArgumentList* args = nullptr) {
         DCHECK(!!pool);

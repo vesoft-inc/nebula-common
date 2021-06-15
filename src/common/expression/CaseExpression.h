@@ -13,7 +13,7 @@ namespace nebula {
 
 class CaseList final {
 public:
-    static CaseList* make(ObjectPool* pool = nullptr, size_t sz = 0) {
+    static CaseList* make(ObjectPool* pool , size_t sz = 0) {
         DCHECK(!!pool);
         return pool->add(new CaseList(sz));
     }
@@ -44,7 +44,7 @@ class CaseExpression final : public Expression {
     friend class Expression;
 
 public:
-    static CaseExpression* make(ObjectPool* pool = nullptr,
+    static CaseExpression* make(ObjectPool* pool ,
                                 CaseList* cases = nullptr,
                                 bool isGeneric = true) {
         DCHECK(!!pool);

@@ -14,7 +14,7 @@ namespace nebula {
 
 class TextSearchArgument final {
 public:
-    static TextSearchArgument* make(ObjectPool* pool = nullptr,
+    static TextSearchArgument* make(ObjectPool* pool ,
                                     const std::string& from = "",
                                     const std::string& prop = "",
                                     const std::string& val = "") {
@@ -92,25 +92,25 @@ private:
 
 class TextSearchExpression : public Expression {
 public:
-    static TextSearchExpression* makePrefix(ObjectPool* pool = nullptr,
+    static TextSearchExpression* makePrefix(ObjectPool* pool ,
                                             TextSearchArgument* arg = nullptr) {
         DCHECK(!!pool);
         return pool->add(new TextSearchExpression(pool, Kind::kTSPrefix, arg));
     }
 
-    static TextSearchExpression* makeWildcard(ObjectPool* pool = nullptr,
+    static TextSearchExpression* makeWildcard(ObjectPool* pool ,
                                               TextSearchArgument* arg = nullptr) {
         DCHECK(!!pool);
         return pool->add(new TextSearchExpression(pool, Kind::kTSWildcard, arg));
     }
 
-    static TextSearchExpression* makeRegexp(ObjectPool* pool = nullptr,
+    static TextSearchExpression* makeRegexp(ObjectPool* pool ,
                                             TextSearchArgument* arg = nullptr) {
         DCHECK(!!pool);
         return pool->add(new TextSearchExpression(pool, Kind::kTSRegexp, arg));
     }
 
-    static TextSearchExpression* makeFuzzy(ObjectPool* pool = nullptr,
+    static TextSearchExpression* makeFuzzy(ObjectPool* pool ,
                                            TextSearchArgument* arg = nullptr) {
         DCHECK(!!pool);
         return pool->add(new TextSearchExpression(pool, Kind::kTSFuzzy, arg));

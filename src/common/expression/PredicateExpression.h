@@ -23,7 +23,7 @@ public:
         NONE = 3,
     };
 
-    static PredicateExpression* make(ObjectPool* pool = nullptr,
+    static PredicateExpression* make(ObjectPool* pool ,
                                      const std::string& name = "",
                                      const std::string& innerVar = "",
                                      Expression* collection = nullptr,
@@ -99,7 +99,7 @@ public:
     }
 
 private:
-    explicit PredicateExpression(ObjectPool* pool = nullptr,
+    explicit PredicateExpression(ObjectPool* pool ,
                                  const std::string& name = "",
                                  const std::string& innerVar = "",
                                  Expression* collection = nullptr,

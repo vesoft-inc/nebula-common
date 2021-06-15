@@ -19,7 +19,7 @@ namespace nebula {
  */
 class EdgeExpression final : public Expression {
 public:
-    static EdgeExpression* make(ObjectPool* pool = nullptr) {
+    static EdgeExpression* make(ObjectPool* pool) {
         return pool->add(new EdgeExpression(pool));
     }
 
@@ -35,12 +35,12 @@ public:
         return "EDGE";
     }
 
-    bool operator==(const Expression &expr) const override {
+    bool operator==(const Expression& expr) const override {
         return kind() == expr.kind();
     }
 
 private:
-    explicit EdgeExpression(ObjectPool* pool = nullptr) : Expression(pool, Kind::kEdge) {}
+    explicit EdgeExpression(ObjectPool* pool) : Expression(pool, Kind::kEdge) {}
 
     void writeTo(Encoder& encoder) const override {
         encoder << kind();
@@ -49,9 +49,9 @@ private:
     void resetFrom(Decoder&) override {}
 
 private:
-    Value                                   result_;
+    Value result_;
 };
 
 }   // namespace nebula
 
-#endif  // COMMON_EXPRESSION_EDGEEXPRESSION_H_
+#endif   // COMMON_EXPRESSION_EDGEEXPRESSION_H_

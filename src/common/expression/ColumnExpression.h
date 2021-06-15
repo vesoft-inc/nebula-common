@@ -17,7 +17,7 @@ namespace nebula {
  */
 class ColumnExpression final : public Expression {
 public:
-    static ColumnExpression* make(ObjectPool* pool = nullptr, int32_t index = 0) {
+    static ColumnExpression* make(ObjectPool* pool , int32_t index = 0) {
         return pool->add(new ColumnExpression(pool, index));
     }
 
@@ -34,7 +34,7 @@ public:
     bool operator==(const Expression &expr) const override;
 
 private:
-    explicit ColumnExpression(ObjectPool* pool = nullptr, int32_t index = 0)
+    explicit ColumnExpression(ObjectPool* pool , int32_t index = 0)
         : Expression(pool, Kind::kColumn), index_(index) {}
 
     void writeTo(Encoder& encoder) const override;

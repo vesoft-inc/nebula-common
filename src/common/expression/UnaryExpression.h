@@ -15,49 +15,47 @@ class UnaryExpression final : public Expression {
     friend class Expression;
 
 public:
-    static UnaryExpression* makePlus(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+    static UnaryExpression* makePlus(ObjectPool* pool, Expression* operand = nullptr) {
         DCHECK(!!pool);
         return pool->add(new UnaryExpression(pool, Kind::kUnaryPlus, operand));
     }
 
-    static UnaryExpression* makeNegate(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+    static UnaryExpression* makeNegate(ObjectPool* pool, Expression* operand = nullptr) {
         DCHECK(!!pool);
         return pool->add(new UnaryExpression(pool, Kind::kUnaryNegate, operand));
     }
 
-    static UnaryExpression* makeNot(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+    static UnaryExpression* makeNot(ObjectPool* pool, Expression* operand = nullptr) {
         DCHECK(!!pool);
         return pool->add(new UnaryExpression(pool, Kind::kUnaryNot, operand));
     }
 
-    static UnaryExpression* makeIncr(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+    static UnaryExpression* makeIncr(ObjectPool* pool, Expression* operand = nullptr) {
         DCHECK(!!pool);
         return pool->add(new UnaryExpression(pool, Kind::kUnaryIncr, operand));
     }
 
-    static UnaryExpression* makeDecr(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+    static UnaryExpression* makeDecr(ObjectPool* pool, Expression* operand = nullptr) {
         DCHECK(!!pool);
         return pool->add(new UnaryExpression(pool, Kind::kUnaryDecr, operand));
     }
 
-    static UnaryExpression* makeIsNull(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+    static UnaryExpression* makeIsNull(ObjectPool* pool, Expression* operand = nullptr) {
         DCHECK(!!pool);
         return pool->add(new UnaryExpression(pool, Kind::kIsNull, operand));
     }
 
-    static UnaryExpression* makeIsNotNull(ObjectPool* pool = nullptr,
-                                          Expression* operand = nullptr) {
+    static UnaryExpression* makeIsNotNull(ObjectPool* pool, Expression* operand = nullptr) {
         DCHECK(!!pool);
         return pool->add(new UnaryExpression(pool, Kind::kIsNotNull, operand));
     }
 
-    static UnaryExpression* makeIsEmpty(ObjectPool* pool = nullptr, Expression* operand = nullptr) {
+    static UnaryExpression* makeIsEmpty(ObjectPool* pool, Expression* operand = nullptr) {
         DCHECK(!!pool);
         return pool->add(new UnaryExpression(pool, Kind::kIsEmpty, operand));
     }
 
-    static UnaryExpression* makeIsNotEmpty(ObjectPool* pool = nullptr,
-                                           Expression* operand = nullptr) {
+    static UnaryExpression* makeIsNotEmpty(ObjectPool* pool, Expression* operand = nullptr) {
         DCHECK(!!pool);
         return pool->add(new UnaryExpression(pool, Kind::kIsNotEmpty, operand));
     }

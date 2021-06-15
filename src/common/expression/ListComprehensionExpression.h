@@ -15,7 +15,7 @@ class ListComprehensionExpression final : public Expression {
     friend class Expression;
 
 public:
-    static ListComprehensionExpression* make(ObjectPool* pool = nullptr,
+    static ListComprehensionExpression* make(ObjectPool* pool ,
                                              const std::string& innerVar = "",
                                              Expression* collection = nullptr,
                                              Expression* filter = nullptr,
@@ -99,7 +99,7 @@ public:
     }
 
 private:
-    explicit ListComprehensionExpression(ObjectPool* pool = nullptr,
+    explicit ListComprehensionExpression(ObjectPool* pool ,
                                          const std::string& innerVar = "",
                                          Expression* collection = nullptr,
                                          Expression* filter = nullptr,

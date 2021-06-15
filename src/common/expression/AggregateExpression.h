@@ -17,7 +17,7 @@ class AggregateExpression final : public Expression {
     friend class Expression;
 
 public:
-    static AggregateExpression* make(ObjectPool* pool = nullptr,
+    static AggregateExpression* make(ObjectPool* pool ,
                                      const std::string& name = "",
                                      Expression* arg = nullptr,
                                      bool distinct = false) {
@@ -77,7 +77,7 @@ public:
     }
 
 private:
-    explicit AggregateExpression(ObjectPool* pool = nullptr,
+    explicit AggregateExpression(ObjectPool* pool ,
                                  const std::string& name = "",
                                  Expression* arg = nullptr,
                                  bool distinct = false)

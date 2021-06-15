@@ -17,7 +17,7 @@ namespace nebula {
 // label.label
 class LabelAttributeExpression final : public Expression {
 public:
-    static LabelAttributeExpression* make(ObjectPool* pool = nullptr,
+    static LabelAttributeExpression* make(ObjectPool* pool ,
                                           LabelExpression* lhs = nullptr,
                                           ConstantExpression* rhs = nullptr) {
         DCHECK(!!pool);
@@ -64,7 +64,7 @@ public:
     std::string toString() const override;
 
 private:
-    explicit LabelAttributeExpression(ObjectPool* pool = nullptr,
+    explicit LabelAttributeExpression(ObjectPool* pool ,
                                       LabelExpression* lhs = nullptr,
                                       ConstantExpression* rhs = nullptr)
         : Expression(pool, Kind::kLabelAttribute) {
