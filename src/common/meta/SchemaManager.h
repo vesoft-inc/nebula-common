@@ -10,6 +10,7 @@
 #include "common/base/Base.h"
 #include "common/base/StatusOr.h"
 #include <folly/RWSpinLock.h>
+#include <vector>
 #include "common/meta/NebulaSchemaProvider.h"
 
 namespace nebula {
@@ -90,6 +91,11 @@ public:
 
     virtual StatusOr<std::pair<std::string, nebula::meta::cpp2::FTIndex>>
     getFTIndex(GraphSpaceID spaceId, int32_t schemaId) = 0;
+
+    // cypher compatible properties abstraction
+    // return <TagId, propertyName> pair
+    virtual StatusOr<std::vector<TagID>>
+    getVertexPropertyTagId(GraphSpaceID spaceId, const std::string &property) = 0;
 
 protected:
     SchemaManager() = default;

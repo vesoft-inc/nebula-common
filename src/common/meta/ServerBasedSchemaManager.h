@@ -71,6 +71,9 @@ public:
     StatusOr<std::pair<std::string, nebula::meta::cpp2::FTIndex>>
     getFTIndex(GraphSpaceID spaceId, int32_t schemaId) override;
 
+    StatusOr<std::vector<TagID>>
+    getVertexPropertyTagId(GraphSpaceID spaceId, const std::string &property) override;
+
     void init(MetaClient *client);
 
     static std::unique_ptr<ServerBasedSchemaManager> create(MetaClient *client);

@@ -4,6 +4,7 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include <vector>
 #include "common/base/Base.h"
 #include "common/meta/ServerBasedSchemaManager.h"
 
@@ -166,6 +167,24 @@ ServerBasedSchemaManager::getFTIndex(GraphSpaceID spaceId, int32_t schemaId) {
         return ret.status();
     }
     return std::move(ret).value();
+}
+
+// cypher is schema-less query language, so we don't report error when don't find the properties
+// in schema
+StatusOr<std::vector<TagID>>
+ServerBasedSchemaManager::getVertexPropertyTagId(const GraphSpaceID spaceId,
+                                                 const std::string &property) {
+    auto tagSchemasResult = getAllLatestVerTagSchema(spaceId);
+    NG_RETURN_IF_ERROR(tagSchemasResult);
+    auto tagSchemas = std::move(tagSchemasResult).value();
+    std::vector<TagID> tagIds;
+    tagIds.reserve(tagSchemas.size());
+    for (const auto &tagSchema : tagSchemas) {
+        if (tagSchema.second->field(property) != nullptr) {
+            tagIds.emplace_back(tagSchema.first);
+        }
+    }
+    return tagIds;
 }
 
 std::unique_ptr<ServerBasedSchemaManager> ServerBasedSchemaManager::create(MetaClient *client) {
