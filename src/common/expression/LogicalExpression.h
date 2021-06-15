@@ -12,25 +12,33 @@
 namespace nebula {
 class LogicalExpression final : public Expression {
 public:
-    static LogicalExpression* makeAnd(ObjectPool* pool ,
+    static LogicalExpression* makeAnd(ObjectPool* pool,
                                       Expression* lhs = nullptr,
                                       Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new LogicalExpression(pool, Kind::kLogicalAnd, lhs, rhs));
     }
 
-    static LogicalExpression* makeOr(ObjectPool* pool ,
+    static LogicalExpression* makeOr(ObjectPool* pool,
                                      Expression* lhs = nullptr,
                                      Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new LogicalExpression(pool, Kind::kLogicalOr, lhs, rhs));
     }
 
-    static LogicalExpression* makeXor(ObjectPool* pool ,
+    static LogicalExpression* makeXor(ObjectPool* pool,
                                       Expression* lhs = nullptr,
                                       Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new LogicalExpression(pool, Kind::kLogicalXor, lhs, rhs));
+    }
+
+    static LogicalExpression* makeKind(ObjectPool* pool,
+                                       Kind kind,
+                                       Expression* lhs = nullptr,
+                                       Expression* rhs = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new LogicalExpression(pool, kind, lhs, rhs));
     }
 
     const Value& eval(ExpressionContext& ctx) override;

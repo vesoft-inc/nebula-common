@@ -91,9 +91,6 @@ public:
     virtual void visit(ReduceExpression *expr) = 0;
     // subscript range expression
     virtual void visit(SubscriptRangeExpression *expr) = 0;
-
-protected:
-    ObjectPool* pool;
 };
 
 }   // namespace nebula
