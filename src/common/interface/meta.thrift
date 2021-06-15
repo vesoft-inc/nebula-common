@@ -1063,6 +1063,14 @@ struct ListFTIndexesResp {
     3: map<binary, FTIndex> (cpp.template = "std::unordered_map") indexes,
 }
 
+struct SlowQueryDesc {
+    1: common.HostAddr host;
+    2: common.SessionID session_id;
+    3: i64 ep_id;
+    4: common.Timestamp start_time;
+    5: i64 duration_in_us;
+    6: binary query;
+}
 
 struct Session {
     1: common.SessionID session_id,
@@ -1074,6 +1082,7 @@ struct Session {
     7: i32 timezone,
     8: binary client_ip,
     9: map<binary, common.Value>(cpp.template = "std::unordered_map") configs,
+    10: map<i64, SlowQueryDesc>(cpp.template = "std::unordered_map") slow_queries;
 }
 
 struct CreateSessionReq {
