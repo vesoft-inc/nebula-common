@@ -197,7 +197,7 @@ const cpp2::SchemaProp NebulaSchemaProvider::getProp() const {
 
 StatusOr<std::pair<std::string, int64_t>> NebulaSchemaProvider::getTTLInfo() const {
     if (!schemaProp_.ttl_col_ref().has_value()) {
-        return Status::Error("TTL not set");
+        return Status::Error(ErrorCode::E_TTL_NOT_SET, ERROR_FLAG(0));
     }
     std::string ttlCol = *schemaProp_.get_ttl_col();
     int64_t ttlDuration = schemaProp_.ttl_duration_ref().has_value() ?
@@ -206,7 +206,7 @@ StatusOr<std::pair<std::string, int64_t>> NebulaSchemaProvider::getTTLInfo() con
     // Only support the specified ttl_col mode
     // Not specifying or non-positive ttl_duration behaves like ttl_duration = infinity
     if (ttlCol.empty() || ttlDuration <= 0) {
-        return Status::Error("TTL property is invalid");
+        return Status::Error(ErrorCode::E_TTL_INVALID_PROPERTY, ERROR_FLAG(0));
     }
     return std::make_pair(ttlCol, ttlDuration);
 }

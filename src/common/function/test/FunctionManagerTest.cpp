@@ -839,7 +839,7 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("abs", {Value::Type::BOOL});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `abs'.");
     }
     {
         auto result = FunctionManager::getReturnType("now", {});
@@ -849,7 +849,7 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("now", {Value::Type::BOOL});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `now'.");
     }
     {
         auto result = FunctionManager::getReturnType("rand32", {});
@@ -871,7 +871,7 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result =
             FunctionManager::getReturnType("rand32", {Value::Type::INT, Value::Type::FLOAT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `rand32'.");
     }
     {
         auto result = FunctionManager::getReturnType("sqrt", {Value::Type::INT});
@@ -906,7 +906,7 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("floor", {Value::Type::STRING});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `floor'.");
     }
     {
         auto result = FunctionManager::getReturnType("round", {Value::Type::INT});
@@ -977,7 +977,7 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result =
             FunctionManager::getReturnType("acos", {Value::Type::STRING});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `acos'.");
     }
     {
         auto result =
@@ -994,7 +994,7 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result =
             FunctionManager::getReturnType("hypot", {Value::Type::BOOL, Value::Type::INT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `hypot'.");
     }
     {
         auto result = FunctionManager::getReturnType("lower", {Value::Type::STRING});
@@ -1014,7 +1014,7 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("upper", {Value::Type::BOOL});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `upper'.");
     }
     {
         auto result = FunctionManager::getReturnType("toUpper", {Value::Type::STRING});
@@ -1024,7 +1024,7 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("toUpper", {Value::Type::BOOL});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `toUpper'.");
     }
     {
         auto result = FunctionManager::getReturnType("length", {Value::Type::STRING});
@@ -1039,18 +1039,18 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("length", {});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `length'.");
     }
     {
         auto result =
             FunctionManager::getReturnType("length", {Value::Type::STRING, Value::Type::INT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `length'.");
     }
     {
         auto result = FunctionManager::getReturnType("length", {Value::Type::FLOAT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `length'.");
     }
     {
         auto result = FunctionManager::getReturnType("trim", {Value::Type::STRING});
@@ -1073,7 +1073,7 @@ TEST_F(FunctionManagerTest, returnType) {
                     {Value::Type::STRING, Value::Type::STRING,
                     Value::Type::STRING, Value::Type::STRING});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `replace'.");
     }
     {
         auto result = FunctionManager::getReturnType("reverse", {Value::Type::STRING});
@@ -1083,7 +1083,7 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("reverse", {Value::Type::INT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `reverse'.");
     }
     {
         auto result = FunctionManager::getReturnType("split",
@@ -1095,7 +1095,7 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result = FunctionManager::getReturnType("split",
             {Value::Type::STRING, Value::Type::INT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `split'.");
     }
     {
         auto result = FunctionManager::getReturnType("substring",
@@ -1178,7 +1178,7 @@ TEST_F(FunctionManagerTest, returnType) {
     {
         auto result = FunctionManager::getReturnType("strcasecmp", {Value::Type::STRING});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `strcasecmp'.");
     }
     {
         auto result = FunctionManager::getReturnType(
@@ -1190,13 +1190,13 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result = FunctionManager::getReturnType(
             "lpad", {Value::Type::STRING, Value::Type::INT, Value::Type::INT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `lpad'.");
     }
     {
         auto result =
             FunctionManager::getReturnType("lpad", {Value::Type::STRING, Value::Type::INT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `lpad'.");
     }
     {
         auto result = FunctionManager::getReturnType("hash", {Value::Type::STRING});
@@ -1227,23 +1227,23 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result =
             FunctionManager::getReturnType("hash", {Value::Type::STRING, Value::Type::INT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `hash'.");
     }
     {
         auto result = FunctionManager::getReturnType("hash", {});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `hash'.");
     }
     {
         auto result = FunctionManager::getReturnType("hash", {Value::Type::DATASET});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `hash'.");
     }
     {
         auto result =
             FunctionManager::getReturnType("noexist", {Value::Type::INT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Function `noexist' not defined");
+        EXPECT_EQ(result.status().toString(), "70001:Function `noexist' is not supported.");
     }
     {
         auto result =
@@ -1291,14 +1291,14 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result =
             FunctionManager::getReturnType("size", {Value::Type::BOOL});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `size'.");
     }
     // time
     {
         auto result =
             FunctionManager::getReturnType("time", {Value::Type::BOOL});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `time'.");
     }
     {
         auto result =
@@ -1323,7 +1323,7 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result =
             FunctionManager::getReturnType("date", {Value::Type::INT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `date'.");
     }
     {
         auto result =
@@ -1348,7 +1348,7 @@ TEST_F(FunctionManagerTest, returnType) {
         auto result =
             FunctionManager::getReturnType("datetime", {Value::Type::FLOAT});
         ASSERT_FALSE(result.ok());
-        EXPECT_EQ(result.status().toString(), "Parameter's type error");
+        EXPECT_EQ(result.status().toString(), "70004:Invalid args for function `datetime'.");
     }
     {
         auto result =

@@ -321,7 +321,7 @@ StatusOr<AggFunctionManager::AggFunction> AggFunctionManager::getInternal(std::s
     // check existence
     auto iter = functions_.find(func);
     if (iter == functions_.end()) {
-        return Status::Error("Unknown aggregate function `%s'", func.c_str());
+        return Status::Error(ErrorCode::E_AGG_FUNCTION_NOT_SUPPORTED, ERROR_FLAG(1), func.c_str());
     }
 
     return iter->second;
@@ -332,7 +332,7 @@ Status AggFunctionManager::load(const std::string &soname, const std::vector<std
 }
 
 Status AggFunctionManager::loadInternal(const std::string &, const std::vector<std::string> &) {
-    return Status::Error("Dynamic aggregate function loading not supported yet");
+    return Status::Error(ErrorCode::E_AGG_FUNCTION_DYNAMIC_NOT_SUPPORTED, ERROR_FLAG(1), "loading");
 }
 
 Status AggFunctionManager::unload(const std::string &soname,
@@ -341,7 +341,9 @@ Status AggFunctionManager::unload(const std::string &soname,
 }
 
 Status AggFunctionManager::unloadInternal(const std::string &, const std::vector<std::string> &) {
-    return Status::Error("Dynamic aggregate function unloading not supported yet");
+    return Status::Error(ErrorCode::E_AGG_FUNCTION_DYNAMIC_NOT_SUPPORTED,
+                         ERROR_FLAG(1),
+                         "unloading");
 }
 
 }   // namespace nebula

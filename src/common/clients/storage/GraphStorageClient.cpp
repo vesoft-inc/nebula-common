@@ -4,6 +4,7 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include <thrift/lib/cpp/util/EnumUtils.h>
 #include "common/base/Base.h"
 #include "common/clients/storage/GraphStorageClient.h"
 
@@ -309,7 +310,7 @@ GraphStorageClient::updateVertex(GraphSpaceID space,
     DCHECK(!!metaClient_);
     auto status = metaClient_->partsNum(space);
     if (!status.ok()) {
-        return Status::Error("Space not found, spaceid: %d", space);
+        return status.status();
     }
     auto numParts = status.value();
     status = metaClient_->partId(numParts, std::move(cbStatus).value()(vertexId));
@@ -363,7 +364,7 @@ GraphStorageClient::updateEdge(GraphSpaceID space,
     DCHECK(!!metaClient_);
     auto status = metaClient_->partsNum(space);
     if (!status.ok()) {
-        return Status::Error("Space not found, spaceid: %d", space);
+        return status.status();
     }
     auto numParts = status.value();
     status = metaClient_->partId(numParts, std::move(cbStatus).value()(edgeKey));
@@ -406,7 +407,7 @@ GraphStorageClient::getUUID(GraphSpaceID space,
     DCHECK(!!metaClient_);
     auto status = metaClient_->partsNum(space);
     if (!status.ok()) {
-        return Status::Error("Space not found, spaceid: %d", space);
+        return status.status();
     }
     auto numParts = status.value();
     status = metaClient_->partId(numParts, name);
@@ -541,7 +542,9 @@ StatusOr<std::function<const VertexID&(const Row&)>> GraphStorageClient::getIdFr
                 return r.values[0].getStr();
             };
     } else {
-        return Status::Error("Only support integer/string type vid.");
+        return Status::Error(ErrorCode::E_SPACE_INVALID_VID_TYPE,
+                             ERROR_FLAG(1),
+                             apache::thrift::util::enumNameSafe(vidType));
     }
 
     return cb;
@@ -570,7 +573,9 @@ GraphStorageClient::getIdFromNewVertex(GraphSpaceID space) const {
                 return v.get_id().getStr();
             };
     } else {
-        return Status::Error("Only support integer/string type vid.");
+        return Status::Error(ErrorCode::E_SPACE_INVALID_VID_TYPE,
+                             ERROR_FLAG(1),
+                             apache::thrift::util::enumNameSafe(vidType));
     }
     return cb;
 }
@@ -606,7 +611,9 @@ StatusOr<std::function<const VertexID&(const cpp2::NewEdge&)>> GraphStorageClien
                 return e.get_key().get_src().getStr();
             };
     } else {
-        return Status::Error("Only support integer/string type vid.");
+        return Status::Error(ErrorCode::E_SPACE_INVALID_VID_TYPE,
+                             ERROR_FLAG(1),
+                             apache::thrift::util::enumNameSafe(vidType));
     }
     return cb;
 }
@@ -638,7 +645,9 @@ StatusOr<std::function<const VertexID&(const cpp2::EdgeKey&)>> GraphStorageClien
                 return eKey.get_src().getStr();
             };
     } else {
-        return Status::Error("Only support integer/string type vid.");
+        return Status::Error(ErrorCode::E_SPACE_INVALID_VID_TYPE,
+                             ERROR_FLAG(1),
+                             apache::thrift::util::enumNameSafe(vidType));
     }
     return cb;
 }
@@ -666,7 +675,9 @@ StatusOr<std::function<const VertexID&(const Value&)>> GraphStorageClient::getId
                 return v.getStr();
             };
     } else {
-        return Status::Error("Only support integer/string type vid.");
+        return Status::Error(ErrorCode::E_SPACE_INVALID_VID_TYPE,
+                             ERROR_FLAG(1),
+                             apache::thrift::util::enumNameSafe(vidType));
     }
     return cb;
 }

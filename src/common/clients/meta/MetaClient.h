@@ -612,15 +612,15 @@ public:
     folly::Future<StatusOr<std::vector<cpp2::Group>>>
     listGroups();
 
-    Status refreshCache();
+    StatusOr<LeaderInfo> loadLeader();
 
     folly::Future<StatusOr<cpp2::StatisItem>>
     getStatis(GraphSpaceID spaceId);
 
-    folly::Future<StatusOr<nebula::cpp2::ErrorCode>> reportTaskFinish(
+    folly::Future<StatusOr<nebula::ErrorCode>> reportTaskFinish(
         int32_t jobId,
         int32_t taskId,
-        nebula::cpp2::ErrorCode taskErrCode,
+        nebula::ErrorCode taskErrCode,
         cpp2::StatisItem* statisticItem);
 
     folly::Future<StatusOr<bool>>
@@ -717,6 +717,15 @@ protected:
     PartsMap doGetPartsMap(const HostAddr& host, const LocalCache& localCache);
 
     ListenersMap doGetListenersMap(const HostAddr& host, const LocalCache& localCache);
+
+private:
+    Status getSpaceIdNotFoundStatus(GraphSpaceID spaceId) const {
+        if (options_.role_ == cpp2::HostRole::STORAGE) {
+            return Status::Error(ErrorCode::E_STORAGE_SPACE_ID_NOT_FOUND, spaceId);
+        } else {
+            return Status::Error(ErrorCode::E_GRAPH_SPACE_ID_NOT_FOUND, spaceId);
+        }
+    }
 
 private:
     std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool_;

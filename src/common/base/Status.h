@@ -8,6 +8,8 @@
 #define COMMON_BASE_STATUS_H_
 
 #include "common/base/Base.h"
+#include "common/errorcode/ErrorCode.h"
+#include "common/errorcode/ErrorMsg.h"
 
 /**
  * Status is modeled on the one from levelDB, beyond that,
@@ -19,24 +21,31 @@
 
 namespace nebula {
 
+
+typedef int errorFlag;
+
+#define ERROR_FLAG(v) (errorFlag)(v)
+
 template <typename T>
 class StatusOr;
 
 class Status final {
 public:
-    Status() = default;
+    Status();
 
     ~Status() = default;
 
     Status(const Status &rhs) {
-        state_ = rhs.state_ == nullptr ? nullptr : copyState(rhs.state_.get());
+        CHECK(rhs.state_);
+        state_ = copyState(rhs.state_.get());
     }
 
     Status& operator=(const Status &rhs) {
         // `state_ == rhs.state_' means either `this == &rhs',
         // or both `*this' and `rhs' are OK
         if (state_ != rhs.state_) {
-            state_ = rhs.state_ == nullptr ? nullptr : copyState(rhs.state_.get());
+            CHECK(rhs.state_);
+            state_ = copyState(rhs.state_.get());
         }
         return *this;
     }
@@ -69,12 +78,10 @@ public:
     }
 
     bool operator==(const Status &rhs) const {
-        // `state_ == rhs.state_' means either `this == &rhs',
-        // or both `*this' and `rhs' are OK
         if (state_ == rhs.state_) {
             return true;
         }
-        return code() == rhs.code();
+        return errorCode() == rhs.errorCode();
     }
 
     bool operator!=(const Status &rhs) const {
@@ -82,118 +89,53 @@ public:
     }
 
     bool ok() const {
-        return state_ == nullptr;
+        return errorCode() == ErrorCode::SUCCEEDED;
     }
 
     static Status OK() {
-        return Status();
+        return Status(ErrorCode::SUCCEEDED, "");
     }
 
-#define STATUS_GENERATOR(ERROR)                         \
-    static Status ERROR() {                             \
-        return Status(k##ERROR, "");                    \
-    }                                                   \
-                                                        \
-    static Status ERROR(folly::StringPiece msg) {       \
-        return Status(k##ERROR, msg);                   \
-    }                                                   \
-                                                        \
-    static Status ERROR(const char *fmt, ...)           \
-        __attribute__((format(printf, 1, 2))) {         \
-        va_list args;                                   \
-        va_start(args, fmt);                            \
-        auto msg = format(fmt, args);                   \
-        va_end(args);                                   \
-        return Status(k##ERROR, msg);                   \
-    }                                                   \
-                                                        \
-    bool is##ERROR() const {                            \
-        return code() == k##ERROR;                      \
+    static Status Error(ErrorCode errorCode, int argNum, ...) {
+        if (errorCode == ErrorCode::SUCCEEDED) {
+            return Status(errorCode, "");
+        }
+        auto findCode = ErrorMsgUTF8Map.find(errorCode);
+        std::string fmt;
+        if (findCode == ErrorMsgUTF8Map.end()) {
+            fmt = "Unknown errorCode.";
+            return Status(errorCode, fmt);
+        } else {
+            auto findMsg = findCode->second.find(Language::L_EN);
+            if (findMsg == findCode->second.end()) {
+                fmt = "Use the unknown language type.";
+                return Status(errorCode, fmt);
+            }
+            fmt = findMsg->second;
+        }
+        va_list args;
+        va_start(args, argNum);
+        auto msg = format(fmt.c_str(), args);
+        va_end(args);
+        return Status(errorCode, msg);
     }
-    // Some succeeded codes
-    STATUS_GENERATOR(Inserted);
 
-    // General errors
-    STATUS_GENERATOR(Error);
-    STATUS_GENERATOR(NoSuchFile);
-    STATUS_GENERATOR(NotSupported);
-
-    // Graph engine errors
-    STATUS_GENERATOR(SyntaxError);
-    STATUS_GENERATOR(SemanticError);
-    // Nothing is executed When command is comment
-    STATUS_GENERATOR(StatementEmpty);
-
-    // Storage engine errors
-    STATUS_GENERATOR(KeyNotFound);
-    STATUS_GENERATOR(PartialSuccess);
-
-    // Meta engine errors
-    // TODO(dangleptr) we could use ErrorOr to replace SpaceNotFound here.
-    STATUS_GENERATOR(SpaceNotFound);
-    STATUS_GENERATOR(HostNotFound);
-    STATUS_GENERATOR(TagNotFound);
-    STATUS_GENERATOR(EdgeNotFound);
-    STATUS_GENERATOR(UserNotFound);
-    STATUS_GENERATOR(IndexNotFound);
-    STATUS_GENERATOR(GroupNotFound);
-    STATUS_GENERATOR(ZoneNotFound);
-    STATUS_GENERATOR(LeaderChanged);
-    STATUS_GENERATOR(Balanced);
-    STATUS_GENERATOR(PartNotFound);
-    STATUS_GENERATOR(ListenerNotFound);
-
-    // User or permission errors
-    STATUS_GENERATOR(PermissionError);
-
-#undef STATUS_GENERATOR
+    static Status ErrorMsg(ErrorCode errorCode, const std::string &errorMsg) {
+        return Status(errorCode, errorMsg);
+    }
 
     std::string toString() const;
 
     friend std::ostream& operator<<(std::ostream &os, const Status &status);
 
-    // If some kind of error really needs to be distinguished with others using a specific
-    // code, other than a general code and specific msg, you could add a new code below,
-    // e.g. kSomeError, and add the cooresponding STATUS_GENERATOR(SomeError)
-    enum Code : uint16_t {
-        // OK
-        kOk                     = 0,
-        kInserted               = 1,
-        // 1xx, for general errors
-        kError                  = 101,
-        kNoSuchFile             = 102,
-        kNotSupported           = 103,
-        // 2xx, for graph engine errors
-        kSyntaxError            = 201,
-        kStatementEmpty         = 202,
-        kSemanticError          = 203,
-        // 3xx, for storage engine errors
-        kKeyNotFound            = 301,
-        kPartialSuccess         = 302,
-        // 4xx, for meta service errors
-        kSpaceNotFound          = 404,
-        kHostNotFound           = 405,
-        kTagNotFound            = 406,
-        kEdgeNotFound           = 407,
-        kUserNotFound           = 408,
-        kLeaderChanged          = 409,
-        kBalanced               = 410,
-        kIndexNotFound          = 411,
-        kPartNotFound           = 412,
-        kGroupNotFound          = 413,
-        kZoneNotFound           = 414,
-        kListenerNotFound       = 415,
-        // 5xx for user or permission error
-        kPermissionError        = 501,
-    };
-
-    Code code() const {
+    ErrorCode errorCode() const {
         if (state_ == nullptr) {
-            return kOk;
+            return ErrorCode::SUCCEEDED;
         }
-        return reinterpret_cast<const Header*>(state_.get())->code_;
+        return reinterpret_cast<const Header*>(state_.get())->errorCode_;
     }
 
+    // Gets the error message corresponding to the error code
     std::string message() const;
 
 private:
@@ -202,25 +144,22 @@ private:
         return reinterpret_cast<const Header*>(state_.get())->size_;
     }
 
-    Status(Code code, folly::StringPiece msg);
+    Status(ErrorCode errorCode, folly::StringPiece msg);
 
     static std::unique_ptr<const char[]> copyState(const char *state);
 
     static std::string format(const char *fmt, va_list args);
 
-    static const char *toString(Code code);
-
 private:
     struct Header {
         uint16_t                    size_;
-        Code                        code_;
+        ErrorCode                   errorCode_;
     };
     static constexpr auto kHeaderSize = sizeof(Header);
-    // state_ == nullptr indicates OK
-    // otherwise, the buffer layout is:
+    // the buffer layout is:
     // state_[0..1]                 length of the error msg, i.e. size() - kHeaderSize
-    // state_[2..3]                 code
-    // state_[4...]                 verbose error message
+    // state_[2..5]                 errorCode
+    // state_[6...]                 verbose error message
     std::unique_ptr<const char[]>   state_;
 };
 

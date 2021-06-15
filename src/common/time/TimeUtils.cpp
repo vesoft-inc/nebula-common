@@ -15,7 +15,7 @@ DEFINE_string(timezone_name,
               "UTC+00:00:00",
               "The timezone used in current system, "
               "only used in nebula datetime compute won't "
-              "affect process time (such as log time etc.).");
+              "affect process time (such as log time etc.)");
 
 namespace nebula {
 namespace time {
@@ -43,7 +43,7 @@ const DateTime TimeUtils::kEpoch(1970, 1, 1, 0, 0, 0, 0);
             return globalTimezone.parsePosixTimezone(FLAGS_timezone_name);
         }
     } else {
-        return Status::Error("Don't allowed empty timezone.");
+        return Status::Error(ErrorCode::E_EMPTY_TIMEZONE, ERROR_FLAG(0));
     }
 }
 
@@ -52,46 +52,72 @@ const DateTime TimeUtils::kEpoch(1970, 1, 1, 0, 0, 0, 0);
     DateTime dt;
     for (const auto &kv : m.kvs) {
         if (!kv.second.isInt()) {
-            return Status::Error("Invalid value type.");
+            return Status::Error(ErrorCode::E_INVALID_DATA_TYPE,
+                                 ERROR_FLAG(1),
+                                 "Should be integer type");
         }
         if (kv.first == "year") {
             if (kv.second.getInt() < std::numeric_limits<int16_t>::min() ||
                 kv.second.getInt() > std::numeric_limits<int16_t>::max()) {
-                return Status::Error("Out of range year `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Out of range year `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             dt.year = kv.second.getInt();
         } else if (kv.first == "month") {
             if (kv.second.getInt() <= 0 || kv.second.getInt() > 12) {
-                return Status::Error("Invalid month number `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Invalid month number `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             dt.month = kv.second.getInt();
         } else if (kv.first == "day") {
             if (kv.second.getInt() <= 0 || kv.second.getInt() > 31) {
-                return Status::Error("Invalid day number `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Invalid day number `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             dt.day = kv.second.getInt();
         } else if (kv.first == "hour") {
             if (kv.second.getInt() < 0 || kv.second.getInt() > 23) {
-                return Status::Error("Invalid hour number `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Invalid hour number `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             dt.hour = kv.second.getInt();
         } else if (kv.first == "minute") {
             if (kv.second.getInt() < 0 || kv.second.getInt() > 59) {
-                return Status::Error("Invalid minute number `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Invalid minute number `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             dt.minute = kv.second.getInt();
         } else if (kv.first == "second") {
             if (kv.second.getInt() < 0 || kv.second.getInt() > 59) {
-                return Status::Error("Invalid second number `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Invalid second number `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             dt.sec = kv.second.getInt();
         } else if (kv.first == "microsecond") {
             if (kv.second.getInt() < 0 || kv.second.getInt() > 999999) {
-                return Status::Error("Invalid microsecond number `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Invalid microsecond number `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             dt.microsec = kv.second.getInt();
         } else {
-            return Status::Error("Invlaid parameter `%s'.", kv.first.c_str());
+            return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                 ERROR_FLAG(1),
+                                 folly::stringPrintf("Invlaid parameter `%s'",
+                                                     kv.first.c_str()).c_str());
         }
     }
     auto result = validateDate(dt);
@@ -187,26 +213,40 @@ const DateTime TimeUtils::kEpoch(1970, 1, 1, 0, 0, 0, 0);
     Date d;
     for (const auto &kv : m.kvs) {
         if (!kv.second.isInt()) {
-            return Status::Error("Invalid value type.");
+            return Status::Error(ErrorCode::E_INVALID_DATA_TYPE,
+                                 ERROR_FLAG(1),
+                                 "Should be integer type");
         }
         if (kv.first == "year") {
             if (kv.second.getInt() < std::numeric_limits<int16_t>::min() ||
                 kv.second.getInt() > std::numeric_limits<int16_t>::max()) {
-                return Status::Error("Out of range year `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Out of range year `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             d.year = kv.second.getInt();
         } else if (kv.first == "month") {
             if (kv.second.getInt() <= 0 || kv.second.getInt() > 12) {
-                return Status::Error("Invalid month number `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Invalid month number `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             d.month = kv.second.getInt();
         } else if (kv.first == "day") {
             if (kv.second.getInt() <= 0 || kv.second.getInt() > 31) {
-                return Status::Error("Invalid day number `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Invalid day number `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             d.day = kv.second.getInt();
         } else {
-            return Status::Error("Invlaid parameter `%s'.", kv.first.c_str());
+            return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                 ERROR_FLAG(1),
+                                 folly::stringPrintf("Invlaid parameter `%s'",
+                                                     kv.first.c_str()).c_str());
         }
     }
     auto result = validateDate(d);
@@ -220,30 +260,47 @@ const DateTime TimeUtils::kEpoch(1970, 1, 1, 0, 0, 0, 0);
     Time t;
     for (const auto &kv : m.kvs) {
         if (!kv.second.isInt()) {
-            return Status::Error("Invalid value type.");
+            return Status::Error(ErrorCode::E_INVALID_DATA_TYPE,
+                                 ERROR_FLAG(1),
+                                 "Should be integer type");
         }
         if (kv.first == "hour") {
             if (kv.second.getInt() < 0 || kv.second.getInt() > 23) {
-                return Status::Error("Invalid hour number `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Invalid hour number `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             t.hour = kv.second.getInt();
         } else if (kv.first == "minute") {
             if (kv.second.getInt() < 0 || kv.second.getInt() > 59) {
-                return Status::Error("Invalid minute number `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Invalid minute number `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             t.minute = kv.second.getInt();
         } else if (kv.first == "second") {
             if (kv.second.getInt() < 0 || kv.second.getInt() > 59) {
-                return Status::Error("Invalid second number `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Invalid second number `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             t.sec = kv.second.getInt();
         } else if (kv.first == "microsecond") {
             if (kv.second.getInt() < 0 || kv.second.getInt() > 999999) {
-                return Status::Error("Invalid microsecond number `%ld'.", kv.second.getInt());
+                return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                     ERROR_FLAG(1),
+                                     folly::stringPrintf("Invalid microsecond number `%ld'",
+                                                         kv.second.getInt()).c_str());
             }
             t.microsec = kv.second.getInt();
         } else {
-            return Status::Error("Invlaid parameter `%s'.", kv.first.c_str());
+            return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT,
+                                 ERROR_FLAG(1),
+                                 folly::stringPrintf("Invlaid parameter `%s'",
+                                                     kv.first.c_str()).c_str());
         }
     }
     return t;
@@ -258,17 +315,25 @@ StatusOr<Value> TimeUtils::toTimestamp(const Value &val) {
         }
         auto dateTime = std::move(status).value();
         if (dateTime.microsec != 0) {
-            return Status::Error("The timestamp  only supports seconds unit.");
+            return Status::Error(ErrorCode::E_INVALID_DATA_TYPE,
+                                 ERROR_FLAG(1),
+                                 "The timestamp  only supports seconds unit");
         }
         timestamp = time::TimeUtils::dateTimeToUnixSeconds(dateTime);
     } else if (val.isInt()) {
         timestamp = val.getInt();
     } else {
-        return Status::Error("Incorrect timestamp type: `%s'", val.toString().c_str());
+        return Status::Error(ErrorCode::E_INVALID_DATA_TYPE,
+                             ERROR_FLAG(1),
+                             folly::stringPrintf("Incorrect timestamp type: `%s'",
+                                                 val.toString().c_str()).c_str());
     }
 
     if (timestamp < 0 || (timestamp > kMaxTimestamp)) {
-        return Status::Error("Incorrect timestamp value: `%s'", val.toString().c_str());
+        return Status::Error(ErrorCode::E_INVALID_DATA_TYPE,
+                             ERROR_FLAG(1),
+                             folly::stringPrintf("Incorrect timestamp value: `%s'",
+                                                 val.toString().c_str()).c_str());
     }
     return timestamp;
 }

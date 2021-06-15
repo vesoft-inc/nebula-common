@@ -142,7 +142,9 @@ Status WebService::start() {
                     try {
                         std::rethrow_exception(eptr);
                     } catch (const std::exception &e) {
-                        status = Status::Error("%s", e.what());
+                        status = Status::Error(ErrorCode::E_INTERNAL_ERROR,
+                                               ERROR_FLAG(1),
+                                               e.what());
                     }
                     {
                         std::lock_guard<std::mutex> g(mut);

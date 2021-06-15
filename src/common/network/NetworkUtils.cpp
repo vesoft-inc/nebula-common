@@ -41,7 +41,7 @@ StatusOr<std::string> NetworkUtils::getIPv4FromDevice(const std::string &device)
     }
     auto iter = result.value().find(device);
     if (iter == result.value().end()) {
-        return Status::Error("No IPv4 address found for `%s'", device.c_str());
+        return Status::Error(ErrorCode::E_NET_GET_IPV4_FAILED, ERROR_FLAG(1), device.c_str());
     }
     return iter->second;
 }
@@ -66,7 +66,10 @@ StatusOr<std::unordered_map<std::string, std::string>> NetworkUtils::listDeviceA
     struct ifaddrs *iflist;
     std::unordered_map<std::string, std::string> dev2ipv4s;
     if (::getifaddrs(&iflist) != 0) {
-        return Status::Error("%s", ::strerror(errno));
+        return Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED,
+                             ERROR_FLAG(2),
+                             "getifaddrs",
+                             ::strerror(errno));
     }
     for (auto *ifa = iflist; ifa != nullptr; ifa = ifa->ifa_next) {
         // Skip non-IPv4 devices
@@ -80,7 +83,7 @@ StatusOr<std::unordered_map<std::string, std::string>> NetworkUtils::listDeviceA
     }
     ::freeifaddrs(iflist);
     if (dev2ipv4s.empty()) {
-        return Status::Error("No IPv4 devices found");
+        return Status::Error(ErrorCode::E_NET_GET_IPV4_FAILED, ERROR_FLAG(1), "ifaddrs");
     }
     return dev2ipv4s;
 }
@@ -208,7 +211,7 @@ StatusOr<std::vector<HostAddr>> NetworkUtils::resolveHost(const std::string& hos
     hints.ai_flags = AI_ADDRCONFIG;
 
     if (getaddrinfo(host.c_str(), nullptr, &hints, &res) != 0) {
-        return Status::Error("host not found:%s", host.c_str());
+        return Status::Error(ErrorCode::E_NET_HOST_NOT_FOUND, ERROR_FLAG(1), host.c_str());
     }
 
     for (rp = res; rp != nullptr; rp = rp->ai_next) {
@@ -231,7 +234,7 @@ StatusOr<std::vector<HostAddr>> NetworkUtils::resolveHost(const std::string& hos
     freeaddrinfo(res);
 
     if (addrs.empty()) {
-        return Status::Error("host not found: %s", host.c_str());
+        return Status::Error(ErrorCode::E_NET_HOST_NOT_FOUND, ERROR_FLAG(1), host.c_str());
     }
 
     return addrs;
@@ -298,14 +301,17 @@ StatusOr<std::vector<HostAddr>> NetworkUtils::toHosts(const std::string& peersSt
         auto addrPort = folly::trimWhitespace(peerStr);
         auto pos = addrPort.find(':');
         if (pos == folly::StringPiece::npos) {
-            return Status::Error("Bad peer format: %s", addrPort.start());
+            return Status::Error(ErrorCode::E_NET_BAD_IP, ERROR_FLAG(1), addrPort.start());
         }
 
         int32_t port;
         try {
             port = folly::to<int32_t>(addrPort.subpiece(pos + 1));
         } catch (const std::exception& ex) {
-            return Status::Error("Bad port number, error: %s", ex.what());
+            LOG(ERROR) << "Bad port format: " << addrPort.subpiece(pos + 1) << ", " << ex.what();
+            return Status::Error(ErrorCode::E_NET_BAD_IP,
+                                 ERROR_FLAG(1),
+                                 addrPort.subpiece(pos + 1));
         }
 
         auto addr = addrPort.subpiece(0, pos).toString();

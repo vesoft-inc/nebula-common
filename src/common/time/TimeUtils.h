@@ -46,7 +46,9 @@ public:
     static Status validateDate(const D &date) {
         const int64_t *p = isLeapYear(date.year) ? kLeapDaysSoFar : kDaysSoFar;
         if ((p[date.month] - p[date.month - 1]) < date.day) {
-            return Status::Error("`%s' is not a valid date.", date.toString().c_str());
+            return Status::Error(ErrorCode::E_INVALID_TIME_FORMAT, ERROR_FLAG(1),
+                    folly::stringPrintf("`%s' is not a valid date.",
+                                        date.toString().c_str()).c_str());
         }
         return Status::OK();
     }
@@ -57,7 +59,9 @@ public:
         std::istringstream ss(str);
         ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
         if (ss.fail()) {
-            return Status::Error();
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR,
+                                 ERROR_FLAG(1),
+                                 "Call system call get_time failed");
         }
         DateTime dt;
         dt.year = tm.tm_year + 1900;
@@ -115,7 +119,8 @@ public:
         DateTime dt;
         time_t unixTime = std::time(NULL);
         if (unixTime == -1) {
-            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1),
+                    folly::stringPrintf("Get unix time failed: %s.", std::strerror(errno)).c_str());
         }
         return unixSecondsToDateTime(unixTime - getGlobalTimezone().utcOffsetSecs());
     }
@@ -124,7 +129,8 @@ public:
         DateTime dt;
         time_t unixTime = std::time(NULL);
         if (unixTime == -1) {
-            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1),
+                    folly::stringPrintf("Get unix time failed: %s.", std::strerror(errno)).c_str());
         }
         return unixSecondsToDateTime(unixTime);
     }
@@ -137,7 +143,9 @@ public:
         std::istringstream ss(str);
         ss >> std::get_time(&tm, "%Y-%m-%d");
         if (ss.fail()) {
-            return Status::Error();
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR,
+                                 ERROR_FLAG(1),
+                                 "Call system call get_time failed");
         }
         Date d;
         d.year = tm.tm_year + 1900;
@@ -177,7 +185,8 @@ public:
         Date d;
         time_t unixTime = std::time(NULL);
         if (unixTime == -1) {
-            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1),
+                    folly::stringPrintf("Get unix time failed: %s.", std::strerror(errno)).c_str());
         }
         return unixSecondsToDate(unixTime - getGlobalTimezone().utcOffsetSecs());
     }
@@ -186,7 +195,8 @@ public:
         Date d;
         time_t unixTime = std::time(NULL);
         if (unixTime == -1) {
-            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1),
+                    folly::stringPrintf("Get unix time failed: %s.", std::strerror(errno)).c_str());
         }
         return unixSecondsToDate(unixTime);
     }
@@ -199,7 +209,9 @@ public:
         std::istringstream ss(str);
         ss >> std::get_time(&tm, "%H:%M:%S");
         if (ss.fail()) {
-            return Status::Error();
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR,
+                                 ERROR_FLAG(1),
+                                 "Call system call get_time failed");
         }
         Time t;
         t.hour = tm.tm_hour;
@@ -246,7 +258,8 @@ public:
         Time dt;
         time_t unixTime = std::time(NULL);
         if (unixTime == -1) {
-            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1),
+                    folly::stringPrintf("Get unix time failed: %s.", std::strerror(errno)).c_str());
         }
         return unixSecondsToTime(unixTime - getGlobalTimezone().utcOffsetSecs());
     }
@@ -255,7 +268,8 @@ public:
         Time dt;
         time_t unixTime = std::time(NULL);
         if (unixTime == -1) {
-            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1),
+                    folly::stringPrintf("Get unix time failed: %s.", std::strerror(errno)).c_str());
         }
         return unixSecondsToTime(unixTime);
     }

@@ -244,7 +244,7 @@ FunctionManager::getReturnType(const std::string& funcName,
     std::transform(func.begin(), func.end(), func.begin(), ::tolower);
     auto iter = typeSignature_.find(func);
     if (iter == typeSignature_.end()) {
-        return Status::Error("Function `%s' not defined", funcName.c_str());
+        return Status::Error(ErrorCode::E_FUNCTION_NOT_SUPPORTED, ERROR_FLAG(1), funcName.c_str());
     }
 
     for (const auto &args : iter->second) {
@@ -262,7 +262,7 @@ FunctionManager::getReturnType(const std::string& funcName,
         }
     }
 
-    return Status::Error("Parameter's type error");
+    return Status::Error(ErrorCode::E_FUNCTION_INVALID_ARG_TYPE, ERROR_FLAG(1), funcName.c_str());
 }
 
 FunctionManager::FunctionManager() {
@@ -2129,21 +2129,21 @@ FunctionManager::getInternal(std::string func,
     std::transform(func.begin(), func.end(), func.begin(), ::tolower);
     auto iter = functions_.find(func);
     if (iter == functions_.end()) {
-        return Status::Error("Function `%s' not defined", func.c_str());
+        return Status::Error(ErrorCode::E_FUNCTION_NOT_SUPPORTED, ERROR_FLAG(1), func.c_str());
     }
     // check arity
     auto minArity = iter->second.minArity_;
     auto maxArity = iter->second.maxArity_;
     if (arity < minArity || arity > maxArity) {
         if (minArity == maxArity) {
-            return Status::Error("Arity not match for function `%s': "
-                                 "provided %lu but %lu expected.",
+            return Status::Error(ErrorCode::E_FUNCTION_ARITY_NOT_MATCH,
+                                 ERROR_FLAG(3),
                                  func.c_str(),
                                  arity,
                                  minArity);
         } else {
-            return Status::Error("Arity not match for function `%s': "
-                                 "provided %lu but %lu-%lu expected.",
+            return Status::Error(ErrorCode::E_FUNCTION_ARITY_NOT_MATCH,
+                                 ERROR_FLAG(4),
                                  func.c_str(),
                                  arity,
                                  minArity,
@@ -2159,7 +2159,7 @@ Status FunctionManager::load(const std::string &name, const std::vector<std::str
 }
 
 Status FunctionManager::loadInternal(const std::string &, const std::vector<std::string> &) {
-    return Status::Error("Dynamic function loading not supported yet");
+    return Status::Error(ErrorCode::E_FUNCTION_DYNAMIC_NOT_SUPPORTED, ERROR_FLAG(1), "loading");
 }
 
 // static
@@ -2168,7 +2168,7 @@ Status FunctionManager::unload(const std::string &name, const std::vector<std::s
 }
 
 Status FunctionManager::unloadInternal(const std::string &, const std::vector<std::string> &) {
-    return Status::Error("Dynamic function unloading not supported yet");
+    return Status::Error(ErrorCode::E_FUNCTION_DYNAMIC_NOT_SUPPORTED, ERROR_FLAG(1), "unloading");
 }
 
 }   // namespace nebula

@@ -21,7 +21,9 @@ SchemaManager::getSchemaIDByName(GraphSpaceID space, folly::StringPiece schemaNa
             return std::make_pair(false, ret.value());
         }
     }
-    return Status::Error("Schema not exist: %s", schemaName.str().c_str());
+    return Status::Error(ErrorCode::E_INDEX_SCHEMA_NAME_NOT_FOUND,
+                         ERROR_FLAG(1),
+                         schemaName.str().c_str());
 }
 
 }   // namespace meta

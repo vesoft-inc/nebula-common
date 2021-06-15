@@ -209,7 +209,8 @@ StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName
     folly::split(".", metricName, parts, true);
     if (parts.size() != 3) {
         LOG(ERROR) << "\"" << metricName << "\" is not a valid metric name";
-        return Status::Error("\"%s\" is not a valid metric name", metricName.data());
+        return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1),
+                folly::stringPrintf("\"%s\" is not a valid metric name", metricName.data()));
     }
 
     TimeRange range;
@@ -224,8 +225,9 @@ StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName
     } else {
         // Unsupported time range
         LOG(ERROR) << "Unsupported time range \"" << parts[2] << "\"";
-        return Status::Error(folly::stringPrintf("Unsupported time range \"%s\"",
-                                                 parts[2].c_str()));
+        return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1),
+                folly::stringPrintf("Unsupported time range \"%s\"",
+                                    parts[2].c_str()));
     }
 
     // Now check the statistic method
@@ -245,13 +247,15 @@ StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName
             return readHisto(parts[0], range, pct);
         } else {
             LOG(ERROR) << "\"" << parts[1] << "\" is not a valid percentile form";
-            return Status::Error(folly::stringPrintf("\"%s\" is not a valid percentile form",
-                                                     parts[1].c_str()));
+            return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1),
+                    folly::stringPrintf("\"%s\" is not a valid percentile form",
+                                        parts[1].c_str()));
         }
     } else {
         LOG(ERROR) << "Unsupported statistic method \"" << parts[1] << "\"";
-        return Status::Error(folly::stringPrintf("Unsupported statistic method \"%s\"",
-                                                 parts[1].c_str()));
+        return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1),
+                folly::stringPrintf("Unsupported statistic method \"%s\"",
+                                    parts[1].c_str()).c_str());
     }
 }
 
@@ -358,7 +362,7 @@ StatusOr<StatsManager::VT> StatsManager::readStats(const CounterId& id,
     int32_t index = id.index();
 
     if (index == 0) {
-        return Status::Error("Invalid stats");
+        return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1), "Invalid stats");
     }
 
     if (index > 0) {
@@ -392,7 +396,8 @@ StatusOr<StatsManager::VT> StatsManager::readStats(const std::string& counterNam
         auto it = sm.nameMap_.find(counterName);
         if (it == sm.nameMap_.end()) {
             // Not found
-            return Status::Error("Stats not found \"%s\"", counterName.c_str());
+            return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1),
+                    folly::stringPrintf("Stats not found \"%s\"", counterName.c_str()));
         }
 
         id = &(it->second.id_);
@@ -411,11 +416,11 @@ StatusOr<StatsManager::VT> StatsManager::readHisto(const CounterId& id,
     int32_t index = id.index();
 
     if (index >= 0) {
-        return Status::Error("Invalid stats");
+        return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1), "Invalid stats");
     }
     index = - (index + 1);
     if (static_cast<size_t>(index) >= sm.histograms_.size()) {
-        return Status::Error("Invalid stats");
+        return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1), "Invalid stats");
     }
 
     std::lock_guard<std::mutex> g(*(sm.histograms_[index].first));
@@ -438,7 +443,8 @@ StatusOr<StatsManager::VT> StatsManager::readHisto(const std::string& counterNam
         auto it = sm.nameMap_.find(counterName);
         if (it == sm.nameMap_.end()) {
             // Not found
-            return Status::Error("Stats not found \"%s\"", counterName.c_str());
+            return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1),
+                    folly::stringPrintf("Stats not found \"%s\"", counterName.c_str()));
         }
 
         id = &(it->second.id_);

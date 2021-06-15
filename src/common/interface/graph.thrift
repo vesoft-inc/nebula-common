@@ -80,7 +80,7 @@ struct PlanDescription {
 
 
 struct ExecutionResponse {
-    1: required common.ErrorCode        error_code;
+    1: required i32                     error_code;
     2: required i32                     latency_in_us;  // Execution time on server
     3: optional common.DataSet          data;
     4: optional binary                  space_name;
@@ -91,7 +91,7 @@ struct ExecutionResponse {
 
 
 struct AuthResponse {
-    1: required common.ErrorCode   error_code;
+    1: required i32                error_code;
     2: optional binary             error_msg;
     3: optional i64                session_id;
 } (cpp.type = "nebula::AuthResponse")

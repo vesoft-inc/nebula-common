@@ -48,7 +48,7 @@ TEST(ConcurrentLRUCacheTest, PutIfAbsentTest) {
     ConcurrentLRUCache<int32_t, std::string> cache(1024);
     {
         auto v = cache.putIfAbsent(10, "ten");
-        EXPECT_EQ(Status::Inserted(), v.status());
+        EXPECT_EQ(ErrorCode::E_INTERNAL_ERROR, v.status().errorCode());
     }
 
     {

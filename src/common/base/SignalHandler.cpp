@@ -21,7 +21,7 @@ Status SignalHandler::init() {
         ::memset(&act, 0, sizeof(act));
         act.sa_handler = SIG_IGN;
         if (0 != ::sigaction(sig, &act, nullptr)) {
-            return Status::Error("Register signal %d failed: %s", sig, ::strerror(errno));
+            return Status::Error(ErrorCode::E_REGISTER_SIGNAL_ERROR, sig, ::strerror(errno));
         }
     }
 
@@ -72,7 +72,7 @@ Status SignalHandler::installInternal(int sig, Handler handler) {
     act.sa_sigaction = &handlerHook;
     act.sa_flags |= SA_SIGINFO;
     if (::sigaction(sig, &act, nullptr) != 0) {
-        return Status::Error("Register signal %d failed: %s", sig, ::strerror(errno));
+        return Status::Error(ErrorCode::E_REGISTER_SIGNAL_ERROR, sig, ::strerror(errno));
     }
     auto index = sig - 1;
     if (handlers_[index]) {

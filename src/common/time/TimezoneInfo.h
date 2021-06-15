@@ -28,9 +28,10 @@ public:
         try {
             tzdb.load_from_file(FLAGS_timezone_file);
         } catch (const std::exception &e) {
-            return Status::Error("Invalid timezone file `%s', exception: `%s'.",
-                                 FLAGS_timezone_file.c_str(),
-                                 e.what());
+            return Status::Error(ErrorCode::E_INVALID_TIMEZONE, ERROR_FLAG(2),
+                    folly::stringPrintf("Invalid timezone file `%s', exception: `%s'.",
+                                        FLAGS_timezone_file.c_str(),
+                                        e.what()).c_str());
         }
         return Status::OK();
     }
@@ -38,7 +39,8 @@ public:
     MUST_USE_RESULT Status loadFromDb(const std::string &region) {
         zoneInfo_ = tzdb.time_zone_from_region(region);
         if (zoneInfo_ == nullptr) {
-            return Status::Error("Not supported timezone `%s'.", region.c_str());
+            return Status::Error(ErrorCode::E_INVALID_TIMEZONE, ERROR_FLAG(1),
+                    folly::stringPrintf("Not supported timezone `%s'.", region.c_str()).c_str());
         }
         return Status::OK();
     }
@@ -48,9 +50,10 @@ public:
         try {
             zoneInfo_.reset(new ::boost::local_time::posix_time_zone(posixTimezone));
         } catch (const std::exception &e) {
-            return Status::Error("Malformed timezone format: `%s', exception: `%s'.",
-                                 posixTimezone.c_str(),
-                                 e.what());
+            return Status::Error(ErrorCode::E_INVALID_TIMEZONE, ERROR_FLAG(1),
+                    folly::stringPrintf("Malformed timezone format: `%s', exception: `%s'.",
+                            posixTimezone.c_str(),
+                            e.what()).c_str());
         }
         return Status::OK();
     }

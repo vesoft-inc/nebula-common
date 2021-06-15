@@ -115,7 +115,9 @@ private:
             std::lock_guard<std::mutex> guard(lock_);
             auto v = lru_->get(key);
             if (v == boost::none) {
-                return Status::Error();
+                return Status::Error(ErrorCode::E_INTERNAL_ERROR,
+                                     ERROR_FLAG(1),
+                                     "Bucket get key is None");
             }
             return std::move(v).value();
         }
@@ -125,7 +127,9 @@ private:
             auto v = lru_->get(key);
             if (v == boost::none) {
                 lru_->insert(std::forward<K>(key), std::forward<V>(val));
-                return Status::Inserted();
+                return Status::Error(ErrorCode::E_INTERNAL_ERROR,
+                                     ERROR_FLAG(1),
+                                     "Bucket get key is None");
             }
             return std::move(v).value();
         }

@@ -22,13 +22,14 @@ TEST(StatusOr, ConstructFromStatus) {
         StatusOr<std::string> result(Status::OK());
         ASSERT_FALSE(result.ok());
         ASSERT_TRUE(result.status().ok());
-        ASSERT_EQ("OK", result.status().toString());
+        ASSERT_EQ("SUCCEEDED", result.status().toString());
     }
     {
-        StatusOr<std::string> result(Status::Error("SomeError"));
+        StatusOr<std::string> result(
+                Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError"));
         ASSERT_FALSE(result.ok());
         ASSERT_FALSE(result.status().ok());
-        ASSERT_EQ("SomeError", result.status().toString());
+        ASSERT_EQ("-1:Internal error: SomeError.", result.status().toString());
     }
 }
 
@@ -43,24 +44,24 @@ TEST(StatusOr, ConstructFromValue) {
 TEST(StatusOr, ReturnFromStatus) {
     {
         auto foo = [] () -> StatusOr<std::string> {
-            return Status::Error("SomeError");
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError");
         };
 
         auto result = foo();
         ASSERT_FALSE(result.ok());
         ASSERT_FALSE(result.status().ok());
-        ASSERT_EQ("SomeError", result.status().toString());
+        ASSERT_EQ("-1:Internal error: SomeError.", result.status().toString());
     }
     {
         auto foo = [] () -> StatusOr<std::string> {
-            auto status = Status::Error("SomeError");
+            auto status = Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError");
             return status;
         };
 
         auto result = foo();
         ASSERT_FALSE(result.ok());
         ASSERT_FALSE(result.status().ok());
-        ASSERT_EQ("SomeError", result.status().toString());
+        ASSERT_EQ("-1:Internal error: SomeError.", result.status().toString());
     }
 }
 
@@ -125,14 +126,15 @@ TEST(StatusOr, CopyConstructFromDefault) {
 
 
 TEST(StatusOr, CopyConstructFromStatus) {
-    StatusOr<std::string> result1(Status::Error("SomeError"));
+    StatusOr<std::string> result1(
+            Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError"));
     auto result2 = result1;
     ASSERT_FALSE(result1.ok());
     ASSERT_FALSE(result1.status().ok());
     ASSERT_FALSE(result2.ok());
     ASSERT_FALSE(result2.status().ok());
-    ASSERT_EQ("SomeError", result1.status().toString());
-    ASSERT_EQ("SomeError", result2.status().toString());
+    ASSERT_EQ("-1:Internal error: SomeError.", result1.status().toString());
+    ASSERT_EQ("-1:Internal error: SomeError.", result2.status().toString());
 }
 
 
@@ -155,15 +157,16 @@ TEST(StatusOr, CopyAssignFromDefault) {
 
 
 TEST(StatusOr, CopyAssignFromStatus) {
-    StatusOr<std::string> result1(Status::Error("SomeError"));
+    StatusOr<std::string> result1(
+            Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError"));
     decltype(result1) result2;
     result2 = result1;
     ASSERT_FALSE(result1.ok());
     ASSERT_FALSE(result1.status().ok());
     ASSERT_FALSE(result2.ok());
     ASSERT_FALSE(result2.status().ok());
-    ASSERT_EQ("SomeError", result1.status().toString());
-    ASSERT_EQ("SomeError", result2.status().toString());
+    ASSERT_EQ("-1:Internal error: SomeError.", result1.status().toString());
+    ASSERT_EQ("-1:Internal error: SomeError.", result2.status().toString());
 }
 
 
@@ -186,12 +189,13 @@ TEST(StatusOr, MoveConstructFromDefault) {
 
 
 TEST(StatusOr, MoveConstructFromStatus) {
-    StatusOr<std::string> result1(Status::Error("SomeError"));
+    StatusOr<std::string> result1(
+            Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError"));
     auto result2 = std::move(result1);
     ASSERT_FALSE(result1.ok());
     ASSERT_FALSE(result2.ok());
     ASSERT_FALSE(result2.status().ok());
-    ASSERT_EQ("SomeError", result2.status().toString());
+    ASSERT_EQ("-1:Internal error: SomeError.", result2.status().toString());
 }
 
 
@@ -213,13 +217,14 @@ TEST(StatusOr, MoveAssignFromDefault) {
 
 
 TEST(StatusOr, MoveAssignFromStatus) {
-    StatusOr<std::string> result1(Status::Error("SomeError"));
+    StatusOr<std::string> result1(
+            Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError"));
     decltype(result1) result2;
     result2 = std::move(result1);
     ASSERT_FALSE(result1.ok());
     ASSERT_FALSE(result2.ok());
     ASSERT_FALSE(result2.status().ok());
-    ASSERT_EQ("SomeError", result2.status().toString());
+    ASSERT_EQ("-1:Internal error: SomeError.", result2.status().toString());
 }
 
 
@@ -240,10 +245,10 @@ TEST(StatusOr, AssignFromStatus) {
         ASSERT_FALSE(result.ok());
         ASSERT_TRUE(result.status().ok());
 
-        result = Status::Error("SomeError");
+        result = Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError");
         ASSERT_FALSE(result.ok());
         ASSERT_FALSE(result.status().ok());
-        ASSERT_EQ("SomeError", result.status().toString());
+        ASSERT_EQ("-1:Internal error: SomeError.", result.status().toString());
     }
     {
         StatusOr<std::string> result;
@@ -252,11 +257,11 @@ TEST(StatusOr, AssignFromStatus) {
         ASSERT_FALSE(result.ok());
         ASSERT_TRUE(result.status().ok());
 
-        status = Status::Error("SomeError");
+        status = Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError");
         result = status;
         ASSERT_FALSE(result.ok());
         ASSERT_FALSE(result.status().ok());
-        ASSERT_EQ("SomeError", result.status().toString());
+        ASSERT_EQ("-1:Internal error: SomeError.", result.status().toString());
     }
     {
         StatusOr<std::string> result;
@@ -266,12 +271,12 @@ TEST(StatusOr, AssignFromStatus) {
         ASSERT_FALSE(result.ok());
         ASSERT_TRUE(result.status().ok());
 
-        status = Status::Error("SomeError");
+        status = Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError");
         result = std::move(status);
         ASSERT_TRUE(status.ok());
         ASSERT_FALSE(result.ok());
         ASSERT_FALSE(result.status().ok());
-        ASSERT_EQ("SomeError", result.status().toString());
+        ASSERT_EQ("-1:Internal error: SomeError.", result.status().toString());
     }
 }
 
@@ -401,13 +406,20 @@ TEST(StatusOr, MoveOnlyValue) {
 
 
 TEST(StatusOr, MoveOutStatus) {
-    StatusOr<std::string> result(Status::Error("SomeError"));
+    StatusOr<std::string> result(
+            Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError"));
     ASSERT_FALSE(result.ok());
     ASSERT_FALSE(result.status().ok());
-    ASSERT_EQ(Status::Error("SomeError"), result.status());
+    ASSERT_EQ(Status::Error(ErrorCode::E_INTERNAL_ERROR,
+                            ERROR_FLAG(1),
+                            "SomeError"),
+              result.status());
     auto status = std::move(result).status();
     ASSERT_FALSE(result.ok());
-    ASSERT_EQ(Status::Error("SomeError"), status);
+    ASSERT_EQ(Status::Error(ErrorCode::E_INTERNAL_ERROR,
+                            ERROR_FLAG(1),
+                            "SomeError"),
+              status);
 }
 
 
@@ -446,7 +458,9 @@ TEST(StatusOr, ConvertibleButNotConstructible) {
 
 TEST(StatusOr, ReturnIfError) {
     auto value = []() -> StatusOr<int> { return 1; };
-    auto error = []() -> StatusOr<int> { return Status::Error("error"); };
+    auto error = []() -> StatusOr<int> {
+        return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "error");
+    };
     auto returnOk = [=]() {
         NG_RETURN_IF_ERROR(value());
         return Status::OK();

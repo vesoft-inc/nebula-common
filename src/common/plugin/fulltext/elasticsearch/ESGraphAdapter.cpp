@@ -22,7 +22,7 @@ StatusOr<bool> ESGraphAdapter::prefix(const HttpClient& client,
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http GET Failed: " << cmd;
-        return Status::Error("command failed : %s", cmd.c_str());
+        return Status::Error(ErrorCode::E_GRAPH_ES_RUN_COMMAND_FAILED, ERROR_FLAG(1), cmd.c_str());
     }
     return result(ret.value(), rows);
 }
@@ -36,7 +36,7 @@ StatusOr<bool> ESGraphAdapter::wildcard(const HttpClient& client,
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http GET Failed: " << cmd;
-        return Status::Error("command failed : %s", cmd.c_str());
+        return Status::Error(ErrorCode::E_GRAPH_ES_RUN_COMMAND_FAILED, ERROR_FLAG(1), cmd.c_str());
     }
     return result(ret.value(), rows);
 }
@@ -50,7 +50,7 @@ StatusOr<bool> ESGraphAdapter::regexp(const HttpClient& client,
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http GET Failed: " << cmd;
-        return Status::Error("command failed : %s", cmd.c_str());
+        return Status::Error(ErrorCode::E_GRAPH_ES_RUN_COMMAND_FAILED, ERROR_FLAG(1), cmd.c_str());
     }
     return result(ret.value(), rows);
 }
@@ -66,7 +66,7 @@ StatusOr<bool> ESGraphAdapter::fuzzy(const HttpClient& client,
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http GET Failed: " << cmd;
-        return Status::Error("command failed : %s", cmd.c_str());
+        return Status::Error(ErrorCode::E_GRAPH_ES_RUN_COMMAND_FAILED, ERROR_FLAG(1), cmd.c_str());
     }
     return result(ret.value(), rows);
 }
@@ -168,7 +168,7 @@ StatusOr<bool> ESGraphAdapter::createIndex(const HttpClient& client,
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http PUT Failed: " << cmd;
-        return Status::Error("command failed : %s", cmd.c_str());
+        return Status::Error(ErrorCode::E_GRAPH_ES_RUN_COMMAND_FAILED, ERROR_FLAG(1), cmd.c_str());
     }
     return statusCheck(ret.value());
 }
@@ -188,7 +188,7 @@ StatusOr<bool> ESGraphAdapter::dropIndex(const HttpClient& client,
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http DELETE Failed: " << cmd;
-        return Status::Error("command failed : %s", cmd.c_str());
+        return Status::Error(ErrorCode::E_GRAPH_ES_RUN_COMMAND_FAILED, ERROR_FLAG(1), cmd.c_str());
     }
     return statusCheck(ret.value());
 }
@@ -208,7 +208,7 @@ StatusOr<bool> ESGraphAdapter::indexExists(const HttpClient& client,
     auto ret = nebula::ProcessUtils::runCommand(cmd.c_str());
     if (!ret.ok() || ret.value().empty()) {
         LOG(ERROR) << "Http GET Failed: " << cmd;
-        return Status::Error("Http GET Failed: : %s", cmd.c_str());
+        return Status::Error(ErrorCode::E_GRAPH_ES_RUN_COMMAND_FAILED, ERROR_FLAG(1), cmd.c_str());
     }
     return indexCheck(ret.value());
 }

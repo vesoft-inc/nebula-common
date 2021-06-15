@@ -26,21 +26,28 @@ Status Configuration::parseFromFile(const std::string &filename) {
     do {
         if (fd == -1) {
             if (errno == ENOENT) {
-                status = Status::NoSuchFile("File \"%s\" found", filename.c_str());
-                break;
-            }
-            if (errno == EPERM) {
-                status = Status::Error("No permission to read file \"%s\"",
+                status = Status::Error(ErrorCode::E_FILE_NOT_FOUND,
+                                       ERROR_FLAG(1),
                                        filename.c_str());
                 break;
             }
-            status = Status::Error("Unknown error");
+            if (errno == EPERM) {
+                status = Status::Error(ErrorCode::E_FILE_NOT_PERMISSION,
+                                       ERROR_FLAG(1),
+                                       filename.c_str());
+                break;
+            }
+            status = Status::Error(ErrorCode::E_INTERNAL_ERROR,
+                                   ERROR_FLAG(1),
+                                   "Unknown error");
             break;
         }
         // get the file size
         auto len = ::lseek(fd, 0, SEEK_END);
         if (len == 0) {
-            status = Status::Error("File \"%s\"is empty", filename.c_str());
+            status = Status::Error(ErrorCode::E_FILE_CONTENT_IS_EMPTY,
+                                   ERROR_FLAG(1),
+                                   filename.c_str());
             break;
         }
         ::lseek(fd, 0, SEEK_SET);
@@ -73,7 +80,7 @@ Status Configuration::parseFromString(const std::string &content) {
         content_ = std::make_unique<folly::dynamic>(std::move(json));
     } catch (std::exception &e) {
         LOG(ERROR) << e.what();
-        return Status::Error("Illegal format (%s)", e.what());
+        return Status::Error(ErrorCode::E_CONFIG_WRONG_JSON_FORMAT, ERROR_FLAG(1), e.what());
     }
     return Status::OK();
 }
@@ -99,10 +106,10 @@ Status Configuration::fetchAsInt(const char *key, int64_t &val) const {
     DCHECK(content_ != nullptr);
     auto iter = content_->find(key);
     if (iter == content_->items().end()) {
-        return Status::Error("Item \"%s\" not found", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
     if (!iter->second.isInt()) {
-        return Status::Error("Item \"%s\" is not an integer", key);
+        return Status::Error(ErrorCode::E_CONFIG_INVALID_ITEM_TYPE, ERROR_FLAG(2), key, "integer");
     }
     val = iter->second.getInt();
     return Status::OK();
@@ -113,10 +120,10 @@ Status Configuration::fetchAsDouble(const char *key, double &val) const {
     DCHECK(content_ != nullptr);
     auto iter = content_->find(key);
     if (iter == content_->items().end()) {
-        return Status::Error("Item \"%s\" not found", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
     if (!iter->second.isDouble()) {
-        return Status::Error("Item \"%s\" is not a double", key);
+        return Status::Error(ErrorCode::E_CONFIG_INVALID_ITEM_TYPE, ERROR_FLAG(2), key, "double");
     }
     val = iter->second.getDouble();
     return Status::OK();
@@ -127,10 +134,10 @@ Status Configuration::fetchAsBool(const char *key, bool &val) const {
     DCHECK(content_ != nullptr);
     auto iter = content_->find(key);
     if (iter == content_->items().end()) {
-        return Status::Error("Item \"%s\" not found", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
     if (!iter->second.isBool()) {
-        return Status::Error("Item \"%s\" is not a boolean", key);
+        return Status::Error(ErrorCode::E_CONFIG_INVALID_ITEM_TYPE, ERROR_FLAG(2), key, "boolean");
     }
     val = iter->second.getBool();
     return Status::OK();
@@ -141,10 +148,10 @@ Status Configuration::fetchAsString(const char *key, std::string &val) const {
     DCHECK(content_ != nullptr);
     auto iter = content_->find(key);
     if (iter == content_->items().end()) {
-        return Status::Error("Item \"%s\" not found", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
     if (!iter->second.isString()) {
-        return Status::Error("Item \"%s\" is not a string", key);
+        return Status::Error(ErrorCode::E_CONFIG_INVALID_ITEM_TYPE, ERROR_FLAG(2), key, "string");
     }
     val = iter->second.getString();
     return Status::OK();
@@ -155,10 +162,10 @@ Status Configuration::fetchAsSubConf(const char *key, Configuration &subconf) co
     DCHECK(content_ != nullptr);
     auto iter = content_->find(key);
     if (iter == content_->items().end()) {
-        return Status::Error("Item \"%s\" not found", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
     if (!iter->second.isObject()) {
-        return Status::Error("Item \"%s\" is not an JSON object", key);
+        return Status::Error(ErrorCode::E_CONFIG_WRONG_JSON_FORMAT, ERROR_FLAG(1), key);
     }
     subconf.content_ = std::make_unique<folly::dynamic>(iter->second);
     return Status::OK();
@@ -168,11 +175,14 @@ Status Configuration::fetchAsSubConf(const char *key, Configuration &subconf) co
 Status Configuration::upsertStringField(const char* key, const std::string& val) {
     DCHECK(content_ != nullptr);
     auto iter = content_->find(key);
-    if (iter == content_->items().end() || iter->second.isString()) {
-        (*content_)[key] = val;
-        return Status::OK();
+    if (iter == content_->items().end()) {
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
-    return Status::Error("Item \"%s\" not found or it is not an string", key);
+    if (!iter->second.isString()) {
+        return Status::Error(ErrorCode::E_CONFIG_INVALID_ITEM_TYPE, ERROR_FLAG(2), key, "string");
+    }
+    (*content_)[key] = val;
+    return Status::OK();
 }
 
 
@@ -182,10 +192,10 @@ Status Configuration::fetchAsIntArray(
     DCHECK(content_ != nullptr);
     auto iter = content_->find(key);
     if (iter == content_->items().end()) {
-        return Status::Error("Item \"%s\" not found", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
     if (!iter->second.isArray()) {
-        return Status::Error("Item \"%s\" is not an array", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
 
     for (auto& entry : iter->second) {
@@ -193,7 +203,7 @@ Status Configuration::fetchAsIntArray(
             val.emplace_back(entry.asInt());
         } catch (const std::exception& ex) {
             // Avoid format sercure by literal
-            return Status::Error("%s", ex.what());
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), ex.what());
         }
     }
     return Status::OK();
@@ -206,10 +216,10 @@ Status Configuration::fetchAsDoubleArray(
     DCHECK(content_ != nullptr);
     auto iter = content_->find(key);
     if (iter == content_->items().end()) {
-        return Status::Error("Item \"%s\" not found", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
     if (!iter->second.isArray()) {
-        return Status::Error("Item \"%s\" is not an array", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
 
     for (auto& entry : iter->second) {
@@ -217,7 +227,7 @@ Status Configuration::fetchAsDoubleArray(
             val.emplace_back(entry.asDouble());
         } catch (const std::exception& ex) {
             // Avoid format sercure by literal
-            return Status::Error("%s", ex.what());
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), ex.what());
         }
     }
     return Status::OK();
@@ -230,10 +240,10 @@ Status Configuration::fetchAsBoolArray(
     DCHECK(content_ != nullptr);
     auto iter = content_->find(key);
     if (iter == content_->items().end()) {
-        return Status::Error("Item \"%s\" not found", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
     if (!iter->second.isArray()) {
-        return Status::Error("Item \"%s\" is not an array", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_IS_NO_ARRAY, ERROR_FLAG(1), key);
     }
 
     for (auto& entry : iter->second) {
@@ -241,7 +251,7 @@ Status Configuration::fetchAsBoolArray(
             val.emplace_back(entry.asBool());
         } catch (const std::exception& ex) {
             // Avoid format sercure by literal
-            return Status::Error("%s", ex.what());
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), ex.what());
         }
     }
     return Status::OK();
@@ -254,10 +264,10 @@ Status Configuration::fetchAsStringArray(
     DCHECK(content_ != nullptr);
     auto iter = content_->find(key);
     if (iter == content_->items().end()) {
-        return Status::Error("Item \"%s\" not found", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
     if (!iter->second.isArray()) {
-        return Status::Error("Item \"%s\" is not an array", key);
+        return Status::Error(ErrorCode::E_CONFIG_ITEM_NOT_FOUND, ERROR_FLAG(1), key);
     }
 
     for (auto& entry : iter->second) {
@@ -265,7 +275,7 @@ Status Configuration::fetchAsStringArray(
             val.emplace_back(entry.asString());
         } catch (const std::exception& ex) {
             // Avoid format sercure by literal
-            return Status::Error("%s", ex.what());
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), ex.what());
         }
     }
     return Status::OK();
@@ -279,7 +289,7 @@ Status Configuration::forEachKey(std::function<void(const std::string&)> process
             processor(key.asString());
         } catch (const std::exception& ex) {
             // Avoid format sercure by literal
-            return Status::Error("%s", ex.what());
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), ex.what());
         }
     }
     return Status::OK();
@@ -294,7 +304,7 @@ Status Configuration::forEachItem(
             processor(item.first.asString(), item.second);
         } catch (const std::exception& ex) {
             // Avoid format sercure by literal
-            return Status::Error("%s", ex.what());
+            return Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), ex.what());
         }
     }
     return Status::OK();

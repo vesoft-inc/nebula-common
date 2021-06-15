@@ -154,7 +154,7 @@ StatusOr<std::vector<nebula::meta::cpp2::FTClient>> ServerBasedSchemaManager::ge
         return ret.status();
     }
     if (ret.value().empty()) {
-        return Status::Error("fulltext client list is empty");
+        return Status::Error(ErrorCode::E_FULLTEXT_CLIENT_IS_EMPTY, ERROR_FLAG(0));
     }
     return std::move(ret).value();
 }

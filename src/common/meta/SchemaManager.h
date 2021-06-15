@@ -37,7 +37,7 @@ public:
     virtual StatusOr<int32_t> getSpaceVidLen(GraphSpaceID space) = 0;
 
     virtual StatusOr<cpp2::PropertyType> getSpaceVidType(GraphSpaceID) {
-        return Status::Error("Not implemented");
+        return Status::Error(ErrorCode::E_UNSUPPORTED, ERROR_FLAG(1), "Not implemented");
     }
 
     virtual StatusOr<int32_t> getPartsNum(GraphSpaceID space) = 0;

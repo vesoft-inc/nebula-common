@@ -20,7 +20,7 @@ StatusOr<std::string> HdfsCommandHelper::ls(const std::string& hdfsHost,
     if (result.ok()) {
         return result.value();
     } else {
-        return Status::Error(folly::stringPrintf("Failed to run %s", command.c_str()));
+        return result.status();
     }
 }
 
@@ -36,7 +36,7 @@ StatusOr<std::string> HdfsCommandHelper::copyToLocal(const std::string& hdfsHost
     if (result.ok()) {
         return result.value();
     } else {
-        return Status::Error(folly::stringPrintf("Failed to run %s", command.c_str()));
+        return result.status();
     }
 }
 

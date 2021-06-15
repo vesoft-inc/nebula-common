@@ -14,18 +14,20 @@ namespace nebula {
 TEST(Status, Basic) {
     ASSERT_TRUE(Status().ok());
     ASSERT_TRUE(Status::OK().ok());
-    ASSERT_FALSE(Status::Error("Error").ok());
+    ASSERT_FALSE(Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "Error").ok());
     ASSERT_EQ(8UL, sizeof(Status));
 }
 
 
 TEST(Status, toString) {
-    ASSERT_EQ("OK", Status().toString());
-    ASSERT_EQ("OK", Status::OK().toString());
-    ASSERT_EQ("Error", Status::Error("Error").toString());
-    ASSERT_EQ("SomeError", Status::Error("SomeError").toString());
-    ASSERT_EQ("SomeError(-1)", Status::Error("%s(%d)", "SomeError", -1).toString());
-    ASSERT_EQ("SyntaxError: message", Status::SyntaxError("message").toString());
+    ASSERT_EQ("SUCCEEDED", Status().toString());
+    ASSERT_EQ("SUCCEEDED", Status::OK().toString());
+    ASSERT_EQ("-1:Internal error: Error.",
+              Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "Error").toString());
+    ASSERT_EQ("-1:Internal error: SomeError.",
+              Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError").toString());
+    ASSERT_EQ("-1:Internal error: message.",
+              Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "message").toString());
 }
 
 
@@ -33,27 +35,27 @@ TEST(Status, StreamOperator) {
     {
         auto result = testing::AssertionSuccess();
         result << Status::OK();
-        ASSERT_STREQ("OK", result.message());
+        ASSERT_STREQ("SUCCEEDED", result.message());
     }
     {
         auto result = testing::AssertionSuccess();
-        result << Status::Error("SomeError");
-        ASSERT_STREQ("SomeError", result.message());
+        result << Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError");
+        ASSERT_STREQ("-1:Internal error: SomeError.", result.message());
     }
     {
         std::ostringstream os;
         os << Status();
-        ASSERT_EQ("OK", os.str());
+        ASSERT_EQ("SUCCEEDED", os.str());
     }
     {
         std::ostringstream os;
         os << Status::OK();
-        ASSERT_EQ("OK", os.str());
+        ASSERT_EQ("SUCCEEDED", os.str());
     }
     {
         std::ostringstream os;
-        os << Status::Error("SomeError");
-        ASSERT_EQ("SomeError", os.str());
+        os << Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError");
+        ASSERT_EQ("-1:Internal error: SomeError.", os.str());
     }
 }
 
@@ -66,12 +68,12 @@ TEST(Status, Copy) {
         ASSERT_TRUE(copy.ok());
     }
     {
-        auto error = Status::Error("SomeError");
+        auto error = Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError");
         auto copy = error;
         ASSERT_FALSE(error.ok());
         ASSERT_FALSE(copy.ok());
-        ASSERT_EQ("SomeError", error.toString());
-        ASSERT_EQ("SomeError", copy.toString());
+        ASSERT_EQ("-1:Internal error: SomeError.", error.toString());
+        ASSERT_EQ("-1:Internal error: SomeError.", copy.toString());
     }
 }
 
@@ -84,20 +86,20 @@ TEST(Status, Move) {
         ASSERT_TRUE(move.ok());
     }
     {
-        auto error = Status::Error("SomeError");
+        auto error = Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "SomeError");
         ASSERT_FALSE(error.ok());
-        ASSERT_EQ("SomeError", error.toString());
+        ASSERT_EQ("-1:Internal error: SomeError.", error.toString());
         auto move = std::move(error);
         ASSERT_TRUE(error.ok());
-        ASSERT_EQ("OK", error.toString());
+        ASSERT_EQ("SUCCEEDED", error.toString());
         ASSERT_FALSE(move.ok());
-        ASSERT_EQ("SomeError", move.toString());
+        ASSERT_EQ("-1:Internal error: SomeError.", move.toString());
     }
 }
 
 TEST(Status, ReturnIfError) {
     auto testReturnIfError = []() {
-        NG_RETURN_IF_ERROR(Status::Error("error"));
+        NG_RETURN_IF_ERROR(Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "error"));
         return Status::OK();
     };
     auto testReturnOK = []() {
@@ -109,19 +111,16 @@ TEST(Status, ReturnIfError) {
 }
 
 TEST(Status, Message) {
-    Status err = Status::Error("error");
-    EXPECT_EQ(err.message(), "error");
-    Status syntaxError = Status::SyntaxError(err.message());
-    EXPECT_EQ(err.message(), "error");
-    EXPECT_EQ(syntaxError.message(), "error");
-    EXPECT_EQ(syntaxError.toString(), "SyntaxError: error");
-    EXPECT_EQ("some reason", Status::Error("some reason").message());
-    EXPECT_EQ("", Status::OK().message());
+    Status err = Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "error");
+    EXPECT_EQ(err.message(), "Internal error: error.");
+    EXPECT_EQ("Internal error: some reason.",
+              Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "some reason").message());
+    EXPECT_EQ("SUCCEEDED", Status::OK().message());
     std::string msg;
     {
-        msg = Status::Error("reason").message();
+        msg = Status::Error(ErrorCode::E_INTERNAL_ERROR, ERROR_FLAG(1), "reason").message();
     }
-    EXPECT_EQ(msg, "reason");
+    EXPECT_EQ(msg, "Internal error: reason.");
 }
 
 }   // namespace nebula

@@ -17,7 +17,7 @@ StatusOr<std::string> HttpClient::get(const std::string& path, const std::string
     if (result.ok()) {
         return result.value();
     } else {
-        return Status::Error(folly::stringPrintf("Http Get Failed: %s", path.c_str()));
+        return result.status();
     }
 }
 
@@ -29,7 +29,7 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const std::strin
     if (result.ok()) {
         return result.value();
     } else {
-        return Status::Error(folly::stringPrintf("Http Post Failed: %s", path.c_str()));
+        return result.status();
     }
 }
 
@@ -65,7 +65,7 @@ StatusOr<std::string> HttpClient::put(const std::string& path, const std::string
     if (result.ok()) {
         return result.value();
     } else {
-        return Status::Error(folly::stringPrintf("Http Put Failed: %s", path.c_str()));
+        return result.status();
     }
 }
 
@@ -91,8 +91,7 @@ StatusOr<std::string> HttpClient::sendRequest(const std::string& path,
     if (result.ok()) {
         return result.value();
     } else {
-        return Status::Error(
-            folly::stringPrintf("Http %s Failed: %s", reqType.c_str(), path.c_str()));
+        return result.status();
     }
 }
 
