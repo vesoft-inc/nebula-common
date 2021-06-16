@@ -57,7 +57,7 @@ public:
     virtual folly::Future<StatusOr<std::shared_ptr<SessionType>>>
     findSession(SessionID id, folly::Executor* runner) = 0;
 
-private:
+protected:
     using SessionPtr = std::shared_ptr<SessionType>;
     folly::ConcurrentHashMap<SessionID, SessionPtr> activeSessions_;
     std::unique_ptr<thread::GenericWorker>          scavenger_;
