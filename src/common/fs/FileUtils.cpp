@@ -92,7 +92,7 @@ StatusOr<std::string> FileUtils::readLink(const char *path) {
     char buffer[kMaxPathLen];
     auto len = ::readlink(path, buffer, kMaxPathLen);
     if (len == -1) {
-        return Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(1),
+        return Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(2), "readlink",
                 folly::stringPrintf("readlink %s: %s", path, ::strerror(errno)).c_str());
     }
     return std::string(buffer, len);
@@ -101,7 +101,7 @@ StatusOr<std::string> FileUtils::readLink(const char *path) {
 StatusOr<std::string> FileUtils::realPath(const char *path) {
     char *buffer  = ::realpath(path, NULL);
     if (buffer == NULL) {
-        return Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(1),
+        return Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(2), "realpath",
                 folly::stringPrintf("realpath %s: %s", path, ::strerror(errno)).c_str());
     }
     std::string truePath(buffer);
@@ -379,7 +379,7 @@ StatusOr<uint64_t> FileUtils::free(const char* path) {
     struct statfs diskInfo;
     int err = statfs(path, &diskInfo);
     if (err != 0) {
-        return Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(1),
+        return Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(2), "statfs",
                 folly::stringPrintf("Failed to get diskInfo of %s", path).c_str());
     }
     return diskInfo.f_bfree * diskInfo.f_bsize;
@@ -389,7 +389,7 @@ StatusOr<uint64_t> FileUtils::available(const char* path) {
     struct statfs diskInfo;
     int err = statfs(path, &diskInfo);
     if (err != 0) {
-        return Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(1),
+        return Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(2),
                 folly::stringPrintf("Failed to get diskInfo of %s", path).c_str());
     }
     return diskInfo.f_bavail * diskInfo.f_bsize;
@@ -515,7 +515,7 @@ void FileUtils::Iterator::dirNext() {
         break;
     }
     if (dent == nullptr) {
-        status_ = Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(1), "EOF");
+        status_ = Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(2), "readdir", "EOF");
         return;
     }
     entry_ = dent->d_name;
@@ -526,7 +526,10 @@ void FileUtils::Iterator::fileNext() {
     CHECK(type_ == FileType::REGULAR);
     CHECK(fstream_ != nullptr);
     if (!std::getline(*fstream_, entry_)) {
-        status_ = Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(1), "EOF");
+        status_ = Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED,
+                                ERROR_FLAG(2),
+                                "getline",
+                                "EOF");
     }
 }
 
@@ -536,18 +539,20 @@ void FileUtils::Iterator::openFileOrDirectory() {
     if (type_ == FileType::DIRECTORY) {
         if ((dir_ = ::opendir(path_.c_str())) == nullptr) {
             status_ = Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED,
-                                    ERROR_FLAG(1),
-                                    folly::stringPrintf("opendir `%s': %s",
-                                                        path_.c_str(),
-                                                        ::strerror(errno)).c_str());
+                                    ERROR_FLAG(2),
+                                    folly::stringPrintf("opendir `%s'",
+                                                        path_.c_str()).c_str(),
+                                    ::strerror(errno));
             return;
         }
     } else if (type_ == FileType::REGULAR) {
         fstream_ = std::make_unique<std::ifstream>();
         fstream_->open(path_);
         if (!fstream_->is_open()) {
-            status_ = Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(1),
-                    folly::stringPrintf("open `%s': %s", path_.c_str(), ::strerror(errno)).c_str());
+            status_ = Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED,
+                                    ERROR_FLAG(2),
+                                    "open",
+                                    ::strerror(errno));
             return;
         }
     } else if (type_ == FileType::SYM_LINK) {
@@ -559,7 +564,7 @@ void FileUtils::Iterator::openFileOrDirectory() {
         path_ = std::move(result).value();
         openFileOrDirectory();
     } else {
-        status_ = Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(1),
+        status_ = Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED, ERROR_FLAG(2), "getFileType",
                 folly::stringPrintf("Filetype not supported `%s': %s",
                         path_.c_str(), FileUtils::getFileTypeName(type_)).c_str());
         return;

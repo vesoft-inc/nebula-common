@@ -8,7 +8,7 @@
 #define COMMON_ERRORCODE_ERRORCODE_H
 
 /**
- * name format: E_<ModuleName>_<ErrorName>
+ * common module format: E_<ModuleName>_<ErrorName>
  * rpc error format: 001 * 10000 + ErrorId(0001~9999)
  * net error format: 002 * 10000 + ErrorId(0001~9999)
  * file error format: 003 * 10000 + ErrorId(0001~9999)
@@ -27,6 +27,7 @@
  *
  * name format: E_<ServiceName>_<ModuleName>_<ErrorName>
  * id format: ServiceId(1~3) * 10000000 + ModuleId(001~999) * 10000 + ErrorId(0001~9999)
+ * service id:
  * The serviceId of graph is 1
  * The serviceId of meta is 2
  * The serviceId of storage is 3
@@ -50,6 +51,11 @@
  * The moduleId of rocksdb is 017
  * The moduleId of stat is 018
  * The moduleId of es is 019
+ * The moduleId of backup is 020
+ * The moduleId of snapshot is 021
+ * The moduleId of syntax is 022
+ * The moduleId of semantic is 023
+ * The moduleId of query is 024
  */
 
 namespace nebula {
@@ -159,30 +165,47 @@ enum class ErrorCode : int32_t {
     // prefix: 1019
     E_GRAPH_ES_RUN_COMMAND_FAILED = 10190001,
 
+    // prefix: 1008
+    E_GRAPH_SESSION_INVALID_ID = 10080001,
+    E_GRAPH_SESSION_TOO_MANY_CONNECTIONS = 10080002,
+
+    // prefix: 1009
+    E_GRAPH_USER_NOT_EXIST = 10090001,
+    E_GRAPH_USER_BAD_PASSWORD = 10090002,
+
+    // prefix: 1022
+    E_GRAPH_SYNTAX_ERROR = 10220001,
+
+    // prefix: 1023
+    E_GRAPH_SEMANTIC_ERROR = 10230001,
+
+    // prefix: 1024
+    E_GRAPH_QUERY_PARTIAL_SUCCEEDED = 10240001,
+
     // The ErrorCode for meta
     // prefix: 2007
     E_META_SCHEMA_TAG_NOT_FOUND = 20070001,
     E_META_SCHEMA_EDGE_NOT_FOUND = 20070002,
 
     // prefix: 2004
-    E_META_SCHEMA_TAG_INDEX_NOT_FOUND = 20070001,
-    E_META_SCHEMA_EDGE_INDEX_NOT_FOUND = 20070002,
+    E_META_SCHEMA_TAG_INDEX_NOT_FOUND = 20040001,
+    E_META_SCHEMA_EDGE_INDEX_NOT_FOUND = 20040002,
 
     // prefix: 2002
     E_GRAPH_SPACE_NOT_FOUND = 20020001,
 
     // The ErrorCode for storage
     // prefix: 3007
-    E_STORAGE_SCHEMA_TAG_ID_NOT_FOUND = 30010001,
-    E_STORAGE_SCHEMA_EDGE_ID_NOT_FOUND = 30010002,
-    E_STORAGE_SCHEMA_TAG_NAME_NOT_FOUND = 30010003,
-    E_STORAGE_SCHEMA_EDGE_NAME_NOT_FOUND = 30010004,
+    E_STORAGE_SCHEMA_TAG_ID_NOT_FOUND = 30070001,
+    E_STORAGE_SCHEMA_EDGE_ID_NOT_FOUND = 30070002,
+    E_STORAGE_SCHEMA_TAG_NAME_NOT_FOUND = 30070003,
+    E_STORAGE_SCHEMA_EDGE_NAME_NOT_FOUND = 30070004,
 
     // prefix: 3004
-    E_STORAGE_INDEX_TAG_INDEX_ID_NOT_FOUND = 30070001,
-    E_STORAGE_INDEX_EDGE_INDEX_ID_NOT_FOUND = 30070002,
-    E_STORAGE_INDEX_TAG_INDEX_NAME_NOT_FOUND = 30070003,
-    E_STORAGE_INDEX_EDGE_INDEX_NAME_NOT_FOUND = 30070004,
+    E_STORAGE_INDEX_TAG_INDEX_ID_NOT_FOUND = 30040001,
+    E_STORAGE_INDEX_EDGE_INDEX_ID_NOT_FOUND = 30040002,
+    E_STORAGE_INDEX_TAG_INDEX_NAME_NOT_FOUND = 30040003,
+    E_STORAGE_INDEX_EDGE_INDEX_NAME_NOT_FOUND = 30040004,
 
     // prefix: 3002
     E_STORAGE_SPACE_ID_NOT_FOUND = 30020001,
@@ -190,7 +213,7 @@ enum class ErrorCode : int32_t {
     E_STORAGE_PART_ID_NOT_FOUND = 30020003,
     E_STORAGE_HOST_NOT_FOUND = 30020004,
 
-    // prefix: 1019
+    // prefix: 3019
     E_STORAGE_ES_RUN_COMMAND_FAILED = 30190001,
 
     // Unexpected error

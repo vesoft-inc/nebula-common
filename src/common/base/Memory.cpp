@@ -25,7 +25,7 @@ MemInfo::MemInfo() noexcept {
 Status MemInfo::init() {
     if (sysinfo(info_.get()) == -1) {
         return Status::Error(ErrorCode::E_SYSTEM_CALL_FAILED,
-                             ERROR_FLAG(1),
+                             ERROR_FLAG(2),
                              "sysinfo",
                              std::strerror(errno));
     }
