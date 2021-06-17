@@ -10,7 +10,6 @@
 #include "common/base/Base.h"
 #include "common/base/StatusOr.h"
 #include <folly/RWSpinLock.h>
-#include <vector>
 #include "common/meta/NebulaSchemaProvider.h"
 
 namespace nebula {
