@@ -451,7 +451,7 @@ public:
     folly::Future<StatusOr<cpp2::CreateSessionResp>> createSession(
             const std::string &userName, const HostAddr& graphAddr, const std::string &clientIp);
 
-    folly::Future<StatusOr<cpp2::ExecResp>>
+    folly::Future<StatusOr<cpp2::UpdateSessionsResp>>
     updateSessions(const std::vector<cpp2::Session>& sessions);
 
     folly::Future<StatusOr<cpp2::ListSessionsResp>> listSessions();

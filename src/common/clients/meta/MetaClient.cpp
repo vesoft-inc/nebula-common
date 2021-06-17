@@ -3652,17 +3652,17 @@ MetaClient::createSession(const std::string &userName,
     return future;
 }
 
-folly::Future<StatusOr<cpp2::ExecResp>>
+folly::Future<StatusOr<cpp2::UpdateSessionsResp>>
 MetaClient::updateSessions(const std::vector<cpp2::Session>& sessions) {
     cpp2::UpdateSessionsReq req;
     req.set_sessions(sessions);
-    folly::Promise<StatusOr<cpp2::ExecResp>> promise;
+    folly::Promise<StatusOr<cpp2::UpdateSessionsResp>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
                     return client->future_updateSessions(request);
                 },
-                [] (cpp2::ExecResp&& resp) -> decltype(auto){
+                [] (cpp2::UpdateSessionsResp&& resp) -> decltype(auto){
                     return std::move(resp);
                 },
                 std::move(promise),

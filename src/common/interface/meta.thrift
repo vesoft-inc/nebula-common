@@ -1063,13 +1063,15 @@ struct ListFTIndexesResp {
     3: map<binary, FTIndex> (cpp.template = "std::unordered_map") indexes,
 }
 
-struct SlowQueryDesc {
-    1: common.HostAddr host;
-    2: common.SessionID session_id;
-    3: i64 ep_id;
-    4: common.Timestamp start_time;
-    5: i64 duration_in_us;
-    6: binary query;
+enum QueryStatus {
+    RUNNING         = 0x01,
+    KILLING         = 0x02,
+} (cpp.enum_strict)
+
+struct QueryDesc {
+    1: common.Timestamp start_time;
+    2: QueryStatus status;
+    3: binary query;
 }
 
 struct Session {
@@ -1082,7 +1084,7 @@ struct Session {
     7: i32 timezone,
     8: binary client_ip,
     9: map<binary, common.Value>(cpp.template = "std::unordered_map") configs,
-    10: map<i64, SlowQueryDesc>(cpp.template = "std::unordered_map") slow_queries;
+    10: map<common.ExecutionPlanID, QueryDesc>(cpp.template = "std::unordered_map") queries;
 }
 
 struct CreateSessionReq {
@@ -1099,6 +1101,12 @@ struct CreateSessionResp {
 
 struct UpdateSessionsReq {
     1: list<Session>        sessions,
+}
+
+struct UpdateSessionsResp {
+    1: common.ErrorCode     code,
+    2: common.HostAddr      leader,
+    3: map<common.SessionID, set<i64> (cpp.template = "std::unordered_set")> (cpp.template = "std::unordered_map") killed_queries,
 }
 
 struct ListSessionsReq {
@@ -1247,7 +1255,7 @@ service MetaService {
     ListFTIndexesResp listFTIndexes(1: ListFTIndexesReq req);
 
     CreateSessionResp createSession(1: CreateSessionReq req);
-    ExecResp updateSessions(1: UpdateSessionsReq req);
+    UpdateSessionsResp updateSessions(1: UpdateSessionsReq req);
     ListSessionsResp listSessions(1: ListSessionsReq req);
     GetSessionResp getSession(1: GetSessionReq req);
     ExecResp removeSession(1: RemoveSessionReq req);
