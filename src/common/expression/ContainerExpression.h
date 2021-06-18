@@ -13,7 +13,7 @@ namespace nebula {
 
 class ExpressionList final {
 public:
-    static ExpressionList* make(ObjectPool *pool = nullptr, size_t sz = 0) {
+    static ExpressionList* make(ObjectPool *pool, size_t sz = 0) {
         DCHECK(!!pool);
         return pool->add(new ExpressionList(sz));
     }
@@ -40,7 +40,7 @@ private:
 
 class MapItemList final {
 public:
-    static MapItemList* make(ObjectPool *pool = nullptr, size_t sz = 0) {
+    static MapItemList* make(ObjectPool *pool, size_t sz = 0) {
         DCHECK(!!pool);
         return pool->add(new MapItemList(sz));
     }
@@ -68,7 +68,7 @@ private:
 
 class ListExpression final : public Expression {
 public:
-    static ListExpression *make(ObjectPool *pool = nullptr, ExpressionList *items = nullptr) {
+    static ListExpression *make(ObjectPool *pool, ExpressionList *items = nullptr) {
         DCHECK(!!pool);
         return items == nullptr ? pool->add(new ListExpression(pool))
                                 : pool->add(new ListExpression(pool, items));
@@ -131,7 +131,7 @@ private:
 
 class SetExpression final : public Expression {
 public:
-    static SetExpression *make(ObjectPool *pool = nullptr, ExpressionList *items = nullptr) {
+    static SetExpression *make(ObjectPool *pool, ExpressionList *items = nullptr) {
         DCHECK(!!pool);
         return items == nullptr ? pool->add(new SetExpression(pool))
                                 : pool->add(new SetExpression(pool, items));
@@ -175,7 +175,7 @@ public:
     }
 
 private:
-    explicit SetExpression(ObjectPool *pool = nullptr) : Expression(pool, Kind::kSet) {}
+    explicit SetExpression(ObjectPool *pool) : Expression(pool, Kind::kSet) {}
 
     explicit SetExpression(ObjectPool *pool, ExpressionList *items) : Expression(pool, Kind::kSet) {
         items_ = items->get();
@@ -192,7 +192,7 @@ private:
 
 class MapExpression final : public Expression {
 public:
-    static MapExpression *make(ObjectPool *pool = nullptr, MapItemList *items = nullptr) {
+    static MapExpression *make(ObjectPool *pool, MapItemList *items = nullptr) {
         DCHECK(!!pool);
         return items == nullptr ? pool->add(new MapExpression(pool))
                                 : pool->add(new MapExpression(pool, items));

@@ -14,7 +14,7 @@ namespace nebula {
 // <expr>.label
 class AttributeExpression final : public BinaryExpression {
 public:
-    static AttributeExpression *make(ObjectPool *pool = nullptr,
+    static AttributeExpression *make(ObjectPool *pool,
                                      Expression *lhs = nullptr,
                                      Expression *rhs = nullptr) {
         DCHECK(!!pool);
@@ -32,7 +32,7 @@ public:
     }
 
 private:
-    explicit AttributeExpression(ObjectPool *pool = nullptr,
+    explicit AttributeExpression(ObjectPool *pool,
                                  Expression *lhs = nullptr,
                                  Expression *rhs = nullptr)
         : BinaryExpression(pool, Kind::kAttribute, lhs, rhs) {}

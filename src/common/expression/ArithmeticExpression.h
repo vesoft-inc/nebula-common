@@ -13,35 +13,43 @@ namespace nebula {
 
 class ArithmeticExpression final : public BinaryExpression {
 public:
-    static ArithmeticExpression* makeAdd(ObjectPool* pool ,
+    static ArithmeticExpression* makeAdd(ObjectPool* pool,
                                          Expression* lhs = nullptr,
                                          Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new ArithmeticExpression(pool, Expression::Kind::kAdd, lhs, rhs));
     }
-    static ArithmeticExpression* makeMinus(ObjectPool* pool ,
+    static ArithmeticExpression* makeMinus(ObjectPool* pool,
                                            Expression* lhs = nullptr,
                                            Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new ArithmeticExpression(pool, Expression::Kind::kMinus, lhs, rhs));
     }
-    static ArithmeticExpression* makeMultiply(ObjectPool* pool ,
+    static ArithmeticExpression* makeMultiply(ObjectPool* pool,
                                               Expression* lhs = nullptr,
                                               Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new ArithmeticExpression(pool, Expression::Kind::kMultiply, lhs, rhs));
     }
-    static ArithmeticExpression* makeDivision(ObjectPool* pool ,
+    static ArithmeticExpression* makeDivision(ObjectPool* pool,
                                               Expression* lhs = nullptr,
                                               Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new ArithmeticExpression(pool, Expression::Kind::kDivision, lhs, rhs));
     }
-    static ArithmeticExpression* makeMod(ObjectPool* pool ,
+    static ArithmeticExpression* makeMod(ObjectPool* pool,
                                          Expression* lhs = nullptr,
                                          Expression* rhs = nullptr) {
         DCHECK(!!pool);
         return pool->add(new ArithmeticExpression(pool, Expression::Kind::kMod, lhs, rhs));
+    }
+    // Construct arithmetic expression with given kind
+    static ArithmeticExpression* makeKind(ObjectPool* pool,
+                                          Kind kind,
+                                          Expression* lhs = nullptr,
+                                          Expression* rhs = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new ArithmeticExpression(pool, kind, lhs, rhs));
     }
 
     const Value& eval(ExpressionContext& ctx) override;

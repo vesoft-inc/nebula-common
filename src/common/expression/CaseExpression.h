@@ -13,19 +13,9 @@ namespace nebula {
 
 class CaseList final {
 public:
-    static CaseList* make(ObjectPool* pool , size_t sz = 0) {
+    static CaseList* make(ObjectPool* pool, size_t sz = 0) {
         DCHECK(!!pool);
         return pool->add(new CaseList(sz));
-    }
-    struct Item {
-        Item(Expression* wh, Expression* th) : when(wh), then(th) {}
-        Expression* when;
-        Expression* then;
-    };
-    CaseList() = default;
-
-    explicit CaseList(size_t sz) {
-        items_.reserve(sz);
     }
 
     void add(Expression* when, Expression* then) {
@@ -34,6 +24,18 @@ public:
 
     auto items() {
         return items_;
+    }
+
+    struct Item {
+        Item(Expression* wh, Expression* th) : when(wh), then(th) {}
+        Expression* when{nullptr};
+        Expression* then{nullptr};
+    };
+
+private:
+    CaseList() = default;
+    explicit CaseList(size_t sz) {
+        items_.reserve(sz);
     }
 
 private:

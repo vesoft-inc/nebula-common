@@ -16,21 +16,24 @@ public:
                                       Expression* lhs = nullptr,
                                       Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new LogicalExpression(pool, Kind::kLogicalAnd, lhs, rhs));
+        return (lhs && rhs) ? pool->add(new LogicalExpression(pool, Kind::kLogicalAnd, lhs, rhs))
+                            : pool->add(new LogicalExpression(pool, Kind::kLogicalAnd));
     }
 
     static LogicalExpression* makeOr(ObjectPool* pool,
                                      Expression* lhs = nullptr,
                                      Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new LogicalExpression(pool, Kind::kLogicalOr, lhs, rhs));
+        return (lhs && rhs) ? pool->add(new LogicalExpression(pool, Kind::kLogicalOr, lhs, rhs))
+                            : pool->add(new LogicalExpression(pool, Kind::kLogicalOr));
     }
 
     static LogicalExpression* makeXor(ObjectPool* pool,
                                       Expression* lhs = nullptr,
                                       Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new LogicalExpression(pool, Kind::kLogicalXor, lhs, rhs));
+        return (lhs && rhs) ? pool->add(new LogicalExpression(pool, Kind::kLogicalXor, lhs, rhs))
+                            : pool->add(new LogicalExpression(pool, Kind::kLogicalXor));
     }
 
     static LogicalExpression* makeKind(ObjectPool* pool,
@@ -38,7 +41,8 @@ public:
                                        Expression* lhs = nullptr,
                                        Expression* rhs = nullptr) {
         DCHECK(!!pool);
-        return pool->add(new LogicalExpression(pool, kind, lhs, rhs));
+        return (lhs && rhs) ? pool->add(new LogicalExpression(pool, kind, lhs, rhs))
+                            : pool->add(new LogicalExpression(pool, kind));
     }
 
     const Value& eval(ExpressionContext& ctx) override;

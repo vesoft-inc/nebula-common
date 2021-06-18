@@ -15,7 +15,7 @@ class ListComprehensionExpression final : public Expression {
     friend class Expression;
 
 public:
-    static ListComprehensionExpression* make(ObjectPool* pool ,
+    static ListComprehensionExpression* make(ObjectPool* pool,
                                              const std::string& innerVar = "",
                                              Expression* collection = nullptr,
                                              Expression* filter = nullptr,
@@ -116,9 +116,9 @@ private:
 
 private:
     std::string innerVar_;
-    Expression* collection_;
-    Expression* filter_;    // filter_ is optional
-    Expression* mapping_;   // mapping_ is optional
+    Expression* collection_{nullptr};
+    Expression* filter_{nullptr};    // filter_ is optional
+    Expression* mapping_{nullptr};   // mapping_ is optional
     std::string originString_;
     Value result_;
 };

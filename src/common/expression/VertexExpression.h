@@ -19,7 +19,7 @@ namespace nebula {
  */
 class VertexExpression final : public Expression {
 public:
-    static VertexExpression *make(ObjectPool *pool = nullptr) {
+    static VertexExpression *make(ObjectPool *pool) {
         DCHECK(!!pool);
         return pool->add(new VertexExpression(pool));
     }
@@ -41,7 +41,7 @@ public:
     }
 
 private:
-    explicit VertexExpression(ObjectPool *pool = nullptr) : Expression(pool, Kind::kVertex) {}
+    explicit VertexExpression(ObjectPool *pool) : Expression(pool, Kind::kVertex) {}
 
     void writeTo(Encoder &encoder) const override {
         encoder << kind();
