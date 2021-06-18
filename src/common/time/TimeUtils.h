@@ -166,15 +166,6 @@ public:
         return unixSecondsToDate(dateToUnixSeconds(date) + offsetSeconds);
     }
 
-    // utc + offset = local
-    static Date dateToUTC(const Date &date) {
-        return dateShift(date, -getGlobalTimezone().utcOffsetSecs());
-    }
-
-    static Date utcToDate(const Date &date) {
-        return dateShift(date, getGlobalTimezone().utcOffsetSecs());
-    }
-
     static StatusOr<Date> localDate() {
         Date d;
         time_t unixTime = std::time(NULL);
