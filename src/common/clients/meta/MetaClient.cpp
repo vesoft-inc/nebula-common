@@ -1088,9 +1088,10 @@ MetaClient::getSpaceIdByNameFromCache(const std::string& name) {
         return it->second;
     }
     if (options_.role_ == cpp2::HostRole::STORAGE) {
-        return Status::Error(ErrorCode::E_STORAGE_SPACE_NAME_NOT_FOUND, ERROR_FLAG(1), name);
+        return Status::Error(
+            ErrorCode::E_STORAGE_SPACE_NAME_NOT_FOUND, ERROR_FLAG(1), name.c_str());
     } else {
-        return Status::Error(ErrorCode::E_GRAPH_SPACE_NAME_NOT_FOUND, ERROR_FLAG(1), name);
+        return Status::Error(ErrorCode::E_GRAPH_SPACE_NAME_NOT_FOUND, ERROR_FLAG(1), name.c_str());
     }
 }
 
@@ -1118,11 +1119,11 @@ StatusOr<TagID> MetaClient::getTagIDByNameFromCache(const GraphSpaceID& space,
         if (options_.role_ == cpp2::HostRole::STORAGE) {
             return Status::Error(ErrorCode::E_STORAGE_SCHEMA_TAG_NAME_NOT_FOUND,
                                  ERROR_FLAG(1),
-                                 name);
+                                 name.c_str());
         } else {
             return Status::Error(ErrorCode::E_GRAPH_SCHEMA_TAG_NAME_NOT_FOUND,
                                  ERROR_FLAG(1),
-                                 name);
+                                 name.c_str());
         }
     }
     return it->second;
@@ -1162,11 +1163,11 @@ StatusOr<EdgeType> MetaClient::getEdgeTypeByNameFromCache(const GraphSpaceID& sp
         if (options_.role_ == cpp2::HostRole::STORAGE) {
             return Status::Error(ErrorCode::E_STORAGE_SCHEMA_EDGE_NAME_NOT_FOUND,
                                  ERROR_FLAG(1),
-                                 name);
+                                 name.c_str());
         } else {
             return Status::Error(ErrorCode::E_GRAPH_SCHEMA_EDGE_NAME_NOT_FOUND,
                                  ERROR_FLAG(1),
-                                 name);
+                                 name.c_str());
         }
     }
     return it->second;
@@ -1403,7 +1404,7 @@ Status MetaClient::checkPartExistInCache(const HostAddr& host,
         } else {
             return Status::Error(ErrorCode::E_STORAGE_HOST_NOT_FOUND,
                                  ERROR_FLAG(1),
-                                 host.toString());
+                                 host.toString().c_str());
         }
     }
     return getSpaceIdNotFoundStatus(spaceId);
@@ -1904,7 +1905,7 @@ StatusOr<cpp2::PropertyType> MetaClient::getSpaceVidType(const GraphSpaceID& spa
     if (vIdType != cpp2::PropertyType::INT64 && vIdType != cpp2::PropertyType::FIXED_STRING) {
         return Status::Error(ErrorCode::E_SPACE_INVALID_VID_TYPE,
                              ERROR_FLAG(1),
-                             apache::thrift::util::enumNameSafe(vIdType));
+                             apache::thrift::util::enumNameSafe(vIdType).c_str());
     }
     return vIdType;
 }
@@ -2087,11 +2088,11 @@ MetaClient::getTagIndexByNameFromCache(const GraphSpaceID space, const std::stri
         if (options_.role_ == cpp2::HostRole::STORAGE) {
             return Status::Error(ErrorCode::E_STORAGE_INDEX_TAG_INDEX_NAME_NOT_FOUND,
                                  ERROR_FLAG(1),
-                                 name);
+                                 name.c_str());
         } else {
             return Status::Error(ErrorCode::E_GRAPH_INDEX_TAG_INDEX_NAME_NOT_FOUND,
                                  ERROR_FLAG(1),
-                                 name);
+                                 name.c_str());
         }
     }
     auto indexID = iter->second;
@@ -2114,11 +2115,11 @@ MetaClient::getEdgeIndexByNameFromCache(const GraphSpaceID space, const std::str
         if (options_.role_ == cpp2::HostRole::STORAGE) {
             return Status::Error(ErrorCode::E_STORAGE_INDEX_EDGE_INDEX_NAME_NOT_FOUND,
                                  ERROR_FLAG(1),
-                                 name);
+                                 name.c_str());
         } else {
             return Status::Error(ErrorCode::E_GRAPH_INDEX_EDGE_INDEX_NAME_NOT_FOUND,
                                  ERROR_FLAG(1),
-                                 name);
+                                 name.c_str());
         }
     }
     auto indexID = iter->second;
@@ -3600,7 +3601,8 @@ MetaClient::getFTIndexByNameFromCache(GraphSpaceID spaceId, const std::string& n
     folly::RWSpinLock::ReadHolder holder(localCacheLock_);
     if (fulltextIndexMap_.find(name) != fulltextIndexMap_.end() &&
         fulltextIndexMap_[name].get_space_id() != spaceId) {
-        return Status::Error(ErrorCode::E_FULLTEXT_INDEX_NAME_NOT_FOUND, ERROR_FLAG(1), name);
+        return Status::Error(
+            ErrorCode::E_FULLTEXT_INDEX_NAME_NOT_FOUND, ERROR_FLAG(1), name.c_str());
     }
     return fulltextIndexMap_[name];
 }

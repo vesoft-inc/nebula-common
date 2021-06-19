@@ -209,8 +209,10 @@ StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName
     folly::split(".", metricName, parts, true);
     if (parts.size() != 3) {
         LOG(ERROR) << "\"" << metricName << "\" is not a valid metric name";
-        return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1),
-                folly::stringPrintf("\"%s\" is not a valid metric name", metricName.data()));
+        return Status::Error(
+            ErrorCode::E_STATS_INVALID_NAME,
+            ERROR_FLAG(1),
+            folly::stringPrintf("\"%s\" is not a valid metric name", metricName.data()).c_str());
     }
 
     TimeRange range;
@@ -227,7 +229,7 @@ StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName
         LOG(ERROR) << "Unsupported time range \"" << parts[2] << "\"";
         return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1),
                 folly::stringPrintf("Unsupported time range \"%s\"",
-                                    parts[2].c_str()));
+                                    parts[2].c_str()).c_str());
     }
 
     // Now check the statistic method
@@ -249,7 +251,7 @@ StatusOr<StatsManager::VT> StatsManager::readValue(folly::StringPiece metricName
             LOG(ERROR) << "\"" << parts[1] << "\" is not a valid percentile form";
             return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1),
                     folly::stringPrintf("\"%s\" is not a valid percentile form",
-                                        parts[1].c_str()));
+                                        parts[1].c_str()).c_str());
         }
     } else {
         LOG(ERROR) << "Unsupported statistic method \"" << parts[1] << "\"";
@@ -397,7 +399,7 @@ StatusOr<StatsManager::VT> StatsManager::readStats(const std::string& counterNam
         if (it == sm.nameMap_.end()) {
             // Not found
             return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1),
-                    folly::stringPrintf("Stats not found \"%s\"", counterName.c_str()));
+                    folly::stringPrintf("Stats not found \"%s\"", counterName.c_str()).c_str());
         }
 
         id = &(it->second.id_);
@@ -444,7 +446,7 @@ StatusOr<StatsManager::VT> StatsManager::readHisto(const std::string& counterNam
         if (it == sm.nameMap_.end()) {
             // Not found
             return Status::Error(ErrorCode::E_STATS_INVALID_NAME, ERROR_FLAG(1),
-                    folly::stringPrintf("Stats not found \"%s\"", counterName.c_str()));
+                    folly::stringPrintf("Stats not found \"%s\"", counterName.c_str()).c_str());
         }
 
         id = &(it->second.id_);

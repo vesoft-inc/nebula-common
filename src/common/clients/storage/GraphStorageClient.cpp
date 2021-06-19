@@ -544,7 +544,7 @@ StatusOr<std::function<const VertexID&(const Row&)>> GraphStorageClient::getIdFr
     } else {
         return Status::Error(ErrorCode::E_SPACE_INVALID_VID_TYPE,
                              ERROR_FLAG(1),
-                             apache::thrift::util::enumNameSafe(vidType));
+                             apache::thrift::util::enumNameSafe(vidType).c_str());
     }
 
     return cb;
@@ -575,7 +575,7 @@ GraphStorageClient::getIdFromNewVertex(GraphSpaceID space) const {
     } else {
         return Status::Error(ErrorCode::E_SPACE_INVALID_VID_TYPE,
                              ERROR_FLAG(1),
-                             apache::thrift::util::enumNameSafe(vidType));
+                             apache::thrift::util::enumNameSafe(vidType).c_str());
     }
     return cb;
 }
@@ -613,7 +613,7 @@ StatusOr<std::function<const VertexID&(const cpp2::NewEdge&)>> GraphStorageClien
     } else {
         return Status::Error(ErrorCode::E_SPACE_INVALID_VID_TYPE,
                              ERROR_FLAG(1),
-                             apache::thrift::util::enumNameSafe(vidType));
+                             apache::thrift::util::enumNameSafe(vidType).c_str());
     }
     return cb;
 }
@@ -647,7 +647,7 @@ StatusOr<std::function<const VertexID&(const cpp2::EdgeKey&)>> GraphStorageClien
     } else {
         return Status::Error(ErrorCode::E_SPACE_INVALID_VID_TYPE,
                              ERROR_FLAG(1),
-                             apache::thrift::util::enumNameSafe(vidType));
+                             apache::thrift::util::enumNameSafe(vidType).c_str());
     }
     return cb;
 }
@@ -677,7 +677,7 @@ StatusOr<std::function<const VertexID&(const Value&)>> GraphStorageClient::getId
     } else {
         return Status::Error(ErrorCode::E_SPACE_INVALID_VID_TYPE,
                              ERROR_FLAG(1),
-                             apache::thrift::util::enumNameSafe(vidType));
+                             apache::thrift::util::enumNameSafe(vidType).c_str());
     }
     return cb;
 }
