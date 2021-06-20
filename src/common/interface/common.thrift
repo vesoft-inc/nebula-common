@@ -326,7 +326,9 @@ enum ErrorCode {
 
     // RESTORE Failure
     E_RESTORE_FAILURE                 = -2068,
+
     E_SESSION_NOT_FOUND               = -2069,
+    E_QUERY_NOT_FOUND                 = -2070,
 
     // ListClusterInfo Failure
     E_LIST_CLUSTER_FAILURE              = -2070,

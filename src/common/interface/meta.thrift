@@ -1132,6 +1132,11 @@ struct RemoveSessionReq {
     1: common.SessionID      session_id,
 }
 
+struct KillQueryReq {
+    1: common.SessionID       session_id,
+    2: common.ExecutionPlanID ep_id,
+}
+
 struct ReportTaskReq {
     1: common.ErrorCode     code,
     2: i32                  job_id,
@@ -1259,6 +1264,7 @@ service MetaService {
     ListSessionsResp listSessions(1: ListSessionsReq req);
     GetSessionResp getSession(1: GetSessionReq req);
     ExecResp removeSession(1: RemoveSessionReq req);
+    ExecResp killQuery(1: KillQueryReq req);
 
     ExecResp reportTaskFinish(1: ReportTaskReq req);
 

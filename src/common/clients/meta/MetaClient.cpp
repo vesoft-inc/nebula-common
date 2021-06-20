@@ -3718,6 +3718,25 @@ folly::Future<StatusOr<cpp2::ExecResp>> MetaClient::removeSession(SessionID sess
     return future;
 }
 
+folly::Future<StatusOr<cpp2::ExecResp>> MetaClient::killQuery(SessionID sessionId,
+                                                              ExecutionPlanID epId) {
+    cpp2::KillQueryReq req;
+    req.set_session_id(sessionId);
+    req.set_ep_id(epId);
+    folly::Promise<StatusOr<cpp2::ExecResp>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_killQuery(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> decltype(auto){
+                    return std::move(resp);
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
 folly::Future<StatusOr<bool>> MetaClient::download(const std::string& hdfsHost,
                                                    int32_t hdfsPort,
                                                    const std::string& hdfsPath,

@@ -460,6 +460,8 @@ public:
 
     folly::Future<StatusOr<cpp2::ExecResp>> removeSession(SessionID sessionId);
 
+    folly::Future<StatusOr<cpp2::ExecResp>> killQuery(SessionID sessionId, ExecutionPlanID epId);
+
     // Opeartions for cache.
     StatusOr<GraphSpaceID> getSpaceIdByNameFromCache(const std::string& name);
 
