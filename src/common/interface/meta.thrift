@@ -1071,7 +1071,11 @@ enum QueryStatus {
 struct QueryDesc {
     1: common.Timestamp start_time;
     2: QueryStatus status;
-    3: binary query;
+    3: i64 duration;
+    4: binary query;
+    // The session might transfor between query engines, but the query do not, we must
+    // record which query engine the query belongs to
+    5: common.HostAddr graph_addr,
 }
 
 struct Session {
@@ -1106,7 +1110,8 @@ struct UpdateSessionsReq {
 struct UpdateSessionsResp {
     1: common.ErrorCode     code,
     2: common.HostAddr      leader,
-    3: map<common.SessionID, set<i64> (cpp.template = "std::unordered_set")> (cpp.template = "std::unordered_map") killed_queries,
+    3: map<common.SessionID, map<common.ExecutionPlanID, QueryDesc> (cpp.template = "std::unordered_map")>
+        (cpp.template = "std::unordered_map") killed_queries,
 }
 
 struct ListSessionsReq {
