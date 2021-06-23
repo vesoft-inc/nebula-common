@@ -116,7 +116,7 @@ private:
     std::string var_;
     // 0 means the latest, -1 the previous one, and so on.
     // 1 means the eldest, 2 the second elder one, and so on.
-    Expression* version_;
+    Expression* version_{nullptr};
 };
 }  // namespace nebula
 #endif

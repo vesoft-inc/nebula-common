@@ -53,8 +53,8 @@ protected:
     void resetFrom(Decoder& decoder) override;
 
 protected:
-    Expression* lhs_;
-    Expression* rhs_;
+    Expression* lhs_ = nullptr;
+    Expression* rhs_ = nullptr;
 };
 
 }  // namespace nebula
