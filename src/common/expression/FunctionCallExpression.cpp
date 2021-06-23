@@ -30,7 +30,7 @@ bool FunctionCallExpression::operator==(const Expression& rhs) const {
     }
 
     const auto& r = static_cast<const FunctionCallExpression&>(rhs);
-    return *name_ == *(r.name_) && *args_ == *(r.args_);
+    return name_ == r.name_ && *args_ == *(r.args_);
 }
 
 
@@ -40,7 +40,7 @@ void FunctionCallExpression::writeTo(Encoder& encoder) const {
     encoder << kind_;
 
     // name_
-    encoder << name_.get();
+    encoder << name_;
 
     // args_
     size_t sz = 0;
@@ -67,16 +67,16 @@ void FunctionCallExpression::resetFrom(Decoder& decoder) {
         args_->addArgument(decoder.readExpression());
     }
 
-    auto funcResult = FunctionManager::get(*DCHECK_NOTNULL(name_), args_->numArgs());
+    auto funcResult = FunctionManager::get(name_, args_->numArgs());
     if (funcResult.ok()) {
         func_ = std::move(funcResult).value();
     }
 }
 
 const Value& FunctionCallExpression::eval(ExpressionContext& ctx) {
-    std::vector<Value> parameter;
+    std::vector<std::reference_wrapper<const Value>> parameter;
     for (const auto& arg : DCHECK_NOTNULL(args_)->args()) {
-        parameter.emplace_back(std::move(arg->eval(ctx)));
+        parameter.emplace_back(arg->eval(ctx));
     }
     result_ = DCHECK_NOTNULL(func_)(parameter);
     return result_;
@@ -89,7 +89,7 @@ std::string FunctionCallExpression::toString() const {
                    args.begin(),
                    [](const auto& arg) -> std::string { return arg->toString(); });
     std::stringstream out;
-    out << *name_ << "(" << folly::join(",", args) << ")";
+    out << name_ << "(" << folly::join(",", args) << ")";
     return out.str();
 }
 

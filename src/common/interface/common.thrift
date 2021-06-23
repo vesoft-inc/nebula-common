@@ -197,10 +197,27 @@ struct LogInfo {
     2: TermID term_id;
 }
 
+struct DirInfo {
+    // Installation directory for nebula
+    1: binary                   root,
+    // nebula's data directory
+    2: list<binary>             data,
+}
+
+struct NodeInfo {
+    1: HostAddr      host,
+    2: DirInfo       dir,
+}
+
 struct PartitionBackupInfo {
     1: map<PartitionID, LogInfo> (cpp.template = "std::unordered_map")  info,
 }
 
+struct CheckpointInfo {
+    1: PartitionBackupInfo   partition_info,
+    // storage checkpoint directory name
+    2: binary                path,
+}
 
 /*
  * ErrorCode for graphd, metad, storaged,raftd
@@ -241,6 +258,7 @@ enum ErrorCode {
     E_PARTIAL_RESULT                  = -27,
     E_REBUILD_INDEX_FAILED            = -28,
     E_INVALID_PASSWORD                = -29,
+    E_FAILED_GET_ABS_PATH             = -30,
 
 
     // 1xxx for graphd
@@ -308,6 +326,11 @@ enum ErrorCode {
     E_RESTORE_FAILURE                 = -2068,
     E_SESSION_NOT_FOUND               = -2069,
 
+    // ListClusterInfo Failure
+    E_LIST_CLUSTER_FAILURE              = -2070,
+    E_LIST_CLUSTER_GET_ABS_PATH_FAILURE = -2071,
+    E_GET_META_DIR_FAILURE              = -2072,    
+
 
     // 3xxx for storaged
     E_CONSENSUS_ERROR                 = -3001,
@@ -361,6 +384,7 @@ enum ErrorCode {
     // task manager failed
     E_INVALID_TASK_PARA               = -3051,
     E_USER_CANCEL                     = -3052,
+    E_TASK_EXECUTION_FAILED           = -3053,
 
     E_UNKNOWN                         = -8000,
 } (cpp.enum_strict)
