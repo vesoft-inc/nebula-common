@@ -15,7 +15,7 @@ class TypeCastingExpression final : public Expression {
     friend class Expression;
 
 public:
-    static TypeCastingExpression* make(ObjectPool* pool ,
+    static TypeCastingExpression* make(ObjectPool* pool,
                                        Value::Type vType = Value::Type::__EMPTY__,
                                        Expression* operand = nullptr) {
         DCHECK(!!pool);
@@ -53,7 +53,7 @@ public:
     static bool validateTypeCast(Value::Type operandType, Value::Type type);
 
 private:
-    explicit TypeCastingExpression(ObjectPool* pool ,
+    explicit TypeCastingExpression(ObjectPool* pool,
                                    Value::Type vType = Value::Type::__EMPTY__,
                                    Expression* operand = nullptr)
         : Expression(pool, Kind::kTypeCasting), vType_(vType), operand_(operand) {}

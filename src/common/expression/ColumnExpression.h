@@ -17,13 +17,13 @@ namespace nebula {
  */
 class ColumnExpression final : public Expression {
 public:
-    static ColumnExpression* make(ObjectPool* pool , int32_t index = 0) {
+    static ColumnExpression* make(ObjectPool* pool, int32_t index = 0) {
         return pool->add(new ColumnExpression(pool, index));
     }
 
-    const Value& eval(ExpressionContext &ctx) override;
+    const Value& eval(ExpressionContext& ctx) override;
 
-    void accept(ExprVisitor *visitor) override;
+    void accept(ExprVisitor* visitor) override;
 
     Expression* clone() const override {
         return ColumnExpression::make(pool_, index_);
@@ -31,10 +31,10 @@ public:
 
     std::string toString() const override;
 
-    bool operator==(const Expression &expr) const override;
+    bool operator==(const Expression& expr) const override;
 
 private:
-    explicit ColumnExpression(ObjectPool* pool , int32_t index = 0)
+    explicit ColumnExpression(ObjectPool* pool, int32_t index = 0)
         : Expression(pool, Kind::kColumn), index_(index) {}
 
     void writeTo(Encoder& encoder) const override;

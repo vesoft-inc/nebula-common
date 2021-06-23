@@ -46,7 +46,7 @@ class CaseExpression final : public Expression {
     friend class Expression;
 
 public:
-    static CaseExpression* make(ObjectPool* pool ,
+    static CaseExpression* make(ObjectPool* pool,
                                 CaseList* cases = nullptr,
                                 bool isGeneric = true) {
         DCHECK(!!pool);

@@ -99,7 +99,7 @@ public:
     }
 
 private:
-    explicit ListComprehensionExpression(ObjectPool* pool ,
+    explicit ListComprehensionExpression(ObjectPool* pool,
                                          const std::string& innerVar = "",
                                          Expression* collection = nullptr,
                                          Expression* filter = nullptr,

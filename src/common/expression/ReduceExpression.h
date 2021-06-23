@@ -15,7 +15,7 @@ class ReduceExpression final : public Expression {
     friend class Expression;
 
 public:
-    static ReduceExpression* make(ObjectPool* pool ,
+    static ReduceExpression* make(ObjectPool* pool,
                                   const std::string& accumulator = "",
                                   Expression* initial = nullptr,
                                   const std::string& innerVar = "",
@@ -101,7 +101,7 @@ public:
     }
 
 private:
-    explicit ReduceExpression(ObjectPool* pool ,
+    explicit ReduceExpression(ObjectPool* pool,
                               const std::string& accumulator = "",
                               Expression* initial = nullptr,
                               const std::string& innerVar = "",

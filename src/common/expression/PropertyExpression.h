@@ -65,7 +65,7 @@ protected:
 // edge_name.any_prop_name
 class EdgePropertyExpression final : public PropertyExpression {
 public:
-    static EdgePropertyExpression* make(ObjectPool* pool ,
+    static EdgePropertyExpression* make(ObjectPool* pool,
                                         const std::string& edge = "",
                                         const std::string& prop = "") {
         DCHECK(!!pool);
@@ -81,7 +81,7 @@ public:
     }
 
 private:
-    explicit EdgePropertyExpression(ObjectPool* pool ,
+    explicit EdgePropertyExpression(ObjectPool* pool,
                                     const std::string& edge = "",
                                     const std::string& prop = "")
         : PropertyExpression(pool, Kind::kEdgeProperty, "", edge, prop) {}
@@ -93,7 +93,7 @@ private:
 // tag_name.any_prop_name
 class TagPropertyExpression final : public PropertyExpression {
 public:
-    static TagPropertyExpression* make(ObjectPool* pool ,
+    static TagPropertyExpression* make(ObjectPool* pool,
                                        const std::string& tag = "",
                                        const std::string& prop = "") {
         DCHECK(!!pool);
@@ -109,7 +109,7 @@ public:
     }
 
 private:
-    explicit TagPropertyExpression(ObjectPool* pool ,
+    explicit TagPropertyExpression(ObjectPool* pool,
                                    const std::string& tag = "",
                                    const std::string& prop = "")
         : PropertyExpression(pool, Kind::kTagProperty, "", tag, prop) {}
@@ -121,7 +121,7 @@ private:
 // $-.any_prop_name
 class InputPropertyExpression final : public PropertyExpression {
 public:
-    static InputPropertyExpression* make(ObjectPool* pool , const std::string& prop = "") {
+    static InputPropertyExpression* make(ObjectPool* pool, const std::string& prop = "") {
         DCHECK(!!pool);
         return pool->add(new InputPropertyExpression(pool, prop));
     }
@@ -135,14 +135,14 @@ public:
     }
 
 private:
-    explicit InputPropertyExpression(ObjectPool* pool , const std::string& prop = "")
+    explicit InputPropertyExpression(ObjectPool* pool, const std::string& prop = "")
         : PropertyExpression(pool, Kind::kInputProperty, kInputRef, "", prop) {}
 };
 
 // $VarName.any_prop_name
 class VariablePropertyExpression final : public PropertyExpression {
 public:
-    static VariablePropertyExpression* make(ObjectPool* pool ,
+    static VariablePropertyExpression* make(ObjectPool* pool,
                                             const std::string& var = "",
                                             const std::string& prop = "") {
         DCHECK(!!pool);
@@ -160,7 +160,7 @@ public:
     }
 
 private:
-    explicit VariablePropertyExpression(ObjectPool* pool ,
+    explicit VariablePropertyExpression(ObjectPool* pool,
                                         const std::string& var = "",
                                         const std::string& prop = "")
         : PropertyExpression(pool, Kind::kVarProperty, kVarRef, var, prop) {}
@@ -169,7 +169,7 @@ private:
 // $^.TagName.any_prop_name
 class SourcePropertyExpression final : public PropertyExpression {
 public:
-    static SourcePropertyExpression* make(ObjectPool* pool ,
+    static SourcePropertyExpression* make(ObjectPool* pool,
                                           const std::string& tag = "",
                                           const std::string& prop = "") {
         DCHECK(!!pool);
@@ -185,7 +185,7 @@ public:
     }
 
 private:
-    explicit SourcePropertyExpression(ObjectPool* pool ,
+    explicit SourcePropertyExpression(ObjectPool* pool,
                                       const std::string& tag = "",
                                       const std::string& prop = "")
         : PropertyExpression(pool, Kind::kSrcProperty, kSrcRef, tag, prop) {}
@@ -197,7 +197,7 @@ private:
 // $$.TagName.any_prop_name
 class DestPropertyExpression final : public PropertyExpression {
 public:
-    static DestPropertyExpression* make(ObjectPool* pool ,
+    static DestPropertyExpression* make(ObjectPool* pool,
                                         const std::string& tag = "",
                                         const std::string& prop = "") {
         DCHECK(!!pool);
@@ -213,7 +213,7 @@ public:
     }
 
 private:
-    explicit DestPropertyExpression(ObjectPool* pool ,
+    explicit DestPropertyExpression(ObjectPool* pool,
                                     const std::string& tag = "",
                                     const std::string& prop = "")
         : PropertyExpression(pool, Kind::kDstProperty, kDstRef, tag, prop) {}
@@ -222,7 +222,7 @@ private:
 // EdgeName._src
 class EdgeSrcIdExpression final : public PropertyExpression {
 public:
-    static EdgeSrcIdExpression* make(ObjectPool* pool , const std::string& edge = "") {
+    static EdgeSrcIdExpression* make(ObjectPool* pool, const std::string& edge = "") {
         DCHECK(!!pool);
         return pool->add(new EdgeSrcIdExpression(pool, edge));
     }
@@ -236,7 +236,7 @@ public:
     }
 
 private:
-    explicit EdgeSrcIdExpression(ObjectPool* pool , const std::string& edge = "")
+    explicit EdgeSrcIdExpression(ObjectPool* pool, const std::string& edge = "")
         : PropertyExpression(pool, Kind::kEdgeSrc, "", edge, kSrc) {}
 
 private:
@@ -246,7 +246,7 @@ private:
 // EdgeName._type
 class EdgeTypeExpression final : public PropertyExpression {
 public:
-    static EdgeTypeExpression* make(ObjectPool* pool , const std::string& edge = "") {
+    static EdgeTypeExpression* make(ObjectPool* pool, const std::string& edge = "") {
         DCHECK(!!pool);
         return pool->add(new EdgeTypeExpression(pool, edge));
     }
@@ -260,7 +260,7 @@ public:
     }
 
 private:
-    explicit EdgeTypeExpression(ObjectPool* pool , const std::string& edge = "")
+    explicit EdgeTypeExpression(ObjectPool* pool, const std::string& edge = "")
         : PropertyExpression(pool, Kind::kEdgeType, "", edge, kType) {}
 
 private:
@@ -270,7 +270,7 @@ private:
 // EdgeName._rank
 class EdgeRankExpression final : public PropertyExpression {
 public:
-    static EdgeRankExpression* make(ObjectPool* pool , const std::string& edge = "") {
+    static EdgeRankExpression* make(ObjectPool* pool, const std::string& edge = "") {
         DCHECK(!!pool);
         return pool->add(new EdgeRankExpression(pool, edge));
     }
@@ -284,7 +284,7 @@ public:
     }
 
 private:
-    explicit EdgeRankExpression(ObjectPool* pool , const std::string& edge = "")
+    explicit EdgeRankExpression(ObjectPool* pool, const std::string& edge = "")
         : PropertyExpression(pool, Kind::kEdgeRank, "", edge, kRank) {}
 
 private:
@@ -294,7 +294,7 @@ private:
 // EdgeName._dst
 class EdgeDstIdExpression final : public PropertyExpression {
 public:
-    static EdgeDstIdExpression* make(ObjectPool* pool , const std::string& edge = "") {
+    static EdgeDstIdExpression* make(ObjectPool* pool, const std::string& edge = "") {
         DCHECK(!!pool);
         return pool->add(new EdgeDstIdExpression(pool, edge));
     }
@@ -308,7 +308,7 @@ public:
     }
 
 private:
-    explicit EdgeDstIdExpression(ObjectPool* pool , const std::string& edge = "")
+    explicit EdgeDstIdExpression(ObjectPool* pool, const std::string& edge = "")
         : PropertyExpression(pool, Kind::kEdgeDst, "", edge, kDst) {}
 
 private:

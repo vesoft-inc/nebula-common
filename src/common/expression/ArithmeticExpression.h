@@ -59,8 +59,8 @@ public:
     std::string toString() const override;
 
     Expression* clone() const override {
-        return pool_->add(new ArithmeticExpression(pool_,
-            kind(), left()->clone(), right()->clone()));
+        return pool_->add(
+            new ArithmeticExpression(pool_, kind(), left()->clone(), right()->clone()));
     }
 
     bool isArithmeticExpr() const override {

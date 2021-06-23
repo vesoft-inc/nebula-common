@@ -15,7 +15,7 @@ class UUIDExpression final : public Expression {
     friend class Expression;
 
 public:
-    static UUIDExpression* make(ObjectPool* pool , const std::string& field = "") {
+    static UUIDExpression* make(ObjectPool* pool, const std::string& field = "") {
         DCHECK(!!pool);
         return pool->add(new UUIDExpression(pool, field));
     }
@@ -33,7 +33,7 @@ public:
     }
 
 private:
-    explicit UUIDExpression(ObjectPool* pool , const std::string& field = "")
+    explicit UUIDExpression(ObjectPool* pool, const std::string& field = "")
         : Expression(pool, Kind::kUUID), field_(field) {}
 
     void writeTo(Encoder& encoder) const override;

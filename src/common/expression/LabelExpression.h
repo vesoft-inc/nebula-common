@@ -15,7 +15,7 @@ namespace nebula {
 
 class LabelExpression: public Expression {
 public:
-    static LabelExpression* make(ObjectPool* pool , const std::string& name = "") {
+    static LabelExpression* make(ObjectPool* pool, const std::string& name = "") {
         DCHECK(!!pool);
         return pool->add(new LabelExpression(pool, name));
     }
@@ -37,7 +37,7 @@ public:
     }
 
 protected:
-    explicit LabelExpression(ObjectPool* pool , const std::string& name = "")
+    explicit LabelExpression(ObjectPool* pool, const std::string& name = "")
         : Expression(pool, Kind::kLabel), name_(name) {}
 
     void writeTo(Encoder& encoder) const override;

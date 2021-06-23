@@ -14,7 +14,7 @@ namespace nebula {
 
 class SubscriptExpression final : public BinaryExpression {
 public:
-    static SubscriptExpression* make(ObjectPool* pool ,
+    static SubscriptExpression* make(ObjectPool* pool,
                                      Expression* lhs = nullptr,
                                      Expression* rhs = nullptr) {
         DCHECK(!!pool);
@@ -32,7 +32,7 @@ public:
     }
 
 private:
-    explicit SubscriptExpression(ObjectPool* pool ,
+    explicit SubscriptExpression(ObjectPool* pool,
                                  Expression* lhs = nullptr,
                                  Expression* rhs = nullptr)
         : BinaryExpression(pool, Kind::kSubscript, lhs, rhs) {}
@@ -43,7 +43,7 @@ private:
 
 class SubscriptRangeExpression final : public Expression {
 public:
-    static SubscriptRangeExpression* make(ObjectPool* pool ,
+    static SubscriptRangeExpression* make(ObjectPool* pool,
                                           Expression* list = nullptr,
                                           Expression* lo = nullptr,
                                           Expression* hi = nullptr) {
