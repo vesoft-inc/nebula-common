@@ -347,6 +347,8 @@ enum ErrorCode {
     E_ATOMIC_OP_FAILED                = -3009,
     E_DATA_CONFLICT_ERROR             = -3010, // data conflict, for index write without toss.
 
+    E_WRITE_STALLED                   = -3011,
+
     // meta failures
     E_IMPROPER_DATA_TYPE              = -3021,
     E_INVALID_SPACEVIDLEN             = -3022,
@@ -382,6 +384,7 @@ enum ErrorCode {
     // task manager failed
     E_INVALID_TASK_PARA               = -3051,
     E_USER_CANCEL                     = -3052,
+    E_TASK_EXECUTION_FAILED           = -3053,
 
     E_UNKNOWN                         = -8000,
 } (cpp.enum_strict)
