@@ -43,7 +43,7 @@ bool Path::hasDuplicateVertices() const {
         return false;
     }
     std::unordered_set<Value> uniqueVid;
-    uniqueVid.reserve(steps.size());
+    uniqueVid.reserve(steps.size() + 1);
     uniqueVid.emplace(src.vid);
     for (const auto& step : steps) {
         auto ret = uniqueVid.emplace(step.dst.vid);
