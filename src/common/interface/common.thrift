@@ -328,13 +328,13 @@ enum ErrorCode {
     E_RESTORE_FAILURE                 = -2068,
 
     E_SESSION_NOT_FOUND               = -2069,
-    E_QUERY_NOT_FOUND                 = -2070,
 
     // ListClusterInfo Failure
     E_LIST_CLUSTER_FAILURE              = -2070,
     E_LIST_CLUSTER_GET_ABS_PATH_FAILURE = -2071,
-    E_GET_META_DIR_FAILURE              = -2072,    
+    E_GET_META_DIR_FAILURE              = -2072,
 
+    E_QUERY_NOT_FOUND                 = -2073,
 
     // 3xxx for storaged
     E_CONSENSUS_ERROR                 = -3001,

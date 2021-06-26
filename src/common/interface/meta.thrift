@@ -1138,8 +1138,8 @@ struct RemoveSessionReq {
 }
 
 struct KillQueryReq {
-    1: common.SessionID       session_id,
-    2: common.ExecutionPlanID ep_id,
+    1: map<common.SessionID, set<common.ExecutionPlanID> (cpp.template = "std::unordered_set")>
+        (cpp.template = "std::unordered_map") kill_queries,
 }
 
 struct ReportTaskReq {

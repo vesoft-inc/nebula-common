@@ -3718,11 +3718,10 @@ folly::Future<StatusOr<cpp2::ExecResp>> MetaClient::removeSession(SessionID sess
     return future;
 }
 
-folly::Future<StatusOr<cpp2::ExecResp>> MetaClient::killQuery(SessionID sessionId,
-                                                              ExecutionPlanID epId) {
+folly::Future<StatusOr<cpp2::ExecResp>> MetaClient::killQuery(
+    std::unordered_map<SessionID, std::unordered_set<ExecutionPlanID>> killQueries) {
     cpp2::KillQueryReq req;
-    req.set_session_id(sessionId);
-    req.set_ep_id(epId);
+    req.set_kill_queries(std::move(killQueries));
     folly::Promise<StatusOr<cpp2::ExecResp>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
