@@ -460,7 +460,8 @@ public:
 
     folly::Future<StatusOr<cpp2::GetSessionResp>> getSession(SessionID sessionId);
 
-    folly::Future<StatusOr<cpp2::ExecResp>> removeSession(SessionID sessionId);
+    folly::Future<StatusOr<cpp2::ExecResp>>
+    removeSessions(std::vector<SessionID> sessionIdList);
 
     folly::Future<StatusOr<cpp2::ExecResp>> killQuery(
         std::unordered_map<SessionID, std::unordered_set<ExecutionPlanID>> killQueries);

@@ -1135,8 +1135,8 @@ struct GetSessionResp {
     3: Session              session,
 }
 
-struct RemoveSessionReq {
-    1: common.SessionID      session_id,
+struct RemoveSessionsReq {
+    1: list<common.SessionID>  session_id_list,
 }
 
 struct KillQueryReq {

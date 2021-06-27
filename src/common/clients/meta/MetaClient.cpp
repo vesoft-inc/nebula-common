@@ -3724,14 +3724,15 @@ folly::Future<StatusOr<cpp2::GetSessionResp>> MetaClient::getSession(SessionID s
     return future;
 }
 
-folly::Future<StatusOr<cpp2::ExecResp>> MetaClient::removeSession(SessionID sessionId) {
-    cpp2::RemoveSessionReq req;
-    req.set_session_id(sessionId);
+folly::Future<StatusOr<cpp2::ExecResp>>
+MetaClient::removeSessions(std::vector<SessionID> sessionIdList) {
+    cpp2::RemoveSessionsReq req;
+    req.set_session_id_list(std::move(sessionIdList));
     folly::Promise<StatusOr<cpp2::ExecResp>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
-                    return client->future_removeSession(request);
+                    return client->future_removeSessions(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> decltype(auto){
                     return std::move(resp);
