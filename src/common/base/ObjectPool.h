@@ -33,7 +33,7 @@ public:
     template <typename T>
     T *add(T *obj) {
         if constexpr (std::is_same_v<T, Expression>) {
-            VLOG(0) << "New expression added into pool: " << obj->toString();
+            VLOG(3) << "New expression added into pool: " << obj->toString();
         }
         folly::SpinLockGuard g(lock_);
         objects_.emplace_back(obj);

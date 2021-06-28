@@ -327,7 +327,8 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     EdgeSchemas edgeSchemas;
     TagID lastTagId = -1;
 
-    auto addSchemaField = [&](NebulaSchemaProvider* schema, const cpp2::ColumnDef& col) {
+    auto addSchemaField = [&spaceInfoCache](NebulaSchemaProvider* schema,
+                                            const cpp2::ColumnDef& col) {
         bool hasDef = col.default_value_ref().has_value();
         auto& colType = col.get_type();
         size_t len = colType.type_length_ref().has_value() ? *colType.get_type_length() : 0;
