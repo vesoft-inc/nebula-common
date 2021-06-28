@@ -15,6 +15,9 @@
 namespace nebula {
 class PathBuildExpression final : public Expression {
 public:
+    PathBuildExpression& operator=(const PathBuildExpression& rhs) = delete;
+    PathBuildExpression& operator=(PathBuildExpression&&) = delete;
+
     static PathBuildExpression* make(ObjectPool* pool ) {
         DCHECK(!!pool);
         return pool->add(new PathBuildExpression(pool));

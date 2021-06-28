@@ -17,6 +17,9 @@ namespace nebula {
  */
 class ColumnExpression final : public Expression {
 public:
+    ColumnExpression& operator=(const ColumnExpression& rhs) = delete;
+    ColumnExpression& operator=(ColumnExpression&&) = delete;
+
     static ColumnExpression* make(ObjectPool* pool, int32_t index = 0) {
         return pool->add(new ColumnExpression(pool, index));
     }

@@ -15,7 +15,7 @@ TEST_F(ReduceExpressionTest, ReduceEvaluate) {
         ArgumentList *argList = ArgumentList::make(&pool);
         argList->addArgument(ConstantExpression::make(&pool, 1));
         argList->addArgument(ConstantExpression::make(&pool, 5));
-        auto expr = *ReduceExpression::make(
+        auto expr = ReduceExpression::make(
             &pool,
             "totalNum",
             ArithmeticExpression::makeMultiply(
@@ -29,7 +29,7 @@ TEST_F(ReduceExpressionTest, ReduceEvaluate) {
                                                    VariableExpression::make(&pool, "n"),
                                                    ConstantExpression::make(&pool, 2))));
 
-        auto value = Expression::eval(&expr, gExpCtxt);
+        auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_EQ(Value::Type::INT, value.type());
         ASSERT_EQ(50, value.getInt());
     }
@@ -41,7 +41,7 @@ TEST_F(ReduceExpressionTest, ReduceExprToString) {
         ArgumentList *argList = ArgumentList::make(&pool);
         argList->addArgument(ConstantExpression::make(&pool, 1));
         argList->addArgument(ConstantExpression::make(&pool, 5));
-        auto expr = *ReduceExpression::make(
+        auto expr = ReduceExpression::make(
             &pool,
             "totalNum",
             ArithmeticExpression::makeMultiply(
@@ -53,7 +53,8 @@ TEST_F(ReduceExpressionTest, ReduceExprToString) {
                 LabelExpression::make(&pool, "totalNum"),
                 ArithmeticExpression::makeMultiply(
                     &pool, LabelExpression::make(&pool, "n"), ConstantExpression::make(&pool, 2))));
-        ASSERT_EQ("reduce(totalNum = (2*10), n IN range(1,5) | (totalNum+(n*2)))", expr.toString());
+        ASSERT_EQ("reduce(totalNum = (2*10), n IN range(1,5) | (totalNum+(n*2)))",
+                  expr->toString());
     }
 }
 }   // namespace nebula

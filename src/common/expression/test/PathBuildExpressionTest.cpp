@@ -11,11 +11,11 @@ class PathBuildExpressionTest : public ExpressionTest {};
 
 TEST_F(PathBuildExpressionTest, PathBuild) {
     {
-        auto expr = *(PathBuildExpression::make(&pool));
-        expr.add(VariablePropertyExpression::make(&pool, "var1", "path_src"))
+        auto expr = (PathBuildExpression::make(&pool));
+        expr->add(VariablePropertyExpression::make(&pool, "var1", "path_src"))
             .add(VariablePropertyExpression::make(&pool, "var1", "path_edge1"))
             .add(VariablePropertyExpression::make(&pool, "var1", "path_v1"));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::PATH);
         Path expected;
         expected.src = Vertex("1", {});
@@ -23,13 +23,13 @@ TEST_F(PathBuildExpressionTest, PathBuild) {
         EXPECT_EQ(eval.getPath(), expected);
     }
     {
-        auto expr = *(PathBuildExpression::make(&pool));
-        expr.add(VariablePropertyExpression::make(&pool, "var1", "path_src"))
+        auto expr = (PathBuildExpression::make(&pool));
+        expr->add(VariablePropertyExpression::make(&pool, "var1", "path_src"))
             .add(VariablePropertyExpression::make(&pool, "var1", "path_edge1"))
             .add(VariablePropertyExpression::make(&pool, "var1", "path_v1"))
             .add(VariablePropertyExpression::make(&pool, "var1", "path_edge2"))
             .add(VariablePropertyExpression::make(&pool, "var1", "path_v2"));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::PATH);
         Path expected;
         expected.src = Vertex("1", {});
@@ -38,19 +38,19 @@ TEST_F(PathBuildExpressionTest, PathBuild) {
         EXPECT_EQ(eval.getPath(), expected);
     }
     {
-        auto expr = *(PathBuildExpression::make(&pool));
-        expr.add(VariablePropertyExpression::make(&pool, "var1", "path_src"));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = (PathBuildExpression::make(&pool));
+        expr->add(VariablePropertyExpression::make(&pool, "var1", "path_src"));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::PATH);
         Path expected;
         expected.src = Vertex("1", {});
         EXPECT_EQ(eval.getPath(), expected);
     }
     {
-        auto expr = *(PathBuildExpression::make(&pool));
-        expr.add(VariablePropertyExpression::make(&pool, "var1", "path_src"))
+        auto expr = (PathBuildExpression::make(&pool));
+        expr->add(VariablePropertyExpression::make(&pool, "var1", "path_src"))
             .add(VariablePropertyExpression::make(&pool, "var1", "path_edge1"));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::PATH);
     }
 
@@ -119,11 +119,11 @@ TEST_F(PathBuildExpressionTest, PathBuild) {
 
 TEST_F(PathBuildExpressionTest, PathBuildToString) {
     {
-        auto expr = *(PathBuildExpression::make(&pool));
-        expr.add(VariablePropertyExpression::make(&pool, "var1", "path_src"))
+        auto expr = (PathBuildExpression::make(&pool));
+        expr->add(VariablePropertyExpression::make(&pool, "var1", "path_src"))
             .add(VariablePropertyExpression::make(&pool, "var1", "path_edge1"))
             .add(VariablePropertyExpression::make(&pool, "var1", "path_v1"));
-        EXPECT_EQ(expr.toString(), "PathBuild[$var1.path_src,$var1.path_edge1,$var1.path_v1]");
+        EXPECT_EQ(expr->toString(), "PathBuild[$var1.path_src,$var1.path_edge1,$var1.path_v1]");
     }
 }
 }   // namespace nebula

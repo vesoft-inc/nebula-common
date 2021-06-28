@@ -12,6 +12,9 @@
 namespace nebula {
 class LogicalExpression final : public Expression {
 public:
+    LogicalExpression& operator=(const LogicalExpression& rhs) = delete;
+    LogicalExpression& operator=(LogicalExpression&&) = delete;
+
     static LogicalExpression* makeAnd(ObjectPool* pool,
                                       Expression* lhs = nullptr,
                                       Expression* rhs = nullptr) {

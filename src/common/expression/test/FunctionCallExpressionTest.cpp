@@ -94,9 +94,9 @@ TEST_F(FunctionCallExpressionTest, FunctionCallTest) {
     }
     // Check function
     {
-        auto expr = *FunctionCallExpression::make(&pool, "TimE");
-        EXPECT_TRUE(expr.isFunc("time"));
-        EXPECT_FALSE(expr.isFunc("time_"));
+        auto expr = FunctionCallExpression::make(&pool, "TimE");
+        EXPECT_TRUE(expr->isFunc("time"));
+        EXPECT_FALSE(expr->isFunc("time_"));
     }
 }
 
@@ -106,28 +106,28 @@ TEST_F(FunctionCallExpressionTest, FunctionCallToStringTest) {
         for (const auto &i : args_["pow"]) {
             argList->addArgument(ConstantExpression::make(&pool, i));
         }
-        auto ep = *FunctionCallExpression::make(&pool, "pow", argList);
-        EXPECT_EQ(ep.toString(), "pow(2,3)");
+        auto ep = FunctionCallExpression::make(&pool, "pow", argList);
+        EXPECT_EQ(ep->toString(), "pow(2,3)");
     }
     {
         ArgumentList *argList = ArgumentList::make(&pool);
         for (const auto &i : args_["udf_is_in"]) {
             argList->addArgument(ConstantExpression::make(&pool, i));
         }
-        auto ep = *FunctionCallExpression::make(&pool, "udf_is_in", argList);
-        EXPECT_EQ(ep.toString(), "udf_is_in(4,1,2,8,4,3,1,0)");
+        auto ep = FunctionCallExpression::make(&pool, "udf_is_in", argList);
+        EXPECT_EQ(ep->toString(), "udf_is_in(4,1,2,8,4,3,1,0)");
     }
     {
         ArgumentList *argList = ArgumentList::make(&pool);
         for (const auto &i : args_["neg_int"]) {
             argList->addArgument(ConstantExpression::make(&pool, i));
         }
-        auto ep = *FunctionCallExpression::make(&pool, "abs", argList);
-        EXPECT_EQ(ep.toString(), "abs(-1)");
+        auto ep = FunctionCallExpression::make(&pool, "abs", argList);
+        EXPECT_EQ(ep->toString(), "abs(-1)");
     }
     {
-        auto ep = *FunctionCallExpression::make(&pool, "now");
-        EXPECT_EQ(ep.toString(), "now()");
+        auto ep = FunctionCallExpression::make(&pool, "now");
+        EXPECT_EQ(ep->toString(), "now()");
     }
 }
 }   // namespace nebula

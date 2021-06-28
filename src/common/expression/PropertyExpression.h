@@ -65,6 +65,9 @@ protected:
 // edge_name.any_prop_name
 class EdgePropertyExpression final : public PropertyExpression {
 public:
+    EdgePropertyExpression& operator=(const EdgePropertyExpression& rhs) = delete;
+    EdgePropertyExpression& operator=(EdgePropertyExpression&&) = delete;
+
     static EdgePropertyExpression* make(ObjectPool* pool,
                                         const std::string& edge = "",
                                         const std::string& prop = "") {
@@ -93,6 +96,9 @@ private:
 // tag_name.any_prop_name
 class TagPropertyExpression final : public PropertyExpression {
 public:
+    TagPropertyExpression& operator=(const TagPropertyExpression& rhs) = delete;
+    TagPropertyExpression& operator=(TagPropertyExpression&&) = delete;
+
     static TagPropertyExpression* make(ObjectPool* pool,
                                        const std::string& tag = "",
                                        const std::string& prop = "") {
@@ -121,6 +127,9 @@ private:
 // $-.any_prop_name
 class InputPropertyExpression final : public PropertyExpression {
 public:
+    InputPropertyExpression& operator=(const InputPropertyExpression& rhs) = delete;
+    InputPropertyExpression& operator=(InputPropertyExpression&&) = delete;
+
     static InputPropertyExpression* make(ObjectPool* pool, const std::string& prop = "") {
         DCHECK(!!pool);
         return pool->add(new InputPropertyExpression(pool, prop));
@@ -142,6 +151,9 @@ private:
 // $VarName.any_prop_name
 class VariablePropertyExpression final : public PropertyExpression {
 public:
+    VariablePropertyExpression& operator=(const VariablePropertyExpression& rhs) = delete;
+    VariablePropertyExpression& operator=(VariablePropertyExpression&&) = delete;
+
     static VariablePropertyExpression* make(ObjectPool* pool,
                                             const std::string& var = "",
                                             const std::string& prop = "") {
@@ -169,6 +181,9 @@ private:
 // $^.TagName.any_prop_name
 class SourcePropertyExpression final : public PropertyExpression {
 public:
+    SourcePropertyExpression& operator=(const SourcePropertyExpression& rhs) = delete;
+    SourcePropertyExpression& operator=(SourcePropertyExpression&&) = delete;
+
     static SourcePropertyExpression* make(ObjectPool* pool,
                                           const std::string& tag = "",
                                           const std::string& prop = "") {
@@ -197,6 +212,9 @@ private:
 // $$.TagName.any_prop_name
 class DestPropertyExpression final : public PropertyExpression {
 public:
+    DestPropertyExpression& operator=(const DestPropertyExpression& rhs) = delete;
+    DestPropertyExpression& operator=(DestPropertyExpression&&) = delete;
+
     static DestPropertyExpression* make(ObjectPool* pool,
                                         const std::string& tag = "",
                                         const std::string& prop = "") {
@@ -222,6 +240,9 @@ private:
 // EdgeName._src
 class EdgeSrcIdExpression final : public PropertyExpression {
 public:
+    EdgeSrcIdExpression& operator=(const EdgeSrcIdExpression& rhs) = delete;
+    EdgeSrcIdExpression& operator=(EdgeSrcIdExpression&&) = delete;
+
     static EdgeSrcIdExpression* make(ObjectPool* pool, const std::string& edge = "") {
         DCHECK(!!pool);
         return pool->add(new EdgeSrcIdExpression(pool, edge));
@@ -246,6 +267,9 @@ private:
 // EdgeName._type
 class EdgeTypeExpression final : public PropertyExpression {
 public:
+    EdgeTypeExpression& operator=(const EdgeTypeExpression& rhs) = delete;
+    EdgeTypeExpression& operator=(EdgeTypeExpression&&) = delete;
+
     static EdgeTypeExpression* make(ObjectPool* pool, const std::string& edge = "") {
         DCHECK(!!pool);
         return pool->add(new EdgeTypeExpression(pool, edge));
@@ -270,6 +294,9 @@ private:
 // EdgeName._rank
 class EdgeRankExpression final : public PropertyExpression {
 public:
+    EdgeRankExpression& operator=(const EdgeRankExpression& rhs) = delete;
+    EdgeRankExpression& operator=(EdgeRankExpression&&) = delete;
+
     static EdgeRankExpression* make(ObjectPool* pool, const std::string& edge = "") {
         DCHECK(!!pool);
         return pool->add(new EdgeRankExpression(pool, edge));
@@ -294,6 +321,9 @@ private:
 // EdgeName._dst
 class EdgeDstIdExpression final : public PropertyExpression {
 public:
+    EdgeDstIdExpression& operator=(const EdgeDstIdExpression& rhs) = delete;
+    EdgeDstIdExpression& operator=(EdgeDstIdExpression&&) = delete;
+
     static EdgeDstIdExpression* make(ObjectPool* pool, const std::string& edge = "") {
         DCHECK(!!pool);
         return pool->add(new EdgeDstIdExpression(pool, edge));

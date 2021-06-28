@@ -15,6 +15,9 @@ namespace nebula {
 
 class LabelExpression: public Expression {
 public:
+    LabelExpression& operator=(const LabelExpression& rhs) = delete;
+    LabelExpression& operator=(LabelExpression&&) = delete;
+
     static LabelExpression* make(ObjectPool* pool, const std::string& name = "") {
         DCHECK(!!pool);
         return pool->add(new LabelExpression(pool, name));

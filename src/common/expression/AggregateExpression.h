@@ -17,6 +17,9 @@ class AggregateExpression final : public Expression {
     friend class Expression;
 
 public:
+    AggregateExpression& operator=(const AggregateExpression& rhs) = delete;
+    AggregateExpression& operator=(AggregateExpression&&) = delete;
+
     static AggregateExpression* make(ObjectPool* pool,
                                      const std::string& name = "",
                                      Expression* arg = nullptr,

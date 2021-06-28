@@ -19,6 +19,9 @@ namespace nebula {
  */
 class EdgeExpression final : public Expression {
 public:
+    EdgeExpression& operator=(const EdgeExpression& rhs) = delete;
+    EdgeExpression& operator=(EdgeExpression&&) = delete;
+
     static EdgeExpression* make(ObjectPool* pool) {
         return pool->add(new EdgeExpression(pool));
     }

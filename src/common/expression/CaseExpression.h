@@ -46,6 +46,9 @@ class CaseExpression final : public Expression {
     friend class Expression;
 
 public:
+    CaseExpression& operator=(const CaseExpression& rhs) = delete;
+    CaseExpression& operator=(CaseExpression&&) = delete;
+
     static CaseExpression* make(ObjectPool* pool,
                                 CaseList* cases = nullptr,
                                 bool isGeneric = true) {

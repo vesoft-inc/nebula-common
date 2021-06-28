@@ -19,7 +19,7 @@ TEST_F(PredicateExpressionTest, PredicateEvaluate) {
             .add(ConstantExpression::make(&pool, 2))
             .add(ConstantExpression::make(&pool, 4))
             .add(ConstantExpression::make(&pool, 5));
-        auto expr = *PredicateExpression::make(
+        auto expr = PredicateExpression::make(
             &pool,
             "all",
             "n",
@@ -27,7 +27,7 @@ TEST_F(PredicateExpressionTest, PredicateEvaluate) {
             RelationalExpression::makeGE(
                 &pool, VariableExpression::make(&pool, "n"), ConstantExpression::make(&pool, 2)));
 
-        auto value = Expression::eval(&expr, gExpCtxt);
+        auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(false, value.getBool());
     }
@@ -44,7 +44,7 @@ TEST_F(PredicateExpressionTest, PredicateEvaluate) {
 
         ArgumentList *argList = ArgumentList::make(&pool);
         argList->addArgument(VariableExpression::make(&pool, "p"));
-        auto expr = *PredicateExpression::make(
+        auto expr = PredicateExpression::make(
             &pool,
             "any",
             "n",
@@ -56,7 +56,7 @@ TEST_F(PredicateExpressionTest, PredicateEvaluate) {
                                           ConstantExpression::make(&pool, "age")),
                 ConstantExpression::make(&pool, 19)));
 
-        auto value = Expression::eval(&expr, gExpCtxt);
+        auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(true, value.getBool());
     }
@@ -69,7 +69,7 @@ TEST_F(PredicateExpressionTest, PredicateEvaluate) {
             .add(ConstantExpression::make(&pool, 2))
             .add(ConstantExpression::make(&pool, 4))
             .add(ConstantExpression::make(&pool, 5));
-        auto expr = *PredicateExpression::make(
+        auto expr = PredicateExpression::make(
             &pool,
             "single",
             "n",
@@ -77,7 +77,7 @@ TEST_F(PredicateExpressionTest, PredicateEvaluate) {
             RelationalExpression::makeEQ(
                 &pool, VariableExpression::make(&pool, "n"), ConstantExpression::make(&pool, 2)));
 
-        auto value = Expression::eval(&expr, gExpCtxt);
+        auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(true, value.getBool());
     }
@@ -94,7 +94,7 @@ TEST_F(PredicateExpressionTest, PredicateEvaluate) {
 
         ArgumentList *argList = ArgumentList::make(&pool);
         argList->addArgument(VariableExpression::make(&pool, "p"));
-        auto expr = *PredicateExpression::make(
+        auto expr = PredicateExpression::make(
             &pool,
             "none",
             "n",
@@ -106,13 +106,13 @@ TEST_F(PredicateExpressionTest, PredicateEvaluate) {
                                           ConstantExpression::make(&pool, "age")),
                 ConstantExpression::make(&pool, 19)));
 
-        auto value = Expression::eval(&expr, gExpCtxt);
+        auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isBool());
         ASSERT_EQ(false, value.getBool());
     }
     {
         // single(n IN null WHERE n > 1)
-        auto expr = *PredicateExpression::make(
+        auto expr = PredicateExpression::make(
             &pool,
             "all",
             "n",
@@ -120,7 +120,7 @@ TEST_F(PredicateExpressionTest, PredicateEvaluate) {
             RelationalExpression::makeEQ(
                 &pool, VariableExpression::make(&pool, "n"), ConstantExpression::make(&pool, 1)));
 
-        auto value = Expression::eval(&expr, gExpCtxt);
+        auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_EQ(Value::kNullValue, value.getNull());
     }
 }
@@ -130,14 +130,14 @@ TEST_F(PredicateExpressionTest, PredicateExprToString) {
         ArgumentList *argList = ArgumentList::make(&pool);
         argList->addArgument(ConstantExpression::make(&pool, 1));
         argList->addArgument(ConstantExpression::make(&pool, 5));
-        auto expr = *PredicateExpression::make(
+        auto expr = PredicateExpression::make(
             &pool,
             "all",
             "n",
             FunctionCallExpression::make(&pool, "range", argList),
             RelationalExpression::makeGE(
                 &pool, LabelExpression::make(&pool, "n"), ConstantExpression::make(&pool, 2)));
-        ASSERT_EQ("all(n IN range(1,5) WHERE (n>=2))", expr.toString());
+        ASSERT_EQ("all(n IN range(1,5) WHERE (n>=2))", expr->toString());
     }
 }
 }   // namespace nebula

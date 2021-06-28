@@ -16,6 +16,9 @@ class ConstantExpression : public Expression {
     friend class Expression;
 
 public:
+    ConstantExpression& operator=(const ConstantExpression& rhs) = delete;
+    ConstantExpression& operator=(ConstantExpression&&) = delete;
+
     static ConstantExpression* make(ObjectPool* pool, Value v = Value(NullType::__NULL__)) {
         DCHECK(!!pool);
         return pool->add(new ConstantExpression(pool, v));

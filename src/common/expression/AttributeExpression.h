@@ -14,6 +14,9 @@ namespace nebula {
 // <expr>.label
 class AttributeExpression final : public BinaryExpression {
 public:
+    AttributeExpression& operator=(const AttributeExpression& rhs) = delete;
+    AttributeExpression& operator=(AttributeExpression&&) = delete;
+
     static AttributeExpression *make(ObjectPool *pool,
                                      Expression *lhs = nullptr,
                                      Expression *rhs = nullptr) {

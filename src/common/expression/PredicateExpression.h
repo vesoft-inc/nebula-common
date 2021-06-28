@@ -23,6 +23,9 @@ public:
         NONE = 3,
     };
 
+    PredicateExpression& operator=(const PredicateExpression& rhs) = delete;
+    PredicateExpression& operator=(PredicateExpression&&) = delete;
+
     static PredicateExpression* make(ObjectPool* pool,
                                      const std::string& name = "",
                                      const std::string& innerVar = "",

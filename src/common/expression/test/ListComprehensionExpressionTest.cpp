@@ -19,7 +19,7 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionEvaluate) {
             .add(ConstantExpression::make(&pool, 2))
             .add(ConstantExpression::make(&pool, 4))
             .add(ConstantExpression::make(&pool, 5));
-        auto expr = *ListComprehensionExpression::make(
+        auto expr = ListComprehensionExpression::make(
             &pool,
             "n",
             ListExpression::make(&pool, listItems),
@@ -28,7 +28,7 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionEvaluate) {
             ArithmeticExpression::makeAdd(
                 &pool, VariableExpression::make(&pool, "n"), ConstantExpression::make(&pool, 10)));
 
-        auto value = Expression::eval(&expr, gExpCtxt);
+        auto value = Expression::eval(expr, gExpCtxt);
         List expected;
         expected.reserve(3);
         expected.emplace_back(12);
@@ -50,7 +50,7 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionEvaluate) {
 
         ArgumentList *argList = ArgumentList::make(&pool);
         argList->addArgument(VariableExpression::make(&pool, "p"));
-        auto expr = *ListComprehensionExpression::make(
+        auto expr = ListComprehensionExpression::make(
             &pool,
             "n",
             FunctionCallExpression::make(&pool, "nodes", argList),
@@ -62,7 +62,7 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionEvaluate) {
                                           ConstantExpression::make(&pool, "age")),
                 ConstantExpression::make(&pool, 5)));
 
-        auto value = Expression::eval(&expr, gExpCtxt);
+        auto value = Expression::eval(expr, gExpCtxt);
         List expected;
         expected.reserve(3);
         expected.emplace_back(23);
@@ -78,18 +78,18 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionExprToString) {
         ArgumentList *argList = ArgumentList::make(&pool);
         argList->addArgument(ConstantExpression::make(&pool, 1));
         argList->addArgument(ConstantExpression::make(&pool, 5));
-        auto expr = *ListComprehensionExpression::make(
+        auto expr = ListComprehensionExpression::make(
             &pool,
             "n",
             FunctionCallExpression::make(&pool, "range", argList),
             RelationalExpression::makeGE(
                 &pool, LabelExpression::make(&pool, "n"), ConstantExpression::make(&pool, 2)));
-        ASSERT_EQ("[n IN range(1,5) WHERE (n>=2)]", expr.toString());
+        ASSERT_EQ("[n IN range(1,5) WHERE (n>=2)]", expr->toString());
     }
     {
         ArgumentList *argList = ArgumentList::make(&pool);
         argList->addArgument(LabelExpression::make(&pool, "p"));
-        auto expr = *ListComprehensionExpression::make(
+        auto expr = ListComprehensionExpression::make(
             &pool,
             "n",
             FunctionCallExpression::make(&pool, "nodes", argList),
@@ -100,7 +100,7 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionExprToString) {
                                                LabelExpression::make(&pool, "n"),
                                                ConstantExpression::make(&pool, "age")),
                 ConstantExpression::make(&pool, 10)));
-        ASSERT_EQ("[n IN nodes(p) | (n.age+10)]", expr.toString());
+        ASSERT_EQ("[n IN nodes(p) | (n.age+10)]", expr->toString());
     }
     {
         auto listItems = ExpressionList::make(&pool);
@@ -108,7 +108,7 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionExprToString) {
             .add(ConstantExpression::make(&pool, 0))
             .add(ConstantExpression::make(&pool, 1))
             .add(ConstantExpression::make(&pool, 2));
-        auto expr = *ListComprehensionExpression::make(
+        auto expr = ListComprehensionExpression::make(
             &pool,
             "n",
             ListExpression::make(&pool, listItems),
@@ -116,7 +116,7 @@ TEST_F(ListComprehensionExpressionTest, ListComprehensionExprToString) {
                 &pool, LabelExpression::make(&pool, "n"), ConstantExpression::make(&pool, 2)),
             ArithmeticExpression::makeAdd(
                 &pool, LabelExpression::make(&pool, "n"), ConstantExpression::make(&pool, 10)));
-        ASSERT_EQ("[n IN [0,1,2] WHERE (n>=2) | (n+10)]", expr.toString());
+        ASSERT_EQ("[n IN [0,1,2] WHERE (n>=2) | (n+10)]", expr->toString());
     }
 }
 }   // namespace nebula

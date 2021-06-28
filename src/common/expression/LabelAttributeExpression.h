@@ -17,6 +17,9 @@ namespace nebula {
 // label.label
 class LabelAttributeExpression final : public Expression {
 public:
+    LabelAttributeExpression& operator=(const LabelAttributeExpression& rhs) = delete;
+    LabelAttributeExpression& operator=(LabelAttributeExpression&&) = delete;
+
     static LabelAttributeExpression* make(ObjectPool* pool,
                                           LabelExpression* lhs = nullptr,
                                           ConstantExpression* rhs = nullptr) {

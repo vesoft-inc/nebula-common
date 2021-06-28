@@ -13,6 +13,9 @@ namespace nebula {
 
 class ArithmeticExpression final : public BinaryExpression {
 public:
+    ArithmeticExpression& operator=(const ArithmeticExpression& rhs) = delete;
+    ArithmeticExpression& operator=(ArithmeticExpression&&) = delete;
+
     static ArithmeticExpression* makeAdd(ObjectPool* pool,
                                          Expression* lhs = nullptr,
                                          Expression* rhs = nullptr) {

@@ -114,8 +114,11 @@ public:
     // explicit Expression(Kind kind) : kind_(kind) {}
 
     explicit Expression(ObjectPool* pool, Kind kind) : pool_(pool), kind_(kind) {}
-
     virtual ~Expression() = default;
+
+    Expression& operator=(const Expression& rhs) = delete;
+    Expression& operator=(Expression&&) = delete;
+    Expression(const Expression&) = delete;
 
     Kind kind() const {
         return kind_;

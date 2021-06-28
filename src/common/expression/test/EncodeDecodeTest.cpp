@@ -9,12 +9,12 @@
 namespace nebula {
 
 TEST(ExpressionEncodeDecode, ConstantExpression) {
-    auto val1 = *ConstantExpression::make(&pool, 123);
-    auto val2 = *ConstantExpression::make(&pool, "Hello world");
-    auto val3 = *ConstantExpression::make(&pool, true);
-    auto val4 = *ConstantExpression::make(&pool, 3.14159);
-    auto val5 = *ConstantExpression::make(&pool, Time{1, 2, 3, 4});
-    auto val6 = *ConstantExpression::make(&pool, DateTime{1, 2, 3, 4, 5, 6, 7});
+    const auto& val1 = *ConstantExpression::make(&pool, 123);
+    const auto& val2 = *ConstantExpression::make(&pool, "Hello world");
+    const auto& val3 = *ConstantExpression::make(&pool, true);
+    const auto& val4 = *ConstantExpression::make(&pool, 3.14159);
+    const auto& val5 = *ConstantExpression::make(&pool, Time{1, 2, 3, 4});
+    const auto& val6 = *ConstantExpression::make(&pool, DateTime{1, 2, 3, 4, 5, 6, 7});
 
     std::string encoded = Expression::encode(val1);
     auto decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
@@ -42,37 +42,37 @@ TEST(ExpressionEncodeDecode, ConstantExpression) {
 }
 
 TEST(ExpressionEncodeDecode, SymbolPropertyExpression) {
-    auto spEx = *SourcePropertyExpression::make(&pool, "tag", "prop");
+    const auto& spEx = *SourcePropertyExpression::make(&pool, "tag", "prop");
     auto encoded = Expression::encode(spEx);
     auto decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(spEx, *decoded);
 
-    auto dpEx = *DestPropertyExpression::make(&pool, "tag", "prop");
+    const auto& dpEx = *DestPropertyExpression::make(&pool, "tag", "prop");
     encoded = Expression::encode(dpEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(dpEx, *decoded);
 
-    auto srcIdEx = *EdgeSrcIdExpression::make(&pool, "alias");
+    const auto& srcIdEx = *EdgeSrcIdExpression::make(&pool, "alias");
     encoded = Expression::encode(srcIdEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(srcIdEx, *decoded);
 
-    auto etEx = *EdgeTypeExpression::make(&pool, "alias");
+    const auto& etEx = *EdgeTypeExpression::make(&pool, "alias");
     encoded = Expression::encode(etEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(etEx, *decoded);
 
-    auto erEx = *EdgeRankExpression::make(&pool, "alias");
+    const auto& erEx = *EdgeRankExpression::make(&pool, "alias");
     encoded = Expression::encode(erEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(erEx, *decoded);
 
-    auto dstIdEx = *EdgeDstIdExpression::make(&pool, "alias");
+    const auto& dstIdEx = *EdgeDstIdExpression::make(&pool, "alias");
     encoded = Expression::encode(dstIdEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(dstIdEx, *decoded);
 
-    auto edgeEx = *EdgePropertyExpression::make(&pool, "edge", "prop");
+    const auto& edgeEx = *EdgePropertyExpression::make(&pool, "edge", "prop");
     encoded = Expression::encode(edgeEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(edgeEx, *decoded);
@@ -115,7 +115,7 @@ TEST(ExpressionEncodeDecode, FunctionCallExpression) {
     args->addArgument(ConstantExpression::make(&pool, 123));
     args->addArgument(ConstantExpression::make(&pool, 3.14));
     args->addArgument(ConstantExpression::make(&pool, "Hello world"));
-    auto fcEx = *FunctionCallExpression::make(&pool, "func", args);
+    const auto& fcEx = *FunctionCallExpression::make(&pool, "func", args);
     std::string encoded = Expression::encode(fcEx);
     auto decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(fcEx, *decoded);
@@ -130,43 +130,43 @@ TEST(ExpressionEncodeDecode, AggregateExpression) {
 }
 
 TEST(ExpressionEncodeDecode, RelationalExpression) {
-    auto eqEx = *RelationalExpression::makeEQ(
+    const auto& eqEx = *RelationalExpression::makeEQ(
         &pool, ConstantExpression::make(&pool, 123), ConstantExpression::make(&pool, 123));
     std::string encoded = Expression::encode(eqEx);
     auto decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(eqEx, *decoded);
 
-    auto neEx = *RelationalExpression::makeNE(
+    const auto& neEx = *RelationalExpression::makeNE(
         &pool, ConstantExpression::make(&pool, 123), ConstantExpression::make(&pool, "Hello"));
     encoded = Expression::encode(neEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(neEx, *decoded);
 
-    auto ltEx = *RelationalExpression::makeLE(
+    const auto& ltEx = *RelationalExpression::makeLE(
         &pool, ConstantExpression::make(&pool, 123), ConstantExpression::make(&pool, 12345));
     encoded = Expression::encode(ltEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(ltEx, *decoded);
 
-    auto leEx = *RelationalExpression::makeLE(
+    const auto& leEx = *RelationalExpression::makeLE(
         &pool, ConstantExpression::make(&pool, 123), ConstantExpression::make(&pool, 12345));
     encoded = Expression::encode(leEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(leEx, *decoded);
 
-    auto gtEx = *RelationalExpression::makeGT(
+    const auto& gtEx = *RelationalExpression::makeGT(
         &pool, ConstantExpression::make(&pool, 12345), ConstantExpression::make(&pool, 123));
     encoded = Expression::encode(gtEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(gtEx, *decoded);
 
-    auto geEx = *RelationalExpression::makeGE(
+    const auto& geEx = *RelationalExpression::makeGE(
         &pool, ConstantExpression::make(&pool, 12345), ConstantExpression::make(&pool, 123));
     encoded = Expression::encode(geEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(geEx, *decoded);
 
-    auto containEx = *RelationalExpression::makeContains(
+    const auto& containEx = *RelationalExpression::makeContains(
         &pool, ConstantExpression::make(&pool, "12345"), ConstantExpression::make(&pool, "123"));
     encoded = Expression::encode(containEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
@@ -174,7 +174,7 @@ TEST(ExpressionEncodeDecode, RelationalExpression) {
 }
 
 TEST(ExpressionEncodeDecode, LogicalExpression) {
-    auto andEx = *LogicalExpression::makeAnd(
+    const auto& andEx = *LogicalExpression::makeAnd(
         &pool, ConstantExpression::make(&pool, true), ConstantExpression::make(&pool, false));
     auto decoded = Expression::decode(&pool, Expression::encode(andEx));
     EXPECT_EQ(andEx, *decoded);
@@ -183,7 +183,7 @@ TEST(ExpressionEncodeDecode, LogicalExpression) {
         &pool, ConstantExpression::make(&pool, 123), ConstantExpression::make(&pool, 12345));
     auto rhs = RelationalExpression::makeEQ(
         &pool, ConstantExpression::make(&pool, "Hello"), ConstantExpression::make(&pool, "World"));
-    auto orEx = *LogicalExpression::makeOr(&pool, lhs, rhs);
+    const auto& orEx = *LogicalExpression::makeOr(&pool, lhs, rhs);
     decoded = Expression::decode(&pool, Expression::encode(orEx));
     EXPECT_EQ(orEx, *decoded);
 
@@ -192,13 +192,13 @@ TEST(ExpressionEncodeDecode, LogicalExpression) {
     lhs = RelationalExpression::makeLT(&pool, ConstantExpression::make(&pool, 12345), arEx);
     rhs = RelationalExpression::makeEQ(
         &pool, ConstantExpression::make(&pool, "Hello"), ConstantExpression::make(&pool, "World"));
-    auto xorEx = *LogicalExpression::makeXor(&pool, lhs, rhs);
+    const auto& xorEx = *LogicalExpression::makeXor(&pool, lhs, rhs);
     decoded = Expression::decode(&pool, Expression::encode(xorEx));
     EXPECT_EQ(xorEx, *decoded);
 }
 
 TEST(ExpressionEncodeDecode, TypeCastingExpression) {
-    auto tcEx = *TypeCastingExpression::make(
+    const auto& tcEx = *TypeCastingExpression::make(
         &pool, Value::Type::INT, ConstantExpression::make(&pool, 3.14));
     std::string encoded = Expression::encode(tcEx);
     auto decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
@@ -206,24 +206,24 @@ TEST(ExpressionEncodeDecode, TypeCastingExpression) {
 }
 
 TEST(ExpressionEncodeDecode, UUIDExpression) {
-    auto uuidEx = *UUIDExpression::make(&pool, "field");
+    const auto& uuidEx = *UUIDExpression::make(&pool, "field");
     std::string encoded = Expression::encode(uuidEx);
     auto decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(uuidEx, *decoded);
 }
 
 TEST(ExpressionEncodeDecode, UnaryExpression) {
-    auto plusEx = *UnaryExpression::makePlus(&pool, ConstantExpression::make(&pool, 12345));
+    const auto& plusEx = *UnaryExpression::makePlus(&pool, ConstantExpression::make(&pool, 12345));
     std::string encoded = Expression::encode(plusEx);
     auto decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(plusEx, *decoded);
 
-    auto negEx = *UnaryExpression::makeNegate(&pool, ConstantExpression::make(&pool, 12345));
+    const auto& negEx = *UnaryExpression::makeNegate(&pool, ConstantExpression::make(&pool, 12345));
     encoded = Expression::encode(negEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(negEx, *decoded);
 
-    auto notEx = *UnaryExpression::makeNot(&pool, ConstantExpression::make(&pool, false));
+    const auto& notEx = *UnaryExpression::makeNot(&pool, ConstantExpression::make(&pool, false));
     encoded = Expression::encode(notEx);
     decoded = Expression::decode(&pool, folly::StringPiece(encoded.data(), encoded.size()));
     EXPECT_EQ(notEx, *decoded);

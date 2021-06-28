@@ -15,6 +15,9 @@ class ListComprehensionExpression final : public Expression {
     friend class Expression;
 
 public:
+    ListComprehensionExpression& operator=(const ListComprehensionExpression& rhs) = delete;
+    ListComprehensionExpression& operator=(ListComprehensionExpression&&) = delete;
+
     static ListComprehensionExpression* make(ObjectPool* pool,
                                              const std::string& innerVar = "",
                                              Expression* collection = nullptr,

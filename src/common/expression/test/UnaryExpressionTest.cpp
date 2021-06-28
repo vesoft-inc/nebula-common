@@ -13,32 +13,32 @@ TEST_F(UnaryExpressionTest, IsNull) {
     {
         auto expr =
             *UnaryExpression::makeIsNull(&pool, ConstantExpression::make(&pool, Value::kNullValue));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
-        auto expr = *UnaryExpression::makeIsNull(&pool, ConstantExpression::make(&pool, 1));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIsNull(&pool, ConstantExpression::make(&pool, 1));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
     {
-        auto expr = *UnaryExpression::makeIsNull(&pool, ConstantExpression::make(&pool, 1.1));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIsNull(&pool, ConstantExpression::make(&pool, 1.1));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
     {
-        auto expr = *UnaryExpression::makeIsNull(&pool, ConstantExpression::make(&pool, true));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIsNull(&pool, ConstantExpression::make(&pool, true));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
     {
         auto expr =
             *UnaryExpression::makeIsNull(&pool, ConstantExpression::make(&pool, Value::kEmpty));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
@@ -46,34 +46,34 @@ TEST_F(UnaryExpressionTest, IsNull) {
 
 TEST_F(UnaryExpressionTest, IsNotNull) {
     {
-        auto expr = *UnaryExpression::makeIsNotNull(
+        auto expr = UnaryExpression::makeIsNotNull(
             &pool, ConstantExpression::make(&pool, Value::kNullValue));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
     {
-        auto expr = *UnaryExpression::makeIsNotNull(&pool, ConstantExpression::make(&pool, 1));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIsNotNull(&pool, ConstantExpression::make(&pool, 1));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
-        auto expr = *UnaryExpression::makeIsNotNull(&pool, ConstantExpression::make(&pool, 1.1));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIsNotNull(&pool, ConstantExpression::make(&pool, 1.1));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
-        auto expr = *UnaryExpression::makeIsNotNull(&pool, ConstantExpression::make(&pool, true));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIsNotNull(&pool, ConstantExpression::make(&pool, true));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
         auto expr =
             *UnaryExpression::makeIsNotNull(&pool, ConstantExpression::make(&pool, Value::kEmpty));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
@@ -81,34 +81,34 @@ TEST_F(UnaryExpressionTest, IsNotNull) {
 
 TEST_F(UnaryExpressionTest, IsEmpty) {
     {
-        auto expr = *UnaryExpression::makeIsEmpty(
+        auto expr = UnaryExpression::makeIsEmpty(
             &pool, ConstantExpression::make(&pool, Value::kNullValue));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
     {
-        auto expr = *UnaryExpression::makeIsEmpty(&pool, ConstantExpression::make(&pool, 1));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIsEmpty(&pool, ConstantExpression::make(&pool, 1));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
     {
-        auto expr = *UnaryExpression::makeIsEmpty(&pool, ConstantExpression::make(&pool, 1.1));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIsEmpty(&pool, ConstantExpression::make(&pool, 1.1));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
     {
-        auto expr = *UnaryExpression::makeIsEmpty(&pool, ConstantExpression::make(&pool, true));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIsEmpty(&pool, ConstantExpression::make(&pool, true));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
     {
         auto expr =
             *UnaryExpression::makeIsEmpty(&pool, ConstantExpression::make(&pool, Value::kEmpty));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
@@ -116,34 +116,34 @@ TEST_F(UnaryExpressionTest, IsEmpty) {
 
 TEST_F(UnaryExpressionTest, IsNotEmpty) {
     {
-        auto expr = *UnaryExpression::makeIsNotEmpty(
+        auto expr = UnaryExpression::makeIsNotEmpty(
             &pool, ConstantExpression::make(&pool, Value::kNullValue));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
-        auto expr = *UnaryExpression::makeIsNotEmpty(&pool, ConstantExpression::make(&pool, 1));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIsNotEmpty(&pool, ConstantExpression::make(&pool, 1));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
-        auto expr = *UnaryExpression::makeIsNotEmpty(&pool, ConstantExpression::make(&pool, 1.1));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIsNotEmpty(&pool, ConstantExpression::make(&pool, 1.1));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
-        auto expr = *UnaryExpression::makeIsNotEmpty(&pool, ConstantExpression::make(&pool, true));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIsNotEmpty(&pool, ConstantExpression::make(&pool, true));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, true);
     }
     {
         auto expr =
             *UnaryExpression::makeIsNotEmpty(&pool, ConstantExpression::make(&pool, Value::kEmpty));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::BOOL);
         EXPECT_EQ(eval, false);
     }
@@ -152,18 +152,18 @@ TEST_F(UnaryExpressionTest, IsNotEmpty) {
 TEST_F(UnaryExpressionTest, UnaryINCR) {
     {
         // ++var_int
-        auto expr = *UnaryExpression::makeIncr(&pool, VariableExpression::make(&pool, "var_int"));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeIncr(&pool, VariableExpression::make(&pool, "var_int"));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 2);
     }
     {
         // ++versioned_var{0}
-        auto expr = *UnaryExpression::makeIncr(
+        auto expr = UnaryExpression::makeIncr(
             &pool,
             VersionedVariableExpression::make(
                 &pool, "versioned_var", ConstantExpression::make(&pool, 0)));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 2);
     }
@@ -172,8 +172,8 @@ TEST_F(UnaryExpressionTest, UnaryINCR) {
 TEST_F(UnaryExpressionTest, UnaryDECR) {
     {
         // --var_int
-        auto expr = *UnaryExpression::makeDecr(&pool, VariableExpression::make(&pool, "var_int"));
-        auto eval = Expression::eval(&expr, gExpCtxt);
+        auto expr = UnaryExpression::makeDecr(&pool, VariableExpression::make(&pool, "var_int"));
+        auto eval = Expression::eval(expr, gExpCtxt);
         EXPECT_EQ(eval.type(), Value::Type::INT);
         EXPECT_EQ(eval, 0);
     }

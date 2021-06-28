@@ -68,6 +68,10 @@ private:
 
 class ListExpression final : public Expression {
 public:
+    ListExpression& operator=(const ListExpression& rhs) = delete;
+    ListExpression& operator=(ListExpression&&) = delete;
+
+
     static ListExpression *make(ObjectPool *pool, ExpressionList *items = nullptr) {
         DCHECK(!!pool);
         return items == nullptr ? pool->add(new ListExpression(pool))
@@ -131,6 +135,9 @@ private:
 
 class SetExpression final : public Expression {
 public:
+    SetExpression& operator=(const SetExpression& rhs) = delete;
+    SetExpression& operator=(SetExpression&&) = delete;
+
     static SetExpression *make(ObjectPool *pool, ExpressionList *items = nullptr) {
         DCHECK(!!pool);
         return items == nullptr ? pool->add(new SetExpression(pool))
@@ -192,6 +199,9 @@ private:
 
 class MapExpression final : public Expression {
 public:
+    MapExpression& operator=(const MapExpression& rhs) = delete;
+    MapExpression& operator=(MapExpression&&) = delete;
+
     static MapExpression *make(ObjectPool *pool, MapItemList *items = nullptr) {
         DCHECK(!!pool);
         return items == nullptr ? pool->add(new MapExpression(pool))

@@ -63,6 +63,9 @@ class FunctionCallExpression final : public Expression {
     friend class Expression;
 
 public:
+    FunctionCallExpression& operator=(const FunctionCallExpression& rhs) = delete;
+    FunctionCallExpression& operator=(FunctionCallExpression&&) = delete;
+
     static FunctionCallExpression* make(ObjectPool* pool,
                                         const std::string& name = "",
                                         ArgumentList* args = nullptr) {

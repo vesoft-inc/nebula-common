@@ -10,90 +10,90 @@ namespace nebula {
 
 TEST_F(ExpressionTest, toStringTest) {
     {
-        auto ep = *ConstantExpression::make(&pool, 1);
-        EXPECT_EQ(ep.toString(), "1");
+        auto ep = ConstantExpression::make(&pool, 1);
+        EXPECT_EQ(ep->toString(), "1");
     }
     {
-        auto ep = *ConstantExpression::make(&pool, 1.123);
-        EXPECT_EQ(ep.toString(), "1.123");
+        auto ep = ConstantExpression::make(&pool, 1.123);
+        EXPECT_EQ(ep->toString(), "1.123");
     }
     // FIXME: double/float to string conversion
     // {
-    //     auto ep = *ConstantExpression::make(&pool, 1.0);
-    //     EXPECT_EQ(ep.toString(), "1.0");
+    //     auto ep = ConstantExpression::make(&pool, 1.0);
+    //     EXPECT_EQ(ep->toString(), "1.0");
     // }
     {
-        auto ep = *ConstantExpression::make(&pool, true);
-        EXPECT_EQ(ep.toString(), "true");
+        auto ep = ConstantExpression::make(&pool, true);
+        EXPECT_EQ(ep->toString(), "true");
     }
     {
-        auto ep = *ConstantExpression::make(&pool, List(std::vector<Value>{1, 2, 3, 4, 9, 0, -23}));
-        EXPECT_EQ(ep.toString(), "[1,2,3,4,9,0,-23]");
+        auto ep = ConstantExpression::make(&pool, List(std::vector<Value>{1, 2, 3, 4, 9, 0, -23}));
+        EXPECT_EQ(ep->toString(), "[1,2,3,4,9,0,-23]");
     }
     {
-        auto ep = *ConstantExpression::make(&pool, Map({{"hello", "world"}, {"name", "zhang"}}));
-        EXPECT_EQ(ep.toString(), "{name:\"zhang\",hello:\"world\"}");
+        auto ep = ConstantExpression::make(&pool, Map({{"hello", "world"}, {"name", "zhang"}}));
+        EXPECT_EQ(ep->toString(), "{name:\"zhang\",hello:\"world\"}");
     }
     {
-        auto ep = *ConstantExpression::make(&pool, Set({1, 2.3, "hello", true}));
-        EXPECT_EQ(ep.toString(), "{\"hello\",2.3,true,1}");
+        auto ep = ConstantExpression::make(&pool, Set({1, 2.3, "hello", true}));
+        EXPECT_EQ(ep->toString(), "{\"hello\",2.3,true,1}");
     }
     {
-        auto ep = *ConstantExpression::make(&pool, Date(1234));
-        EXPECT_EQ(ep.toString(), "-32765-05-19");
-    }
-    {
-        auto ep =
-            *ConstantExpression::make(&pool, Edge("100", "102", 2, "like", 3, {{"likeness", 95}}));
-        EXPECT_EQ(ep.toString(), "(\"100\")-[like(2)]->(\"102\")@3 likeness:95");
+        auto ep = ConstantExpression::make(&pool, Date(1234));
+        EXPECT_EQ(ep->toString(), "-32765-05-19");
     }
     {
         auto ep =
-            *ConstantExpression::make(&pool, Vertex("100", {Tag("player", {{"name", "jame"}})}));
-        EXPECT_EQ(ep.toString(), "(\"100\") Tag: player, name:\"jame\"");
+            ConstantExpression::make(&pool, Edge("100", "102", 2, "like", 3, {{"likeness", 95}}));
+        EXPECT_EQ(ep->toString(), "(\"100\")-[like(2)]->(\"102\")@3 likeness:95");
     }
     {
-        auto ep = *TypeCastingExpression::make(
+        auto ep =
+            ConstantExpression::make(&pool, Vertex("100", {Tag("player", {{"name", "jame"}})}));
+        EXPECT_EQ(ep->toString(), "(\"100\") Tag: player, name:\"jame\"");
+    }
+    {
+        auto ep = TypeCastingExpression::make(
             &pool, Value::Type::FLOAT, ConstantExpression::make(&pool, 2));
-        EXPECT_EQ(ep.toString(), "(FLOAT)2");
+        EXPECT_EQ(ep->toString(), "(FLOAT)2");
     }
     {
-        auto plusEx = *UnaryExpression::makePlus(&pool, ConstantExpression::make(&pool, 2));
-        EXPECT_EQ(plusEx.toString(), "+(2)");
+        auto plusEx = UnaryExpression::makePlus(&pool, ConstantExpression::make(&pool, 2));
+        EXPECT_EQ(plusEx->toString(), "+(2)");
 
-        auto negEx = *UnaryExpression::makeNegate(&pool, ConstantExpression::make(&pool, 2));
-        EXPECT_EQ(negEx.toString(), "-(2)");
+        auto negEx = UnaryExpression::makeNegate(&pool, ConstantExpression::make(&pool, 2));
+        EXPECT_EQ(negEx->toString(), "-(2)");
 
-        auto incrEx = *UnaryExpression::makeIncr(&pool, ConstantExpression::make(&pool, 2));
-        EXPECT_EQ(incrEx.toString(), "++(2)");
+        auto incrEx = UnaryExpression::makeIncr(&pool, ConstantExpression::make(&pool, 2));
+        EXPECT_EQ(incrEx->toString(), "++(2)");
 
-        auto decrEx = *UnaryExpression::makeDecr(&pool, ConstantExpression::make(&pool, 2));
-        EXPECT_EQ(decrEx.toString(), "--(2)");
+        auto decrEx = UnaryExpression::makeDecr(&pool, ConstantExpression::make(&pool, 2));
+        EXPECT_EQ(decrEx->toString(), "--(2)");
 
-        auto notEx = *UnaryExpression::makeNot(&pool, ConstantExpression::make(&pool, 2));
-        EXPECT_EQ(notEx.toString(), "!(2)");
+        auto notEx = UnaryExpression::makeNot(&pool, ConstantExpression::make(&pool, 2));
+        EXPECT_EQ(notEx->toString(), "!(2)");
 
-        auto isNullEx = *UnaryExpression::makeIsNull(&pool, ConstantExpression::make(&pool, 2));
-        EXPECT_EQ(isNullEx.toString(), "2 IS NULL");
+        auto isNullEx = UnaryExpression::makeIsNull(&pool, ConstantExpression::make(&pool, 2));
+        EXPECT_EQ(isNullEx->toString(), "2 IS NULL");
 
-        auto isNotNullEx = *UnaryExpression::makeIsNotNull(
+        auto isNotNullEx = UnaryExpression::makeIsNotNull(
             &pool, ConstantExpression::make(&pool, Value::kNullValue));
-        EXPECT_EQ(isNotNullEx.toString(), "NULL IS NOT NULL");
+        EXPECT_EQ(isNotNullEx->toString(), "NULL IS NOT NULL");
 
-        auto isEmptyEx = *UnaryExpression::makeIsEmpty(&pool, ConstantExpression::make(&pool, 2));
-        EXPECT_EQ(isEmptyEx.toString(), "2 IS EMPTY");
+        auto isEmptyEx = UnaryExpression::makeIsEmpty(&pool, ConstantExpression::make(&pool, 2));
+        EXPECT_EQ(isEmptyEx->toString(), "2 IS EMPTY");
 
         auto isNotEmptyEx =
-            *UnaryExpression::makeIsNotEmpty(&pool, ConstantExpression::make(&pool, Value::kEmpty));
-        EXPECT_EQ(isNotEmptyEx.toString(), "__EMPTY__ IS NOT EMPTY");
+            UnaryExpression::makeIsNotEmpty(&pool, ConstantExpression::make(&pool, Value::kEmpty));
+        EXPECT_EQ(isNotEmptyEx->toString(), "__EMPTY__ IS NOT EMPTY");
     }
     {
-        auto var = *VariableExpression::make(&pool, "name");
-        EXPECT_EQ(var.toString(), "$name");
+        auto var = VariableExpression::make(&pool, "name");
+        EXPECT_EQ(var->toString(), "$name");
 
         auto versionVar =
-            *VersionedVariableExpression::make(&pool, "name", ConstantExpression::make(&pool, 1));
-        EXPECT_EQ(versionVar.toString(), "$name{1}");
+            VersionedVariableExpression::make(&pool, "name", ConstantExpression::make(&pool, 1));
+        EXPECT_EQ(versionVar->toString(), "$name{1}");
     }
     {
         TEST_TOSTRING(2 + 2 - 3, "((2+2)-3)");
@@ -109,9 +109,9 @@ TEST_F(ExpressionTest, toStringTest) {
 }
 
 TEST_F(ExpressionTest, TestExprClone) {
-    auto expr = *ConstantExpression::make(&pool, 1);
-    auto clone = expr.clone();
-    ASSERT_EQ(*clone, expr);
+    auto expr = ConstantExpression::make(&pool, 1);
+    auto clone = expr->clone();
+    ASSERT_EQ(*clone, *expr);
 
     auto aexpr = ArithmeticExpression::makeAdd(
         &pool, ConstantExpression::make(&pool, 1), ConstantExpression::make(&pool, 1));
