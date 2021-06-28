@@ -808,7 +808,7 @@ Status MetaClient::handleResponse(const RESP& resp) {
         case nebula::cpp2::ErrorCode::E_BACKUP_TABLE_FAILED:
             return Status::Error("Backup table failure!");
         case nebula::cpp2::ErrorCode::E_SESSION_NOT_FOUND:
-            return Status::Error("Session not existed!");
+            return Status::Error("Session does not exist!");
         default:
             return Status::Error("Unknown error!");
     }
