@@ -12,7 +12,7 @@ namespace time {
 const DateTime TimeConversion::kEpoch(1970, 1, 1, 0, 0, 0, 0);
 
 /*static*/ int64_t TimeConversion::dateTimeDiffSeconds(const DateTime &dateTime0,
-                                                  const DateTime &dateTime1) {
+                                                       const DateTime &dateTime1) {
     // check the negative divide result, it's used in the negative year number
     // computing.
     static_assert(-1 / 2 == 0, "");
