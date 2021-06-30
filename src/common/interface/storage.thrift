@@ -259,6 +259,9 @@ struct GetPropRequest {
     // If a filter is provided, only vertices that are satisfied the filter
     // will be returned
     9: optional binary                          filter,
+    // only valid when get vertex
+    // If set true will scan all tag to determine whether vid exists, and return the real _vid column
+    10: optional bool                           real_vid,
 }
 
 

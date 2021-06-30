@@ -171,6 +171,7 @@ GraphStorageClient::getProps(GraphSpaceID space,
                              const std::vector<cpp2::OrderBy>& orderBy,
                              int64_t limit,
                              std::string filter,
+                             bool realVid,
                              folly::EventBase* evb) {
     auto cbStatus = getIdFromRow(space, edgeProps != nullptr);
     if (!cbStatus.ok()) {
@@ -208,6 +209,7 @@ GraphStorageClient::getProps(GraphSpaceID space,
         if (filter.size() > 0) {
             req.set_filter(filter);
         }
+        req.set_real_vid(realVid);
     }
 
     return collectResponse(

@@ -60,6 +60,7 @@ public:
         const std::vector<cpp2::OrderBy>& orderBy = std::vector<cpp2::OrderBy>(),
         int64_t limit = std::numeric_limits<int64_t>::max(),
         std::string filter = std::string(),
+        bool realVid = false,
         folly::EventBase* evb = nullptr);
 
     folly::SemiFuture<StorageRpcResponse<cpp2::ExecResponse>> addVertices(
