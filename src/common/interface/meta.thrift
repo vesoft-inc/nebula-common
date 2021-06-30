@@ -1073,7 +1073,7 @@ struct QueryDesc {
     2: QueryStatus status;
     3: i64 duration;
     4: binary query;
-    // The session might transfor between query engines, but the query do not, we must
+    // The session might transfer between query engines, but the query do not, we must
     // record which query engine the query belongs to
     5: common.HostAddr graph_addr,
 }
