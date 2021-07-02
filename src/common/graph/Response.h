@@ -48,6 +48,7 @@
     X(E_REBUILD_INDEX_FAILED            , -28)  \
     X(E_INVALID_PASSWORD                , -29)  \
     X(E_FAILED_GET_ABS_PATH             , -30)  \
+    X(E_RPC_TIMEOUT                     , -31)  \
 \
     /* 1xxx for graphd */ \
     X(E_BAD_USERNAME_PASSWORD           , -1001)  /* Authentication error */  \
