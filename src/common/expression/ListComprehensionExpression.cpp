@@ -31,7 +31,7 @@ const Value& ListComprehensionExpression::eval(ExpressionContext& ctx) {
 
     for (size_t i = 0; i < list.size(); ++i) {
         auto& v = list[i];
-        ctx.setVar(*innerVar_, v);
+        ctx.setVar(innerVar_, v);
         if (filter_ != nullptr) {
             auto& filterVal = filter_->eval(ctx);
             if (!filterVal.empty() && !filterVal.isNull() && !filterVal.isBool()) {
@@ -53,14 +53,15 @@ const Value& ListComprehensionExpression::eval(ExpressionContext& ctx) {
     return result_;
 }
 
-std::unique_ptr<Expression> ListComprehensionExpression::clone() const {
-    auto expr = std::make_unique<ListComprehensionExpression>(
-        new std::string(*innerVar_),
-        collection_->clone().release(),
-        filter_ != nullptr ? filter_->clone().release() : nullptr,
-        mapping_ != nullptr ? mapping_->clone().release() : nullptr);
-    if (originString_ != nullptr) {
-        expr->setOriginString(new std::string(*originString_));
+Expression* ListComprehensionExpression::clone() const {
+    auto expr =
+        ListComprehensionExpression::make(pool_,
+                                          innerVar_,
+                                          collection_->clone(),
+                                          filter_ != nullptr ? filter_->clone() : nullptr,
+                                          mapping_ != nullptr ? mapping_->clone() : nullptr);
+    if (hasOriginString()) {
+        expr->setOriginString(originString_);
     }
     return expr;
 }
@@ -72,7 +73,7 @@ bool ListComprehensionExpression::operator==(const Expression& rhs) const {
 
     const auto& expr = static_cast<const ListComprehensionExpression&>(rhs);
 
-    if (*innerVar_ != *expr.innerVar_) {
+    if (innerVar_ != expr.innerVar_) {
         return false;
     }
 
@@ -107,7 +108,7 @@ void ListComprehensionExpression::writeTo(Encoder& encoder) const {
     encoder << Value(hasMapping());
     encoder << Value(hasOriginString());
 
-    encoder << innerVar_.get();
+    encoder << innerVar_;
     encoder << *collection_;
     if (hasFilter()) {
         encoder << *filter_;
@@ -116,7 +117,7 @@ void ListComprehensionExpression::writeTo(Encoder& encoder) const {
         encoder << *mapping_;
     }
     if (hasOriginString()) {
-        encoder << originString_.get();
+        encoder << originString_;
     }
 }
 
@@ -126,12 +127,12 @@ void ListComprehensionExpression::resetFrom(Decoder& decoder) {
     bool hasString = decoder.readValue().getBool();
 
     innerVar_ = decoder.readStr();
-    collection_ = decoder.readExpression();
+    collection_ = decoder.readExpression(pool_);
     if (hasFilter) {
-        filter_ = decoder.readExpression();
+        filter_ = decoder.readExpression(pool_);
     }
     if (hasMapping) {
-        mapping_ = decoder.readExpression();
+        mapping_ = decoder.readExpression(pool_);
     }
     if (hasString) {
         originString_ = decoder.readStr();
@@ -139,18 +140,11 @@ void ListComprehensionExpression::resetFrom(Decoder& decoder) {
 }
 
 std::string ListComprehensionExpression::toString() const {
-    if (originString_ != nullptr) {
-        return *originString_;
-    }
-    return makeString();
-}
-
-std::string ListComprehensionExpression::makeString() const {
     std::string buf;
     buf.reserve(256);
 
     buf += "[";
-    buf += *innerVar_;
+    buf += innerVar_;
     buf += " IN ";
     buf += collection_->toString();
     if (hasFilter()) {

@@ -66,6 +66,8 @@ struct SpaceInfoCache {
     Indexes tagIndexes_;
     Indexes edgeIndexes_;
     Listeners listeners_;
+    // objPool used to decode when adding field
+    ObjectPool pool_;
 };
 
 using LocalCache = std::unordered_map<GraphSpaceID, std::shared_ptr<SpaceInfoCache>>;
@@ -89,8 +91,8 @@ using SpaceAllEdgeMap = std::unordered_map<GraphSpaceID, std::vector<std::string
 struct LeaderInfo {
     // get leader host via spaceId and partId
     std::unordered_map<std::pair<GraphSpaceID, PartitionID>, HostAddr> leaderMap_;
-    // leader index of all peers
-    std::unordered_map<std::pair<GraphSpaceID, PartitionID>, size_t> leaderIndex_;
+    // index of picked host in all peers
+    std::unordered_map<std::pair<GraphSpaceID, PartitionID>, size_t> pickedIndex_;
 };
 
 using IndexStatus = std::tuple<std::string, std::string, std::string>;
@@ -106,6 +108,8 @@ using MetaConfigMap = std::unordered_map<std::pair<cpp2::ConfigModule, std::stri
 
 // get fulltext services
 using FulltextClientsList = std::vector<cpp2::FTClient>;
+
+using FTIndexMap = std::unordered_map<std::string, cpp2::FTIndex>;
 
 class MetaChangedListener {
 public:
@@ -421,11 +425,33 @@ public:
 
     StatusOr<std::vector<cpp2::FTClient>> getFTClientsFromCache();
 
+    // Opeartions for fulltext index.
+
+    folly::Future<StatusOr<bool>>
+    createFTIndex(const std::string& name, const cpp2::FTIndex& index);
+
+    folly::Future<StatusOr<bool>>
+    dropFTIndex(GraphSpaceID spaceId, const std::string& name);
+
+    folly::Future<StatusOr<std::unordered_map<std::string, cpp2::FTIndex>>>
+    listFTIndexes();
+
+    StatusOr<std::unordered_map<std::string, cpp2::FTIndex>> getFTIndexesFromCache();
+
+    StatusOr<std::unordered_map<std::string, cpp2::FTIndex>>
+    getFTIndexBySpaceFromCache(GraphSpaceID spaceId);
+
+    StatusOr<std::pair<std::string, cpp2::FTIndex>>
+    getFTIndexBySpaceSchemaFromCache(GraphSpaceID spaceId, int32_t schemaId);
+
+    StatusOr<cpp2::FTIndex>
+    getFTIndexByNameFromCache(GraphSpaceID spaceId, const std::string& name);
+
     // session
     folly::Future<StatusOr<cpp2::CreateSessionResp>> createSession(
             const std::string &userName, const HostAddr& graphAddr, const std::string &clientIp);
 
-    folly::Future<StatusOr<cpp2::ExecResp>>
+    folly::Future<StatusOr<cpp2::UpdateSessionsResp>>
     updateSessions(const std::vector<cpp2::Session>& sessions);
 
     folly::Future<StatusOr<cpp2::ListSessionsResp>> listSessions();
@@ -433,6 +459,9 @@ public:
     folly::Future<StatusOr<cpp2::GetSessionResp>> getSession(SessionID sessionId);
 
     folly::Future<StatusOr<cpp2::ExecResp>> removeSession(SessionID sessionId);
+
+    folly::Future<StatusOr<cpp2::ExecResp>> killQuery(
+        std::unordered_map<SessionID, std::unordered_set<ExecutionPlanID>> killQueries);
 
     // Opeartions for cache.
     StatusOr<GraphSpaceID> getSpaceIdByNameFromCache(const std::string& name);
@@ -544,6 +573,14 @@ public:
 
     StatusOr<std::vector<HostAddr>> getStorageHosts() const;
 
+    StatusOr<HostAddr> getStorageLeaderFromCache(GraphSpaceID spaceId, PartitionID partId);
+
+    void updateStorageLeader(GraphSpaceID spaceId, PartitionID partId, const HostAddr& leader);
+
+    void invalidStorageLeader(GraphSpaceID spaceId, PartitionID partId);
+
+    StatusOr<LeaderInfo> getLeaderInfo();
+
     folly::Future<StatusOr<bool>>
     addZone(std::string zoneName, std::vector<HostAddr> nodes);
 
@@ -581,8 +618,6 @@ public:
     listGroups();
 
     Status refreshCache();
-
-    StatusOr<LeaderInfo> loadLeader();
 
     folly::Future<StatusOr<cpp2::StatisItem>>
     getStatis(GraphSpaceID spaceId);
@@ -629,6 +664,11 @@ protected:
     bool loadListeners(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCache> cache);
 
     bool loadFulltextClients();
+
+    bool loadFulltextIndexes();
+
+    void loadLeader(const std::vector<cpp2::HostItem>& hostItems,
+                    const SpaceNameIdMap& spaceIndexByName);
 
     folly::Future<StatusOr<bool>> heartbeat();
 
@@ -687,10 +727,15 @@ private:
     std::shared_ptr<folly::IOThreadPoolExecutor> ioThreadPool_;
     std::shared_ptr<thrift::ThriftClientManager<cpp2::MetaServiceAsyncClient>> clientsMan_;
 
+    // leaderIdsLock_ is used to protect leaderIds_
     std::unordered_map<GraphSpaceID, std::vector<cpp2::LeaderInfo>> leaderIds_;
     folly::RWSpinLock     leaderIdsLock_;
     int64_t               localLastUpdateTime_{0};
     int64_t               metadLastUpdateTime_{0};
+
+    // leadersLock_ is used to protect leadersInfo
+    folly::RWSpinLock     leadersLock_;
+    LeaderInfo            leadersInfo_;
 
     LocalCache localCache_;
     std::vector<HostAddr> addrs_;
@@ -716,6 +761,7 @@ private:
     NameIndexMap          tagNameIndexMap_;
     NameIndexMap          edgeNameIndexMap_;
     FulltextClientsList   fulltextClientList_;
+    FTIndexMap            fulltextIndexMap_;
 
     mutable folly::RWSpinLock     localCacheLock_;
     // The listener_ is the NebulaStore

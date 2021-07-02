@@ -15,9 +15,10 @@ class UUIDExpression final : public Expression {
     friend class Expression;
 
 public:
-    explicit UUIDExpression(std::string* field = nullptr)
-        : Expression(Kind::kUUID)
-        , field_(field) {}
+    static UUIDExpression* make(ObjectPool* pool, const std::string& field = "") {
+        DCHECK(!!pool);
+        return pool->add(new UUIDExpression(pool, field));
+    }
 
     bool operator==(const Expression& rhs) const override;
 
@@ -27,17 +28,20 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<UUIDExpression>(new std::string(*field_));
+    Expression* clone() const override {
+        return UUIDExpression::make(pool_, field_);
     }
 
 private:
-    void writeTo(Encoder& encoder) const override;
+    explicit UUIDExpression(ObjectPool* pool, const std::string& field = "")
+        : Expression(pool, Kind::kUUID), field_(field) {}
 
+    void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
-    std::unique_ptr<std::string>                field_;
-    Value                                       result_;
+private:
+    std::string field_;
+    Value result_;
 };
 
 }   // namespace nebula

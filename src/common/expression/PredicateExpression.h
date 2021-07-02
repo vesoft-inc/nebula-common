@@ -23,15 +23,17 @@ public:
         NONE = 3,
     };
 
-    explicit PredicateExpression(std::string* name = nullptr,
-                                 std::string* innerVar = nullptr,
-                                 Expression* collection = nullptr,
-                                 Expression* filter = nullptr)
-        : Expression(Kind::kPredicate),
-          name_(name),
-          innerVar_(innerVar),
-          collection_(collection),
-          filter_(filter) {}
+    PredicateExpression& operator=(const PredicateExpression& rhs) = delete;
+    PredicateExpression& operator=(PredicateExpression&&) = delete;
+
+    static PredicateExpression* make(ObjectPool* pool,
+                                     const std::string& name = "",
+                                     const std::string& innerVar = "",
+                                     Expression* collection = nullptr,
+                                     Expression* filter = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new PredicateExpression(pool, name, innerVar, collection, filter));
+    }
 
     bool operator==(const Expression& rhs) const override;
 
@@ -39,66 +41,60 @@ public:
 
     std::string toString() const override;
 
+    std::string rawString() const override {
+        return hasOriginString() ? originString_ : toString();
+    }
+
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override;
+    Expression* clone() const override;
 
-    const std::string* name() const {
-        return name_.get();
+    const std::string& name() const {
+        return name_;
     }
 
-    std::string* name() {
-        return name_.get();
-    }
-
-    const std::string* innerVar() const {
-        return innerVar_.get();
-    }
-
-    std::string* innerVar() {
-        return innerVar_.get();
+    const std::string& innerVar() const {
+        return innerVar_;
     }
 
     const Expression* collection() const {
-        return collection_.get();
+        return collection_;
     }
 
     Expression* collection() {
-        return collection_.get();
+        return collection_;
     }
 
     const Expression* filter() const {
-        return filter_.get();
+        return filter_;
     }
 
     Expression* filter() {
-        return filter_.get();
+        return filter_;
     }
 
-    void setInnerVar(std::string* name) {
-        innerVar_.reset(name);
+    void setInnerVar(const std::string& name) {
+        innerVar_ = name;
     }
 
     void setCollection(Expression* expr) {
-        collection_.reset(expr);
+        collection_ = expr;
     }
 
     void setFilter(Expression* expr) {
-        filter_.reset(expr);
+        filter_ = expr;
     }
 
-    void setOriginString(std::string* s) {
-        originString_.reset(s);
+    void setOriginString(const std::string& s) {
+        originString_ = s;
     }
-
-    std::string makeString() const;
 
     bool hasOriginString() const {
-        return originString_ != nullptr;
+        return !originString_.empty();
     }
 
     bool hasInnerVar() const {
-        return innerVar_ != nullptr;
+        return !innerVar_.empty();
     }
 
     bool hasFilter() const {
@@ -106,19 +102,29 @@ public:
     }
 
 private:
+    explicit PredicateExpression(ObjectPool* pool,
+                                 const std::string& name = "",
+                                 const std::string& innerVar = "",
+                                 Expression* collection = nullptr,
+                                 Expression* filter = nullptr)
+        : Expression(pool, Kind::kPredicate),
+          name_(name),
+          innerVar_(innerVar),
+          collection_(collection),
+          filter_(filter) {}
+
     const Value& evalExists(ExpressionContext& ctx);
-
     void writeTo(Encoder& encoder) const override;
-
     void resetFrom(Decoder& decoder) override;
 
+private:
     static std::unordered_map<std::string, Type> typeMap_;
 
-    std::unique_ptr<std::string> name_;
-    std::unique_ptr<std::string> innerVar_;
-    std::unique_ptr<Expression> collection_;
-    std::unique_ptr<Expression> filter_;
-    std::unique_ptr<std::string> originString_;
+    std::string name_;
+    std::string innerVar_;
+    Expression* collection_;
+    Expression* filter_;
+    std::string originString_;
     Value result_;
 };
 
