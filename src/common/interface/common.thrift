@@ -261,6 +261,7 @@ enum ErrorCode {
     E_REBUILD_INDEX_FAILED            = -28,
     E_INVALID_PASSWORD                = -29,
     E_FAILED_GET_ABS_PATH             = -30,
+    E_RPC_TIMEOUT                     = -31,
 
 
     // 1xxx for graphd
