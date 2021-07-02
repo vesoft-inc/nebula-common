@@ -206,7 +206,8 @@ bool MetaClient::loadData() {
 
     for (auto space : ret.value()) {
         auto spaceId = space.first;
-        auto r = getPartsAlloc(spaceId).get();
+        MetaClient::PartTerms partTerms;
+        auto r = getPartsAlloc(spaceId, &partTerms).get();
         if (!r.ok()) {
             LOG(ERROR) << "Get parts allocation failed for spaceId " << spaceId
                        << ", status " << r.status();
@@ -218,6 +219,7 @@ bool MetaClient::loadData() {
         auto& spaceName = space.second;
         spaceCache->partsOnHost_ = reverse(partsAlloc);
         spaceCache->partsAlloc_ = std::move(partsAlloc);
+        spaceCache->termOfPartition_ = std::move(partTerms);
         VLOG(2) << "Load space " << spaceId
                 << ", parts num:" << spaceCache->partsAlloc_.size();
 
@@ -327,14 +329,18 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
     EdgeSchemas edgeSchemas;
     TagID lastTagId = -1;
 
-    auto addSchemaField = [] (NebulaSchemaProvider *schema, const cpp2::ColumnDef &col) {
+    auto addSchemaField = [&spaceInfoCache](NebulaSchemaProvider* schema,
+                                            const cpp2::ColumnDef& col) {
         bool hasDef = col.default_value_ref().has_value();
         auto& colType = col.get_type();
         size_t len = colType.type_length_ref().has_value() ? *colType.get_type_length() : 0;
         bool nullable = col.nullable_ref().has_value() ? *col.get_nullable() : false;
-        std::unique_ptr<Expression> defaultValueExpr;
+        Expression* defaultValueExpr = nullptr;
         if (hasDef) {
-            defaultValueExpr = Expression::decode(*col.get_default_value());
+            auto encoded = *col.get_default_value();
+            defaultValueExpr = Expression::decode(
+                &(spaceInfoCache->pool_), folly::StringPiece(encoded.data(), encoded.size()));
+
             if (defaultValueExpr == nullptr) {
                 LOG(ERROR) << "Wrong expr default value for column name: " << col.get_name();
                 hasDef = false;
@@ -345,7 +351,7 @@ bool MetaClient::loadSchemas(GraphSpaceID spaceId,
                          colType.get_type(),
                          len,
                          nullable,
-                         hasDef ? defaultValueExpr.release() : nullptr);
+                         hasDef ? defaultValueExpr : nullptr);
     };
 
     for (auto& tagIt : tagItemVec) {
@@ -1165,7 +1171,7 @@ MetaClient::listParts(GraphSpaceID spaceId, std::vector<PartitionID> partIds) {
 
 
 folly::Future<StatusOr<std::unordered_map<PartitionID, std::vector<HostAddr>>>>
-MetaClient::getPartsAlloc(GraphSpaceID spaceId) {
+MetaClient::getPartsAlloc(GraphSpaceID spaceId, PartTerms* partTerms) {
     cpp2::GetPartsAllocReq req;
     req.set_space_id(spaceId);
     folly::Promise<StatusOr<std::unordered_map<PartitionID, std::vector<HostAddr>>>> promise;
@@ -1174,10 +1180,15 @@ MetaClient::getPartsAlloc(GraphSpaceID spaceId) {
                 [] (auto client, auto request) {
                     return client->future_getPartsAlloc(request);
                 },
-                [] (cpp2::GetPartsAllocResp&& resp) -> decltype(auto) {
+                [=] (cpp2::GetPartsAllocResp&& resp) -> decltype(auto) {
                     std::unordered_map<PartitionID, std::vector<HostAddr>> parts;
                     for (auto it = resp.get_parts().begin(); it != resp.get_parts().end(); it++) {
                         parts.emplace(it->first, it->second);
+                    }
+                    if (partTerms && resp.terms_ref().has_value()) {
+                        for (auto& termOfPart : resp.terms_ref().value()) {
+                            (*partTerms)[termOfPart.first] = termOfPart.second;
+                        }
                     }
                     return parts;
                 },
@@ -2400,6 +2411,22 @@ bool MetaClient::checkShadowAccountFromCache(const std::string& account) const {
         return true;
     }
     return false;
+}
+
+TermID MetaClient::getTermFromCache(GraphSpaceID spaceId, PartitionID partId) const {
+    static TermID notFound = -1;
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceInfo = localCache_.find(spaceId);
+    if (spaceInfo == localCache_.end()) {
+        return notFound;
+    }
+
+    auto termInfo = spaceInfo->second->termOfPartition_.find(partId);
+    if (termInfo == spaceInfo->second->termOfPartition_.end()) {
+        return notFound;
+    }
+
+    return termInfo->second;
 }
 
 StatusOr<std::vector<HostAddr>> MetaClient::getStorageHosts() const {
@@ -3648,17 +3675,17 @@ MetaClient::createSession(const std::string &userName,
     return future;
 }
 
-folly::Future<StatusOr<cpp2::ExecResp>>
+folly::Future<StatusOr<cpp2::UpdateSessionsResp>>
 MetaClient::updateSessions(const std::vector<cpp2::Session>& sessions) {
     cpp2::UpdateSessionsReq req;
     req.set_sessions(sessions);
-    folly::Promise<StatusOr<cpp2::ExecResp>> promise;
+    folly::Promise<StatusOr<cpp2::UpdateSessionsResp>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
                     return client->future_updateSessions(request);
                 },
-                [] (cpp2::ExecResp&& resp) -> decltype(auto){
+                [] (cpp2::UpdateSessionsResp&& resp) -> decltype(auto){
                     return std::move(resp);
                 },
                 std::move(promise),
@@ -3705,6 +3732,24 @@ folly::Future<StatusOr<cpp2::ExecResp>> MetaClient::removeSession(SessionID sess
     getResponse(std::move(req),
                 [] (auto client, auto request) {
                     return client->future_removeSession(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> decltype(auto){
+                    return std::move(resp);
+                },
+                std::move(promise),
+                true);
+    return future;
+}
+
+folly::Future<StatusOr<cpp2::ExecResp>> MetaClient::killQuery(
+    std::unordered_map<SessionID, std::unordered_set<ExecutionPlanID>> killQueries) {
+    cpp2::KillQueryReq req;
+    req.set_kill_queries(std::move(killQueries));
+    folly::Promise<StatusOr<cpp2::ExecResp>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_killQuery(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> decltype(auto){
                     return std::move(resp);
