@@ -68,6 +68,7 @@ struct SpaceInfoCache {
     Listeners listeners_;
     // objPool used to decode when adding field
     ObjectPool pool_;
+    std::unordered_map<PartitionID, TermID> termOfPartition_;
 };
 
 using LocalCache = std::unordered_map<GraphSpaceID, std::shared_ptr<SpaceInfoCache>>;
@@ -221,8 +222,9 @@ public:
     folly::Future<StatusOr<std::vector<cpp2::PartItem>>>
     listParts(GraphSpaceID spaceId, std::vector<PartitionID> partIds);
 
+    using PartTerms = std::unordered_map<PartitionID, TermID>;
     folly::Future<StatusOr<PartsAlloc>>
-    getPartsAlloc(GraphSpaceID spaceId);
+    getPartsAlloc(GraphSpaceID spaceId, MetaClient::PartTerms* partTerms = nullptr);
 
     // Operations for schema
     folly::Future<StatusOr<TagID>> createTagSchema(GraphSpaceID spaceId,
@@ -451,7 +453,7 @@ public:
     folly::Future<StatusOr<cpp2::CreateSessionResp>> createSession(
             const std::string &userName, const HostAddr& graphAddr, const std::string &clientIp);
 
-    folly::Future<StatusOr<cpp2::ExecResp>>
+    folly::Future<StatusOr<cpp2::UpdateSessionsResp>>
     updateSessions(const std::vector<cpp2::Session>& sessions);
 
     folly::Future<StatusOr<cpp2::ListSessionsResp>> listSessions();
@@ -459,6 +461,9 @@ public:
     folly::Future<StatusOr<cpp2::GetSessionResp>> getSession(SessionID sessionId);
 
     folly::Future<StatusOr<cpp2::ExecResp>> removeSession(SessionID sessionId);
+
+    folly::Future<StatusOr<cpp2::ExecResp>> killQuery(
+        std::unordered_map<SessionID, std::unordered_set<ExecutionPlanID>> killQueries);
 
     // Opeartions for cache.
     StatusOr<GraphSpaceID> getSpaceIdByNameFromCache(const std::string& name);
@@ -567,6 +572,8 @@ public:
     bool authCheckFromCache(const std::string& account, const std::string& password) const;
 
     bool checkShadowAccountFromCache(const std::string& account) const;
+
+    TermID getTermFromCache(GraphSpaceID spaceId, PartitionID) const;
 
     StatusOr<std::vector<HostAddr>> getStorageHosts() const;
 

@@ -4,6 +4,8 @@
  * attached with Common Clause Condition 1.0, found in the LICENSES directory.
  */
 
+#include <boost/algorithm/string/replace.hpp>
+
 #include "FunctionManager.h"
 
 #include "common/base/Base.h"
@@ -1522,11 +1524,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             switch (args.size()) {
                 case 0: {
-                    auto result = time::TimeUtils::utcTime();
-                    if (!result.ok()) {
-                        return Value::kNullBadData;
-                    }
-                    return Value(std::move(result).value());
+                    return Value(time::TimeUtils::utcTime());
                 }
                 case 1: {
                     if (args[0].get().isStr()) {
@@ -1560,11 +1558,7 @@ FunctionManager::FunctionManager() {
         attr.body_ = [](const auto &args) -> Value {
             switch (args.size()) {
                 case 0: {
-                    auto result = time::TimeUtils::utcDateTime();
-                    if (!result.ok()) {
-                        return Value::kNullBadData;
-                    }
-                    return Value(std::move(result).value());
+                    return Value(time::TimeUtils::utcDateTime());
                 }
                 case 1: {
                     if (args[0].get().isStr()) {
