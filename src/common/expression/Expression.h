@@ -8,6 +8,7 @@
 #define COMMON_EXPRESSION_EXPRESSION_H_
 
 #include "common/base/Base.h"
+#include "common/base/ObjectPool.h"
 #include "common/datatypes/Value.h"
 #include "common/context/ExpressionContext.h"
 
@@ -110,9 +111,14 @@ public:
     };
 
 
-    explicit Expression(Kind kind) : kind_(kind) {}
+    // explicit Expression(Kind kind) : kind_(kind) {}
 
+    explicit Expression(ObjectPool* pool, Kind kind) : pool_(pool), kind_(kind) {}
     virtual ~Expression() = default;
+
+    Expression& operator=(const Expression& rhs) = delete;
+    Expression& operator=(Expression&&) = delete;
+    Expression(const Expression&) = delete;
 
     Kind kind() const {
         return kind_;
@@ -131,16 +137,24 @@ public:
 
     virtual std::string toString() const = 0;
 
+    virtual std::string rawString() const {
+        return toString();
+    }
+
     virtual void accept(ExprVisitor* visitor) = 0;
 
     // Deep copy
-    virtual std::unique_ptr<Expression> clone() const = 0;
+    virtual Expression* clone() const = 0;
 
     std::string encode() const;
 
     static std::string encode(const Expression& exp);
 
-    static std::unique_ptr<Expression> decode(folly::StringPiece encoded);
+    static Expression* decode(ObjectPool* pool, folly::StringPiece encoded);
+
+    ObjectPool* getObjPool() const {
+        return pool_;
+    }
 
     virtual bool isLogicalExpr() const {
         return false;
@@ -161,7 +175,7 @@ protected:
         std::string moveStr();
 
         Encoder& operator<<(Kind kind) noexcept;
-        Encoder& operator<<(const std::string* str) noexcept;
+        Encoder& operator<<(const std::string& str) noexcept;
         Encoder& operator<<(const Value& val) noexcept;
         Encoder& operator<<(size_t size) noexcept;
         Encoder& operator<<(Value::Type vType) noexcept;
@@ -178,11 +192,11 @@ protected:
         bool finished() const;
 
         Kind readKind() noexcept;
-        std::unique_ptr<std::string> readStr() noexcept;
+        std::string readStr() noexcept;
         Value readValue() noexcept;
         size_t readSize() noexcept;
         Value::Type readValueType() noexcept;
-        std::unique_ptr<Expression> readExpression() noexcept;
+        Expression* readExpression(ObjectPool* pool) noexcept;
 
         // Convert the unprocessed part into the hex string
         std::string getHexStr() const;
@@ -193,13 +207,15 @@ protected:
     };
 
 protected:
-    static std::unique_ptr<Expression> decode(Decoder& decoder);
+    static Expression* decode(ObjectPool* pool, Decoder& decoder);
 
     // Serialize the content of the expression to the given encoder
     virtual void writeTo(Encoder& encoder) const = 0;
 
     // Reset the content of the expression from the given decoder
     virtual void resetFrom(Decoder& decoder) = 0;
+
+    ObjectPool* pool_;
 
     Kind kind_;
 };

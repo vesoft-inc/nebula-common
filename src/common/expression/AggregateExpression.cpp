@@ -14,12 +14,12 @@ bool AggregateExpression::operator==(const Expression& rhs) const {
     }
 
     const auto& r = static_cast<const AggregateExpression&>(rhs);
-    return *name_ == *(r.name_) && *arg_ == *(r.arg_);
+    return name_ == r.name_ && *arg_ == *(r.arg_);
 }
 
 void AggregateExpression::writeTo(Encoder& encoder) const {
     encoder << kind_;
-    encoder << name_.get();
+    encoder << name_;
     encoder << Value(distinct_);
     if (arg_) {
         encoder << *arg_;
@@ -29,8 +29,8 @@ void AggregateExpression::writeTo(Encoder& encoder) const {
 void AggregateExpression::resetFrom(Decoder& decoder) {
     name_ = decoder.readStr();
     distinct_ = decoder.readValue().getBool();
-    arg_ = decoder.readExpression();
-    auto aggFuncResult = AggFunctionManager::get(*DCHECK_NOTNULL(name_));
+    arg_ = decoder.readExpression(pool_);
+    auto aggFuncResult = AggFunctionManager::get(name_);
     if (aggFuncResult.ok()) {
         aggFunc_ = std::move(aggFuncResult).value();
     }
@@ -54,14 +54,14 @@ const Value& AggregateExpression::eval(ExpressionContext& ctx) {
 }
 
 void AggregateExpression::apply(AggData* aggData, const Value& val) {
-    AggFunctionManager::get(*name_).value()(aggData, val);
+    AggFunctionManager::get(name_).value()(aggData, val);
 }
 
 std::string AggregateExpression::toString() const {
     // TODO fix it
     std::string arg;
     if (arg_->kind() == Expression::Kind::kConstant) {
-        const auto* argExpr = static_cast<const ConstantExpression*>(arg_.get());
+        const auto* argExpr = static_cast<const ConstantExpression*>(arg_);
         if (argExpr->value().isStr()) {
             arg = argExpr->value().getStr();
         } else {
@@ -75,7 +75,7 @@ std::string AggregateExpression::toString() const {
         isDistinct = "distinct ";
     }
     std::stringstream out;
-    out << *name_ << "(" << isDistinct << arg << ")";
+    out << name_ << "(" << isDistinct << arg << ")";
     return out.str();
 }
 

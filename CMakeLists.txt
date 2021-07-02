@@ -23,7 +23,7 @@
 #   ENABLE_PACK_ONE                 -- Package to one or multi packages
 #
 # CMake version check
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.9.0)
 
 # Set the project name
 project("Nebula Common" C CXX)
@@ -50,6 +50,10 @@ include(GitHooksConfig)
 include(GitInfoConfig)
 include(NebulaCustomTargets)
 include(ClangTidy)
+
+if (NEBULA_BUILD_VERSION)
+    add_definitions(-DNEBULA_BUILD_VERSION=${NEBULA_BUILD_VERSION})
+endif()
 
 # Remove the target exporting file
 file(REMOVE ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}-config.cmake)

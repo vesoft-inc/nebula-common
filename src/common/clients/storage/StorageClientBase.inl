@@ -89,82 +89,31 @@ StorageClientBase<ClientType>::~StorageClientBase() {
     }
 }
 
-
-template<typename ClientType>
-void StorageClientBase<ClientType>::loadLeader() const {
-    if (loadLeaderBefore_) {
-        return;
-    }
-    bool expected = false;
-    if (isLoadingLeader_.compare_exchange_strong(expected, true)) {
-        CHECK(metaClient_ != nullptr);
-        auto status = metaClient_->loadLeader();
-        if (status.ok()) {
-            folly::RWSpinLock::WriteHolder wh(leadersLock_);
-            auto info = status.value();
-            leaders_ = std::move(info.leaderMap_);
-            leaderIndex_ = std::move(info.leaderIndex_);
-            loadLeaderBefore_ = true;
-        }
-        isLoadingLeader_ = false;
-    }
-}
-
-
 template<typename ClientType>
 StatusOr<HostAddr>
 StorageClientBase<ClientType>::getLeader(GraphSpaceID spaceId, PartitionID partId) const {
-    loadLeader();
-    auto part = std::make_pair(spaceId, partId);
-    {
-        folly::RWSpinLock::ReadHolder rh(leadersLock_);
-        auto it = leaders_.find(part);
-        if (it != leaders_.end()) {
-            return it->second;
-        }
-    }
-    {
-        auto metaStatus = getPartHosts(spaceId, partId);
-        if (!metaStatus.ok()) {
-            return metaStatus.status();
-        }
-        auto partHosts = metaStatus.value();
-
-        folly::RWSpinLock::WriteHolder wh(leadersLock_);
-        VLOG(1) << "No leader exists. Choose one in round-robin.";
-        auto index = (leaderIndex_[part] + 1) % partHosts.hosts_.size();
-        auto picked = partHosts.hosts_[index];
-        leaders_[part] = picked;
-        leaderIndex_[part] = index;
-        return picked;
-    }
+    return metaClient_->getStorageLeaderFromCache(spaceId, partId);
 }
 
 template<typename ClientType>
 void StorageClientBase<ClientType>::updateLeader(GraphSpaceID spaceId,
                                                  PartitionID partId,
                                                  const HostAddr& leader) {
-    LOG(INFO) << "Update the leader for [" << spaceId << ", " << partId << "] to " << leader;
-    folly::RWSpinLock::WriteHolder wh(leadersLock_);
-    leaders_[std::make_pair(spaceId, partId)] = leader;
+    metaClient_->updateStorageLeader(spaceId, partId, leader);
 }
 
 
 template<typename ClientType>
 void StorageClientBase<ClientType>::invalidLeader(GraphSpaceID spaceId,
                                                   PartitionID partId) {
-    LOG(INFO) << "Invalidate the leader for [" << spaceId << ", " << partId << "]";
-    folly::RWSpinLock::WriteHolder wh(leadersLock_);
-    leaders_.erase(std::make_pair(spaceId, partId));
+    metaClient_->invalidStorageLeader(spaceId, partId);
 }
 
 template<typename ClientType>
 void StorageClientBase<ClientType>::invalidLeader(GraphSpaceID spaceId,
                                                   std::vector<PartitionID> &partsId) {
-    folly::RWSpinLock::WriteHolder wh(leadersLock_);
     for (const auto &partId : partsId) {
-        LOG(INFO) << "Invalidate the leader for [" << spaceId << ", " << partId << "]";
-        leaders_.erase(std::make_pair(spaceId, partId));
+        invalidLeader(spaceId, partId);
     }
 }
 
@@ -214,7 +163,7 @@ StorageClientBase<ClientType>::collectResponse(
                     LOG(ERROR) << "Request to " << host
                                << " failed: " << val.exception().what();
                     auto parts = getReqPartsId(r);
-                    context->resp.appendFailedParts(parts, storage::cpp2::ErrorCode::E_RPC_FAILURE);
+                    context->resp.appendFailedParts(parts, nebula::cpp2::ErrorCode::E_RPC_FAILURE);
                     invalidLeader(spaceId, parts);
                     context->resp.markFailure();
                 } else {
@@ -226,15 +175,15 @@ StorageClientBase<ClientType>::collectResponse(
                                 << ", failed code " << static_cast<int32_t>(code.get_code());
                         hasFailure = true;
                         context->resp.emplaceFailedPart(code.get_part_id(), code.get_code());
-                        if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
+                        if (code.get_code() == nebula::cpp2::ErrorCode::E_LEADER_CHANGED) {
                             auto* leader = code.get_leader();
                             if (isValidHostPtr(leader)) {
                                 updateLeader(spaceId, code.get_part_id(), *leader);
                             } else {
                                 invalidLeader(spaceId, code.get_part_id());
                             }
-                        } else if (code.get_code() == cpp2::ErrorCode::E_PART_NOT_FOUND ||
-                                   code.get_code() == cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
+                        } else if (code.get_code() == nebula::cpp2::ErrorCode::E_PART_NOT_FOUND ||
+                                   code.get_code() == nebula::cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
                             invalidLeader(spaceId, code.get_part_id());
                         } else {
                             // do nothing
@@ -325,15 +274,15 @@ void StorageClientBase<ClientType>::getResponseImpl(
             for (auto& code : result.get_failed_parts()) {
                 VLOG(3) << "Failure! Failed part " << code.get_part_id()
                         << ", failed code " << static_cast<int32_t>(code.get_code());
-                if (code.get_code() == storage::cpp2::ErrorCode::E_LEADER_CHANGED) {
+                if (code.get_code() == nebula::cpp2::ErrorCode::E_LEADER_CHANGED) {
                     auto* leader = code.get_leader();
                     if (isValidHostPtr(leader)) {
                         updateLeader(spaceId, code.get_part_id(), *leader);
                     } else {
                         invalidLeader(spaceId, code.get_part_id());
                     }
-                } else if (code.get_code() == storage::cpp2::ErrorCode::E_PART_NOT_FOUND ||
-                           code.get_code() == storage::cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
+                } else if (code.get_code() == nebula::cpp2::ErrorCode::E_PART_NOT_FOUND ||
+                           code.get_code() == nebula::cpp2::ErrorCode::E_SPACE_NOT_FOUND) {
                     invalidLeader(spaceId, code.get_part_id());
                 }
             }

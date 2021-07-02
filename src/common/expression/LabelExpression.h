@@ -15,42 +15,40 @@ namespace nebula {
 
 class LabelExpression: public Expression {
 public:
-    explicit LabelExpression(std::string* name = nullptr)
-        : Expression(Kind::kLabel) {
-        if (name == nullptr) {
-            name_.reset(new std::string(""));
-        } else {
-            name_.reset(name);
-        }
-    }
+    LabelExpression& operator=(const LabelExpression& rhs) = delete;
+    LabelExpression& operator=(LabelExpression&&) = delete;
 
-    explicit LabelExpression(std::string name)
-        : LabelExpression(new std::string(std::move(name))) {
+    static LabelExpression* make(ObjectPool* pool, const std::string& name = "") {
+        DCHECK(!!pool);
+        return pool->add(new LabelExpression(pool, name));
     }
 
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext& ctx) override;
 
-    const std::string *name() const {
-        return name_.get();
+    const std::string &name() const {
+        return name_;
     }
 
     std::string toString() const override;
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<LabelExpression>(*name());
+    Expression* clone() const override {
+        return LabelExpression::make(pool_, name());
     }
 
 protected:
-    void writeTo(Encoder& encoder) const override;
+    explicit LabelExpression(ObjectPool* pool, const std::string& name = "")
+        : Expression(pool, Kind::kLabel), name_(name) {}
 
+    void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
-    std::unique_ptr<std::string>    name_;
-    Value                           result_;
+protected:
+    std::string name_;
+    Value result_;
 };
 
 }  // namespace nebula

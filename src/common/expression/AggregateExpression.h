@@ -12,23 +12,20 @@
 #include "common/function/AggFunctionManager.h"
 
 namespace nebula {
+
 class AggregateExpression final : public Expression {
     friend class Expression;
 
 public:
-    explicit AggregateExpression(std::string* name = nullptr,
-                                 Expression* arg = nullptr,
-                                 bool distinct = false)
-        : Expression(Kind::kAggregate) {
-        arg_.reset(arg);
-        name_.reset(name);
-        distinct_ = distinct;
-        if (name_) {
-            auto aggFuncResult = AggFunctionManager::get(*name_);
-            if (aggFuncResult.ok()) {
-                aggFunc_ = std::move(aggFuncResult).value();
-            }
-        }
+    AggregateExpression& operator=(const AggregateExpression& rhs) = delete;
+    AggregateExpression& operator=(AggregateExpression&&) = delete;
+
+    static AggregateExpression* make(ObjectPool* pool,
+                                     const std::string& name = "",
+                                     Expression* arg = nullptr,
+                                     bool distinct = false) {
+        DCHECK(!!pool);
+        return pool->add(new AggregateExpression(pool, name, arg, distinct));
     }
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -41,26 +38,25 @@ public:
 
     void accept(ExprVisitor* visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        auto arg = arg_->clone();
-        return std::make_unique<AggregateExpression>(
-            new std::string(*name_), std::move(arg).release(), distinct_);
+    Expression* clone() const override {
+        auto argCopy = arg()->clone();
+        return AggregateExpression::make(pool_, name_, argCopy, distinct_);
     }
 
-    const std::string* name() const {
-        return name_.get();
+    const std::string& name() const {
+        return name_;
     }
 
     const Expression* arg() const {
-        return arg_.get();
+        return arg_;
     }
 
     Expression* arg() {
-        return arg_.get();
+        return arg_;
     }
 
     void setArg(Expression* arg) {
-        arg_.reset(arg);
+        arg_ = arg;
     }
 
     bool distinct() {
@@ -84,11 +80,24 @@ public:
     }
 
 private:
+    explicit AggregateExpression(ObjectPool* pool,
+                                 const std::string& name = "",
+                                 Expression* arg = nullptr,
+                                 bool distinct = false)
+        : Expression(pool, Kind::kAggregate), name_(name), distinct_(distinct) {
+        arg_ = arg;
+        auto aggFuncResult = AggFunctionManager::get(name_);
+        if (aggFuncResult.ok()) {
+            aggFunc_ = std::move(aggFuncResult).value();
+        }
+    }
+
     void writeTo(Encoder& encoder) const override;
     void resetFrom(Decoder& decoder) override;
 
-    std::unique_ptr<std::string> name_;
-    std::unique_ptr<Expression> arg_;
+private:
+    std::string name_;
+    Expression* arg_;
     bool distinct_{false};
     AggData* aggData_{nullptr};
 

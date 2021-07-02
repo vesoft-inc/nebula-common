@@ -81,12 +81,12 @@ add_custom_command(
   OUTPUT ${${file_name}-cpp2-HEADERS} ${${file_name}-cpp2-SOURCES}
   COMMAND ${THRIFT1}
     --strict "--allow-neg-enum-vals"
-    --gen "mstch_cpp2:include_prefix=${include_prefix},process_in_event_base,stack_arguments"
+    --gen "mstch_cpp2:include_prefix=${include_prefix},stack_arguments"
     --gen "py"
     --gen "js:node:"
     --gen "csharp"
     --gen "java:hashcode"
-    --gen "go:thrift_import=github.com/facebook/fbthrift/thrift/lib/go/thrift,package_prefix=github.com/vesoft-inc/nebula-go/,use_context"
+    --gen "go:thrift_import=github.com/facebook/fbthrift/thrift/lib/go/thrift,package_prefix=github.com/vesoft-inc/nebula-go/v2/,use_context"
     -o "." "${file_path}/${file_name}.thrift"
   COMMAND
     mkdir -p "./gen-rust/${file_name}"

@@ -54,7 +54,7 @@ public:
         }
 
         Expression* defaultValue() const override {
-            return defaultValue_.get();
+            return defaultValue_;
         }
 
         size_t size() const override {
@@ -75,7 +75,7 @@ public:
         cpp2::PropertyType type_;
         bool nullable_;
         bool hasDefault_;
-        std::unique_ptr<Expression> defaultValue_;
+        Expression* defaultValue_;
         size_t size_;
         size_t offset_;
         size_t nullFlagPos_;
@@ -94,14 +94,14 @@ public:
     // Returns the total space in bytes occupied by the fields_
     size_t size() const noexcept override;
 
-    int64_t getFieldIndex(const folly::StringPiece name) const override;
+    int64_t getFieldIndex(const std::string& name) const override;
     const char* getFieldName(int64_t index) const override;
 
     cpp2::PropertyType getFieldType(int64_t index) const override;
-    cpp2::PropertyType getFieldType(const folly::StringPiece name) const override;
+    cpp2::PropertyType getFieldType(const std::string& name) const override;
 
     const SchemaProviderIf::Field* field(int64_t index) const override;
-    const SchemaProviderIf::Field* field(const folly::StringPiece name) const override;
+    const SchemaProviderIf::Field* field(const std::string& name) const override;
 
     void addField(folly::StringPiece name,
                   cpp2::PropertyType type,

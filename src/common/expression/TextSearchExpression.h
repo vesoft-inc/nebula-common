@@ -14,36 +14,38 @@ namespace nebula {
 
 class TextSearchArgument final {
 public:
-    TextSearchArgument(std::string* from, std::string* prop, std::string* val) {
-        from_.reset(from);
-        prop_.reset(prop);
-        val_.reset(val);
+    static TextSearchArgument* make(ObjectPool* pool,
+                                    const std::string& from,
+                                    const std::string& prop,
+                                    const std::string& val) {
+        DCHECK(!!pool);
+        return pool->add(new TextSearchArgument(from, prop, val));
     }
 
     ~TextSearchArgument() = default;
 
-    void setVal(std::string *val) {
-        val_.reset(val);
+    void setVal(const std::string &val) {
+        val_ = val;
     }
 
-    const std::string* from() {
-        return from_.get();
+    const std::string& from() {
+        return from_;
     }
 
-    const std::string* prop() {
-        return prop_.get();
+    const std::string& prop() {
+        return prop_;
     }
 
-    const std::string* val() const {
-        return val_.get();
+    const std::string& val() const {
+        return val_;
     }
 
-    void setOP(std::string *op) {
-        op_.reset(op);
+    void setOP(const std::string &op) {
+        op_ = op;
     }
 
-    const std::string* op() const {
-        return op_.get();
+    const std::string& op() const {
+        return op_;
     }
 
     void setFuzziness(int32_t fuzz) {
@@ -75,28 +77,46 @@ public:
     std::string toString() const;
 
 private:
-    std::unique_ptr<std::string>                from_{nullptr};
-    std::unique_ptr<std::string>                prop_{nullptr};
-    std::unique_ptr<std::string>                val_{nullptr};
-    std::unique_ptr<std::string>                op_{nullptr};
-    int32_t                                     fuzziness_{-2};
-    int32_t                                     limit_{100};
-    int32_t                                     timeout_{200};
+    TextSearchArgument(const std::string& from, const std::string& prop, const std::string& val)
+        : from_(from), prop_(prop), val_(val) {}
+
+private:
+    std::string from_;
+    std::string prop_;
+    std::string val_;
+    std::string op_;
+    int32_t fuzziness_{-2};
+    int32_t limit_{100};
+    int32_t timeout_{200};
 };
 
 class TextSearchExpression : public Expression {
-    friend class Expression;
-
 public:
-    TextSearchExpression(Kind kind, TextSearchArgument* arg)
-        : Expression(kind) {
-        arg_.reset(arg);
+    static TextSearchExpression* makePrefix(ObjectPool* pool, TextSearchArgument* arg) {
+        DCHECK(!!pool);
+        return pool->add(new TextSearchExpression(pool, Kind::kTSPrefix, arg));
+    }
+
+    static TextSearchExpression* makeWildcard(ObjectPool* pool, TextSearchArgument* arg) {
+        DCHECK(!!pool);
+        return pool->add(new TextSearchExpression(pool, Kind::kTSWildcard, arg));
+    }
+
+    static TextSearchExpression* makeRegexp(ObjectPool* pool, TextSearchArgument* arg) {
+        DCHECK(!!pool);
+        return pool->add(new TextSearchExpression(pool, Kind::kTSRegexp, arg));
+    }
+
+    static TextSearchExpression* makeFuzzy(ObjectPool* pool, TextSearchArgument* arg) {
+        DCHECK(!!pool);
+        return pool->add(new TextSearchExpression(pool, Kind::kTSFuzzy, arg));
     }
 
     bool operator==(const Expression& rhs) const override;
 
     const Value& eval(ExpressionContext&) override {
         LOG(FATAL) << "TextSearchExpression has to be rewritten";
+        return Value::kNullBadData;
     }
 
     void accept(ExprVisitor*) override {
@@ -105,23 +125,29 @@ public:
 
     std::string toString() const override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<TextSearchExpression>(kind_, arg_.get());
+    Expression* clone() const override {
+        auto arg = TextSearchArgument::make(pool_, arg_->from(), arg_->prop(), arg_->val());
+        return pool_->add(new TextSearchExpression(pool_, kind_, arg));
     }
 
     const TextSearchArgument* arg() const {
-        return arg_.get();
+        return arg_;
     }
 
     TextSearchArgument* arg() {
-        return arg_.get();
+        return arg_;
     }
 
     void setArgs(TextSearchArgument* arg) {
-        arg_.reset(arg);
+        arg_ = arg;
     }
 
 private:
+    TextSearchExpression(ObjectPool* pool, Kind kind, TextSearchArgument* arg)
+        : Expression(pool, kind) {
+        arg_ = arg;
+    }
+
     void writeTo(Encoder&) const override {
         LOG(FATAL) << "TextSearchExpression has to be rewritten";
     }
@@ -131,7 +157,7 @@ private:
     }
 
 private:
-    std::unique_ptr<TextSearchArgument>   arg_;
+    TextSearchArgument* arg_{nullptr};
 };
 
 }   // namespace nebula
