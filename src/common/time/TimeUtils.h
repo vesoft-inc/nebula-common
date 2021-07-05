@@ -11,17 +11,15 @@
 #include <limits>
 #include <vector>
 
-#include <gflags/gflags_declare.h>
-
 #include "common/base/Status.h"
 #include "common/base/StatusOr.h"
 #include "common/datatypes/Date.h"
 #include "common/datatypes/Map.h"
 #include "common/fs/FileUtils.h"
 #include "common/time/TimeParser.h"
+#include "common/time/TimeConversion.h"
 #include "common/time/TimezoneInfo.h"
-
-DECLARE_string(timezone_name);
+#include "common/time/WallClock.h"
 
 namespace nebula {
 namespace time {
@@ -33,11 +31,6 @@ class TimeUtils {
 public:
     explicit TimeUtils(...) = delete;
 
-    // TODO(shylock) Get Timzone info(I.E. GMT offset) directly from IANA tzdb
-    // to support non-global timezone configuration
-    // See the timezone format from https://man7.org/linux/man-pages/man3/tzset.3.html
-    static Status initializeGlobalTimezone();
-
     // check the validation of date
     // not check range limit in here
     // I.E. 2019-02-31
@@ -45,7 +38,7 @@ public:
               typename = std::enable_if_t<std::is_same<D, Date>::value ||
                                           std::is_same<D, DateTime>::value>>
     static Status validateDate(const D &date) {
-        const int64_t *p = isLeapYear(date.year) ? kLeapDaysSoFar : kDaysSoFar;
+        const int64_t *p = TimeConversion::isLeapYear(date.year) ? kLeapDaysSoFar : kDaysSoFar;
         if ((p[date.month] - p[date.month - 1]) < date.day) {
             return Status::Error("`%s' is not a valid date.", date.toString().c_str());
         }
@@ -62,62 +55,30 @@ public:
 
     static StatusOr<DateTime> dateTimeFromMap(const Map &m);
 
-    // https://en.wikipedia.org/wiki/Leap_year#Leap_day
-    static bool isLeapYear(int16_t year) {
-        if (year % 4 != 0) {
-            return false;
-        } else if (year % 100 != 0) {
-            return true;
-        } else if (year % 400 != 0) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    static int64_t dateTimeDiffSeconds(const DateTime &dateTime0, const DateTime &dateTime1);
-
-    // unix time
-    static int64_t dateTimeToUnixSeconds(const DateTime &dateTime) {
-        return dateTimeDiffSeconds(dateTime, kEpoch);
-    }
-
-    static DateTime unixSecondsToDateTime(int64_t seconds);
-
-    // Shift the DateTime in timezone space
-    static DateTime dateTimeShift(const DateTime &dateTime, int64_t offsetSeconds) {
-        if (offsetSeconds == 0) {
-            return dateTime;
-        }
-        auto dt = unixSecondsToDateTime(dateTimeToUnixSeconds(dateTime) + offsetSeconds);
-        dt.microsec = dateTime.microsec;
-        return dt;
-    }
-
+    // utc + offset = local
     static DateTime dateTimeToUTC(const DateTime &dateTime) {
-        return dateTimeShift(dateTime, getGlobalTimezone().utcOffsetSecs());
+        return TimeConversion::dateTimeShift(dateTime,
+                                             -Timezone::getGlobalTimezone().utcOffsetSecs());
     }
 
     static DateTime utcToDateTime(const DateTime &dateTime) {
-        return dateTimeShift(dateTime, -getGlobalTimezone().utcOffsetSecs());
+        return TimeConversion::dateTimeShift(dateTime,
+                                             Timezone::getGlobalTimezone().utcOffsetSecs());
     }
 
-    static StatusOr<DateTime> localDateTime() {
-        DateTime dt;
-        time_t unixTime = std::time(NULL);
-        if (unixTime == -1) {
-            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
-        }
-        return unixSecondsToDateTime(unixTime - getGlobalTimezone().utcOffsetSecs());
+    static DateTime localDateTime() {
+        auto time = unixTime();
+        auto dt = TimeConversion::unixSecondsToDateTime(
+            time.seconds - Timezone::getGlobalTimezone().utcOffsetSecs());
+        dt.microsec = time.milliseconds * 1000;
+        return dt;
     }
 
-    static StatusOr<DateTime> utcDateTime() {
-        DateTime dt;
-        time_t unixTime = std::time(NULL);
-        if (unixTime == -1) {
-            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
-        }
-        return unixSecondsToDateTime(unixTime);
+    static DateTime utcDateTime() {
+        auto time = unixTime();
+        auto dt = TimeConversion::unixSecondsToDateTime(time.seconds);
+        dt.microsec = time.milliseconds * 1000;
+        return dt;
     }
 
     static StatusOr<Date> dateFromMap(const Map &m);
@@ -130,39 +91,14 @@ public:
         return result.value();
     }
 
-    // unix time
-    static int64_t dateToUnixSeconds(const Date &date) {
-        return dateTimeDiffSeconds(DateTime(date), kEpoch);
-    }
-
-    static Date unixSecondsToDate(int64_t seconds) {
-        auto dateTime = unixSecondsToDateTime(seconds);
-        return Date(dateTime.year, dateTime.month, dateTime.day);
-    }
-
-    // Shift the DateTime in timezone space
-    static Date dateShift(const Date &date, int64_t offsetSeconds) {
-        if (offsetSeconds == 0) {
-            return date;
-        }
-        return unixSecondsToDate(dateToUnixSeconds(date) + offsetSeconds);
-    }
-
-    static Date dateToUTC(const Date &date) {
-        return dateShift(date, getGlobalTimezone().utcOffsetSecs());
-    }
-
-    static Date utcToDate(const Date &date) {
-        return dateShift(date, -getGlobalTimezone().utcOffsetSecs());
-    }
-
     static StatusOr<Date> localDate() {
         Date d;
         time_t unixTime = std::time(NULL);
         if (unixTime == -1) {
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
-        return unixSecondsToDate(unixTime - getGlobalTimezone().utcOffsetSecs());
+        return TimeConversion::unixSecondsToDate(unixTime -
+                                                 Timezone::getGlobalTimezone().utcOffsetSecs());
     }
 
     static StatusOr<Date> utcDate() {
@@ -171,7 +107,7 @@ public:
         if (unixTime == -1) {
             return Status::Error("Get unix time failed: %s.", std::strerror(errno));
         }
-        return unixSecondsToDate(unixTime);
+        return TimeConversion::unixSecondsToDate(unixTime);
     }
 
     static StatusOr<Time> timeFromMap(const Map &m);
@@ -181,85 +117,42 @@ public:
         return p.parseTime(str);
     }
 
-    // unix time
-    static int64_t timeToSeconds(const Time &time) {
-        int64_t seconds = time.sec;
-        seconds += (time.minute * kSecondsOfMinute);
-        seconds += (time.hour * kSecondsOfHour);
-        return seconds;
-    }
-
-    static Time unixSecondsToTime(int64_t seconds) {
-        Time t;
-        auto dt = unixSecondsToDateTime(seconds);
-        t.hour = dt.hour;
-        t.minute = dt.minute;
-        t.sec = dt.sec;
-        return t;
-    }
-
-    // Shift the Time in timezone space
-    static Time timeShift(const Time &time, int64_t offsetSeconds) {
-        if (offsetSeconds == 0) {
-            return time;
-        }
-        auto t = unixSecondsToTime(timeToSeconds(time) + offsetSeconds);
-        t.microsec = time.microsec;
-        return t;
-    }
-
+    // utc + offset = local
     static Time timeToUTC(const Time &time) {
-        return timeShift(time, getGlobalTimezone().utcOffsetSecs());
+        return TimeConversion::timeShift(time, -Timezone::getGlobalTimezone().utcOffsetSecs());
     }
 
     static Time utcToTime(const Time &time) {
-        return timeShift(time, getGlobalTimezone().utcOffsetSecs());
+        return TimeConversion::timeShift(time, Timezone::getGlobalTimezone().utcOffsetSecs());
     }
 
-    static StatusOr<Time> localTime() {
-        Time dt;
-        time_t unixTime = std::time(NULL);
-        if (unixTime == -1) {
-            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
-        }
-        return unixSecondsToTime(unixTime - getGlobalTimezone().utcOffsetSecs());
+    static Time localTime() {
+        auto time = unixTime();
+        auto t = TimeConversion::unixSecondsToTime(time.seconds -
+                                                   Timezone::getGlobalTimezone().utcOffsetSecs());
+        t.microsec = time.milliseconds * 1000;
+        return t;
     }
 
-    static StatusOr<Time> utcTime() {
-        Time dt;
-        time_t unixTime = std::time(NULL);
-        if (unixTime == -1) {
-            return Status::Error("Get unix time failed: %s.", std::strerror(errno));
-        }
-        return unixSecondsToTime(unixTime);
-    }
-
-    static Timezone &getGlobalTimezone() {
-        return globalTimezone;
+    static Time utcTime() {
+        auto time = unixTime();
+        auto t = TimeConversion::unixSecondsToTime(time.seconds);
+        t.microsec = time.milliseconds * 1000;
+        return t;
     }
 
     static StatusOr<Value> toTimestamp(const Value &val);
 
 private:
-    static constexpr int kDayOfLeapYear = 366;
-    static constexpr int kDayOfCommonYear = 365;
+    struct UnixTime {
+        int64_t seconds{0};
+        int64_t milliseconds{0};
+    };
 
-    static constexpr int64_t kSecondsOfMinute = 60;
-    static constexpr int64_t kSecondsOfHour = 60 * kSecondsOfMinute;
-    static constexpr int64_t kSecondsOfDay = 24 * kSecondsOfHour;
-
-    static const DateTime kEpoch;
-
-    static Timezone globalTimezone;
-
-    // The result of a right-shift of a signed negative number is implementation-dependent
-    // (UB. see https://en.cppreference.com/w/cpp/language/operator_arithmetic).
-    // So make sure the result is what we expected, if right shift not filled highest bit by the
-    // sign bit that the process will falls back to procedure which fill hightest bit by the sign
-    // bit value.
-    static int64_t shr(int64_t a, int b) {
-        int64_t one = 1;
-        return (-one >> 1 == -1 ? a >> b : (a + (a < 0)) / (one << b) - (a < 0));
+    // <seconds, milliseconds>
+    static UnixTime unixTime() {
+        auto ms = WallClock::fastNowInMilliSec();
+        return UnixTime{ms / 1000, ms % 1000};
     }
 };   // class TimeUtils
 

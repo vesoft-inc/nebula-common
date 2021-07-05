@@ -62,9 +62,9 @@ void FunctionCallExpression::resetFrom(Decoder& decoder) {
 
     // Read args_
     size_t sz = decoder.readSize();
-    args_ = std::make_unique<ArgumentList>();
+    args_ = ArgumentList::make(pool_);
     for (size_t i = 0;  i < sz; i++) {
-        args_->addArgument(decoder.readExpression());
+        args_->addArgument(decoder.readExpression(pool_));
     }
 
     auto funcResult = FunctionManager::get(name_, args_->numArgs());
@@ -74,9 +74,9 @@ void FunctionCallExpression::resetFrom(Decoder& decoder) {
 }
 
 const Value& FunctionCallExpression::eval(ExpressionContext& ctx) {
-    std::vector<Value> parameter;
+    std::vector<std::reference_wrapper<const Value>> parameter;
     for (const auto& arg : DCHECK_NOTNULL(args_)->args()) {
-        parameter.emplace_back(std::move(arg->eval(ctx)));
+        parameter.emplace_back(arg->eval(ctx));
     }
     result_ = DCHECK_NOTNULL(func_)(parameter);
     return result_;

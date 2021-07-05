@@ -8,6 +8,7 @@
 #include <sstream>
 #include "common/time/TimeUtils.h"
 #include "common/time/TimezoneInfo.h"
+#include "common/time/TimeConversion.h"
 
 namespace nebula {
 namespace time {
@@ -239,7 +240,7 @@ namespace time {
                  }
                  ctx.utcOffsetSecs += (ctx.utcSign == TokenType::kPlus ? t.val * 60 : -t.val * 60);
                  if (n.type == TokenType::kPlaceHolder) {
-                     ctx.result = TimeUtils::dateTimeShift(ctx.result, ctx.utcOffsetSecs);
+                     ctx.result = TimeConversion::dateTimeShift(ctx.result, ctx.utcOffsetSecs);
                      return kEnd;
                  } else if (n.type == TokenType::kTimeZoneName) {
                      return kTimeZone;
@@ -269,7 +270,7 @@ namespace time {
          } else {
              utcOffsetSecs = tz.utcOffsetSecs();
          }
-         ctx.result = TimeUtils::dateTimeShift(ctx.result, utcOffsetSecs);
+         ctx.result = TimeConversion::dateTimeShift(ctx.result, utcOffsetSecs);
          return kEnd;
      }},
     {kEnd, [](Token, Token, Context &) -> StatusOr<State> { return Status::OK(); }},
@@ -295,6 +296,7 @@ namespace time {
             return "TimeZoneName";
     }
     LOG(FATAL) << "Unknown token " << static_cast<int>(t);
+    return "Unknown token";
 }
 
 /*static*/ std::string TimeParser::toString(const Token &t) {
