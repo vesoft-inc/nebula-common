@@ -1966,9 +1966,8 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return lhs.getFloat() + rhs.getFloat();
                 }
                 case Value::Type::STRING: {
-                    return folly::stringPrintf("%lf%s",
-                                               lhs.getFloat(),
-                                               rhs.getStr().c_str());
+                    return folly::stringPrintf(
+                        "%s", (folly::to<std::string>(lhs.getFloat()) + rhs.getStr()).c_str());
                 }
                 case Value::Type::LIST: {
                     auto ret = rhs.getList();
@@ -1993,9 +1992,8 @@ Value operator+(const Value& lhs, const Value& rhs) {
                                                rhs.getInt());
                 }
                 case Value::Type::FLOAT: {
-                    return folly::stringPrintf("%s%lf",
-                                               lhs.getStr().c_str(),
-                                               rhs.getFloat());
+                    return folly::stringPrintf(
+                        "%s", (lhs.getStr() + folly::to<std::string>(rhs.getFloat())).c_str());
                 }
                 case Value::Type::STRING: {
                     return lhs.getStr() + rhs.getStr();
