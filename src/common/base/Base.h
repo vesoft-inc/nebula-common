@@ -116,24 +116,6 @@
 
 namespace nebula {
 
-using VariantType = boost::variant<int64_t, double, bool, std::string>;
-
-#ifndef VAR_INT64
-#define VAR_INT64 0
-#endif
-
-#ifndef VAR_DOUBLE
-#define VAR_DOUBLE 1
-#endif
-
-#ifndef VAR_BOOL
-#define VAR_BOOL 2
-#endif
-
-#ifndef VAR_STR
-#define VAR_STR 3
-#endif
-
 // reserved property names
 constexpr char kId[]    = "_id";
 constexpr char kVid[]   = "_vid";
