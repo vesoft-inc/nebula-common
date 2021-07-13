@@ -15,7 +15,8 @@
 
 find_path(Libcurl_INCLUDE_DIR NAMES curl/curl.h )
 find_library(Libcurl_LIBRARY NAMES  libcurl curl )
-
+message("${Libcurl_INCLUDE_DIR}")
+message("${Libcurl_LIBRARY}")
 if(Libcurl_INCLUDE_DIR AND Libcurl_LIBRARY)
     set(Libcurl_FOUND TRUE)
     mark_as_advanced(

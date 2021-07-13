@@ -31,7 +31,7 @@ static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *use
         res = curl_easy_perform(curl);
         StatusOr<std::string> result = returnString;
         curl_easy_cleanup(curl);
-        LOG(INFO) << "HTTP return Code: " << res;
+        VLOG(1) << "HTTP return Code: " << res;
         if (result.ok()) {
             return result.value();
         } else {
@@ -74,7 +74,7 @@ StatusOr<std::string> HttpClient::post(const std::string& path, const std::strin
         curl_slist_free_all(headers);
         StatusOr<std::string> result = returnString;
         curl_easy_cleanup(curl);
-        LOG(INFO) << "HTTP return Code: " << res;
+        VLOG(1) << "HTTP return Code: " << res;
         if (result.ok()) {
             return result.value();
         } else {
@@ -139,7 +139,7 @@ StatusOr<std::string> HttpClient::put(const std::string& path, const std::string
         curl_slist_free_all(headers);
         StatusOr<std::string> result = returnString;
         curl_easy_cleanup(curl);
-        LOG(INFO) << "HTTP return Code: " << res;
+        VLOG(1) << "HTTP return Code: " << res;
         if (result.ok()) {
             return result.value();
         } else {
@@ -173,7 +173,7 @@ StatusOr<std::string> HttpClient::sendRequest(const std::string& path,
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         res = curl_easy_perform(curl);
-        LOG(INFO) << "HTTP return Code: " << res;
+        VLOG(1) << "HTTP return Code: " << res;
         StatusOr<std::string> result = returnString;
         curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
