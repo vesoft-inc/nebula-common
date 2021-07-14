@@ -11,6 +11,7 @@
 #include <folly/RWSpinLock.h>
 #include "common/datatypes/Value.h"
 #include "common/datatypes/DataSet.h"
+#include "common/base/StatusOr.h"
 
 namespace nebula {
 
@@ -36,6 +37,9 @@ public:
     virtual const Value& getVarProp(const std::string& var,
                                     const std::string& prop) const = 0;
 
+    virtual StatusOr<std::size_t> getVarPropColIndex(const std::string& var,
+                                                     const std::string& prop) const = 0;
+
     // Get the specified property from the edge, such as edge_type.prop_name
     virtual Value getEdgeProp(const std::string& edgeType,
                               const std::string& prop) const = 0;
@@ -55,6 +59,8 @@ public:
     // Get the specified property from the input, such as $-.prop_name
     virtual const Value& getInputProp(const std::string& prop) const = 0;
 
+    virtual StatusOr<std::size_t> getInputPropColIndex(const std::string& prop) const = 0;
+
     // Get Vertex
     virtual Value getVertex() const = 0;
 
@@ -62,7 +68,7 @@ public:
     virtual Value getEdge() const = 0;
 
     // Get Value by Column index
-    virtual Value getColumn(int32_t index) const = 0;
+    virtual const Value& getColumn(int32_t index) const = 0;
 
     // Get regex
     const std::regex& getRegex(const std::string& pattern) {

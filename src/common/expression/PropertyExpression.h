@@ -146,6 +146,9 @@ public:
 private:
     explicit InputPropertyExpression(ObjectPool* pool, const std::string& prop = "")
         : PropertyExpression(pool, Kind::kInputProperty, kInputRef, "", prop) {}
+
+    // runtime cache
+    folly::Optional<std::size_t> propIndex_;
 };
 
 // $VarName.any_prop_name
@@ -176,6 +179,9 @@ private:
                                         const std::string& var = "",
                                         const std::string& prop = "")
         : PropertyExpression(pool, Kind::kVarProperty, kVarRef, var, prop) {}
+
+    // runtime cache
+    folly::Optional<std::size_t> propIndex_;
 };
 
 // $^.TagName.any_prop_name
