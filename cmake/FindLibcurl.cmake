@@ -12,7 +12,6 @@
 #  Libcurl_FOUND            System has Libcurl, include and lib dirs found
 #  Libcurl_INCLUDE_DIR      The Libcurl includes directories.
 #  Libcurl_LIBRARY          The Libcurl library.
-
 find_path(Libcurl_INCLUDE_DIR NAMES curl/curl.h )
 find_library(Libcurl_LIBRARY NAMES  libcurl curl )
 message("${Libcurl_INCLUDE_DIR}")
