@@ -240,7 +240,7 @@ namespace time {
                  }
                  ctx.utcOffsetSecs += (ctx.utcSign == TokenType::kPlus ? t.val * 60 : -t.val * 60);
                  if (n.type == TokenType::kPlaceHolder) {
-                     ctx.result = TimeConversion::dateTimeShift(ctx.result, ctx.utcOffsetSecs);
+                     ctx.result = TimeConversion::dateTimeShift(ctx.result, -ctx.utcOffsetSecs);
                      return kEnd;
                  } else if (n.type == TokenType::kTimeZoneName) {
                      return kTimeZone;
@@ -270,7 +270,7 @@ namespace time {
          } else {
              utcOffsetSecs = tz.utcOffsetSecs();
          }
-         ctx.result = TimeConversion::dateTimeShift(ctx.result, utcOffsetSecs);
+         ctx.result = TimeConversion::dateTimeShift(ctx.result, -utcOffsetSecs);
          return kEnd;
      }},
     {kEnd, [](Token, Token, Context &) -> StatusOr<State> { return Status::OK(); }},
