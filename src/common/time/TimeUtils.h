@@ -92,6 +92,26 @@ public:
         return dt;
     }
 
+    static Value getDateTimeAttr(const DateTime &dt, const std::string &prop) {
+        if (prop == "year") {
+            return static_cast<int>(dt.year);
+        } else if (prop == "month") {
+            return static_cast<int>(dt.month);
+        } else if (prop == "day") {
+            return static_cast<int>(dt.day);
+        } else if (prop == "hour") {
+            return static_cast<int>(dt.hour);
+        } else if (prop == "minute") {
+            return static_cast<int>(dt.minute);
+        } else if (prop == "second") {
+            return static_cast<int>(dt.sec);
+        } else if (prop == "microsecond") {
+            return static_cast<int>(dt.microsec);
+        } else {
+            return Value::kNullValue;
+        }
+    }
+
     static StatusOr<Date> dateFromMap(const Map &m);
 
     // TODO(shylock) support more format
@@ -128,6 +148,19 @@ public:
         }
         return TimeConversion::unixSecondsToDate(unixTime);
     }
+
+    static Value getDateAttr(const Date &d, const std::string &prop) {
+        if (prop == "year") {
+            return d.year;
+        } else if (prop == "month") {
+            return d.month;
+        } else if (prop == "day") {
+            return d.day;
+        } else {
+            return Value::kNullValue;
+        }
+    }
+
 
     static StatusOr<Time> timeFromMap(const Map &m);
 
@@ -170,6 +203,21 @@ public:
         t.microsec = time.milliseconds * 1000;
         return t;
     }
+
+    static Value getTimeAttr(const Time &t, const std::string &prop) {
+        if (prop == "hour") {
+            return t.hour;
+        } else if (prop == "minute") {
+            return t.minute;
+        } else if (prop == "second") {
+            return t.sec;
+        } else if (prop == "microsecond") {
+            return t.microsec;
+        } else {
+            return Value::kNullValue;
+        }
+    }
+
 
     static StatusOr<Value> toTimestamp(const Value &val);
 
