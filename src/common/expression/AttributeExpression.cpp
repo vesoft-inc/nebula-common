@@ -20,9 +20,9 @@ const Value& AttributeExpression::eval(ExpressionContext &ctx) {
 
     // TODO(dutor) Take care of the builtin properties, _src, _vid, _type, etc.
     switch (lvalue.type()) {
-        case Value::Type::MAP       :
+        case Value::Type::MAP:
             return lvalue.getMap().at(rvalue.getStr());
-        case Value::Type::VERTEX    : {
+        case Value::Type::VERTEX: {
             if (rvalue.getStr() == kVid) {
                 result_ = lvalue.getVertex().vid;
                 return result_;
@@ -35,7 +35,7 @@ const Value& AttributeExpression::eval(ExpressionContext &ctx) {
             }
             return Value::kNullValue;
         }
-        case Value::Type::EDGE      : {
+        case Value::Type::EDGE: {
             DCHECK(!rvalue.getStr().empty());
             if (rvalue.getStr()[0] == '_') {
                 if (rvalue.getStr() == kSrc) {
@@ -55,13 +55,13 @@ const Value& AttributeExpression::eval(ExpressionContext &ctx) {
             }
             return iter->second;
         }
-        case Value::Type::DATE      :
+        case Value::Type::DATE:
             result_ = time::TimeUtils::getDateAttr(lvalue.getDate(), rvalue.getStr());
             return result_;
-        case Value::Type::TIME      :
+        case Value::Type::TIME:
             result_ = time::TimeUtils::getTimeAttr(lvalue.getTime(), rvalue.getStr());
             return result_;
-        case Value::Type::DATETIME  :
+        case Value::Type::DATETIME:
             result_ = time::TimeUtils::getDateTimeAttr(lvalue.getDateTime(), rvalue.getStr());
             return result_;
         default:
