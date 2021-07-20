@@ -178,8 +178,8 @@ bool MetaClient::loadData() {
         return false;
     }
 
-    if (!loadFulltextClients()) {
-        LOG(ERROR) << "Load fulltext services Failed";
+    if (!loadGlobalServiceClients()) {
+        LOG(ERROR) << "Load global services Failed";
         return false;
     }
 
@@ -243,6 +243,11 @@ bool MetaClient::loadData() {
         }
 
         if (!loadListeners(spaceId, spaceCache)) {
+            LOG(ERROR) << "Load Listeners Failed";
+            return false;
+        }
+
+        if (!loadListenerDrainer(spaceId, spaceCache)) {
             LOG(ERROR) << "Load Listeners Failed";
             return false;
         }
@@ -475,7 +480,7 @@ bool MetaClient::loadIndexes(GraphSpaceID spaceId,
 }
 
 bool MetaClient::loadListeners(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCache> cache) {
-    auto listenerRet = listListener(spaceId).get();
+    auto listenerRet = listListener(spaceId, cpp2::ListenerType::ALL).get();
     if (!listenerRet.ok()) {
         LOG(ERROR) << "Get listeners failed for spaceId " << spaceId
                    << ", " << listenerRet.status();
@@ -490,31 +495,43 @@ bool MetaClient::loadListeners(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCa
     return true;
 }
 
-bool MetaClient::loadFulltextClients() {
-     auto ftRet = listFTClients().get();
-     if (!ftRet.ok()) {
-         LOG(ERROR) << "List fulltext services failed, status:" << ftRet.status();
-         return false;
-     }
-     {
-         folly::RWSpinLock::WriteHolder holder(localCacheLock_);
-         fulltextClientList_ = std::move(ftRet).value();
-     }
-     return true;
- }
+bool MetaClient::loadListenerDrainer(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCache> cache) {
+    auto listenerDrainerRet = listListenerDrainer(spaceId).get();
+    if (!listenerDrainerRet.ok()) {
+        LOG(ERROR) << "Get listener drainer failed for spaceId " << spaceId
+                   << ", " << listenerDrainerRet.status();
+        return false;
+    }
+
+    cache->drainerclients_ = std::move(listenerDrainerRet.value());
+    return true;
+}
+
+bool MetaClient::loadGlobalServiceClients() {
+    auto ret = listServiceClients(cpp2::ServiceType::ALL).get();
+    if (!ret.ok()) {
+        LOG(ERROR) << "List services failed, status:" << ret.status();
+        return false;
+    }
+    {
+        folly::RWSpinLock::WriteHolder holder(localCacheLock_);
+        serviceClientList_ = std::move(ret).value();
+    }
+    return true;
+}
 
 bool MetaClient::loadFulltextIndexes() {
-     auto ftRet = listFTIndexes().get();
-     if (!ftRet.ok()) {
-         LOG(ERROR) << "List fulltext indexes failed, status:" << ftRet.status();
-         return false;
-     }
-     {
-         folly::RWSpinLock::WriteHolder holder(localCacheLock_);
-         fulltextIndexMap_ = std::move(ftRet).value();
-     }
-     return true;
- }
+    auto ftRet = listFTIndexes().get();
+    if (!ftRet.ok()) {
+        LOG(ERROR) << "List fulltext indexes failed, status:" << ftRet.status();
+        return false;
+    }
+    {
+        folly::RWSpinLock::WriteHolder holder(localCacheLock_);
+        fulltextIndexMap_ = std::move(ftRet).value();
+    }
+    return true;
+}
 
 
 Status MetaClient::checkTagIndexed(GraphSpaceID space, IndexID indexID) {
@@ -2979,9 +2996,10 @@ folly::Future<StatusOr<bool>> MetaClient::removeListener(GraphSpaceID spaceId,
 }
 
 folly::Future<StatusOr<std::vector<cpp2::ListenerInfo>>>
-MetaClient::listListener(GraphSpaceID spaceId) {
+MetaClient::listListener(GraphSpaceID spaceId, cpp2::ListenerType type) {
     cpp2::ListListenerReq req;
     req.set_space_id(spaceId);
+    req.set_type(type);
     folly::Promise<StatusOr<std::vector<cpp2::ListenerInfo>>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
@@ -2990,6 +3008,23 @@ MetaClient::listListener(GraphSpaceID spaceId) {
                 },
                 [] (cpp2::ListListenerResp&& resp) -> decltype(auto) {
                     return std::move(resp).get_listeners();
+                },
+                std::move(promise));
+    return future;
+}
+
+folly::Future<StatusOr<std::unordered_map<PartitionID, cpp2::DrainerInfo>>>
+MetaClient::listListenerDrainer(GraphSpaceID spaceId) {
+    cpp2::ListListenerDrainerReq req;
+    req.set_space_id(spaceId);
+    folly::Promise<StatusOr<std::unordered_map<PartitionID, cpp2::DrainerInfo>>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_listListenerDrainer(request);
+                },
+                [] (cpp2::ListListenerDrainerResp&& resp) -> decltype(auto) {
+                    return std::move(resp).get_drainerClients();
                 },
                 std::move(promise));
     return future;
@@ -3102,6 +3137,57 @@ MetaClient::getListenerHostTypeBySpacePartType(GraphSpaceID spaceId, PartitionID
         return Status::ListenerNotFound();
     }
     return items;
+}
+
+folly::Future<StatusOr<bool>> MetaClient::addDrainer(GraphSpaceID spaceId,
+                                                     std::vector<HostAddr> hosts) {
+    cpp2::AddDrainerReq req;
+    req.set_space_id(spaceId);
+    req.set_hosts(std::move(hosts));
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_addDrainer(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.get_code() == nebula::cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise));
+    return future;
+}
+
+folly::Future<StatusOr<bool>> MetaClient::removeDrainer(GraphSpaceID spaceId) {
+    cpp2::RemoveDrainerReq req;
+    req.set_space_id(spaceId);
+    folly::Promise<StatusOr<bool>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_removeDrainer(request);
+                },
+                [] (cpp2::ExecResp&& resp) -> bool {
+                    return resp.get_code() == nebula::cpp2::ErrorCode::SUCCEEDED;
+                },
+                std::move(promise));
+    return future;
+}
+
+folly::Future<StatusOr<std::vector<cpp2::DrainerInfo>>>
+MetaClient::listDrainer(GraphSpaceID spaceId) {
+    cpp2::ListDrainerReq req;
+    req.set_space_id(spaceId);
+    folly::Promise<StatusOr<std::vector<cpp2::DrainerInfo>>> promise;
+    auto future = promise.getFuture();
+    getResponse(std::move(req),
+                [] (auto client, auto request) {
+                    return client->future_listDrainer(request);
+                },
+                [] (cpp2::ListDrainerResp&& resp) -> decltype(auto) {
+                    return std::move(resp).get_drainers();
+                },
+                std::move(promise));
+    return future;
 }
 
 bool MetaClient::loadCfg() {
@@ -3485,16 +3571,17 @@ folly::Future<StatusOr<nebula::cpp2::ErrorCode>> MetaClient::reportTaskFinish(
     return fut;
 }
 
-folly::Future<StatusOr<bool>> MetaClient::signInFTService(
-    cpp2::FTServiceType type, const std::vector<cpp2::FTClient>& clients) {
-    cpp2::SignInFTServiceReq req;
+folly::Future<StatusOr<bool>>
+MetaClient::signInService(cpp2::ServiceType type,
+                          const std::vector<cpp2::ServiceClient>& clients) {
+    cpp2::SignInServiceReq req;
     req.set_type(type);
     req.set_clients(clients);
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
-                    return client->future_signInFTService(request);
+                    return client->future_signInService(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.get_code() == nebula::cpp2::ErrorCode::SUCCEEDED;
@@ -3505,13 +3592,15 @@ folly::Future<StatusOr<bool>> MetaClient::signInFTService(
 }
 
 
-folly::Future<StatusOr<bool>> MetaClient::signOutFTService() {
-    cpp2::SignOutFTServiceReq req;
+folly::Future<StatusOr<bool>>
+MetaClient::signOutService(cpp2::ServiceType type) {
+    cpp2::SignOutServiceReq req;
+    req.set_type(type);
     folly::Promise<StatusOr<bool>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
-                    return client->future_signOutFTService(request);
+                    return client->future_signOutService(request);
                 },
                 [] (cpp2::ExecResp&& resp) -> bool {
                     return resp.get_code() == nebula::cpp2::ErrorCode::SUCCEEDED;
@@ -3522,27 +3611,60 @@ folly::Future<StatusOr<bool>> MetaClient::signOutFTService() {
 }
 
 
-folly::Future<StatusOr<std::vector<cpp2::FTClient>>>
-MetaClient::listFTClients() {
-    cpp2::ListFTClientsReq req;
-    folly::Promise<StatusOr<std::vector<cpp2::FTClient>>> promise;
+folly::Future<StatusOr<ServiceClientsList>>
+MetaClient::listServiceClients(cpp2::ServiceType type) {
+    cpp2::ListServiceClientsReq req;
+    req.set_type(type);
+    folly::Promise<StatusOr<ServiceClientsList>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
-                    return client->future_listFTClients(request);
+                    return client->future_listServiceClients(request);
                 },
-                [] (cpp2::ListFTClientsResp&& resp) -> decltype(auto){
+                [] (cpp2::ListServiceClientsResp&& resp) -> decltype(auto){
                     return std::move(resp).get_clients();
                 },
                 std::move(promise));
     return future;
 }
 
-StatusOr<std::vector<cpp2::FTClient>> MetaClient::getFTClientsFromCache() {
+StatusOr<std::vector<cpp2::ServiceClient>>
+MetaClient::getServiceClientsFromCache(meta::cpp2::ServiceType type) {
     if (!ready_) {
         return Status::Error("Not ready!");
     }
-    return fulltextClientList_;
+
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    if (type == cpp2::ServiceType::ELASTICSEARCH ||
+        type == cpp2::ServiceType::DRAINER) {
+        auto sIter = serviceClientList_.find(type);
+        if (sIter != serviceClientList_.end()) {
+            return sIter->second;
+        }
+    }
+    return Status::Error("Service not found!");
+}
+
+StatusOr<cpp2::DrainerInfo>
+MetaClient::getDrainerClientFromCache(GraphSpaceID spaceId, PartitionID partId) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        VLOG(3) << "Space " << spaceId << " not found!";
+        return Status::SpaceNotFound();
+    }
+
+    auto iter = spaceIt->second->drainerclients_.find(partId);
+    if (iter == spaceIt->second->drainerclients_.end()) {
+        VLOG(3) << "Space " << spaceId << " part " << partId
+                << " listener drianer client not found!";
+        return Status::DrainerNotFound();
+    }
+    return iter->second;
 }
 
 folly::Future<StatusOr<bool>>

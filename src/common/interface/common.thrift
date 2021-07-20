@@ -33,6 +33,7 @@ cpp_include "common/datatypes/HostAddrOps.inl"
  *
  */
 
+typedef i64 (cpp.type = "nebula::ClusterID") ClusterID
 typedef i32 (cpp.type = "nebula::GraphSpaceID") GraphSpaceID
 typedef i32 (cpp.type = "nebula::PartitionID") PartitionID
 typedef i32 (cpp.type = "nebula::TagID") TagID
@@ -252,6 +253,7 @@ enum ErrorCode {
     E_PART_NOT_FOUND                  = -16,
     E_KEY_NOT_FOUND                   = -17,
     E_USER_NOT_FOUND                  = -18,
+    E_SERVICE_NOT_FOUND               = -19,
 
     // backup failed
     E_BACKUP_FAILED                   = -24,
@@ -389,6 +391,9 @@ enum ErrorCode {
     E_INVALID_TASK_PARA               = -3051,
     E_USER_CANCEL                     = -3052,
     E_TASK_EXECUTION_FAILED           = -3053,
+
+    // 4xxx for drainer
+    E_LOG_GAP                         = -4001,
 
     E_UNKNOWN                         = -8000,
 } (cpp.enum_strict)

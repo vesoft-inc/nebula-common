@@ -929,6 +929,8 @@ struct ListGroupsResp {
 enum ListenerType {
     UNKNOWN       = 0x00,
     ELASTICSEARCH = 0x01,
+    SYNC          = 0x02,
+    ALL           = 0x03,
 } (cpp.enum_strict)
 
 struct AddListenerReq {
@@ -944,6 +946,23 @@ struct RemoveListenerReq {
 
 struct ListListenerReq {
     1: common.GraphSpaceID     space_id,
+    2: ListenerType            type,
+}
+
+struct ListListenerDrainerReq {
+    1: common.GraphSpaceID     space_id,
+}
+
+struct DrainerInfo {
+    1: common.HostAddr         host,
+    2: HostStatus              status,
+}
+
+struct ListListenerDrainerResp {
+    1: common.ErrorCode        code,
+    // Valid if code equals E_LEADER_CHANGED.
+    2: common.HostAddr         leader,
+    3: map<common.PartitionID, DrainerInfo> (cpp.template = "std::unordered_map") drainerClients;
 }
 
 struct ListenerInfo {
@@ -957,6 +976,25 @@ struct ListListenerResp {
     1: common.ErrorCode        code,
     2: common.HostAddr         leader,
     3: list<ListenerInfo>      listeners,
+}
+
+struct AddDrainerReq {
+    1: common.GraphSpaceID     space_id,
+    2: list<common.HostAddr>   hosts,
+}
+
+struct RemoveDrainerReq {
+    1: common.GraphSpaceID     space_id,
+}
+
+struct ListDrainerReq {
+    1: common.GraphSpaceID     space_id,
+}
+
+struct ListDrainerResp {
+    1: common.ErrorCode        code,
+    2: common.HostAddr         leader,
+    3: list<DrainerInfo>       drainers,
 }
 
 struct GetStatisReq {
@@ -1013,31 +1051,35 @@ struct RestoreMetaReq {
     2: list<HostPair>   hosts,
 }
 
-enum FTServiceType {
+enum ServiceType {
     ELASTICSEARCH = 0x01,
+    DRAINER       = 0x02,
+    ALL           = 0x03,
 } (cpp.enum_strict)
 
-struct FTClient {
+struct ServiceClient {
     1: required common.HostAddr    host,
     2: optional binary             user,
     3: optional binary             pwd,
 }
 
-struct SignInFTServiceReq {
-    1: FTServiceType                type,
-    2: list<FTClient>               clients,
+struct SignInServiceReq {
+    1: ServiceType                   type,
+    2: list<ServiceClient>           clients,
 }
 
-struct SignOutFTServiceReq {
+struct SignOutServiceReq {
+    1: ServiceType                   type,
 }
 
-struct ListFTClientsReq {
+struct ListServiceClientsReq {
+    1: ServiceType                   type,
 }
 
-struct ListFTClientsResp {
-    1: common.ErrorCode    code,
-    2: common.HostAddr     leader,
-    3: list<FTClient>      clients,
+struct ListServiceClientsResp {
+    1: common.ErrorCode              code,
+    2: common.HostAddr               leader,
+    3: map<ServiceType, list<ServiceClient>> (cpp.template = "std::unordered_map") clients,
 }
 
 struct FTIndex {
@@ -1256,11 +1298,16 @@ service MetaService {
     ExecResp       addListener(1: AddListenerReq req);
     ExecResp       removeListener(1: RemoveListenerReq req);
     ListListenerResp listListener(1: ListListenerReq req);
+    ListListenerDrainerResp listListenerDrainer(1: ListListenerDrainerReq req);
+
+    ExecResp        addDrainer(1: AddDrainerReq req);
+    ExecResp        removeDrainer(1: RemoveDrainerReq req);
+    ListDrainerResp listDrainer(1: ListDrainerReq req);
 
     GetStatisResp  getStatis(1: GetStatisReq req);
-    ExecResp signInFTService(1: SignInFTServiceReq req);
-    ExecResp signOutFTService(1: SignOutFTServiceReq req);
-    ListFTClientsResp listFTClients(1: ListFTClientsReq req);
+    ExecResp signInService(1: SignInServiceReq req);
+    ExecResp signOutService(1: SignOutServiceReq req);
+    ListServiceClientsResp listServiceClients(1: ListServiceClientsReq req);
 
     ExecResp createFTIndex(1: CreateFTIndexReq req);
     ExecResp dropFTIndex(1: DropFTIndexReq req);

@@ -98,6 +98,8 @@ const char *Status::toString(Code code) {
             return "PermissionError: ";
         case kListenerNotFound:
             return "ListenerNotFound";
+        case kDrainerNotFound:
+            return "DrainerNotFound";
     }
     DLOG(FATAL) << "Invalid status code: " << static_cast<uint16_t>(code);
     return "";

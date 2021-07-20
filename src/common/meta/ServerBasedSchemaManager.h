@@ -66,7 +66,11 @@ public:
     // get all latest version of all edges
     StatusOr<EdgeSchema> getAllLatestVerEdgeSchema(GraphSpaceID space) override;
 
-    StatusOr<std::vector<nebula::meta::cpp2::FTClient>> getFTClients() override;
+    StatusOr<std::vector<nebula::meta::cpp2::ServiceClient>>
+    getServiceClients(cpp2::ServiceType type) override;
+
+    StatusOr<nebula::meta::cpp2::DrainerInfo>
+    getDrainerClient(GraphSpaceID space, PartitionID partId) override;
 
     StatusOr<std::pair<std::string, nebula::meta::cpp2::FTIndex>>
     getFTIndex(GraphSpaceID spaceId, int32_t schemaId) override;

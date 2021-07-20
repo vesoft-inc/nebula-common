@@ -142,6 +142,7 @@ public:
     STATUS_GENERATOR(Balanced);
     STATUS_GENERATOR(PartNotFound);
     STATUS_GENERATOR(ListenerNotFound);
+    STATUS_GENERATOR(DrainerNotFound);
 
     // User or permission errors
     STATUS_GENERATOR(PermissionError);
@@ -183,6 +184,7 @@ public:
         kGroupNotFound          = 413,
         kZoneNotFound           = 414,
         kListenerNotFound       = 415,
+        kDrainerNotFound        = 416,
         // 5xx for user or permission error
         kPermissionError        = 501,
     };

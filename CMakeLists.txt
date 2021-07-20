@@ -73,6 +73,7 @@ macro(nebula_add_library name type)
         graph_thrift_generator
         storage_thrift_generator
         meta_thrift_generator
+        drainer_thrift_generator
         raftex_thrift_generator
     )
 endmacro()
