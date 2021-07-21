@@ -33,7 +33,7 @@ const Value& AttributeExpression::eval(ExpressionContext &ctx) {
                     return iter->second;
                 }
             }
-            return Value::kNullValue;
+            return Value::kNullUnknownProp;
         }
         case Value::Type::EDGE: {
             DCHECK(!rvalue.getStr().empty());
@@ -51,7 +51,7 @@ const Value& AttributeExpression::eval(ExpressionContext &ctx) {
             }
             auto iter = lvalue.getEdge().props.find(rvalue.getStr());
             if (iter == lvalue.getEdge().props.end()) {
-                return Value::kNullValue;
+                return Value::kNullUnknownProp;
             }
             return iter->second;
         }
