@@ -1270,7 +1270,7 @@ service MetaService {
     UpdateSessionsResp updateSessions(1: UpdateSessionsReq req);
     ListSessionsResp listSessions(1: ListSessionsReq req);
     GetSessionResp getSession(1: GetSessionReq req);
-    ExecResp removeSession(1: RemoveSessionReq req);
+    ExecResp removeSessions(1: RemoveSessionsReq req);
     ExecResp killQuery(1: KillQueryReq req);
 
     ExecResp reportTaskFinish(1: ReportTaskReq req);
