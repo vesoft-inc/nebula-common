@@ -108,7 +108,7 @@ public:
         } else if (prop == "microsecond") {
             return static_cast<int>(dt.microsec);
         } else {
-            return Value::kNullValue;
+            return Value::kNullUnknownProp;
         }
     }
 
@@ -157,7 +157,7 @@ public:
         } else if (prop == "day") {
             return d.day;
         } else {
-            return Value::kNullValue;
+            return Value::kNullUnknownProp;
         }
     }
 
@@ -214,7 +214,7 @@ public:
         } else if (prop == "microsecond") {
             return t.microsec;
         } else {
-            return Value::kNullValue;
+            return Value::kNullUnknownProp;
         }
     }
 
