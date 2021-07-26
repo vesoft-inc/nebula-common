@@ -1595,8 +1595,13 @@ Value Value::toFloat() const {
         }
         case Value::Type::STRING: {
             const auto& str = getStr();
-            char *pEnd;
-            double val = strtod(str.c_str(), &pEnd);
+            char* pEnd;
+            auto it = std::find(str.begin(), str.end(), '.');
+            double val = (it == str.end())
+                             ? static_cast<double>(
+                                   strtoll(str.c_str(), &pEnd, 10))   // string representing int
+                             : static_cast<double>(
+                                   strtod(str.c_str(), &pEnd));   // string representing double
             if (*pEnd != '\0') {
                 return Value::kNullValue;
             }
@@ -1629,12 +1634,16 @@ Value Value::toInt() const {
         }
         case Value::Type::STRING: {
             const auto& str = getStr();
-            char *pEnd;
-            double val = strtod(str.c_str(), &pEnd);
+            char* pEnd;
+            auto it = std::find(str.begin(), str.end(), '.');
+            int64_t val =
+                (it == str.end())
+                    ? int64_t(strtoll(str.c_str(), &pEnd, 10))   // string representing int
+                    : int64_t(strtod(str.c_str(), &pEnd));       // string representing double
             if (*pEnd != '\0') {
                 return Value::kNullValue;
             }
-            return static_cast<int64_t>(val);
+            return val;
         }
         default: {
             return Value::kNullBadType;
