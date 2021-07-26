@@ -673,7 +673,7 @@ TEST(Value, TypeCast) {
         EXPECT_EQ(Value::Type::FLOAT, vf.type());
         EXPECT_EQ(vf.getFloat(), static_cast<double>(std::numeric_limits<int64_t>::max()));
 
-        // string of int
+        // String of int
         vf = Value("-9223372036854775807").toFloat();
         EXPECT_EQ(Value::Type::FLOAT, vf.type());
         EXPECT_EQ(vf.getFloat(), static_cast<double>(std::numeric_limits<int64_t>::min() + 1));
@@ -687,7 +687,11 @@ TEST(Value, TypeCast) {
         EXPECT_EQ(Value::Type::FLOAT, vf.type());
         EXPECT_EQ(vf.getFloat(), static_cast<double>(std::numeric_limits<int64_t>::max()));
 
-        // string of double
+        // String of double
+        vf = Value("123.").toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf.type());
+        EXPECT_EQ(vf.getFloat(), 123.0);
+
         vf = Value(std::to_string(std::numeric_limits<double_t>::max())).toFloat();
         EXPECT_EQ(Value::Type::FLOAT, vf.type());
         EXPECT_EQ(vf.getFloat(), std::numeric_limits<double_t>::max());
@@ -695,6 +699,13 @@ TEST(Value, TypeCast) {
         vf = Value(std::to_string(std::numeric_limits<double_t>::max())).toFloat();
         EXPECT_EQ(Value::Type::FLOAT, vf.type());
         EXPECT_EQ(vf.getFloat(), std::numeric_limits<double_t>::max());
+
+        // Invlaid string
+        vf = Value("12abc").toFloat();
+        EXPECT_EQ(Value::kNullValue, vf);
+
+        vf = Value("1.2abc").toFloat();
+        EXPECT_EQ(Value::kNullValue, vf);
     }
     {
         auto vi = vInt.toInt();
@@ -734,6 +745,10 @@ TEST(Value, TypeCast) {
         EXPECT_EQ(vi.getInt(), std::numeric_limits<int64_t>::max());
 
         // string of int
+        vi = Value("123.").toInt();
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(vi.getInt(), 123);
+
         vi = Value("-9223372036854775807").toInt();
         EXPECT_EQ(Value::Type::INT, vi.type());
         EXPECT_EQ(vi.getInt(), std::numeric_limits<int64_t>::min() + 1);
@@ -746,7 +761,19 @@ TEST(Value, TypeCast) {
         EXPECT_EQ(Value::Type::INT, vi.type());
         EXPECT_EQ(vi.getInt(), std::numeric_limits<int64_t>::max());
 
-        // string of double
+        // String to int Overflow
+        vi = Value("9223372036854775808").toInt();
+        EXPECT_EQ(Value::kNullOverflow, vi);
+
+        vi = Value("-9223372036854775809").toInt();
+        EXPECT_EQ(Value::kNullOverflow, vi);
+
+        // Invlaid string
+        vi = Value("12abc").toInt();
+        EXPECT_EQ(Value::kNullValue, vi);
+
+        vi = Value("1.2abc").toInt();
+        EXPECT_EQ(Value::kNullValue, vi);
     }
 }
 
