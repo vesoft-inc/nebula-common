@@ -493,6 +493,11 @@ Expression* Expression::decode(ObjectPool* pool, Expression::Decoder& decoder) {
             exp->resetFrom(decoder);
             return exp;
         }
+        case Expression::Kind::kMapProjection: {
+            exp = MapProjectionExpression::make(pool);
+            exp->resetFrom(decoder);
+            return exp;
+        }
         case Expression::Kind::kLabel: {
             exp = LabelExpression::make(pool);
             exp->resetFrom(decoder);
@@ -714,6 +719,9 @@ std::ostream& operator<<(std::ostream& os, Expression::Kind kind) {
             break;
         case Expression::Kind::kMap:
             os << "Map";
+            break;
+        case Expression::Kind::kMapProjection:
+            os << "MapProjection";
             break;
         case Expression::Kind::kLabel:
             os << "Label";

@@ -262,6 +262,20 @@ TEST(ExpressionEncodeDecode, MapExpression) {
     ASSERT_EQ(*origin, *decoded);
 }
 
+TEST(ExpressionEncodeDecode, MapProjectionExpression) {
+    auto mapVarName = "var";
+    auto list = MapItemList::make(&pool);
+    (*list)
+        .add(".prop1", nullptr)
+        .add(".prop2", nullptr)
+        .add("key", ConstantExpression::make(&pool, "val"))
+        .add("v", nullptr)
+        .add(".*", nullptr);
+    auto origin = MapProjectionExpression::make(&pool, mapVarName, list);
+    auto decoded = Expression::decode(&pool, Expression::encode(*origin));
+    ASSERT_EQ(*origin, *decoded);
+}
+
 TEST(ExpressionEncodeDecode, SubscriptExpression) {
     auto *left = ConstantExpression::make(&pool, 1);
     auto *right = ConstantExpression::make(&pool, 2);

@@ -8,6 +8,7 @@
 
 #include "common/datatypes/Edge.h"
 #include "common/datatypes/Vertex.h"
+#include "common/datatypes/Map.h"
 
 namespace nebula {
 
@@ -43,6 +44,8 @@ std::unordered_map<std::string, Value> ExpressionContextMock::vals_ = {
     {"path_edge2", Value(Edge("2", "3", 1, "edge", 0, {}))},
     {"path_v2", Value(Vertex("3", {}))},
     {"path_edge3", Value(Edge("3", "4", 1, "edge", 0, {}))},
+
+    {"map_var", Value(Map({{"key1", 12345}, {"key2", 12345}, {"key3", "Hello"}, {"key4", true}}))},
 };
 
 Value ExpressionContextMock::getColumn(int32_t index) const {

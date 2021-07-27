@@ -63,6 +63,7 @@ public:
     virtual void visit(ListExpression *expr) = 0;
     virtual void visit(SetExpression *expr) = 0;
     virtual void visit(MapExpression *expr) = 0;
+    virtual void visit(MapProjectionExpression *expr) = 0;
     // property Expression
     virtual void visit(TagPropertyExpression *expr) = 0;
     virtual void visit(EdgePropertyExpression *expr) = 0;

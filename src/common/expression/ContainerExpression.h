@@ -38,6 +38,8 @@ private:
 };
 
 
+using MapItem = std::pair<std::string, Expression*>;
+
 class MapItemList final {
 public:
     static MapItemList* make(ObjectPool *pool, size_t sz = 0) {
@@ -47,6 +49,11 @@ public:
 
     MapItemList &add(const std::string &key, Expression *value) {
         items_.emplace_back(key, value);
+        return *this;
+    }
+
+    MapItemList &add(const MapItem& item) {
+        items_.emplace_back(item);
         return *this;
     }
 
@@ -61,8 +68,7 @@ private:
     }
 
 private:
-    using Pair = std::pair<std::string, Expression*>;
-    std::vector<Pair>                         items_;
+    std::vector<MapItem>                         items_;
 };
 
 
@@ -216,24 +222,22 @@ public:
                                 : pool->add(new MapExpression(pool, items));
     }
 
-    using Item = std::pair<std::string, Expression *>;
-
     const Value& eval(ExpressionContext &ctx) override;
 
-    const std::vector<Item> &items() const {
+    const std::vector<MapItem> &items() const {
         return items_;
     }
 
-    void setItems(std::vector<Item> items) {
+    void setItems(std::vector<MapItem> items) {
         items_ = items;
     }
 
-    void setItem(size_t index, Item item) {
+    void setItem(size_t index, MapItem item) {
         DCHECK_LT(index, items_.size());
         items_[index] = item;
     }
 
-    std::vector<Item> get() {
+    std::vector<MapItem> get() {
         return items_;
     }
 
@@ -271,7 +275,81 @@ private:
     void resetFrom(Decoder &decoder) override;
 
 private:
-    std::vector<Item>                       items_;
+    std::vector<MapItem>                    items_;
+    Value                                   result_;
+};
+
+
+class MapProjectionExpression final : public Expression {
+public:
+    MapProjectionExpression& operator=(const MapProjectionExpression& rhs) = delete;
+    MapProjectionExpression& operator=(MapProjectionExpression&&) = delete;
+
+    static MapProjectionExpression *make(ObjectPool *pool,
+                                         const std::string &varName = "",
+                                         MapItemList *items = nullptr) {
+        DCHECK(!!pool);
+        return pool->add(new MapProjectionExpression(pool, varName, items));
+    }
+
+    const Value& eval(ExpressionContext &ctx) override;
+
+    const std::string &mapVarName() const {
+        return mapVarName_;
+    }
+
+    const std::vector<MapItem> &items() const {
+        return items_;
+    }
+
+    void setItems(std::vector<MapItem> items) {
+        items_ = items;
+    }
+
+    void setItem(size_t index, MapItem item) {
+        DCHECK_LT(index, items_.size());
+        items_[index] = item;
+    }
+
+    std::vector<MapItem> get() {
+        return items_;
+    }
+
+    size_t size() const {
+        return items_.size();
+    }
+
+    bool operator==(const Expression &rhs) const override;
+
+    std::string toString() const override;
+
+    void accept(ExprVisitor* visitor) override;
+
+    Expression* clone() const override {
+        auto *items = MapItemList::make(pool_, items_.size());
+        for (auto &item : items_) {
+            items->add(item.first, item.second->clone());
+        }
+        return MapProjectionExpression::make(pool_, mapVarName_, items);
+    }
+
+private:
+    explicit MapProjectionExpression(ObjectPool *pool,
+                                     const std::string &varName,
+                                     MapItemList *items = nullptr)
+        : Expression(pool, Kind::kMapProjection), mapVarName_(varName) {
+        if (items) {
+            items_ = items->get();
+        }
+    }
+
+    void writeTo(Encoder &encoder) const override;
+
+    void resetFrom(Decoder &decoder) override;
+
+private:
+    std::string                             mapVarName_;
+    std::vector<MapItem>                    items_;
     Value                                   result_;
 };
 

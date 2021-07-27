@@ -108,6 +108,8 @@ public:
         kIsNotEmpty,
 
         kSubscriptRange,
+
+        kMapProjection,
     };
 
 

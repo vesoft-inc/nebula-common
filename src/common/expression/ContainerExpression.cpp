@@ -8,7 +8,9 @@
 #include "common/datatypes/List.h"
 #include "common/datatypes/Set.h"
 #include "common/datatypes/Map.h"
+#include "common/function/FunctionManager.h"
 #include "common/expression/ExprVisitor.h"
+#include "common/base/CheckPointer.h"
 
 namespace nebula {
 
@@ -233,6 +235,111 @@ void MapExpression::resetFrom(Decoder &decoder) {
 }
 
 void MapExpression::accept(ExprVisitor *visitor) {
+    visitor->visit(this);
+}
+
+
+std::string MapProjectionExpression::toString() const {
+    return mapVarName_;
+}
+
+bool MapProjectionExpression::operator==(const Expression &rhs) const {
+    if (kind() != rhs.kind()) {
+        return false;
+    }
+
+    auto &mapProjection = static_cast<const MapProjectionExpression&>(rhs);
+
+    if (mapVarName_ != mapProjection.mapVarName_) {
+        return false;
+    }
+
+    if (size() != mapProjection.size()) {
+        return false;
+    }
+
+    for (auto i = 0u; i < size(); i++) {
+        if (items_[i].first != mapProjection.items_[i].first) {
+            return false;
+        }
+        if (!checkPointer(items_[i].second, mapProjection.items_[i].second)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+const Value& MapProjectionExpression::eval(ExpressionContext &ctx) {
+    std::unordered_map<std::string, Value> map;
+    map.reserve(size());
+
+    for (auto &item : items_) {
+        DCHECK_NOTNULL(item.second);
+        // `.*` has been written to a AttributeExpression in planner
+        if (item.second->kind() == Expression::Kind::kAttribute) {
+            auto *attr = static_cast<AttributeExpression*>(item.second);
+            auto prop = attr->right()->eval(ctx);
+            DCHECK(prop.isStr());
+            if (prop.getStr() == "*") {
+                auto funcResult = FunctionManager::get("properties", 1);
+                DCHECK(funcResult.ok());
+                auto lhs = attr->left()->eval(ctx);
+                std::vector<std::reference_wrapper<const Value>> parameter{lhs};
+                auto mapVal = funcResult.value()(parameter);
+                if (!mapVal.isMap()) {
+                    result_ = Value::kNullBadType;
+                    return result_;
+                }
+                for (auto &kv : mapVal.getMap().kvs) {
+                    map.try_emplace(kv.first, kv.second);
+                }
+            } else {
+                map.try_emplace(item.first, item.second->eval(ctx));
+            }
+        } else {
+            map.try_emplace(item.first, item.second->eval(ctx));
+        }
+    }
+    result_.setMap(Map(std::move(map)));
+
+    return result_;
+}
+
+
+void MapProjectionExpression::writeTo(Encoder &encoder) const {
+    encoder << kind();
+    encoder << mapVarName_;
+    encoder << size();
+    for (auto &kv : items_) {
+        encoder << kv.first;
+        bool v_exist = (kv.second != nullptr);
+        // TODO(jie): add overloads for basic types(bool, int32_t...) for Encoder::operator<<
+        encoder << Value(v_exist);
+        if (v_exist) {
+            encoder << *kv.second;
+        }
+    }
+}
+
+
+void MapProjectionExpression::resetFrom(Decoder &decoder) {
+    mapVarName_ = decoder.readStr();
+    auto size = decoder.readSize();
+    items_.reserve(size);
+    for (auto i = 0u; i < size; i++) {
+        auto str = decoder.readStr();
+        bool v_exist = decoder.readValue().getBool();
+        Expression* expr = nullptr;
+        if (v_exist) {
+            expr = decoder.readExpression(pool_);
+        }
+        items_.emplace_back(str, expr);
+    }
+}
+
+void MapProjectionExpression::accept(ExprVisitor *visitor) {
     visitor->visit(this);
 }
 
