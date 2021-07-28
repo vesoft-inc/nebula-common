@@ -7,10 +7,13 @@
 #ifndef COMMON_TIME_TIME_H_
 #define COMMON_TIME_TIME_H_
 
+#include <boost/algorithm/string/case_conv.hpp>
 #include <iomanip>
 #include <limits>
 #include <sstream>
 #include <vector>
+
+#include "boost/algorithm/string.hpp"
 
 #include "common/base/Status.h"
 #include "common/base/StatusOr.h"
@@ -98,19 +101,20 @@ public:
     }
 
     static Value getDateTimeAttr(const DateTime &dt, const std::string &prop) {
-        if (prop == "year") {
+        auto lowerProp = boost::algorithm::to_lower_copy(prop);
+        if (lowerProp == "year") {
             return static_cast<int>(dt.year);
-        } else if (prop == "month") {
+        } else if (lowerProp == "month") {
             return static_cast<int>(dt.month);
-        } else if (prop == "day") {
+        } else if (lowerProp == "day") {
             return static_cast<int>(dt.day);
-        } else if (prop == "hour") {
+        } else if (lowerProp == "hour") {
             return static_cast<int>(dt.hour);
-        } else if (prop == "minute") {
+        } else if (lowerProp == "minute") {
             return static_cast<int>(dt.minute);
-        } else if (prop == "second") {
+        } else if (lowerProp == "second") {
             return static_cast<int>(dt.sec);
-        } else if (prop == "microsecond") {
+        } else if (lowerProp == "microsecond") {
             return static_cast<int>(dt.microsec);
         } else {
             return Value::kNullUnknownProp;
@@ -155,11 +159,12 @@ public:
     }
 
     static Value getDateAttr(const Date &d, const std::string &prop) {
-        if (prop == "year") {
+        auto lowerProp = boost::algorithm::to_lower_copy(prop);
+        if (lowerProp == "year") {
             return d.year;
-        } else if (prop == "month") {
+        } else if (lowerProp == "month") {
             return d.month;
-        } else if (prop == "day") {
+        } else if (lowerProp == "day") {
             return d.day;
         } else {
             return Value::kNullUnknownProp;
@@ -210,13 +215,14 @@ public:
     }
 
     static Value getTimeAttr(const Time &t, const std::string &prop) {
-        if (prop == "hour") {
+        auto lowerProp = boost::algorithm::to_lower_copy(prop);
+        if (lowerProp == "hour") {
             return t.hour;
-        } else if (prop == "minute") {
+        } else if (lowerProp == "minute") {
             return t.minute;
-        } else if (prop == "second") {
+        } else if (lowerProp == "second") {
             return t.sec;
-        } else if (prop == "microsecond") {
+        } else if (lowerProp == "microsecond") {
             return t.microsec;
         } else {
             return Value::kNullUnknownProp;
