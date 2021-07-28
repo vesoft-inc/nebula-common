@@ -46,7 +46,7 @@ macro(package to_one name home_page scripts_dir)
         file (STRINGS "/etc/lsb-release" SYSTEM_NAME)
         execute_process(
             COMMAND echo "${SYSTEM_NAME}"
-            COMMAND sed -n "1p"
+            COMMAND cut -d ";" -f 1
             COMMAND cut -d "=" -f 2
             OUTPUT_VARIABLE HOST_SYSTEM_NAME
             OUTPUT_STRIP_TRAILING_WHITESPACE
