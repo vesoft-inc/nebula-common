@@ -12,14 +12,17 @@
 namespace nebula {
 class VidExpression final : public Expression {
 public:
-    VidExpression() : Expression(Kind::kVidExpr) {}
+    static VidExpression *make(ObjectPool *pool) {
+        DCHECK(!!pool);
+        return pool->add(new VidExpression(pool));
+    }
 
     const Value& eval(ExpressionContext &ctx) override;
 
     void accept(ExprVisitor *visitor) override;
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<VidExpression>();
+    Expression* clone() const override {
+        return VidExpression::make(pool_);
     }
 
     std::string toString() const override {
@@ -31,6 +34,8 @@ public:
     }
 
 private:
+    explicit VidExpression(ObjectPool *pool) : Expression(pool, Kind::kVidExpr) {}
+
     void writeTo(Encoder &encoder) const override {
         encoder << kind();
     }

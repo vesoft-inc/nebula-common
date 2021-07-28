@@ -19,17 +19,14 @@ namespace nebula {
  */
 class VertexExpression final : public Expression {
 public:
-    VertexExpression() : Expression(Kind::kVertex) {
-        outPutName_.reset(new std::string("VERTEX"));
-    }
-
-    explicit VertexExpression(std::string* name) : Expression(Kind::kVertex) {
-        outPutName_.reset(name);
-    }
-
     static VertexExpression *make(ObjectPool *pool) {
         DCHECK(!!pool);
         return pool->add(new VertexExpression(pool));
+    }
+
+    static VertexExpression *make(ObjectPool *pool, const std::string& name) {
+        DCHECK(!!pool);
+        return pool->add(new VertexExpression(pool, name));
     }
 
     const Value &eval(ExpressionContext &ctx) override;
@@ -41,7 +38,7 @@ public:
     }
 
     std::string toString() const override {
-        return *outPutName_;
+        return outPutName_;
     }
 
     bool operator==(const Expression &expr) const override {
@@ -49,7 +46,13 @@ public:
     }
 
 private:
-    explicit VertexExpression(ObjectPool *pool) : Expression(pool, Kind::kVertex) {}
+    explicit VertexExpression(ObjectPool *pool) : Expression(pool, Kind::kVertex) {
+        outPutName_ = "VERTEX";
+    }
+
+    VertexExpression(ObjectPool *pool, const std::string& name) : Expression(pool, Kind::kVertex) {
+        outPutName_ = name;
+    }
 
     void writeTo(Encoder &encoder) const override {
         encoder << kind();
@@ -59,7 +62,7 @@ private:
 
 private:
     Value                                   result_;
-    std::unique_ptr<std::string>            outPutName_;
+    std::string                             outPutName_;
 };
 
 }   // namespace nebula

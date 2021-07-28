@@ -19,19 +19,15 @@ namespace nebula {
  */
 class EdgeExpression final : public Expression {
 public:
-    EdgeExpression() : Expression(Kind::kEdge) {
-        outPutName_.reset(new std::string("EDGE"));
-    }
-
-    explicit EdgeExpression(std::string* name) : Expression(Kind::kEdge) {
-        outPutName_.reset(name);
-    }
-
     EdgeExpression& operator=(const EdgeExpression& rhs) = delete;
     EdgeExpression& operator=(EdgeExpression&&) = delete;
 
     static EdgeExpression* make(ObjectPool* pool) {
         return pool->add(new EdgeExpression(pool));
+    }
+
+    static EdgeExpression* make(ObjectPool* pool, const std::string& name) {
+        return pool->add(new EdgeExpression(pool, name));
     }
 
     const Value& eval(ExpressionContext& ctx) override;
@@ -43,7 +39,7 @@ public:
     }
 
     std::string toString() const override {
-        return *outPutName_;
+        return outPutName_;
     }
 
     bool operator==(const Expression& expr) const override {
@@ -51,7 +47,13 @@ public:
     }
 
 private:
-    explicit EdgeExpression(ObjectPool* pool) : Expression(pool, Kind::kEdge) {}
+    explicit EdgeExpression(ObjectPool* pool) : Expression(pool, Kind::kEdge) {
+        outPutName_ = "EDGE";
+    }
+
+    EdgeExpression(ObjectPool* pool, const std::string& name) : Expression(pool, Kind::kEdge) {
+        outPutName_ = name;
+    }
 
     void writeTo(Encoder& encoder) const override {
         encoder << kind();
@@ -61,7 +63,7 @@ private:
 
 private:
     Value                                   result_;
-    std::unique_ptr<std::string>            outPutName_;
+    std::string                             outPutName_;
 };
 
 }   // namespace nebula

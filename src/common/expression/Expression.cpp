@@ -525,7 +525,7 @@ Expression* Expression::decode(ObjectPool* pool, Expression::Decoder& decoder) {
             return exp;
         }
         case Expression::Kind::kVidExpr: {
-            exp = std::make_unique<VidExpression>();
+            exp = VidExpression::make(pool);
             exp->resetFrom(decoder);
             return exp;
         }
