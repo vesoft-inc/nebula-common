@@ -301,6 +301,15 @@ TEST_F(SubscriptExpressionTest, ListSubscriptRange) {
         EXPECT_TRUE(value.isList());
         EXPECT_EQ(List(), value.getList());
     }
+    // [0,1,2,3,4,5][-2..] => [4,5]
+    {
+        auto *lo = ConstantExpression::make(&pool, -2);
+        auto *hi = ConstantExpression::make(&pool, 3);
+        auto expr = SubscriptRangeExpression::make(&pool, list->clone(), lo, hi);
+        auto value = Expression::eval(expr, gExpCtxt);
+        EXPECT_TRUE(value.isList());
+        EXPECT_EQ(List(), value.getList());
+    }
 }
 
 TEST_F(SubscriptExpressionTest, MapSubscript) {
@@ -330,7 +339,7 @@ TEST_F(SubscriptExpressionTest, MapSubscript) {
         auto expr = SubscriptExpression::make(&pool, map, key);
         auto value = Expression::eval(expr, gExpCtxt);
         ASSERT_TRUE(value.isNull());
-        ASSERT_FALSE(value.isBadNull());
+        ASSERT_TRUE(value.isBadNull());
     }
     // {"key1":1,"key2":2, "key3":3}[0]
     {

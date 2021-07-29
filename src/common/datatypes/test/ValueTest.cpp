@@ -80,7 +80,7 @@ TEST(Value, Arithmetics) {
 
         v = vFloat1 + vStr2;
         EXPECT_EQ(Value::Type::STRING, v.type());
-        EXPECT_EQ(std::string("3.140000World"), v.getStr());
+        EXPECT_EQ(std::string("3.14World"), v.getStr());
 
         v = vFloat2 + vInt2;
         EXPECT_EQ(Value::Type::FLOAT, v.type());
@@ -92,7 +92,7 @@ TEST(Value, Arithmetics) {
 
         v = vStr1 + vFloat2;
         EXPECT_EQ(Value::Type::STRING, v.type());
-        EXPECT_EQ(std::string("Hello 2.670000"), v.getStr());
+        EXPECT_EQ(std::string("Hello 2.67"), v.getStr());
 
         v = vStr1 + vBool2;
         EXPECT_EQ(Value::Type::STRING, v.type());
@@ -121,6 +121,20 @@ TEST(Value, Arithmetics) {
         v = vList2 + vSet;
         EXPECT_EQ(Value::Type::LIST, v.type());
         EXPECT_EQ(List({6, 4, 5, Set({8, 7})}), v.getList());
+
+        // str + float
+        v = Value("Allen Wilson") + Value(30.142857142857142);
+        EXPECT_EQ(Value::Type::STRING, v.type());
+        EXPECT_EQ(std::string("Allen Wilson30.142857142857142"), v.getStr());
+        v = Value("Allen Wilson") + Value(-30.142857142857142);
+        EXPECT_EQ(Value::Type::STRING, v.type());
+        EXPECT_EQ(std::string("Allen Wilson-30.142857142857142"), v.getStr());
+        v =  Value(30.142857142857142) + Value("Allen Wilson");
+        EXPECT_EQ(Value::Type::STRING, v.type());
+        EXPECT_EQ(std::string("30.142857142857142Allen Wilson"), v.getStr());
+        v = Value(-30.142857142857142) + Value("Allen Wilson");
+        EXPECT_EQ(Value::Type::STRING, v.type());
+        EXPECT_EQ(std::string("-30.142857142857142Allen Wilson"), v.getStr());
     }
     // -
     {
@@ -624,76 +638,142 @@ TEST(Value, TypeCast) {
         EXPECT_EQ(Value::Type::NULLVALUE, vb8.type());
     }
     {
-        auto vf1 = vInt.toFloat();
-        EXPECT_EQ(Value::Type::FLOAT, vf1.type());
-        EXPECT_EQ(vf1.getFloat(), 1.0);
+        auto vf = vInt.toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf.type());
+        EXPECT_EQ(vf.getFloat(), 1.0);
 
-        auto vf2 = vFloat.toFloat();
-        EXPECT_EQ(Value::Type::FLOAT, vf2.type());
-        EXPECT_EQ(vf2.getFloat(), 3.14);
+        vf = vFloat.toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf.type());
+        EXPECT_EQ(vf.getFloat(), 3.14);
 
-        auto vf3 = vStr1.toFloat();
-        EXPECT_EQ(Value::Type::NULLVALUE, vf3.type());
+        vf = vStr1.toFloat();
+        EXPECT_EQ(Value::Type::NULLVALUE, vf.type());
 
-        auto vf4 = vStr2.toFloat();
-        EXPECT_EQ(Value::Type::FLOAT, vf4.type());
-        EXPECT_EQ(vf4.getFloat(), 3.14);
+        vf = vStr2.toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf.type());
+        EXPECT_EQ(vf.getFloat(), 3.14);
 
-        auto vf5 = vBool1.toFloat();
-        EXPECT_EQ(Value::Type::NULLVALUE, vf5.type());
+        vf = vBool1.toFloat();
+        EXPECT_EQ(Value::Type::NULLVALUE, vf.type());
 
-        auto vf6 = vBool2.toFloat();
-        EXPECT_EQ(Value::Type::NULLVALUE, vf6.type());
+        vf = vBool2.toFloat();
+        EXPECT_EQ(Value::Type::NULLVALUE, vf.type());
 
-        auto vf7 = vDate.toFloat();
-        EXPECT_EQ(Value::Type::NULLVALUE, vf7.type());
+        vf = vDate.toFloat();
+        EXPECT_EQ(Value::Type::NULLVALUE, vf.type());
 
-        auto vf8 = vNull.toFloat();
-        EXPECT_EQ(Value::Type::NULLVALUE, vf8.type());
+        vf = vNull.toFloat();
+        EXPECT_EQ(Value::Type::NULLVALUE, vf.type());
 
-        auto vf9 = vIntMin.toFloat();
-        EXPECT_EQ(Value::Type::FLOAT, vf9.type());
-        EXPECT_EQ(vf9.getFloat(), std::numeric_limits<int64_t>::min());
+        vf = vIntMin.toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf.type());
+        EXPECT_EQ(vf.getFloat(), std::numeric_limits<int64_t>::min());
 
-        auto vf10 = vIntMax.toFloat();
-        EXPECT_EQ(Value::Type::FLOAT, vf10.type());
-        EXPECT_EQ(vf10.getFloat(), std::numeric_limits<int64_t>::max());
+        vf = vIntMax.toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf.type());
+        EXPECT_EQ(vf.getFloat(), static_cast<double>(std::numeric_limits<int64_t>::max()));
+
+        // String of int
+        vf = Value("-9223372036854775807").toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf.type());
+        EXPECT_EQ(vf.getFloat(), static_cast<double>(std::numeric_limits<int64_t>::min() + 1));
+
+        vf = Value("-9223372036854775808")
+                 .toFloat();   // will be converted to -9223372036854776000.0
+        EXPECT_EQ(Value::Type::FLOAT, vf.type());
+        EXPECT_EQ(vf.getFloat(), static_cast<double>(std::numeric_limits<int64_t>::min()));
+
+        vf = Value("9223372036854775807").toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf.type());
+        EXPECT_EQ(vf.getFloat(), static_cast<double>(std::numeric_limits<int64_t>::max()));
+
+        // String of double
+        vf = Value("123.").toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf.type());
+        EXPECT_EQ(vf.getFloat(), 123.0);
+
+        vf = Value(std::to_string(std::numeric_limits<double_t>::max())).toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf.type());
+        EXPECT_EQ(vf.getFloat(), std::numeric_limits<double_t>::max());
+
+        vf = Value(std::to_string(std::numeric_limits<double_t>::max())).toFloat();
+        EXPECT_EQ(Value::Type::FLOAT, vf.type());
+        EXPECT_EQ(vf.getFloat(), std::numeric_limits<double_t>::max());
+
+        // Invlaid string
+        vf = Value("12abc").toFloat();
+        EXPECT_EQ(Value::kNullValue, vf);
+
+        vf = Value("1.2abc").toFloat();
+        EXPECT_EQ(Value::kNullValue, vf);
     }
     {
-        auto vi1 = vInt.toInt();
-        EXPECT_EQ(Value::Type::INT, vi1.type());
-        EXPECT_EQ(vi1.getInt(), 1);
+        auto vi = vInt.toInt();
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(vi.getInt(), 1);
 
-        auto vi2 = vFloat.toInt();
-        EXPECT_EQ(Value::Type::INT, vi2.type());
-        EXPECT_EQ(vi2.getInt(), 3);
+        vi = vFloat.toInt();
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(vi.getInt(), 3);
 
-        auto vi3 = vStr1.toInt();
-        EXPECT_EQ(Value::Type::NULLVALUE, vi3.type());
+        vi = vStr1.toInt();
+        EXPECT_EQ(Value::Type::NULLVALUE, vi.type());
 
-        auto vi4 = vStr2.toInt();
-        EXPECT_EQ(Value::Type::INT, vi4.type());
-        EXPECT_EQ(vi4.getInt(), 3);
+        vi = vStr2.toInt();
 
-        auto vi5 = vBool1.toInt();
-        EXPECT_EQ(Value::Type::NULLVALUE, vi5.type());
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(vi.getInt(), 3);
 
-        auto vi6 = vBool2.toInt();
-        EXPECT_EQ(Value::Type::NULLVALUE, vi6.type());
+        vi = vBool1.toInt();
+        EXPECT_EQ(Value::Type::NULLVALUE, vi.type());
 
-        auto vi7 = vDate.toInt();
-        EXPECT_EQ(Value::Type::NULLVALUE, vi7.type());
+        vi = vBool2.toInt();
+        EXPECT_EQ(Value::Type::NULLVALUE, vi.type());
 
-        auto vi8 = vNull.toInt();
-        EXPECT_EQ(Value::Type::NULLVALUE, vi8.type());
+        vi = vDate.toInt();
+        EXPECT_EQ(Value::Type::NULLVALUE, vi.type());
 
-        auto vi9 = vFloatMin.toInt();
-        EXPECT_EQ(Value::Type::INT, vi9.type());
-        EXPECT_EQ(vi9.getInt(), std::numeric_limits<int64_t>::min());
+        vi = vNull.toInt();
+        EXPECT_EQ(Value::Type::NULLVALUE, vi.type());
 
-        auto vi10 = vFloatMax.toInt();
-        EXPECT_EQ(Value::Type::INT, vi10.type());
-        EXPECT_EQ(vi10.getInt(), std::numeric_limits<int64_t>::max());
+        vi = vFloatMin.toInt();
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(vi.getInt(), std::numeric_limits<int64_t>::min());
+
+        vi = vFloatMax.toInt();
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(vi.getInt(), std::numeric_limits<int64_t>::max());
+
+        // string of int
+        vi = Value("123.").toInt();
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(vi.getInt(), 123);
+
+        vi = Value("-9223372036854775807").toInt();
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(vi.getInt(), std::numeric_limits<int64_t>::min() + 1);
+
+        vi = Value("-9223372036854775808").toInt();
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(vi.getInt(), std::numeric_limits<int64_t>::min());
+
+        vi = Value("9223372036854775807").toInt();
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(vi.getInt(), std::numeric_limits<int64_t>::max());
+
+        // String to int Overflow
+        vi = Value("9223372036854775808").toInt();
+        EXPECT_EQ(Value::kNullOverflow, vi);
+
+        vi = Value("-9223372036854775809").toInt();
+        EXPECT_EQ(Value::kNullOverflow, vi);
+
+        // Invlaid string
+        vi = Value("12abc").toInt();
+        EXPECT_EQ(Value::kNullValue, vi);
+
+        vi = Value("1.2abc").toInt();
+        EXPECT_EQ(Value::kNullValue, vi);
     }
 }
 

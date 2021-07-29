@@ -1595,7 +1595,7 @@ Value Value::toFloat() const {
         }
         case Value::Type::STRING: {
             const auto& str = getStr();
-            char *pEnd;
+            char* pEnd;
             double val = strtod(str.c_str(), &pEnd);
             if (*pEnd != '\0') {
                 return Value::kNullValue;
@@ -1629,12 +1629,23 @@ Value Value::toInt() const {
         }
         case Value::Type::STRING: {
             const auto& str = getStr();
-            char *pEnd;
-            double val = strtod(str.c_str(), &pEnd);
+            errno = 0;
+            char* pEnd;
+            auto it = std::find(str.begin(), str.end(), '.');
+            int64_t val =
+                (it == str.end())
+                    ? int64_t(strtoll(str.c_str(), &pEnd, 10))   // string representing int
+                    : int64_t(strtod(str.c_str(), &pEnd));       // string representing double
             if (*pEnd != '\0') {
                 return Value::kNullValue;
             }
-            return static_cast<int64_t>(val);
+            // Check overflow
+            if ((val == std::numeric_limits<int64_t>::max() ||
+                 val == std::numeric_limits<int64_t>::min()) &&
+                errno == ERANGE) {
+                return kNullOverflow;
+            }
+            return val;
         }
         default: {
             return Value::kNullBadType;
@@ -1966,9 +1977,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                     return lhs.getFloat() + rhs.getFloat();
                 }
                 case Value::Type::STRING: {
-                    return folly::stringPrintf("%lf%s",
-                                               lhs.getFloat(),
-                                               rhs.getStr().c_str());
+                    return folly::to<std::string>(lhs.getFloat()) + rhs.getStr();
                 }
                 case Value::Type::LIST: {
                     auto ret = rhs.getList();
@@ -1993,9 +2002,7 @@ Value operator+(const Value& lhs, const Value& rhs) {
                                                rhs.getInt());
                 }
                 case Value::Type::FLOAT: {
-                    return folly::stringPrintf("%s%lf",
-                                               lhs.getStr().c_str(),
-                                               rhs.getFloat());
+                    return lhs.getStr() + folly::to<std::string>(rhs.getFloat());
                 }
                 case Value::Type::STRING: {
                     return lhs.getStr() + rhs.getStr();
