@@ -62,7 +62,9 @@ macro(package to_one name home_page scripts_dir)
         string(CONCAT HOST_SYSTEM_VER ${HOST_SYSTEM_NAME} ${HOST_SYSTEM_VER})
         if (${HOST_SYSTEM_NAME} MATCHES "Ubuntu")
             # the ubuntu need to modify the architecture name
-            set(CMAKE_HOST_SYSTEM_PROCESSOR "amd64")
+            if (${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "x86_64")
+                set(CMAKE_HOST_SYSTEM_PROCESSOR "amd64")
+            endif()
         # Adapt the Kylin system
         elseif (${HOST_SYSTEM_NAME} MATCHES "Kylin" AND ${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "aarch64")
             set(CMAKE_HOST_SYSTEM_PROCESSOR "arm64")
