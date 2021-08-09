@@ -559,7 +559,8 @@ enum HostRole {
     META        = 0x01,
     STORAGE     = 0x02,
     LISTENER    = 0x03,
-    UNKNOWN     = 0x04
+    DRAINER     = 0x04,
+    UNKNOWN     = 0x05
 } (cpp.enum_strict)
 
 struct LeaderInfo {
@@ -962,7 +963,7 @@ struct ListListenerDrainerResp {
     1: common.ErrorCode        code,
     // Valid if code equals E_LEADER_CHANGED.
     2: common.HostAddr         leader,
-    3: map<common.PartitionID, DrainerInfo> (cpp.template = "std::unordered_map") drainerClients;
+    3: map<common.PartitionID, common.HostAddr> (cpp.template = "std::unordered_map") drainerClients;
 }
 
 struct ListenerInfo {

@@ -248,7 +248,12 @@ bool MetaClient::loadData() {
         }
 
         if (!loadListenerDrainer(spaceId, spaceCache)) {
-            LOG(ERROR) << "Load Listeners Failed";
+            LOG(ERROR) << "Load Listeners Drainer Failed";
+            return false;
+        }
+
+        if (!loadDrainer(spaceId, spaceCache)) {
+            LOG(ERROR) << "Load Drainer Failed";
             return false;
         }
 
@@ -504,6 +509,18 @@ bool MetaClient::loadListenerDrainer(GraphSpaceID spaceId, std::shared_ptr<Space
     }
 
     cache->drainerclients_ = std::move(listenerDrainerRet.value());
+    return true;
+}
+
+bool MetaClient::loadDrainer(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCache> cache) {
+    auto drainerRet = listDrainer(spaceId).get();
+    if (!drainerRet.ok()) {
+        LOG(ERROR) << "Get drainer failed for spaceId " << spaceId
+                   << ", " << drainerRet.status();
+        return false;
+    }
+
+    cache->drainerServer_ = std::move(drainerRet.value());
     return true;
 }
 
@@ -3013,11 +3030,11 @@ MetaClient::listListener(GraphSpaceID spaceId, cpp2::ListenerType type) {
     return future;
 }
 
-folly::Future<StatusOr<std::unordered_map<PartitionID, cpp2::DrainerInfo>>>
+folly::Future<StatusOr<std::unordered_map<PartitionID, HostAddr>>>
 MetaClient::listListenerDrainer(GraphSpaceID spaceId) {
     cpp2::ListListenerDrainerReq req;
     req.set_space_id(spaceId);
-    folly::Promise<StatusOr<std::unordered_map<PartitionID, cpp2::DrainerInfo>>> promise;
+    folly::Promise<StatusOr<std::unordered_map<PartitionID, HostAddr>>> promise;
     auto future = promise.getFuture();
     getResponse(std::move(req),
                 [] (auto client, auto request) {
@@ -3645,7 +3662,7 @@ MetaClient::getServiceClientsFromCache(meta::cpp2::ServiceType type) {
     return Status::Error("Service not found!");
 }
 
-StatusOr<cpp2::DrainerInfo>
+StatusOr<HostAddr>
 MetaClient::getDrainerClientFromCache(GraphSpaceID spaceId, PartitionID partId) {
     if (!ready_) {
         return Status::Error("Not ready!");
@@ -3665,6 +3682,27 @@ MetaClient::getDrainerClientFromCache(GraphSpaceID spaceId, PartitionID partId) 
         return Status::DrainerNotFound();
     }
     return iter->second;
+}
+
+StatusOr<std::vector<cpp2::DrainerInfo>>
+MetaClient::getDrainerFromCache(GraphSpaceID spaceId) {
+    if (!ready_) {
+        return Status::Error("Not ready!");
+    }
+
+    folly::RWSpinLock::ReadHolder holder(localCacheLock_);
+    auto spaceIt = localCache_.find(spaceId);
+    if (spaceIt == localCache_.end()) {
+        VLOG(3) << "Space " << spaceId << " not found!";
+        return Status::SpaceNotFound();
+    }
+
+    auto drainers = spaceIt->second->drainerServer_;
+    if (drainers.empty()) {
+        VLOG(3) << "Space " << spaceId << " drianer not found!";
+        return Status::DrainerNotFound();
+    }
+    return drainers;
 }
 
 folly::Future<StatusOr<bool>>

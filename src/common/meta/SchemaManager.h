@@ -83,8 +83,15 @@ public:
     virtual StatusOr<std::vector<nebula::meta::cpp2::ServiceClient>>
     getServiceClients(cpp2::ServiceType type) = 0;
 
-    virtual StatusOr<nebula::meta::cpp2::DrainerInfo>
+    // TODO(pandasheep) move to new man file
+    // sync listener drainer client for master cluster
+    virtual StatusOr<HostAddr>
     getDrainerClient(GraphSpaceID space, PartitionID partId) = 0;
+
+    // TODO(pandasheep) move to new man file
+    // drainer server for slave cluster
+    virtual StatusOr<std::vector<cpp2::DrainerInfo>>
+    getDrainerServer(GraphSpaceID space) = 0;
 
     // Get the TagID or EdgeType by the name.
     // The first one is a bool which is used to distinguish the type.

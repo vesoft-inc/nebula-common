@@ -160,9 +160,18 @@ ServerBasedSchemaManager::getServiceClients(meta::cpp2::ServiceType type) {
     return std::move(ret).value();
 }
 
-StatusOr<nebula::meta::cpp2::DrainerInfo>
+StatusOr<HostAddr>
 ServerBasedSchemaManager::getDrainerClient(GraphSpaceID space, PartitionID partId) {
     auto ret = metaClient_->getDrainerClientFromCache(space, partId);
+    if (!ret.ok()) {
+        return ret.status();
+    }
+    return std::move(ret).value();
+}
+
+StatusOr<std::vector<cpp2::DrainerInfo>>
+ServerBasedSchemaManager::getDrainerServer(GraphSpaceID space) {
+    auto ret = metaClient_->getDrainerFromCache(space);
     if (!ret.ok()) {
         return ret.status();
     }

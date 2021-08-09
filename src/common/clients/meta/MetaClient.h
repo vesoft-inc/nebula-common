@@ -73,8 +73,10 @@ struct SpaceInfoCache {
     ObjectPool pool_;
     std::unordered_map<PartitionID, TermID> termOfPartition_;
 
-    // sync listener drainer client
-    std::unordered_map<PartitionID, cpp2::DrainerInfo>  drainerclients_;
+    // sync listener drainer client for master cluster
+    std::unordered_map<PartitionID, HostAddr> drainerclients_;
+    // drainer server for slave cluster
+    std::vector<cpp2::DrainerInfo>  drainerServer_;
 };
 
 using LocalCache = std::unordered_map<GraphSpaceID, std::shared_ptr<SpaceInfoCache>>;
@@ -162,7 +164,7 @@ struct MetaClientOptions {
     std::string serviceName_ = "";
     // Whether to skip the config manager
     bool skipConfig_ = false;
-    // host role(graph/meta/storage) using this client
+    // host role(graph/meta/storage/drainer) using this client
     cpp2::HostRole role_ = cpp2::HostRole::UNKNOWN;
     // gitInfoSHA of Host using this client
     std::string gitInfoSHA_{""};
@@ -408,7 +410,7 @@ public:
     folly::Future<StatusOr<std::vector<cpp2::ListenerInfo>>>
     listListener(GraphSpaceID spaceId, cpp2::ListenerType type);
 
-    folly::Future<StatusOr<std::unordered_map<PartitionID, cpp2::DrainerInfo>>>
+    folly::Future<StatusOr<std::unordered_map<PartitionID, HostAddr>>>
     listListenerDrainer(GraphSpaceID spaceId);
 
     StatusOr<std::vector<std::pair<PartitionID, cpp2::ListenerType>>>
@@ -447,8 +449,11 @@ public:
     StatusOr<std::vector<cpp2::ServiceClient>>
     getServiceClientsFromCache(meta::cpp2::ServiceType type);
 
-    StatusOr<cpp2::DrainerInfo>
+    StatusOr<HostAddr>
     getDrainerClientFromCache(GraphSpaceID spaceId, PartitionID partId);
+
+    StatusOr<std::vector<cpp2::DrainerInfo>>
+    getDrainerFromCache(GraphSpaceID spaceId);
 
     // Opeartions for fulltext index.
     folly::Future<StatusOr<bool>>
@@ -690,6 +695,8 @@ protected:
     bool loadListeners(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCache> cache);
 
     bool loadListenerDrainer(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCache> cache);
+
+    bool loadDrainer(GraphSpaceID spaceId, std::shared_ptr<SpaceInfoCache> cache);
 
     bool loadGlobalServiceClients();
 
