@@ -774,6 +774,20 @@ TEST(Value, TypeCast) {
 
         vi = Value("1.2abc").toInt();
         EXPECT_EQ(Value::kNullValue, vi);
+
+        // string representing scientific notation
+        vi = Value("1e3").toInt();
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(1000, vi.getInt());
+
+        vi = Value("5E4").toInt();
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(50000, vi.getInt());
+
+        vi = Value("1.5E3").toInt();
+        EXPECT_EQ(Value::Type::INT, vi.type());
+        EXPECT_EQ(1500, vi.getInt());
+    }
     }
 }
 
