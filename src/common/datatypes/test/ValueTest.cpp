@@ -788,7 +788,6 @@ TEST(Value, TypeCast) {
         EXPECT_EQ(Value::Type::INT, vi.type());
         EXPECT_EQ(1500, vi.getInt());
     }
-    }
 }
 
 TEST(Value, Bit) {
@@ -1119,7 +1118,6 @@ TEST(Value, Ctor) {
     // std::map<std::string, std::string> tmp;
     // Value v2(&tmp);
 }
-
 }  // namespace nebula
 
 
